@@ -17,10 +17,33 @@ typedef struct _KmsConnection		KmsConnection;
 typedef struct _KmsConnectionClass	KmsConnectionClass;
 typedef struct _KmsConnectionPriv	KmsConnectionPriv;
 
-typedef enum _KmsConnectionType{
-	LOCAL,
-	RTP
+typedef enum _KmsConnectionType {
+	KMS_CONNECTION_TYPE_LOCAL,
+	KMS_CONNECTION_TYPE_RTP
 } KmsConnectionType ;
+
+/*
+typedef enum _KmsConnectionState {
+	KMS_CONNECTION_CONNECTED,
+	KMS_CONNECTION_DISCONNECTED,
+	KMS_CONNECTION_CONNECTING
+} KmsConnectionState ;
+*/
+
+typedef enum _KmsConnectionMode {
+	SENDONLY,	/** Send only */
+	RECVONLY,	/** Receive only */
+	SENDRECV,	/** Send receive*/
+	CONFERENCE,	/** Conference */
+	INACTIVE,	/** Inactive */
+	LOOPBACK,	/** Loopback */
+	CONTTEST,	/** Connection test */
+	NETWLOOP,	/** Network loop */
+	NETWTEST,	/** Network test */
+	EXTENSION	/** Extension mode */
+} KmsConnectionMode;
+
+#include "endpoint.h"
 
 struct _KmsConnection
 {
@@ -54,5 +77,18 @@ GType kms_connection_get_type (void);
  * set_mode
  * connect_to
  */
+
+gchar *kms_connection_get_id(KmsConnection *self);
+
+/*
+KmsConnectionState kms_connection_get_state(KmsConnection *self);
+*/
+
+KmsEndpoint *kms_connection_get_endpoint(KmsConnection *self);
+
+gint *kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
+								GError **err);
+
+gint *kms_connection_connect_to(KmsConnection *self, KmsConnection *other);
 
 #endif /* __KMS_CONNECTION_H__ */

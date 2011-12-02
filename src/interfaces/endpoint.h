@@ -2,7 +2,6 @@
 #define __KMS_ENDPOINT_H__
 
 #include <glib-object.h>
-#include "connection.h"
 
 /*
  * Type macros.
@@ -17,6 +16,8 @@
 typedef struct _KmsEndpoint		KmsEndpoint;
 typedef struct _KmsEndpointClass	KmsEndpointClass;
 typedef struct _KmsEndpointPriv		KmsEndpointPriv;
+
+#include "connection.h"
 
 struct _KmsEndpoint
 {
