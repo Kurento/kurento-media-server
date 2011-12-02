@@ -2,6 +2,7 @@
 #define __KMS_ENDPOINT_H__
 
 #include <glib-object.h>
+#include "connection.h"
 
 /*
  * Type macros.
@@ -51,5 +52,23 @@ GType kms_endpoint_get_type (void);
  * get_resource
 */
 
+KmsConnection *kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
+								GError **err);
+
+gchar *kms_endpoint_get_local_name(KmsEndpoint *self);
+
+/*
+ * TODO: Implement get_state method.
+KmsEndpointState *kms_endpoint_get_state(KmsEndpoint *self);
+*/
+
+gint kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn, GError **err);
+
+gint kms_endpoint_delete_all_connections(KmsEndpoint *self, GError **err);
+
+/*
+ * TODO: Implement get_resource
+KmsResource kms_endpoint_get_resource(KmsEndpoint *self, GError *err);
+*/
 
 #endif /* __KMS_ENDPOINT_H__ */

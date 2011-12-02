@@ -15,7 +15,12 @@
 
 typedef struct _KmsConnection		KmsConnection;
 typedef struct _KmsConnectionClass	KmsConnectionClass;
-typedef struct _KmsConnectionPriv		KmsConnectionPriv;
+typedef struct _KmsConnectionPriv	KmsConnectionPriv;
+
+typedef enum _KmsConnectionType{
+	LOCAL,
+	RTP
+} KmsConnectionType ;
 
 struct _KmsConnection
 {
