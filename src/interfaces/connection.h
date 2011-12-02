@@ -40,4 +40,14 @@ GType kms_connection_get_type (void);
  * Method definitions.
  */
 
+/*
+ * Minimal required methods
+ *
+ * get_id
+ * get_state
+ * get_endpoint
+ * set_mode
+ * connect_to
+ */
+
 #endif /* __KMS_CONNECTION_H__ */

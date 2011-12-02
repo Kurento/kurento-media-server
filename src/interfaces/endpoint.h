@@ -40,4 +40,16 @@ GType kms_endpoint_get_type (void);
  * Method definitions.
  */
 
+/*
+ * Minimal required methods
+ *
+ * create_connection
+ * get_local_name
+ * get_state ??
+ * delete_connection
+ * delete_all_connections
+ * get_resource
+*/
+
+
 #endif /* __KMS_ENDPOINT_H__ */
