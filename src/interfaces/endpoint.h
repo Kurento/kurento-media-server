@@ -56,7 +56,10 @@ GType kms_endpoint_get_type (void);
 KmsConnection *kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 								GError **err);
 
+/*
+ * This will be handled by a property
 gchar *kms_endpoint_get_local_name(KmsEndpoint *self);
+*/
 
 /*
  * TODO: Implement get_state method.
