@@ -20,5 +20,7 @@ int main(int argc, char **argv) {
 
 	g_print("Created ep with localname: %s\n", g_value_get_string(&val));
 
+	g_object_unref(ep);
+
 	return 0;
 }

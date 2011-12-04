@@ -60,6 +60,16 @@ endpoint_get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static void
+kms_endpoint_finalize(GObject *gobject) {
+	KmsEndpoint *self = KMS_ENDPOINT(gobject);
+
+	free_localname(self);
+
+	/* Chain up to the parent class */
+	G_OBJECT_CLASS (kms_endpoint_parent_class)->finalize(gobject);
+}
+
+static void
 kms_endpoint_class_init (KmsEndpointClass *klass) {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 	GParamSpec *pspec;
@@ -68,6 +78,7 @@ kms_endpoint_class_init (KmsEndpointClass *klass) {
 
 	gobject_class->set_property = endpoint_set_property;
 	gobject_class->get_property = endpoint_get_property;
+	gobject_class->finalize = kms_endpoint_finalize;
 
 	pspec = g_param_spec_string("localname", "Endpoint local name",
 					"Gets the endpoint local name",
@@ -80,9 +91,4 @@ static void
 kms_endpoint_init (KmsEndpoint *self) {
 	self->priv = KMS_ENDPOINT_GET_PRIVATE (self);
 	self->priv->localname = NULL;
-}
-
-static void
-kms_endpoint_finalyze(KmsEndpoint *self) {
-	free_localname(self);
 }
