@@ -1,4 +1,4 @@
-#include "endpoint.h"
+#include "kms-endpoint.h"
 #include <glib.h>
 
 int main(int argc, char **argv) {

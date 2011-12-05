@@ -1,4 +1,4 @@
-#include "endpoint.h"
+#include "kms-endpoint.h"
 #include <glib.h>
 
 #define KMS_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_ENDPOINT, KmsEndpointPriv))

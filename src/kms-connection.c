@@ -1,4 +1,4 @@
-#include "connection.h"
+#include "kms-connection.h"
 
 #define KMS_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_CONNECTION, KmsConnectionPriv))
 

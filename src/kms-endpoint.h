@@ -23,7 +23,7 @@ typedef struct _KmsEndpoint		KmsEndpoint;
 typedef struct _KmsEndpointClass	KmsEndpointClass;
 typedef struct _KmsEndpointPriv		KmsEndpointPriv;
 
-#include "connection.h"
+#include "kms-connection.h"
 
 struct _KmsEndpoint {
 	GObject parent_instance;

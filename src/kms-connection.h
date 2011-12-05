@@ -43,7 +43,7 @@ typedef enum _KmsConnectionMode {
 	EXTENSION	/** Extension mode */
 } KmsConnectionMode;
 
-#include "endpoint.h"
+#include "kms-endpoint.h"
 
 struct _KmsConnection {
 	GObject parent_instance;
