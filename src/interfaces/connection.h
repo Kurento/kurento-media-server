@@ -45,8 +45,7 @@ typedef enum _KmsConnectionMode {
 
 #include "endpoint.h"
 
-struct _KmsConnection
-{
+struct _KmsConnection {
 	GObject parent_instance;
 
 	/* instance members */
@@ -54,8 +53,7 @@ struct _KmsConnection
 	KmsConnectionPriv *priv;
 };
 
-struct _KmsConnectionClass
-{
+struct _KmsConnectionClass {
 	GObjectClass parent_class;
 
 	/* class members */

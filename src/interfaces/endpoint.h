@@ -19,8 +19,7 @@ typedef struct _KmsEndpointPriv		KmsEndpointPriv;
 
 #include "connection.h"
 
-struct _KmsEndpoint
-{
+struct _KmsEndpoint {
 	GObject parent_instance;
 
 	/* instance members */
@@ -28,8 +27,7 @@ struct _KmsEndpoint
 	KmsEndpointPriv *priv;
 };
 
-struct _KmsEndpointClass
-{
+struct _KmsEndpointClass {
 	GObjectClass parent_class;
 
 	/* class members */
@@ -53,8 +51,8 @@ GType kms_endpoint_get_type (void);
  * get_resource
 */
 
-KmsConnection *kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
-								GError **err);
+KmsConnection *kms_endpoint_create_connection(KmsEndpoint *self,
+					KmsConnectionType type, GError **err);
 
 /*
  * This will be handled by a property
