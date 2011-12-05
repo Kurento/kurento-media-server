@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-aux_source_directory("interfaces" INTERFACES)
+aux_source_directory("." INTERFACES)
 
 add_library(kmsc-endpoints ${INTERFACES})
 

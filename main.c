@@ -1,4 +1,4 @@
-#include "interfaces/endpoint.h"
+#include "endpoint.h"
 #include <glib.h>
 
 int main(int argc, char **argv) {
