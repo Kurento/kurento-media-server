@@ -13,6 +13,12 @@
 #define KMS_IS_ENDPOINT_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_ENDPOINT))
 #define KMS_ENDPOINT_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_ENDPOINT, KmsEndpointClass))
 
+#define KMS_ENDPOINT_ERROR (g_quark_from_string("KmsEndpointError"))
+
+enum {
+	KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED
+};
+
 typedef struct _KmsEndpoint		KmsEndpoint;
 typedef struct _KmsEndpointClass	KmsEndpointClass;
 typedef struct _KmsEndpointPriv		KmsEndpointPriv;
@@ -21,7 +27,6 @@ typedef struct _KmsEndpointPriv		KmsEndpointPriv;
 
 struct _KmsEndpoint {
 	GObject parent_instance;
-
 	/* instance members */
 
 	KmsEndpointPriv *priv;
@@ -29,6 +34,11 @@ struct _KmsEndpoint {
 
 struct _KmsEndpointClass {
 	GObjectClass parent_class;
+
+	/* private methods */
+
+	KmsConnection *(*create_connection) (KmsEndpoint *self, gchar *name,
+					     GError **err);
 
 	/* class members */
 };
