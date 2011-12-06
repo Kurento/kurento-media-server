@@ -6,6 +6,8 @@ struct _KmsConnectionPriv {
 	GString *name;
 };
 
+G_DEFINE_TYPE(KmsConnection, kms_connection, G_TYPE_OBJECT);
+
 static void
 kms_connection_class_init (KmsConnectionClass *klass) {
 	g_type_class_add_private (klass, sizeof (KmsConnectionPriv));
