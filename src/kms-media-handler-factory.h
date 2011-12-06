@@ -2,6 +2,8 @@
 #define __KMS_MEDIA_HANDLER_FACTORY_H__
 
 #include <glib-object.h>
+#include "kms-media-handler-sink.h"
+#include "kms-media-handler-src.h"
 
 #define KMS_TYPE_MEDIA_HANDLER_FACTORY			(kms_media_handler_factory_get_type())
 #define KMS_MEDIA_HANDLER_FACTORY(obj)			(G_TYPE_CHECK_INSTANCE_CAST((obj), KMS_TYPE_MEDIA_HANDLER_FACTORY, KmsMediaHandlerFactory))
@@ -15,9 +17,15 @@ struct _KmsMediaHandlerFactoryInterface {
 	GTypeInterface parent_iface;
 
 	/* Virtual methods */
-	/* TODO: Add methods */
+	KmsMediaHandlerSrc * (*get_src)(KmsMediaHandlerFactory *self);
+	KmsMediaHandlerSink * (*get_sink)(KmsMediaHandlerFactory *self);
 };
 
 GType kms_media_handler_factory_get_type (void);
+
+/* Interface methods */
+
+KmsMediaHandlerSrc * kms_media_handler_factory_get_src(KmsMediaHandlerFactory *self);
+KmsMediaHandlerSink kms_media_handler_factory_get_sink(KmsMediaHandlerFactory *self);
 
 #endif /* __KMS_MEDIA_HANDLER_FACTORY_H__ */

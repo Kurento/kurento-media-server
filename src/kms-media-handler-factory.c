@@ -29,9 +29,44 @@ kms_media_handler_factory_get_type(void) {
 	return iface_type;
 }
 
-// void
-// kms_media_handler_factory_get_factory(KmsMediaHandlerFactory *self) {
-// 	g_return_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY (self));
-//
-// 	KMS_MEDIA_HANDLER_FACTORY_GET_INTERFACE(self)->get_factory(self);
-// }
+KmsMediaHandlerSrc*
+kms_media_handler_manager_get_src(KmsMediaHandlerFactory *self) {
+	KmsMediaHandlerFactoryInterface *iface;
+
+	g_return_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY(self));
+
+	iface = KMS_MEDIA_HANDLER_FACTORY_GET_INTERFACE(self);
+
+	if (iface->get_src != NULL)
+		return iface->get_src(self);
+	else {
+		gchar *msg = g_strdup_printf(
+			"%s does not provide and implementation of "
+			"get_src method",
+			G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+		g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
+		g_free(msg);
+		return NULL;
+	}
+}
+
+KmsMediaHandlerSink*
+kms_media_handler_manager_get_sink(KmsMediaHandlerFactory *self) {
+	KmsMediaHandlerFactoryInterface *iface;
+
+	g_return_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY(self));
+
+	iface = KMS_MEDIA_HANDLER_FACTORY_GET_INTERFACE(self);
+
+	if (iface->get_sink != NULL)
+		return iface->get_sink(self);
+	else {
+		gchar *msg = g_strdup_printf(
+			"%s does not provide and implementation of "
+			"get_sink method",
+			G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+		g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
+		g_free(msg);
+		return NULL;
+	}
+}
