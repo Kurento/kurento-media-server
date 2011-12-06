@@ -29,9 +29,21 @@ kms_media_handler_manager_get_type(void) {
 	return iface_type;
 }
 
-void
+KmsMediaHandlerFactory*
 kms_media_handler_manager_get_factory(KmsMediaHandlerManager *self) {
+	KmsMediaHandlerManagerInterface *iface;
+
 	g_return_if_fail(KMS_IS_MEDIA_HANDLER_MANAGER (self));
 
-	KMS_MEDIA_HANDLER_MANAGER_GET_INTERFACE(self)->get_factory(self);
+	iface = KMS_MEDIA_HANDLER_MANAGER_GET_INTERFACE(self);
+
+	if (iface->get_factory != NULL)
+		KMS_MEDIA_HANDLER_MANAGER_GET_INTERFACE(self)->get_factory(self);
+	else {
+		gchar *msg = g_strdup_printf(
+				"%s does not provide and implementation of "
+				"get_factory method", G_INTERFACE_NAME(iface));
+		g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
+		g_free(msg);
+	}
 }
