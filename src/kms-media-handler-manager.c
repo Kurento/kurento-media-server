@@ -42,7 +42,8 @@ kms_media_handler_manager_get_factory(KmsMediaHandlerManager *self) {
 	else {
 		gchar *msg = g_strdup_printf(
 				"%s does not provide and implementation of "
-				"get_factory method", G_INTERFACE_NAME(iface));
+				"get_factory method",
+				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
 		g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
 		g_free(msg);
 		return NULL;
