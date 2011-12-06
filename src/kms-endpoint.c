@@ -12,6 +12,7 @@ struct _KmsEndpointPriv {
 	gulong local_count;
 	GStaticMutex mutex;
 	KmsMediaHandlerManager *manager;
+	KmsConnection *connection;
 };
 
 enum {
@@ -94,11 +95,22 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 	switch(type) {
 	case KMS_CONNECTION_TYPE_LOCAL:
 		break;
-
-	case KMS_CONNECTION_TYPE_RTP:
-		return KMS_ENDPOINT_GET_CLASS(self)->create_connection(self,
+	case KMS_CONNECTION_TYPE_RTP: {
+		KmsConnection *conn;
+		if (self->priv->connection != NULL) {
+			if (*err == NULL)
+				*err = g_error_new(KMS_ENDPOINT_ERROR,
+					KMS_ENDPOINT_ERROR_ALREADY_CREATED,
+					"Only one remote connection per enpoint"
+					" is supported.");
+			return NULL;
+		}
+		conn = KMS_ENDPOINT_GET_CLASS(self)->create_connection(self,
 								name, err);
-		break;
+		if (conn != NULL)
+			self->priv->connection = g_object_ref(conn);
+		return conn;
+	}
 	}
 }
 
@@ -130,6 +142,10 @@ kms_endpoint_dispose(GObject *gobject) {
 		self->priv->manager = NULL;
 	}
 
+	if (self->priv->connection != NULL) {
+		g_object_unref(self->priv->connection);
+		self->priv->connection = NULL;
+	}
 	UNLOCK(self);
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_endpoint_parent_class)->dispose(gobject);
@@ -184,4 +200,5 @@ kms_endpoint_init (KmsEndpoint *self) {
 	self->priv->local_count = 0;
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->manager = NULL;
+	self->priv->connection = NULL;
 }

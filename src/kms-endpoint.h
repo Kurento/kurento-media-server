@@ -16,7 +16,8 @@
 #define KMS_ENDPOINT_ERROR (g_quark_from_string("KmsEndpointError"))
 
 enum {
-	KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED
+	KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED,
+	KMS_ENDPOINT_ERROR_ALREADY_CREATED
 };
 
 typedef struct _KmsEndpoint		KmsEndpoint;
