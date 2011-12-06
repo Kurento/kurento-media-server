@@ -1,5 +1,6 @@
 #include "kms-endpoint.h"
 #include "kms-media-handler-manager.h"
+#include "kms-local-connection.h"
 #include <glib.h>
 
 #define KMS_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_ENDPOINT, KmsEndpointPriv))
@@ -13,6 +14,7 @@ struct _KmsEndpointPriv {
 	GStaticMutex mutex;
 	KmsMediaHandlerManager *manager;
 	KmsConnection *connection;
+	GSList *connections;
 };
 
 enum {
@@ -93,8 +95,29 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 	UNLOCK(self);
 
 	switch(type) {
-	case KMS_CONNECTION_TYPE_LOCAL:
-		break;
+	case KMS_CONNECTION_TYPE_LOCAL: {
+		KmsConnection *conn;
+		GSList *l;
+
+		if (self->priv->manager == NULL) {
+			if (err != NULL && *err == NULL)
+				*err = g_error_new(KMS_ENDPOINT_ERROR,
+					KMS_ENDPOINT_ERROR_ALREADY_CREATED,
+					"Local connection can not be created "
+					"because manager has not been set for "
+					"%s.", G_OBJECT_CLASS_NAME(
+						G_OBJECT_GET_CLASS(self)));
+			return NULL;
+		}
+
+		/* TODO: Assing a connection manager to handle media */
+		conn = g_object_new(KMS_TYPE_LOCAL_CONNECTION, NULL);
+		LOCK(self);
+		l = self->priv->connections;
+		self->priv->connections = g_slist_prepend(l, conn);
+		UNLOCK(self);
+		return conn;
+	}
 	case KMS_CONNECTION_TYPE_RTP: {
 		KmsConnection *conn;
 		if (self->priv->connection != NULL) {
@@ -147,6 +170,9 @@ kms_endpoint_dispose(GObject *gobject) {
 		self->priv->connection = NULL;
 	}
 	UNLOCK(self);
+
+	/* TODO: delete all connections */
+
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_endpoint_parent_class)->dispose(gobject);
 }
@@ -201,4 +227,5 @@ kms_endpoint_init (KmsEndpoint *self) {
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->manager = NULL;
 	self->priv->connection = NULL;
+	self->priv->connections = NULL;
 }
