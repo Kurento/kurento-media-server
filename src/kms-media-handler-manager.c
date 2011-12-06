@@ -38,12 +38,13 @@ kms_media_handler_manager_get_factory(KmsMediaHandlerManager *self) {
 	iface = KMS_MEDIA_HANDLER_MANAGER_GET_INTERFACE(self);
 
 	if (iface->get_factory != NULL)
-		KMS_MEDIA_HANDLER_MANAGER_GET_INTERFACE(self)->get_factory(self);
+		return iface->get_factory(self);
 	else {
 		gchar *msg = g_strdup_printf(
 				"%s does not provide and implementation of "
 				"get_factory method", G_INTERFACE_NAME(iface));
 		g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
 		g_free(msg);
+		return NULL;
 	}
 }
