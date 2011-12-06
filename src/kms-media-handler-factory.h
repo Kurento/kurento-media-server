@@ -11,8 +11,7 @@
 typedef struct _KmsMediaHandlerFactory		KmsMediaHandlerFactory; /* dummy object */
 typedef struct _KmsMediaHandlerFactoryInterface	KmsMediaHandlerFactoryInterface;
 
-struct _KmsMediaHandlerFactoryInterface
-{
+struct _KmsMediaHandlerFactoryInterface {
 	GTypeInterface parent_iface;
 
 	/* Virtual methods */
