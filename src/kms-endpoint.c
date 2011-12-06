@@ -98,7 +98,7 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 	case KMS_CONNECTION_TYPE_RTP: {
 		KmsConnection *conn;
 		if (self->priv->connection != NULL) {
-			if (*err == NULL)
+			if (err != NULL && *err == NULL)
 				*err = g_error_new(KMS_ENDPOINT_ERROR,
 					KMS_ENDPOINT_ERROR_ALREADY_CREATED,
 					"Only one remote connection per enpoint"
@@ -122,7 +122,7 @@ default_create_connection(KmsEndpoint *self, gchar* name, GError **err) {
 
 	g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
 
-	if (*err == NULL) {
+	if (err != NULL && *err == NULL) {
 		*err = g_error_new(KMS_ENDPOINT_ERROR,
 			KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED, msg);
 	}
