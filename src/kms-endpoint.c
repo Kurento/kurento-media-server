@@ -41,16 +41,20 @@ endpoint_set_property(GObject *object, guint property_id, const GValue *value,
 		/* Do nothing */
 		break;
 	case PROP_LOCALNAME:
+		LOCK(self);
 		free_localname(self);
 		self->priv->localname = g_value_dup_string(value);
+		UNLOCK(self);
 		break;
 	case PROP_MANAGER: {
 		gpointer pmanager = g_value_get_pointer(value);
+		LOCK(self);
 		if (KMS_IS_MEDIA_HANDLER_MANAGER(pmanager))
 			self->priv->manager = g_object_ref(
 					KMS_MEDIA_HANDLER_MANAGER(pmanager));
 		else
 			self->priv->manager = NULL;
+		UNLOCK(self);
 		break;
 	}
 	default:
@@ -67,7 +71,9 @@ endpoint_get_property(GObject *object, guint property_id, GValue *value,
 
 	switch (property_id) {
 		case PROP_LOCALNAME:
+			LOCK(self);
 			g_value_set_static_string(value, self->priv->localname);
+			UNLOCK(self);
 			break;
 		default:
 			/* We don't have any other property... */
@@ -118,11 +124,13 @@ static void
 kms_endpoint_dispose(GObject *gobject) {
 	KmsEndpoint *self = KMS_ENDPOINT(gobject);
 
+	LOCK(self);
 	if (self->priv->manager  != NULL) {
 		g_object_unref(self->priv->manager);
 		self->priv->manager = NULL;
 	}
 
+	UNLOCK(self);
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_endpoint_parent_class)->dispose(gobject);
 }
