@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 	g_print("Created ep with localname: %s\n", g_value_get_string(&val));
 
 	conn = kms_endpoint_create_connection(KMS_ENDPOINT(ep),
-						KMS_CONNECTION_TYPE_RTP, &err);
+					KMS_CONNECTION_TYPE_LOCAL, &err);
 
 	if (conn == NULL) {
 		g_print("Connection can not be created: %s\n", err->message);;
