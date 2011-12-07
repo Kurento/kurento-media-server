@@ -91,7 +91,8 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 	gchar *name;
 
 	LOCK(self);
-	name = g_strdup_printf("%s-%d", self->priv->local_count++);
+	name = g_strdup_printf("%s-%d", self->priv->localname,
+						self->priv->local_count++);
 	UNLOCK(self);
 
 	switch(type) {
