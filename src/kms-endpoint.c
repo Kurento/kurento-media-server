@@ -89,6 +89,7 @@ KmsConnection *
 kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 								GError **err) {
 	gchar *name;
+	KmsConnection *conn = NULL;
 
 	LOCK(self);
 	name = g_strdup_printf("%s-%d", self->priv->localname,
@@ -97,7 +98,6 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 
 	switch(type) {
 	case KMS_CONNECTION_TYPE_LOCAL: {
-		KmsConnection *conn;
 		GSList *l;
 
 		if (self->priv->manager == NULL) {
@@ -117,10 +117,9 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 		l = self->priv->connections;
 		self->priv->connections = g_slist_prepend(l, conn);
 		UNLOCK(self);
-		return conn;
+		goto end;
 	}
 	case KMS_CONNECTION_TYPE_RTP: {
-		KmsConnection *conn;
 		if (self->priv->connection != NULL) {
 			if (err != NULL && *err == NULL)
 				*err = g_error_new(KMS_ENDPOINT_ERROR,
@@ -133,9 +132,13 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 								name, err);
 		if (conn != NULL)
 			self->priv->connection = g_object_ref(conn);
-		return conn;
+		goto end;
 	}
 	}
+
+end:
+	g_free(name);
+	return conn;
 }
 
 static KmsConnection *
