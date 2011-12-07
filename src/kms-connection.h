@@ -31,16 +31,16 @@ typedef enum _KmsConnectionState {
 */
 
 typedef enum _KmsConnectionMode {
-	SENDONLY,	/** Send only */
-	RECVONLY,	/** Receive only */
-	SENDRECV,	/** Send receive*/
-	CONFERENCE,	/** Conference */
-	INACTIVE,	/** Inactive */
-	LOOPBACK,	/** Loopback */
-	CONTTEST,	/** Connection test */
-	NETWLOOP,	/** Network loop */
-	NETWTEST,	/** Network test */
-	EXTENSION	/** Extension mode */
+	KMS_CONNECTION_MODE_SENDONLY,	/** Send only */
+	KMS_CONNECTION_MODE_RECVONLY,	/** Receive only */
+	KMS_CONNECTION_MODE_SENDRECV,	/** Send receive*/
+	KMS_CONNECTION_MODE_CONFERENCE,	/** Conference */
+	KMS_CONNECTION_MODE_INACTIVE,	/** Inactive */
+	KMS_CONNECTION_MODE_LOOPBACK,	/** Loopback */
+	KMS_CONNECTION_MODE_CONTTEST,	/** Connection test */
+	KMS_CONNECTION_MODE_NETWLOOP,	/** Network loop */
+	KMS_CONNECTION_MODE_NETWTEST,	/** Network test */
+	KMS_CONNECTION_MODE_EXTENSION	/** Extension mode */
 } KmsConnectionMode;
 
 #include "kms-endpoint.h"
