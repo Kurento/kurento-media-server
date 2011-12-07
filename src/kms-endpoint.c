@@ -112,7 +112,8 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 		}
 
 		/* TODO: Assing a connection manager to handle media */
-		conn = g_object_new(KMS_TYPE_LOCAL_CONNECTION, NULL);
+		conn = g_object_new(KMS_TYPE_LOCAL_CONNECTION, "id", name,
+									NULL);
 		LOCK(self);
 		l = self->priv->connections;
 		self->priv->connections = g_slist_prepend(l, conn);
