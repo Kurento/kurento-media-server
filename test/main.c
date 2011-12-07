@@ -17,10 +17,10 @@ int main(int argc, char **argv) {
 	}
 
 	g_value_init(&val, G_TYPE_STRING);
-
 	g_object_get_property(ep, "localname", &val);
-
 	g_print("Created ep with localname: %s\n", g_value_get_string(&val));
+	g_value_unset(&val);
+
 
 	conn = kms_endpoint_create_connection(KMS_ENDPOINT(ep),
 					KMS_CONNECTION_TYPE_LOCAL, &err);
@@ -31,10 +31,11 @@ int main(int argc, char **argv) {
 		goto end;
 	}
 
+	g_value_init(&val, G_TYPE_STRING);
 	g_object_get_property(G_OBJECT(conn), "id", &val);
-
 	g_print("Created local connection with id: %s\n",
 						g_value_get_string(&val));
+	g_value_unset(&val);
 
 	if (!kms_endpoint_delete_connection(KMS_ENDPOINT(ep), conn, &err)) {
 		g_printerr("Connection can not be deleted: %s", err->message);
