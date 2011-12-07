@@ -75,7 +75,7 @@ endpoint_get_property(GObject *object, guint property_id, GValue *value,
 	switch (property_id) {
 		case PROP_LOCALNAME:
 			LOCK(self);
-			g_value_set_static_string(value, self->priv->localname);
+			g_value_set_string(value, self->priv->localname);
 			UNLOCK(self);
 			break;
 		default:
