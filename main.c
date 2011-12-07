@@ -31,6 +31,17 @@ int main(int argc, char **argv) {
 		goto end;
 	}
 
+	g_object_get_property(G_OBJECT(conn), "id", &val);
+
+	g_print("Created local connection with id: %s\n",
+						g_value_get_string(&val));
+
+	if (!kms_endpoint_delete_connection(KMS_ENDPOINT(ep), conn, &err)) {
+		g_printerr("Connection can not be deleted: %s", err->message);
+		g_error_free(err);
+		goto end;
+	}
+
 end:
 	g_object_unref(ep);
 
