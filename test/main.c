@@ -58,12 +58,14 @@ int main(int argc, char **argv) {
 		g_error_free(err);
 		goto end;
 	}
+	g_object_unref(local);
 
 	if (!kms_endpoint_delete_connection(KMS_ENDPOINT(ep), conn, &err)) {
 		g_printerr("Connection can not be deleted: %s", err->message);
 		g_error_free(err);
 		goto end;
 	}
+	g_object_unref(conn);
 
 end:
 	g_object_unref(ep);
