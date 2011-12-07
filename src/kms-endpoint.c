@@ -142,6 +142,37 @@ end:
 	return conn;
 }
 
+gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
+								GError **err) {
+	GSList *l;
+	gboolean ret;
+
+	LOCK(self);
+	l = g_slist_find(self->priv->connections, conn);
+	if (l == NULL && self->priv->connection != conn) {
+		UNLOCK(self);
+		if (err != NULL && *err == NULL)
+			*err = g_error_new(KMS_ENDPOINT_ERROR,
+					KMS_ENDPOINT_ERROR_NOT_FOUND,
+					"Connection is not available on this "
+					"endpoint.");
+		return FALSE;
+	}
+
+	if (self->priv->connection == conn)
+		self->priv->connection = NULL;
+	else
+		self->priv->connections = g_slist_remove(
+						self->priv->connections, conn);
+	UNLOCK(self);
+
+	/* TODO: notify the connection deletion with a signal*/
+	ret = kms_connection_terminate(conn, err);
+
+	g_object_unref(conn);
+	return ret;
+}
+
 static KmsConnection *
 default_create_connection(KmsEndpoint *self, gchar* name, GError **err) {
 	gchar *msg = g_strdup_printf("Class %s does not reimplement "

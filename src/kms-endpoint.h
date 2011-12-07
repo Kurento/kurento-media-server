@@ -17,7 +17,8 @@
 
 enum {
 	KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED,
-	KMS_ENDPOINT_ERROR_ALREADY_CREATED
+	KMS_ENDPOINT_ERROR_ALREADY_CREATED,
+	KMS_ENDPOINT_ERROR_NOT_FOUND
 };
 
 typedef struct _KmsEndpoint		KmsEndpoint;
@@ -75,7 +76,8 @@ gchar *kms_endpoint_get_local_name(KmsEndpoint *self);
 KmsEndpointState *kms_endpoint_get_state(KmsEndpoint *self);
 */
 
-gint kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn, GError **err);
+gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
+								GError **err);
 
 gint kms_endpoint_delete_all_connections(KmsEndpoint *self, GError **err);
 
