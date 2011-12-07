@@ -58,6 +58,18 @@ end:
 	return ret;
 }
 
+gboolean
+kms_connection_terminate(KmsConnection *self, GError **err) {
+	gboolean ret;
+
+	LOCK(self);
+	self->priv->finished = TRUE;
+	ret = do_set_mode(self, KMS_CONNECTION_MODE_INACTIVE, err);
+	UNLOCK(self);
+
+	return ret;
+}
+
 void
 kms_connection_set_property(GObject  *object, guint property_id,
 				const GValue *value, GParamSpec *pspec) {

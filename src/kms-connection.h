@@ -90,6 +90,8 @@ KmsConnectionState kms_connection_get_state(KmsConnection *self);
 
 KmsEndpoint *kms_connection_get_endpoint(KmsConnection *self);
 
+gboolean kms_connection_terminate(KmsConnection *self, GError **err);
+
 gboolean kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 								GError **err);
 
