@@ -3,10 +3,12 @@
 
 #define KMS_TEST_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_TEST_ENDPOINT, KmsTestEndpointPriv))
 
+/*
 struct _KmsTestEndpointPriv {
 };
+*/
 
-G_DEFINE_TYPE(KmsTestEndpoint, kms_test_endpoint, KMS_TYPE_ENDPOINT);
+G_DEFINE_TYPE(KmsTestEndpoint, kms_test_endpoint, KMS_TYPE_ENDPOINT)
 
 static KmsConnection*
 create_connection(KmsEndpoint *self, gchar *name, GError **err) {

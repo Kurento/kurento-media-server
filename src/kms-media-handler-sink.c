@@ -28,10 +28,3 @@ kms_media_handler_sink_get_type(void) {
 
 	return iface_type;
 }
-
-// void
-// kms_media_handler_sink_get_factory(KmsMediaHandlerSink *self) {
-// 	g_return_if_fail(KMS_IS_MEDIA_HANDLER_SINK (self));
-//
-// 	KMS_MEDIA_HANDLER_SINK_GET_INTERFACE(self)->get_factory(self);
-// }

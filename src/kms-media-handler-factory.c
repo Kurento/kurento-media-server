@@ -33,7 +33,7 @@ KmsMediaHandlerSrc*
 kms_media_handler_manager_get_src(KmsMediaHandlerFactory *self) {
 	KmsMediaHandlerFactoryInterface *iface;
 
-	g_return_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY(self));
+	g_return_val_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY(self), NULL);
 
 	iface = KMS_MEDIA_HANDLER_FACTORY_GET_INTERFACE(self);
 
@@ -54,7 +54,7 @@ KmsMediaHandlerSink*
 kms_media_handler_manager_get_sink(KmsMediaHandlerFactory *self) {
 	KmsMediaHandlerFactoryInterface *iface;
 
-	g_return_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY(self));
+	g_return_val_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY(self), NULL);
 
 	iface = KMS_MEDIA_HANDLER_FACTORY_GET_INTERFACE(self);
 

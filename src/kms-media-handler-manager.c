@@ -33,7 +33,7 @@ KmsMediaHandlerFactory*
 kms_media_handler_manager_get_factory(KmsMediaHandlerManager *self) {
 	KmsMediaHandlerManagerInterface *iface;
 
-	g_return_if_fail(KMS_IS_MEDIA_HANDLER_MANAGER (self));
+	g_return_val_if_fail(KMS_IS_MEDIA_HANDLER_MANAGER (self), NULL);
 
 	iface = KMS_MEDIA_HANDLER_MANAGER_GET_INTERFACE(self);
 

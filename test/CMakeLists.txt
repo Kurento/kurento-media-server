@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
+project(kmsc-test-endpoints-prj)
+
 add_executable(test-endpoints main.c)
 
 find_package(PkgConfig)

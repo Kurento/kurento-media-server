@@ -17,7 +17,7 @@ enum {
 	PROP_ID
 };
 
-G_DEFINE_TYPE(KmsConnection, kms_connection, G_TYPE_OBJECT);
+G_DEFINE_TYPE(KmsConnection, kms_connection, G_TYPE_OBJECT)
 
 void
 free_id(KmsConnection *self) {
@@ -30,7 +30,7 @@ free_id(KmsConnection *self) {
 static gboolean
 do_set_mode(KmsConnection *self, KmsConnectionMode mode, GError **err) {
 	/* TODO: Implement set_mode */
-	g_print("TODO: Implement set mode");
+	g_print("TODO: Implement set mode\n");
 	return TRUE;
 }
 

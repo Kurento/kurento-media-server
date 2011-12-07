@@ -6,7 +6,7 @@ struct _KmsLocalConnectionPriv {
 	GString *name;
 };
 
-G_DEFINE_TYPE(KmsLocalConnection, kms_local_connection, KMS_TYPE_CONNECTION);
+G_DEFINE_TYPE(KmsLocalConnection, kms_local_connection, KMS_TYPE_CONNECTION)
 
 static void
 kms_local_connection_class_init (KmsLocalConnectionClass *klass) {

@@ -24,7 +24,7 @@ enum {
 	PROP_MANAGER
 };
 
-G_DEFINE_TYPE(KmsEndpoint, kms_endpoint, G_TYPE_OBJECT);
+G_DEFINE_TYPE(KmsEndpoint, kms_endpoint, G_TYPE_OBJECT)
 
 void
 free_localname(KmsEndpoint *self) {
@@ -92,7 +92,7 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 	KmsConnection *conn = NULL;
 
 	LOCK(self);
-	name = g_strdup_printf("%s-%d", self->priv->localname,
+	name = g_strdup_printf("%s-%ld", self->priv->localname,
 						self->priv->local_count++);
 	UNLOCK(self);
 
