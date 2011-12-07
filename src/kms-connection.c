@@ -8,6 +8,7 @@
 struct _KmsConnectionPriv {
 	GStaticMutex mutex;
 	gchar *id;
+	gboolean finished;
 };
 
 enum {
@@ -24,6 +25,37 @@ free_id(KmsConnection *self) {
 		g_free(self->priv->id);
 		self->priv->id = NULL;
 	}
+}
+
+static gboolean
+do_set_mode(KmsConnection *self, KmsConnectionMode mode, GError **err) {
+	/* TODO: Implement set_mode */
+	g_print("TODO: Implement set mode");
+	return TRUE;
+}
+
+gboolean
+kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
+								GError **err) {
+	gboolean ret;
+	LOCK(self);
+
+	if (self->priv->finished) {
+		if (err != NULL && *err == NULL)
+			*err = g_error_new(KMS_CONNECTION_ERROR,
+					KMS_CONNECTION_ERROR_TERMINATED,
+					"LocalConnection %s has been "
+					"terminated and cannot be used.",
+					self->priv->id);
+		ret = FALSE;
+		goto end;
+	}
+
+	ret = do_set_mode(self, mode, err);
+
+end:
+	UNLOCK(self);
+	return ret;
 }
 
 void
@@ -104,4 +136,5 @@ kms_connection_init(KmsConnection *self) {
 
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->id = NULL;
+	self->priv->finished = FALSE;
 }

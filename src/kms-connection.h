@@ -17,6 +17,12 @@ typedef struct _KmsConnection		KmsConnection;
 typedef struct _KmsConnectionClass	KmsConnectionClass;
 typedef struct _KmsConnectionPriv	KmsConnectionPriv;
 
+#define KMS_CONNECTION_ERROR (g_quark_from_string("KmsConnectionError"))
+
+enum {
+	KMS_CONNECTION_ERROR_TERMINATED
+};
+
 typedef enum _KmsConnectionType {
 	KMS_CONNECTION_TYPE_LOCAL,
 	KMS_CONNECTION_TYPE_RTP
@@ -84,7 +90,7 @@ KmsConnectionState kms_connection_get_state(KmsConnection *self);
 
 KmsEndpoint *kms_connection_get_endpoint(KmsConnection *self);
 
-gint *kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
+gboolean kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 								GError **err);
 
 gint *kms_connection_connect_to(KmsConnection *self, KmsConnection *other);
