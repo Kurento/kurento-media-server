@@ -6,12 +6,8 @@ find_package(PkgConfig)
 
 add_subdirectory(src)
 
-add_executable(test-endpoints main.c)
+add_subdirectory(test)
 
-pkg_check_modules(GLIB2 REQUIRED glib-2.0)
-include_directories(test-endpoints ${GLIB2_INCLUDE_DIRS})
-target_link_libraries(test-endpoints ${GLIB2_LIBRARIES})
+enable_testing()
 
-include_directories(test-endpoints "src")
-
-target_link_libraries(test-endpoints kmsc-endpoints)
+add_test(test-endpoints1 test/test-endpoints)
