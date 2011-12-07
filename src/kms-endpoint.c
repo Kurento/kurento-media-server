@@ -116,7 +116,7 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 									NULL);
 		LOCK(self);
 		l = self->priv->connections;
-		self->priv->connections = g_slist_prepend(l, conn);
+		self->priv->connections = g_slist_prepend(l, g_object_ref(conn));
 		UNLOCK(self);
 		goto end;
 	}
