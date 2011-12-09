@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(kmsc-test-endpoints-prj)
-
 add_executable(test-endpoints main.c)
 
 find_package(PkgConfig)
@@ -14,9 +12,9 @@ pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.35)
 include_directories(test-endpoints ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(test-endpoints ${GSTREAMER_LIBRARIES})
 
-target_link_libraries(test-endpoints kmsc-endpoints kmsc-test-endpoints)
+target_link_libraries(test-endpoints kmsc-test-endpoints)
 
-include_directories(test-endpoints ${kmsc-endpoints_SOURCE_DIR}/src)
+include_directories(test-endpoints ${kmsc-endpoints_SOURCE_DIR}/src/core)
 include_directories(test-endpoints kmsc-test-endpoints)
 
 add_subdirectory(kmsc-test-endpoints)
