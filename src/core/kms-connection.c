@@ -9,12 +9,14 @@ struct _KmsConnectionPriv {
 	GStaticMutex mutex;
 	gchar *id;
 	gboolean finished;
+	KmsEndpoint *endpoint;
 };
 
 enum {
 	PROP_0,
 
-	PROP_ID
+	PROP_ID,
+	PROP_ENDPOINT
 };
 
 G_DEFINE_TYPE(KmsConnection, kms_connection, G_TYPE_OBJECT)
@@ -24,6 +26,14 @@ free_id(KmsConnection *self) {
 	if (self->priv->id != NULL) {
 		g_free(self->priv->id);
 		self->priv->id = NULL;
+	}
+}
+
+static void
+dispose_endpoint(KmsConnection *self) {
+	if (self->priv->endpoint != NULL) {
+		g_object_unref(self->priv->endpoint);
+		self->priv->endpoint = NULL;
 	}
 }
 
@@ -85,6 +95,17 @@ kms_connection_set_property(GObject  *object, guint property_id,
 			self->priv->id = g_value_dup_string(value);
 			UNLOCK(self);
 			break;
+		case PROP_ENDPOINT: {
+			gpointer pmanager = g_value_get_pointer(value);
+			LOCK(self);
+			dispose_endpoint(self);
+			if (KMS_IS_ENDPOINT(pmanager))
+				self->priv->endpoint = g_object_ref(KMS_ENDPOINT(pmanager));
+			else
+				self->priv->endpoint = NULL;
+			UNLOCK(self);
+			break;
+		}
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -103,6 +124,11 @@ kms_connection_get_property(GObject *object, guint property_id, GValue *value,
 			g_value_set_string(value, self->priv->id);
 			UNLOCK(self);
 			break;
+		case PROP_ENDPOINT:
+			LOCK(self);
+			g_value_set_pointer(value, self->priv->endpoint);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -112,6 +138,11 @@ kms_connection_get_property(GObject *object, guint property_id, GValue *value,
 
 void
 kms_connection_dispose(GObject *object) {
+	KmsConnection *self = KMS_CONNECTION(object);
+
+	LOCK(self);
+	dispose_endpoint(self);
+	UNLOCK(self);
 }
 
 void
@@ -140,6 +171,12 @@ kms_connection_class_init(KmsConnectionClass *klass) {
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_ID, pspec);
+
+	pspec = g_param_spec_pointer("endpoint", "Connection endpoint",
+				"The endpoint the connection belongs to",
+				G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+	g_object_class_install_property(gobject_class, PROP_ENDPOINT, pspec);
 }
 
 static void
@@ -149,4 +186,5 @@ kms_connection_init(KmsConnection *self) {
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->id = NULL;
 	self->priv->finished = FALSE;
+	self->priv->endpoint = NULL;
 }
