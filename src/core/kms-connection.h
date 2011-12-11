@@ -82,13 +82,19 @@ GType kms_connection_get_type (void);
  * connect_to
  */
 
+/*
+ * Moved to a property
 gchar *kms_connection_get_id(KmsConnection *self);
+*/
 
 /*
 KmsConnectionState kms_connection_get_state(KmsConnection *self);
 */
 
+/*
+ * Moved to a property
 KmsEndpoint *kms_connection_get_endpoint(KmsConnection *self);
+*/
 
 gboolean kms_connection_terminate(KmsConnection *self, GError **err);
 
