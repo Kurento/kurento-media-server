@@ -34,6 +34,14 @@ free_localname(KmsEndpoint *self) {
 	}
 }
 
+static void
+dispose_manager(KmsEndpoint *self) {
+	if (self->priv->manager != NULL) {
+		g_object_unref(self->priv->manager);
+		self->priv->manager = NULL;
+	}
+}
+
 void
 endpoint_set_property(GObject *object, guint property_id, const GValue *value,
 							GParamSpec *pspec) {
@@ -52,6 +60,7 @@ endpoint_set_property(GObject *object, guint property_id, const GValue *value,
 	case PROP_MANAGER: {
 		gpointer pmanager = g_value_get_pointer(value);
 		LOCK(self);
+		dispose_manager(self);
 		if (KMS_IS_MEDIA_HANDLER_MANAGER(pmanager))
 			self->priv->manager = g_object_ref(
 					KMS_MEDIA_HANDLER_MANAGER(pmanager));
@@ -196,10 +205,7 @@ kms_endpoint_dispose(GObject *gobject) {
 	KmsEndpoint *self = KMS_ENDPOINT(gobject);
 
 	LOCK(self);
-	if (self->priv->manager  != NULL) {
-		g_object_unref(self->priv->manager);
-		self->priv->manager = NULL;
-	}
+	dispose_manager(self);
 
 	if (self->priv->connection != NULL) {
 		g_object_unref(self->priv->connection);
