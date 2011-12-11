@@ -26,7 +26,7 @@ enum {
 
 G_DEFINE_TYPE(KmsEndpoint, kms_endpoint, G_TYPE_OBJECT)
 
-void
+static void
 free_localname(KmsEndpoint *self) {
 	if (self->priv->localname != NULL) {
 		g_free(self->priv->localname);

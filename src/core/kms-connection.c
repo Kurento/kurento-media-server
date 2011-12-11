@@ -19,7 +19,7 @@ enum {
 
 G_DEFINE_TYPE(KmsConnection, kms_connection, G_TYPE_OBJECT)
 
-void
+static void
 free_id(KmsConnection *self) {
 	if (self->priv->id != NULL) {
 		g_free(self->priv->id);
