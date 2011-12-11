@@ -14,7 +14,8 @@ static KmsConnection*
 create_connection(KmsEndpoint *self, gchar *name, GError **err) {
 	KmsConnection *conn;
 
-	conn = g_object_new(KMS_TYPE_TEST_CONNECTION, "id", name, NULL);
+	conn = g_object_new(KMS_TYPE_TEST_CONNECTION, "id", name,
+						"endpoint", self, NULL);
 
 	g_object_set(G_OBJECT(self), "manager", conn, NULL);
 	return conn;

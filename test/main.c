@@ -38,6 +38,12 @@ int main(int argc, char **argv) {
 						g_value_get_string(&val));
 	g_value_unset(&val);
 
+	g_value_init(&val, G_TYPE_POINTER);
+	g_object_get_property(G_OBJECT(conn), "endpoint", &val);
+	g_print("Connection endpoint: %p - %p\n", g_value_get_pointer(&val),
+		(gpointer) ep);
+	g_value_unset(&val);
+
 	local = kms_endpoint_create_connection(KMS_ENDPOINT(ep),
 					      KMS_CONNECTION_TYPE_LOCAL, &err);
 
@@ -51,6 +57,12 @@ int main(int argc, char **argv) {
 	g_object_get_property(G_OBJECT(local), "id", &val);
 	g_print("Created local connection with id: %s\n",
 		g_value_get_string(&val));
+	g_value_unset(&val);
+
+	g_value_init(&val, G_TYPE_POINTER);
+	g_object_get_property(G_OBJECT(local), "endpoint", &val);
+	g_print("Local endpoint: %p - %p\n", g_value_get_pointer(&val),
+								(gpointer) ep);
 	g_value_unset(&val);
 
 	if (!kms_endpoint_delete_connection(KMS_ENDPOINT(ep), local, &err)) {
