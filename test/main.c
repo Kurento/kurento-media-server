@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
 						g_value_get_string(&val));
 	g_value_unset(&val);
 
-	g_value_init(&val, G_TYPE_POINTER);
+	g_value_init(&val, G_TYPE_OBJECT);
 	g_object_get_property(G_OBJECT(conn), "endpoint", &val);
-	g_print("Connection endpoint: %p - %p\n", g_value_get_pointer(&val),
+	g_print("Connection endpoint: %p - %p\n", g_value_get_object(&val),
 		(gpointer) ep);
 	g_value_unset(&val);
 
@@ -59,9 +59,9 @@ int main(int argc, char **argv) {
 		g_value_get_string(&val));
 	g_value_unset(&val);
 
-	g_value_init(&val, G_TYPE_POINTER);
+	g_value_init(&val, KMS_TYPE_ENDPOINT);
 	g_object_get_property(G_OBJECT(local), "endpoint", &val);
-	g_print("Local endpoint: %p - %p\n", g_value_get_pointer(&val),
+	g_print("Local endpoint: %p - %p\n", g_value_get_object(&val),
 								(gpointer) ep);
 	g_value_unset(&val);
 

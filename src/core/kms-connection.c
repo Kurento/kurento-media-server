@@ -96,7 +96,7 @@ kms_connection_set_property(GObject  *object, guint property_id,
 			UNLOCK(self);
 			break;
 		case PROP_ENDPOINT: {
-			gpointer pmanager = g_value_get_pointer(value);
+			gpointer pmanager = g_value_get_object(value);
 			LOCK(self);
 			dispose_endpoint(self);
 			if (KMS_IS_ENDPOINT(pmanager))
@@ -126,7 +126,7 @@ kms_connection_get_property(GObject *object, guint property_id, GValue *value,
 			break;
 		case PROP_ENDPOINT:
 			LOCK(self);
-			g_value_set_pointer(value, self->priv->endpoint);
+			g_value_set_object(value, self->priv->endpoint);
 			UNLOCK(self);
 			break;
 		default:
@@ -172,8 +172,9 @@ kms_connection_class_init(KmsConnectionClass *klass) {
 
 	g_object_class_install_property(gobject_class, PROP_ID, pspec);
 
-	pspec = g_param_spec_pointer("endpoint", "Connection endpoint",
+	pspec = g_param_spec_object("endpoint", "Connection endpoint",
 				"The endpoint the connection belongs to",
+				KMS_TYPE_ENDPOINT,
 				G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_ENDPOINT, pspec);
