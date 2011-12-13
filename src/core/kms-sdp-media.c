@@ -109,12 +109,27 @@ kms_sdp_media_get_property(GObject *object, guint property_id, GValue *value,
 	switch (property_id) {
 		case PROP_TYPE:
 			LOCK(self);
-			g_value_set_int(value, self->priv->type);
+			g_value_set_enum(value, self->priv->type);
 			UNLOCK(self);
 			break;
 		case PROP_PORT:
 			LOCK(self);
 			g_value_set_int(value, self->priv->port);
+			UNLOCK(self);
+			break;
+		case PROP_BANDWIDTH:
+			LOCK(self);
+			g_value_set_long(value, self->priv->bandwidth);
+			UNLOCK(self);
+			break;
+		case PROP_MODE:
+			LOCK(self);
+			g_value_set_enum(value, self->priv->mode);
+			UNLOCK(self);
+			break;
+		case PROP_PAYLOADS:
+			LOCK(self);
+			g_value_set_boxed(value, self->priv->payloads);
 			UNLOCK(self);
 			break;
 		case PROP_SESSION:
