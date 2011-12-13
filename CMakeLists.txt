@@ -11,3 +11,4 @@ add_subdirectory(test)
 enable_testing()
 
 add_test(test-endpoints1 test/test-endpoints)
+add_test(test_sdp test/test_sdp)
