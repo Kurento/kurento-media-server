@@ -1,4 +1,5 @@
 #include "kms-payload.h"
+#include "kms-sdp-media.h"
 
 #define KMS_PAYLOAD_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_PAYLOAD, KmsPayloadPriv))
 
@@ -10,9 +11,7 @@ struct _KmsPayloadPriv {
 	gchar *name;
 	gint clockrate;
 	gint payload;
-	/*
-	 * KmsMediaSpec *mediaSpec;
-	 */
+	KmsSdpMedia *media;
 
 };
 
@@ -21,7 +20,8 @@ enum {
 
 	PROP_PAYLOAD,
 	PROP_NAME,
-	PROP_CLOCKRATE
+	PROP_CLOCKRATE,
+	PROP_MEDIA
 };
 
 G_DEFINE_TYPE(KmsPayload, kms_payload, G_TYPE_OBJECT)
@@ -31,6 +31,14 @@ free_name(KmsPayload *self) {
 	if (self->priv->name != NULL) {
 		g_free(self->priv->name);
 		self->priv->name = NULL;
+	}
+}
+
+static void
+dispose_media(KmsPayload *self) {
+	if (self->priv->media != NULL) {
+		g_object_unref(G_OBJECT(self->priv->media));
+		self->priv->media = NULL;
 	}
 }
 
@@ -59,6 +67,12 @@ kms_payload_set_property(GObject  *object, guint property_id,
 			self->priv->payload = g_value_get_int(value);
 			UNLOCK(self);
 			break;
+		case PROP_MEDIA:
+			LOCK(self);
+			dispose_media(self);
+			self->priv->media = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -85,6 +99,11 @@ kms_payload_get_property(GObject *object, guint property_id, GValue *value,
 		case PROP_PAYLOAD:
 			LOCK(self);
 			g_value_set_int(value, self->priv->payload);
+			UNLOCK(self);
+			break;
+		case PROP_MEDIA:
+			LOCK(self);
+			g_value_set_object(value, self->priv->media);
 			UNLOCK(self);
 			break;
 		default:
@@ -145,6 +164,13 @@ kms_payload_class_init(KmsPayloadClass *klass) {
 			  G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_CLOCKRATE, pspec);
+
+	pspec = g_param_spec_object("media", "Media",
+				"Media description that this payload belongs to",
+				KMS_TYPE_SDP_MEDIA,
+				G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+	g_object_class_install_property(gobject_class, PROP_MEDIA, pspec);
 }
 
 static void
@@ -155,4 +181,5 @@ kms_payload_init(KmsPayload *self) {
 	self->priv->name = NULL;
 	self->priv->clockrate = 0;
 	self->priv->payload = 0;
+	self->priv->media = NULL;
 }
