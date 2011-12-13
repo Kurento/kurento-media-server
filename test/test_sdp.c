@@ -7,6 +7,8 @@
 #include <mcheck.h>
 
 #define N_PAYS 10
+#define N_MEDIAS 4
+
 #define PAYLOAD(i) (i % 128)
 #define CLOCKRATE(i) ((i * 10) % G_MAXUSHORT)
 
@@ -90,16 +92,64 @@ check_payload(GValueArray *payloads, KmsSdpMedia *media, gint i) {
 	g_object_unref(media_aux);
 }
 
-gint
-main(gint argc, gchar **argv) {
-	KmsSdpMedia *media;
+static GValueArray*
+create_medias() {
 	GValueArray *payloads;
-
+	GValueArray *medias;
+	gint i;
 	gint port = 1234;
 	KmsMediaType type = KMS_MEDIA_TYPE_AUDIO;
 	KmsSdpMode mode = KMS_SDP_MODE_SENDRECV;
 	glong bandwidth = 90000;
 
+	medias = g_value_array_new(N_MEDIAS);
+
+	for (i = 0; i < N_MEDIAS; i++) {
+		KmsSdpMedia *media;
+		GValue vmedia = G_VALUE_INIT;
+
+		payloads = create_payloads();
+
+		media = g_object_new(KMS_TYPE_SDP_MEDIA, "port", port,
+						"bandwidth", bandwidth,
+						"mode", mode,
+						"type", type,
+						"payloads", payloads,
+						NULL);
+
+		g_value_init(&vmedia, KMS_TYPE_SDP_MEDIA);
+		g_value_take_object(&vmedia, media);
+		g_value_array_append(medias, &vmedia);
+		g_value_unset(&vmedia);
+
+		g_value_array_free(payloads);
+	}
+
+	return medias;
+}
+
+static void
+check_medias(GValueArray *medias, gint ii) {
+	GValueArray *payloads;
+	GValue *val;
+	KmsSdpMedia *media;
+	gint i;
+
+	val = g_value_array_get_nth(medias, ii);
+	media = g_value_get_object(val);
+
+	g_object_get(media, "payloads", &payloads, NULL);
+
+	for (i = 0; i < payloads->n_values; i++ ) {
+		check_payload(payloads, media, i);
+	}
+
+	/* TODO: Check other attributes */
+}
+
+gint
+main(gint argc, gchar **argv) {
+	GValueArray *medias;
 	gint i;
 
 	g_type_init();
@@ -110,22 +160,13 @@ main(gint argc, gchar **argv) {
 	do {
 	*/
 
-	payloads = create_payloads();
+	medias = create_medias();
 
-	media = g_object_new(KMS_TYPE_SDP_MEDIA, "port", port,
-						"bandwidth", bandwidth,
-						"mode", mode,
-						"type", type,
-						"payloads", payloads,
-						NULL);
-
-	for (i = 0; i < payloads->n_values; i++ ) {
-		check_payload(payloads, media, i);
+	for (i = 0; i < medias->n_values; i++ ) {
+		check_medias(medias, i);
 	}
 
-	g_value_array_free(payloads);
-
-	g_object_unref(media);
+	g_value_array_free(medias);
 
 	/*
 	}while(g_print("loop\n"),sleep(1),1);
