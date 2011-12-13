@@ -168,7 +168,7 @@ kms_sdp_payload_class_init(KmsSdpPayloadClass *klass) {
 	pspec = g_param_spec_object("media", "Media",
 				"Media description that this payload belongs to",
 				KMS_TYPE_SDP_MEDIA,
-				G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+				G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_MEDIA, pspec);
 }
