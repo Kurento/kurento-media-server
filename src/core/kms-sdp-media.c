@@ -68,14 +68,17 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 			self->priv->mode = g_value_get_enum(value);
 			UNLOCK(self);
 			break;
-		case PROP_PAYLOADS: {
-			GValueArray *va = g_value_get_boxed(value);
+		case PROP_PAYLOADS:{
+			GValueArray *va;
 			gint i;
+
+			va = g_value_get_boxed(value);
+			if (va == NULL)
+				break;
 
 			LOCK(self);
 			free_payloads(self);
-			if (va != NULL)
-				self->priv->payloads = g_value_array_copy(va);
+			self->priv->payloads = g_value_array_copy(va);
 
 			for (i=0; i < self->priv->payloads->n_values; i++) {
 				GValue *v;
@@ -83,6 +86,8 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 
 				v = g_value_array_get_nth(va, i);
 				pay = g_value_get_object(v);
+				if (pay == NULL)
+					continue;
 				g_object_set(pay, "media", self, NULL);
 			}
 
@@ -201,7 +206,7 @@ kms_sdp_media_class_init(KmsSdpMediaClass *klass) {
 				0L, G_MAXLONG, 0,
 				G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
-	g_object_class_install_property(gobject_class, PROP_TYPE, pspec);
+	g_object_class_install_property(gobject_class, PROP_BANDWIDTH, pspec);
 
 	payload = g_param_spec_object("payload", "Payload",
 					"A supported media format",
