@@ -95,17 +95,12 @@ kms_connection_set_property(GObject  *object, guint property_id,
 			self->priv->id = g_value_dup_string(value);
 			UNLOCK(self);
 			break;
-		case PROP_ENDPOINT: {
-			gpointer pmanager = g_value_get_object(value);
+		case PROP_ENDPOINT:
 			LOCK(self);
 			dispose_endpoint(self);
-			if (KMS_IS_ENDPOINT(pmanager))
-				self->priv->endpoint = g_object_ref(KMS_ENDPOINT(pmanager));
-			else
-				self->priv->endpoint = NULL;
+			self->priv->endpoint = g_value_dup_object(value);
 			UNLOCK(self);
 			break;
-		}
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
