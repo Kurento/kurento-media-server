@@ -143,6 +143,9 @@ kms_connection_dispose(GObject *object) {
 	LOCK(self);
 	dispose_endpoint(self);
 	UNLOCK(self);
+
+	/* Chain up to the parent class */
+	G_OBJECT_CLASS (kms_connection_parent_class)->dispose(object);
 }
 
 void
@@ -151,6 +154,9 @@ kms_connection_finalize(GObject *object) {
 
 	free_id(self);
 	g_static_mutex_free(&(self->priv->mutex));
+
+	/* Chain up to the parent class */
+	G_OBJECT_CLASS (kms_connection_parent_class)->finalize(object);
 }
 
 static void

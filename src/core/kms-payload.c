@@ -96,6 +96,10 @@ kms_payload_get_property(GObject *object, guint property_id, GValue *value,
 
 void
 kms_payload_dispose(GObject *object) {
+	dispose_media(KMS_PAYLOAD(object));
+
+	/* Chain up to the parent class */
+	G_OBJECT_CLASS (kms_payload_parent_class)->dispose(object);
 }
 
 void
@@ -104,6 +108,9 @@ kms_payload_finalize(GObject *object) {
 
 	free_name(self);
 	g_static_mutex_free(&(self->priv->mutex));
+
+	/* Chain up to the parent class */
+	G_OBJECT_CLASS (kms_payload_parent_class)->finalize(object);
 }
 
 static void
