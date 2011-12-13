@@ -1,12 +1,12 @@
-#include "kms-payload.h"
+#include "kms-sdp-payload.h"
 #include "kms-sdp-media.h"
 
-#define KMS_PAYLOAD_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_PAYLOAD, KmsPayloadPriv))
+#define KMS_SDP_PAYLOAD_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_SDP_PAYLOAD, KmsSdpPayloadPriv))
 
-#define LOCK(obj) (g_static_mutex_lock(&(KMS_PAYLOAD(obj)->priv->mutex)))
-#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_PAYLOAD(obj)->priv->mutex)))
+#define LOCK(obj) (g_static_mutex_lock(&(KMS_SDP_PAYLOAD(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_SDP_PAYLOAD(obj)->priv->mutex)))
 
-struct _KmsPayloadPriv {
+struct _KmsSdpPayloadPriv {
 	GStaticMutex mutex;
 	gchar *name;
 	gint clockrate;
@@ -24,10 +24,10 @@ enum {
 	PROP_MEDIA
 };
 
-G_DEFINE_TYPE(KmsPayload, kms_payload, G_TYPE_OBJECT)
+G_DEFINE_TYPE(KmsSdpPayload, kms_sdp_payload, G_TYPE_OBJECT)
 
 static void
-free_name(KmsPayload *self) {
+free_name(KmsSdpPayload *self) {
 	if (self->priv->name != NULL) {
 		g_free(self->priv->name);
 		self->priv->name = NULL;
@@ -35,7 +35,7 @@ free_name(KmsPayload *self) {
 }
 
 static void
-dispose_media(KmsPayload *self) {
+dispose_media(KmsSdpPayload *self) {
 	if (self->priv->media != NULL) {
 		g_object_unref(G_OBJECT(self->priv->media));
 		self->priv->media = NULL;
@@ -43,9 +43,9 @@ dispose_media(KmsPayload *self) {
 }
 
 static void
-kms_payload_set_property(GObject  *object, guint property_id,
+kms_sdp_payload_set_property(GObject  *object, guint property_id,
 				const GValue *value, GParamSpec *pspec) {
-	KmsPayload *self = KMS_PAYLOAD(object);
+	KmsSdpPayload *self = KMS_SDP_PAYLOAD(object);
 
 	switch (property_id) {
 		case PROP_0:
@@ -81,9 +81,9 @@ kms_payload_set_property(GObject  *object, guint property_id,
 }
 
 static void
-kms_payload_get_property(GObject *object, guint property_id, GValue *value,
+kms_sdp_payload_get_property(GObject *object, guint property_id, GValue *value,
 							GParamSpec *pspec) {
-	KmsPayload *self = KMS_PAYLOAD(object);
+	KmsSdpPayload *self = KMS_SDP_PAYLOAD(object);
 
 	switch (property_id) {
 		case PROP_NAME:
@@ -114,35 +114,35 @@ kms_payload_get_property(GObject *object, guint property_id, GValue *value,
 }
 
 void
-kms_payload_dispose(GObject *object) {
-	dispose_media(KMS_PAYLOAD(object));
+kms_sdp_payload_dispose(GObject *object) {
+	dispose_media(KMS_SDP_PAYLOAD(object));
 
 	/* Chain up to the parent class */
-	G_OBJECT_CLASS (kms_payload_parent_class)->dispose(object);
+	G_OBJECT_CLASS (kms_sdp_payload_parent_class)->dispose(object);
 }
 
 void
-kms_payload_finalize(GObject *object) {
-	KmsPayload *self = KMS_PAYLOAD(object);
+kms_sdp_payload_finalize(GObject *object) {
+	KmsSdpPayload *self = KMS_SDP_PAYLOAD(object);
 
 	free_name(self);
 	g_static_mutex_free(&(self->priv->mutex));
 
 	/* Chain up to the parent class */
-	G_OBJECT_CLASS (kms_payload_parent_class)->finalize(object);
+	G_OBJECT_CLASS (kms_sdp_payload_parent_class)->finalize(object);
 }
 
 static void
-kms_payload_class_init(KmsPayloadClass *klass) {
+kms_sdp_payload_class_init(KmsSdpPayloadClass *klass) {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 	GParamSpec *pspec;
 
-	g_type_class_add_private(klass, sizeof (KmsPayloadPriv));
+	g_type_class_add_private(klass, sizeof (KmsSdpPayloadPriv));
 
-	gobject_class->set_property = kms_payload_set_property;
-	gobject_class->get_property = kms_payload_get_property;
-	gobject_class->dispose = kms_payload_dispose;
-	gobject_class->finalize = kms_payload_finalize;
+	gobject_class->set_property = kms_sdp_payload_set_property;
+	gobject_class->get_property = kms_sdp_payload_get_property;
+	gobject_class->dispose = kms_sdp_payload_dispose;
+	gobject_class->finalize = kms_sdp_payload_finalize;
 
 	pspec = g_param_spec_string("name", "Encoding name",
 					"The name of the coded to use",
@@ -174,8 +174,8 @@ kms_payload_class_init(KmsPayloadClass *klass) {
 }
 
 static void
-kms_payload_init(KmsPayload *self) {
-	self->priv = KMS_PAYLOAD_GET_PRIVATE (self);
+kms_sdp_payload_init(KmsSdpPayload *self) {
+	self->priv = KMS_SDP_PAYLOAD_GET_PRIVATE (self);
 
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->name = NULL;

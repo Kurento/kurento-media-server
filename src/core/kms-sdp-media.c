@@ -1,6 +1,6 @@
 #include "kms-sdp-media.h"
 #include "kms-enums.h"
-#include "kms-payload.h"
+#include "kms-sdp-payload.h"
 
 #define KMS_SDP_MEDIA_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_SDP_MEDIA, KmsSdpMediaPriv))
 
@@ -73,9 +73,10 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 			free_payloads(self);
 			if (va != NULL)
 				self->priv->payloads = g_value_array_copy(va);
+
 			for (i=0; i < self->priv->payloads->n_values; i++) {
 				GValue *v;
-				KmsPayload *pay;
+				KmsSdpPayload *pay;
 
 				v = g_value_array_get_nth(va, i);
 				pay = g_value_get_object(v);
@@ -176,7 +177,7 @@ kms_sdp_media_class_init(KmsSdpMediaClass *klass) {
 
 	payload = g_param_spec_object("payload", "Payload",
 					"A supported media format",
-					KMS_TYPE_PAYLOAD,
+					KMS_TYPE_SDP_PAYLOAD,
 					G_PARAM_READWRITE);
 
 	pspec = g_param_spec_value_array("payloads", "Payloads",
