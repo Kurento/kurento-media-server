@@ -1,6 +1,7 @@
 #include "kms-sdp-media.h"
 #include "kms-enums.h"
 #include "kms-sdp-payload.h"
+#include "kms-sdp-session.h"
 
 #define KMS_SDP_MEDIA_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_SDP_MEDIA, KmsSdpMediaPriv))
 
@@ -14,6 +15,7 @@ struct _KmsSdpMediaPriv {
 	KmsSdpMode mode;
 	glong bandwidth;
 	GValueArray *payloads;
+	KmsSdpSession *session;
 };
 
 enum {
@@ -23,7 +25,8 @@ enum {
 	PROP_TYPE,
 	PROP_BANDWIDTH,
 	PROP_MODE,
-	PROP_PAYLOADS
+	PROP_PAYLOADS,
+	PROP_SESSION
 };
 
 G_DEFINE_TYPE(KmsSdpMedia, kms_sdp_media, G_TYPE_OBJECT)
@@ -86,6 +89,11 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 			UNLOCK(self);
 			break;
 		}
+		case PROP_SESSION:
+			LOCK(self);
+			self->priv->session = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -107,6 +115,11 @@ kms_sdp_media_get_property(GObject *object, guint property_id, GValue *value,
 		case PROP_PORT:
 			LOCK(self);
 			g_value_set_int(value, self->priv->port);
+			UNLOCK(self);
+			break;
+		case PROP_SESSION:
+			LOCK(self);
+			g_value_set_object(value, self->priv->session);
 			UNLOCK(self);
 			break;
 		default:
