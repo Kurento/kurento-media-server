@@ -14,6 +14,6 @@ pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.35)
 include_directories(kmsc-test-endpoints ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(kmsc-test-endpoints ${GSTREAMER_LIBRARIES})
 
-target_link_libraries(kmsc-test-endpoints kmsc-core)
+target_link_libraries(kmsc-test-endpoints kmsclib)
 
 include_directories(test-endpoints ${kmsc-endpoints_SOURCE_DIR}/src/core)

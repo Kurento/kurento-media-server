@@ -18,7 +18,7 @@ target_link_libraries(test-endpoints kmsc-test-endpoints)
 include_directories(test-endpoints ${kmsc-endpoints_SOURCE_DIR}/src/core)
 include_directories(test-endpoints kmsc-test-endpoints)
 
-target_link_libraries(test_sdp kmsc-core)
+target_link_libraries(test_sdp kmsclib)
 
 include_directories(test_sdp ${kmsc-endpoints_SOURCE_DIR}/src/core)
 
