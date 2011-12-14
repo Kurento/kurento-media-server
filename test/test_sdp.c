@@ -10,7 +10,12 @@
 #define N_MEDIAS 4
 
 #define PAYLOAD(i) (i % 128)
-#define CLOCKRATE(i) ((i * 10) % G_MAXUSHORT)
+#define CLOCKRATE(i) ((i * 10) % G_MAXINT)
+
+#define PORT(i) ((i * 17) % G_MAXUSHORT)
+#define TYPE(i) (i / (KMS_MEDIA_TYPE_VIDEO + 1))
+#define MODE(i) (i / (KMS_SDP_MODE_INACTIVE + 1))
+#define BANDWIDTH(i) ((i * 121) % G_MAXLONG)
 
 #define SESSION_ADDR "kurento.com"
 
@@ -100,10 +105,10 @@ create_medias() {
 	GValueArray *payloads;
 	GValueArray *medias;
 	gint i;
-	gint port = 1234;
-	KmsMediaType type = KMS_MEDIA_TYPE_AUDIO;
-	KmsSdpMode mode = KMS_SDP_MODE_SENDRECV;
-	glong bandwidth = 90000;
+	gint port;
+	KmsMediaType type;
+	KmsSdpMode mode;
+	glong bandwidth;
 
 	medias = g_value_array_new(N_MEDIAS);
 
@@ -112,6 +117,11 @@ create_medias() {
 		GValue vmedia = G_VALUE_INIT;
 
 		payloads = create_payloads();
+
+		port = PORT(i);
+		type = TYPE(i);
+		mode = MODE(i);
+		bandwidth = BANDWIDTH(i);
 
 		media = g_object_new(KMS_TYPE_SDP_MEDIA, "port", port,
 						"bandwidth", bandwidth,
@@ -137,14 +147,23 @@ check_medias(GValueArray *medias, gint ii) {
 	GValue *val;
 	KmsSdpMedia *media;
 	gint i;
+	gint port;
+	KmsMediaType type;
+	KmsSdpMode mode;
+	glong bandwidth;
 
 	val = g_value_array_get_nth(medias, ii);
 	media = g_value_get_object(val);
 
-	g_object_get(media, "payloads", &payloads, NULL);
+	g_object_get(media, "port", &port, "bandwidth", &bandwidth,
+				"mode", &mode, "type", &type,
+				"payloads", &payloads, NULL);
 
-	if (payloads == NULL)
-		return;
+	g_assert(payloads != NULL);
+	g_assert(port == PORT(ii));
+	g_assert(bandwidth == BANDWIDTH(ii));
+	g_assert(mode == MODE(ii));
+	g_assert(type == TYPE(ii));
 
 	for (i = 0; i < payloads->n_values; i++ ) {
 		check_payload(payloads, media, i);
