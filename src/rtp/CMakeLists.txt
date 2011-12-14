@@ -15,3 +15,7 @@ include_directories(kmsc-rtp ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(kmsc-rtp ${GSTREAMER_LIBRARIES})
 
 include_directories(kmsc-rtp ${kmsc-endpoints_SOURCE_DIR}/src/core)
+
+file(GLOB INCLUDES_CORE "." "*.h")
+
+INSTALL(FILES ${INCLUDES_CORE} DESTINATION ${INCLUDE_PREFIX}/rtp PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
