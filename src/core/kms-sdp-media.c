@@ -30,6 +30,7 @@ enum {
 };
 
 G_DEFINE_TYPE(KmsSdpMedia, kms_sdp_media, G_TYPE_OBJECT)
+static void dispose_session(KmsSdpMedia *self);
 
 static void
 session_unref(gpointer data, GObject *session) {
@@ -37,7 +38,7 @@ session_unref(gpointer data, GObject *session) {
 
 	LOCK(self);
 	if (self->priv->session == KMS_SDP_SESSION(session)) {
-		self->priv->session = NULL;
+		dispose_session(self);
 	}
 	UNLOCK(self);
 }
@@ -109,8 +110,6 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 				if (pay == NULL)
 					continue;
 				g_object_set(pay, "media", self, NULL);
-				g_value_unset(v);
-				g_object_unref(pay);
 			}
 
 			UNLOCK(self);
@@ -122,9 +121,8 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 			if (!G_VALUE_HOLDS_OBJECT(value))
 				break;
 			self->priv->session = g_value_get_object(value);
-			if (self->priv->session != NULL)
-				g_object_weak_ref(G_OBJECT(self->priv->session),
-					  session_unref, g_object_ref(self));
+			g_object_weak_ref(G_OBJECT(self->priv->session),
+							session_unref, self);
 			UNLOCK(self);
 			break;
 		default:
