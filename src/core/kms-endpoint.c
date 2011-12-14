@@ -171,8 +171,8 @@ gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
 	if (self->priv->connection == conn)
 		self->priv->connection = NULL;
 	else
-		self->priv->connections = g_slist_remove(
-						self->priv->connections, conn);
+		self->priv->connections = g_slist_delete_link(
+						self->priv->connections, l);
 	UNLOCK(self);
 
 	/* TODO: notify the connection deletion with a signal*/
