@@ -32,10 +32,30 @@ enum {
 G_DEFINE_TYPE(KmsSdpMedia, kms_sdp_media, G_TYPE_OBJECT)
 
 static void
+session_unref(gpointer data, GObject *session) {
+	KmsSdpMedia *self = KMS_SDP_MEDIA(data);
+
+	LOCK(self);
+	if (self->priv->session == KMS_SDP_SESSION(session)) {
+		self->priv->session = NULL;
+	}
+	UNLOCK(self);
+}
+
+static void
 free_payloads(KmsSdpMedia *self) {
 	if (self->priv->payloads != NULL) {
 		g_value_array_free(self->priv->payloads);
 		self->priv->payloads = NULL;
+	}
+}
+
+static void
+dispose_session(KmsSdpMedia *self) {
+	if (self->priv->session != NULL) {
+		g_object_weak_unref(G_OBJECT(self->priv->session),
+							session_unref, self);
+		self->priv->session = NULL;
 	}
 }
 
@@ -98,7 +118,12 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 		}
 		case PROP_SESSION:
 			LOCK(self);
-			self->priv->session = g_value_dup_object(value);
+			dispose_session(self);
+			if (!G_VALUE_HOLDS_OBJECT(value))
+				break;
+			self->priv->session = g_value_get_object(value);
+			g_object_weak_ref(G_OBJECT(self->priv->session),
+					  session_unref, g_object_ref(self));
 			UNLOCK(self);
 			break;
 		default:
@@ -155,6 +180,8 @@ void
 kms_sdp_media_dispose(GObject *object) {
 	LOCK(object);
 	free_payloads(KMS_SDP_MEDIA(object));
+
+	dispose_session(KMS_SDP_MEDIA(object));
 	UNLOCK(object);
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (kms_sdp_media_parent_class)->dispose(object);
