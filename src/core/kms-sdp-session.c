@@ -10,6 +10,14 @@ struct _KmsSdpSessionPriv {
 	GStaticMutex mutex;
 	gchar *addr;
 	GValueArray *medias;
+	/*
+	sdpVersion
+	username
+	sessionId
+	version
+	sessionName
+	remoteHandler
+	 */
 };
 
 enum {
