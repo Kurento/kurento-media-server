@@ -89,7 +89,8 @@ check_payload(GValueArray *payloads, KmsSdpMedia *media, gint i) {
 	g_assert(media_aux == media);
 
 	g_free(name);
-	g_object_unref(media_aux);
+	if (media_aux != NULL)
+		g_object_unref(media_aux);
 }
 
 static GValueArray*
@@ -140,10 +141,14 @@ check_medias(GValueArray *medias, gint ii) {
 
 	g_object_get(media, "payloads", &payloads, NULL);
 
+	if (payloads == NULL)
+		return;
+
 	for (i = 0; i < payloads->n_values; i++ ) {
 		check_payload(payloads, media, i);
 	}
 
+	g_value_array_free(payloads);
 	/* TODO: Check other attributes */
 }
 
