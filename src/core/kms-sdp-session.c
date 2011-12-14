@@ -76,6 +76,8 @@ kms_sdp_session_set_property(GObject  *object, guint property_id,
 				v = g_value_array_get_nth(va, i);
 				media = g_value_get_object(v);
 				g_object_set(media, "session", self, NULL);
+				g_object_unref(media);
+				g_value_unset(v);
 			}
 
 			UNLOCK(self);
