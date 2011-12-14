@@ -5,7 +5,7 @@ project(kmsc-endpoints)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wall")
 set(CUSTOM_PREFIX "kmsc")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
-set(LIB_PREFIX "lib/${CUSTOM_PREFIX}")
+set(LIB_PREFIX "lib")
 
 add_subdirectory(src)
 
