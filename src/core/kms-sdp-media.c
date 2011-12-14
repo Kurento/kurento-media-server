@@ -122,7 +122,8 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 			if (!G_VALUE_HOLDS_OBJECT(value))
 				break;
 			self->priv->session = g_value_get_object(value);
-			g_object_weak_ref(G_OBJECT(self->priv->session),
+			if (self->priv->session != NULL)
+				g_object_weak_ref(G_OBJECT(self->priv->session),
 					  session_unref, g_object_ref(self));
 			UNLOCK(self);
 			break;
