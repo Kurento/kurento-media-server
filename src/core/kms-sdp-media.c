@@ -249,6 +249,13 @@ kms_sdp_media_class_init(KmsSdpMediaClass *klass) {
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_PAYLOADS, pspec);
+
+	pspec = g_param_spec_object("session", "Session",
+					"The session this media belongs to",
+					KMS_TYPE_SDP_SESSION,
+					G_PARAM_READWRITE);
+
+	g_object_class_install_property(gobject_class, PROP_SESSION, pspec);
 }
 
 static void
