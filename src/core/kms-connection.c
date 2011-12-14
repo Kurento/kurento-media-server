@@ -21,6 +21,20 @@ enum {
 
 G_DEFINE_TYPE(KmsConnection, kms_connection, G_TYPE_OBJECT)
 
+static void dispose_endpoint(KmsConnection *self);
+
+static void
+endpoint_unref(gpointer data, GObject *session) {
+	KmsConnection *self = KMS_CONNECTION(data);
+
+	g_warn_if_reached();
+	LOCK(self);
+	if (self->priv->endpoint == KMS_ENDPOINT(session)) {
+		dispose_endpoint(self);
+	}
+	UNLOCK(self);
+}
+
 static void
 free_id(KmsConnection *self) {
 	if (self->priv->id != NULL) {
@@ -32,7 +46,8 @@ free_id(KmsConnection *self) {
 static void
 dispose_endpoint(KmsConnection *self) {
 	if (self->priv->endpoint != NULL) {
-		g_object_unref(self->priv->endpoint);
+		g_object_weak_unref(G_OBJECT(self->priv->endpoint),
+							endpoint_unref, self);
 		self->priv->endpoint = NULL;
 	}
 }
@@ -98,7 +113,11 @@ kms_connection_set_property(GObject  *object, guint property_id,
 		case PROP_ENDPOINT:
 			LOCK(self);
 			dispose_endpoint(self);
-			self->priv->endpoint = g_value_dup_object(value);
+			if (!G_VALUE_HOLDS_OBJECT(value))
+				break;
+			self->priv->endpoint = g_value_get_object(value);
+			g_object_weak_ref(G_OBJECT(self->priv->endpoint),
+					  endpoint_unref, self);
 			UNLOCK(self);
 			break;
 		default:
