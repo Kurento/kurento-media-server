@@ -30,10 +30,18 @@ check_endpoint(KmsEndpoint *ep) {
 gint
 main(gint argc, gchar **argv) {
 	KmsEndpoint *ep;
+	KmsConnection *conn;
 
 	g_type_init();
 
 	ep = create_endpoint();
+	check_endpoint(ep);
+
+	conn = kms_endpoint_create_connection(ep, KMS_CONNECTION_TYPE_RTP,
+									NULL);
+	kms_endpoint_delete_connection(ep, conn, NULL);
+	g_object_unref(conn);
+
 	check_endpoint(ep);
 
 	g_object_unref(ep);
