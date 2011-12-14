@@ -174,7 +174,7 @@ main(gint argc, gchar **argv) {
 	g_value_array_free(medias);
 
 	/*
-	}while(g_print("loop\n"),sleep(1),1);
+	}while(g_print("loop\n"), sleep(1), 1);
 	*/
 
 	return 0;
