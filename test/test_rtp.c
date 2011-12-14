@@ -3,9 +3,9 @@
 
 #define LOCALNAME "kms/rtp/1"
 
-static KmsRtpEndpoint*
+static KmsEndpoint*
 create_endpoint() {
-	KmsRtpEndpoint *ep;
+	KmsEndpoint *ep;
 	gchar *name;
 
 	name = g_strdup_printf(LOCALNAME);
@@ -17,7 +17,7 @@ create_endpoint() {
 }
 
 static void
-check_endpoint(KmsRtpEndpoint *ep) {
+check_endpoint(KmsEndpoint *ep) {
 	gchar *name;
 
 	g_object_get(ep, "localname", &name, NULL);
@@ -29,7 +29,7 @@ check_endpoint(KmsRtpEndpoint *ep) {
 
 gint
 main(gint argc, gchar **argv) {
-	KmsRtpEndpoint *ep;
+	KmsEndpoint *ep;
 
 	g_type_init();
 
