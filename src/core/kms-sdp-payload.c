@@ -26,6 +26,17 @@ enum {
 
 G_DEFINE_TYPE(KmsSdpPayload, kms_sdp_payload, G_TYPE_OBJECT)
 
+void
+media_unref(gpointer data, GObject *media) {
+	KmsSdpPayload *self = KMS_SDP_PAYLOAD(data);
+
+	LOCK(self);
+	if (self->priv->media == KMS_SDP_MEDIA(media)) {
+		self->priv->media = NULL;
+	}
+	UNLOCK(self);
+}
+
 static void
 free_name(KmsSdpPayload *self) {
 	if (self->priv->name != NULL) {
@@ -37,7 +48,8 @@ free_name(KmsSdpPayload *self) {
 static void
 dispose_media(KmsSdpPayload *self) {
 	if (self->priv->media != NULL) {
-		g_object_unref(G_OBJECT(self->priv->media));
+		g_object_weak_unref(G_OBJECT(self->priv->media), media_unref,
+									self);
 		self->priv->media = NULL;
 	}
 }
@@ -70,7 +82,9 @@ kms_sdp_payload_set_property(GObject  *object, guint property_id,
 		case PROP_MEDIA:
 			LOCK(self);
 			dispose_media(self);
-			self->priv->media = g_value_dup_object(value);
+			self->priv->media = g_value_get_object(value);
+			g_object_weak_ref(G_OBJECT(self->priv->media),
+					media_unref, g_object_ref(self));
 			UNLOCK(self);
 			break;
 		default:

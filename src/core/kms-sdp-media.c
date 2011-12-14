@@ -89,6 +89,8 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 				if (pay == NULL)
 					continue;
 				g_object_set(pay, "media", self, NULL);
+				g_value_unset(v);
+				g_object_unref(pay);
 			}
 
 			UNLOCK(self);
