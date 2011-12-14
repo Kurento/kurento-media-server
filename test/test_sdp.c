@@ -12,6 +12,8 @@
 #define PAYLOAD(i) (i % 128)
 #define CLOCKRATE(i) ((i * 10) % G_MAXUSHORT)
 
+#define SESSION_ADDR "kurento.com"
+
 static GValueArray *names = NULL;
 
 static void
@@ -152,10 +154,44 @@ check_medias(GValueArray *medias, gint ii) {
 	/* TODO: Check other attributes */
 }
 
+static KmsSdpSession*
+create_session() {
+	KmsSdpSession *session;
+	GValueArray *medias;
+
+	medias = create_medias();
+
+	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
+						"address", SESSION_ADDR, NULL);
+
+	g_value_array_free(medias);
+
+	return session;
+}
+
+static void
+check_session(KmsSdpSession *session) {
+	GValueArray *medias;
+	gchar *addr;
+	gint i;
+
+	g_object_get(session, "medias", &medias, "address", &addr, NULL);
+
+	g_assert(medias != NULL);
+
+	for (i = 0; i < medias->n_values; i++) {
+		check_medias(medias, i);
+	}
+
+	g_assert(g_strcmp0(addr, SESSION_ADDR) == 0);
+
+	g_value_array_free(medias);
+	g_free(addr);
+}
+
 gint
 main(gint argc, gchar **argv) {
-	GValueArray *medias;
-	gint i;
+	KmsSdpSession *session;
 
 	g_type_init();
 
@@ -165,13 +201,11 @@ main(gint argc, gchar **argv) {
 	do {
 	*/
 
-	medias = create_medias();
+	session = create_session();
 
-	for (i = 0; i < medias->n_values; i++ ) {
-		check_medias(medias, i);
-	}
+	check_session(session);
 
-	g_value_array_free(medias);
+	g_object_unref(session);
 
 	/*
 	}while(g_print("loop\n"), sleep(1), 1);
