@@ -79,6 +79,8 @@ gint
 main(gint argc, gchar **argv) {
 	KmsEndpoint *ep;
 	KmsConnection *conn;
+	GError *err = NULL;
+	gboolean ret;
 	GSList *lc;
 
 	g_type_init();
@@ -95,7 +97,12 @@ main(gint argc, gchar **argv) {
 
 	delete_local_connections(ep, lc);
 
-	kms_endpoint_delete_connection(ep, conn, NULL);
+	ret = kms_endpoint_delete_connection(ep, conn, &err);
+	if (!ret && err != NULL) {
+		g_printerr("error deleting: %s\n", err->message);
+		g_error_free(err);
+	}
+	g_assert(ret);
 	g_object_unref(conn);
 
 	check_endpoint(ep);
