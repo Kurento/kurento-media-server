@@ -30,7 +30,7 @@ endpoint_unref(gpointer data, GObject *session) {
 	g_warn_if_reached();
 	LOCK(self);
 	if (self->priv->endpoint == KMS_ENDPOINT(session)) {
-		dispose_endpoint(self);
+		self->priv->endpoint = NULL;
 	}
 	UNLOCK(self);
 }
