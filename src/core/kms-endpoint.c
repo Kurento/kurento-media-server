@@ -250,7 +250,7 @@ kms_endpoint_dispose(GObject *gobject) {
 	}
 	UNLOCK(self);
 
-	/* TODO: delete all connections */
+	kms_endpoint_delete_all_connections(self);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_endpoint_parent_class)->dispose(gobject);
