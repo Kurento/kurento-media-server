@@ -15,3 +15,4 @@ enable_testing()
 
 add_test(test-endpoints1 test/test-endpoints)
 add_test(test_sdp test/test_sdp)
+add_test(test_rtp test/test_rtp)
