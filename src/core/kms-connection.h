@@ -2,6 +2,7 @@
 #define __KMS_CONNECTION_H__
 
 #include <glib-object.h>
+#include "kms-enums.h"
 
 /*
  * Type macros.
@@ -20,7 +21,8 @@ typedef struct _KmsConnectionPriv	KmsConnectionPriv;
 #define KMS_CONNECTION_ERROR (g_quark_from_string("KmsConnectionError"))
 
 enum {
-	KMS_CONNECTION_ERROR_TERMINATED
+	KMS_CONNECTION_ERROR_TERMINATED,
+	KMS_CONNECTION_ERROR_NOT_IMPLEMENTED
 };
 
 typedef enum _KmsConnectionType {
@@ -63,6 +65,10 @@ struct _KmsConnectionClass {
 	GObjectClass parent_class;
 
 	/* class members */
+
+	/* Overridable methods */
+	gboolean (*mode_changed)(KmsConnection *self, KmsConnectionMode mode,
+					KmsMediaType type, GError **err);
 };
 
 /* used by KMS_TYPE_CONNECTION */

@@ -1,4 +1,5 @@
 #include "kms-connection.h"
+#include "kms-enums.h"
 
 #define KMS_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_CONNECTION, KmsConnectionPriv))
 
@@ -10,6 +11,8 @@ struct _KmsConnectionPriv {
 	gchar *id;
 	gboolean finished;
 	KmsEndpoint *endpoint;
+	KmsConnectionMode audioMode;
+	KmsConnectionMode videoMode;
 };
 
 enum {
@@ -53,9 +56,34 @@ dispose_endpoint(KmsConnection *self) {
 }
 
 static gboolean
+do_set_mode_media(KmsConnection *self, KmsConnectionMode mode,
+					KmsMediaType type, GError **err) {
+	/* TODO: Implement set_mode_media */
+	if (KMS_CONNECTION_GET_CLASS(self)->mode_changed == NULL) {
+		g_warn_if_reached();
+		if (err == NULL || *err != NULL)
+			return FALSE;
+
+		*err = g_error_new(KMS_CONNECTION_ERROR,
+				KMS_CONNECTION_ERROR_NOT_IMPLEMENTED,
+				"Class %s does not reimplement "
+				"mode_changed method",
+				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+		return FALSE;
+	}
+
+	return KMS_CONNECTION_GET_CLASS(self)->mode_changed(self, mode, type,
+									err);
+}
+
+static gboolean
 do_set_mode(KmsConnection *self, KmsConnectionMode mode, GError **err) {
-	/* TODO: Implement set_mode */
-	g_print("TODO: Implement set mode\n");
+	if (!do_set_mode_media(self, mode, KMS_MEDIA_TYPE_AUDIO, err))
+		return FALSE;
+
+	if (!do_set_mode_media(self, mode, KMS_MEDIA_TYPE_VIDEO, err))
+		return FALSE;
+
 	return TRUE;
 }
 
@@ -208,4 +236,6 @@ kms_connection_init(KmsConnection *self) {
 	self->priv->id = NULL;
 	self->priv->finished = FALSE;
 	self->priv->endpoint = NULL;
+	self->priv->audioMode = KMS_CONNECTION_MODE_INACTIVE;
+	self->priv->videoMode = KMS_CONNECTION_MODE_INACTIVE;
 }

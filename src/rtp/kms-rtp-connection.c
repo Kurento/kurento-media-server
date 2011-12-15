@@ -29,11 +29,20 @@ media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 	iface->get_factory = get_factory;
 }
 
+static gboolean
+mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
+								GError **err) {
+	/* TODO: Implement mode changed for RtpConnection */
+	return TRUE;
+}
+
 static void
 kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 	/*
 	g_type_class_add_private (klass, sizeof (KmsRtpConnectionPriv));
 	*/
+
+	KMS_CONNECTION_CLASS(klass)->mode_changed = mode_changed;
 }
 
 static void
