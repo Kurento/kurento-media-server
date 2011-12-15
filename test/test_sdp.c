@@ -170,7 +170,6 @@ check_medias(GValueArray *medias, gint ii) {
 	}
 
 	g_value_array_free(payloads);
-	/* TODO: Check other attributes */
 }
 
 static KmsSdpSession*

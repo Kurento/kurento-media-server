@@ -58,7 +58,6 @@ dispose_endpoint(KmsConnection *self) {
 static gboolean
 do_set_mode_media(KmsConnection *self, KmsConnectionMode mode,
 					KmsMediaType type, GError **err) {
-	/* TODO: Implement set_mode_media */
 	if (KMS_CONNECTION_GET_CLASS(self)->mode_changed == NULL) {
 		g_warn_if_reached();
 		if (err == NULL || *err != NULL)
