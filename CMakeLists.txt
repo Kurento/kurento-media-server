@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(kmsc-endpoints)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wall -Werror -std=c99")
 set(CUSTOM_PREFIX "kmsc")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
 set(LIB_PREFIX "lib")
