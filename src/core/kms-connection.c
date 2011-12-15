@@ -138,10 +138,10 @@ kms_connection_set_property(GObject  *object, guint property_id,
 			UNLOCK(self);
 			break;
 		case PROP_ENDPOINT:
-			LOCK(self);
-			dispose_endpoint(self);
 			if (!G_VALUE_HOLDS_OBJECT(value))
 				break;
+			LOCK(self);
+			dispose_endpoint(self);
 			self->priv->endpoint = g_value_get_object(value);
 			g_object_weak_ref(G_OBJECT(self->priv->endpoint),
 					  endpoint_unref, self);

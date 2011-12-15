@@ -82,10 +82,10 @@ kms_sdp_payload_set_property(GObject  *object, guint property_id,
 			UNLOCK(self);
 			break;
 		case PROP_MEDIA:
-			LOCK(self);
-			dispose_media(self);
 			if (!G_VALUE_HOLDS_OBJECT(value))
 				break;
+			LOCK(self);
+			dispose_media(self);
 			self->priv->media = g_value_get_object(value);
 			g_object_weak_ref(G_OBJECT(self->priv->media),
 							media_unref, self);
