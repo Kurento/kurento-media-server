@@ -9,24 +9,43 @@ struct _KmsRtpConnectionPriv {
 */
 
 static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
+static void media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE(KmsRtpConnection, kms_rtp_connection,
 				KMS_TYPE_CONNECTION,
 				G_IMPLEMENT_INTERFACE(
 					KMS_TYPE_MEDIA_HANDLER_MANAGER,
-					media_handler_manager_iface_init))
+					media_handler_manager_iface_init)
+				G_IMPLEMENT_INTERFACE(
+					KMS_TYPE_MEDIA_HANDLER_FACTORY,
+					media_handler_factory_iface_init))
 
 static KmsMediaHandlerFactory*
 get_factory(KmsMediaHandlerManager *iface) {
-	/*KmsRtpConnection *self = KMS_RTP_CONNECTION(iface);*/
-
-	g_print("No media handler factory defined yet");
-	return NULL;
+	return KMS_MEDIA_HANDLER_FACTORY(iface);
 }
 
 static void
 media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 	iface->get_factory = get_factory;
+}
+
+static KmsMediaHandlerSrc*
+get_src(KmsMediaHandlerFactory *self) {
+	g_warning("%s:%d Not implemented", __FILE__, __LINE__);
+	return NULL;
+}
+
+static KmsMediaHandlerSink*
+get_sink(KmsMediaHandlerFactory *self) {
+	g_warning("%s:%d Not implemented", __FILE__, __LINE__);
+	return NULL;
+}
+
+static void
+media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
+	iface->get_sink = get_sink;
+	iface->get_src = get_src;
 }
 
 static gboolean

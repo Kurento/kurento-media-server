@@ -107,6 +107,7 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 
 	switch(type) {
 	case KMS_CONNECTION_TYPE_LOCAL: {
+		KmsMediaHandlerFactory *factory;
 		GSList *l;
 
 		if (self->priv->manager == NULL) {
@@ -120,9 +121,23 @@ kms_endpoint_create_connection(KmsEndpoint *self, KmsConnectionType type,
 			return NULL;
 		}
 
-		/* TODO: Assing a connection manager to handle media */
+		factory = kms_media_handler_manager_get_factory(self->priv->manager);
+		if (factory == NULL) {
+			if (err != NULL && *err == NULL)
+				*err = g_error_new(KMS_ENDPOINT_ERROR,
+					KMS_ENDPOINT_ERROR_NOT_FOUND,
+					"Local connection can not be created "
+					"because manager %s does not provide a "
+					"correct factory.", G_OBJECT_CLASS_NAME(
+					G_OBJECT_GET_CLASS(self->priv->manager)));
+			return NULL;
+		}
+
 		conn = g_object_new(KMS_TYPE_LOCAL_CONNECTION, "id", name,
-							"endpoint", self, NULL);
+						"endpoint", self,
+						"media-factory", factory,
+						NULL);
+		g_object_unref(factory);
 		LOCK(self);
 		l = self->priv->connections;
 		self->priv->connections = g_slist_prepend(l, g_object_ref(conn));
