@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 add_executable(test-endpoints main.c)
 add_executable(test_sdp test_sdp.c)
-add_executable(test_rtp test_rtp.c)
+add_executable(test_rtp test_rtp.c memory.c)
 
 find_package(PkgConfig)
 
