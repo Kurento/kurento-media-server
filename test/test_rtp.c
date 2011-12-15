@@ -1,9 +1,16 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "rtp/kms-rtp-endpoint.h"
 #include <glib.h>
 
 #define CONNECTIONS 100
 
 #define LOCALNAME "kms/rtp/1"
+
+#define PROC "/proc/self/status"
+
+#define TESTS 1000
 
 static KmsEndpoint*
 create_endpoint() {
@@ -75,6 +82,62 @@ delete_local_connections(KmsEndpoint *ep, GSList *lc) {
 	g_slist_free(lc);
 }
 
+static void
+check_memory() {
+	static gint mem = 0;
+	gint new_mem;
+
+	GIOChannel *chan;
+	GError *err= NULL;
+	GIOStatus st;
+	char *line = NULL;
+	char *vmdata = NULL;
+	size_t len;
+
+	chan = g_io_channel_new_file(PROC, "r", &err);
+	if (chan == NULL && err != NULL) {
+		g_printerr("%s:%d: %s", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
+
+	g_assert(chan != NULL);
+
+	/* Read memory size data from /proc/pid/status */
+	while (!vmdata) {
+
+		st = g_io_channel_read_line(chan, &line, &len, NULL, &err);
+
+		if (st != G_IO_STATUS_NORMAL && err != NULL) {
+			g_printerr("%s:%d: %s", __FILE__, __LINE__, err->message);
+			g_error_free(err);
+		}
+
+		g_assert(st == G_IO_STATUS_NORMAL);
+
+		if (!strncmp(line, "VmData:", 7)) {
+			vmdata = g_strdup(&line[7]);
+		}
+
+		g_free(line);
+	}
+
+	g_io_channel_shutdown(chan, FALSE, NULL);
+	g_io_channel_unref(chan);
+
+	/* Get rid of " kB\n"*/
+	len = strlen(vmdata);
+	vmdata[len - 4] = 0;
+
+	new_mem = atoi(vmdata);
+
+	if (mem == 0) {
+		mem = new_mem;
+	}
+	g_assert(mem == new_mem);
+
+	g_free(vmdata);
+}
+
 gint
 main(gint argc, gchar **argv) {
 	KmsEndpoint *ep;
@@ -82,8 +145,11 @@ main(gint argc, gchar **argv) {
 	GError *err = NULL;
 	gboolean ret;
 	GSList *lc;
+	gint i;
 
 	g_type_init();
+
+	for (i = 0; i < TESTS; i++) {
 
 	ep = create_endpoint();
 	check_endpoint(ep);
@@ -124,6 +190,10 @@ main(gint argc, gchar **argv) {
 
 	check_endpoint(ep);
 	g_object_unref(ep);
+
+	check_memory();
+
+	}
 
 	return 0;
 }
