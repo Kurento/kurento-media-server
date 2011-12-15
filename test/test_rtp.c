@@ -78,19 +78,13 @@ delete_local_connections(KmsEndpoint *ep, GSList *lc) {
 	g_slist_free(lc);
 }
 
-gint
-main(gint argc, gchar **argv) {
+static void
+test_endpoint() {
 	KmsEndpoint *ep;
 	KmsConnection *conn;
 	GError *err = NULL;
 	gboolean ret;
 	GSList *lc;
-	gint i;
-	gint new_mem, mem = 0;
-
-	g_type_init();
-
-	for (i = 0; i < TESTS; i++) {
 
 	ep = create_endpoint();
 	check_endpoint(ep);
@@ -117,7 +111,7 @@ main(gint argc, gchar **argv) {
 	/* Second test with delete all */
 
 	conn = kms_endpoint_create_connection(ep, KMS_CONNECTION_TYPE_RTP,
-					      NULL);
+									NULL);
 
 	g_assert(conn != NULL);
 
@@ -131,12 +125,24 @@ main(gint argc, gchar **argv) {
 
 	check_endpoint(ep);
 	g_object_unref(ep);
+}
 
-	new_mem = get_data_memory();
-	if (mem == 0)
-		mem = new_mem;
+gint
+main(gint argc, gchar **argv) {
+	gint i;
+	gint new_mem, mem = 0;
 
-	g_assert(mem == new_mem);
+	g_type_init();
+
+	for (i = 0; i < TESTS; i++) {
+
+		test_endpoint();
+
+		new_mem = get_data_memory();
+		if (mem == 0)
+			mem = new_mem;
+
+		g_assert(mem == new_mem);
 
 	}
 
