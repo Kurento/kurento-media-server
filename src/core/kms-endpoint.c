@@ -188,6 +188,9 @@ terminate_connection(KmsConnection *conn) {
 	GError *err = NULL;
 	gboolean ret;
 
+	if (!KMS_IS_CONNECTION(conn))
+		return;
+
 	ret = kms_connection_terminate(conn, &err);
 
 	if (!ret && err != NULL) {
