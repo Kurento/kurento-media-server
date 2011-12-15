@@ -79,7 +79,7 @@ KmsEndpointState *kms_endpoint_get_state(KmsEndpoint *self);
 gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
 								GError **err);
 
-gint kms_endpoint_delete_all_connections(KmsEndpoint *self, GError **err);
+void kms_endpoint_delete_all_connections(KmsEndpoint *self);
 
 /*
  * TODO: Implement get_resource

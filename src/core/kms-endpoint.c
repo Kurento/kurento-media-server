@@ -183,6 +183,39 @@ kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
 	return ret;
 }
 
+static void
+terminate_connection(KmsConnection *conn) {
+	GError *err = NULL;
+	gboolean ret;
+
+	ret = kms_connection_terminate(conn, &err);
+
+	if (!ret && err != NULL) {
+		g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC,
+								err->message);
+		g_error_free(err);
+	}
+	g_object_unref(conn);
+}
+
+void
+kms_endpoint_delete_all_connections(KmsEndpoint *self) {
+	GSList *l;
+	KmsConnection *conn;
+
+	/* Block the resource the minimum time possible */
+	LOCK(self);
+	l = self->priv->connections;
+	self->priv->connections = NULL;
+
+	conn = self->priv->connection;
+	self->priv->connection = NULL;
+	UNLOCK(self);
+
+	g_slist_free_full(l, (GDestroyNotify)terminate_connection);
+	terminate_connection(conn);
+}
+
 static KmsConnection *
 default_create_connection(KmsEndpoint *self, gchar* name, GError **err) {
 	gchar *msg = g_strdup_printf("Class %s does not reimplement "
