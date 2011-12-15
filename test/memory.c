@@ -4,10 +4,9 @@
 
 #define PROC "/proc/self/status"
 
-void
-check_memory() {
-	static gint mem = 0;
-	gint new_mem;
+int
+get_data_memory() {
+	int mem;
 
 	GIOChannel *chan;
 	GError *err= NULL;
@@ -50,12 +49,9 @@ check_memory() {
 	len = strlen(vmdata);
 	vmdata[len - 4] = 0;
 
-	new_mem = atoi(vmdata);
-
-	if (mem == 0) {
-		mem = new_mem;
-	}
-	g_assert(mem == new_mem);
+	mem = atoi(vmdata);
 
 	g_free(vmdata);
+
+	return mem;
 }

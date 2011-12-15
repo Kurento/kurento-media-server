@@ -1,1 +1,2 @@
-void check_memory();
+
+int get_data_memory();

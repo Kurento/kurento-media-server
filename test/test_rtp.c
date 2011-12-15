@@ -86,6 +86,7 @@ main(gint argc, gchar **argv) {
 	gboolean ret;
 	GSList *lc;
 	gint i;
+	gint new_mem, mem = 0;
 
 	g_type_init();
 
@@ -131,7 +132,11 @@ main(gint argc, gchar **argv) {
 	check_endpoint(ep);
 	g_object_unref(ep);
 
-	check_memory();
+	new_mem = get_data_memory();
+	if (mem == 0)
+		mem = new_mem;
+
+	g_assert(mem == new_mem);
 
 	}
 
