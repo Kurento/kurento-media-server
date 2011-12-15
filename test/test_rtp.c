@@ -107,6 +107,22 @@ main(gint argc, gchar **argv) {
 
 	check_endpoint(ep);
 
+	/* Second test with delete all */
+
+	conn = kms_endpoint_create_connection(ep, KMS_CONNECTION_TYPE_RTP,
+					      NULL);
+
+	g_assert(conn != NULL);
+
+	lc = create_local_connections(ep);
+	g_slist_free_full(lc, g_object_unref);
+	g_object_unref(conn);
+
+	check_endpoint(ep);
+
+	kms_endpoint_delete_all_connections(ep);
+
+	check_endpoint(ep);
 	g_object_unref(ep);
 
 	return 0;
