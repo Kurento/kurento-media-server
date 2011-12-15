@@ -151,7 +151,8 @@ end:
 	return conn;
 }
 
-gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
+gboolean
+kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
 								GError **err) {
 	GSList *l;
 	gboolean ret;
