@@ -74,6 +74,8 @@ struct _KmsConnectionClass {
 	/* Overridable methods */
 	gboolean (*mode_changed)(KmsConnection *self, KmsConnectionMode mode,
 					KmsMediaType type, GError **err);
+	gboolean (*connect_to_remote)(KmsConnection *self,
+					KmsSdpSession *session, GError **err);
 };
 
 /* used by KMS_TYPE_CONNECTION */
@@ -113,9 +115,9 @@ gboolean kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 								GError **err);
 
 gboolean kms_connection_connect(KmsConnection *self, KmsConnection *other,
-							KmsMediaType type);
+						KmsMediaType type, GError **err);
 
 gboolean kms_connection_connect_to_remote(KmsConnection *self,
-						KmsSdpSession *session);
+					KmsSdpSession *session, GError **err);
 
 #endif /* __KMS_CONNECTION_H__ */

@@ -118,6 +118,25 @@ kms_connection_terminate(KmsConnection *self, GError **err) {
 	return ret;
 }
 
+gboolean
+kms_connection_connect_to_remote(KmsConnection *self, KmsSdpSession *session,
+								GError **err) {
+
+	if (KMS_CONNECTION_GET_CLASS(self)->connect_to_remote == NULL) {
+		g_warn_if_reached();
+		SET_ERROR(err, KMS_CONNECTION_ERROR,
+				KMS_CONNECTION_ERROR_NOT_IMPLEMENTED,
+				"Class %s does not reimplement "
+				"connect_to_remote method",
+				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+
+		return FALSE;
+	}
+
+	return KMS_CONNECTION_GET_CLASS(self)->connect_to_remote(self, session,
+									err);
+}
+
 static void
 kms_connection_set_property(GObject  *object, guint property_id,
 				const GValue *value, GParamSpec *pspec) {
@@ -207,6 +226,8 @@ kms_connection_class_init(KmsConnectionClass *klass) {
 	gobject_class->get_property = kms_connection_get_property;
 	gobject_class->dispose = kms_connection_dispose;
 	gobject_class->finalize = kms_connection_finalize;
+
+	klass->connect_to_remote = NULL;
 
 	pspec = g_param_spec_string("id", "Connection identifier",
 					"Gets the connection identifier",
