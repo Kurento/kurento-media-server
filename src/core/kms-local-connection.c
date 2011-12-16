@@ -67,14 +67,7 @@ set_property(GObject  *object, guint property_id, const GValue *value,
 static void
 get_property(GObject *object, guint property_id, GValue *value,
 							GParamSpec *pspec) {
-	KmsLocalConnection *self = KMS_LOCAL_CONNECTION(object);
-
 	switch (property_id) {
-		case PROP_MEDIA_FACTORY:
-			LOCK(self);
-// 			g_value_set_object(value, self->priv->media_factory);
-			UNLOCK(self);
-			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
