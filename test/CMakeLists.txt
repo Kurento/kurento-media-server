@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 add_executable(test-endpoints main.c)
 add_executable(test_sdp test_sdp.c)
 add_executable(test_rtp test_rtp.c memory.c)
+add_executable(test_rtp_connection test_rtp_connection.c memory.c)
 
 find_package(PkgConfig)
 
@@ -25,5 +26,9 @@ include_directories(test_sdp ${kmsc-endpoints_SOURCE_DIR}/src/core)
 target_link_libraries(test_rtp kmsclib)
 include_directories(test_rtp ${kmsc-endpoints_SOURCE_DIR}/src/core)
 include_directories(test_rtp ${kmsc-endpoints_SOURCE_DIR}/src)
+
+target_link_libraries(test_rtp_connection kmsclib)
+include_directories(test_rtp_connection ${kmsc-endpoints_SOURCE_DIR}/src/core)
+include_directories(test_rtp_connection ${kmsc-endpoints_SOURCE_DIR}/src)
 
 add_subdirectory(kmsc-test-endpoints)
