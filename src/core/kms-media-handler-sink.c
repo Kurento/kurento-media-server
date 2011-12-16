@@ -1,4 +1,4 @@
-#include "kms-media-handler-sink.h"
+#include <kms-core.h>
 
 static void
 kms_media_handler_sink_base_init (gpointer g_class) {

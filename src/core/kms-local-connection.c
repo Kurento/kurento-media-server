@@ -1,5 +1,4 @@
-#include "kms-local-connection.h"
-#include "kms-media-handler-factory.h"
+#include <kms-core.h>
 
 #define KMS_LOCAL_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_LOCAL_CONNECTION, KmsLocalConnectionPriv))
 

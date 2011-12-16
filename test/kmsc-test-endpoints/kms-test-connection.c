@@ -1,5 +1,5 @@
 #include "kms-test-connection.h"
-#include "kms-media-handler-manager.h"
+#include <kms-core.h>
 
 #define KMS_TEST_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_TEST_CONNECTION, KmsTestConnectionPriv))
 

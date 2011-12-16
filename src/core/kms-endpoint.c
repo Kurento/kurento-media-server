@@ -1,7 +1,4 @@
-#include "kms-endpoint.h"
-#include "kms-media-handler-manager.h"
-#include "kms-local-connection.h"
-#include <glib.h>
+#include <kms-core.h>
 
 #define KMS_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_ENDPOINT, KmsEndpointPriv))
 

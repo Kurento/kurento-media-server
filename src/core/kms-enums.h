@@ -1,3 +1,7 @@
+#if !defined (__KMS_CORE_H_INSIDE__)
+#error "Only <kms-core.h> can be included directly."
+#endif
+
 #ifndef __KMS_SDP_ENUMS_H__
 #define __KMS_SDP_ENUMS_H__
 

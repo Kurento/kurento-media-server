@@ -2,7 +2,7 @@
 #define __KMS_TEST_CONNECTION_H__
 
 #include <glib-object.h>
-#include "kms-connection.h"
+#include <kms-core.h>
 
 /*
  * Type macros.

@@ -2,7 +2,7 @@
 #define __KMS_RTP_ENDPOINT_H__
 
 #include <glib-object.h>
-#include "kms-endpoint.h"
+#include <kms-core.h>
 
 /*
  * Type macros.

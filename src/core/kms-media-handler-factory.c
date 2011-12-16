@@ -1,4 +1,4 @@
-#include "kms-media-handler-factory.h"
+#include <kms-core.h>
 
 static void
 kms_media_handler_factory_base_init (gpointer g_class) {

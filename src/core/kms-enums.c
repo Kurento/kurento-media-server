@@ -1,4 +1,4 @@
-#include "kms-enums.h"
+#include <kms-core.h>
 
 GType
 kms_media_type_get_type(void) {

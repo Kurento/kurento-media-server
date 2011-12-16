@@ -1,4 +1,4 @@
-#include "kms-media-handler-src.h"
+#include <kms-core.h>
 
 static void
 kms_media_handler_src_base_init (gpointer g_class) {

@@ -1,7 +1,4 @@
-#include "kms-sdp-payload.h"
-#include "kms-sdp-session.h"
-#include "kms-sdp-media.h"
-#include "kms-enums.h"
+#include <kms-core.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <mcheck.h>

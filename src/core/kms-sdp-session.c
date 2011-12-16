@@ -1,5 +1,4 @@
-#include "kms-sdp-session.h"
-#include "kms-sdp-media.h"
+#include <kms-core.h>
 
 #define KMS_SDP_SESSION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_SDP_SESSION, KmsSdpSessionPriv))
 
