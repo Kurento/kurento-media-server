@@ -19,7 +19,9 @@
 
 #undef __KMS_CORE_H_INSIDE__
 
-#define DEBUG g_print("%s:%d\n", __FILE__, __LINE__)
+#define KMS_DEBUG g_print("%s:%d\n", __FILE__, __LINE__)
+
+#define KMS_LOG_DEBUG(...) g_print("%s:%d: %s\n", __FILE__, __LINE__, __VA_ARGS__)
 
 #define SET_ERROR(err, quark, type, ...)			\
 do {							\
