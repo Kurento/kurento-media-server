@@ -7,6 +7,7 @@
 
 #include <glib-object.h>
 #include "kms-enums.h"
+#include "kms-sdp-session.h"
 
 /*
  * Type macros.
@@ -111,6 +112,9 @@ gboolean kms_connection_terminate(KmsConnection *self, GError **err);
 gboolean kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 								GError **err);
 
-gint *kms_connection_connect_to(KmsConnection *self, KmsConnection *other);
+gboolean kms_connection_connect(KmsConnection *self, KmsConnection *other);
+
+gboolean kms_connection_connect_to_remote(KmsConnection *self,
+						KmsSdpSession *session);
 
 #endif /* __KMS_CONNECTION_H__ */
