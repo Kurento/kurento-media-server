@@ -21,4 +21,10 @@
 
 #define DEBUG g_print("%s:%d\n", __FILE__, __LINE__)
 
+#define SET_ERROR(err, quark, type, ...)			\
+do {							\
+	if (err != NULL && *err == NULL)			\
+		*err = g_error_new(quark, type, __VA_ARGS__);	\
+} while (FALSE)
+
 #endif /* __KMS_CORE_H__ */

@@ -59,14 +59,12 @@ do_set_mode_media(KmsConnection *self, KmsConnectionMode mode,
 					KmsMediaType type, GError **err) {
 	if (KMS_CONNECTION_GET_CLASS(self)->mode_changed == NULL) {
 		g_warn_if_reached();
-		if (err == NULL || *err != NULL)
-			return FALSE;
-
-		*err = g_error_new(KMS_CONNECTION_ERROR,
+		SET_ERROR(err, KMS_CONNECTION_ERROR,
 				KMS_CONNECTION_ERROR_NOT_IMPLEMENTED,
 				"Class %s does not reimplement "
 				"mode_changed method",
 				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+
 		return FALSE;
 	}
 
@@ -92,8 +90,7 @@ kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 	LOCK(self);
 
 	if (self->priv->finished) {
-		if (err != NULL && *err == NULL)
-			*err = g_error_new(KMS_CONNECTION_ERROR,
+		SET_ERROR(err, KMS_CONNECTION_ERROR,
 					KMS_CONNECTION_ERROR_TERMINATED,
 					"LocalConnection %s has been "
 					"terminated and cannot be used.",
