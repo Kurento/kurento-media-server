@@ -52,9 +52,9 @@ set_property(GObject  *object, guint property_id, const GValue *value,
 			dispose_factory(self);
 			if (KMS_IS_MEDIA_HANDLER_FACTORY(pfactory))
 				self->priv->media_factory = g_object_ref(
-					KMS_MEDIA_HANDLER_FACTORY(pfactory));
-				else
-					self->priv->media_factory = NULL;
+								pfactory);
+			else
+				self->priv->media_factory = NULL;
 			UNLOCK(self);
 			break;
 		}

@@ -22,7 +22,7 @@ G_DEFINE_TYPE_WITH_CODE(KmsRtpConnection, kms_rtp_connection,
 
 static KmsMediaHandlerFactory*
 get_factory(KmsMediaHandlerManager *iface) {
-	return KMS_MEDIA_HANDLER_FACTORY(iface);
+	return KMS_MEDIA_HANDLER_FACTORY(g_object_ref(iface));
 }
 
 static void
