@@ -21,7 +21,10 @@ G_DEFINE_TYPE(KmsLocalConnection, kms_local_connection, KMS_TYPE_CONNECTION)
 
 static void
 dispose_factory(KmsLocalConnection *self) {
-	/* TODO: Implement dispose_factory */
+	if (self->priv->media_factory != NULL) {
+		g_object_unref(G_OBJECT(self->priv->media_factory));
+		self->priv->media_factory = NULL;
+	}
 }
 
 static gboolean
