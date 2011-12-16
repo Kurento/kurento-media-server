@@ -2,11 +2,11 @@
 #include "memory.h"
 #include <glib.h>
 
-#define CONNECTIONS 100
+#define CONNECTIONS 10
 
 #define LOCALNAME "kms/rtp/1"
 
-#define TESTS 1000
+#define TESTS 6000
 
 static KmsEndpoint*
 create_endpoint() {
@@ -135,7 +135,6 @@ main(gint argc, gchar **argv) {
 	g_type_init();
 
 	for (i = 0; i < TESTS; i++) {
-
 		test_endpoint();
 
 		new_mem = get_data_memory();
