@@ -121,7 +121,7 @@ kms_connection_terminate(KmsConnection *self, GError **err) {
 	return ret;
 }
 
-void
+static void
 kms_connection_set_property(GObject  *object, guint property_id,
 				const GValue *value, GParamSpec *pspec) {
 	KmsConnection *self = KMS_CONNECTION(object);
@@ -153,7 +153,7 @@ kms_connection_set_property(GObject  *object, guint property_id,
 	}
 }
 
-void
+static void
 kms_connection_get_property(GObject *object, guint property_id, GValue *value,
 							GParamSpec *pspec) {
 	KmsConnection *self = KMS_CONNECTION(object);
@@ -176,7 +176,7 @@ kms_connection_get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
-void
+static void
 kms_connection_dispose(GObject *object) {
 	KmsConnection *self = KMS_CONNECTION(object);
 
@@ -188,7 +188,7 @@ kms_connection_dispose(GObject *object) {
 	G_OBJECT_CLASS (kms_connection_parent_class)->dispose(object);
 }
 
-void
+static void
 kms_connection_finalize(GObject *object) {
 	KmsConnection *self = KMS_CONNECTION(object);
 
