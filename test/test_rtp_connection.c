@@ -2,36 +2,11 @@
 #include "rtp/kms-rtp-endpoint.h"
 #include "memory.h"
 #include <glib.h>
+#include "rtp-test-lib/rtp-test-lib.h"
 
 #define CONNECTIONS 10
 
-#define LOCALNAME "kms/rtp/1"
-
 #define TESTS 6000
-
-static KmsEndpoint*
-create_endpoint() {
-	KmsEndpoint *ep;
-	gchar *name;
-
-	name = g_strdup_printf(LOCALNAME);
-
-	ep = g_object_new(KMS_TYPE_RTP_ENDPOINT, "localname", name, NULL);
-
-	g_free(name);
-	return ep;
-}
-
-static void
-check_endpoint(KmsEndpoint *ep) {
-	gchar *name;
-
-	g_object_get(ep, "localname", &name, NULL);
-
-	g_assert(g_strcmp0(name, LOCALNAME) == 0);
-
-	g_free(name);
-}
 
 static void
 test_connection() {
