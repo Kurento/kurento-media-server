@@ -90,7 +90,12 @@ test_endpoint() {
 	check_endpoint(ep);
 
 	conn = kms_endpoint_create_connection(ep, KMS_CONNECTION_TYPE_RTP,
-									NULL);
+									&err);
+
+	if (conn == NULL && err != NULL) {
+		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
 
 	g_assert(conn != NULL);
 
