@@ -112,7 +112,8 @@ gboolean kms_connection_terminate(KmsConnection *self, GError **err);
 gboolean kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 								GError **err);
 
-gboolean kms_connection_connect(KmsConnection *self, KmsConnection *other);
+gboolean kms_connection_connect(KmsConnection *self, KmsConnection *other,
+							KmsMediaType type);
 
 gboolean kms_connection_connect_to_remote(KmsConnection *self,
 						KmsSdpSession *session);
