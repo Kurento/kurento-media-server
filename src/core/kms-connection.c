@@ -227,6 +227,7 @@ kms_connection_class_init(KmsConnectionClass *klass) {
 	gobject_class->dispose = kms_connection_dispose;
 	gobject_class->finalize = kms_connection_finalize;
 
+	klass->mode_changed = NULL;
 	klass->connect_to_remote = NULL;
 
 	pspec = g_param_spec_string("id", "Connection identifier",
