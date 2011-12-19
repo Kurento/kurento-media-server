@@ -23,9 +23,7 @@ struct _KmsRtpConnection {
 
 	/* instance members */
 
-	/*
 	KmsRtpConnectionPriv *priv;
-	*/
 };
 
 struct _KmsRtpConnectionClass {
