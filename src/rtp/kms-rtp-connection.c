@@ -78,6 +78,8 @@ static void
 constructed(GObject *object) {
 	GstElement *pipe;
 
+	G_OBJECT_CLASS(kms_rtp_connection_parent_class)->constructed(object);
+
 	pipe = kms_get_pipeline();
 
 	if (pipe == NULL) {
@@ -121,8 +123,8 @@ kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 	KMS_CONNECTION_CLASS(klass)->connect_to_remote = connect_to_remote;
 	gobject_class->dispose = kms_rtp_connection_dispose;
 	gobject_class->finalize = kms_rtp_connection_finalize;
+	gobject_class->constructed = constructed;
 
-	G_OBJECT_CLASS(klass)->constructed = constructed;
 }
 
 static void
