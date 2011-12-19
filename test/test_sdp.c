@@ -58,12 +58,12 @@ create_payloads() {
 		GValue vpay = G_VALUE_INIT;
 
 		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name",
-				   g_value_get_string(
-					   g_value_array_get_nth(
-						   names, i)),
-		     "payload", PAYLOAD(i),
-				   "clockrate", CLOCKRATE(i),
-				   NULL);
+				g_value_get_string(
+						g_value_array_get_nth(
+							names, i)),
+				"payload", PAYLOAD(i),
+				"clockrate", CLOCKRATE(i),
+				NULL);
 
 		g_value_init(&vpay, KMS_TYPE_SDP_PAYLOAD);
 		g_value_take_object(&vpay, pay);
@@ -84,10 +84,10 @@ check_payload(GValueArray *payloads, KmsSdpMedia *media, gint i) {
 
 	val = g_value_array_get_nth(payloads, i);
 	g_object_get(g_value_get_object(val), "name", &name,
-		     "payload", &pay,
-	      "clockrate", &rate,
-	      "media", &media_aux,
-	      NULL);
+							"payload", &pay,
+							"clockrate", &rate,
+							"media", &media_aux,
+							NULL);
 
 	str = g_value_array_get_nth(names, i);
 
