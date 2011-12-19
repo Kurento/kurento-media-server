@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
 	KmsConnection *conn = NULL;
 	KmsConnection *local = NULL;
 
-	g_type_init();
+	kms_init(&argc, &argv);
 
 	ep = g_object_new(KMS_TYPE_TEST_ENDPOINT, "localname", "test_ep", NULL);
 

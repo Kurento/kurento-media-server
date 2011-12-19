@@ -208,7 +208,7 @@ gint
 main(gint argc, gchar **argv) {
 	KmsSdpSession *session;
 
-	g_type_init();
+	kms_init(&argc, &argv);
 
 	create_names();
 

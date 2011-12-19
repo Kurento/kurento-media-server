@@ -114,7 +114,7 @@ main(gint argc, gchar **argv) {
 	gint i;
 	gint new_mem, mem = 0;
 
-	g_type_init();
+	kms_init(&argc, &argv);
 
 	for (i = 0; i < TESTS; i++) {
 		test_endpoint();
