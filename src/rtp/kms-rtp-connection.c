@@ -7,9 +7,16 @@
 #define LOCK(obj) (g_static_mutex_lock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
 
+enum {
+	PROP_0,
+
+	PROP_LOCAL_SPEC
+};
+
 struct _KmsRtpConnectionPriv {
 	GStaticMutex mutex;
 	GstElement *pipe;
+	KmsSdpSession *local_spec;
 };
 
 static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
@@ -29,6 +36,14 @@ dispose_pipe(KmsRtpConnection *self) {
 	if (self->priv->pipe != NULL) {
 		g_object_unref(self->priv->pipe);
 		self->priv->pipe = NULL;
+	}
+}
+
+static void
+dispose_local_spec(KmsRtpConnection *self) {
+	if (self->priv->pipe != NULL) {
+		g_object_unref(self->priv->local_spec);
+		self->priv->local_spec = NULL;
 	}
 }
 
@@ -75,6 +90,43 @@ mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 }
 
 static void
+set_property (GObject *object, guint property_id, const GValue *value,
+							GParamSpec *pspec) {
+	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
+
+	switch (property_id) {
+		case PROP_LOCAL_SPEC:
+			LOCK(self);
+			dispose_local_spec(self);
+			self->priv->local_spec = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
+		default:
+			/* We don't have any other property... */
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+			break;
+	}
+}
+
+static void
+get_property(GObject *object, guint property_id, GValue *value,
+							GParamSpec *pspec) {
+	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
+
+	switch (property_id) {
+		case PROP_LOCAL_SPEC:
+			LOCK(self);
+			g_value_set_object(value, self->priv->local_spec);
+			UNLOCK(self);
+			break;
+		default:
+			/* We don't have any other property... */
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+			break;
+	}
+}
+
+static void
 constructed(GObject *object) {
 	GstElement *pipe;
 
@@ -98,6 +150,7 @@ kms_rtp_connection_dispose(GObject *object) {
 
 	LOCK(self);
 	dispose_pipe(self);
+	dispose_local_spec(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -116,7 +169,9 @@ kms_rtp_connection_finalize(GObject *object) {
 
 static void
 kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
+	GParamSpec *pspec;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
 	g_type_class_add_private (klass, sizeof (KmsRtpConnectionPriv));
 
 	KMS_CONNECTION_CLASS(klass)->mode_changed = mode_changed;
@@ -124,7 +179,16 @@ kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 	gobject_class->dispose = kms_rtp_connection_dispose;
 	gobject_class->finalize = kms_rtp_connection_finalize;
 	gobject_class->constructed = constructed;
+	gobject_class->set_property = set_property;
+	gobject_class->get_property = get_property;
 
+	pspec = g_param_spec_object("local-spec", "Local Session Spec",
+					"Local Session Spec",
+					KMS_TYPE_SDP_SESSION,
+					G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_READWRITE);
+
+	g_object_class_install_property(gobject_class, PROP_LOCAL_SPEC, pspec);
 }
 
 static void
