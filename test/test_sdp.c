@@ -3,7 +3,7 @@
 #include <glib-object.h>
 #include "memory.h"
 
-#define N_PAYS 10
+#define N_PAYS 5
 #define N_MEDIAS 4
 
 #define PAYLOAD(i) (i % 128)
@@ -22,7 +22,7 @@
 #define SESSION_REMOTE_HANDLER "kurento.com"
 #define SESSION_USERNAME "kms"
 
-#define TESTS 6000
+#define TESTS 7000
 
 static GValueArray *names = NULL;
 
