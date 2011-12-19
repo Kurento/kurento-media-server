@@ -49,6 +49,13 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 }
 
 static gboolean
+connect_to_remote(KmsConnection *self, KmsSdpSession *session, GError **err) {
+	KMS_DEBUG;
+	g_assert_not_reached();
+	return FALSE;
+}
+
+static gboolean
 mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 								GError **err) {
 	/* TODO: Implement mode changed for RtpConnection */
@@ -62,6 +69,7 @@ kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 	*/
 
 	KMS_CONNECTION_CLASS(klass)->mode_changed = mode_changed;
+	KMS_CONNECTION_CLASS(klass)->connect_to_remote = connect_to_remote;
 }
 
 static void
