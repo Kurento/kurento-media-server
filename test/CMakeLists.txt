@@ -22,7 +22,7 @@ target_link_libraries(test-endpoints kmsc-test-endpoints)
 include_directories(test-endpoints ${kmsc-endpoints_SOURCE_DIR}/src/core)
 include_directories(test-endpoints kmsc-test-endpoints)
 
-target_link_libraries(test_sdp kmsclib)
+target_link_libraries(test_sdp kmsclib test_memory)
 include_directories(test_sdp ${kmsc-endpoints_SOURCE_DIR}/src/core)
 
 target_link_libraries(test_rtp kmsclib test_memory rtp-test-lib)

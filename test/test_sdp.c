@@ -1,7 +1,7 @@
 #include <kms-core.h>
 #include <glib.h>
 #include <glib-object.h>
-#include <mcheck.h>
+#include "memory.h"
 
 #define N_PAYS 10
 #define N_MEDIAS 4
@@ -15,6 +15,9 @@
 #define BANDWIDTH(i) ((i * 121) % G_MAXLONG)
 
 #define SESSION_ADDR "kurento.com"
+#define SESSION_NAME "Kurento session"
+
+#define TESTS 6000
 
 static GValueArray *names = NULL;
 
@@ -177,7 +180,9 @@ create_session() {
 	medias = create_medias();
 
 	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
-						"address", SESSION_ADDR, NULL);
+						"address", SESSION_ADDR,
+						"name", SESSION_NAME,
+						NULL);
 
 	g_value_array_free(medias);
 
@@ -188,9 +193,11 @@ static void
 check_session(KmsSdpSession *session) {
 	GValueArray *medias;
 	gchar *addr;
+	gchar *name;
 	gint i;
 
-	g_object_get(session, "medias", &medias, "address", &addr, NULL);
+	g_object_get(session, "medias", &medias, "address", &addr,
+							"name", &name, NULL);
 
 	g_assert(medias != NULL);
 
@@ -199,32 +206,33 @@ check_session(KmsSdpSession *session) {
 	}
 
 	g_assert(g_strcmp0(addr, SESSION_ADDR) == 0);
+	g_assert(g_strcmp0(name, SESSION_NAME) == 0);
 
 	g_value_array_free(medias);
 	g_free(addr);
+	g_free(name);
 }
 
 gint
 main(gint argc, gchar **argv) {
 	KmsSdpSession *session;
+	gint i, new_mem, mem = 0;
 
 	kms_init(&argc, &argv);
 
 	create_names();
 
-	/*
-	do {
-	*/
+	for (i = 0; i < TESTS; i++) {
+		session = create_session();
+		check_session(session);
+		g_object_unref(session);
 
-	session = create_session();
+		new_mem = get_data_memory();
+		if (mem == 0)
+			mem = new_mem;
 
-	check_session(session);
-
-	g_object_unref(session);
-
-	/*
-	}while(g_print("loop\n"), sleep(1), 1);
-	*/
+		g_assert(mem == new_mem);
+	}
 
 	return 0;
 }

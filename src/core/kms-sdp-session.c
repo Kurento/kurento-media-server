@@ -9,12 +9,12 @@ struct _KmsSdpSessionPriv {
 	GStaticMutex mutex;
 	gchar *addr;
 	GValueArray *medias;
+	gchar *name;
 	/*
 	sdpVersion
 	username
 	sessionId
 	version
-	sessionName
 	remoteHandler
 	 */
 };
@@ -23,7 +23,8 @@ enum {
 	PROP_0,
 
 	PROP_ADDR,
-	PROP_MEDIAS
+	PROP_MEDIAS,
+	PROP_NAME
 };
 
 G_DEFINE_TYPE(KmsSdpSession, kms_sdp_session, G_TYPE_OBJECT)
@@ -33,6 +34,14 @@ free_addr(KmsSdpSession *self) {
 	if (self->priv->addr != NULL) {
 		g_free(self->priv->addr);
 		self->priv->addr = NULL;
+	}
+}
+
+static void
+free_name(KmsSdpSession *self) {
+	if (self->priv->name != NULL) {
+		g_free(self->priv->name);
+		self->priv->name = NULL;
 	}
 }
 
@@ -80,6 +89,12 @@ kms_sdp_session_set_property(GObject  *object, guint property_id,
 			UNLOCK(self);
 			break;
 		}
+		case PROP_NAME:
+			LOCK(self);
+			free_name(self);
+			self->priv->name = g_value_dup_string(value);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -105,6 +120,11 @@ kms_sdp_session_get_property(GObject *object, guint property_id, GValue *value,
 			g_value_set_boxed(value, self->priv->medias);
 			UNLOCK(self);
 			break;
+		case PROP_NAME:
+			LOCK(self);
+			g_value_set_string(value, self->priv->name);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -126,6 +146,7 @@ kms_sdp_session_finalize(GObject *object) {
 	KmsSdpSession *self = KMS_SDP_SESSION(object);
 
 	free_addr(self);
+	free_name(self);
 	g_static_mutex_free(&(self->priv->mutex));
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (kms_sdp_session_parent_class)->finalize(object);
@@ -160,6 +181,14 @@ kms_sdp_session_class_init(KmsSdpSessionClass *klass) {
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_MEDIAS, pspec);
+
+	pspec = g_param_spec_string("name", "Session name",
+					"The session name",
+					"",
+					G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_READWRITE);
+
+	g_object_class_install_property(gobject_class, PROP_NAME, pspec);
 }
 
 static void
@@ -169,4 +198,5 @@ kms_sdp_session_init(KmsSdpSession *self) {
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->addr = NULL;
 	self->priv->medias = NULL;
+	self->priv->name = NULL;
 }
