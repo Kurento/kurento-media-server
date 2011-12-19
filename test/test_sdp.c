@@ -16,6 +16,11 @@
 
 #define SESSION_ADDR "kurento.com"
 #define SESSION_NAME "Kurento session"
+#define SESSION_ID 123456L
+#define SESSION_VERSION 654321L
+#define SDP_VERSION 0
+#define SESSION_REMOTE_HANDLER "kurento.com"
+#define SESSION_USERNAME "kms"
 
 #define TESTS 6000
 
@@ -176,9 +181,14 @@ create_session() {
 	medias = create_medias();
 
 	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
-						"address", SESSION_ADDR,
-						"name", SESSION_NAME,
-						NULL);
+					"address", SESSION_ADDR,
+					"name", SESSION_NAME,
+					"id", SESSION_ID,
+					"version", SESSION_VERSION,
+					"sdp-version", SDP_VERSION,
+					"remote-handler", SESSION_REMOTE_HANDLER,
+					"username", SESSION_USERNAME,
+					NULL);
 
 	g_value_array_free(medias);
 
@@ -191,9 +201,18 @@ check_session(KmsSdpSession *session) {
 	gchar *addr;
 	gchar *name;
 	gint i;
+	glong id, version;
+	gint sdp_version;
+	gchar *remote_handler, *username;
 
 	g_object_get(session, "medias", &medias, "address", &addr,
-							"name", &name, NULL);
+					"name", &name,
+					"id", &id,
+					"version", &version,
+					"sdp-version", &sdp_version,
+					"remote-handler", &remote_handler,
+					"username", &username,
+					NULL);
 
 	g_assert(medias != NULL);
 
@@ -203,10 +222,17 @@ check_session(KmsSdpSession *session) {
 
 	g_assert(g_strcmp0(addr, SESSION_ADDR) == 0);
 	g_assert(g_strcmp0(name, SESSION_NAME) == 0);
+	g_assert(g_strcmp0(remote_handler, SESSION_REMOTE_HANDLER) == 0);
+	g_assert(g_strcmp0(username, SESSION_USERNAME) == 0);
+	g_assert(id == SESSION_ID);
+	g_assert(version == SESSION_VERSION);
+	g_assert(sdp_version == SDP_VERSION);
 
 	g_value_array_free(medias);
 	g_free(addr);
 	g_free(name);
+	g_free(remote_handler);
+	g_free(username);
 }
 
 gint
