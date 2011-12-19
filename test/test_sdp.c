@@ -86,10 +86,6 @@ check_payload(GValueArray *payloads, KmsSdpMedia *media, gint i) {
 
 	str = g_value_array_get_nth(names, i);
 
-	/*
-	 g _print("name: >%s<\n", na*me);
-	 g_print("name:->%s<\n", g_value_get_string(str));
-	 */
 	g_assert(g_strcmp0(g_value_get_string(str), name) == 0);
 	g_assert(pay == PAYLOAD(i));
 	g_assert(rate == CLOCKRATE(i));
