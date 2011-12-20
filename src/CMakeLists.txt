@@ -7,11 +7,9 @@ add_library(kmsclib SHARED ${CORE} ${RTP})
 
 find_package(PkgConfig)
 
-pkg_check_modules(GLIB2 REQUIRED glib-2.0)
 include_directories(kmsclib ${GLIB2_INCLUDE_DIRS})
 target_link_libraries(kmsclib ${GLIB2_LIBRARIES})
 
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.35)
 include_directories(kmsclib ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(kmsclib ${GSTREAMER_LIBRARIES})
 
