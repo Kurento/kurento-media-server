@@ -28,14 +28,17 @@ dispose_local_spec(KmsRtpEndpoint *self) {
 }
 
 static KmsConnection*
-create_connection(KmsEndpoint *self, gchar *name, GError **err) {
-	KmsConnection *conn;
+create_connection(KmsEndpoint *object, gchar *name, GError **err) {
+	KmsRtpConnection *conn;
+	KmsRtpEndpoint *self = KMS_RTP_ENDPOINT(object);
 
 	conn = g_object_new(KMS_TYPE_RTP_CONNECTION, "id", name,
-						"endpoint", self, NULL);
+					"endpoint", self,
+					"local-spec", self->priv->local_spec,
+					NULL);
 
 	g_object_set(G_OBJECT(self), "manager", conn, NULL);
-	return conn;
+	return KMS_CONNECTION(conn);
 }
 
 static void
