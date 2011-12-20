@@ -107,6 +107,7 @@ finalize(GObject *object) {
 
 static void
 kms_rtp_endpoint_class_init(KmsRtpEndpointClass *klass) {
+	GParamSpec *pspec;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	g_type_class_add_private(klass, sizeof(KmsRtpEndpointPriv));
 
@@ -116,6 +117,14 @@ kms_rtp_endpoint_class_init(KmsRtpEndpointClass *klass) {
 	gobject_class->constructed = constructed;
 	gobject_class->set_property = set_property;
 	gobject_class->get_property = get_property;
+
+	pspec = g_param_spec_object("local-spec", "Local Session Spec",
+				    "Local Session Spec",
+			     KMS_TYPE_SDP_SESSION,
+			     G_PARAM_CONSTRUCT_ONLY |
+			     G_PARAM_READWRITE);
+
+	g_object_class_install_property(gobject_class, PROP_LOCAL_SPEC, pspec);
 }
 
 static void
