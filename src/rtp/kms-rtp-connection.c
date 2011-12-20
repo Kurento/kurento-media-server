@@ -129,6 +129,7 @@ get_property(GObject *object, guint property_id, GValue *value,
 static void
 constructed(GObject *object) {
 	GstElement *pipe;
+	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
 
 	G_OBJECT_CLASS(kms_rtp_connection_parent_class)->constructed(object);
 
@@ -142,6 +143,8 @@ constructed(GObject *object) {
 	}
 
 	KMS_RTP_CONNECTION(object)->priv->pipe = g_object_ref(pipe);
+
+	g_warn_if_fail(self->priv->local_spec != NULL);
 }
 
 static void
