@@ -16,7 +16,7 @@
 
 static GValueArray*
 create_audio_payloads() {
-		GValueArray *payloads;
+	GValueArray *payloads;
 
 	payloads = g_value_array_new(2);
 
@@ -188,7 +188,8 @@ create_endpoint() {
 	session = create_session();
 
 	ep = g_object_new(KMS_TYPE_RTP_ENDPOINT, "localname", name,
-						"local-spec", session, NULL);
+						"local-spec", session,
+						NULL);
 
 	g_object_unref(session);
 	g_free(name);
