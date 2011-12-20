@@ -23,9 +23,7 @@ struct _KmsRtpEndpoint {
 
 	/* instance members */
 
-	/*
 	KmsRtpEndpointPriv *priv;
-	*/
 };
 
 struct _KmsRtpEndpointClass {
