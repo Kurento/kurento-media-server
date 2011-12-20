@@ -41,7 +41,7 @@ dispose_pipe(KmsRtpConnection *self) {
 
 static void
 dispose_local_spec(KmsRtpConnection *self) {
-	if (self->priv->pipe != NULL) {
+	if (self->priv->local_spec != NULL) {
 		g_object_unref(self->priv->local_spec);
 		self->priv->local_spec = NULL;
 	}
