@@ -28,12 +28,12 @@ test_connection() {
 
 	g_assert(conn != NULL);
 
-	ret = kms_connection_connect_to_remote(conn, NULL, &err);
-	if (!ret && err != NULL) {
-		g_printerr("error connecting: %s\n", err->message);
-		g_error_free(err);
-	}
-	g_assert(ret);
+// 	ret = kms_connection_connect_to_remote(conn, NULL, &err);
+// 	if (!ret && err != NULL) {
+// 		g_printerr("error connecting: %s\n", err->message);
+// 		g_error_free(err);
+// 	}
+// 	g_assert(ret);
 
 	ret = kms_endpoint_delete_connection(ep, conn, &err);
 	if (!ret && err != NULL) {
