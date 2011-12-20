@@ -197,4 +197,5 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->pipe = NULL;
+	self->priv->local_spec = NULL;
 }
