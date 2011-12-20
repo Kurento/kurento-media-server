@@ -91,10 +91,13 @@ kms_sdp_session_set_property(GObject  *object, guint property_id,
 			GValueArray *va = g_value_get_boxed(value);
 			gint i;
 
+			va = g_value_get_boxed(value);
+			if (va == NULL)
+				break;
+
 			LOCK(self);
 			free_medias(self);
-			if (va != NULL)
-				self->priv->medias = g_value_array_copy(va);
+			self->priv->medias = g_value_array_copy(va);
 
 			for (i=0; i < va->n_values; i++) {
 				GValue *v;
