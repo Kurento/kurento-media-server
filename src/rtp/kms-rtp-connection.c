@@ -67,9 +67,9 @@ media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 }
 
 static KmsMediaHandlerSrc*
-get_src(KmsMediaHandlerFactory *self) {
-	g_warning("%s:%d Not implemented", __FILE__, __LINE__);
-	return NULL;
+get_src(KmsMediaHandlerFactory *iface) {
+	KmsRtpConnection *self = KMS_RTP_CONNECTION(iface);
+	return KMS_MEDIA_HANDLER_SRC(self->priv->receiver);
 }
 
 static KmsMediaHandlerSink*
