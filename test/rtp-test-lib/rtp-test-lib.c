@@ -74,7 +74,7 @@ create_video_payloads() {
 		g_value_unset(&vpay);
 	}
 
-		{
+	{
 		KmsSdpPayload *pay;
 		GValue vpay = G_VALUE_INIT;
 
