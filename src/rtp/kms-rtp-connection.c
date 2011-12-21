@@ -107,6 +107,7 @@ set_property (GObject *object, guint property_id, const GValue *value,
 		case PROP_LOCAL_SPEC:
 			LOCK(self);
 			dispose_local_spec(self);
+			/* TODO: Create a copy spec to allow mofications */
 			self->priv->local_spec = g_value_dup_object(value);
 			UNLOCK(self);
 			break;
@@ -153,10 +154,11 @@ constructed(GObject *object) {
 
 	KMS_RTP_CONNECTION(object)->priv->pipe = g_object_ref(pipe);
 
-	g_warn_if_fail(self->priv->local_spec != NULL);
+	g_return_if_fail(self->priv->local_spec != NULL);
 
-	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER, NULL);
-	/* TODO: Add paramters to the reciver and perform actions with it */
+	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER,
+					"local-spec", self->priv->local_spec,
+					NULL);
 }
 
 static void
