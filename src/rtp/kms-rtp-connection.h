@@ -1,3 +1,7 @@
+#if !defined (__KMS_RTP_H_INSIDE__)
+#error "Only <rtp/kms-rtp.h> can be included directly."
+#endif
+
 #ifndef __KMS_RTP_CONNECTION_H__
 #define __KMS_RTP_CONNECTION_H__
 

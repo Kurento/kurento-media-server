@@ -1,5 +1,5 @@
 #include <kms-core.h>
-#include "kms-rtp-connection.h"
+#include <rtp/kms-rtp.h>
 #include <gst/gst.h>
 
 #define KMS_RTP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTP_CONNECTION, KmsRtpConnectionPriv))

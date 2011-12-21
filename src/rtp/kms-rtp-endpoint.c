@@ -1,5 +1,4 @@
-#include "kms-rtp-endpoint.h"
-#include "kms-rtp-connection.h"
+#include <rtp/kms-rtp.h>
 
 #define KMS_RTP_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTP_ENDPOINT, KmsRtpEndpointPriv))
 

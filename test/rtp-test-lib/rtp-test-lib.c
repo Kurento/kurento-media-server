@@ -1,5 +1,5 @@
 #include "rtp-test-lib.h"
-#include <rtp/kms-rtp-endpoint.h>
+#include <rtp/kms-rtp.h>
 #include <kms-core.h>
 
 #define LOCALNAME "kms/rtp/1"

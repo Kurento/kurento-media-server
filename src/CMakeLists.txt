@@ -15,7 +15,7 @@ target_link_libraries(kmsclib ${GLIB2_LIBRARIES})
 include_directories(kmsclib ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(kmsclib ${GSTREAMER_LIBRARIES})
 
-include_directories(kmsclib core rtp)
+include_directories(kmsclib core .)
 
 install(TARGETS kmsclib LIBRARY DESTINATION ${LIB_PREFIX} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 install(TARGETS kmsclibst ARCHIVE DESTINATION ${LIB_PREFIX} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

@@ -1,5 +1,5 @@
+#include <rtp/kms-rtp.h>
 #include <kms-core.h>
-#include "rtp/kms-rtp-endpoint.h"
 #include "memory.h"
 #include <glib.h>
 #include "rtp-test-lib/rtp-test-lib.h"
