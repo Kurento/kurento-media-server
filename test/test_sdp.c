@@ -237,7 +237,7 @@ check_session(KmsSdpSession *session) {
 
 gint
 main(gint argc, gchar **argv) {
-	KmsSdpSession *session;
+	KmsSdpSession *session, *copy;
 	gint i, new_mem, mem = 0;
 
 	kms_init(&argc, &argv);
@@ -247,6 +247,11 @@ main(gint argc, gchar **argv) {
 	for (i = 0; i < TESTS; i++) {
 		session = create_session();
 		check_session(session);
+
+		copy = kms_sdp_session_copy(session);
+		check_session(copy);
+
+		g_object_unref(copy);
 		g_object_unref(session);
 
 		new_mem = get_data_memory();

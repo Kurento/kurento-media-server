@@ -19,7 +19,7 @@
 
 typedef struct _KmsSdpSession		KmsSdpSession;
 typedef struct _KmsSdpSessionClass	KmsSdpSessionClass;
-typedef struct _KmsSdpSessionPriv		KmsSdpSessionPriv;
+typedef struct _KmsSdpSessionPriv	KmsSdpSessionPriv;
 
 struct _KmsSdpSession {
 	GObject parent_instance;
@@ -37,5 +37,7 @@ struct _KmsSdpSessionClass {
 
 /* used by KMS_TYPE_SDP_SESSION */
 GType kms_sdp_session_get_type (void);
+
+KmsSdpSession *kms_sdp_session_copy(KmsSdpSession *session);
 
 #endif /* __KMS_SDP_SESSION_H__ */

@@ -230,6 +230,30 @@ kms_sdp_session_finalize(GObject *object) {
 	G_OBJECT_CLASS (kms_sdp_session_parent_class)->finalize(object);
 }
 
+KmsSdpSession*
+kms_sdp_session_copy(KmsSdpSession *self) {
+	KmsSdpSession *copy;
+	GValueArray *medias;
+
+	medias = g_value_array_new(0);
+	/* TODO: Copy medias */
+
+	copy = g_object_new(KMS_TYPE_SDP_SESSION,
+				"medias", medias,
+				"address", self->priv->addr,
+				"name", self->priv->name,
+				"id", self->priv->id,
+				"version", self->priv->version,
+				"sdp-version", self->priv->sdp_version,
+				"remote-handler", self->priv->remote_handler,
+				"username", self->priv->username,
+				NULL);
+
+	g_value_array_free(medias);
+
+	return copy;
+}
+
 static void
 kms_sdp_session_class_init(KmsSdpSessionClass *klass) {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
