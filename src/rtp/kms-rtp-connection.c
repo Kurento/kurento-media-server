@@ -17,6 +17,7 @@ struct _KmsRtpConnectionPriv {
 	GStaticMutex mutex;
 	GstElement *pipe;
 	KmsSdpSession *local_spec;
+	KmsRtpReceiver *receiver;
 };
 
 static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
@@ -30,6 +31,14 @@ G_DEFINE_TYPE_WITH_CODE(KmsRtpConnection, kms_rtp_connection,
 				G_IMPLEMENT_INTERFACE(
 					KMS_TYPE_MEDIA_HANDLER_FACTORY,
 					media_handler_factory_iface_init))
+
+static void
+dispose_receiver(KmsRtpConnection *self) {
+	if (self->priv->receiver != NULL) {
+		g_object_unref(self->priv->receiver);
+		self->priv->receiver = NULL;
+	}
+}
 
 static void
 dispose_pipe(KmsRtpConnection *self) {
@@ -145,6 +154,9 @@ constructed(GObject *object) {
 	KMS_RTP_CONNECTION(object)->priv->pipe = g_object_ref(pipe);
 
 	g_warn_if_fail(self->priv->local_spec != NULL);
+
+	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER, NULL);
+	/* TODO: Add paramters to the reciver and perform actions with it */
 }
 
 static void
@@ -154,6 +166,7 @@ kms_rtp_connection_dispose(GObject *object) {
 	LOCK(self);
 	dispose_pipe(self);
 	dispose_local_spec(self);
+	dispose_receiver(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -201,4 +214,5 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->pipe = NULL;
 	self->priv->local_spec = NULL;
+	self->priv->receiver = NULL;
 }
