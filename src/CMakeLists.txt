@@ -5,6 +5,7 @@ aux_source_directory("rtp" RTP)
 
 add_library(kmsclib SHARED ${CORE} ${RTP})
 add_library(kmsclibst STATIC ${CORE} ${RTP})
+SET_TARGET_PROPERTIES(kmsclib kmsclibst PROPERTIES OUTPUT_NAME kmsc)
 
 find_package(PkgConfig)
 
