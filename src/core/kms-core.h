@@ -25,7 +25,7 @@
 #define KMS_LOG_DEBUG(...) g_print("%s:%d: %s\n", __FILE__, __LINE__, __VA_ARGS__)
 
 #define SET_ERROR(err, quark, type, ...)			\
-do {							\
+do {								\
 	if (err != NULL && *err == NULL)			\
 		*err = g_error_new(quark, type, __VA_ARGS__);	\
 } while (FALSE)
