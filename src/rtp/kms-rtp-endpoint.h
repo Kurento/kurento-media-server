@@ -18,6 +18,8 @@
 #define KMS_IS_RTP_ENDPOINT_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_RTP_ENDPOINT))
 #define KMS_RTP_ENDPOINT_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_RTP_ENDPOINT, KmsRtpEndpointClass))
 
+#define KMS_RTP_ENDPOINT_ERROR (g_quark_from_string("KmsRtpEndpointError"))
+
 typedef struct _KmsRtpEndpoint		KmsRtpEndpoint;
 typedef struct _KmsRtpEndpointClass	KmsRtpEndpointClass;
 typedef struct _KmsRtpEndpointPriv	KmsRtpEndpointPriv;

@@ -187,9 +187,9 @@ create_endpoint() {
 	name = g_strdup_printf(LOCALNAME);
 	session = create_session();
 
-	ep = g_object_new(KMS_TYPE_RTP_ENDPOINT, "localname", name,
-						"local-spec", session,
-						NULL);
+	ep = g_object_new(KMS_TYPE_RTP_ENDPOINT, "localname", name, NULL);
+
+	g_object_set(ep, "local-spec", session, NULL);
 
 	g_object_unref(session);
 	g_free(name);

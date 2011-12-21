@@ -31,11 +31,22 @@ create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 	KmsRtpConnection *conn;
 	KmsRtpEndpoint *self = KMS_RTP_ENDPOINT(object);
 
+	LOCK(self);
+	if (self->priv->local_spec == NULL) {
+		UNLOCK(self);
+		SET_ERROR(err, KMS_RTP_ENDPOINT_ERROR,
+				KMS_ENDPOINT_ERROR_NOT_FOUND,
+				"local-spec property is not set in class %s",
+				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+		return NULL;
+	}
+
 	conn = g_object_new(KMS_TYPE_RTP_CONNECTION, "id", name,
 					"endpoint", self,
 					"local-spec", self->priv->local_spec,
 					NULL);
 
+	UNLOCK(self);
 	g_object_set(G_OBJECT(self), "manager", conn, NULL);
 	return KMS_CONNECTION(conn);
 }
@@ -78,14 +89,6 @@ get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static void
-constructed(GObject *object) {
-	KmsRtpEndpoint *self = KMS_RTP_ENDPOINT(object);
-	G_OBJECT_CLASS(kms_rtp_endpoint_parent_class)->constructed(object);
-
-	g_warn_if_fail(self->priv->local_spec != NULL);
-}
-
-static void
 dispose(GObject *object) {
 	KmsRtpEndpoint *self = KMS_RTP_ENDPOINT(object);
 
@@ -116,15 +119,14 @@ kms_rtp_endpoint_class_init(KmsRtpEndpointClass *klass) {
 	KMS_ENDPOINT_CLASS(klass)->create_connection = create_connection;
 	gobject_class->dispose = dispose;
 	gobject_class->finalize = finalize;
-	gobject_class->constructed = constructed;
 	gobject_class->set_property = set_property;
 	gobject_class->get_property = get_property;
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
-				    "Local Session Spec",
-			     KMS_TYPE_SDP_SESSION,
-			     G_PARAM_CONSTRUCT_ONLY |
-			     G_PARAM_READWRITE);
+							"Local Session Spec",
+							KMS_TYPE_SDP_SESSION,
+							G_PARAM_CONSTRUCT |
+							G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_LOCAL_SPEC, pspec);
 }
