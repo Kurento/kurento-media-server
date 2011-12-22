@@ -64,7 +64,14 @@ dispose(GObject *object) {
 	parent = gst_element_get_parent(object);
 
 	if (parent != NULL && GST_IS_PIPELINE(parent)) {
+		/*
+		 * HACK:
+		 * Increase reference because it will be lost while removing
+		 * from pipe
+		 */
+		g_object_ref(object);
 		gst_bin_remove(GST_BIN(parent), GST_ELEMENT(object));
+		gst_element_set_locked_state(GST_ELEMENT(object), FALSE);
 		gst_element_set_state(GST_ELEMENT(object), GST_STATE_NULL);
 	}
 
