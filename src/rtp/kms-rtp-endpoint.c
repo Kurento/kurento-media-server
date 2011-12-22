@@ -30,6 +30,7 @@ static KmsConnection*
 create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 	KmsRtpConnection *conn;
 	KmsRtpEndpoint *self = KMS_RTP_ENDPOINT(object);
+	KmsSdpSession *local_spec;
 
 	LOCK(self);
 	if (self->priv->local_spec == NULL) {
@@ -41,10 +42,12 @@ create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 		return NULL;
 	}
 
+	local_spec = kms_sdp_session_copy(self->priv->local_spec);
 	conn = g_object_new(KMS_TYPE_RTP_CONNECTION, "id", name,
 					"endpoint", self,
-					"local-spec", self->priv->local_spec,
+					"local-spec", local_spec,
 					NULL);
+	g_object_unref(local_spec);
 
 	UNLOCK(self);
 	g_object_set(G_OBJECT(self), "manager", conn, NULL);
