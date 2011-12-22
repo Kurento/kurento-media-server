@@ -152,7 +152,7 @@ constructed(GObject *object) {
 		return;
 	}
 
-	KMS_RTP_CONNECTION(object)->priv->pipe = g_object_ref(pipe);
+	KMS_RTP_CONNECTION(object)->priv->pipe = pipe;
 
 	g_return_if_fail(self->priv->local_spec != NULL);
 
