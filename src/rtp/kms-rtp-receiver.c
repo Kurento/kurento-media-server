@@ -9,6 +9,7 @@
 struct _KmsRtpReceiverPriv {
 	GStaticMutex mutex;
 	KmsSdpMedia *local_spec;
+	GstElement *pipe;
 };
 
 enum {
@@ -24,6 +25,14 @@ dispose_local_spec(KmsRtpReceiver *self) {
 	if (self->priv->local_spec != NULL) {
 		g_object_unref(self->priv->local_spec);
 		self->priv->local_spec = NULL;
+	}
+}
+
+static void
+dispose_pipeline(KmsRtpReceiver *self) {
+	if (self->priv->pipe != NULL) {
+		g_object_unref(self->priv->pipe);
+		self->priv->pipe = NULL;
 	}
 }
 
@@ -65,11 +74,19 @@ get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static void
+constructed(GObject *object) {
+	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
+
+	self->priv->pipe = kms_get_pipeline();
+}
+
+static void
 dispose(GObject *object) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
 
 	LOCK(self);
 	dispose_local_spec(self);
+	dispose_pipeline(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -97,6 +114,7 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 	object_class->dispose = dispose;
 	object_class->set_property = set_property;
 	object_class->get_property = get_property;
+	object_class->constructed = constructed;
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
@@ -113,4 +131,5 @@ kms_rtp_receiver_init(KmsRtpReceiver *self) {
 
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->local_spec = NULL;
+	self->priv->pipe = NULL;
 }
