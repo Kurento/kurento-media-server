@@ -116,7 +116,7 @@ constructed(GObject *object) {
 
 	pipe = kms_get_pipeline();
 	gst_bin_add(GST_BIN(pipe), bin);
-	self->priv->pipe = pipe;
+	self->priv->pipe = g_object_ref(pipe);
 }
 
 static void

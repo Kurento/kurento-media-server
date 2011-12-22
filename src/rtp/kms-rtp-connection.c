@@ -129,21 +129,16 @@ get_property(GObject *object, guint property_id, GValue *value,
 
 static void
 constructed(GObject *object) {
-	GstElement *pipe;
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
 
 	G_OBJECT_CLASS(kms_rtp_connection_parent_class)->constructed(object);
 
-	pipe = kms_get_pipeline();
-
-	if (pipe == NULL) {
+	if (kms_get_pipeline() == NULL) {
 		g_warning("Kms should be initialized before instantiate "
 								"objects");
 		g_assert_not_reached();
 		return;
 	}
-
-	g_object_unref(pipe);
 
 	g_return_if_fail(self->priv->local_spec != NULL);
 

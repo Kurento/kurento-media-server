@@ -31,5 +31,5 @@ kms_init(gint *argc, gchar **argv[]) {
 
 GstElement*
 kms_get_pipeline() {
-	return g_object_ref(pipe);
+	return pipe;
 }
