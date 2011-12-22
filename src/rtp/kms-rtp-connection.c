@@ -15,7 +15,6 @@ enum {
 
 struct _KmsRtpConnectionPriv {
 	GStaticMutex mutex;
-	GstElement *pipe;
 	KmsSdpSession *local_spec;
 	KmsRtpReceiver *receiver;
 };
@@ -37,14 +36,6 @@ dispose_receiver(KmsRtpConnection *self) {
 	if (self->priv->receiver != NULL) {
 		g_object_unref(self->priv->receiver);
 		self->priv->receiver = NULL;
-	}
-}
-
-static void
-dispose_pipe(KmsRtpConnection *self) {
-	if (self->priv->pipe != NULL) {
-		g_object_unref(self->priv->pipe);
-		self->priv->pipe = NULL;
 	}
 }
 
@@ -152,7 +143,7 @@ constructed(GObject *object) {
 		return;
 	}
 
-	KMS_RTP_CONNECTION(object)->priv->pipe = pipe;
+	g_object_unref(pipe);
 
 	g_return_if_fail(self->priv->local_spec != NULL);
 
@@ -166,7 +157,6 @@ kms_rtp_connection_dispose(GObject *object) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
 
 	LOCK(self);
-	dispose_pipe(self);
 	dispose_local_spec(self);
 	dispose_receiver(self);
 	UNLOCK(self);
@@ -214,7 +204,6 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 	self->priv = KMS_RTP_CONNECTION_GET_PRIVATE(self);
 
 	g_static_mutex_init(&(self->priv->mutex));
-	self->priv->pipe = NULL;
 	self->priv->local_spec = NULL;
 	self->priv->receiver = NULL;
 }
