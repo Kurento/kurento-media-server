@@ -176,12 +176,28 @@ KmsSdpMedia*
 kms_sdp_media_copy(KmsSdpMedia *self) {
 	GValueArray *payloads;
 	KmsSdpMedia *copy;
+	KmsSdpPayload *pay, *pcopy;
+	GValue *orig, vcopy = G_VALUE_INIT;
+	gint i;
 
 	payloads = g_value_array_new(0);
 
 	LOCK(self);
+	if (self->priv->payloads != NULL) {
+		for (i = 0; i < self->priv->payloads->n_values; i++) {
+			orig = g_value_array_get_nth(self->priv->payloads, i);
+			if (orig == NULL)
+				continue;
 
-	/* TODO: Copy payloads correctly */
+			g_value_init(&vcopy, KMS_TYPE_SDP_PAYLOAD);
+			pay = g_value_get_object(orig);
+			pcopy = kms_sdp_payload_copy(pay);
+
+			g_value_take_object(&vcopy, pcopy);
+			g_value_array_append(payloads, &vcopy);
+			g_value_unset(&vcopy);
+		}
+	}
 
 	copy = g_object_new(KMS_TYPE_SDP_MEDIA,
 				"payloads", payloads,

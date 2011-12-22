@@ -130,6 +130,19 @@ kms_sdp_payload_get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
+KmsSdpPayload*
+kms_sdp_payload_copy(KmsSdpPayload *self) {
+	KmsSdpPayload *copy;
+
+	copy = g_object_new(KMS_TYPE_SDP_PAYLOAD,
+				"payload", self->priv->payload,
+				"name", self->priv->name,
+				"clockrate", self->priv->clockrate,
+				NULL);
+
+	return copy;
+}
+
 void
 kms_sdp_payload_dispose(GObject *object) {
 	dispose_media(KMS_SDP_PAYLOAD(object));

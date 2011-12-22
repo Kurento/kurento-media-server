@@ -161,6 +161,7 @@ check_medias(GValueArray *medias, gint ii) {
 				"payloads", &payloads, NULL);
 
 	g_assert(payloads != NULL);
+	g_assert(payloads->n_values == N_PAYS);
 	g_assert(port == PORT(ii));
 	g_assert(bandwidth == BANDWIDTH(ii));
 	g_assert(mode == MODE(ii));
