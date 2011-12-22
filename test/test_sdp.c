@@ -215,6 +215,7 @@ check_session(KmsSdpSession *session) {
 					NULL);
 
 	g_assert(medias != NULL);
+	g_assert(medias->n_values == N_MEDIAS);
 
 	for (i = 0; i < medias->n_values; i++) {
 		check_medias(medias, i);

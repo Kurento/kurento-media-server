@@ -172,6 +172,31 @@ kms_sdp_media_get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
+KmsSdpMedia*
+kms_sdp_media_copy(KmsSdpMedia *self) {
+	GValueArray *payloads;
+	KmsSdpMedia *copy;
+
+	payloads = g_value_array_new(0);
+
+	LOCK(self);
+
+	/* TODO: Copy payloads correctly */
+
+	copy = g_object_new(KMS_TYPE_SDP_MEDIA,
+				"payloads", payloads,
+				"port", self->priv->port,
+				"type", self->priv->type,
+				"mode", self->priv->mode,
+				"bandwidth", self->priv->bandwidth,
+				NULL);
+	UNLOCK(self);
+
+	g_value_array_free(payloads);
+
+	return copy;
+}
+
 void
 kms_sdp_media_dispose(GObject *object) {
 	LOCK(object);

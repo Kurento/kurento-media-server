@@ -232,11 +232,30 @@ kms_sdp_session_finalize(GObject *object) {
 
 KmsSdpSession*
 kms_sdp_session_copy(KmsSdpSession *self) {
+	KmsSdpMedia *media, *mcopy;
+	GValue *orig, vcopy = G_VALUE_INIT;
 	KmsSdpSession *copy;
 	GValueArray *medias;
+	gint i;
 
 	medias = g_value_array_new(0);
-	/* TODO: Copy medias */
+
+	LOCK(self);
+	if (self->priv->medias != NULL) {
+		for (i = 0; i < self->priv->medias->n_values; i++) {
+			orig = g_value_array_get_nth(self->priv->medias, i);
+			if (orig == NULL)
+				continue;
+
+			g_value_init(&vcopy, KMS_TYPE_SDP_MEDIA);
+			media = g_value_get_object(orig);
+			mcopy = kms_sdp_media_copy(media);
+
+			g_value_take_object(&vcopy, mcopy);
+			g_value_array_append(medias, &vcopy);
+			g_value_unset(&vcopy);
+		}
+	}
 
 	copy = g_object_new(KMS_TYPE_SDP_SESSION,
 				"medias", medias,
@@ -248,6 +267,7 @@ kms_sdp_session_copy(KmsSdpSession *self) {
 				"remote-handler", self->priv->remote_handler,
 				"username", self->priv->username,
 				NULL);
+	UNLOCK(self);
 
 	g_value_array_free(medias);
 
