@@ -6,6 +6,7 @@
 #define __KMS_MEDIA_HANDLER_SRC_H__
 
 #include <glib-object.h>
+#include <gst/gst.h>
 
 #define KMS_TYPE_MEDIA_HANDLER_SRC		(kms_media_handler_src_get_type())
 #define KMS_MEDIA_HANDLER_SRC(obj)		(G_TYPE_CHECK_INSTANCE_CAST((obj), KMS_TYPE_MEDIA_HANDLER_SRC, KmsMediaHandlerSrc))
@@ -19,7 +20,7 @@ typedef struct _KmsMediaHandlerSrcClass		KmsMediaHandlerSrcClass;
 typedef struct _KmsMediaHandlerSrcPriv		KmsMediaHandlerSrcPriv;
 
 struct _KmsMediaHandlerSrc {
-	GObject parent_instance;
+	GstBin parent_instance;
 
 	/* instance members */
 
@@ -27,7 +28,7 @@ struct _KmsMediaHandlerSrc {
 };
 
 struct _KmsMediaHandlerSrcClass {
-	GObjectClass parent_class;
+	GstBinClass parent_class;
 
 	/* class members */
 };

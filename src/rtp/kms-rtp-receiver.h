@@ -6,6 +6,7 @@
 #define __KMS_RTP_RECEIVER_H__
 
 #include <glib-object.h>
+#include <kms-core.h>
 
 #define KMS_TYPE_RTP_RECEIVER			(kms_rtp_receiver_get_type())
 #define KMS_RTP_RECEIVER(obj)			(G_TYPE_CHECK_INSTANCE_CAST((obj), KMS_TYPE_RTP_RECEIVER, KmsRtpReceiver))
@@ -19,7 +20,7 @@ typedef struct _KmsRtpReceiverClass	KmsRtpReceiverClass;
 typedef struct _KmsRtpReceiverPriv	KmsRtpReceiverPriv;
 
 struct _KmsRtpReceiver {
-	GObject parent_instance;
+	KmsMediaHandlerSrc parent_instance;
 
 	/* instance members */
 
@@ -27,7 +28,7 @@ struct _KmsRtpReceiver {
 };
 
 struct _KmsRtpReceiverClass {
-	GObjectClass parent_class;
+	KmsMediaHandlerSrcClass parent_class;
 
 	/* class members */
 };

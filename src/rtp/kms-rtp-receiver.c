@@ -17,7 +17,7 @@ enum {
 	PROP_LOCAL_SPEC,
 };
 
-G_DEFINE_TYPE(KmsRtpReceiver, kms_rtp_receiver, G_TYPE_OBJECT)
+G_DEFINE_TYPE(KmsRtpReceiver, kms_rtp_receiver, KMS_TYPE_MEDIA_HANDLER_SRC)
 
 static void
 dispose_local_spec(KmsRtpReceiver *self) {
