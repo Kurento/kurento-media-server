@@ -5,10 +5,12 @@ static GstElement *pipe = NULL;
 static G_LOCK_DEFINE(mutex);
 static gboolean init = FALSE;
 
-static gboolean
-bus_watch(GstBus *bus, GstMessage *message, gpointer data) {
-	KMS_LOG_DEBUG("TODO: implement bus watcher\n");
-	return TRUE;
+static gpointer
+gstreamer_thread(gpointer data) {
+	GMainLoop *loop;
+	loop = g_main_loop_new(NULL, TRUE);
+	g_main_loop_run(loop);
+	return NULL;
 }
 
 void
@@ -23,7 +25,10 @@ kms_init(gint *argc, gchar **argv[]) {
 		gst_element_set_state(pipe, GST_STATE_PLAYING);
 
 		bus = gst_element_get_bus(pipe);
-		gst_bus_add_watch(bus, bus_watch, NULL);
+		gst_bus_add_watch(bus, gst_bus_async_signal_func, NULL);
+
+		g_thread_create(gstreamer_thread, NULL, TRUE, NULL);
+
 		init = TRUE;
 	}
 	G_UNLOCK(mutex);
