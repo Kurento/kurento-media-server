@@ -2,7 +2,7 @@
 #include "kms-core.h"
 
 static GstElement *pipe = NULL;
-static G_LOCK_DEFINE(mutex);
+G_LOCK_DEFINE_STATIC(mutex);
 static gboolean init = FALSE;
 
 static gpointer
