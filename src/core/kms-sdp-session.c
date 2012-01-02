@@ -72,6 +72,31 @@ free_medias(KmsSdpSession *self) {
 	}
 }
 
+gchar*
+kms_sdp_session_to_string(KmsSdpSession *self) {
+	gchar *str;
+	gchar *medias_desc = "";
+
+	/* TODO: convert medias to string */
+
+	str = g_strdup_printf("v=%d\r\n"
+				"o=%s %ld %ld IN IPV4 %s\r\n"
+				"s=%s\r\n"
+				"c=IN IPV4 %s\r\n"
+				"t=0 0\r\n"
+				"%s",
+				self->priv->sdp_version,
+				self->priv->username,
+				self->priv->id,
+				self->priv->version,
+				self->priv->addr,
+				self->priv->name,
+				self->priv->remote_handler,
+				medias_desc);
+
+	return str;
+}
+
 static void
 kms_sdp_session_set_property(GObject  *object, guint property_id,
 				const GValue *value, GParamSpec *pspec) {

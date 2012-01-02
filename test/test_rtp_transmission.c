@@ -51,6 +51,7 @@ test_connection() {
 	GError *err = NULL;
 	gboolean ret;
 	gint audio_port, video_port;
+	gchar *session_str;
 
 	ep = create_endpoint();
 	check_endpoint(ep);
@@ -75,6 +76,10 @@ test_connection() {
 	g_assert(session != NULL);
 
 	get_ports(session, &audio_port, &video_port);
+
+	session_str = kms_sdp_session_to_string(session);
+	g_print("session:\n%s\n", session_str);
+	g_free(session_str);
 
 	g_object_unref(session);
 

@@ -40,4 +40,6 @@ GType kms_sdp_session_get_type (void);
 
 KmsSdpSession *kms_sdp_session_copy(KmsSdpSession *session);
 
+gchar *kms_sdp_session_to_string(KmsSdpSession *session);
+
 #endif /* __KMS_SDP_SESSION_H__ */
