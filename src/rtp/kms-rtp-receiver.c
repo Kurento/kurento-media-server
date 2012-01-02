@@ -82,17 +82,32 @@ get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static void
-create_media_src(KmsRtpReceiver *self) {
+create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 	GstElement *udpsrc, *ptdemux;
 	GstCaps *caps;
+	gchar *udpsrc_name;
+	gint *port;
+
+	switch (type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		udpsrc_name = "udpsrc_audio";
+		port = &(self->priv->audio_port);
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		udpsrc_name = "udpsrc_video";
+		port = &(self->priv->video_port);
+		break;
+	default:
+		return;
+	}
 
 	caps = gst_caps_from_string("application/x-rtp");
-	udpsrc = gst_element_factory_make("udpsrc", "udpsrc_audio");
+	udpsrc = gst_element_factory_make("udpsrc", udpsrc_name);
 	g_object_set(udpsrc, "port", 0, NULL);
 	g_object_set(udpsrc, "caps", caps, NULL);
 	gst_caps_unref(caps);
 
-	ptdemux = gst_element_factory_make("gstrtpptdemux", "rtpmux_audio");
+	ptdemux = gst_element_factory_make("gstrtpptdemux", NULL);
 
 	gst_bin_add_many(GST_BIN(self), udpsrc, ptdemux, NULL);
 	gst_element_link(udpsrc, ptdemux);
@@ -100,7 +115,7 @@ create_media_src(KmsRtpReceiver *self) {
 	gst_element_set_state(udpsrc, GST_STATE_PLAYING);
 	gst_element_set_state(ptdemux, GST_STATE_PLAYING);
 
-	g_object_get(udpsrc, "port", &(self->priv->audio_port), NULL);
+	g_object_get(udpsrc, "port", port, NULL);
 
 	self->priv->udpsrc = udpsrc;
 
@@ -112,7 +127,8 @@ constructed(GObject *object) {
 
 	G_OBJECT_CLASS(kms_rtp_receiver_parent_class)->constructed(object);
 
-	create_media_src(self);
+	create_media_src(self, KMS_MEDIA_TYPE_AUDIO);
+	create_media_src(self, KMS_MEDIA_TYPE_VIDEO);
 }
 
 static void
