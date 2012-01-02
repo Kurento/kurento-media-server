@@ -3,6 +3,7 @@
 #include "memory.h"
 #include <glib.h>
 #include "rtp-test-lib/rtp-test-lib.h"
+#include <unistd.h>
 
 #define CONNECTIONS 10
 
@@ -50,20 +51,20 @@ test_connection() {
 gint
 main(gint argc, gchar **argv) {
 	gint i;
-	gint new_mem, mem = 0;
 
 	kms_init(&argc, &argv);
 
 	for (i = 0; i < TESTS; i++) {
 		test_connection();
 
-		new_mem = get_data_memory();
-		if (mem == 0)
-			mem = new_mem;
-
-		g_assert(mem == new_mem);
-
+		if (i == TESTS / 2) {
+			sleep(5);
+			g_print("mem: %d\n", get_data_memory());
+		}
 	}
+
+	sleep(5);
+	g_print("final mem: %d\n", get_data_memory());
 
 	return 0;
 }

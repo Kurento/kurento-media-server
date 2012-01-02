@@ -112,19 +112,11 @@ test_endpoint() {
 gint
 main(gint argc, gchar **argv) {
 	gint i;
-	gint new_mem, mem = 0;
 
 	kms_init(&argc, &argv);
 
 	for (i = 0; i < TESTS; i++) {
 		test_endpoint();
-
-		new_mem = get_data_memory();
-		if (mem == 0)
-			mem = new_mem;
-
-		g_assert(mem == new_mem);
-
 	}
 
 	return 0;
