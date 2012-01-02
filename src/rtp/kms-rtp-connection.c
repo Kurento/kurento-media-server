@@ -17,8 +17,10 @@ enum {
 struct _KmsRtpConnectionPriv {
 	GStaticMutex mutex;
 	KmsSdpSession *local_spec;
+	KmsSdpSession *remote_spec;
 	KmsSdpSession *descriptor;
 	KmsRtpReceiver *receiver;
+	gboolean initialized;
 };
 
 static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
@@ -47,6 +49,14 @@ dispose_local_spec(KmsRtpConnection *self) {
 	if (self->priv->local_spec != NULL) {
 		g_object_unref(self->priv->local_spec);
 		self->priv->local_spec = NULL;
+	}
+}
+
+static void
+dispose_remote_spec(KmsRtpConnection *self) {
+	if (self->priv->remote_spec != NULL) {
+		g_object_unref(self->priv->remote_spec);
+		self->priv->remote_spec = NULL;
 	}
 }
 
@@ -87,10 +97,27 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 }
 
 static gboolean
-connect_to_remote(KmsConnection *self, KmsSdpSession *session, GError **err) {
-	KMS_DEBUG;
-	g_assert_not_reached();
-	return FALSE;
+connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
+	KmsRtpConnection *self = KMS_RTP_CONNECTION(conn);
+
+	LOCK(self);
+	if (self->priv->remote_spec != NULL) {
+		SET_ERROR(err, KMS_RTP_CONNECTION_ERROR,
+					KMS_RTP_CONNECTION_ERROR_ALREADY,
+					"Remote spec was already set");
+		return FALSE;
+	}
+
+	self->priv->remote_spec = spec;
+
+	if (self->priv->initialized) {
+		/* TODO: Merge descriptors */
+	} else {
+		/* TODO: Merge descriptors */
+	}
+	UNLOCK(self);
+
+	return TRUE;
 }
 
 static gboolean
@@ -174,6 +201,7 @@ kms_rtp_connection_dispose(GObject *object) {
 
 	LOCK(self);
 	dispose_local_spec(self);
+	dispose_remote_spec(self);
 	dispose_descriptor(self);
 	dispose_receiver(self);
 	UNLOCK(self);
@@ -231,4 +259,6 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 	self->priv->local_spec = NULL;
 	self->priv->descriptor = NULL;
 	self->priv->receiver = NULL;
+	self->priv->remote_spec = NULL;
+	self->priv->initialized = FALSE;
 }

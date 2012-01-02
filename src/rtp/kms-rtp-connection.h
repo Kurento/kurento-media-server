@@ -22,6 +22,12 @@ typedef struct _KmsRtpConnection		KmsRtpConnection;
 typedef struct _KmsRtpConnectionClass		KmsRtpConnectionClass;
 typedef struct _KmsRtpConnectionPriv		KmsRtpConnectionPriv;
 
+#define KMS_RTP_CONNECTION_ERROR (g_quark_from_string("KmsRtpConnectionError"))
+
+enum {
+	KMS_RTP_CONNECTION_ERROR_ALREADY,
+};
+
 struct _KmsRtpConnection {
 	KmsConnection parent_instance;
 
