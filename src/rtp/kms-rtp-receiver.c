@@ -124,11 +124,38 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 static void
 constructed(GObject *object) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
+	GValueArray *medias;
+	gint i;
 
 	G_OBJECT_CLASS(kms_rtp_receiver_parent_class)->constructed(object);
 
 	create_media_src(self, KMS_MEDIA_TYPE_AUDIO);
 	create_media_src(self, KMS_MEDIA_TYPE_VIDEO);
+
+	g_object_get(self->priv->local_spec, "medias", &medias, NULL);
+
+	for (i = 0; i < medias->n_values; i++) {
+		GValue *val;
+		KmsSdpMedia *media;
+		KmsMediaType type;
+
+		val = g_value_array_get_nth(medias, i);
+		media = g_value_get_object(val);
+
+		g_object_get(media, "type", &type, NULL);
+		switch (type) {
+		case KMS_MEDIA_TYPE_AUDIO:
+			g_object_set(media, "port", self->priv->audio_port, NULL);
+			break;
+		case KMS_MEDIA_TYPE_VIDEO:
+			g_object_set(media, "port", self->priv->video_port, NULL);
+			break;
+		default:
+			break;
+		}
+	}
+
+	g_value_array_free(medias);
 }
 
 static void
