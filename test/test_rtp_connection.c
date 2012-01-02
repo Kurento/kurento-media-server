@@ -10,9 +10,42 @@
 #define TESTS 6000
 
 static void
+check_ports(KmsSdpSession *session) {
+	GValueArray *medias;
+	gint i;
+
+	g_object_get(session, "medias", &medias, NULL);
+
+	for (i = 0; i < medias->n_values; i++) {
+		GValue *val;
+		KmsSdpMedia *media;
+		KmsMediaType type;
+		gint port;
+
+		val = g_value_array_get_nth(medias, i);
+		media = g_value_get_object(val);
+
+		g_object_get(media, "type", &type, NULL);
+
+		switch (type) {
+			case KMS_MEDIA_TYPE_AUDIO:
+			case KMS_MEDIA_TYPE_VIDEO:
+				g_object_get(media, "port", &port, NULL);
+				g_assert(port != 0);
+				break;
+			default:
+				break;
+		}
+	}
+
+	g_value_array_free(medias);
+}
+
+static void
 test_connection() {
 	KmsEndpoint *ep;
 	KmsConnection *conn;
+	KmsSdpSession *session;
 	GError *err = NULL;
 	gboolean ret;
 
@@ -28,6 +61,19 @@ test_connection() {
 	}
 
 	g_assert(conn != NULL);
+
+	if (g_object_class_find_property(G_OBJECT_GET_CLASS(conn),
+							"descriptor") == NULL) {
+		g_assert_not_reached();
+	}
+
+	g_object_get(conn, "descriptor", &session, NULL);
+
+	g_assert(session != NULL);
+
+	check_ports(session);
+
+	g_object_unref(session);
 
 // 	ret = kms_connection_connect_to_remote(conn, NULL, &err);
 // 	if (!ret && err != NULL) {

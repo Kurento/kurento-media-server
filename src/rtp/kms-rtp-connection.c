@@ -10,12 +10,14 @@
 enum {
 	PROP_0,
 
-	PROP_LOCAL_SPEC
+	PROP_LOCAL_SPEC,
+	PROP_DESCRIPTOR,
 };
 
 struct _KmsRtpConnectionPriv {
 	GStaticMutex mutex;
 	KmsSdpSession *local_spec;
+	KmsSdpSession *descriptor;
 	KmsRtpReceiver *receiver;
 };
 
@@ -45,6 +47,14 @@ dispose_local_spec(KmsRtpConnection *self) {
 	if (self->priv->local_spec != NULL) {
 		g_object_unref(self->priv->local_spec);
 		self->priv->local_spec = NULL;
+	}
+}
+
+static void
+dispose_descriptor(KmsRtpConnection *self) {
+	if (self->priv->descriptor != NULL) {
+		g_object_unref(self->priv->descriptor);
+		self->priv->descriptor = NULL;
 	}
 }
 
@@ -101,6 +111,11 @@ set_property (GObject *object, guint property_id, const GValue *value,
 			dispose_local_spec(self);
 			/* TODO: Create a copy spec to allow mofications */
 			self->priv->local_spec = g_value_dup_object(value);
+			if (self->priv->descriptor == NULL &&
+					self->priv->local_spec != NULL) {
+				self->priv->descriptor = g_object_ref(
+							self->priv->local_spec);
+			}
 			UNLOCK(self);
 			break;
 		default:
@@ -119,6 +134,11 @@ get_property(GObject *object, guint property_id, GValue *value,
 		case PROP_LOCAL_SPEC:
 			LOCK(self);
 			g_value_set_object(value, self->priv->local_spec);
+			UNLOCK(self);
+			break;
+		case PROP_DESCRIPTOR:
+			LOCK(self);
+			g_value_set_object(value, self->priv->descriptor);
 			UNLOCK(self);
 			break;
 		default:
@@ -154,6 +174,7 @@ kms_rtp_connection_dispose(GObject *object) {
 
 	LOCK(self);
 	dispose_local_spec(self);
+	dispose_descriptor(self);
 	dispose_receiver(self);
 	UNLOCK(self);
 
@@ -193,6 +214,13 @@ kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_LOCAL_SPEC, pspec);
+
+	pspec = g_param_spec_object("descriptor", "Session descriptor",
+					"The current session descriptor",
+					KMS_TYPE_SDP_SESSION,
+					G_PARAM_READABLE);
+
+	g_object_class_install_property(gobject_class, PROP_DESCRIPTOR, pspec);
 }
 
 static void
@@ -201,5 +229,6 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->local_spec = NULL;
+	self->priv->descriptor = NULL;
 	self->priv->receiver = NULL;
 }
