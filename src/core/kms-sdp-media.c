@@ -269,7 +269,7 @@ kms_sdp_media_class_init(KmsSdpMediaClass *klass) {
 
 	pspec = g_param_spec_long("bandwidth", "Bandwidth",
 				"The media type bandwidth",
-				0L, G_MAXLONG, 0,
+				-1L, G_MAXLONG, 0,
 				G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_BANDWIDTH, pspec);
