@@ -34,6 +34,7 @@ G_DEFINE_TYPE_WITH_CODE(KmsRtpConnection, kms_rtp_connection,
 static void
 dispose_receiver(KmsRtpConnection *self) {
 	if (self->priv->receiver != NULL) {
+		kms_rtp_receiver_terminate(self->priv->receiver);
 		g_object_unref(self->priv->receiver);
 		self->priv->receiver = NULL;
 	}

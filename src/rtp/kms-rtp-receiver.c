@@ -27,6 +27,10 @@ dispose_local_spec(KmsRtpReceiver *self) {
 	}
 }
 
+void
+kms_rtp_receiver_terminate(KmsRtpReceiver *self) {
+}
+
 static void
 set_property (GObject *object, guint property_id, const GValue *value,
 							GParamSpec *pspec) {
