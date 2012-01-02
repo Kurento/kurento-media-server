@@ -39,5 +39,6 @@ struct _KmsSdpMediaClass {
 GType kms_sdp_media_get_type (void);
 
 KmsSdpMedia *kms_sdp_media_copy(KmsSdpMedia *self);
+gchar *kms_sdp_media_to_string(KmsSdpMedia *self);
 
 #endif /* __KMS_SDP_MEDIA_H__ */

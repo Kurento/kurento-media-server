@@ -72,12 +72,40 @@ free_medias(KmsSdpSession *self) {
 	}
 }
 
+static gchar*
+medias_to_string(GValueArray *medias) {
+	GString *str = g_string_sized_new(50);
+	gchar *ret;
+	gint i;
+
+	for (i = 0; i < medias->n_values; i++) {
+		gchar *media_str;
+		GValue *val;
+		KmsSdpMedia *media;
+
+		val = g_value_array_get_nth(medias, i);
+		media = g_value_get_object(val);
+
+		media_str = kms_sdp_media_to_string(media);
+
+		g_print("Allocated: %d\n", str->allocated_len);
+		g_string_append(str, media_str);
+		g_free(media_str);
+	}
+
+	ret = str->str;
+	g_string_free(str, FALSE);
+
+	return ret;
+}
+
 gchar*
 kms_sdp_session_to_string(KmsSdpSession *self) {
 	gchar *str;
 	gchar *medias_desc = "";
 
-	/* TODO: convert medias to string */
+	LOCK(self);
+	medias_desc = medias_to_string(self->priv->medias);
 
 	str = g_strdup_printf("v=%d\r\n"
 				"o=%s %ld %ld IN IPV4 %s\r\n"
@@ -93,6 +121,9 @@ kms_sdp_session_to_string(KmsSdpSession *self) {
 				self->priv->name,
 				self->priv->remote_handler,
 				medias_desc);
+	UNLOCK(self);
+
+	g_free(medias_desc);
 
 	return str;
 }

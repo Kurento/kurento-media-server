@@ -57,6 +57,31 @@ dispose_session(KmsSdpMedia *self) {
 	}
 }
 
+gchar *
+kms_sdp_media_to_string(KmsSdpMedia *self) {
+	GString *str = g_string_sized_new(30);
+	gchar *ret;
+	GEnumValue *type;
+	GEnumClass *eclass;
+
+	LOCK(self);
+	eclass = G_ENUM_CLASS(g_type_class_ref(KMS_MEDIA_TYPE));
+	type = g_enum_get_value(eclass, self->priv->type);
+	g_type_class_unref(eclass);
+
+	g_string_append_printf(str, "m=%s %d RTP/AVP \r\n",
+				type->value_nick,
+				self->priv->port);
+
+	ret = str->str;
+	g_string_free(str, FALSE);
+	UNLOCK(self);
+
+	/* TODO: Append payload and payload values list */
+
+	return ret;
+}
+
 static void
 kms_sdp_media_set_property(GObject  *object, guint property_id,
 				const GValue *value, GParamSpec *pspec) {
