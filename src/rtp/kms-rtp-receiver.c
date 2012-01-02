@@ -8,7 +8,13 @@
 
 struct _KmsRtpReceiverPriv {
 	GMutex *mutex;
+
 	KmsSdpMedia *local_spec;
+
+	GstElement *udpsrc;
+
+	gint audio_port;
+	gint video_port;
 };
 
 enum {
@@ -29,6 +35,13 @@ dispose_local_spec(KmsRtpReceiver *self) {
 
 void
 kms_rtp_receiver_terminate(KmsRtpReceiver *self) {
+	LOCK(self);
+	if (self->priv->udpsrc) {
+		gst_element_send_event(self->priv->udpsrc,
+						gst_event_new_flush_start());
+		self->priv->udpsrc = NULL;
+	}
+	UNLOCK(self);
 }
 
 static void
@@ -69,14 +82,44 @@ get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static void
+create_media_src(KmsRtpReceiver *self) {
+	GstElement *udpsrc, *ptdemux;
+	GstCaps *caps;
+
+	caps = gst_caps_from_string("application/x-rtp");
+	udpsrc = gst_element_factory_make("udpsrc", "udpsrc_audio");
+	g_object_set(udpsrc, "port", 0, NULL);
+	g_object_set(udpsrc, "caps", caps, NULL);
+	gst_caps_unref(caps);
+
+	ptdemux = gst_element_factory_make("gstrtpptdemux", "rtpmux_audio");
+
+	gst_bin_add_many(GST_BIN(self), udpsrc, ptdemux, NULL);
+	gst_element_link(udpsrc, ptdemux);
+
+	gst_element_set_state(udpsrc, GST_STATE_PLAYING);
+	gst_element_set_state(ptdemux, GST_STATE_PLAYING);
+
+	g_object_get(udpsrc, "port", &(self->priv->audio_port), NULL);
+
+	self->priv->udpsrc = udpsrc;
+
+}
+
+static void
 constructed(GObject *object) {
+	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
+
 	G_OBJECT_CLASS(kms_rtp_receiver_parent_class)->constructed(object);
+
+	create_media_src(self);
 }
 
 static void
 dispose(GObject *object) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
 
+	kms_rtp_receiver_terminate(self);
 	LOCK(self);
 	dispose_local_spec(self);
 	UNLOCK(self);
