@@ -40,4 +40,6 @@ GType kms_sdp_payload_get_type (void);
 
 KmsSdpPayload *kms_sdp_payload_copy(KmsSdpPayload *self);
 
+gchar *kms_sdp_payload_to_string(KmsSdpPayload *self);
+
 #endif /* __KMS_SDP_PAYLOAD_H__ */

@@ -143,6 +143,34 @@ kms_sdp_payload_copy(KmsSdpPayload *self) {
 	return copy;
 }
 
+gchar *
+kms_sdp_payload_to_string(KmsSdpPayload *self) {
+	GString *str;
+	gchar *ret;
+
+	if (self->priv->name == NULL || g_strcmp0(self->priv->name, "") == 0) {
+		return g_strdup("");
+	}
+
+	str = g_string_sized_new(20);
+
+	g_string_append_printf(str, "a=rtpmap:%d %s/%d", self->priv->payload,
+							self->priv->name,
+							self->priv->clockrate);
+
+	/* TODO: Add format encodign parameters */
+
+	g_string_append(str, "\r\n");
+
+	/* TODO: Add format parameters */
+
+	ret = str->str;
+
+	g_string_free(str, FALSE);
+
+	return ret;
+}
+
 void
 kms_sdp_payload_dispose(GObject *object) {
 	dispose_media(KMS_SDP_PAYLOAD(object));

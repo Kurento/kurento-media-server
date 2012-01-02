@@ -57,9 +57,38 @@ dispose_session(KmsSdpMedia *self) {
 	}
 }
 
+static GString*
+payloads_to_string(GValueArray *payloads, GString *ids) {
+	GString *str = g_string_sized_new(50);
+	gint i;
+	gint id;
+
+	for (i = 0; i < payloads->n_values; i++) {
+		gchar *media_str;
+		GValue *val;
+		KmsSdpPayload *payload;
+
+		val = g_value_array_get_nth(payloads, i);
+		payload = g_value_get_object(val);
+
+		media_str = kms_sdp_payload_to_string(payload);
+
+		g_object_get(payload, "payload", &id, NULL);
+		g_string_append_printf(ids, " %d", id);
+
+		g_string_append(str, media_str);
+		g_free(media_str);
+	}
+
+	return str;
+}
+
+
 gchar *
 kms_sdp_media_to_string(KmsSdpMedia *self) {
 	GString *str = g_string_sized_new(30);
+	GString *payids = g_string_sized_new(10);
+	GString *paystr;
 	gchar *ret;
 	GEnumValue *type;
 	GEnumClass *eclass;
@@ -69,9 +98,16 @@ kms_sdp_media_to_string(KmsSdpMedia *self) {
 	type = g_enum_get_value(eclass, self->priv->type);
 	g_type_class_unref(eclass);
 
-	g_string_append_printf(str, "m=%s %d RTP/AVP \r\n",
+	paystr = payloads_to_string(self->priv->payloads, payids);
+
+	g_string_append_printf(str, "m=%s %d RTP/AVP%s\r\n%s",
 				type->value_nick,
-				self->priv->port);
+				self->priv->port,
+				payids->str,
+				paystr->str);
+
+	g_string_free(payids, TRUE);
+	g_string_free(paystr, TRUE);
 
 	ret = str->str;
 	g_string_free(str, FALSE);
