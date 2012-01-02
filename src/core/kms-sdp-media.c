@@ -248,7 +248,7 @@ kms_sdp_media_class_init(KmsSdpMediaClass *klass) {
 	pspec = g_param_spec_int("port", "Port",
 					"The listening port for media",
 					0, G_MAXUSHORT, 0,
-					G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_CONSTRUCT |
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_PORT, pspec);
