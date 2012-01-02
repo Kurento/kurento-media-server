@@ -88,7 +88,6 @@ medias_to_string(GValueArray *medias) {
 
 		media_str = kms_sdp_media_to_string(media);
 
-		g_print("Allocated: %d\n", str->allocated_len);
 		g_string_append(str, media_str);
 		g_free(media_str);
 	}
