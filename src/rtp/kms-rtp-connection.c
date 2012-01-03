@@ -18,6 +18,8 @@ struct _KmsRtpConnectionPriv {
 	GStaticMutex mutex;
 	KmsSdpSession *local_spec;
 	KmsSdpSession *remote_spec;
+	KmsSdpSession *neg_local_spec;
+	KmsSdpSession *neg_remote_spec;
 	KmsSdpSession *descriptor;
 	KmsRtpReceiver *receiver;
 	gboolean initialized;
@@ -61,6 +63,22 @@ dispose_remote_spec(KmsRtpConnection *self) {
 }
 
 static void
+dispose_neg_local_spec(KmsRtpConnection *self) {
+	if (self->priv->neg_local_spec != NULL) {
+		g_object_unref(self->priv->neg_local_spec);
+		self->priv->neg_local_spec = NULL;
+	}
+}
+
+static void
+dispose_neg_remote_spec(KmsRtpConnection *self) {
+	if (self->priv->neg_remote_spec != NULL) {
+		g_object_unref(self->priv->neg_remote_spec);
+		self->priv->neg_remote_spec = NULL;
+	}
+}
+
+static void
 dispose_descriptor(KmsRtpConnection *self) {
 	if (self->priv->descriptor != NULL) {
 		g_object_unref(self->priv->descriptor);
@@ -100,6 +118,13 @@ static gboolean
 connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(conn);
 
+	if (!KMS_IS_SDP_SESSION(spec)) {
+		SET_ERROR(err, KMS_RTP_CONNECTION_ERROR,
+					KMS_RTP_CONNECTION_ERROR_WRONG_VALUE,
+					"Given spect has incorrect type");
+		return FALSE;
+	}
+
 	LOCK(self);
 	if (self->priv->remote_spec != NULL) {
 		SET_ERROR(err, KMS_RTP_CONNECTION_ERROR,
@@ -107,14 +132,23 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 					"Remote spec was already set");
 		return FALSE;
 	}
-
-	self->priv->remote_spec = spec;
+//
+	self->priv->remote_spec = g_object_ref(spec);
 
 	if (self->priv->initialized) {
-		/* TODO: Merge descriptors */
+		kms_sdp_session_intersect(spec, self->priv->local_spec,
+						&(self->priv->neg_remote_spec),
+						&(self->priv->neg_local_spec));
 	} else {
-		/* TODO: Merge descriptors */
+		kms_sdp_session_intersect(self->priv->local_spec, spec,
+						&(self->priv->neg_local_spec),
+						&(self->priv->neg_remote_spec));
 	}
+
+	/* TODO: Set descriptor correctly
+	dispose_descriptor(self);
+	self->priv->descriptor = g_object_ref(self->priv->neg_local_spec);
+	*/
 	UNLOCK(self);
 
 	return TRUE;
@@ -202,6 +236,8 @@ kms_rtp_connection_dispose(GObject *object) {
 	LOCK(self);
 	dispose_local_spec(self);
 	dispose_remote_spec(self);
+	dispose_neg_local_spec(self);
+	dispose_neg_remote_spec(self);
 	dispose_descriptor(self);
 	dispose_receiver(self);
 	UNLOCK(self);
@@ -261,4 +297,6 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 	self->priv->receiver = NULL;
 	self->priv->remote_spec = NULL;
 	self->priv->initialized = FALSE;
+	self->priv->neg_remote_spec = NULL;
+	self->priv->neg_local_spec = NULL;
 }

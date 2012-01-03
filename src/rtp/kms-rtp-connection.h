@@ -26,6 +26,7 @@ typedef struct _KmsRtpConnectionPriv		KmsRtpConnectionPriv;
 
 enum {
 	KMS_RTP_CONNECTION_ERROR_ALREADY,
+	KMS_RTP_CONNECTION_ERROR_WRONG_VALUE,
 };
 
 struct _KmsRtpConnection {
