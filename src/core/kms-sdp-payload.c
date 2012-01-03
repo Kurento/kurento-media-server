@@ -130,6 +130,16 @@ kms_sdp_payload_get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
+gboolean
+kms_sdp_payload_equals(KmsSdpPayload *a, KmsSdpPayload *b) {
+
+	if (a->priv->payload < 96 && a->priv->payload == b->priv->payload)
+		return TRUE;
+
+	return (g_ascii_strcasecmp(a->priv->name, b->priv->name) == 0) &&
+				a->priv->clockrate == b->priv->clockrate;
+}
+
 KmsSdpPayload*
 kms_sdp_payload_copy(KmsSdpPayload *self) {
 	KmsSdpPayload *copy;
