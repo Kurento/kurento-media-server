@@ -96,20 +96,31 @@ test_connection() {
 gint
 main(gint argc, gchar **argv) {
 	gint i;
+	gint mem, mem2, final_mem;
 
 	kms_init(&argc, &argv);
 
+	get_data_memory();
+
 	for (i = 0; i < TESTS; i++) {
 		test_connection();
+		sleep(0);
 
-		if (i == TESTS / 2) {
-			sleep(5);
-			g_print("mem: %d\n", get_data_memory());
+		if (i == TESTS / 3) {
+			sleep(2);
+			mem = get_data_memory();
+		} else if (i == (TESTS / 3) * 2) {
+			sleep(2);
+			mem2 = get_data_memory();
 		}
 	}
 
-	sleep(5);
-	g_print("final mem: %d\n", get_data_memory());
+	sleep(2);
+	final_mem = get_data_memory();
+	g_print("mem: %d\n", mem);
+	g_print("mem2: %d\n", mem2);
+	g_print("final mem: %d\n", final_mem);
+	g_assert((mem == final_mem) || (mem2 == final_mem) || (mem == mem2));
 
 	return 0;
 }
