@@ -10,12 +10,20 @@
 #define SESSION_VERSION 54321
 #define SESSION_REMOTE_HANDLER "127.0.0.1"
 
+#define ADDR_2 "localhost"
+#define SESSION_NAME_2 "kurento session 2"
+#define SESSION_ID_2 23456
+#define SESSION_VERSION_2 65432
+#define SESSION_REMOTE_HANDLER_2 "localhost"
+
 #define PORT_AUDIO 2000
 #define PORT_VIDEO 3000
+#define PORT_AUDIO_2 5000
+#define PORT_VIDEO_2 6000
 #define BANDWIDTH 0
 
 static GValueArray*
-create_audio_payloads() {
+create_audio_payloads(gboolean second) {
 	GValueArray *payloads;
 
 	payloads = g_value_array_new(2);
@@ -35,7 +43,7 @@ create_audio_payloads() {
 		g_value_unset(&vpay);
 	}
 
-		{
+	if (!second) {
 		KmsSdpPayload *pay;
 		GValue vpay = G_VALUE_INIT;
 
@@ -54,7 +62,7 @@ create_audio_payloads() {
 }
 
 static GValueArray*
-create_video_payloads() {
+create_video_payloads(gboolean second) {
 	GValueArray *payloads;
 
 	payloads = g_value_array_new(2);
@@ -62,9 +70,15 @@ create_video_payloads() {
 	{
 		KmsSdpPayload *pay;
 		GValue vpay = G_VALUE_INIT;
+		gint pay_id;
+
+		if (second)
+			pay_id = 105;
+		else
+			pay_id = 100;
 
 		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "H263-1998",
-							"payload", 100,
+							"payload", pay_id,
 							"clockrate", 90000,
 							NULL);
 
@@ -77,9 +91,15 @@ create_video_payloads() {
 	{
 		KmsSdpPayload *pay;
 		GValue vpay = G_VALUE_INIT;
+		gint pay_id;
+
+		if (second)
+			pay_id = 106;
+		else
+			pay_id = 101;
 
 		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "MP4V-ES",
-							"payload", 101,
+							"payload", pay_id,
 							"clockrate", 90000,
 							NULL);
 
@@ -93,7 +113,7 @@ create_video_payloads() {
 }
 
 static GValueArray*
-create_medias() {
+create_medias(gboolean second) {
 	GValueArray *payloads;
 	GValueArray *medias;
 	gint port;
@@ -107,9 +127,12 @@ create_medias() {
 		KmsSdpMedia *media;
 		GValue vmedia = G_VALUE_INIT;
 
-		payloads = create_audio_payloads();
+		payloads = create_audio_payloads(second);
 
-		port = PORT_AUDIO;
+		if (second)
+			port = PORT_AUDIO_2;
+		else
+			port = PORT_AUDIO;
 		type = KMS_MEDIA_TYPE_AUDIO;
 		mode = KMS_SDP_MODE_SENDRECV;
 		bandwidth = BANDWIDTH;
@@ -133,9 +156,12 @@ create_medias() {
 		KmsSdpMedia *media;
 		GValue vmedia = G_VALUE_INIT;
 
-		payloads = create_video_payloads();
+		payloads = create_video_payloads(second);
 
-		port = PORT_VIDEO;
+		if (second)
+			port = PORT_VIDEO_2;
+		else
+			port = PORT_VIDEO;
 		type = KMS_MEDIA_TYPE_VIDEO;
 		mode = KMS_SDP_MODE_SENDRECV;
 		bandwidth = BANDWIDTH;
@@ -163,7 +189,7 @@ create_session() {
 	KmsSdpSession *session;
 	GValueArray *medias;
 
-	medias = create_medias();
+	medias = create_medias(FALSE);
 
 	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
 				"address", ADDR,
@@ -171,6 +197,26 @@ create_session() {
 				"id", SESSION_ID,
 				"version", SESSION_VERSION,
 				"remote-handler", SESSION_REMOTE_HANDLER,
+				NULL);
+
+	g_value_array_free(medias);
+
+	return session;
+}
+
+KmsSdpSession*
+create_second_session() {
+	KmsSdpSession *session;
+	GValueArray *medias;
+
+	medias = create_medias(TRUE);
+
+	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
+				"address", ADDR_2,
+				"name", SESSION_NAME_2,
+				"id", SESSION_ID_2,
+				"version", SESSION_VERSION_2,
+				"remote-handler", SESSION_REMOTE_HANDLER_2,
 				NULL);
 
 	g_value_array_free(medias);

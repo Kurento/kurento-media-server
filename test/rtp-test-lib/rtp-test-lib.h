@@ -6,4 +6,6 @@
 KmsEndpoint* create_endpoint();
 void check_endpoint(KmsEndpoint *ep);
 
+KmsSdpSession* create_second_session();
+
 #endif /* __RTP_TEST_LIB__ */
