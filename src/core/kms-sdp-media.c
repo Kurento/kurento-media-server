@@ -152,12 +152,13 @@ kms_sdp_media_set_property(GObject  *object, guint property_id,
 			gint i;
 
 			va = g_value_get_boxed(value);
-			if (va == NULL)
-				break;
 
 			LOCK(self);
 			free_payloads(self);
-			self->priv->payloads = g_value_array_copy(va);
+			if (va == NULL)
+				self->priv->payloads = g_value_array_new(0);
+			else
+				self->priv->payloads = g_value_array_copy(va);
 
 			for (i=0; i < self->priv->payloads->n_values; i++) {
 				GValue *v;
