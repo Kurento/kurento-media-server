@@ -113,8 +113,6 @@ kms_sdp_media_to_string(KmsSdpMedia *self) {
 	g_string_free(str, FALSE);
 	UNLOCK(self);
 
-	/* TODO: Append payload and payload values list */
-
 	return ret;
 }
 
