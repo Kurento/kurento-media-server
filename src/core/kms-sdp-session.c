@@ -149,8 +149,8 @@ kms_sdp_session_intersect(KmsSdpSession *answerer, KmsSdpSession *offerer,
 	g_return_if_fail(KMS_IS_SDP_SESSION(answerer));
 	g_return_if_fail(KMS_IS_SDP_SESSION(offerer));
 
-	g_object_get(answerer, "medias", &answerer_medias, NULL);
-	g_object_get(offerer, "medias", &offerer_medias, NULL);
+	answerer_medias = answerer->priv->medias;
+	offerer_medias = offerer->priv->medias;
 
 	new_answerer_medias = g_value_array_new(answerer_medias->n_prealloced);
 	new_offerer_medias = g_value_array_new(offerer_medias->n_prealloced);
@@ -227,8 +227,6 @@ kms_sdp_session_intersect(KmsSdpSession *answerer, KmsSdpSession *offerer,
 
 	g_value_array_free(new_answerer_medias);
 	g_value_array_free(new_offerer_medias);
-	g_value_array_free(answerer_medias);
-	g_value_array_free(offerer_medias);
 	g_slist_free(used);
 }
 
