@@ -273,6 +273,125 @@ kms_sdp_media_copy(KmsSdpMedia *self) {
 	return copy;
 }
 
+static gboolean
+contains_payload(GValueArray *list, KmsSdpPayload *pay) {
+	gint i;
+
+	for (i = 0; i < list->n_values; i++) {
+		KmsSdpPayload *o_pay;
+
+		o_pay = g_value_get_object(g_value_array_get_nth(list, i));
+
+		if (kms_sdp_payload_equals(pay, o_pay))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+static KmsSdpMode
+inverse_mode(KmsSdpMode mode) {
+	switch (mode) {
+	case KMS_SDP_MODE_INACTIVE:
+		return KMS_SDP_MODE_INACTIVE;
+	case KMS_SDP_MODE_RECVONLY:
+		return KMS_SDP_MODE_SENDONLY;
+	case KMS_SDP_MODE_SENDONLY:
+		return KMS_SDP_MODE_RECVONLY;
+	case KMS_SDP_MODE_SENDRECV:
+		return KMS_SDP_MODE_SENDRECV;
+	}
+
+	return KMS_SDP_MODE_INACTIVE;
+}
+
+void
+kms_sdp_media_intersect(KmsSdpMedia *answerer, KmsSdpMedia *offerer,
+				KmsSdpMedia **neg_ans, KmsSdpMedia **neg_off) {
+	GValueArray *ans_payloads, *off_payloads;
+	KmsSdpMode mode, a_mode, o_mode;
+	glong bandwidth, a_bandwidth, o_bandwidth;
+	gint i;
+
+	g_return_if_fail(KMS_IS_SDP_MEDIA(answerer));
+	g_return_if_fail(KMS_IS_SDP_MEDIA(offerer));
+	if (answerer->priv->type != offerer->priv->type)
+		return;
+
+	ans_payloads = g_value_array_new(answerer->priv->payloads->n_values);
+	off_payloads = g_value_array_new(offerer->priv->payloads->n_values);
+
+	for (i = 0; i < offerer->priv->payloads->n_values; i++) {
+		KmsSdpPayload *o_pay;
+
+		o_pay = g_value_get_object(g_value_array_get_nth(
+						offerer->priv->payloads, i));
+
+		if (contains_payload(answerer->priv->payloads, o_pay)) {
+			GValue aux = G_VALUE_INIT;
+
+			g_value_init(&aux, KMS_TYPE_SDP_PAYLOAD);
+			g_value_take_object(&aux, kms_sdp_payload_copy(o_pay));
+			g_value_array_append(ans_payloads, &aux);
+			g_value_reset(&aux);
+			g_value_take_object(&aux, kms_sdp_payload_copy(o_pay));
+			g_value_array_append(off_payloads, &aux);
+			g_value_unset(&aux);
+		}
+	}
+
+	if (ans_payloads->n_values == 0)
+		mode = KMS_SDP_MODE_INACTIVE;
+
+	a_mode = answerer->priv->mode;
+	o_mode = offerer->priv->mode;
+	if (a_mode == KMS_SDP_MODE_INACTIVE ||
+				o_mode == KMS_SDP_MODE_INACTIVE ||
+				(a_mode == KMS_SDP_MODE_RECVONLY &&
+					o_mode == KMS_SDP_MODE_RECVONLY) ||
+				(a_mode == KMS_SDP_MODE_SENDONLY &&
+					o_mode == KMS_SDP_MODE_SENDONLY)) {
+		mode = KMS_SDP_MODE_INACTIVE;
+	} else if (a_mode == KMS_SDP_MODE_SENDONLY ||
+					o_mode == KMS_SDP_MODE_RECVONLY) {
+		mode = KMS_SDP_MODE_SENDONLY;
+	} else if (a_mode == KMS_SDP_MODE_RECVONLY ||
+					o_mode == KMS_SDP_MODE_SENDONLY) {
+		mode = KMS_SDP_MODE_RECVONLY;
+	} else {
+		mode = KMS_SDP_MODE_SENDRECV;
+	}
+
+	a_bandwidth = answerer->priv->bandwidth;
+	o_bandwidth = offerer->priv->bandwidth;
+	if (a_bandwidth == -1)
+		bandwidth = o_bandwidth;
+	else if (o_bandwidth == -1)
+		bandwidth = a_bandwidth;
+	else
+		bandwidth = a_bandwidth < o_bandwidth ? a_bandwidth : o_bandwidth;
+
+
+	*neg_ans = g_object_new(KMS_TYPE_SDP_MEDIA,
+				"payloads", ans_payloads,
+				"port", answerer->priv->port,
+				"type", answerer->priv->type,
+				"mode", mode,
+				"bandwidth", bandwidth,
+				NULL);
+
+	*neg_off = g_object_new(KMS_TYPE_SDP_MEDIA,
+				"payloads", off_payloads,
+				"port", offerer->priv->port,
+				"type", answerer->priv->type,
+				"mode", inverse_mode(mode),
+				"bandwidth", bandwidth,
+				NULL);
+
+	g_value_array_free(ans_payloads);
+	g_value_array_free(off_payloads);
+}
+
 void
 kms_sdp_media_dispose(GObject *object) {
 	LOCK(object);
