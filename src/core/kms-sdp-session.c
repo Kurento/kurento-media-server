@@ -173,10 +173,8 @@ kms_sdp_session_intersect(KmsSdpSession *answerer, KmsSdpSession *offerer,
 					g_slist_find(used, a_media) != NULL)
 				continue;
 
-			/* TODO: intersect medias
 			kms_sdp_media_intersect(a_media, o_media,
 						&new_a_media, &new_o_media);
-			*/
 
 			if (new_a_media != NULL) {
 				used = g_slist_prepend(used, a_media);
