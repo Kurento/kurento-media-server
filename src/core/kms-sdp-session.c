@@ -127,6 +127,111 @@ kms_sdp_session_to_string(KmsSdpSession *self) {
 	return str;
 }
 
+static gboolean
+compare_media_types(KmsSdpMedia *answerer, KmsSdpMedia *offerer) {
+	KmsMediaType a_type, o_type;
+
+	g_object_get(answerer, "type", &a_type, NULL);
+	g_object_get(offerer, "type", &o_type, NULL);
+
+	return (a_type == o_type);
+}
+
+void
+kms_sdp_session_intersect(KmsSdpSession *answerer, KmsSdpSession *offerer,
+						KmsSdpSession **neg_answ,
+						KmsSdpSession **neg_off) {
+	GValueArray *offerer_medias, *answerer_medias;
+	GValueArray *new_answerer_medias, *new_offerer_medias;
+	GSList *used = NULL;
+	gint i, ii;
+
+	g_return_if_fail(KMS_IS_SDP_SESSION(answerer));
+	g_return_if_fail(KMS_IS_SDP_SESSION(offerer));
+
+	g_object_get(answerer, "medias", &answerer_medias, NULL);
+	g_object_get(offerer, "medias", &offerer_medias, NULL);
+
+	new_answerer_medias = g_value_array_new(answerer_medias->n_prealloced);
+	new_offerer_medias = g_value_array_new(offerer_medias->n_prealloced);
+
+	for (i = 0; i < offerer_medias->n_values; i++) {
+		KmsSdpMedia *o_media;
+		KmsSdpMedia *new_a_media = NULL, *new_o_media;
+		GValue aux = G_VALUE_INIT;
+
+		o_media = g_value_get_object(g_value_array_get_nth(
+							offerer_medias, i));
+
+		for (ii = 0; ii < answerer_medias->n_values; ii++) {
+			KmsSdpMedia *a_media;
+
+			a_media = g_value_get_object(g_value_array_get_nth(
+							answerer_medias, ii));
+
+			if (!compare_media_types(o_media, a_media) ||
+					g_slist_find(used, a_media) != NULL)
+				continue;
+
+			/* TODO: intersect medias
+			kms_sdp_media_intersect(a_media, o_media,
+						&new_a_media, &new_o_media);
+			*/
+
+			if (new_a_media != NULL) {
+				used = g_slist_prepend(used, a_media);
+				break;
+			}
+		}
+
+		if (new_a_media == NULL) {
+			KmsMediaType type;
+			g_object_get(o_media, "type", &type, NULL);
+			new_a_media = g_object_new(KMS_TYPE_SDP_MEDIA,
+							"type", type,
+							NULL);
+			new_o_media = kms_sdp_media_copy(new_a_media);
+		}
+
+		g_value_init(&aux, KMS_TYPE_SDP_MEDIA);
+		g_value_take_object(&aux, new_a_media);
+		g_value_array_append(new_answerer_medias, &aux);
+		g_value_reset(&aux);
+
+		g_value_take_object(&aux, new_o_media);
+		g_value_array_append(new_offerer_medias, &aux);
+		g_value_unset(&aux);
+	}
+
+	*neg_off = g_object_new(KMS_TYPE_SDP_SESSION,
+				"medias", new_offerer_medias,
+				"address", offerer->priv->addr,
+				"name", offerer->priv->name,
+				"id", offerer->priv->id,
+				"version", offerer->priv->version,
+				"sdp-version", offerer->priv->sdp_version,
+				"remote-handler", offerer->priv->remote_handler,
+				"username", offerer->priv->username,
+				NULL);
+
+	*neg_answ = g_object_new(KMS_TYPE_SDP_SESSION,
+			       "medias", new_answerer_medias,
+				"address", answerer->priv->addr,
+				"name", offerer->priv->name,
+				"id", offerer->priv->id,
+				"version", offerer->priv->version,
+				"sdp-version", offerer->priv->sdp_version,
+				"remote-handler", answerer->priv->remote_handler,
+				"username", offerer->priv->username,
+				NULL);
+
+	g_value_array_free(new_answerer_medias);
+	g_value_array_free(new_offerer_medias);
+	g_value_array_free(answerer_medias);
+	g_value_array_free(offerer_medias);
+	g_slist_free(used);
+}
+
 static void
 kms_sdp_session_set_property(GObject  *object, guint property_id,
 				const GValue *value, GParamSpec *pspec) {

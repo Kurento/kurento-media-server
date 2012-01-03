@@ -42,4 +42,7 @@ KmsSdpSession *kms_sdp_session_copy(KmsSdpSession *session);
 
 gchar *kms_sdp_session_to_string(KmsSdpSession *session);
 
+void kms_sdp_session_intersect(KmsSdpSession *answerer, KmsSdpSession *offerer,
+			KmsSdpSession **neg_ans, KmsSdpSession **neg_off);
+
 #endif /* __KMS_SDP_SESSION_H__ */
