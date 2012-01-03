@@ -132,7 +132,7 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 					"Remote spec was already set");
 		return FALSE;
 	}
-//
+
 	self->priv->remote_spec = g_object_ref(spec);
 
 	if (self->priv->initialized) {
