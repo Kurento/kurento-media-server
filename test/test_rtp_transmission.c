@@ -44,12 +44,48 @@ get_ports(KmsSdpSession *session, gint *a_port, gint *v_port) {
 }
 
 static GstElement*
-send_media(gint aport, gint vport) {
-	GstElement *pipe;
+send_audio(gint port) {
+	GstElement *apipe;
+	GError *err = NULL;
+	gchar *desc;
 
-	pipe = gst_pipeline_new(NULL);
+	desc = g_strdup_printf("audiotestsrc ! queue2 ! amrnbenc ! rtpamrpay ! "
+					"udpsink host=127.0.0.1 port=%d", port);
+	apipe = gst_parse_launch(desc, &err);
+	if (!apipe && err != NULL) {
+		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
+	g_free(desc);
 
-	return pipe;
+	g_assert(apipe != NULL);
+	gst_element_set_state(apipe, GST_STATE_PLAYING);
+	return apipe;
+}
+
+static GstElement*
+send_video(gint port) {
+	GstElement *vpipe;
+	GError *err = NULL;
+	gchar *desc;
+
+	desc = g_strdup_printf("v4l2src ! queue2 ! "
+				"xvidenc max-bquant=0 bquant-ratio=0 motion=0 !"
+				"rtpmp4vpay send-config=true ! "
+				"application/x-rtp,encoding-name=MP4V-ES,"
+				"clock-rate=90000,payload=96 ! "
+				"udpsink host=127.0.0.1 port=%d", port);
+	vpipe = gst_parse_launch(desc, &err);
+	if (vpipe != NULL && err != NULL) {
+		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
+	g_free(desc);
+
+	g_assert(vpipe != NULL);
+
+	gst_element_set_state(vpipe, GST_STATE_PLAYING);
+	return vpipe;
 }
 
 static void
@@ -60,7 +96,7 @@ test_connection() {
 	GError *err = NULL;
 	gboolean ret;
 	gint audio_port, video_port;
-	GstElement *pipe;
+	GstElement *apipe, *vpipe;
 	gchar *session_str;
 
 	ep = create_endpoint();
@@ -102,7 +138,8 @@ test_connection() {
 
 	g_print("Audio port: %d\nVideo port: %d\n", audio_port, video_port);
 
-	pipe = send_media(audio_port, video_port);
+	apipe = send_audio(audio_port);
+	vpipe = send_video(video_port);
 
 	sleep(1);
 
@@ -114,8 +151,13 @@ test_connection() {
 	g_assert(ret);
 	g_object_unref(conn);
 
-	gst_element_set_state(pipe, GST_STATE_NULL);
-	g_object_unref(pipe);
+	gst_element_send_event(apipe, gst_event_new_eos());
+	gst_element_set_state(apipe, GST_STATE_NULL);
+	g_object_unref(apipe);
+
+	gst_element_send_event(vpipe, gst_event_new_eos());
+	gst_element_set_state(vpipe, GST_STATE_NULL);
+	g_object_unref(vpipe);
 
 	check_endpoint(ep);
 	g_object_unref(ep);
