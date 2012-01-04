@@ -197,7 +197,7 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
 					KMS_TYPE_SDP_SESSION,
-					G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_CONSTRUCT |
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(object_class, PROP_LOCAL_SPEC, pspec);

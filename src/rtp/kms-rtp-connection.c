@@ -147,6 +147,8 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 
 	dispose_descriptor(self);
 	self->priv->descriptor = g_object_ref(self->priv->neg_local_spec);
+	g_object_set(self->priv->receiver, "local-spec", self->priv->descriptor,
+									NULL);
 	UNLOCK(self);
 
 	return TRUE;
