@@ -92,7 +92,7 @@ kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 	if (self->priv->finished) {
 		SET_ERROR(err, KMS_CONNECTION_ERROR,
 					KMS_CONNECTION_ERROR_TERMINATED,
-					"LocalConnection %s has been "
+					"Connection %s has been "
 					"terminated and cannot be used.",
 					self->priv->id);
 		ret = FALSE;
