@@ -81,6 +81,44 @@ get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
+static GstCaps*
+get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
+	/* TODO: implement this correctly */
+	return NULL;
+}
+
+static GstCaps*
+request_pt_map(GstElement *demux, guint pt, gpointer self) {
+	GstCaps *caps;
+
+	caps = get_caps_for_pt(self, pt);
+
+	if (caps != NULL && gst_caps_is_fixed(caps)) {
+		return caps;
+	}
+
+	if (caps != NULL)
+		gst_caps_unref(caps);
+
+	return NULL;
+}
+
+static void
+new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
+	GstCaps *caps;
+	gchar *caps_str;
+
+	KMS_DEBUG;
+	caps = gst_pad_get_caps(pad);
+	caps_str = gst_caps_to_string(caps);
+	g_print("%s\n", caps_str);
+	g_free(caps_str);
+
+	/* TODO: Add elements to process media correctly */
+
+	gst_caps_unref(caps);
+}
+
 static void
 create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 	GstElement *udpsrc, *ptdemux;
@@ -119,6 +157,10 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 
 	self->priv->udpsrc = udpsrc;
 
+	g_object_connect(ptdemux, "signal::request-pt-map", request_pt_map,
+								self, NULL);
+	g_object_connect(ptdemux, "signal::new-payload-type", new_payload_type,
+								self, NULL);
 }
 
 static void
