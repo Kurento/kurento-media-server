@@ -13,6 +13,35 @@ gstreamer_thread(gpointer data) {
 	return NULL;
 }
 
+static void
+bus_msg(GstBus *bus, GstMessage *msg, gpointer not_used) {
+	switch (msg->type) {
+	case GST_MESSAGE_ERROR: {
+		GError *err = NULL;
+		gchar *dbg_info = NULL;
+
+		gst_message_parse_error (msg, &err, &dbg_info);
+		g_warning("ERROR from element %s: %s\n",
+						GST_OBJECT_NAME (msg->src),
+						err->message);
+		g_printerr("Debugging info: %s\n",
+						(dbg_info) ? dbg_info : "none");
+		g_error_free(err);
+		g_free(dbg_info);
+		break;
+	}
+	case GST_MESSAGE_EOS:
+		g_warning("EOS message should not be received, "
+						"pipeline can be stopped!");
+		break;
+	default:
+		/* No action */
+		break;
+	}
+
+
+}
+
 void
 kms_init(gint *argc, gchar **argv[]) {
 	G_LOCK(mutex);
@@ -26,6 +55,7 @@ kms_init(gint *argc, gchar **argv[]) {
 
 		bus = gst_element_get_bus(pipe);
 		gst_bus_add_watch(bus, gst_bus_async_signal_func, NULL);
+		g_object_connect(bus, "signal::message", bus_msg, NULL, NULL);
 
 		g_thread_create(gstreamer_thread, NULL, TRUE, NULL);
 
