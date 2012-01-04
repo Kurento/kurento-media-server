@@ -114,6 +114,7 @@ kms_connection_terminate(KmsConnection *self, GError **err) {
 	self->priv->finished = TRUE;
 	ret = do_set_mode(self, KMS_CONNECTION_MODE_INACTIVE, err);
 	UNLOCK(self);
+	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
 
 	return ret;
 }
