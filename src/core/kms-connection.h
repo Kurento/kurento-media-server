@@ -76,6 +76,8 @@ struct _KmsConnectionClass {
 					KmsMediaType type, GError **err);
 	gboolean (*connect_to_remote)(KmsConnection *self,
 					KmsSdpSession *session, GError **err);
+	gboolean (*connect)(KmsConnection *self, KmsConnection *other,
+					KmsMediaType type, GError **err);
 };
 
 /* used by KMS_TYPE_CONNECTION */
