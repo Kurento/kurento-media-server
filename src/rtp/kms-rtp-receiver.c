@@ -81,9 +81,75 @@ get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
+static GSList*
+get_pay_list(KmsSdpMedia *media){
+	GSList *list = NULL;
+	GValueArray *payloads;
+	gint i;
+
+	g_object_get(media, "payloads", &payloads, NULL);
+
+	for (i = 0; i < payloads->n_values; i++) {
+		KmsSdpPayload *aux;
+
+		aux = g_value_get_object(g_value_array_get_nth(payloads, i));
+		list = g_slist_prepend(list, aux);
+	}
+
+	return list;
+}
+
+static gint
+compare_pay_pt(gconstpointer ppay, gconstpointer ppt) {
+	KmsSdpPayload *pay = (gpointer) ppay;
+	guint pt;
+
+	g_object_get(pay, "payload", &pt, NULL);
+
+	return pt - (*(int *)ppt);
+}
+
 static GstCaps*
 get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
-	/* TODO: implement this correctly */
+	GValueArray *medias;
+	KmsSdpMedia *audio = NULL;
+	KmsSdpMedia *video = NULL;
+	GSList *payloads = NULL;
+	GSList *l;
+	gint i;
+
+	LOCK(self);
+	g_object_get(self->priv->local_spec, "medias", &medias, NULL);
+	for (i = 0; i < medias->n_values; i++) {
+		KmsSdpMedia *aux;
+		KmsMediaType type;
+
+		aux = g_value_get_object(g_value_array_get_nth(medias, i));
+		g_object_get(aux, "type", &type, NULL);
+		switch (type) {
+		case KMS_MEDIA_TYPE_AUDIO:
+			payloads = g_slist_concat(payloads,
+							get_pay_list(audio));
+			break;
+		case KMS_MEDIA_TYPE_VIDEO:
+			payloads = g_slist_concat(payloads,
+							get_pay_list(video));
+			break;
+		default:
+			/* No action */
+			break;
+		}
+	}
+
+	l = g_slist_find_custom(payloads, &pt, compare_pay_pt);
+
+	if (l != NULL) {
+		/* TODO: Convert payload to  */
+		g_print("PT: found\n");
+	}
+	UNLOCK(self);
+
+	g_slist_free(payloads);
 	return NULL;
 }
 
