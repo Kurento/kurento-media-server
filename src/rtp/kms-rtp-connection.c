@@ -168,7 +168,6 @@ set_property (GObject *object, guint property_id, const GValue *value,
 		case PROP_LOCAL_SPEC:
 			LOCK(self);
 			dispose_local_spec(self);
-			/* TODO: Create a copy spec to allow mofications */
 			self->priv->local_spec = g_value_dup_object(value);
 			if (self->priv->descriptor == NULL &&
 					self->priv->local_spec != NULL) {
