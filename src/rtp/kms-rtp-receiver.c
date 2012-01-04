@@ -95,6 +95,7 @@ get_pay_list(KmsSdpMedia *media){
 		aux = g_value_get_object(g_value_array_get_nth(payloads, i));
 		list = g_slist_prepend(list, aux);
 	}
+	g_value_array_free(payloads);
 
 	return list;
 }
@@ -145,6 +146,7 @@ get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 	}
 	UNLOCK(self);
 
+	g_value_array_free(medias);
 	g_slist_free(payloads);
 	return NULL;
 }
