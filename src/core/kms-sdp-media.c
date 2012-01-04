@@ -483,4 +483,5 @@ kms_sdp_media_init(KmsSdpMedia *self) {
 	self->priv->port = 0;
 	self->priv->bandwidth = -1;
 	self->priv->payloads = NULL;
+	self->priv->session = NULL;
 }
