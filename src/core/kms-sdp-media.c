@@ -35,7 +35,8 @@ session_unref(gpointer data, GObject *session) {
 
 	LOCK(self);
 	if (self->priv->session == KMS_SDP_SESSION(session)) {
-		dispose_session(self);
+		self->priv->session = NULL;
+		g_warn_if_reached();
 	}
 	UNLOCK(self);
 }

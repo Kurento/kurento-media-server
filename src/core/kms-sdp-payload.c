@@ -33,7 +33,8 @@ media_unref(gpointer data, GObject *media) {
 
 	LOCK(self);
 	if (self->priv->media == KMS_SDP_MEDIA(media)) {
-		dispose_media(self);
+		self->priv->media = NULL;
+		g_warn_if_reached();
 	}
 	UNLOCK(self);
 }
