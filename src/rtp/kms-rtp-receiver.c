@@ -112,8 +112,6 @@ compare_pay_pt(gconstpointer ppay, gconstpointer ppt) {
 static GstCaps*
 get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 	GValueArray *medias;
-	KmsSdpMedia *audio = NULL;
-	KmsSdpMedia *video = NULL;
 	GSList *payloads = NULL;
 	GSList *l;
 	gint i;
@@ -128,12 +126,10 @@ get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 		g_object_get(aux, "type", &type, NULL);
 		switch (type) {
 		case KMS_MEDIA_TYPE_AUDIO:
-			payloads = g_slist_concat(payloads,
-							get_pay_list(audio));
+			payloads = g_slist_concat(payloads, get_pay_list(aux));
 			break;
 		case KMS_MEDIA_TYPE_VIDEO:
-			payloads = g_slist_concat(payloads,
-							get_pay_list(video));
+			payloads = g_slist_concat(payloads, get_pay_list(aux));
 			break;
 		default:
 			/* No action */
