@@ -68,7 +68,8 @@ kms_sdp_payload_set_property(GObject  *object, guint property_id,
 		case PROP_NAME:
 			LOCK(self);
 			free_name(self);
-			self->priv->name = g_value_dup_string(value);
+			self->priv->name = g_ascii_strup(
+						g_value_get_string(value), -1);
 			UNLOCK(self);
 			break;
 		case PROP_CLOCKRATE:
