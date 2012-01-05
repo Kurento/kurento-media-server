@@ -99,7 +99,6 @@ test_connection() {
 	gboolean ret;
 	gint audio_port, video_port;
 	GstElement *apipe, *vpipe;
-	gchar *session_str;
 
 	ep = create_endpoint();
 	check_endpoint(ep);
@@ -132,13 +131,7 @@ test_connection() {
 	g_assert(session != NULL);
 	get_ports(session, &audio_port, &video_port);
 
-	session_str = kms_sdp_session_to_string(session);
-	g_print("session:\n%s\n", session_str);
-	g_free(session_str);
-
 	g_object_unref(session);
-
-	g_print("Audio port: %d\nVideo port: %d\n", audio_port, video_port);
 
 	apipe = send_audio(audio_port);
 	vpipe = send_video(video_port);
