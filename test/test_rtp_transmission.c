@@ -7,7 +7,7 @@
 
 #define CONNECTIONS 10
 
-#define TESTS 60
+#define TESTS 30
 
 static void
 get_ports(KmsSdpSession *session, gint *a_port, gint *v_port) {
@@ -71,7 +71,7 @@ send_video(gint port) {
 	GError *err = NULL;
 	gchar *desc;
 
-	desc = g_strdup_printf("v4l2src ! queue2 ! "
+	desc = g_strdup_printf("videotestsrc ! queue2 ! "
 				"xvidenc max-bquant=0 bquant-ratio=0 motion=0 !"
 				"rtpmp4vpay send-config=true ! "
 				"application/x-rtp,encoding-name=MP4V-ES,"
@@ -143,7 +143,7 @@ test_connection() {
 	apipe = send_audio(audio_port);
 	vpipe = send_video(video_port);
 
-	sleep(1);
+	sleep(2);
 
 	ret = kms_endpoint_delete_connection(ep, conn, &err);
 	if (!ret && err != NULL) {
@@ -168,19 +168,21 @@ test_connection() {
 gint
 main(gint argc, gchar **argv) {
 	gint i;
-	gint new_mem, mem = 0;
+	gint new_mem, mem2 = 0,  mem = 0;
 
 	kms_init(&argc, &argv);
 
 	g_print("Initial memory: %d\n", get_data_memory());
 	for (i = 0; i < TESTS; i++) {
 		test_connection();
-		sleep(1);
+		sleep(2);
 		new_mem = get_data_memory();
 		g_print("%d - %d\n", i, new_mem);
 
 		if (i > 2)
-			g_warn_if_fail(mem == new_mem);
+			g_warn_if_fail(mem >= new_mem || mem2 >= new_mem ||
+								mem2 >= mem);
+		mem2 = mem;
 		mem = new_mem;
 	}
 
