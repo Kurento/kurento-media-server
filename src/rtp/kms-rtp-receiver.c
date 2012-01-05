@@ -170,16 +170,39 @@ request_pt_map(GstElement *demux, guint pt, gpointer self) {
 static void
 new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	GstCaps *caps;
-	gchar *caps_str;
+	gint len, i;
+	gboolean has_clockrate = FALSE;
+	GstElement *tee, *sink;
 
-	caps = gst_pad_get_caps(pad);
-	caps_str = gst_caps_to_string(caps);
-	g_print("%s\n", caps_str);
-	g_free(caps_str);
+	tee = gst_element_factory_make("tee", NULL);
+	sink = gst_element_factory_make("fakesink", NULL);
 
-	/* TODO: Add elements to process media correctly */
+	g_return_if_fail(tee != NULL && sink != NULL);
 
-	gst_caps_unref(caps);
+	gst_element_set_state(tee, GST_STATE_PLAYING);
+	gst_element_set_state(sink, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(user_data), tee, sink, NULL);
+	gst_element_link_many(demux, tee, sink, NULL);
+
+	GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(kms_get_pipeline()),
+					  GST_DEBUG_GRAPH_SHOW_ALL, "new_type");
+
+	caps = GST_PAD_CAPS(pad);
+	len = gst_caps_get_size(caps);
+	for (i = 0; i < len; i++) {
+		GstStructure *st;
+		st = gst_caps_get_structure(caps, 0);
+
+		has_clockrate = gst_structure_has_field(st, "clock-rate");
+		if (has_clockrate)
+			break;
+	}
+
+	if (!has_clockrate)
+		return;
+
+	/* TODO: Prepare connection of elements */
 }
 
 static void
