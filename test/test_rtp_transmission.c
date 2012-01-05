@@ -50,6 +50,8 @@ send_audio(gint port) {
 	gchar *desc;
 
 	desc = g_strdup_printf("audiotestsrc ! queue2 ! amrnbenc ! rtpamrpay ! "
+					"application/x-rtp,encoding-name=AMR,"
+					"clock-rate=8000,payload=96 ! "
 					"udpsink host=127.0.0.1 port=%d", port);
 	apipe = gst_parse_launch(desc, &err);
 	if (!apipe && err != NULL) {
@@ -73,7 +75,7 @@ send_video(gint port) {
 				"xvidenc max-bquant=0 bquant-ratio=0 motion=0 !"
 				"rtpmp4vpay send-config=true ! "
 				"application/x-rtp,encoding-name=MP4V-ES,"
-				"clock-rate=90000,payload=96 ! "
+				"clock-rate=90000,payload=106 ! "
 				"udpsink host=127.0.0.1 port=%d", port);
 	vpipe = gst_parse_launch(desc, &err);
 	if (vpipe != NULL && err != NULL) {
