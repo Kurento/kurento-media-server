@@ -44,4 +44,6 @@ gchar *kms_sdp_payload_to_string(KmsSdpPayload *self);
 
 gboolean kms_sdp_payload_equals(KmsSdpPayload *a, KmsSdpPayload *b);
 
+GstCaps *kms_sdp_payload_to_caps(KmsSdpPayload *self);
+
 #endif /* __KMS_SDP_PAYLOAD_H__ */

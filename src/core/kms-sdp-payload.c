@@ -183,6 +183,57 @@ kms_sdp_payload_to_string(KmsSdpPayload *self) {
 	return ret;
 }
 
+GstCaps*
+kms_sdp_payload_to_caps(KmsSdpPayload *self) {
+	GstCaps *caps = NULL;
+	GString *caps_str;
+	KmsMediaType type;
+	glong bw;
+
+	caps_str = g_string_new("application/x-rtp");
+
+	g_object_get(self->priv->media, "type", &type, "bandwidth", &bw, NULL);
+	switch(type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		g_string_append(caps_str, ",media=(string)audio");
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		g_string_append(caps_str, ",media=(string)video");
+		break;
+	default:
+		g_print("Error 1\n");
+		goto end;
+	}
+
+	if (self->priv->clockrate != 0)
+		g_string_append_printf(caps_str, ",clock-rate=(int)%d",
+							self->priv->clockrate);
+
+	if (self->priv->name == NULL || self->priv->name[0] == '\0')
+		goto end;
+
+	g_string_append_printf(caps_str, ",encoding-name=(string)%s",
+							self->priv->name);
+
+	g_string_append_printf(caps_str, ",payload=(int)%d",
+							self->priv->payload);
+
+	if (bw > 0)
+		g_string_append_printf(caps_str, ",bandwidth=(int)%ld", bw);
+
+	/* TODO: Add custom function for each codec, by now just add crc to
+	 * amr encoding type.
+	 */
+	if (g_strcmp0(self->priv->name, "AMR") == 0)
+		g_string_append(caps_str, ",crc=(string)0");
+
+	caps = gst_caps_from_string(caps_str->str);
+end:
+	g_string_free(caps_str, TRUE);
+
+	return caps;
+}
+
 void
 kms_sdp_payload_dispose(GObject *object) {
 	dispose_media(KMS_SDP_PAYLOAD(object));
