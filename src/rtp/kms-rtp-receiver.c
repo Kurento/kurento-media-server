@@ -204,7 +204,7 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	g_return_if_fail(buffer != NULL);
 	gst_element_set_state(buffer, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(user_data), buffer);
-	kms_dynamic_connection(tee, buffer, "sink");
+	kms_dynamic_connection(tee, buffer, "src");
 
 end:
 	GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(kms_get_pipeline()),
