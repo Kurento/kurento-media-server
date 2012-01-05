@@ -1,4 +1,5 @@
 #include <kms-core.h>
+#include "internal/kms-utils.h"
 
 #define KMS_MEDIA_HANDLER_SRC_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_MEDIA_HANDLER_SRC, KmsMediaHandlerSrcPriv))
 

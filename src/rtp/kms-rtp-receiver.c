@@ -1,5 +1,6 @@
 #include <kms-core.h>
 #include <rtp/kms-rtp.h>
+#include "internal/kms-utils.h"
 
 #define KMS_RTP_RECEIVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTP_RECEIVER, KmsRtpReceiverPriv))
 

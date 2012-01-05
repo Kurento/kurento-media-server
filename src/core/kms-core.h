@@ -5,7 +5,6 @@
 
 #define __KMS_CORE_H_INSIDE__
 
-#include <kms-utils.h>
 #include <kms-endpoint.h>
 #include <kms-connection.h>
 #include <kms-enums.h>
@@ -19,6 +18,8 @@
 #include <kms-sdp-session.h>
 
 #undef __KMS_CORE_H_INSIDE__
+
+void kms_init(gint *argc, gchar **argv[]);
 
 #define KMS_DEBUG g_print("%s:%d\n", __FILE__, __LINE__)
 
