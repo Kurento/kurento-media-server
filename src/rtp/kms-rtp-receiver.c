@@ -114,6 +114,7 @@ static GstCaps*
 get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 	GValueArray *medias;
 	GSList *payloads = NULL;
+	GstCaps *caps = NULL;
 	GSList *l;
 	gint i;
 
@@ -140,15 +141,14 @@ get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 
 	l = g_slist_find_custom(payloads, &pt, compare_pay_pt);
 
-	if (l != NULL) {
-		/* TODO: Convert payload to  */
-		g_print("PT: found\n");
-	}
+	if (l != NULL)
+		caps = kms_sdp_payload_to_caps(l->data);
+
 	UNLOCK(self);
 
 	g_value_array_free(medias);
 	g_slist_free(payloads);
-	return NULL;
+	return caps;
 }
 
 static GstCaps*
@@ -172,7 +172,6 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	GstCaps *caps;
 	gchar *caps_str;
 
-	KMS_DEBUG;
 	caps = gst_pad_get_caps(pad);
 	caps_str = gst_caps_to_string(caps);
 	g_print("%s\n", caps_str);
