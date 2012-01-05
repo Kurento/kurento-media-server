@@ -69,7 +69,41 @@ kms_get_pipeline() {
 	return pipe;
 }
 
+static void
+linked(GstPad *pad, GstPad *peer, gpointer orig) {
+	GstElement *dest;
+
+	dest = gst_pad_get_parent_element(pad);
+	gst_element_link(orig, dest);
+	g_object_unref(dest);
+}
+
+static void
+unlinked(GstPad *pad, gpointer orig) {
+	GstElement *dest;
+	GstPad *peer, *sink;
+
+	dest = gst_pad_get_parent_element(pad);
+	sink = gst_element_get_static_pad(dest, "sink");
+	if (gst_pad_is_linked(sink)) {
+		peer = gst_pad_get_peer(sink);
+		if (peer != NULL) {
+			gst_pad_unlink(peer, sink);
+			g_object_unref(peer);
+		}
+	}
+	g_object_unref(dest);
+	g_object_unref(sink);
+}
+
 void
-kms_dynamic_connection(GstElement *orig, GstElement *dest, gchar *pad_name) {
-	/* TODO: implement this function*/
+kms_dynamic_connection(GstElement *orig, GstElement *dest,
+						const gchar *pad_name) {
+	GstPad *pad;
+
+	pad = gst_element_get_static_pad(dest, pad_name);
+
+	g_object_connect(pad, "signal::linked", linked, orig, NULL);
+	g_object_connect(pad, "signal::unlinked", unlinked, orig, NULL);
+	g_object_unref(pad);
 }
