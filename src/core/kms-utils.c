@@ -68,3 +68,8 @@ GstElement*
 kms_get_pipeline() {
 	return pipe;
 }
+
+void
+kms_dynamic_connection(GstElement *orig, GstElement *dest, gchar *pad_name) {
+	/* TODO: implement this function*/
+}

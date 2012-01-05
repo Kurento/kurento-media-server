@@ -173,7 +173,7 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	GstCaps *caps;
 	gint len, i;
 	gboolean has_clockrate = FALSE;
-	GstElement *tee, *sink;
+	GstElement *tee, *sink, *buffer;
 
 	tee = gst_element_factory_make("tee", NULL);
 	sink = gst_element_factory_make("fakesink", NULL);
@@ -185,9 +185,6 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 
 	gst_bin_add_many(GST_BIN(user_data), tee, sink, NULL);
 	gst_element_link_many(demux, tee, sink, NULL);
-
-	GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(kms_get_pipeline()),
-					  GST_DEBUG_GRAPH_SHOW_ALL, "new_type");
 
 	caps = GST_PAD_CAPS(pad);
 	len = gst_caps_get_size(caps);
@@ -201,9 +198,17 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	}
 
 	if (!has_clockrate)
-		return;
+		goto end;
 
-	/* TODO: Prepare connection of elements */
+	buffer = gst_element_factory_make("gstrtpjitterbuffer", NULL);
+	g_return_if_fail(buffer != NULL);
+	gst_element_set_state(buffer, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(user_data), buffer);
+	kms_dynamic_connection(tee, buffer, "sink");
+
+end:
+	GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(kms_get_pipeline()),
+					  GST_DEBUG_GRAPH_SHOW_ALL, "new_type");
 }
 
 static void
