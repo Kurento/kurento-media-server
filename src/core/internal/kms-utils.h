@@ -3,6 +3,10 @@
 
 #include <gst/gst.h>
 
+#define KMS_DEBUG_PIPE(name) GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(		\
+				GST_BIN(kms_get_pipeline()),		\
+				GST_DEBUG_GRAPH_SHOW_ALL, name);	\
+
 GstElement* kms_get_pipeline();
 
 void kms_dynamic_connection(GstElement *orig, GstElement *dest, const gchar *name);
