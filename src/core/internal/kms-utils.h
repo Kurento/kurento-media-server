@@ -16,4 +16,7 @@ GstElement* kms_utils_get_element_for_caps(GstElementFactoryListType type,
 				GstPadDirection direction, gboolean subsetonly,
 				const gchar *name);
 
+GstElement* kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
+							GstCaps *src_caps);
+
 #endif /* __KMS_UTILS_H__ */

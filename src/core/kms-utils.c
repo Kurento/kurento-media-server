@@ -188,3 +188,37 @@ end:
 
 	return elem;
 }
+
+GstElement*
+kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
+							GstCaps *src_caps) {
+	GstElement *bin;
+	GstPad *gsink, *gsrc, *sink, *src;
+	GstPadTemplate *sink_temp, *src_temp;
+
+	bin = gst_bin_new(GST_ELEMENT_NAME(elem));
+	gst_bin_add(GST_BIN(bin), elem);
+
+	src = gst_element_get_static_pad(elem, "src");
+	sink = gst_element_get_static_pad(elem, "sink");
+
+	sink_temp = gst_pad_template_new("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
+						gst_caps_copy(sink_caps));
+	src_temp = gst_pad_template_new("src", GST_PAD_SRC, GST_PAD_ALWAYS,
+					 gst_caps_copy(src_caps));
+
+	gsink = gst_ghost_pad_new_no_target_from_template("sink", sink_temp);
+	gsrc =  gst_ghost_pad_new_no_target_from_template("src", src_temp);
+
+	gst_element_add_pad(bin, gsink);
+	gst_element_add_pad(bin, gsrc);
+
+	gst_ghost_pad_set_target(GST_GHOST_PAD(gsrc), src);
+	gst_ghost_pad_set_target(GST_GHOST_PAD(gsink), sink);
+
+	g_object_unref(src);
+	g_object_unref(sink);
+	g_object_unref(sink_temp);
+	g_object_unref(src_temp);
+	return bin;
+}
