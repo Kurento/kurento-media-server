@@ -169,6 +169,22 @@ request_pt_map(GstElement *demux, guint pt, gpointer self) {
 }
 
 static void
+connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps) {
+	GstElement *depay;
+
+	depay = kms_utils_get_element_for_caps(
+					GST_ELEMENT_FACTORY_TYPE_DEPAYLOADER,
+					GST_RANK_NONE, caps, GST_PAD_SINK,
+					FALSE, NULL);
+	g_return_if_fail(depay != NULL);
+	gst_element_set_state(depay, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), depay);
+	kms_dynamic_connection(orig, depay, "src");
+
+	/* TODO: Connect typedef and notify parent of the available pads */
+}
+
+static void
 new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	GstCaps *caps;
 	gint len, i;
@@ -205,6 +221,8 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	gst_element_set_state(buffer, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(user_data), buffer);
 	kms_dynamic_connection(tee, buffer, "src");
+
+	connect_depay_chain(user_data, buffer, caps);
 
 end:
 	GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(kms_get_pipeline()),
