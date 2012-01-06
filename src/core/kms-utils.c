@@ -177,9 +177,6 @@ kms_utils_get_element_for_caps(GstElementFactoryListType type, GstRank rank,
 	if (l == NULL || l->data == NULL)
 		goto end;
 
-	g_print("%p\n", l->data);
-	g_print("Factory >%s<\n", gst_element_factory_get_klass(l->data));
-
 	elem = gst_element_factory_create(l->data, name);
 
 end:
