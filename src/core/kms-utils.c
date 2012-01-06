@@ -107,3 +107,84 @@ kms_dynamic_connection(GstElement *orig, GstElement *dest,
 	g_object_connect(pad, "signal::unlinked", unlinked, orig, NULL);
 	g_object_unref(pad);
 }
+
+static gboolean
+check_template_names(GstPadTemplate *tmp1, GstPadTemplate *tmp2) {
+	gboolean ret = FALSE;
+
+	switch (tmp1->direction) {
+	case GST_PAD_SINK:
+		ret = ret || g_strcmp0(tmp1->name_template, "sink") == 0;
+		break;
+	case GST_PAD_SRC:
+		ret = ret || g_strcmp0(tmp1->name_template, "src") == 0;
+		break;
+	default:
+		return FALSE;
+	}
+
+	switch (tmp2->direction) {
+	case GST_PAD_SINK:
+		ret = ret || g_strcmp0(tmp2->name_template, "sink") == 0;
+		break;
+	case GST_PAD_SRC:
+		ret = ret || g_strcmp0(tmp2->name_template, "src") == 0;
+		break;
+	default:
+		return FALSE;
+	}
+
+	return ret;
+}
+
+GstElement*
+kms_utils_get_element_for_caps(GstElementFactoryListType type, GstRank rank,
+				const GstCaps *caps, GstPadDirection direction,
+				gboolean subsetonly, const gchar *name) {
+	GList *list, *filter, *l;
+	GstElement *elem = NULL;
+
+	list = gst_element_factory_list_get_elements(type, rank);
+	filter = gst_element_factory_list_filter(list, caps, direction,
+								subsetonly);
+
+	l = filter;
+	while (l != NULL) {
+		if (l->data != NULL) {
+			const GList *pads;
+			pads = gst_element_factory_get_static_pad_templates(
+								l->data);
+			if (g_list_length((GList *)pads) == 2) {
+				GstPadTemplate *tmp1, *tmp2;
+				gboolean finish = FALSE;
+
+				tmp1 = gst_static_pad_template_get(pads->data);
+				tmp2 = gst_static_pad_template_get(
+							pads->next->data);
+
+				finish = check_template_names(tmp1, tmp2);
+
+				g_object_unref(tmp1);
+				g_object_unref(tmp2);
+
+				if (finish)
+					break;
+			}
+		}
+		l = l->next;
+	}
+
+	if (l == NULL || l->data == NULL)
+		goto end;
+
+	g_print("%p\n", l->data);
+	g_print("Factory >%s<\n", gst_element_factory_get_klass(l->data));
+
+	elem = gst_element_factory_create(l->data, name);
+
+end:
+	gst_plugin_feature_list_free(list);
+	gst_plugin_feature_list_free(filter);
+
+	return elem;
+}
