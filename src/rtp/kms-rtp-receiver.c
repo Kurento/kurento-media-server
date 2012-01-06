@@ -225,8 +225,7 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	connect_depay_chain(user_data, buffer, caps);
 
 end:
-	GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(kms_get_pipeline()),
-					  GST_DEBUG_GRAPH_SHOW_ALL, "new_type");
+	KMS_DEBUG_PIPE("new_type");
 }
 
 static void
