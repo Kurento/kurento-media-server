@@ -224,8 +224,12 @@ kms_sdp_payload_to_caps(KmsSdpPayload *self) {
 	/* TODO: Add custom function for each codec, by now just add crc to
 	 * amr encoding type.
 	 */
-	if (g_strcmp0(self->priv->name, "AMR") == 0)
+	if (g_strcmp0(self->priv->name, "AMR") == 0) {
 		g_string_append(caps_str, ",crc=(string)0");
+		g_string_append(caps_str, ",octet-align=(string)1");
+		g_string_append(caps_str, ",robust-sorting=(string)0");
+		g_string_append(caps_str, ",interleaving=(string)0");
+	}
 
 	caps = gst_caps_from_string(caps_str->str);
 end:
