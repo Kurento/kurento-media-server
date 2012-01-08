@@ -169,8 +169,14 @@ request_pt_map(GstElement *demux, guint pt, gpointer self) {
 }
 
 static void
+found_type(GstElement* tf, guint probability, GstCaps* caps, gpointer data) {
+
+	g_print("Found type\n");
+}
+
+static void
 connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps) {
-	GstElement *depay;
+	GstElement *depay, *typefind;
 
 	depay = kms_utils_get_element_for_caps(
 					GST_ELEMENT_FACTORY_TYPE_DEPAYLOADER,
@@ -181,7 +187,14 @@ connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps) {
 	gst_bin_add(GST_BIN(self), depay);
 	kms_dynamic_connection(orig, depay, "src");
 
-	/* TODO: Connect typedef and notify parent of the available pads */
+	/* TODO: Connect typefind and notify parent of the available pads */
+	typefind = gst_element_factory_make("typefind", NULL);
+	gst_element_set_state(typefind, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), typefind);
+	gst_element_link(depay, typefind);
+
+	g_object_connect(typefind, "signal::have_type", found_type, self, NULL);
+
 }
 
 static void
