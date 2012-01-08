@@ -189,18 +189,20 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	GstCaps *caps;
 	gint len, i;
 	gboolean has_clockrate = FALSE;
-	GstElement *tee, *sink, *buffer;
+	GstElement *tee, *sink, *fake_queue, *queue, *buffer;
 
 	tee = gst_element_factory_make("tee", NULL);
+	fake_queue = gst_element_factory_make("queue2", NULL);
 	sink = gst_element_factory_make("fakesink", NULL);
 
-	g_return_if_fail(tee != NULL && sink != NULL);
+	g_return_if_fail(tee != NULL && sink != NULL && fake_queue != NULL);
 
 	gst_element_set_state(tee, GST_STATE_PLAYING);
 	gst_element_set_state(sink, GST_STATE_PLAYING);
+	gst_element_set_state(fake_queue, GST_STATE_PLAYING);
 
-	gst_bin_add_many(GST_BIN(user_data), tee, sink, NULL);
-	gst_element_link_many(demux, tee, sink, NULL);
+	gst_bin_add_many(GST_BIN(user_data), tee, fake_queue, sink, NULL);
+	gst_element_link_many(demux, tee, fake_queue, sink, NULL);
 
 	caps = GST_PAD_CAPS(pad);
 	len = gst_caps_get_size(caps);
@@ -216,11 +218,17 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	if (!has_clockrate)
 		goto end;
 
+	queue = gst_element_factory_make("queue2", NULL);
+	g_return_if_fail(queue != NULL);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(user_data), queue);
+	kms_dynamic_connection(tee, queue, "src");
+
 	buffer = gst_element_factory_make("gstrtpjitterbuffer", NULL);
 	g_return_if_fail(buffer != NULL);
 	gst_element_set_state(buffer, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(user_data), buffer);
-	kms_dynamic_connection(tee, buffer, "src");
+	kms_dynamic_connection(queue, buffer, "src");
 
 	connect_depay_chain(user_data, buffer, caps);
 
