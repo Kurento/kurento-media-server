@@ -227,6 +227,7 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	fake_queue = gst_element_factory_make("queue2", NULL);
 	sink = gst_element_factory_make("fakesink", NULL);
 
+	/* TODO: Check if any of this element should be freed */
 	g_return_if_fail(tee != NULL && sink != NULL && fake_queue != NULL);
 
 	gst_element_set_state(tee, GST_STATE_PLAYING);
