@@ -56,7 +56,6 @@ constructed(GObject *object) {
 	g_object_get(self->priv->remote_spec, "medias", &medias,
 						"address", &remote_addr, NULL);
 
-	g_print("Remote addr: %s\n", remote_addr);
 	for (i = 0; i < medias->n_values; i++) {
 		GValue *val;
 		KmsSdpMedia *media;
