@@ -10,6 +10,9 @@ struct _KmsLocalConnectionPriv {
 	KmsMediaHandlerFactory *media_factory;
 	KmsMediaHandlerSrc *src;
 	KmsMediaHandlerSink *sink;
+
+	KmsLocalConnection *other_audio;
+	KmsLocalConnection *other_video;
 };
 
 enum {
@@ -19,6 +22,44 @@ enum {
 };
 
 G_DEFINE_TYPE(KmsLocalConnection, kms_local_connection, KMS_TYPE_CONNECTION)
+
+static void
+other_audio_unref(gpointer data, GObject *other) {
+	KmsLocalConnection *self = KMS_LOCAL_CONNECTION(data);
+
+	LOCK(self);
+	if (self->priv->other_audio == KMS_LOCAL_CONNECTION(other))
+		self->priv->other_audio = NULL;
+	UNLOCK(self);
+}
+
+static void
+other_video_unref(gpointer data, GObject *other) {
+	KmsLocalConnection *self = KMS_LOCAL_CONNECTION(data);
+
+	LOCK(self);
+	if (self->priv->other_audio == KMS_LOCAL_CONNECTION(other))
+		self->priv->other_audio = NULL;
+	UNLOCK(self);
+}
+
+static void
+dispose_other_audio(KmsLocalConnection *self) {
+	if (self->priv->other_audio != NULL) {
+		g_object_weak_unref(G_OBJECT(self->priv->other_audio),
+						other_audio_unref, self);
+		self->priv->other_audio = NULL;
+	}
+}
+
+static void
+dispose_other_video(KmsLocalConnection *self) {
+	if (self->priv->other_video != NULL) {
+		g_object_weak_unref(G_OBJECT(self->priv->other_video),
+						other_video_unref, self);
+		self->priv->other_video = NULL;
+	}
+}
 
 static void
 dispose_factory(KmsLocalConnection *self) {
@@ -125,6 +166,8 @@ dispose(GObject *object) {
 	dispose_factory(self);
 	dispose_src(self);
 	dispose_sink(self);
+	dispose_other_audio(self);
+	dispose_other_video(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -174,4 +217,6 @@ kms_local_connection_init (KmsLocalConnection *self) {
 	self->priv->media_factory = NULL;
 	self->priv->src = NULL;
 	self->priv->sink = NULL;
+	self->priv->other_video = NULL;
+	self->priv->other_audio = NULL;
 }
