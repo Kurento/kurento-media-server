@@ -38,8 +38,8 @@ other_video_unref(gpointer data, GObject *other) {
 	KmsLocalConnection *self = KMS_LOCAL_CONNECTION(data);
 
 	LOCK(self);
-	if (self->priv->other_audio == KMS_LOCAL_CONNECTION(other))
-		self->priv->other_audio = NULL;
+	if (self->priv->other_video == KMS_LOCAL_CONNECTION(other))
+		self->priv->other_video = NULL;
 	UNLOCK(self);
 }
 
