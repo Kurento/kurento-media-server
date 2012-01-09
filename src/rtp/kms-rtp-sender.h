@@ -34,4 +34,6 @@ struct _KmsRtpSenderClass {
 
 GType kms_rtp_sender_get_type (void);
 
+void kms_rtp_sender_terminate(KmsRtpSender *self);
+
 #endif /* __KMS_RTP_SENDER_H__ */

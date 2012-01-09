@@ -17,6 +17,11 @@ enum {
 
 G_DEFINE_TYPE(KmsRtpSender, kms_rtp_sender, G_TYPE_OBJECT)
 
+void
+kms_rtp_sender_terminate(KmsRtpSender *self) {
+	/* TODO: Implement terminate method */
+}
+
 static void
 kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	g_type_class_add_private(klass, sizeof(KmsRtpSenderPriv));

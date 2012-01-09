@@ -22,6 +22,7 @@ struct _KmsRtpConnectionPriv {
 	KmsSdpSession *neg_remote_spec;
 	KmsSdpSession *descriptor;
 	KmsRtpReceiver *receiver;
+	KmsRtpSender *sender;
 	gboolean initialized;
 };
 
@@ -43,6 +44,15 @@ dispose_receiver(KmsRtpConnection *self) {
 		kms_rtp_receiver_terminate(self->priv->receiver);
 		g_object_unref(self->priv->receiver);
 		self->priv->receiver = NULL;
+	}
+}
+
+static void
+dispose_sender(KmsRtpConnection *self) {
+	if (self->priv->sender != NULL) {
+		kms_rtp_sender_terminate(self->priv->sender);
+		g_object_unref(self->priv->sender);
+		self->priv->sender = NULL;
 	}
 }
 
@@ -114,6 +124,21 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 	iface->get_src = get_src;
 }
 
+static void
+create_rtp_sender(KmsRtpConnection *self) {
+	gint audio_fd, video_fd;
+
+	g_object_get(self->priv->receiver, "audio-fd", &audio_fd,
+						"video-fd", &video_fd,
+						NULL);
+
+	self->priv->sender = g_object_new(KMS_TYPE_RTP_SENDER,
+				"local-spec", self->priv->neg_remote_spec,
+				"audio-fd", audio_fd,
+				"video-fd", video_fd,
+				NULL);
+}
+
 static gboolean
 connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(conn);
@@ -147,6 +172,10 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 
 	dispose_descriptor(self);
 	self->priv->descriptor = g_object_ref(self->priv->neg_local_spec);
+
+	/* Create rtpsender */
+	create_rtp_sender(self);
+
 	g_object_set(self->priv->receiver, "local-spec", self->priv->descriptor,
 									NULL);
 	UNLOCK(self);
@@ -239,6 +268,7 @@ kms_rtp_connection_dispose(GObject *object) {
 	dispose_neg_remote_spec(self);
 	dispose_descriptor(self);
 	dispose_receiver(self);
+	dispose_sender(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -294,6 +324,7 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 	self->priv->local_spec = NULL;
 	self->priv->descriptor = NULL;
 	self->priv->receiver = NULL;
+	self->priv->sender = NULL;
 	self->priv->remote_spec = NULL;
 	self->priv->initialized = FALSE;
 	self->priv->neg_remote_spec = NULL;
