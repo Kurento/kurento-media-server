@@ -6,8 +6,6 @@
 #define LOCK(obj) (g_static_mutex_lock(&(KMS_MEDIA_HANDLER_SRC(obj)->priv->mutex)))
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_MEDIA_HANDLER_SRC(obj)->priv->mutex)))
 
-G_LOCK_DEFINE_STATIC(class_lock);
-
 struct _KmsMediaHandlerSrcPriv {
 	GStaticMutex mutex;
 };
@@ -19,27 +17,10 @@ enum {
 
 G_DEFINE_TYPE(KmsMediaHandlerSrc, kms_media_handler_src, GST_TYPE_BIN)
 
-static gchar*
-get_name(KmsMediaHandlerSrc *self) {
-	static glong count = 0;
-	gchar *name;
-
-	G_LOCK(class_lock);
-	name = g_strdup_printf("%s-%ld", G_OBJECT_TYPE_NAME(self), count++);
-	G_UNLOCK(class_lock);
-
-	return name;
-}
-
 static void
 constructed(GObject *object) {
 	KmsMediaHandlerSrc *self = KMS_MEDIA_HANDLER_SRC(object);
 	GstElement *pipe, *bin;
-	gchar *name;
-
-	name = get_name(self);
-	gst_element_set_name(self, name);
-	g_free(name);
 
 	bin = GST_ELEMENT(self);
 
