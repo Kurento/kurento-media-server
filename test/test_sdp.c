@@ -91,7 +91,7 @@ check_payload(GValueArray *payloads, KmsSdpMedia *media, gint i) {
 
 	str = g_value_array_get_nth(names, i);
 
-	g_assert(g_strcmp0(g_value_get_string(str), name) == 0);
+	g_assert(g_ascii_strcasecmp(g_value_get_string(str), name) == 0);
 	g_assert(pay == PAYLOAD(i));
 	g_assert(rate == CLOCKRATE(i));
 	g_assert(media_aux == media);
