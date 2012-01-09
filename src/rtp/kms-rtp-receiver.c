@@ -16,12 +16,16 @@ struct _KmsRtpReceiverPriv {
 
 	gint audio_port;
 	gint video_port;
+	gint audio_fd;
+	gint video_fd;
 };
 
 enum {
 	PROP_0,
 
 	PROP_LOCAL_SPEC,
+	PROP_AUDIO_FD,
+	PROP_VIDEO_FD,
 };
 
 G_DEFINE_TYPE(KmsRtpReceiver, kms_rtp_receiver, KMS_TYPE_MEDIA_HANDLER_SRC)
@@ -73,6 +77,16 @@ get_property(GObject *object, guint property_id, GValue *value,
 		case PROP_LOCAL_SPEC:
 			LOCK(self);
 			g_value_set_object(value, self->priv->local_spec);
+			UNLOCK(self);
+			break;
+		case PROP_AUDIO_FD:
+			LOCK(self);
+			g_value_set_int(value, self->priv->audio_fd);
+			UNLOCK(self);
+			break;
+		case PROP_VIDEO_FD:
+			LOCK(self);
+			g_value_set_int(value, self->priv->video_fd);
 			UNLOCK(self);
 			break;
 		default:
@@ -259,16 +273,18 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 	GstElement *udpsrc, *ptdemux;
 	GstCaps *caps;
 	gchar *udpsrc_name;
-	gint *port;
+	gint *port, *fd;
 
 	switch (type) {
 	case KMS_MEDIA_TYPE_AUDIO:
 		udpsrc_name = "udpsrc_audio";
 		port = &(self->priv->audio_port);
+		fd = &(self->priv->audio_fd);
 		break;
 	case KMS_MEDIA_TYPE_VIDEO:
 		udpsrc_name = "udpsrc_video";
 		port = &(self->priv->video_port);
+		fd = &(self->priv->video_fd);
 		break;
 	default:
 		return;
@@ -288,7 +304,7 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 	gst_element_set_state(udpsrc, GST_STATE_PLAYING);
 	gst_element_set_state(ptdemux, GST_STATE_PLAYING);
 
-	g_object_get(udpsrc, "port", port, NULL);
+	g_object_get(udpsrc, "port", port, "sock", fd, NULL);
 
 	self->priv->udpsrc = udpsrc;
 
@@ -378,6 +394,18 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(object_class, PROP_LOCAL_SPEC, pspec);
+
+	pspec = g_param_spec_int("audio-fd", "Audio fd",
+					"File descriptor used to send audio",
+					-1, G_MAXINT, -1, G_PARAM_READABLE);
+
+	g_object_class_install_property(object_class, PROP_AUDIO_FD, pspec);
+
+	pspec = g_param_spec_int("video-fd", "Video fd",
+					"File descriptor used to send video",
+					-1, G_MAXINT, -1, G_PARAM_READABLE);
+
+	g_object_class_install_property(object_class, PROP_VIDEO_FD, pspec);
 }
 
 static void
