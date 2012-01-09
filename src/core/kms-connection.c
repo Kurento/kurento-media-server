@@ -55,7 +55,7 @@ dispose_endpoint(KmsConnection *self) {
 }
 
 static gboolean
-do_set_mode_media(KmsConnection *self, KmsConnectionMode mode,
+do_set_mode(KmsConnection *self, KmsConnectionMode mode,
 					KmsMediaType type, GError **err) {
 	if (KMS_CONNECTION_GET_CLASS(self)->mode_changed == NULL) {
 		g_warn_if_reached();
@@ -72,20 +72,9 @@ do_set_mode_media(KmsConnection *self, KmsConnectionMode mode,
 									err);
 }
 
-static gboolean
-do_set_mode(KmsConnection *self, KmsConnectionMode mode, GError **err) {
-	if (!do_set_mode_media(self, mode, KMS_MEDIA_TYPE_AUDIO, err))
-		return FALSE;
-
-	if (!do_set_mode_media(self, mode, KMS_MEDIA_TYPE_VIDEO, err))
-		return FALSE;
-
-	return TRUE;
-}
-
 gboolean
 kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
-								GError **err) {
+					KmsMediaType type, GError **err) {
 	gboolean ret;
 	LOCK(self);
 
@@ -99,7 +88,7 @@ kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 		goto end;
 	}
 
-	ret = do_set_mode(self, mode, err);
+	ret = do_set_mode(self, mode, type, err);
 
 end:
 	UNLOCK(self);
@@ -112,7 +101,11 @@ kms_connection_terminate(KmsConnection *self, GError **err) {
 
 	LOCK(self);
 	self->priv->finished = TRUE;
-	ret = do_set_mode(self, KMS_CONNECTION_MODE_INACTIVE, err);
+	ret = do_set_mode(self, KMS_CONNECTION_MODE_INACTIVE,
+						KMS_MEDIA_TYPE_AUDIO, err);
+	if (ret)
+		ret = do_set_mode(self, KMS_CONNECTION_MODE_INACTIVE,
+						KMS_MEDIA_TYPE_VIDEO, err);
 	UNLOCK(self);
 	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
 

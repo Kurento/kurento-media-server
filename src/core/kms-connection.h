@@ -115,7 +115,7 @@ KmsEndpoint *kms_connection_get_endpoint(KmsConnection *self);
 gboolean kms_connection_terminate(KmsConnection *self, GError **err);
 
 gboolean kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
-								GError **err);
+						KmsMediaType type, GError **err);
 
 gboolean kms_connection_connect(KmsConnection *self, KmsConnection *other,
 						KmsMediaType type, GError **err);
