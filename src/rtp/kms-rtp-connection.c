@@ -109,13 +109,22 @@ media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 static KmsMediaHandlerSrc*
 get_src(KmsMediaHandlerFactory *iface) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(iface);
-	return KMS_MEDIA_HANDLER_SRC(self->priv->receiver);
+	return KMS_MEDIA_HANDLER_SRC(g_object_ref(self->priv->receiver));
 }
 
 static KmsMediaHandlerSink*
-get_sink(KmsMediaHandlerFactory *self) {
-	g_warning("%s:%d Not implemented", __FILE__, __LINE__);
-	return NULL;
+get_sink(KmsMediaHandlerFactory *iface) {
+	KmsRtpConnection *self = KMS_RTP_CONNECTION(iface);
+	KmsMediaHandlerSink *sink;
+
+	LOCK(self);
+	if (self->priv->sender != NULL)
+		sink = KMS_MEDIA_HANDLER_SINK(g_object_ref(self->priv->sender));
+	else
+		sink = NULL;
+	UNLOCK(self);
+
+	return sink;
 }
 
 static void
