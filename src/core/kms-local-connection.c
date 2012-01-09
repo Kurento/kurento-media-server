@@ -92,10 +92,20 @@ dispose_sink(KmsLocalConnection *self) {
 }
 
 static gint
-check_source_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
-							KmsMediaType type) {
+check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
+				KmsMediaType type, GstPadDirection dir) {
 	KmsLocalConnection *other;
-	KmsConnectionMode other_mode;
+	KmsConnectionMode other_mode, direct_mode, inverse_mode;
+
+	if (dir == GST_PAD_SINK) {
+		direct_mode = KMS_CONNECTION_MODE_RECVONLY;
+		inverse_mode = KMS_CONNECTION_MODE_SENDONLY;
+	} else if (dir == GST_PAD_SRC) {
+		direct_mode = KMS_CONNECTION_MODE_SENDONLY;
+		inverse_mode = KMS_CONNECTION_MODE_RECVONLY;
+	} else {
+		return COMP_ERROR;
+	}
 
 	switch (type) {
 	case KMS_MEDIA_TYPE_AUDIO:
@@ -117,53 +127,13 @@ check_source_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 	if (mode == KMS_CONNECTION_MODE_INACTIVE ||
 			other_mode == KMS_CONNECTION_MODE_INACTIVE)
 		return COMP_FALSE;
-	else if (mode == KMS_CONNECTION_MODE_RECVONLY ||
-				other_mode == KMS_CONNECTION_MODE_SENDONLY)
-		return COMP_FALSE;
-	else if ((mode == KMS_CONNECTION_MODE_SENDONLY ||
-				mode == KMS_CONNECTION_MODE_SENDRECV ||
-				mode == KMS_CONNECTION_MODE_CONFERENCE) &&
-				(other_mode == KMS_CONNECTION_MODE_RECVONLY ||
-				other_mode == KMS_CONNECTION_MODE_SENDRECV ||
-				other_mode == KMS_CONNECTION_MODE_CONFERENCE))
-		return COMP_OK;
-	else
-		return COMP_FALSE;
-}
-
-static gint
-check_sink_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
-							KmsMediaType type) {
-	KmsLocalConnection *other;
-	KmsConnectionMode other_mode;
-
-	switch (type) {
-	case KMS_MEDIA_TYPE_AUDIO:
-		other = self->priv->other_audio;
-		break;
-	case KMS_MEDIA_TYPE_VIDEO:
-		other = self->priv->other_video;
-		break;
-	default:
-		return COMP_ERROR;
-	}
-
-	if (other == NULL || other->priv->sink == NULL ||
-						other->priv->src == NULL)
-		return COMP_ERROR;
-
-	other_mode = kms_connection_get_mode(KMS_CONNECTION(other), type);
-
-	if (mode == KMS_CONNECTION_MODE_INACTIVE ||
-			other_mode == KMS_CONNECTION_MODE_INACTIVE)
-		return COMP_FALSE;
-	else if (mode == KMS_CONNECTION_MODE_SENDONLY ||
+	else if (mode == inverse_mode ||
 				other_mode == KMS_CONNECTION_MODE_RECVONLY)
 		return COMP_FALSE;
-	else if ((mode == KMS_CONNECTION_MODE_RECVONLY ||
+	else if ((mode == direct_mode ||
 				mode == KMS_CONNECTION_MODE_SENDRECV ||
 				mode == KMS_CONNECTION_MODE_CONFERENCE) &&
-				(other_mode == KMS_CONNECTION_MODE_SENDONLY ||
+				(other_mode == inverse_mode ||
 				other_mode == KMS_CONNECTION_MODE_SENDRECV ||
 				other_mode == KMS_CONNECTION_MODE_CONFERENCE))
 		return COMP_OK;
@@ -175,7 +145,8 @@ static gboolean
 mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 								GError **err) {
 	LOCK(self);
-	switch (check_source_compatible(KMS_LOCAL_CONNECTION(self), mode, type)) {
+	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
+								GST_PAD_SRC)) {
 	case COMP_OK:
 		/* Connect src */
 		g_print("Connect src\n");
@@ -188,7 +159,8 @@ mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 		break;
 	}
 
-	switch (check_sink_compatible(KMS_LOCAL_CONNECTION(self), mode, type)) {
+	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
+								GST_PAD_SINK)) {
 	case COMP_OK:
 		/* Connect sink */
 		g_print("Connect sink\n");
