@@ -5,6 +5,8 @@
 #define LOCK(obj) (g_static_mutex_lock(&(KMS_LOCAL_CONNECTION(obj)->priv->mutex)))
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_LOCAL_CONNECTION(obj)->priv->mutex)))
 
+G_LOCK_DEFINE_STATIC(local_connection);
+
 struct _KmsLocalConnectionPriv {
 	GStaticMutex mutex;
 	KmsMediaHandlerFactory *media_factory;
@@ -144,7 +146,7 @@ check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 static gboolean
 mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 								GError **err) {
-	LOCK(self);
+	G_LOCK(local_connection);
 	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
 								GST_PAD_SRC)) {
 	case COMP_OK:
@@ -172,7 +174,7 @@ mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 	default:
 		break;
 	}
-	UNLOCK(self);
+	G_UNLOCK(local_connection);
 
 	return TRUE;
 }
