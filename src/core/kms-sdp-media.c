@@ -441,9 +441,9 @@ kms_sdp_media_class_init(KmsSdpMediaClass *klass) {
 	g_object_class_install_property(gobject_class, PROP_MODE, pspec);
 
 	pspec = g_param_spec_enum("type", "Media Type",
-				  "The connection media type",
-			   KMS_MEDIA_TYPE, KMS_MEDIA_TYPE_UNKNOWN,
-			   G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+				"The connection media type",
+				KMS_MEDIA_TYPE, KMS_MEDIA_TYPE_UNKNOWN,
+				G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_TYPE, pspec);
 
