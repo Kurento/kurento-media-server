@@ -5,6 +5,7 @@
 #ifndef __KMS_RTP_SENDER_H__
 #define __KMS_RTP_SENDER_H__
 
+#include <kms-core.h>
 #include <glib-object.h>
 
 #define KMS_TYPE_RTP_SENDER		(kms_rtp_sender_get_type())
@@ -19,7 +20,7 @@ typedef struct _KmsRtpSenderClass	KmsRtpSenderClass;
 typedef struct _KmsRtpSenderPriv	KmsRtpSenderPriv;
 
 struct _KmsRtpSender {
-	GObject parent_instance;
+	KmsMediaHandlerSink parent_instance;
 
 	/* instance members */
 
@@ -27,7 +28,7 @@ struct _KmsRtpSender {
 };
 
 struct _KmsRtpSenderClass {
-	GObjectClass parent_class;
+	KmsMediaHandlerSinkClass parent_class;
 
 	/* class members */
 };

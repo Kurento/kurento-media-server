@@ -22,7 +22,7 @@ enum {
 	PROP_VIDEO_FD,
 };
 
-G_DEFINE_TYPE(KmsRtpSender, kms_rtp_sender, G_TYPE_OBJECT)
+G_DEFINE_TYPE(KmsRtpSender, kms_rtp_sender, KMS_TYPE_MEDIA_HANDLER_SINK)
 
 static void
 dispose_remote_spec(KmsRtpSender *self) {
