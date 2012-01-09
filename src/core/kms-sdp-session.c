@@ -213,7 +213,7 @@ kms_sdp_session_intersect(KmsSdpSession *answerer, KmsSdpSession *offerer,
 				NULL);
 
 	*neg_answ = g_object_new(KMS_TYPE_SDP_SESSION,
-			       "medias", new_answerer_medias,
+				"medias", new_answerer_medias,
 				"address", answerer->priv->addr,
 				"name", offerer->priv->name,
 				"id", offerer->priv->id,
