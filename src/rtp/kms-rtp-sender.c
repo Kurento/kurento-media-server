@@ -38,6 +38,53 @@ kms_rtp_sender_terminate(KmsRtpSender *self) {
 }
 
 static void
+create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
+	/* TODO: Implement this method */
+}
+
+static void
+constructed(GObject *object) {
+	KmsRtpSender *self = KMS_RTP_SENDER(object);
+	GValueArray *medias;
+	gchar *remote_addr;
+	gint i;
+
+	G_OBJECT_CLASS(kms_rtp_sender_parent_class)->constructed(object);
+
+	g_return_if_fail(self->priv->remote_spec != NULL);
+
+	g_object_get(self->priv->remote_spec, "medias", &medias,
+						"address", &remote_addr, NULL);
+
+	g_print("Remote addr: %s\n", remote_addr);
+	for (i = 0; i < medias->n_values; i++) {
+		GValue *val;
+		KmsSdpMedia *media;
+		KmsMediaType type;
+
+		val = g_value_array_get_nth(medias, i);
+		media = g_value_get_object(val);
+
+		g_object_get(media, "type", &type, NULL);
+		switch (type) {
+			case KMS_MEDIA_TYPE_AUDIO:
+				create_udpsink(self, remote_addr, media,
+							self->priv->audio_fd);
+				break;
+			case KMS_MEDIA_TYPE_VIDEO:
+				create_udpsink(self, remote_addr, media,
+							self->priv->video_fd);
+				break;
+			default:
+				break;
+		}
+	}
+
+	g_value_array_free(medias);
+	g_free(remote_addr);
+}
+
+static void
 set_property (GObject *object, guint property_id, const GValue *value,
 							GParamSpec *pspec) {
 	KmsRtpSender *self = KMS_RTP_SENDER(object);
@@ -115,6 +162,7 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	object_class->dispose = dispose;
 	object_class->set_property = set_property;
 	object_class->get_property = get_property;
+	object_class->constructed = constructed;
 
 	pspec = g_param_spec_object("remote-spec", "Remote Session Spec",
 					"Remote Session Description",
