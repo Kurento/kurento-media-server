@@ -133,7 +133,7 @@ create_rtp_sender(KmsRtpConnection *self) {
 						NULL);
 
 	self->priv->sender = g_object_new(KMS_TYPE_RTP_SENDER,
-				"local-spec", self->priv->neg_remote_spec,
+				"remote-spec", self->priv->neg_remote_spec,
 				"audio-fd", audio_fd,
 				"video-fd", video_fd,
 				NULL);
