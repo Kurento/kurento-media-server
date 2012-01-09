@@ -93,11 +93,66 @@ mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 }
 
 static gboolean
-connect(KmsConnection *self, KmsConnection *other, KmsMediaType type,
+connect(KmsConnection *conn, KmsConnection *other, KmsMediaType type,
 								GError **err) {
-	/* TODO: Implement this method*/
-	KMS_LOG_DEBUG("TODO: Implement this method");
-	return TRUE;
+	gboolean ret = TRUE;
+	KmsLocalConnection *self, *other_local;
+
+	if (!KMS_IS_LOCAL_CONNECTION(other)) {
+		SET_ERROR(err, KMS_CONNECTION_ERROR,
+				KMS_CONNECTION_ERROR_WRONG_ARGUMENT,
+				"Other connection must be of type "
+				"KmsLocalConnection");
+		return FALSE;
+	}
+
+	self = KMS_LOCAL_CONNECTION(conn);
+	other_local = KMS_LOCAL_CONNECTION(other);
+
+	LOCK(self);
+	if (!((type == KMS_MEDIA_TYPE_AUDIO) ||
+					(type == KMS_MEDIA_TYPE_VIDEO))) {
+		ret = FALSE;
+		SET_ERROR(err, KMS_CONNECTION_ERROR,
+					KMS_CONNECTION_ERROR_WRONG_ARGUMENT,
+					"Unsupported media type");
+	} else if (((type == KMS_MEDIA_TYPE_AUDIO) &&
+					(self->priv->other_audio != NULL)) ||
+				((type == KMS_MEDIA_TYPE_VIDEO) &&
+					(self->priv->other_video != NULL))) {
+		ret = FALSE;
+		SET_ERROR(err, KMS_CONNECTION_ERROR,
+					KMS_CONNECTION_ERROR_WRONG_ARGUMENT,
+					"Connection already connected");
+	}
+	UNLOCK(self);
+
+	if (!ret)
+		goto end;
+
+	switch (type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		g_object_weak_ref(G_OBJECT(other_local), other_audio_unref,
+								self);
+		self->priv->other_audio = other_local;
+		g_object_weak_ref(G_OBJECT(self), other_audio_unref,
+								other_local);
+		other_local->priv->other_audio = self;
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		g_object_weak_ref(G_OBJECT(other_local), other_video_unref,
+								self);
+		self->priv->other_video = other_local;
+		g_object_weak_ref(G_OBJECT(self), other_video_unref,
+								other_local);
+		other_local->priv->other_video = self;
+		break;
+	default:
+		break;
+	}
+
+end:
+	return ret;
 }
 
 static void
