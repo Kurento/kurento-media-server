@@ -6,8 +6,6 @@
 #include <unistd.h>
 #include "internal/kms-utils.h"
 
-#define CONNECTIONS 10
-
 #define TESTS 30
 
 static void
