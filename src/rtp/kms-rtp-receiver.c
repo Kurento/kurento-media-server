@@ -170,8 +170,13 @@ request_pt_map(GstElement *demux, guint pt, gpointer self) {
 
 static void
 found_type(GstElement* tf, guint probability, GstCaps* caps, gpointer data) {
+	GstElement *sink;
 
 	g_print("Found type\n");
+	sink = gst_element_factory_make("fakesink", NULL);
+	gst_element_set_state(sink, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(data), sink);
+	gst_element_link(tf, sink);
 }
 
 static void
