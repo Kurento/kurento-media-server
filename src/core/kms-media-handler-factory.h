@@ -30,6 +30,6 @@ GType kms_media_handler_factory_get_type (void);
 /* Interface methods */
 
 KmsMediaHandlerSrc * kms_media_handler_factory_get_src(KmsMediaHandlerFactory *self);
-KmsMediaHandlerSink kms_media_handler_factory_get_sink(KmsMediaHandlerFactory *self);
+KmsMediaHandlerSink *kms_media_handler_factory_get_sink(KmsMediaHandlerFactory *self);
 
 #endif /* __KMS_MEDIA_HANDLER_FACTORY_H__ */
