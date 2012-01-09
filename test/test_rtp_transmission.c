@@ -4,6 +4,7 @@
 #include <glib.h>
 #include "rtp-test-lib/rtp-test-lib.h"
 #include <unistd.h>
+#include "internal/kms-utils.h"
 
 #define CONNECTIONS 10
 
@@ -138,6 +139,8 @@ test_connection() {
 
 	sleep(2);
 
+	KMS_DEBUG_PIPE("before_finish");
+
 	ret = kms_endpoint_delete_connection(ep, conn, &err);
 	if (!ret && err != NULL) {
 		g_printerr("error deleting: %s\n", err->message);
@@ -145,6 +148,8 @@ test_connection() {
 	}
 	g_assert(ret);
 	g_object_unref(conn);
+
+	KMS_DEBUG_PIPE("finished");
 
 	gst_element_send_event(apipe, gst_event_new_eos());
 	gst_element_set_state(apipe, GST_STATE_NULL);
