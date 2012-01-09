@@ -92,6 +92,46 @@ send_video(gint port) {
 }
 
 static void
+create_local_connections(KmsEndpoint *ep) {
+	KmsConnection *lc1, *lc2;
+	GError *err = NULL;
+	gboolean ret;
+
+	lc1 = kms_endpoint_create_connection(ep, KMS_CONNECTION_TYPE_LOCAL,
+									&err);
+	if (lc1 == NULL && err != NULL) {
+		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
+	g_assert(lc1 != NULL);
+
+	lc2 = kms_endpoint_create_connection(ep, KMS_CONNECTION_TYPE_LOCAL,
+					     &err);
+	if (lc2 == NULL && err != NULL) {
+		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
+	g_assert(lc2 != NULL);
+
+	ret = kms_connection_connect(lc1, lc2, KMS_MEDIA_TYPE_AUDIO, &err);
+	if (ret && err != NULL) {
+		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
+	g_assert(ret);
+
+	ret = kms_connection_connect(lc1, lc2, KMS_MEDIA_TYPE_VIDEO, &err);
+	if (ret && err != NULL) {
+		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
+		g_error_free(err);
+	}
+	g_assert(ret);
+
+	g_object_unref(lc1);
+	g_object_unref(lc2);
+}
+
+static void
 test_connection() {
 	KmsEndpoint *ep;
 	KmsConnection *conn;
@@ -137,6 +177,8 @@ test_connection() {
 	apipe = send_audio(audio_port);
 	vpipe = send_video(video_port);
 
+	create_local_connections(ep);
+
 	sleep(2);
 
 	KMS_DEBUG_PIPE("before_finish");
@@ -148,6 +190,8 @@ test_connection() {
 	}
 	g_assert(ret);
 	g_object_unref(conn);
+
+	kms_endpoint_delete_all_connections(ep);
 
 	KMS_DEBUG_PIPE("finished");
 
