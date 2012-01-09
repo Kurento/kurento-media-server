@@ -119,7 +119,7 @@ create_local_connections(KmsEndpoint *ep) {
 	g_assert(ret);
 
 	ret = kms_connection_connect(lc1, lc2, KMS_MEDIA_TYPE_VIDEO, &err);
-	if (ret && err != NULL) {
+	if (!ret && err != NULL) {
 		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
 		g_error_free(err);
 	}
