@@ -8,6 +8,8 @@
 struct _KmsLocalConnectionPriv {
 	GStaticMutex mutex;
 	KmsMediaHandlerFactory *media_factory;
+	KmsMediaHandlerSrc *src;
+	KmsMediaHandlerSink *sink;
 };
 
 enum {
@@ -26,6 +28,22 @@ dispose_factory(KmsLocalConnection *self) {
 	}
 }
 
+static void
+dispose_src(KmsLocalConnection *self) {
+	if (self->priv->src != NULL) {
+		g_object_unref(self->priv->src);
+		self->priv->src = NULL;
+	}
+}
+
+static void
+dispose_sink(KmsLocalConnection *self) {
+	if (self->priv->sink != NULL) {
+		g_object_unref(self->priv->sink);
+		self->priv->sink = NULL;
+	}
+}
+
 static gboolean
 mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 								GError **err) {
@@ -39,6 +57,22 @@ connect(KmsConnection *self, KmsConnection *other, KmsMediaType type,
 	/* TODO: Implement this method*/
 	KMS_LOG_DEBUG("TODO: Implement this method");
 	return TRUE;
+}
+
+static void
+constructed(GObject *object) {
+	KmsLocalConnection *self = KMS_LOCAL_CONNECTION(object);
+
+	G_OBJECT_CLASS(kms_local_connection_parent_class)->constructed(object);
+
+	LOCK(self);
+	g_return_if_fail(self->priv->media_factory !=NULL);
+
+	self->priv->src = kms_media_handler_factory_get_src(
+						self->priv->media_factory);
+	self->priv->sink = kms_media_handler_factory_get_sink(
+						self->priv->media_factory);
+	UNLOCK(self);
 }
 
 static void
@@ -89,6 +123,8 @@ dispose(GObject *object) {
 
 	LOCK(self);
 	dispose_factory(self);
+	dispose_src(self);
+	dispose_sink(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -119,6 +155,7 @@ kms_local_connection_class_init (KmsLocalConnectionClass *klass) {
 	gobject_class->get_property = get_property;
 	gobject_class->dispose = dispose;
 	gobject_class->finalize = finalize;
+	gobject_class->constructed = constructed;
 
 	pspec = g_param_spec_pointer("media-factory", "Media handler factory",
 					"The media handler factory",
@@ -135,4 +172,6 @@ kms_local_connection_init (KmsLocalConnection *self) {
 	g_static_mutex_init(&(self->priv->mutex));
 
 	self->priv->media_factory = NULL;
+	self->priv->src = NULL;
+	self->priv->sink = NULL;
 }
