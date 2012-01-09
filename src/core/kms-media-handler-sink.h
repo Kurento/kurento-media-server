@@ -33,6 +33,11 @@ struct _KmsMediaHandlerSinkClass {
 	/* class members */
 };
 
+#include <kms-media-handler-src.h>
+
 GType kms_media_handler_sink_get_type (void);
+
+gboolean kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
+				       KmsMediaHandlerSrc *src, GError **err);
 
 #endif /* __KMS_MEDIA_HANDLER_SINK_H__ */

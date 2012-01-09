@@ -17,6 +17,14 @@ enum {
 
 G_DEFINE_TYPE(KmsMediaHandlerSink, kms_media_handler_sink, GST_TYPE_BIN)
 
+gboolean
+kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
+						KmsMediaHandlerSrc *src,
+						GError **err) {
+	g_print("Disconnect sink\n");
+	return TRUE;
+}
+
 static void
 constructed(GObject *object) {
 	GstElement *pipe, *bin;

@@ -147,20 +147,27 @@ check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 }
 
 static gboolean
-mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
+mode_changed(KmsConnection *conn, KmsConnectionMode mode, KmsMediaType type,
 								GError **err) {
-	KmsLocalConnection *other;
+	KmsLocalConnection *other, *self;
+	gboolean ret;
+
+	self = KMS_LOCAL_CONNECTION(conn);
 
 	G_LOCK(local_connection);
 	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
 							GST_PAD_SRC, &other)) {
 	case COMP_OK:
-		/* Connect src */
-		g_print("Connect src\n");
+		ret = kms_media_handler_src_connect(self->priv->src,
+							other->priv->sink, err);
+		if (!ret)
+			return FALSE;
 		break;
 	case COMP_FALSE:
-		/* Disconnect src */
-		g_print("Disconnect src\n");
+		ret = kms_media_handler_sink_disconnect(other->priv->sink,
+							self->priv->src, err);
+		if (!ret)
+			return FALSE;
 		break;
 	default:
 		break;
@@ -169,12 +176,16 @@ mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
 							GST_PAD_SINK, &other)) {
 	case COMP_OK:
-		/* Connect sink */
-		g_print("Connect sink\n");
+		ret = kms_media_handler_src_connect(other->priv->src,
+							self->priv->sink, err);
+		if (!ret)
+			return FALSE;
 		break;
 	case COMP_FALSE:
-		/* Disconnect sink */
-		g_print("Disconnect sink\n");
+		ret = kms_media_handler_sink_disconnect(self->priv->sink,
+							other->priv->src, err);
+		if (!ret)
+			return FALSE;
 		break;
 	default:
 		break;
