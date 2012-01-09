@@ -10,12 +10,16 @@ struct _KmsRtpSenderPriv {
 	GMutex *mutex;
 
 	KmsSdpSession *remote_spec;
+	gint audio_fd;
+	gint video_fd;
 };
 
 enum {
 	PROP_0,
 
 	PROP_REMOTE_SPEC,
+	PROP_AUDIO_FD,
+	PROP_VIDEO_FD,
 };
 
 G_DEFINE_TYPE(KmsRtpSender, kms_rtp_sender, G_TYPE_OBJECT)
@@ -43,6 +47,16 @@ set_property (GObject *object, guint property_id, const GValue *value,
 			LOCK(self);
 			dispose_remote_spec(self);
 			self->priv->remote_spec = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
+		case PROP_AUDIO_FD:
+			LOCK(self);
+			self->priv->audio_fd = g_value_get_int(value);
+			UNLOCK(self);
+			break;
+		case PROP_VIDEO_FD:
+			LOCK(self);
+			self->priv->video_fd = g_value_get_int(value);
 			UNLOCK(self);
 			break;
 		default:
@@ -109,6 +123,22 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 					G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_REMOTE_SPEC, pspec);
+
+	pspec = g_param_spec_int("audio-fd", "Audio fd",
+					"File descriptor used to send audio",
+					-1, G_MAXINT, -1,
+					G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_AUDIO_FD, pspec);
+
+	pspec = g_param_spec_int("video-fd", "Video fd",
+					"File descriptor used to send video",
+					-1, G_MAXINT, -1,
+					G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_VIDEO_FD, pspec);
 }
 
 static void
@@ -117,4 +147,6 @@ kms_rtp_sender_init(KmsRtpSender *self) {
 
 	self->priv->mutex = g_mutex_new();
 	self->priv->remote_spec = NULL;
+	self->priv->audio_fd = -1;
+	self->priv->video_fd = -1;
 }
