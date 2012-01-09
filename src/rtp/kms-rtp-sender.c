@@ -1,5 +1,6 @@
 #include <kms-core.h>
 #include <rtp/kms-rtp.h>
+#include "internal/kms-utils.h"
 
 #define KMS_RTP_SENDER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTP_SENDER, KmsRtpSenderPriv))
 
@@ -39,7 +40,48 @@ kms_rtp_sender_terminate(KmsRtpSender *self) {
 
 static void
 create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
-	/* TODO: Implement this method */
+	GValueArray *payloads;
+	KmsSdpPayload *payload;
+	GstElement *udpsink, *payloader;
+	GstCaps *caps;
+	gint port;
+
+	g_object_get(media, "payloads", &payloads, "port", &port, NULL);
+
+	if (payloads->n_values == 0 || port == 0)
+		goto end;
+
+	payload = g_value_get_object(g_value_array_get_nth(payloads, 0));
+	caps = kms_sdp_payload_to_caps(payload);
+
+	payloader = kms_utils_get_element_for_caps(
+					GST_ELEMENT_FACTORY_TYPE_PAYLOADER,
+					GST_RANK_NONE, caps, GST_PAD_SRC,
+					FALSE, NULL);
+	udpsink = gst_element_factory_make("udpsink", NULL);
+
+	if (payload == NULL || udpsink == NULL) {
+		if (payload != NULL)
+			g_object_unref(payload);
+		if (udpsink != NULL)
+			g_object_unref(udpsink);
+
+		goto end;
+	}
+
+	g_object_set(udpsink, "host", addr, "port", port, "sync", FALSE, NULL);
+	if (fd != -1)
+		g_object_set(udpsink, "sockfd", fd, "closefd", FALSE, NULL);
+
+	gst_element_set_state(udpsink, GST_STATE_PLAYING);
+	gst_element_set_state(payloader, GST_STATE_PLAYING);
+	gst_bin_add_many(GST_BIN(self), payloader, udpsink, NULL);
+	gst_element_link(payloader, udpsink);
+
+	/* TODO: Add ghost pad to allow connections */
+
+end:
+	g_value_array_free(payloads);
 }
 
 static void
