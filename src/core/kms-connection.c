@@ -10,8 +10,8 @@ struct _KmsConnectionPriv {
 	gchar *id;
 	gboolean finished;
 	KmsEndpoint *endpoint;
-	KmsConnectionMode audioMode;
-	KmsConnectionMode videoMode;
+	KmsConnectionMode audio_mode;
+	KmsConnectionMode video_mode;
 };
 
 enum {
@@ -57,6 +57,8 @@ dispose_endpoint(KmsConnection *self) {
 static gboolean
 do_set_mode(KmsConnection *self, KmsConnectionMode mode,
 					KmsMediaType type, GError **err) {
+	gboolean ret;
+
 	if (KMS_CONNECTION_GET_CLASS(self)->mode_changed == NULL) {
 		g_warn_if_reached();
 		SET_ERROR(err, KMS_CONNECTION_ERROR,
@@ -68,8 +70,23 @@ do_set_mode(KmsConnection *self, KmsConnectionMode mode,
 		return FALSE;
 	}
 
-	return KMS_CONNECTION_GET_CLASS(self)->mode_changed(self, mode, type,
+	ret = KMS_CONNECTION_GET_CLASS(self)->mode_changed(self, mode, type,
 									err);
+
+	if (ret) {
+		switch(type) {
+		case KMS_MEDIA_TYPE_AUDIO:
+			self->priv->audio_mode = mode;
+			break;
+		case KMS_MEDIA_TYPE_VIDEO:
+			self->priv->video_mode = mode;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return ret;
 }
 
 gboolean
@@ -93,6 +110,18 @@ kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 end:
 	UNLOCK(self);
 	return ret;
+}
+
+KmsConnectionMode
+kms_connection_get_mode(KmsConnection *self, KmsMediaType type) {
+	switch (type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		return self->priv->audio_mode;
+	case KMS_MEDIA_TYPE_VIDEO:
+		return self->priv->video_mode;
+	default:
+		return KMS_CONNECTION_MODE_INACTIVE;
+	}
 }
 
 gboolean
@@ -265,6 +294,6 @@ kms_connection_init(KmsConnection *self) {
 	self->priv->id = NULL;
 	self->priv->finished = FALSE;
 	self->priv->endpoint = NULL;
-	self->priv->audioMode = KMS_CONNECTION_MODE_INACTIVE;
-	self->priv->videoMode = KMS_CONNECTION_MODE_INACTIVE;
+	self->priv->audio_mode = KMS_CONNECTION_MODE_INACTIVE;
+	self->priv->video_mode = KMS_CONNECTION_MODE_INACTIVE;
 }
