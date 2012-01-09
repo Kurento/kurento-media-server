@@ -95,7 +95,8 @@ dispose_sink(KmsLocalConnection *self) {
 
 static gint
 check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
-				KmsMediaType type, GstPadDirection dir) {
+					KmsMediaType type, GstPadDirection dir,
+					KmsLocalConnection **other_local) {
 	KmsLocalConnection *other;
 	KmsConnectionMode other_mode, direct_mode, inverse_mode;
 
@@ -124,6 +125,8 @@ check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 						other->priv->src == NULL)
 		return COMP_ERROR;
 
+	*other_local = other;
+
 	other_mode = kms_connection_get_mode(KMS_CONNECTION(other), type);
 
 	if (mode == KMS_CONNECTION_MODE_INACTIVE ||
@@ -146,9 +149,11 @@ check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 static gboolean
 mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 								GError **err) {
+	KmsLocalConnection *other;
+
 	G_LOCK(local_connection);
 	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
-								GST_PAD_SRC)) {
+							GST_PAD_SRC, &other)) {
 	case COMP_OK:
 		/* Connect src */
 		g_print("Connect src\n");
@@ -162,7 +167,7 @@ mode_changed(KmsConnection *self, KmsConnectionMode mode, KmsMediaType type,
 	}
 
 	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
-								GST_PAD_SINK)) {
+							GST_PAD_SINK, &other)) {
 	case COMP_OK:
 		/* Connect sink */
 		g_print("Connect sink\n");
