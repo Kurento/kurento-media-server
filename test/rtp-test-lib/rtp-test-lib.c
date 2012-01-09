@@ -73,11 +73,11 @@ create_video_payloads(gboolean second) {
 		gint pay_id;
 
 		if (second)
-			pay_id = 105;
+			pay_id = 106;
 		else
-			pay_id = 100;
+			pay_id = 101;
 
-		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "H263-1998",
+		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "MP4V-ES",
 							"payload", pay_id,
 							"clockrate", 90000,
 							NULL);
@@ -94,11 +94,11 @@ create_video_payloads(gboolean second) {
 		gint pay_id;
 
 		if (second)
-			pay_id = 106;
+			pay_id = 105;
 		else
-			pay_id = 101;
+			pay_id = 100;
 
-		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "MP4V-ES",
+		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "H263-1998",
 							"payload", pay_id,
 							"clockrate", 90000,
 							NULL);
