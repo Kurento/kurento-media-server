@@ -39,11 +39,47 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	return TRUE;
 }
 
+static gchar*
+generate_pad_name(gchar *pattern) {
+	static int n = 0;
+	G_LOCK_DEFINE_STATIC(pad_n);
+	GString *name;
+	gchar *name_str;
+
+	if (g_str_has_suffix(pattern, "%d")) {
+		name = g_string_new(pattern);
+		name->str[name->len - 2] = '\0';
+		name->len = name->len -2;
+
+		G_LOCK(pad_n);
+		g_string_append_printf(name, "%d", n++);
+		G_UNLOCK(pad_n);
+
+		name_str = name->str;
+		g_string_free(name, FALSE);
+	} else {
+		G_LOCK(pad_n);
+		name_str = g_strdup_printf("pad_name%d", n++);
+		G_UNLOCK(pad_n);
+	}
+
+	return name_str;
+}
+
 static GstPad*
 request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	GstPad *pad;
+	gchar *new_name;
 
-	pad = gst_ghost_pad_new_no_target_from_template(name, templ);
+	if (name != NULL)
+		new_name = g_strdup(name);
+	else
+		new_name = generate_pad_name(templ->name_template);
+
+	pad = gst_ghost_pad_new_no_target_from_template(new_name, templ);
+	g_free(new_name);
+	gst_pad_set_active(pad, TRUE);
+	gst_element_add_pad(elem, pad);
 	/* TODO: Connect pad callbacks */
 	return pad;
 }
