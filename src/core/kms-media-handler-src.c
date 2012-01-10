@@ -166,6 +166,19 @@ generate_pad_name(gchar *pattern) {
 	return name_str;
 }
 
+static void
+unlink_pad(GstPad *pad) {
+	/* TODO: Implement unlink_pad function */
+	g_print("Unlink source pad\n");
+}
+
+static GstPadLinkReturn
+link_pad(GstPad *pad, GstPad *peer) {
+	/* TODO: Implement link_pad function */
+	g_print("Link source pad\n");
+	return GST_PAD_LINK_OK;
+}
+
 static GstPad*
 request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	GstPad *pad;
@@ -179,8 +192,10 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	pad = gst_ghost_pad_new_no_target_from_template(new_name, templ);
 	g_free(new_name);
 	gst_pad_set_active(pad, TRUE);
+	gst_pad_set_link_function(pad, link_pad);
+	gst_pad_set_unlink_function(pad, unlink_pad);
+
 	gst_element_add_pad(elem, pad);
-	/* TODO: Connect pad callbacks */
 	return pad;
 }
 
