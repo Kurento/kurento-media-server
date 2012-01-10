@@ -36,6 +36,7 @@ struct _KmsMediaHandlerSrcClass {
 GType kms_media_handler_src_get_type (void);
 
 gboolean kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
-				KmsMediaHandlerSink *sink, GError **err);
+				KmsMediaHandlerSink *sink,
+				KmsMediaType type, GError **err);
 
 #endif /* __KMS_MEDIA_HANDLER_SRC_H__ */

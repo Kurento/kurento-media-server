@@ -34,6 +34,7 @@ G_DEFINE_TYPE(KmsMediaHandlerSink, kms_media_handler_sink, GST_TYPE_BIN)
 gboolean
 kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 						KmsMediaHandlerSrc *src,
+						KmsMediaType type,
 						GError **err) {
 	g_print("Disconnect sink\n");
 	return TRUE;

@@ -159,13 +159,13 @@ mode_changed(KmsConnection *conn, KmsConnectionMode mode, KmsMediaType type,
 							GST_PAD_SRC, &other)) {
 	case COMP_OK:
 		ret = kms_media_handler_src_connect(self->priv->src,
-							other->priv->sink, err);
+						other->priv->sink, type, err);
 		if (!ret)
 			return FALSE;
 		break;
 	case COMP_FALSE:
 		ret = kms_media_handler_sink_disconnect(other->priv->sink,
-							self->priv->src, err);
+						self->priv->src, type, err);
 		if (!ret)
 			return FALSE;
 		break;
@@ -177,13 +177,13 @@ mode_changed(KmsConnection *conn, KmsConnectionMode mode, KmsMediaType type,
 							GST_PAD_SINK, &other)) {
 	case COMP_OK:
 		ret = kms_media_handler_src_connect(other->priv->src,
-							self->priv->sink, err);
+						self->priv->sink, type, err);
 		if (!ret)
 			return FALSE;
 		break;
 	case COMP_FALSE:
 		ret = kms_media_handler_sink_disconnect(self->priv->sink,
-							other->priv->src, err);
+						other->priv->src, type, err);
 		if (!ret)
 			return FALSE;
 		break;
