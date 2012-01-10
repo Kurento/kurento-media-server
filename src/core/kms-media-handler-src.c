@@ -36,8 +36,82 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 						KmsMediaHandlerSink *sink,
 						KmsMediaType type,
 						GError **err) {
-	g_print("Connect src\n");
-	return TRUE;
+	GstIterator *it;
+	GstPad *pad, *src_pad, *sink_pad;
+	gboolean done = FALSE, linked = FALSE;
+	gchar *src_name, *sink_name;
+	GEnumClass *eclass;
+	GEnumValue *evalue;
+	gboolean ret = TRUE;
+
+	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
+	evalue = g_enum_get_value(eclass, type);
+
+	/* Check if it is already linked otherwise link */
+	it = gst_element_iterate_sink_pads(GST_ELEMENT(sink));
+	while (!done && !linked) {
+		switch (gst_iterator_next(it, (gpointer *)&pad)) {
+		case GST_ITERATOR_OK:
+			if (g_strstr_len(GST_OBJECT_NAME(pad), -1,
+					evalue->value_nick) != NULL &&
+						gst_pad_is_linked(pad)) {
+				GstPad *peer;
+				GstElement *elem;
+
+				peer = gst_pad_get_peer(pad);
+				elem = gst_pad_get_parent_element(peer);
+				if (elem != NULL) {
+					linked = (elem == GST_ELEMENT(self));
+					gst_object_unref(elem);
+				}
+			}
+			gst_object_unref(pad);
+			break;
+		case GST_ITERATOR_RESYNC:
+			gst_iterator_resync(it);
+			break;
+		case GST_ITERATOR_ERROR:
+			done = TRUE;
+			break;
+		case GST_ITERATOR_DONE:
+			done = TRUE;
+			break;
+		}
+	}
+	gst_iterator_free(it);
+
+	if (linked)
+		return TRUE;
+
+
+	src_name = g_strdup_printf("%s_src%s", evalue->value_nick, "%d");
+	sink_name = g_strdup_printf("%s_sink", evalue->value_nick);
+	src_pad = gst_element_get_request_pad(GST_ELEMENT(self), src_name);
+	if (src_pad == NULL) {
+		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
+				KMS_MEDIA_HANDLER_SRC_ERROR_PAD_NOT_FOUND,
+				"Pad was not found for source element");
+		ret = FALSE;
+		goto end;
+	}
+	sink_pad = gst_element_get_static_pad(GST_ELEMENT(sink), sink_name);
+	if (sink_pad == NULL) {
+		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
+				KMS_MEDIA_HANDLER_SRC_ERROR_PAD_NOT_FOUND,
+				"Pad was not found for sink element");
+		ret = FALSE;
+		goto end;
+	}
+
+	/* TODO: Check if sink pad is linked and unlink otherwise */
+	gst_pad_link(src_pad, sink_pad);
+	/* TODO: Check if link was OK*/
+
+end:
+
+	g_free(sink_name);
+	g_free(src_name);
+	return ret;
 }
 
 static gchar*

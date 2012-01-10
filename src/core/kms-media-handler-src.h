@@ -19,6 +19,12 @@ typedef struct _KmsMediaHandlerSrc		KmsMediaHandlerSrc;
 typedef struct _KmsMediaHandlerSrcClass		KmsMediaHandlerSrcClass;
 typedef struct _KmsMediaHandlerSrcPriv		KmsMediaHandlerSrcPriv;
 
+#define KMS_MEDIA_HANDLER_SRC_ERROR (g_quark_from_string("KmsMediaHandlerSrcError"))
+
+enum {
+	KMS_MEDIA_HANDLER_SRC_ERROR_PAD_NOT_FOUND,
+};
+
 struct _KmsMediaHandlerSrc {
 	GstBin parent_instance;
 
