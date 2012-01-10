@@ -100,6 +100,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 				KMS_MEDIA_HANDLER_SRC_ERROR_PAD_NOT_FOUND,
 				"Pad was not found for sink element");
 		ret = FALSE;
+		gst_element_release_request_pad(GST_ELEMENT(self), src_pad);
 		goto end;
 	}
 
