@@ -23,6 +23,7 @@ typedef struct _KmsMediaHandlerSrcPriv		KmsMediaHandlerSrcPriv;
 
 enum {
 	KMS_MEDIA_HANDLER_SRC_ERROR_PAD_NOT_FOUND,
+	KMS_MEDIA_HANDLER_SRC_ERROR_LINK_ERROR,
 };
 
 struct _KmsMediaHandlerSrc {
