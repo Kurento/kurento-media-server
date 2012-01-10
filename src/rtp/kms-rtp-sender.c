@@ -121,6 +121,7 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 	gst_element_set_state(payloader, GST_STATE_PLAYING);
 	gst_bin_add_many(GST_BIN(self), payloader, udpsink, NULL);
 	gst_element_link(payloader, udpsink);
+	/* TODO: Filter payloader sink pad caps to the allowed types */
 
 	sink_pad = gst_element_get_static_pad(payloader, "sink");
 	sink_caps = gst_pad_get_caps(sink_pad);
