@@ -38,15 +38,59 @@ kms_rtp_sender_terminate(KmsRtpSender *self) {
 	/* TODO: Implement terminate method */
 }
 
+static GstPadTemplate*
+create_pad_template(KmsRtpSender *self, const GstCaps *caps, KmsMediaType type) {
+	GList *templates, *l;
+	gchar *type_str;
+	GstPadTemplate *templ = NULL;
+
+	templates = gst_element_class_get_pad_template_list(
+						GST_ELEMENT_GET_CLASS(self));
+	l = templates;
+	switch(type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		type_str = g_strdup("audio");
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		type_str = g_strdup("video");
+		break;
+	default:
+		return NULL;
+	}
+
+	while (l != NULL) {
+		GstPadTemplate *t;
+
+		t = l->data;
+		if (g_strstr_len(t->name_template, -1, type_str) != NULL) {
+			templ = gst_pad_template_new(t->name_template,
+							t->direction,
+							t->presence,
+							gst_caps_copy(caps));
+			goto end;
+		}
+		l = l->next;
+	}
+
+end:
+	g_free(type_str);
+
+	return templ;
+}
+
 static void
 create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 	GValueArray *payloads;
 	KmsSdpPayload *payload;
 	GstElement *udpsink, *payloader;
-	GstCaps *caps;
+	GstCaps *caps, *sink_caps;
 	gint port;
+	KmsMediaType type;
+	GstPad *pad, *sink_pad;
+	GstPadTemplate *templ;
 
-	g_object_get(media, "payloads", &payloads, "port", &port, NULL);
+	g_object_get(media, "payloads", &payloads, "port", &port, "type", &type,
+									NULL);
 
 	if (payloads->n_values == 0 || port == 0)
 		goto end;
@@ -78,8 +122,21 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 	gst_bin_add_many(GST_BIN(self), payloader, udpsink, NULL);
 	gst_element_link(payloader, udpsink);
 
-	/* TODO: Add ghost pad to allow connections */
-
+	sink_pad = gst_element_get_static_pad(payloader, "sink");
+	sink_caps = gst_pad_get_caps(sink_pad);
+	templ = create_pad_template(self, sink_caps, type);
+	if (templ != NULL) {
+		pad = gst_ghost_pad_new_from_template(templ->name_template,
+							sink_pad, templ);
+		if (pad != NULL) {
+			gst_pad_set_active(pad, TRUE);
+			/* TODO: Possibly connect callbacks to pad */
+			gst_element_add_pad(GST_ELEMENT(self), pad);
+		}
+		g_object_unref(templ);
+	}
+	gst_caps_unref(sink_caps);
+	g_object_unref(sink_pad);
 end:
 	g_value_array_free(payloads);
 }
@@ -204,6 +261,15 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	object_class->set_property = set_property;
 	object_class->get_property = get_property;
 	object_class->constructed = constructed;
+
+	/* HACK:
+		Don't know why but padtemplates are NULL in child classes,
+		this hack takes them from parent class
+	*/
+	GST_ELEMENT_CLASS(klass)->padtemplates =
+		GST_ELEMENT_CLASS(kms_rtp_sender_parent_class)->padtemplates;
+	GST_ELEMENT_CLASS(klass)->numpadtemplates =
+		GST_ELEMENT_CLASS(kms_rtp_sender_parent_class)->numpadtemplates;
 
 	pspec = g_param_spec_object("remote-spec", "Remote Session Spec",
 					"Remote Session Description",

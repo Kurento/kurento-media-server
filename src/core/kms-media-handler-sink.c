@@ -15,6 +15,20 @@ enum {
 
 };
 
+static GstStaticPadTemplate audio_sink = GST_STATIC_PAD_TEMPLATE (
+						"audio_sink",
+						GST_PAD_SINK,
+						GST_PAD_ALWAYS,
+						GST_STATIC_CAPS_NONE
+					);
+
+static GstStaticPadTemplate video_sink = GST_STATIC_PAD_TEMPLATE (
+						"video_sink",
+						GST_PAD_SINK,
+						GST_PAD_ALWAYS,
+						GST_STATIC_CAPS_NONE
+					);
+
 G_DEFINE_TYPE(KmsMediaHandlerSink, kms_media_handler_sink, GST_TYPE_BIN)
 
 gboolean
@@ -71,6 +85,7 @@ dispose(GObject *object) {
 
 static void
 kms_media_handler_sink_class_init(KmsMediaHandlerSinkClass *klass) {
+	GstPadTemplate *templ;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
 	g_type_class_add_private(klass, sizeof(KmsMediaHandlerSinkPriv));
@@ -78,6 +93,14 @@ kms_media_handler_sink_class_init(KmsMediaHandlerSinkClass *klass) {
 	gobject_class->constructed = constructed;
 	gobject_class->finalize = finalize;
 	gobject_class->dispose = dispose;
+
+	templ = gst_static_pad_template_get(&audio_sink);
+	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
+	g_object_unref(templ);
+
+	templ = gst_static_pad_template_get(&video_sink);
+	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
+	g_object_unref(templ);
 }
 
 static void
