@@ -95,9 +95,8 @@ kms_sdp_media_to_string(KmsSdpMedia *self) {
 	GEnumClass *eclass;
 
 	LOCK(self);
-	eclass = G_ENUM_CLASS(g_type_class_ref(KMS_MEDIA_TYPE));
+	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
 	type = g_enum_get_value(eclass, self->priv->type);
-	g_type_class_unref(eclass);
 
 	paystr = payloads_to_string(self->priv->payloads, payids);
 
