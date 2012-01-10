@@ -33,7 +33,7 @@ G_DEFINE_TYPE(KmsMediaHandlerSrc, kms_media_handler_src, GST_TYPE_BIN)
 
 gboolean
 kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
-						KmsMediaHandlerSink *src,
+						KmsMediaHandlerSink *sink,
 						GError **err) {
 	g_print("Connect src\n");
 	return TRUE;
