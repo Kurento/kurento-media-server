@@ -103,7 +103,13 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 		goto end;
 	}
 
-	/* TODO: Check if sink pad is linked and unlink otherwise */
+	if (gst_pad_is_linked(sink_pad)) {
+		GstPad *tmp_src;
+		tmp_src = gst_pad_get_peer(sink_pad);
+		gst_pad_unlink(tmp_src, sink_pad);
+		g_object_unref(tmp_src);
+	}
+
 	gst_pad_link(src_pad, sink_pad);
 	/* TODO: Check if link was OK*/
 
