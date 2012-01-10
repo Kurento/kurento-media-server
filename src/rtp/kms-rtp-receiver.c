@@ -407,6 +407,15 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 					-1, G_MAXINT, -1, G_PARAM_READABLE);
 
 	g_object_class_install_property(object_class, PROP_VIDEO_FD, pspec);
+
+	/* HACK:
+		Don't know why but padtemplates are NULL in child classes,
+		this hack takes them from parent class
+	*/
+	GST_ELEMENT_CLASS(klass)->padtemplates =
+		GST_ELEMENT_CLASS(kms_rtp_receiver_parent_class)->padtemplates;
+	GST_ELEMENT_CLASS(klass)->numpadtemplates =
+		GST_ELEMENT_CLASS(kms_rtp_receiver_parent_class)->numpadtemplates;
 }
 
 static void

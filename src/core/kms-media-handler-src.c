@@ -15,6 +15,20 @@ enum {
 
 };
 
+static GstStaticPadTemplate audio_src = GST_STATIC_PAD_TEMPLATE (
+						"audio_src%d",
+						GST_PAD_SRC,
+						GST_PAD_REQUEST,
+						GST_STATIC_CAPS_ANY
+					);
+
+static GstStaticPadTemplate video_src = GST_STATIC_PAD_TEMPLATE (
+						"video_src%d",
+						GST_PAD_SRC,
+						GST_PAD_REQUEST,
+						GST_STATIC_CAPS_ANY
+					);
+
 G_DEFINE_TYPE(KmsMediaHandlerSrc, kms_media_handler_src, GST_TYPE_BIN)
 
 gboolean
@@ -23,6 +37,20 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 						GError **err) {
 	g_print("Connect src\n");
 	return TRUE;
+}
+
+static GstPad*
+request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
+	GstPad *pad;
+
+	pad = gst_ghost_pad_new_no_target_from_template(name, templ);
+	/* TODO: Connect pad callbacks */
+	return pad;
+}
+
+static void
+release_pad(GstElement *elem, GstPad *pad) {
+	g_print("Release pad\n");
 }
 
 static void
@@ -70,6 +98,7 @@ dispose(GObject *object) {
 
 static void
 kms_media_handler_src_class_init(KmsMediaHandlerSrcClass *klass) {
+	GstPadTemplate *templ;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
 	g_type_class_add_private(klass, sizeof(KmsMediaHandlerSrcPriv));
@@ -77,10 +106,20 @@ kms_media_handler_src_class_init(KmsMediaHandlerSrcClass *klass) {
 	gobject_class->constructed = constructed;
 	gobject_class->finalize = finalize;
 	gobject_class->dispose = dispose;
+
+	GST_ELEMENT_CLASS(klass)->request_new_pad = request_new_pad;
+	GST_ELEMENT_CLASS(klass)->release_pad = release_pad;
+
+	templ = gst_static_pad_template_get(&audio_src);
+	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
+	g_object_unref(templ);
+
+	templ = gst_static_pad_template_get(&video_src);
+	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
+	g_object_unref(templ);
 }
 
 static void
 kms_media_handler_src_init(KmsMediaHandlerSrc *self) {
 	self->priv = KMS_MEDIA_HANDLER_SRC_GET_PRIVATE(self);
-
 }
