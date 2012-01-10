@@ -8,6 +8,13 @@
 
 struct _KmsMediaHandlerSrcPriv {
 	GStaticMutex mutex;
+
+	GstPad *audio_prefered_pad;
+	GstPad *audio_raw_pad;
+	GSList *audio_other_pads;
+	GstPad *video_prefered_pad;
+	GstPad *video_raw_pad;
+	GSList *video_other_pads;
 };
 
 enum {
@@ -30,6 +37,54 @@ static GstStaticPadTemplate video_src = GST_STATIC_PAD_TEMPLATE (
 					);
 
 G_DEFINE_TYPE(KmsMediaHandlerSrc, kms_media_handler_src, GST_TYPE_BIN)
+
+static void
+dispose_audio_prefered_pad(KmsMediaHandlerSrc *self) {
+	if (self->priv->audio_prefered_pad != NULL) {
+		g_object_unref(self->priv->audio_prefered_pad);
+		self->priv->audio_prefered_pad = NULL;
+	}
+}
+
+static void
+dispose_video_prefered_pad(KmsMediaHandlerSrc *self) {
+	if (self->priv->video_prefered_pad != NULL) {
+		g_object_unref(self->priv->video_prefered_pad);
+		self->priv->video_prefered_pad = NULL;
+	}
+}
+
+static void
+dispose_audio_raw_pad(KmsMediaHandlerSrc *self) {
+	if (self->priv->audio_raw_pad != NULL) {
+		g_object_unref(self->priv->audio_raw_pad);
+		self->priv->audio_raw_pad = NULL;
+	}
+}
+
+static void
+dispose_video_raw_pad(KmsMediaHandlerSrc *self) {
+	if (self->priv->video_raw_pad != NULL) {
+		g_object_unref(self->priv->video_raw_pad);
+		self->priv->video_raw_pad = NULL;
+	}
+}
+
+static void
+dispose_audio_other_pads(KmsMediaHandlerSrc *self) {
+	if (self->priv->audio_other_pads != NULL) {
+		g_slist_free_full(self->priv->audio_other_pads, g_object_unref);
+		self->priv->audio_other_pads = NULL;
+	}
+}
+
+static void
+dispose_video_other_pads(KmsMediaHandlerSrc *self) {
+	if (self->priv->video_other_pads != NULL) {
+		g_slist_free_full(self->priv->video_other_pads, g_object_unref);
+		self->priv->video_other_pads = NULL;
+	}
+}
 
 gboolean
 kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
@@ -229,8 +284,18 @@ finalize(GObject *object) {
 static void
 dispose(GObject *object) {
 	GstObject *parent;
+	KmsMediaHandlerSrc *self = KMS_MEDIA_HANDLER_SRC(object);
 
 	parent = gst_element_get_parent(object);
+
+	LOCK(self);
+	dispose_audio_prefered_pad(self);
+	dispose_video_prefered_pad(self);
+	dispose_audio_raw_pad(self);
+	dispose_video_raw_pad(self);
+	dispose_audio_other_pads(self);
+	dispose_video_other_pads(self);
+	UNLOCK(self);
 
 	if (parent != NULL && GST_IS_PIPELINE(parent)) {
 		/*
@@ -273,4 +338,11 @@ kms_media_handler_src_class_init(KmsMediaHandlerSrcClass *klass) {
 static void
 kms_media_handler_src_init(KmsMediaHandlerSrc *self) {
 	self->priv = KMS_MEDIA_HANDLER_SRC_GET_PRIVATE(self);
+
+	self->priv->audio_prefered_pad = NULL;
+	self->priv->video_prefered_pad = NULL;
+	self->priv->audio_raw_pad = NULL;
+	self->priv->video_raw_pad = NULL;
+	self->priv->audio_other_pads = NULL;
+	self->priv->video_other_pads = NULL;
 }
