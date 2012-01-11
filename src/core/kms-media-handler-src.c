@@ -373,6 +373,42 @@ release_pad(GstElement *elem, GstPad *pad) {
 	g_print("Release pad\n");
 }
 
+static void
+connect_pads(KmsMediaHandlerSrc *self) {
+	GstIterator *it;
+	GstGhostPad *pad;
+	GstPad *peer;
+	gboolean done = FALSE;
+
+	it = gst_element_iterate_src_pads(GST_ELEMENT(self));
+
+	while (!done) {
+		switch (gst_iterator_next(it, (gpointer *)&pad)) {
+		case GST_ITERATOR_OK:
+			if (gst_ghost_pad_get_target(pad) == NULL &&
+					gst_pad_is_linked(GST_PAD(pad))) {
+				/* TODO: Possible race condigion, pad can be
+				* 	unlinked during this process */
+				peer = gst_pad_get_peer(GST_PAD(pad));
+				link_pad(GST_PAD(pad), peer);
+				g_object_unref(peer);
+			}
+			gst_object_unref(pad);
+			break;
+		case GST_ITERATOR_RESYNC:
+			gst_iterator_resync(it);
+			break;
+		case GST_ITERATOR_ERROR:
+			done = TRUE;
+			break;
+		case GST_ITERATOR_DONE:
+			done = TRUE;
+			break;
+		}
+	}
+	gst_iterator_free(it);
+}
+
 /**
  * kms_media_handler_src_set_pad:
  *
@@ -405,7 +441,7 @@ kms_media_handler_src_set_pad(KmsMediaHandlerSrc *self, GstPad *pad,
 		return;
 	}
 
-	/* TODO: Check if there is a linked pad that */
+	connect_pads(self);
 }
 
 static void
