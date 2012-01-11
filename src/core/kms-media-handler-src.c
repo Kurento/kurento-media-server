@@ -369,11 +369,6 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 }
 
 static void
-release_pad(GstElement *elem, GstPad *pad) {
-	g_print("Release pad\n");
-}
-
-static void
 connect_pads(KmsMediaHandlerSrc *self) {
 	GstIterator *it;
 	GstGhostPad *pad;
@@ -509,7 +504,6 @@ kms_media_handler_src_class_init(KmsMediaHandlerSrcClass *klass) {
 	gobject_class->dispose = dispose;
 
 	GST_ELEMENT_CLASS(klass)->request_new_pad = request_new_pad;
-	GST_ELEMENT_CLASS(klass)->release_pad = release_pad;
 
 	templ = gst_static_pad_template_get(&audio_src);
 	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
