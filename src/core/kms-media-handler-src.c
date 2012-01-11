@@ -225,15 +225,10 @@ generate_pad_name(gchar *pattern) {
 }
 
 static void
-unlink_audio_pad(GstPad *pad) {
-	/* TODO: Implement unlink_pad function */
-	g_print("Unlink audio pad\n");
-}
-
-static void
-unlink_video_pad(GstPad *pad) {
-	/* TODO: Implement unlink_pad function */
-	g_print("Unlink video pad\n");
+pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
+	gst_element_release_request_pad(elem, pad);
+	KMS_DEBUG_PIPE("unlinked");
 }
 
 static gboolean
@@ -358,18 +353,15 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	if (g_strstr_len(templ->name_template, -1, "audio")) {
 		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
 				  GINT_TO_POINTER(KMS_MEDIA_TYPE_AUDIO));
-		gst_pad_set_link_function(pad, link_pad);
-		gst_pad_set_unlink_function(pad, unlink_audio_pad);
 	} else if (g_strstr_len(templ->name_template, -1, "video")) {
 		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
 				  GINT_TO_POINTER(KMS_MEDIA_TYPE_VIDEO));
-		gst_pad_set_link_function(pad, link_pad);
-		gst_pad_set_unlink_function(pad, unlink_video_pad);
 	} else {
 		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
 					GINT_TO_POINTER(KMS_MEDIA_TYPE_UNKNOWN));
-		gst_pad_set_link_function(pad, link_pad);
 	}
+	gst_pad_set_link_function(pad, link_pad);
+	g_object_connect(pad, "signal::unlinked", pad_unlinked, elem, NULL);
 
 	gst_element_add_pad(elem, pad);
 	return pad;
