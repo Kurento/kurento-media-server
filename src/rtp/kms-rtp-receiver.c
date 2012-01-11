@@ -185,18 +185,47 @@ request_pt_map(GstElement *demux, guint pt, gpointer self) {
 }
 
 static void
-found_coded(GstElement* tf, guint probability, GstCaps* caps,
+found_raw(GstElement* tf, guint probability, GstCaps* caps,
 							KmsRtpReceiver *self) {
 	GstElement *sink;
-	GstObject *parent;
+	GstObject *bin;
 
-	parent = gst_element_get_parent(tf);
-	/* TODO: Add decoder and find decoded type */
+	bin = gst_element_get_parent(tf);
+	/* TODO: Create real chain and announce connect pads */
+
 	g_print("Found type\n");
 	sink = gst_element_factory_make("fakesink", NULL);
 	gst_element_set_state(sink, GST_STATE_PLAYING);
-	gst_bin_add(GST_BIN(parent), sink);
+	gst_bin_add(GST_BIN(bin), sink);
 	gst_element_link(tf, sink);
+}
+
+static void
+found_coded(GstElement* tf, guint probability, GstCaps* caps,
+							KmsRtpReceiver *self) {
+	GstElement *deco, *typefind;
+	GstObject *bin;
+
+	bin = gst_element_get_parent(tf);
+	deco = kms_utils_get_element_for_caps(
+					GST_ELEMENT_FACTORY_TYPE_DECODER,
+					GST_RANK_NONE, caps, GST_PAD_SINK,
+					FALSE, "deco");
+	if (deco == NULL) {
+		g_warn_if_reached();
+		return;
+	}
+
+	gst_element_set_state(deco, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(bin), deco);
+
+	typefind = gst_element_factory_make("typefind", NULL);
+	gst_element_set_state(typefind, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(bin), typefind);
+
+	g_object_connect(typefind, "signal::have_type", found_raw, self, NULL);
+
+	gst_element_link_many(tf, deco, typefind, NULL);
 }
 
 static void
