@@ -46,4 +46,7 @@ gboolean kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 				KmsMediaHandlerSink *sink,
 				KmsMediaType type, GError **err);
 
+void kms_media_handler_src_set_pad(KmsMediaHandlerSrc *self, GstPad *pad,
+					GstElement *tee, KmsMediaType type);
+
 #endif /* __KMS_MEDIA_HANDLER_SRC_H__ */

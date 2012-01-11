@@ -6,6 +6,8 @@
 #define LOCK(obj) (g_static_mutex_lock(&(KMS_MEDIA_HANDLER_SRC(obj)->priv->mutex)))
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_MEDIA_HANDLER_SRC(obj)->priv->mutex)))
 
+#define TEE "tee"
+
 struct _KmsMediaHandlerSrcPriv {
 	GStaticMutex mutex;
 
@@ -233,10 +235,65 @@ unlink_video_pad(GstPad *pad) {
 	g_print("Unlink video pad\n");
 }
 
+static gboolean
+check_pad_compatible(GstPad *pad, GstCaps *caps) {
+	GstCaps *pad_caps;
+	gboolean ret;
+
+	if (pad == NULL)
+		return FALSE;
+
+	pad_caps = GST_PAD_CAPS(pad);
+	if (pad_caps != NULL) {
+		gst_caps_ref(pad_caps);
+	} else {
+		pad_caps = gst_pad_get_caps(pad);
+	}
+
+	ret = gst_caps_can_intersect(caps, pad_caps);
+	gst_caps_unref(pad_caps);
+
+	return ret;
+}
+
 static GstPad*
 get_target_pad(GstPad *peer, GstPad *prefered, GstPad *raw, GSList **other) {
-	/* TODO: Implement get_target_pad */
-	return NULL;
+	GstCaps *caps;
+	GstPad *target = NULL;
+
+	caps = GST_PAD_CAPS(peer);
+	if (caps != NULL) {
+		gst_caps_ref(caps);
+	} else {
+		caps = gst_pad_get_caps(peer);
+	}
+	/* Check prefered pad */
+	if (check_pad_compatible(prefered, caps)) {
+		target = g_object_ref(prefered);
+		goto end;
+	}
+	/* TODO: Check raw pad */
+	/* TODO: Check other pads */
+
+end:
+	gst_caps_unref(caps);
+	return target;
+}
+
+static void
+set_target_pad(GstGhostPad *gp, GstPad *target) {
+	GstElement *tee;
+	GstPad *real_target;
+
+	tee = g_object_get_data(G_OBJECT(target), TEE);
+	if (tee == NULL)
+		return;
+
+	real_target = gst_element_get_request_pad(tee, "src%d");
+	if (real_target != NULL) {
+		gst_ghost_pad_set_target(gp, real_target);
+		g_object_unref(real_target);
+	}
 }
 
 static GstPadLinkReturn
@@ -271,8 +328,9 @@ link_pad(GstPad *pad, GstPad *peer, KmsMediaType type) {
 	if (GST_PAD_LINKFUNC(peer) && GST_PAD_LINK_SUCCESSFUL(ret))
 		ret = GST_PAD_LINKFUNC(peer)(peer, pad);
 
-	if (target_pad != NULL && GST_PAD_LINK_SUCCESSFUL(ret))
-		gst_ghost_pad_set_target(GST_GHOST_PAD(pad), target_pad);
+	if (target_pad != NULL && GST_PAD_LINK_SUCCESSFUL(ret)) {
+		set_target_pad(GST_GHOST_PAD(pad), target_pad);
+	}
 
 	if (target_pad != NULL)
 		g_object_unref(target_pad);
@@ -325,6 +383,41 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 static void
 release_pad(GstElement *elem, GstPad *pad) {
 	g_print("Release pad\n");
+}
+
+/**
+ * kms_media_handler_src_set_pad:
+ *
+ * @self: Self object
+ * @pad: (transfer full): The new prefered pad
+ * @tee: (transfer none): The tee that is connected to the pad
+ * 				and where the link will be done
+ * @type: The media type of the pad
+ *
+ * Sets the prefered connecting pad for the given type.
+ */
+void
+kms_media_handler_src_set_pad(KmsMediaHandlerSrc *self, GstPad *pad,
+					GstElement *tee, KmsMediaType type) {
+	g_object_set_data(G_OBJECT(pad), TEE, tee);
+	switch (type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		LOCK(self);
+		dispose_audio_prefered_pad(self);
+		self->priv->audio_prefered_pad = pad;
+		UNLOCK(self);
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		LOCK(self);
+		dispose_video_prefered_pad(self);
+		self->priv->video_prefered_pad = pad;
+		UNLOCK(self);
+		break;
+	default:
+		return;
+	}
+
+	/* TODO: Check if there is a linked pad that */
 }
 
 static void

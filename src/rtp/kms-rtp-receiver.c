@@ -199,6 +199,7 @@ static void
 connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
 							KmsMediaType type) {
 	GstElement *depay, *tee, *typefind;
+	GstPad *pref_pad;
 
 	depay = kms_utils_get_element_for_caps(
 					GST_ELEMENT_FACTORY_TYPE_DEPAYLOADER,
@@ -219,7 +220,11 @@ connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
 	kms_dynamic_connection(orig, depay, "src");
 	kms_dynamic_connection_tee(depay, tee);
 
-	/* TODO: Connect typefind and notify parent of the available pads */
+	pref_pad = gst_element_get_static_pad(depay, "src");
+	if (pref_pad != NULL)
+		kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self),
+							pref_pad, tee, type);
+
 	typefind = gst_element_factory_make("typefind", NULL);
 	gst_element_set_state(typefind, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(self), typefind);
