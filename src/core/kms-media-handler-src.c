@@ -322,7 +322,6 @@ link_pad(GstPad *pad, GstPad *peer) {
 	default:
 		ret = GST_PAD_LINK_NOFORMAT;
 	}
-	UNLOCK(self);
 
 	if (GST_PAD_LINKFUNC(peer) && GST_PAD_LINK_SUCCESSFUL(ret))
 		ret = GST_PAD_LINKFUNC(peer)(peer, pad);
@@ -333,6 +332,8 @@ link_pad(GstPad *pad, GstPad *peer) {
 
 	if (target_pad != NULL)
 		g_object_unref(target_pad);
+
+	UNLOCK(self);
 	g_object_unref(elem);
 	return ret;
 }
