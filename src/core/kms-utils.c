@@ -1,6 +1,8 @@
 #include <gst/gst.h>
 #include "kms-core.h"
 
+#define ATTR_DYNAMIC "dynamic"
+
 static GstElement *pipe = NULL;
 G_LOCK_DEFINE_STATIC(mutex);
 static gboolean init = FALSE;
@@ -82,6 +84,7 @@ static void
 unlinked(GstPad *pad, gpointer orig) {
 	GstElement *dest;
 	GstPad *peer, *sink;
+	gboolean dynamic;
 
 	dest = gst_pad_get_parent_element(pad);
 	sink = gst_element_get_static_pad(dest, "sink");
@@ -92,8 +95,21 @@ unlinked(GstPad *pad, gpointer orig) {
 			g_object_unref(peer);
 		}
 	}
+
+	dynamic = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(pad), ATTR_DYNAMIC));
+	if (dynamic)
+		gst_element_release_request_pad(dest, pad);
+
 	g_object_unref(dest);
 	g_object_unref(sink);
+}
+
+static void
+connect_pad_callbacks(GstElement *orig, GstPad *pad, gboolean dynamic) {
+	g_object_set_data(G_OBJECT(pad), ATTR_DYNAMIC, GINT_TO_POINTER(dynamic));
+
+	g_object_connect(pad, "signal::linked", linked, orig, NULL);
+	g_object_connect(pad, "signal::unlinked", unlinked, orig, NULL);
 }
 
 void
@@ -102,10 +118,18 @@ kms_dynamic_connection(GstElement *orig, GstElement *dest,
 	GstPad *pad;
 
 	pad = gst_element_get_static_pad(dest, pad_name);
-
-	g_object_connect(pad, "signal::linked", linked, orig, NULL);
-	g_object_connect(pad, "signal::unlinked", unlinked, orig, NULL);
+	connect_pad_callbacks(orig, pad, FALSE);
 	g_object_unref(pad);
+}
+
+static void
+tee_pad_added(GstElement *tee, GstPad *pad, GstElement *orig) {
+	connect_pad_callbacks(orig, pad, TRUE);
+}
+
+void
+kms_dynamic_connection_tee(GstElement *orig, GstElement *tee) {
+	g_object_connect(tee, "signal::pad-added", tee_pad_added, orig, NULL);
 }
 
 static gboolean

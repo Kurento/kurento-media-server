@@ -11,6 +11,8 @@ GstElement* kms_get_pipeline();
 
 void kms_dynamic_connection(GstElement *orig, GstElement *dest, const gchar *name);
 
+void kms_dynamic_connection_tee(GstElement *orig, GstElement *tee);
+
 GstElement* kms_utils_get_element_for_caps(GstElementFactoryListType type,
 				GstRank rank, const GstCaps *caps,
 				GstPadDirection direction, gboolean subsetonly,

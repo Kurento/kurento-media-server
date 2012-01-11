@@ -198,22 +198,32 @@ found_type(GstElement* tf, guint probability, GstCaps* caps, gpointer data) {
 static void
 connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
 							KmsMediaType type) {
-	GstElement *depay, *typefind;
+	GstElement *depay, *tee, *typefind;
 
 	depay = kms_utils_get_element_for_caps(
 					GST_ELEMENT_FACTORY_TYPE_DEPAYLOADER,
 					GST_RANK_NONE, caps, GST_PAD_SINK,
 					FALSE, NULL);
 	g_return_if_fail(depay != NULL);
+
+	tee = gst_element_factory_make("tee", NULL);
+	if (tee == NULL) {
+		g_warn_if_reached();
+		g_object_unref(depay);
+		return;
+	}
+
 	gst_element_set_state(depay, GST_STATE_PLAYING);
-	gst_bin_add(GST_BIN(self), depay);
+	gst_element_set_state(tee, GST_STATE_PLAYING);
+	gst_bin_add_many(GST_BIN(self), depay, tee, NULL);
 	kms_dynamic_connection(orig, depay, "src");
+	kms_dynamic_connection_tee(depay, tee);
 
 	/* TODO: Connect typefind and notify parent of the available pads */
 	typefind = gst_element_factory_make("typefind", NULL);
 	gst_element_set_state(typefind, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(self), typefind);
-	gst_element_link(depay, typefind);
+	gst_element_link(tee, typefind);
 
 	g_object_connect(typefind, "signal::have_type", found_type, self, NULL);
 
