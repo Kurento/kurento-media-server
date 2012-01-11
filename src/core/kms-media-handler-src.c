@@ -233,18 +233,61 @@ unlink_video_pad(GstPad *pad) {
 	g_print("Unlink video pad\n");
 }
 
+static GstPad*
+get_target_pad(GstPad *peer, GstPad *prefered, GstPad *raw, GSList **other) {
+	/* TODO: Implement get_target_pad */
+	return NULL;
+}
+
+static GstPadLinkReturn
+link_pad(GstPad *pad, GstPad *peer, KmsMediaType type) {
+	KmsMediaHandlerSrc *self;
+	GstElement *elem;
+	GstPad *target_pad = NULL;
+	GstPadLinkReturn ret = GST_PAD_LINK_OK;
+
+	elem = gst_pad_get_parent_element(pad);
+	if (elem == NULL)
+		return GST_PAD_LINK_WRONG_HIERARCHY;
+	self = KMS_MEDIA_HANDLER_SRC(elem);
+
+	LOCK(self);
+	switch(type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		target_pad = get_target_pad(peer, self->priv->audio_prefered_pad,
+					self->priv->audio_prefered_pad,
+					&(self->priv->audio_other_pads));
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		target_pad = get_target_pad(peer, self->priv->video_prefered_pad,
+					self->priv->video_prefered_pad,
+					&(self->priv->video_other_pads));
+		break;
+	default:
+		ret = GST_PAD_LINK_NOFORMAT;
+	}
+	UNLOCK(self);
+
+	if (GST_PAD_LINKFUNC(peer) && GST_PAD_LINK_SUCCESSFUL(ret))
+		ret = GST_PAD_LINKFUNC(peer)(peer, pad);
+
+	if (target_pad != NULL && GST_PAD_LINK_SUCCESSFUL(ret))
+		gst_ghost_pad_set_target(GST_GHOST_PAD(pad), target_pad);
+
+	if (target_pad != NULL)
+		g_object_unref(target_pad);
+	g_object_unref(elem);
+	return ret;
+}
+
 static GstPadLinkReturn
 link_audio_pad(GstPad *pad, GstPad *peer) {
-	/* TODO: Implement link_audio_pad function */
-	g_print("Link audio pad\n");
-	return GST_PAD_LINK_OK;
+	return link_pad(pad, peer, KMS_MEDIA_TYPE_AUDIO);
 }
 
 static GstPadLinkReturn
 link_video_pad(GstPad *pad, GstPad *peer) {
-	/* TODO: Implement link_video_pad function */
-	g_print("Link video pad\n");
-	return GST_PAD_LINK_OK;
+	return link_pad(pad, peer, KMS_MEDIA_TYPE_VIDEO);
 }
 
 static GstPadLinkReturn
