@@ -7,6 +7,8 @@
 #define LOCK(obj) (g_mutex_lock(KMS_RTP_RECEIVER(obj)->priv->mutex))
 #define UNLOCK(obj) (g_mutex_unlock(KMS_RTP_RECEIVER(obj)->priv->mutex))
 
+#define MEDIA_TYPE_DATA "type"
+
 struct _KmsRtpReceiverPriv {
 	GMutex *mutex;
 
@@ -194,7 +196,8 @@ found_type(GstElement* tf, guint probability, GstCaps* caps, gpointer data) {
 }
 
 static void
-connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps) {
+connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
+							KmsMediaType type) {
 	GstElement *depay, *typefind;
 
 	depay = kms_utils_get_element_for_caps(
@@ -222,6 +225,7 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	gint len, i;
 	gboolean has_clockrate = FALSE;
 	GstElement *tee, *sink, *fake_queue, *queue, *buffer;
+	KmsMediaType type;
 
 	tee = gst_element_factory_make("tee", NULL);
 	fake_queue = gst_element_factory_make("queue2", NULL);
@@ -272,7 +276,9 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	gst_bin_add(GST_BIN(user_data), buffer);
 	kms_dynamic_connection(queue, buffer, "src");
 
-	connect_depay_chain(user_data, buffer, caps);
+	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(demux),
+							MEDIA_TYPE_DATA));
+	connect_depay_chain(user_data, buffer, caps, type);
 
 end:
 	KMS_DEBUG_PIPE("new_type");
@@ -318,6 +324,8 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 
 	self->priv->udpsrc = udpsrc;
 
+	g_object_set_data(G_OBJECT(ptdemux), MEDIA_TYPE_DATA,
+							GINT_TO_POINTER(type));
 	g_object_connect(ptdemux, "signal::request-pt-map", request_pt_map,
 								self, NULL);
 	g_object_connect(ptdemux, "signal::new-payload-type", new_payload_type,
