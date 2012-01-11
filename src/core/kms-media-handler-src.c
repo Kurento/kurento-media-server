@@ -279,17 +279,12 @@ end:
 static void
 set_target_pad(GstGhostPad *gp, GstPad *target) {
 	GstElement *tee;
-	GstPad *real_target;
 
 	tee = g_object_get_data(G_OBJECT(target), TEE);
 	if (tee == NULL)
 		return;
 
-	real_target = gst_element_get_request_pad(tee, "src%d");
-	if (real_target != NULL) {
-		gst_ghost_pad_set_target(gp, real_target);
-		g_object_unref(real_target);
-	}
+	kms_utils_connect_target_with_queue(tee, gp);
 }
 
 static GstPadLinkReturn

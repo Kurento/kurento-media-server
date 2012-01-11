@@ -261,3 +261,58 @@ kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 	g_object_unref(src_temp);
 	return bin;
 }
+
+static void
+unlinked_delete(GstPad *pad, GstPad *peer, gpointer not_used) {
+	GstElement *elem;
+	GstObject *parent;
+
+	elem = gst_pad_get_parent_element(pad);
+	if (elem == NULL)
+		return;
+
+	parent = gst_element_get_parent(elem);
+	if (parent == NULL) {
+		g_object_unref(elem);
+		return;
+	}
+
+	gst_bin_remove(GST_BIN(parent), elem);
+}
+
+void
+kms_utils_connect_target_with_queue(GstElement *elem, GstGhostPad *gp) {
+	GstElement *queue = NULL;
+	GstObject *parent;
+	GstPad *src;
+
+	parent = gst_element_get_parent(elem);
+	if (parent == NULL)
+		return;
+
+	queue = gst_element_factory_make("queue2", NULL);
+	if (queue == NULL)
+		goto end;
+
+	src = gst_element_get_static_pad(queue, "src");
+	if (src == NULL) {
+		g_object_unref(queue);
+		goto end;
+	}
+
+	g_object_connect(src, "signal::unlinked", unlinked_delete, NULL, NULL);
+
+	gst_bin_add(GST_BIN(parent), queue);
+
+	if (gst_ghost_pad_set_target(gp, src)) {
+		gst_element_set_state(queue, GST_STATE_PLAYING);
+		gst_element_link(elem, queue);
+	} else {
+		gst_bin_remove(GST_BIN(parent), queue);
+	}
+
+	g_object_unref(src);
+
+end:
+	g_object_unref(parent);
+}

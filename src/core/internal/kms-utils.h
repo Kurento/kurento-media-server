@@ -25,4 +25,6 @@ GstElement* kms_utils_get_element_for_caps(GstElementFactoryListType type,
 GstElement* kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 							GstCaps *src_caps);
 
+void kms_utils_connect_target_with_queue(GstElement *elem, GstGhostPad *gp);
+
 #endif /* __KMS_UTILS_H__ */
