@@ -185,53 +185,59 @@ request_pt_map(GstElement *demux, guint pt, gpointer self) {
 }
 
 static void
-found_type(GstElement* tf, guint probability, GstCaps* caps, gpointer data) {
+found_coded(GstElement* tf, guint probability, GstCaps* caps,
+							KmsRtpReceiver *self) {
 	GstElement *sink;
+	GstObject *parent;
 
+	parent = gst_element_get_parent(tf);
+	/* TODO: Add decoder and find decoded type */
 	g_print("Found type\n");
 	sink = gst_element_factory_make("fakesink", NULL);
 	gst_element_set_state(sink, GST_STATE_PLAYING);
-	gst_bin_add(GST_BIN(data), sink);
+	gst_bin_add(GST_BIN(parent), sink);
 	gst_element_link(tf, sink);
 }
 
 static void
 connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
 							KmsMediaType type) {
-	GstElement *depay, *tee, *typefind;
-	GstPad *pref_pad;
+	GstElement *bin, *depay, *typefind;
+	GstPad *sink, *depay_sink;
 
+	bin = gst_bin_new(NULL);
+	if (bin == NULL) {
+		g_warn_if_reached();
+		return;
+	}
 	depay = kms_utils_get_element_for_caps(
 					GST_ELEMENT_FACTORY_TYPE_DEPAYLOADER,
 					GST_RANK_NONE, caps, GST_PAD_SINK,
-					FALSE, NULL);
-	g_return_if_fail(depay != NULL);
-
-	tee = gst_element_factory_make("tee", NULL);
-	if (tee == NULL) {
+					FALSE, "depay");
+	if (depay == NULL) {
 		g_warn_if_reached();
-		g_object_unref(depay);
+		g_object_unref(bin);
 		return;
 	}
 
 	gst_element_set_state(depay, GST_STATE_PLAYING);
-	gst_element_set_state(tee, GST_STATE_PLAYING);
-	gst_bin_add_many(GST_BIN(self), depay, tee, NULL);
-	kms_dynamic_connection(orig, depay, "src");
-	kms_dynamic_connection_tee(depay, tee);
-
-	pref_pad = gst_element_get_static_pad(depay, "src");
-	if (pref_pad != NULL)
-		kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self),
-							pref_pad, tee, type);
+	gst_bin_add(GST_BIN(bin), depay);
 
 	typefind = gst_element_factory_make("typefind", NULL);
 	gst_element_set_state(typefind, GST_STATE_PLAYING);
-	gst_bin_add(GST_BIN(self), typefind);
-	gst_element_link(tee, typefind);
+	gst_bin_add(GST_BIN(bin), typefind);
 
-	g_object_connect(typefind, "signal::have_type", found_type, self, NULL);
+	g_object_connect(typefind, "signal::have_type", found_coded, self, NULL);
 
+	gst_element_link(depay, typefind);
+
+	depay_sink = gst_element_get_pad(depay, "sink");
+	sink = gst_ghost_pad_new("sink", depay_sink);
+	gst_element_add_pad(bin, sink);
+	g_object_unref(depay_sink);
+
+	gst_bin_add(GST_BIN(self), bin);
+	gst_element_link(orig, bin);
 }
 
 static void
