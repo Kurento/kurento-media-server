@@ -366,8 +366,7 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 static void
 connect_pads(KmsMediaHandlerSrc *self) {
 	GstIterator *it;
-	GstGhostPad *pad;
-	GstPad *peer;
+	GstPad *pad, *peer, *target;
 	gboolean done = FALSE;
 
 	it = gst_element_iterate_src_pads(GST_ELEMENT(self));
@@ -375,13 +374,15 @@ connect_pads(KmsMediaHandlerSrc *self) {
 	while (!done) {
 		switch (gst_iterator_next(it, (gpointer *)&pad)) {
 		case GST_ITERATOR_OK:
-			if (gst_ghost_pad_get_target(pad) == NULL &&
-					gst_pad_is_linked(GST_PAD(pad))) {
+			target = gst_ghost_pad_get_target(GST_GHOST_PAD(pad));
+			if (target == NULL && gst_pad_is_linked(GST_PAD(pad))) {
 				/* TODO: Possible race condigion, pad can be
 				* 	unlinked during this process */
 				peer = gst_pad_get_peer(GST_PAD(pad));
 				link_pad(GST_PAD(pad), peer);
 				g_object_unref(peer);
+			} else if (target != NULL) {
+				g_object_unref(target);
 			}
 			gst_object_unref(pad);
 			break;
