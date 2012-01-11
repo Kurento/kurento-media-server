@@ -7,6 +7,7 @@
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_MEDIA_HANDLER_SRC(obj)->priv->mutex)))
 
 #define TEE "tee"
+#define MEDIA_TYPE "type"
 
 struct _KmsMediaHandlerSrcPriv {
 	GStaticMutex mutex;
@@ -297,11 +298,14 @@ set_target_pad(GstGhostPad *gp, GstPad *target) {
 }
 
 static GstPadLinkReturn
-link_pad(GstPad *pad, GstPad *peer, KmsMediaType type) {
+link_pad(GstPad *pad, GstPad *peer) {
+	KmsMediaType type;
 	KmsMediaHandlerSrc *self;
 	GstElement *elem;
 	GstPad *target_pad = NULL;
 	GstPadLinkReturn ret = GST_PAD_LINK_OK;
+
+	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(pad), MEDIA_TYPE));
 
 	elem = gst_pad_get_parent_element(pad);
 	if (elem == NULL)
@@ -338,21 +342,6 @@ link_pad(GstPad *pad, GstPad *peer, KmsMediaType type) {
 	return ret;
 }
 
-static GstPadLinkReturn
-link_audio_pad(GstPad *pad, GstPad *peer) {
-	return link_pad(pad, peer, KMS_MEDIA_TYPE_AUDIO);
-}
-
-static GstPadLinkReturn
-link_video_pad(GstPad *pad, GstPad *peer) {
-	return link_pad(pad, peer, KMS_MEDIA_TYPE_VIDEO);
-}
-
-static GstPadLinkReturn
-no_link_pad(GstPad *pad, GstPad *peer) {
-	return GST_PAD_LINK_NOFORMAT;
-}
-
 static GstPad*
 request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	GstPad *pad;
@@ -367,13 +356,19 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	g_free(new_name);
 	gst_pad_set_active(pad, TRUE);
 	if (g_strstr_len(templ->name_template, -1, "audio")) {
-		gst_pad_set_link_function(pad, link_audio_pad);
+		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
+				  GINT_TO_POINTER(KMS_MEDIA_TYPE_AUDIO));
+		gst_pad_set_link_function(pad, link_pad);
 		gst_pad_set_unlink_function(pad, unlink_audio_pad);
 	} else if (g_strstr_len(templ->name_template, -1, "video")) {
-		gst_pad_set_link_function(pad, link_video_pad);
+		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
+				  GINT_TO_POINTER(KMS_MEDIA_TYPE_VIDEO));
+		gst_pad_set_link_function(pad, link_pad);
 		gst_pad_set_unlink_function(pad, unlink_video_pad);
 	} else {
-		gst_pad_set_link_function(pad, no_link_pad);
+		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
+					GINT_TO_POINTER(KMS_MEDIA_TYPE_UNKNOWN));
+		gst_pad_set_link_function(pad, link_pad);
 	}
 
 	gst_element_add_pad(elem, pad);
