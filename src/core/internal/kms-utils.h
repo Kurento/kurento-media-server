@@ -1,3 +1,7 @@
+#if defined (__KMS_CORE_H_INSIDE__)
+#error "This file should not be included in <kms-core.h>"
+#endif
+
 #ifndef __KMS_UTILS_H__
 #define __KMS_UTILS_H__
 
