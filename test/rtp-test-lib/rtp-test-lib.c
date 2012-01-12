@@ -10,11 +10,11 @@
 #define SESSION_VERSION 54321
 #define SESSION_REMOTE_HANDLER "127.0.0.1"
 
-#define ADDR_2 "localhost"
+#define ADDR_2 "127.0.0.1"
 #define SESSION_NAME_2 "kurento session 2"
 #define SESSION_ID_2 23456
 #define SESSION_VERSION_2 65432
-#define SESSION_REMOTE_HANDLER_2 "localhost"
+#define SESSION_REMOTE_HANDLER_2 "127.0.0.1"
 
 #define PORT_AUDIO 2000
 #define PORT_VIDEO 3000
