@@ -202,14 +202,31 @@ end:
 }
 
 static GstElement*
-prepare_decoder(GstElement *deco, GstCaps *raw_caps) {
+prepare_decoder(GstElement *deco, KmsMediaType type) {
+	GstElement *new_deco;
+	GstCaps *raw_caps;
+
 	kms_utils_configure_element(deco);
-	/* TODO: add filtered caps */
-	return deco;
+
+	switch (type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		raw_caps = gst_caps_from_string(AUDIO_RAW_CAPS);
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		raw_caps = gst_caps_from_string(VIDEO_RAW_CAPS);
+		break;
+	default:
+		return deco;
+	}
+
+	new_deco = kms_generate_bin_with_caps(deco, NULL, raw_caps);
+	gst_caps_unref(raw_caps);
+
+	return new_deco;
 }
 
 static GstElement*
-prepare_depay(GstElement *depay, GstCaps *raw_caps) {
+prepare_depay(GstElement *depay, GstCaps *enc_caps, GstCaps *raw_caps) {
 	kms_utils_configure_element(depay);
 	/* TODO: add filtered caps */
 	return depay;
@@ -280,15 +297,26 @@ static void
 found_raw(GstElement* tf, guint probability, GstCaps* caps,
 							KmsRtpReceiver *self) {
 	GstElement *deco, *depay, *new_deco, *new_depay, *peer_elem;
+	GstElement *enc_find, *raw_find;
 	GstElementFactory *deco_fact, *depay_fact;
 	GstObject *bin;
 	GstPad *bin_sink, *peer;
 	KmsMediaType type;
+	GstCaps *enc_caps, *raw_caps;
 
 	bin = gst_element_get_parent(tf);
+	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bin),
+							MEDIA_TYPE_DATA));
 
 	deco = gst_bin_get_by_name(GST_BIN(bin), "deco");
 	depay = gst_bin_get_by_name(GST_BIN(bin), "depay");
+	enc_find = gst_bin_get_by_name(GST_BIN(bin), "enc_find");
+	raw_find = gst_bin_get_by_name(GST_BIN(bin), "raw_find");
+
+	g_object_get(enc_find, "caps", &enc_caps, NULL);
+	g_object_get(raw_find, "caps", &raw_caps, NULL);
+	g_object_unref(enc_find);
+	g_object_unref(raw_find);
 
 	deco_fact = gst_element_get_factory(deco);
 	depay_fact = gst_element_get_factory(depay);
@@ -306,8 +334,8 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	new_deco = gst_element_factory_create(deco_fact, NULL);
 	new_depay = gst_element_factory_create(depay_fact, NULL);
 
-	new_deco = prepare_decoder(new_deco, caps);
-	new_depay = prepare_depay(new_depay, caps);
+	new_deco = prepare_decoder(new_deco, type);
+	new_depay = prepare_depay(new_depay, enc_caps, raw_caps);
 
 	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bin),
 							MEDIA_TYPE_DATA));
@@ -316,6 +344,8 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 
 end:
 	g_object_unref(bin_sink);
+	gst_caps_unref(enc_caps);
+	gst_caps_unref(raw_caps);
 
 	/*
 	 * HACK: Bin has to be removed once this function finishes to avoid
@@ -348,7 +378,7 @@ found_coded(GstElement* tf, guint probability, GstCaps* caps,
 	gst_element_set_state(deco, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(bin), deco);
 
-	typefind = gst_element_factory_make("typefind", NULL);
+	typefind = gst_element_factory_make("typefind", "raw_find");
 	gst_element_set_state(typefind, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(bin), typefind);
 
@@ -393,7 +423,7 @@ connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 	gst_bin_add_many(GST_BIN(bin), queue, depay, NULL);
 
-	typefind = gst_element_factory_make("typefind", NULL);
+	typefind = gst_element_factory_make("typefind", "enc_find");
 	gst_element_set_state(typefind, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(bin), typefind);
 

@@ -11,6 +11,9 @@
 				GST_BIN(kms_get_pipeline()),		\
 				GST_DEBUG_GRAPH_SHOW_ALL, name);	\
 
+#define AUDIO_RAW_CAPS  "audio/x-raw-int; audio/x-raw-float;"
+#define VIDEO_RAW_CAPS  "video/x-raw-yuv; video/x-raw-rgb; video/x-raw-gray;"
+
 GstElement* kms_get_pipeline();
 
 void kms_dynamic_connection(GstElement *orig, GstElement *dest, const gchar *name);
