@@ -336,6 +336,7 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	rtp_caps = gst_caps_copy(GST_PAD_CAPS(bin_sink));
 
 	peer_elem = gst_pad_get_parent_element(peer);
+	g_object_unref(peer);
 
 	new_deco = gst_element_factory_create(deco_fact, NULL);
 	new_depay = gst_element_factory_create(depay_fact, NULL);
@@ -347,6 +348,7 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 							MEDIA_TYPE_DATA));
 
 	add_elements_to_bin(self, peer_elem, new_deco, new_depay, type);
+	g_object_unref(peer_elem);
 
 	gst_caps_unref(rtp_caps);
 end:
