@@ -32,4 +32,6 @@ void kms_utils_connect_target_with_queue(GstElement *elem, GstGhostPad *gp);
 
 void kms_utils_configure_element(GstElement *elem);
 
+void kms_utils_transfer_caps(const GstCaps *from, GstCaps *to);
+
 #endif /* __KMS_UTILS_H__ */

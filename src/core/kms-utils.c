@@ -347,3 +347,8 @@ kms_utils_configure_element(GstElement *elem) {
 		g_object_set(G_OBJECT(elem), "config-interval", 2, NULL);
 	}
 }
+
+void
+kms_utils_transfer_caps(const GstCaps *from, GstCaps *to) {
+	/* TODO: implement transfer caps */
+}

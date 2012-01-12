@@ -233,8 +233,10 @@ prepare_depay(GstElement *depay, GstCaps *rtp_caps, GstCaps *enc_caps,
 
 	kms_utils_configure_element(depay);
 
-	/* TODO: Not copy, transfer from raw and rtp */
 	new_enc_caps = gst_caps_copy(enc_caps);
+	kms_utils_transfer_caps(raw_caps, new_enc_caps);
+	kms_utils_transfer_caps(rtp_caps, new_enc_caps);
+
 	new_depay = kms_generate_bin_with_caps(depay, NULL, new_enc_caps);
 
 	gst_caps_unref(new_enc_caps);
