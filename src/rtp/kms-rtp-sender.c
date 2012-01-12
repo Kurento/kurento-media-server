@@ -104,7 +104,7 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 					FALSE, NULL);
 	udpsink = gst_element_factory_make("udpsink", NULL);
 
-	if (payload == NULL || udpsink == NULL) {
+	if (payloader == NULL || udpsink == NULL) {
 		if (payload != NULL)
 			g_object_unref(payload);
 		if (udpsink != NULL)
