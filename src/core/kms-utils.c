@@ -235,6 +235,7 @@ kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 	GstElement *bin;
 	GstPad *gsink, *gsrc, *sink, *src;
 	GstPadTemplate *sink_temp, *src_temp;
+	GstCaps *copy_sink_caps, *copy_src_caps;
 
 	bin = gst_bin_new(GST_ELEMENT_NAME(elem));
 	gst_bin_add(GST_BIN(bin), elem);
@@ -242,10 +243,20 @@ kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 	src = gst_element_get_static_pad(elem, "src");
 	sink = gst_element_get_static_pad(elem, "sink");
 
+	if (sink_caps != NULL)
+		copy_sink_caps = gst_caps_copy(sink_caps);
+	else
+		copy_sink_caps = gst_pad_get_caps(sink);
+
+	if (src_caps != NULL)
+		copy_src_caps = gst_caps_copy(src_caps);
+	else
+		copy_src_caps = gst_pad_get_caps(src);
+
 	sink_temp = gst_pad_template_new("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
-						gst_caps_copy(sink_caps));
+								copy_sink_caps);
 	src_temp = gst_pad_template_new("src", GST_PAD_SRC, GST_PAD_ALWAYS,
-					 gst_caps_copy(src_caps));
+								copy_src_caps);
 
 	gsink = gst_ghost_pad_new_no_target_from_template("sink", sink_temp);
 	gsrc =  gst_ghost_pad_new_no_target_from_template("src", src_temp);
