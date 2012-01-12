@@ -226,10 +226,19 @@ prepare_decoder(GstElement *deco, KmsMediaType type) {
 }
 
 static GstElement*
-prepare_depay(GstElement *depay, GstCaps *enc_caps, GstCaps *raw_caps) {
+prepare_depay(GstElement *depay, GstCaps *rtp_caps, GstCaps *enc_caps,
+							GstCaps *raw_caps) {
+	GstCaps *new_enc_caps;
+	GstElement *new_depay;
+
 	kms_utils_configure_element(depay);
-	/* TODO: add filtered caps */
-	return depay;
+
+	/* TODO: Not copy, transfer from raw and rtp */
+	new_enc_caps = gst_caps_copy(enc_caps);
+	new_depay = kms_generate_bin_with_caps(depay, NULL, new_enc_caps);
+
+	gst_caps_unref(new_enc_caps);
+	return new_depay;
 }
 
 static void
@@ -302,7 +311,7 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	GstObject *bin;
 	GstPad *bin_sink, *peer;
 	KmsMediaType type;
-	GstCaps *enc_caps, *raw_caps;
+	GstCaps *enc_caps, *raw_caps, *rtp_caps;
 
 	bin = gst_element_get_parent(tf);
 	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bin),
@@ -328,6 +337,7 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	/* Disconnect bin and connect new types */
 	peer = gst_pad_get_peer(bin_sink);
 	gst_pad_unlink(peer, bin_sink);
+	rtp_caps = gst_caps_copy(GST_PAD_CAPS(bin_sink));
 
 	peer_elem = gst_pad_get_parent_element(peer);
 
@@ -335,13 +345,14 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	new_depay = gst_element_factory_create(depay_fact, NULL);
 
 	new_deco = prepare_decoder(new_deco, type);
-	new_depay = prepare_depay(new_depay, enc_caps, raw_caps);
+	new_depay = prepare_depay(new_depay, rtp_caps, enc_caps, raw_caps);
 
 	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bin),
 							MEDIA_TYPE_DATA));
 
 	add_elements_to_bin(self, peer_elem, new_deco, new_depay, type);
 
+	gst_caps_unref(rtp_caps);
 end:
 	g_object_unref(bin_sink);
 	gst_caps_unref(enc_caps);
