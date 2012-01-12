@@ -14,6 +14,16 @@
 #define AUDIO_RAW_CAPS  "audio/x-raw-int; audio/x-raw-float;"
 #define VIDEO_RAW_CAPS  "video/x-raw-yuv; video/x-raw-rgb; video/x-raw-gray;"
 
+#define KMS_DEBUG_CAPS(str, caps)					\
+do {									\
+	gchar *caps_str;						\
+	if (GST_IS_CAPS(caps)) {					\
+		caps_str = gst_caps_to_string(caps);			\
+		g_print( str " %s\n", caps_str);			\
+		g_free(caps_str);					\
+	}								\
+} while(0);
+
 GstElement* kms_get_pipeline();
 
 void kms_dynamic_connection(GstElement *orig, GstElement *dest, const gchar *name);
