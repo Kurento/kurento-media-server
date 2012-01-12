@@ -1,5 +1,6 @@
 #include <gst/gst.h>
 #include "kms-core.h"
+#include "internal/kms-utils.h"
 
 #define ATTR_DYNAMIC "dynamic"
 
@@ -315,4 +316,21 @@ kms_utils_connect_target_with_queue(GstElement *elem, GstGhostPad *gp) {
 
 end:
 	g_object_unref(parent);
+}
+
+void
+kms_utils_configure_element(GstElement *elem) {
+	/* TODO: This function should be pluggable or configurable */
+	GstElementFactory *factory;
+	gchar *name;
+
+	factory = gst_element_get_factory(elem);
+	if (factory == NULL)
+		return;
+
+	name = GST_OBJECT_NAME(factory);
+	if (name == NULL)
+		return;
+
+	/* TODO: Use factory name to configure element */
 }

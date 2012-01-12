@@ -203,13 +203,15 @@ end:
 
 static GstElement*
 prepare_decoder(GstElement *deco, GstCaps *raw_caps) {
-	/* TODO: configure decoder correctly and add filtered caps */
+	kms_utils_configure_element(deco);
+	/* TODO: add filtered caps */
 	return deco;
 }
 
 static GstElement*
 prepare_depay(GstElement *depay, GstCaps *raw_caps) {
-	/* TODO: configure depayloader correctly and add filtered caps */
+	kms_utils_configure_element(depay);
+	/* TODO: add filtered caps */
 	return depay;
 }
 

@@ -27,4 +27,6 @@ GstElement* kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 
 void kms_utils_connect_target_with_queue(GstElement *elem, GstGhostPad *gp);
 
+void kms_utils_configure_element(GstElement *elem);
+
 #endif /* __KMS_UTILS_H__ */
