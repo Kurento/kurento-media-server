@@ -213,6 +213,8 @@ found_coded(GstElement* tf, guint probability, GstCaps* caps,
 					FALSE, "deco");
 	if (deco == NULL) {
 		g_warn_if_reached();
+		g_object_unref(bin);
+		gst_bin_remove(GST_BIN(self), GST_ELEMENT(bin));
 		return;
 	}
 
@@ -226,6 +228,7 @@ found_coded(GstElement* tf, guint probability, GstCaps* caps,
 	g_object_connect(typefind, "signal::have_type", found_raw, self, NULL);
 
 	gst_element_link_many(tf, deco, typefind, NULL);
+	g_object_unref(bin);
 }
 
 static void
