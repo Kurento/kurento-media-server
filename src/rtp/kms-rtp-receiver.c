@@ -184,20 +184,62 @@ request_pt_map(GstElement *demux, guint pt, gpointer self) {
 	return NULL;
 }
 
+static gboolean
+remove_tf_bin(GstElement *elem) {
+	GstObject *bin;
+
+	bin = gst_element_get_parent(elem);
+	if (bin == NULL)
+		goto end;
+
+	gst_element_set_state(GST_ELEMENT(elem), GST_STATE_NULL);
+	gst_bin_remove(GST_BIN(bin), GST_ELEMENT(elem));
+	g_object_unref(bin);
+end:
+	g_object_unref(elem);
+
+	return FALSE;
+}
+
 static void
 found_raw(GstElement* tf, guint probability, GstCaps* caps,
 							KmsRtpReceiver *self) {
-	GstElement *sink;
+	GstElement *deco, *depay, *new_deco, *new_depay;
+	GstElementFactory *deco_fact, *depay_fact;
 	GstObject *bin;
+	GstPad *bin_sink;
 
 	bin = gst_element_get_parent(tf);
-	/* TODO: Create real chain and announce connect pads */
 
-	g_print("Found type\n");
-	sink = gst_element_factory_make("fakesink", NULL);
-	gst_element_set_state(sink, GST_STATE_PLAYING);
-	gst_bin_add(GST_BIN(bin), sink);
-	gst_element_link(tf, sink);
+	deco = gst_bin_get_by_name(GST_BIN(bin), "deco");
+	depay = gst_bin_get_by_name(GST_BIN(bin), "depay");
+
+	deco_fact = gst_element_get_factory(deco);
+	depay_fact = gst_element_get_factory(depay);
+
+	new_deco = gst_element_factory_create(deco_fact, NULL);
+	new_depay = gst_element_factory_create(depay_fact, NULL);
+
+	/* TODO: Use this elements to connect correctly */
+	gst_bin_add(GST_BIN(self), new_deco);
+	gst_bin_add(GST_BIN(self), new_depay);
+
+	bin_sink = gst_element_get_pad(GST_ELEMENT(bin), "sink");
+	if (gst_pad_is_linked(bin_sink)) {
+		GstPad *peer;
+
+		peer = gst_pad_get_peer(bin_sink);
+		gst_pad_unlink(peer, bin_sink);
+	}
+
+	/*
+	 * HACK: Bin has to be removed once this function finishes to avoid
+	 * memory leak or segmentation fault in typefind element
+	 */
+	g_timeout_add_seconds(1, (GSourceFunc) remove_tf_bin, g_object_ref(bin));
+	g_object_unref(deco);
+	g_object_unref(depay);
+	g_object_unref(bin);
 }
 
 static void
