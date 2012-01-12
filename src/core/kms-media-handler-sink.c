@@ -36,7 +36,47 @@ kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 						KmsMediaHandlerSrc *src,
 						KmsMediaType type,
 						GError **err) {
-	g_print("Disconnect sink\n");
+	GEnumClass *eclass;
+	GEnumValue *evalue;
+	GstIterator *it;
+	gboolean done = FALSE;
+	GstPad *pad;
+
+	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
+	evalue = g_enum_get_value(eclass, type);
+
+	it = gst_element_iterate_sink_pads(GST_ELEMENT(self));
+	while (!done) {
+		switch (gst_iterator_next(it, (gpointer *)&pad)) {
+		case GST_ITERATOR_OK:
+			if (g_strstr_len(GST_OBJECT_NAME(pad), -1,
+					evalue->value_nick) != NULL &&
+					gst_pad_is_linked(pad)) {
+				GstPad *peer;
+				GstElement *elem;
+
+				peer = gst_pad_get_peer(pad);
+				elem = gst_pad_get_parent_element(peer);
+				if (elem == GST_ELEMENT(src)) {
+					gst_object_unref(elem);
+					gst_pad_unlink(peer, pad);
+				}
+			}
+			gst_object_unref(pad);
+			break;
+		case GST_ITERATOR_RESYNC:
+			gst_iterator_resync(it);
+			break;
+		case GST_ITERATOR_ERROR:
+			done = TRUE;
+			break;
+		case GST_ITERATOR_DONE:
+			done = TRUE;
+			break;
+		}
+	}
+	gst_iterator_free(it);
+
 	return TRUE;
 }
 
