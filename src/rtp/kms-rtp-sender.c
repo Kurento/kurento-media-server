@@ -35,7 +35,7 @@ dispose_remote_spec(KmsRtpSender *self) {
 
 void
 kms_rtp_sender_terminate(KmsRtpSender *self) {
-	/* TODO: Implement terminate method */
+	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
 }
 
 static GstPadTemplate*
