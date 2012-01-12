@@ -113,6 +113,9 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 		goto end;
 	}
 
+	kms_utils_configure_element(payloader);
+	payloader = kms_generate_bin_with_caps(payloader, NULL, caps);
+
 	g_object_set(udpsink, "host", addr, "port", port, "sync", FALSE, NULL);
 	if (fd != -1)
 		g_object_set(udpsink, "sockfd", fd, "closefd", FALSE, NULL);
