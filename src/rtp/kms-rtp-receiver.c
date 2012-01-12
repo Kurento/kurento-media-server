@@ -42,13 +42,7 @@ dispose_local_spec(KmsRtpReceiver *self) {
 
 void
 kms_rtp_receiver_terminate(KmsRtpReceiver *self) {
-	LOCK(self);
-	if (self->priv->udpsrc) {
-		gst_element_send_event(self->priv->udpsrc,
-						gst_event_new_flush_start());
-		self->priv->udpsrc = NULL;
-	}
-	UNLOCK(self);
+	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
 }
 
 static void
@@ -596,8 +590,12 @@ static void
 dispose(GObject *object) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
 
-	kms_rtp_receiver_terminate(self);
 	LOCK(self);
+	if (self->priv->udpsrc) {
+		gst_element_send_event(self->priv->udpsrc,
+				       gst_event_new_flush_start());
+		self->priv->udpsrc = NULL;
+	}
 	dispose_local_spec(self);
 	UNLOCK(self);
 
