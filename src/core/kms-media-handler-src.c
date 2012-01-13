@@ -435,6 +435,41 @@ kms_media_handler_src_set_pad(KmsMediaHandlerSrc *self, GstPad *pad,
 	connect_pads(self);
 }
 
+/**
+ * kms_media_handler_src_set_raw_pad:
+ *
+ * @self: Self object
+ * @pad: (transfer full): The new raw pad
+ * @tee: (transfer none): The tee that is connected to the pad
+ * 				and where the link will be done
+ * @type: The media type of the pad
+ *
+ * Sets the pad with raw capabilities for the given type.
+ */
+void
+kms_media_handler_src_set_raw_pad(KmsMediaHandlerSrc *self, GstPad *pad,
+					GstElement *tee, KmsMediaType type) {
+	g_object_set_data(G_OBJECT(pad), TEE, tee);
+	switch (type) {
+		case KMS_MEDIA_TYPE_AUDIO:
+			LOCK(self);
+			dispose_audio_raw_pad(self);
+			self->priv->audio_raw_pad = pad;
+			UNLOCK(self);
+			break;
+		case KMS_MEDIA_TYPE_VIDEO:
+			LOCK(self);
+			dispose_video_raw_pad(self);
+			self->priv->video_raw_pad = pad;
+			UNLOCK(self);
+			break;
+		default:
+			return;
+	}
+
+	connect_pads(self);
+}
+
 static void
 constructed(GObject *object) {
 	KmsMediaHandlerSrc *self = KMS_MEDIA_HANDLER_SRC(object);

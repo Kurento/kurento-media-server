@@ -294,8 +294,8 @@ add_elements_to_bin(KmsRtpReceiver *self, GstElement *orig, GstElement *deco,
 	if (deco_src == NULL)
 		return;
 
-	/* TODO: add raw pad by now, just unref got pad */
-	g_object_unref(deco_src);
+	kms_media_handler_src_set_raw_pad(KMS_MEDIA_HANDLER_SRC(self), deco_src,
+							depay_tee, type);
 }
 
 static void
