@@ -406,7 +406,7 @@ get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 	if (new_pad == NULL)
 		goto end;
 
-	*other = g_slist_append(*other, new_pad);
+	*other = g_slist_append(*other, g_object_ref(new_pad));
 
 	target = new_pad;
 
