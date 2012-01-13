@@ -78,10 +78,10 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 	GValueArray *payloads;
 	KmsSdpPayload *payload;
 	GstElement *udpsink, *payloader;
-	GstCaps *caps, *sink_caps;
+	GstCaps *caps, *sink_caps, *pay_sink_caps;
 	gint port;
 	KmsMediaType type;
-	GstPad *pad, *sink_pad;
+	GstPad *pad, *sink_pad, *pay_sink;
 	GstPadTemplate *templ;
 
 	g_object_get(media, "payloads", &payloads, "port", &port, "type", &type,
@@ -109,7 +109,12 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 	}
 
 	kms_utils_configure_element(payloader);
-	payloader = kms_generate_bin_with_caps(payloader, NULL, caps);
+	pay_sink = gst_element_get_static_pad(payloader, "sink");
+	pay_sink_caps = gst_pad_get_caps(pay_sink);
+	kms_utils_transfer_caps(caps, pay_sink_caps);
+	payloader = kms_generate_bin_with_caps(payloader, pay_sink_caps, caps);
+	gst_caps_unref(pay_sink_caps);
+	g_object_unref(pay_sink);
 
 	g_object_set(udpsink, "host", addr, "port", port, "sync", FALSE, NULL);
 	if (fd != -1)
