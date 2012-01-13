@@ -360,7 +360,7 @@ kms_utils_configure_element(GstElement *elem) {
 static void
 transfer_structure(const GstStructure *st, GstCaps *to) {
 	gint width, height, fr_num, fr_denom, rate, clockrate;
-	gint i, len;
+	gint i;
 
 	if (!gst_structure_get_int(st, "width", &width))
 		width = 0;
@@ -380,11 +380,12 @@ transfer_structure(const GstStructure *st, GstCaps *to) {
 		clockrate = 0;
 
 	/* Set this attributes in all the destination structs */
-	len = gst_caps_get_size(to);
-	for (i = 0; i < len; i++) {
+	for (i = 0; i < gst_caps_get_size(to); i++) {
 		GstStructure *dest;
+		GstStructure *dest_orig;
 
 		dest = gst_caps_get_structure(to, i);
+		dest_orig = gst_structure_copy(dest);
 		if (width != 0)
 			gst_structure_set(dest, "width", G_TYPE_INT, width,
 									NULL);
@@ -395,14 +396,29 @@ transfer_structure(const GstStructure *st, GstCaps *to) {
 
 		if (fr_num != 0 || fr_denom != 0)
 			gst_structure_set(dest, "framerare", GST_TYPE_FRACTION,
-					  fr_num, fr_denom, NULL);
+							fr_num, fr_denom, NULL);
 
-		if (rate != 0)
+		if (rate != 0) {
 			gst_structure_set(dest, "rate", G_TYPE_INT, rate, NULL);
+			if (clockrate == 0)
+				gst_structure_set(dest, "clock-rate",
+							G_TYPE_INT, rate, NULL);
+		}
 
-		if (clockrate != 0)
+		if (clockrate != 0) {
 			gst_structure_set(dest, "clock-rate", G_TYPE_INT,
 							clockrate, NULL);
+			if (rate == 0)
+				gst_structure_set(dest, "rate", G_TYPE_INT,
+							clockrate, NULL);
+		}
+
+		if (!gst_structure_can_intersect(dest, dest_orig)) {
+			gst_caps_remove_structure(to, i);
+			/* Restart processing */
+			i = 0;
+		}
+		gst_structure_free(dest_orig);
 	}
 }
 
