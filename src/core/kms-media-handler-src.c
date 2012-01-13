@@ -292,8 +292,10 @@ set_target_pad(GstGhostPad *gp, GstPad *target) {
 	GstElement *tee;
 
 	tee = g_object_get_data(G_OBJECT(target), TEE);
-	if (tee == NULL)
+	if (tee == NULL) {
+		g_object_unref(target);
 		return;
+	}
 
 	kms_utils_connect_target_with_queue(tee, gp);
 }
