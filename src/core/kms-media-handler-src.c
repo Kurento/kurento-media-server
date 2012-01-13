@@ -351,13 +351,13 @@ link_pad(GstPad *pad, GstPad *peer) {
 	case KMS_MEDIA_TYPE_AUDIO:
 		target_pad = get_target_pad(self, peer,
 					self->priv->audio_prefered_pad,
-					self->priv->audio_prefered_pad,
+					self->priv->audio_raw_pad,
 					&(self->priv->audio_other_pads), type);
 		break;
 	case KMS_MEDIA_TYPE_VIDEO:
 		target_pad = get_target_pad(self, peer,
 					self->priv->video_prefered_pad,
-					self->priv->video_prefered_pad,
+					self->priv->video_raw_pad,
 					&(self->priv->video_other_pads), type);
 		break;
 	default:
