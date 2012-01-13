@@ -253,14 +253,18 @@ check_pad_compatible(GstPad *pad, GstCaps *caps) {
 }
 
 static GstPad*
-generate_raw_chain(KmsMediaHandlerSrc *self, GstPad *raw, KmsMediaType type) {
+generate_raw_chain_full(KmsMediaHandlerSrc *self, GstPad *raw,
+					KmsMediaType type, gboolean dynamic) {
 	/* TODO: Generate a proper chain to process raw media correctly */
 	return NULL;
 }
 
 static GstPad*
-generate_new_target_pad(KmsMediaHandlerSrc *self, GstCaps *caps) {
-	/* TODO: Generate a proper chain to encode media to target caps */
+generate_raw_chain(KmsMediaHandlerSrc *self, GstPad *raw, KmsMediaType type) {
+	return generate_raw_chain_full(self, raw, type, TRUE);
+}
+
+static GstPad*
 	return NULL;
 }
 
