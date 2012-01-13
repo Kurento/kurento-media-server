@@ -305,7 +305,7 @@ kms_utils_connect_target_with_queue(GstElement *elem, GstGhostPad *gp) {
 	if (parent == NULL)
 		return;
 
-	queue = gst_element_factory_make("queue2", NULL);
+	queue = kms_utils_create_queue(NULL);
 	if (queue == NULL)
 		goto end;
 
@@ -411,4 +411,17 @@ kms_utils_transfer_caps(const GstCaps *from, GstCaps *to) {
 		st = gst_caps_get_structure(from, i);
 		transfer_structure(st, to);
 	}
+}
+
+GstElement*
+kms_utils_create_queue(const gchar *name) {
+	GstElement *queue;
+
+	queue = gst_element_factory_make("queue2", name);
+	if (queue != NULL) {
+		g_object_set(queue, "max-size-bytes", 0, "max-size-buffers", 0,
+				"max-size-time", G_GUINT64_CONSTANT(0), NULL);
+	}
+
+	return queue;
 }

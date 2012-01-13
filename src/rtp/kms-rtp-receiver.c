@@ -246,7 +246,7 @@ add_elements_to_bin(KmsRtpReceiver *self, GstElement *orig, GstElement *deco,
 	deco_tee = gst_element_factory_make("tee", NULL);
 	depay_tee = gst_element_factory_make("tee", NULL);
 	buffer = gst_element_factory_make("gstrtpjitterbuffer", NULL);
-	queue = gst_element_factory_make("queue2", NULL);
+	queue = kms_utils_create_queue(NULL);
 	if (deco_tee == NULL || depay_tee == NULL || buffer == NULL ||
 								queue == NULL) {
 		if (depay_tee != NULL)
@@ -410,7 +410,7 @@ connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
 	}
 	g_object_set_data(G_OBJECT(bin), MEDIA_TYPE_DATA, GINT_TO_POINTER(type));
 
-	queue = gst_element_factory_make("queue2", NULL);
+	queue = kms_utils_create_queue(NULL);
 	if (queue == NULL) {
 		g_warn_if_reached();
 		g_object_unref(bin);
@@ -459,7 +459,7 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	KmsMediaType type;
 
 	tee = gst_element_factory_make("tee", NULL);
-	fake_queue = gst_element_factory_make("queue2", NULL);
+	fake_queue = kms_utils_create_queue(NULL);
 	sink = gst_element_factory_make("fakesink", NULL);
 
 	if (tee == NULL || sink == NULL || fake_queue == NULL) {

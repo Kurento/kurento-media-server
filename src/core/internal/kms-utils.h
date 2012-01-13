@@ -44,4 +44,6 @@ void kms_utils_configure_element(GstElement *elem);
 
 void kms_utils_transfer_caps(const GstCaps *from, GstCaps *to);
 
+GstElement *kms_utils_create_queue(const gchar *name);
+
 #endif /* __KMS_UTILS_H__ */
