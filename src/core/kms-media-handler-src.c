@@ -310,11 +310,68 @@ generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
 }
 
 static GstPad*
+generate_raw_chain_video(KmsMediaHandlerSrc *self, GstPad *raw,
+							gboolean dynamic) {
+	GstElement *tee, *queue, *colorspace, *rate, *videoscale;
+	GstPad *scale_src;
+
+	queue = kms_utils_create_queue(NULL);
+	colorspace = gst_element_factory_make("colorspace", NULL);
+	rate = gst_element_factory_make("videomaxrate", NULL);
+	videoscale = gst_element_factory_make("videoscale", NULL);
+	tee = g_object_get_data(G_OBJECT(raw), TEE);
+
+	if (queue == NULL || colorspace == NULL || rate == NULL ||
+					videoscale == NULL || tee == NULL) {
+		g_warn_if_reached();
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
+		if (colorspace != NULL)
+			g_object_unref(colorspace);
+
+		if (rate != NULL)
+			g_object_unref(rate);
+
+		if (videoscale != NULL)
+			g_object_unref(videoscale);
+	}
+
+
+	/* TODO: Add a filter with following caps
+			"video/x-raw-yuv, pixel-aspect-ratio=[0/1, 1/1];"
+			"video/x-raw-rgb, pixel-aspect-ratio=[0/1, 1/1];"
+			"video/x-raw-gray, pixel-aspect-ratio=[0/1, 1/1]");
+	*/
+
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(colorspace, GST_STATE_PLAYING);
+	gst_element_set_state(rate, GST_STATE_PLAYING);
+	gst_element_set_state(videoscale, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), queue, colorspace, rate, videoscale,
+									NULL);
+
+	/* TODO: Allow remove elements when unlinked */
+	kms_dynamic_connection(tee, queue, "src");
+	kms_dynamic_connection(queue, colorspace, "src");
+	kms_dynamic_connection(colorspace, rate, "src");
+	kms_dynamic_connection(rate, videoscale, "src");
+
+	scale_src = gst_element_get_static_pad(videoscale, "src");
+	g_object_set_data(G_OBJECT(scale_src), TEE, videoscale);
+
+	return scale_src;
+}
+
+static GstPad*
 generate_raw_chain_full(KmsMediaHandlerSrc *self, GstPad *raw,
 					KmsMediaType type, gboolean dynamic) {
 	if (type == KMS_MEDIA_TYPE_AUDIO)
 		return generate_raw_chain_audio(self, raw, dynamic);
-	/* TODO: Generate a proper chain to process raw media correctly */
+	if (type == KMS_MEDIA_TYPE_VIDEO)
+		return generate_raw_chain_video(self, raw, dynamic);
 	return NULL;
 }
 
