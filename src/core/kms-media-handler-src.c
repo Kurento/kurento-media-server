@@ -259,11 +259,18 @@ generate_raw_chain(KmsMediaHandlerSrc *self, GstPad *raw, KmsMediaType type) {
 }
 
 static GstPad*
+generate_new_target_pad(KmsMediaHandlerSrc *self, GstCaps *caps) {
+	/* TODO: Generate a proper chain to encode media to target caps */
+	return NULL;
+}
+
+static GstPad*
 get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 						GstPad *raw, GSList **other,
 						KmsMediaType type) {
 	GstCaps *caps;
-	GstPad *target = NULL;
+	GstPad *new_pad, *target = NULL;
+	GSList *l;
 
 	caps = GST_PAD_CAPS(peer);
 	if (caps != NULL) {
@@ -281,7 +288,26 @@ get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 		target = generate_raw_chain(self, raw, type);
 		goto end;
 	}
-	/* TODO: Check other pads */
+	/* Check other pads */
+	l = *other;
+	while (l != NULL) {
+		if (check_pad_compatible(l->data, caps)) {
+			target = g_object_ref(l->data);
+		}
+		l = l->next;
+	}
+
+	/* Try to generate a new pad */
+	if (raw == NULL)
+		goto end;
+
+	new_pad = generate_new_target_pad(self, caps);
+	if (new_pad == NULL)
+		goto end;
+
+	*other = g_slist_append(*other, new_pad);
+
+	target = new_pad;
 
 end:
 	gst_caps_unref(caps);
