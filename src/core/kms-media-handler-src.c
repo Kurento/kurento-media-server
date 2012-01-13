@@ -253,8 +253,62 @@ check_pad_compatible(GstPad *pad, GstCaps *caps) {
 }
 
 static GstPad*
+generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
+							gboolean dynamic) {
+	GstElement *tee, *queue, *convert, *resample, *rate;
+	GstPad *rate_src;
+
+	queue = kms_utils_create_queue(NULL);
+	convert = gst_element_factory_make("audioconvert", NULL);
+	resample = gst_element_factory_make("audioresample", NULL);
+	rate = gst_element_factory_make("audiorate", NULL);
+	tee = g_object_get_data(G_OBJECT(raw), TEE);
+
+	if (queue == NULL || convert == NULL || resample == NULL ||
+						rate == NULL || tee == NULL) {
+		g_warn_if_reached();
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
+		if (convert != NULL)
+			g_object_unref(convert);
+
+		if (resample != NULL)
+			g_object_unref(resample);
+
+		if (rate != NULL)
+			g_object_unref(rate);
+	}
+
+	g_object_set(convert, "dithering", 0, NULL);
+	g_object_set(resample, "quality", 8, NULL);
+	g_object_set(rate, "tolerance", GST_MSECOND * 250, NULL);
+
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(convert, GST_STATE_PLAYING);
+	gst_element_set_state(resample, GST_STATE_PLAYING);
+	gst_element_set_state(rate, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), queue, convert, resample, rate, NULL);
+
+	/* TODO: Allow remove elements when unlinked */
+	kms_dynamic_connection(tee, queue, "src");
+	kms_dynamic_connection(queue, convert, "src");
+	kms_dynamic_connection(convert, resample, "src");
+	kms_dynamic_connection(resample, rate, "src");
+
+	rate_src = gst_element_get_static_pad(rate, "src");
+	g_object_set_data(G_OBJECT(rate_src), TEE, rate);
+
+	return rate_src;
+}
+
+static GstPad*
 generate_raw_chain_full(KmsMediaHandlerSrc *self, GstPad *raw,
 					KmsMediaType type, gboolean dynamic) {
+	if (type == KMS_MEDIA_TYPE_AUDIO)
+		return generate_raw_chain_audio(self, raw, dynamic);
 	/* TODO: Generate a proper chain to process raw media correctly */
 	return NULL;
 }
