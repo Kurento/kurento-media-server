@@ -89,6 +89,11 @@ dispose_video_other_pads(KmsMediaHandlerSrc *self) {
 	}
 }
 
+void
+kms_media_handler_src_terminate(KmsMediaHandlerSrc *self) {
+	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
+}
+
 gboolean
 kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 						KmsMediaHandlerSink *sink,

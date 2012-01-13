@@ -41,4 +41,6 @@ gboolean kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 					KmsMediaHandlerSrc *src,
 					KmsMediaType type, GError **err);
 
+void kms_media_handler_sink_terminate(KmsMediaHandlerSink *self);
+
 #endif /* __KMS_MEDIA_HANDLER_SINK_H__ */

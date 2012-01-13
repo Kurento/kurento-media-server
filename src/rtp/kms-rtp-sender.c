@@ -33,11 +33,6 @@ dispose_remote_spec(KmsRtpSender *self) {
 	}
 }
 
-void
-kms_rtp_sender_terminate(KmsRtpSender *self) {
-	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
-}
-
 static GstPadTemplate*
 create_pad_template(KmsRtpSender *self, const GstCaps *caps, KmsMediaType type) {
 	GList *templates, *l;

@@ -52,4 +52,6 @@ void kms_media_handler_src_set_pad(KmsMediaHandlerSrc *self, GstPad *pad,
 void kms_media_handler_src_set_raw_pad(KmsMediaHandlerSrc *self, GstPad *pad,
 				   GstElement *tee, KmsMediaType type);
 
+void kms_media_handler_src_terminate(KmsMediaHandlerSrc *self);
+
 #endif /* __KMS_MEDIA_HANDLER_SRC_H__ */

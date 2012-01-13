@@ -35,6 +35,4 @@ struct _KmsRtpReceiverClass {
 
 GType kms_rtp_receiver_get_type (void);
 
-void kms_rtp_receiver_terminate(KmsRtpReceiver *self);
-
 #endif /* __KMS_RTP_RECEIVER_H__ */

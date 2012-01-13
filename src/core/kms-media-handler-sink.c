@@ -31,6 +31,11 @@ static GstStaticPadTemplate video_sink = GST_STATIC_PAD_TEMPLATE (
 
 G_DEFINE_TYPE(KmsMediaHandlerSink, kms_media_handler_sink, GST_TYPE_BIN)
 
+void
+kms_media_handler_sink_terminate(KmsMediaHandlerSink *self) {
+	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
+}
+
 gboolean
 kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 						KmsMediaHandlerSrc *src,

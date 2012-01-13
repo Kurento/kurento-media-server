@@ -321,7 +321,13 @@ kms_utils_connect_target_with_queue(GstElement *elem, GstGhostPad *gp) {
 
 	if (gst_ghost_pad_set_target(gp, src)) {
 		gst_element_set_state(queue, GST_STATE_PLAYING);
-		gst_element_link(elem, queue);
+		if (!gst_element_link(elem, queue)) {
+			g_warn_if_reached();
+			g_print("Error Linking %s and %s\n",
+						GST_ELEMENT_NAME(elem),
+						GST_ELEMENT_NAME(queue));
+			KMS_DEBUG_PIPE("error_linking");
+		}
 	} else {
 		gst_bin_remove(GST_BIN(parent), queue);
 	}
