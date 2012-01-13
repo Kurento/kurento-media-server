@@ -319,6 +319,49 @@ generate_raw_chain(KmsMediaHandlerSrc *self, GstPad *raw, KmsMediaType type) {
 }
 
 static GstPad*
+generate_new_target_pad(KmsMediaHandlerSrc *self, GstPad *raw,
+					GstCaps *caps, KmsMediaType type) {
+	GstElement *encoder, *orig_elem;
+	GstPad *orig_pad = NULL, *target_pad;
+
+	encoder = kms_utils_get_element_for_caps(
+					GST_ELEMENT_FACTORY_TYPE_ENCODER,
+					GST_RANK_NONE, caps, GST_PAD_SRC,
+					FALSE, NULL);
+	if (encoder == NULL)
+		return NULL;
+
+	orig_pad = generate_raw_chain_full(self, raw, type, FALSE);
+	if (orig_pad == NULL)
+		goto error;
+
+	kms_utils_configure_element(encoder);
+	encoder = kms_generate_bin_with_caps(encoder, NULL, caps);
+
+	orig_elem = g_object_get_data(G_OBJECT(orig_pad), TEE);
+	if (orig_elem == NULL)
+		goto error;
+
+	gst_element_set_state(encoder, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), encoder);
+	kms_dynamic_connection(orig_elem, encoder, "src");
+
+	target_pad = gst_element_get_static_pad(encoder, "src");
+	if (target_pad == NULL)
+		goto error;
+
+	g_object_set_data(G_OBJECT(target_pad), TEE, encoder);
+
+	g_object_unref(orig_pad);
+
+	return target_pad;
+
+error:
+	if (orig_pad != NULL)
+		g_object_unref(orig_pad);
+
+	g_object_unref(encoder);
+
 	return NULL;
 }
 
@@ -359,7 +402,7 @@ get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 	if (raw == NULL)
 		goto end;
 
-	new_pad = generate_new_target_pad(self, caps);
+	new_pad = generate_new_target_pad(self, raw, caps, type);
 	if (new_pad == NULL)
 		goto end;
 
