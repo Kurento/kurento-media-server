@@ -295,7 +295,7 @@ add_elements_to_bin(KmsRtpReceiver *self, GstElement *orig, GstElement *deco,
 		return;
 
 	kms_media_handler_src_set_raw_pad(KMS_MEDIA_HANDLER_SRC(self), deco_src,
-							depay_tee, type);
+							deco_tee, type);
 }
 
 static void
