@@ -253,14 +253,15 @@ check_pad_compatible(GstPad *pad, GstCaps *caps) {
 }
 
 static GstPad*
-generate_raw_chain(GstPad *raw, KmsMediaType type) {
+generate_raw_chain(KmsMediaHandlerSrc *self, GstPad *raw, KmsMediaType type) {
 	/* TODO: Generate a proper chain to process raw media correctly */
 	return NULL;
 }
 
 static GstPad*
-get_target_pad(GstPad *peer, GstPad *prefered, GstPad *raw, GSList **other,
-							KmsMediaType type) {
+get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
+						GstPad *raw, GSList **other,
+						KmsMediaType type) {
 	GstCaps *caps;
 	GstPad *target = NULL;
 
@@ -277,7 +278,7 @@ get_target_pad(GstPad *peer, GstPad *prefered, GstPad *raw, GSList **other,
 	}
 	/* Check raw pad */
 	if (check_pad_compatible(raw, caps)) {
-		target = generate_raw_chain(raw, type);
+		target = generate_raw_chain(self, raw, type);
 		goto end;
 	}
 	/* TODO: Check other pads */
@@ -318,12 +319,14 @@ link_pad(GstPad *pad, GstPad *peer) {
 	LOCK(self);
 	switch(type) {
 	case KMS_MEDIA_TYPE_AUDIO:
-		target_pad = get_target_pad(peer, self->priv->audio_prefered_pad,
+		target_pad = get_target_pad(self, peer,
+					self->priv->audio_prefered_pad,
 					self->priv->audio_prefered_pad,
 					&(self->priv->audio_other_pads), type);
 		break;
 	case KMS_MEDIA_TYPE_VIDEO:
-		target_pad = get_target_pad(peer, self->priv->video_prefered_pad,
+		target_pad = get_target_pad(self, peer,
+					self->priv->video_prefered_pad,
 					self->priv->video_prefered_pad,
 					&(self->priv->video_other_pads), type);
 		break;
