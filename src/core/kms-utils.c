@@ -290,6 +290,9 @@ unlinked_delete(GstPad *pad, GstPad *peer, gpointer not_used) {
 	}
 
 	gst_bin_remove(GST_BIN(parent), elem);
+	gst_element_set_state(elem, GST_STATE_NULL);
+	g_object_unref(elem);
+	g_object_unref(parent);
 }
 
 void
