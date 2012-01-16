@@ -47,7 +47,7 @@ dispose(GObject *object) {
 
 	LOCK(self);
 	dispose_manager(self);
-	LOCK(self);
+	UNLOCK(self);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_endpoint_parent_class)->dispose(object);
