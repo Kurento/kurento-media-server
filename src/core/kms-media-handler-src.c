@@ -579,7 +579,7 @@ connect_pads(KmsMediaHandlerSrc *self) {
 		case GST_ITERATOR_OK:
 			target = gst_ghost_pad_get_target(GST_GHOST_PAD(pad));
 			if (target == NULL && gst_pad_is_linked(GST_PAD(pad))) {
-				/* TODO: Possible race condigion, pad can be
+				/* TODO: Possible race condition, pad can be
 				* 	unlinked during this process */
 				peer = gst_pad_get_peer(GST_PAD(pad));
 				link_pad(GST_PAD(pad), peer);
