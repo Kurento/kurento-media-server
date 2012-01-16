@@ -100,6 +100,9 @@ check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 	KmsLocalConnection *other;
 	KmsConnectionMode other_mode, direct_mode, inverse_mode;
 
+	if (self == NULL)
+		return COMP_ERROR;
+
 	if (dir == GST_PAD_SINK) {
 		direct_mode = KMS_CONNECTION_MODE_RECVONLY;
 		inverse_mode = KMS_CONNECTION_MODE_SENDONLY;
@@ -121,8 +124,23 @@ check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 		return COMP_ERROR;
 	}
 
-	if (other == NULL || other->priv->sink == NULL ||
-						other->priv->src == NULL)
+	if (other == NULL ||
+		((mode == KMS_CONNECTION_MODE_RECVONLY) &&
+				(other->priv->src == NULL ||
+						self->priv->sink == NULL)) ||
+		((mode == KMS_CONNECTION_MODE_SENDONLY) &&
+				(other->priv->sink == NULL ||
+						self->priv->src == NULL)) ||
+		((mode == KMS_CONNECTION_MODE_SENDRECV) &&
+				(other->priv->sink == NULL ||
+					other->priv->src == NULL ||
+					self->priv->sink == NULL ||
+					self->priv->src == NULL)) ||
+		((mode == KMS_CONNECTION_MODE_INACTIVE) &&
+				(other->priv->sink == NULL ||
+					other->priv->src == NULL ||
+					self->priv->sink == NULL ||
+					self->priv->src == NULL)))
 		return COMP_ERROR;
 
 	*other_local = other;
