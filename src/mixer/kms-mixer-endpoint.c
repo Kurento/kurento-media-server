@@ -8,6 +8,8 @@
 
 struct _KmsMixerEndpointPriv {
 	GMutex *mutex;
+
+	KmsMixerManager *manager;
 };
 
 enum {
@@ -17,18 +19,36 @@ enum {
 G_DEFINE_TYPE(KmsMixerEndpoint, kms_mixer_endpoint, KMS_TYPE_ENDPOINT)
 
 static void
+dispose_manager(KmsMixerEndpoint *self) {
+	if (self->priv->manager != NULL) {
+		g_object_unref(self->priv->manager);
+		self->priv->manager = NULL;
+	}
+}
+
+static void
 constructed(GObject *object) {
+	KmsMixerEndpoint *self = KMS_MIXER_ENDPOINT(object);
 	KmsMixerManager *manager;
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_endpoint_parent_class)->constructed(object);
 
+	LOCK(self);
 	manager = g_object_new(KMS_TYPE_MIXER_MANAGER, NULL);
 	g_object_set(object, "manager", manager, NULL);
-	g_object_unref(manager);
+	dispose_manager(self);
+	self->priv->manager = manager;
+	UNLOCK(self);
 }
 
 static void
 dispose(GObject *object) {
+	KmsMixerEndpoint *self = KMS_MIXER_ENDPOINT(object);
+
+	LOCK(self);
+	dispose_manager(self);
+	LOCK(self);
+
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_endpoint_parent_class)->dispose(object);
 }
@@ -61,4 +81,5 @@ kms_mixer_endpoint_init(KmsMixerEndpoint *self) {
 	self->priv = KMS_MIXER_ENDPOINT_GET_PRIVATE(self);
 
 	self->priv->mutex = g_mutex_new();
+	self->priv->manager = NULL;
 }
