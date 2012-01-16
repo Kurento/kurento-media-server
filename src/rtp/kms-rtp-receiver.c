@@ -355,7 +355,7 @@ end:
 	 * HACK: Bin has to be removed once this function finishes to avoid
 	 * memory leak or segmentation fault in typefind element
 	 */
-	g_timeout_add_seconds(1, (GSourceFunc) remove_tf_bin, g_object_ref(bin));
+	g_timeout_add(100, (GSourceFunc) remove_tf_bin, g_object_ref(bin));
 	g_object_unref(deco);
 	g_object_unref(depay);
 	g_object_unref(bin);

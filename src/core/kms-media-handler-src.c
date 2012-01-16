@@ -297,7 +297,6 @@ generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
 
 	gst_bin_add_many(GST_BIN(self), queue, convert, resample, rate, NULL);
 
-	/* TODO: Allow remove elements when unlinked */
 	kms_dynamic_connection_full(tee, queue, "src", TRUE);
 	kms_dynamic_connection_full(queue, convert, "src", TRUE);
 	kms_dynamic_connection_full(convert, resample, "src", TRUE);
@@ -353,11 +352,10 @@ generate_raw_chain_video(KmsMediaHandlerSrc *self, GstPad *raw,
 	gst_bin_add_many(GST_BIN(self), queue, colorspace, rate, videoscale,
 									NULL);
 
-	/* TODO: Allow remove elements when unlinked */
-	kms_dynamic_connection(tee, queue, "src");
-	kms_dynamic_connection(queue, colorspace, "src");
-	kms_dynamic_connection(colorspace, rate, "src");
-	kms_dynamic_connection(rate, videoscale, "src");
+	kms_dynamic_connection_full(tee, queue, "src", TRUE);
+	kms_dynamic_connection_full(queue, colorspace, "src", TRUE);
+	kms_dynamic_connection_full(colorspace, rate, "src", TRUE);
+	kms_dynamic_connection_full(rate, videoscale, "src", TRUE);
 
 	scale_src = gst_element_get_static_pad(videoscale, "src");
 	g_object_set_data(G_OBJECT(scale_src), TEE, videoscale);
