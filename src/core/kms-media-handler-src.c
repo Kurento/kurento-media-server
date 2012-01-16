@@ -298,10 +298,10 @@ generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
 	gst_bin_add_many(GST_BIN(self), queue, convert, resample, rate, NULL);
 
 	/* TODO: Allow remove elements when unlinked */
-	kms_dynamic_connection(tee, queue, "src");
-	kms_dynamic_connection(queue, convert, "src");
-	kms_dynamic_connection(convert, resample, "src");
-	kms_dynamic_connection(resample, rate, "src");
+	kms_dynamic_connection_full(tee, queue, "src", TRUE);
+	kms_dynamic_connection_full(queue, convert, "src", TRUE);
+	kms_dynamic_connection_full(convert, resample, "src", TRUE);
+	kms_dynamic_connection_full(resample, rate, "src", TRUE);
 
 	rate_src = gst_element_get_static_pad(rate, "src");
 	g_object_set_data(G_OBJECT(rate_src), TEE, rate);

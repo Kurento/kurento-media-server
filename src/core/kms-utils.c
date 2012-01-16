@@ -3,6 +3,7 @@
 #include "internal/kms-utils.h"
 
 #define ATTR_DYNAMIC "dynamic"
+#define ATTR_REMOVE "remove"
 
 static GstElement *pipe = NULL;
 G_LOCK_DEFINE_STATIC(mutex);
@@ -97,12 +98,28 @@ check_sources_linked(GstElement *elem) {
 	return FALSE;
 }
 
+static gboolean
+remove_from_bin(GstElement *elem) {
+	GstObject *parent;
+
+	parent = gst_element_get_parent(elem);
+	if (parent != NULL) {
+		gst_bin_remove(GST_BIN(parent), elem);
+	}
+
+	gst_element_set_state(elem, GST_STATE_NULL);
+	g_object_unref(elem);
+
+	return FALSE;
+}
+
 static void
 unlinked(GstPad *pad, gpointer orig) {
 	GstElement *dest;
 	GstPad *peer, *sink;
-	gboolean dynamic;
+	gboolean dynamic, remove;
 
+	remove = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(pad), ATTR_REMOVE));
 	dest = gst_pad_get_parent_element(pad);
 	sink = gst_element_get_static_pad(dest, "sink");
 	GST_OBJECT_LOCK(dest);
@@ -111,10 +128,14 @@ unlinked(GstPad *pad, gpointer orig) {
 		if (peer != NULL) {
 			gst_pad_unlink(peer, sink);
 			g_object_unref(peer);
+			if (remove) {
+				g_timeout_add(100, (GSourceFunc) remove_from_bin,
+							g_object_ref(dest));
+			}
 		}
 	}
-
 	GST_OBJECT_UNLOCK(dest);
+
 	dynamic = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(pad), ATTR_DYNAMIC));
 	if (dynamic)
 		gst_element_release_request_pad(dest, pad);
@@ -124,8 +145,10 @@ unlinked(GstPad *pad, gpointer orig) {
 }
 
 static void
-connect_pad_callbacks(GstElement *orig, GstPad *pad, gboolean dynamic) {
+connect_pad_callbacks(GstElement *orig, GstPad *pad, gboolean dynamic,
+							gboolean remove) {
 	g_object_set_data(G_OBJECT(pad), ATTR_DYNAMIC, GINT_TO_POINTER(dynamic));
+	g_object_set_data(G_OBJECT(pad), ATTR_REMOVE, GINT_TO_POINTER(remove));
 
 	g_object_connect(pad, "signal::linked", linked, orig, NULL);
 	g_object_connect(pad, "signal::unlinked", unlinked, orig, NULL);
@@ -134,16 +157,23 @@ connect_pad_callbacks(GstElement *orig, GstPad *pad, gboolean dynamic) {
 void
 kms_dynamic_connection(GstElement *orig, GstElement *dest,
 						const gchar *pad_name) {
+	kms_dynamic_connection_full(orig, dest, pad_name, FALSE);
+}
+
+void
+kms_dynamic_connection_full(GstElement *orig, GstElement *dest,
+							const gchar *pad_name,
+							gboolean remove) {
 	GstPad *pad;
 
 	pad = gst_element_get_static_pad(dest, pad_name);
-	connect_pad_callbacks(orig, pad, FALSE);
+	connect_pad_callbacks(orig, pad, FALSE, remove);
 	g_object_unref(pad);
 }
 
 static void
 tee_pad_added(GstElement *tee, GstPad *pad, GstElement *orig) {
-	connect_pad_callbacks(orig, pad, TRUE);
+	connect_pad_callbacks(orig, pad, TRUE, FALSE);
 }
 
 void
