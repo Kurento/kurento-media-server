@@ -265,7 +265,7 @@ constructed(GObject *object) {
 	G_OBJECT_CLASS(kms_local_connection_parent_class)->constructed(object);
 
 	LOCK(self);
-	g_return_if_fail(self->priv->media_factory !=NULL);
+	g_return_if_fail(self->priv->media_factory != NULL);
 
 	self->priv->src = kms_media_handler_factory_get_src(
 						self->priv->media_factory);
