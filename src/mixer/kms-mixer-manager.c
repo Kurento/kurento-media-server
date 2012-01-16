@@ -1,4 +1,5 @@
 #include <mixer/kms-mixer-manager.h>
+#include <mixer/kms-mixer-factory.h>
 
 #define KMS_MIXER_MANAGER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_MIXER_MANAGER, KmsMixerManagerPriv))
 
@@ -7,6 +8,8 @@
 
 struct _KmsMixerManagerPriv {
 	GMutex *mutex;
+
+	GSList *handlers;
 };
 
 enum {
@@ -22,14 +25,36 @@ G_DEFINE_TYPE_WITH_CODE(KmsMixerManager, kms_mixer_manager, G_TYPE_OBJECT,
 
 static KmsMediaHandlerFactory*
 get_factory(KmsMediaHandlerManager *manager) {
-	KMS_DEBUG;
-	g_print("TODO: Implement this function >%s<\n", __FUNCTION__);
-	return NULL;
+	KmsMixerManager *self = KMS_MIXER_MANAGER(manager);
+	KmsMixerFactory *factory;
+
+	factory = g_object_new(KMS_TYPE_MIXER_FACTORY, NULL);
+	LOCK(self);
+	KMS_LOG_DEBUG("TODO: Connect to all other handlers\n");
+	self->priv->handlers = g_slist_prepend(self->priv->handlers,
+							g_object_ref(factory));
+	UNLOCK(self);
+
+	return KMS_MEDIA_HANDLER_FACTORY(factory);
 }
 
 static void
 media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 	iface->get_factory = get_factory;
+}
+
+static void
+dispose_mixer_factory(gpointer factory) {
+	kms_mixer_factory_dispose(factory);
+	g_object_unref(factory);
+}
+
+static void
+dispose_handlers(KmsMixerManager *self) {
+	if (self->priv->handlers != NULL) {
+		g_slist_free_full(self->priv->handlers, dispose_mixer_factory);
+		self->priv->handlers = NULL;
+	}
 }
 
 static void
@@ -40,6 +65,9 @@ constructed(GObject *object) {
 
 static void
 dispose(GObject *object) {
+	KmsMixerManager *self = KMS_MIXER_MANAGER(object);
+
+	dispose_handlers(self);
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_manager_parent_class)->dispose(object);
 }
@@ -72,4 +100,5 @@ kms_mixer_manager_init(KmsMixerManager *self) {
 	self->priv = KMS_MIXER_MANAGER_GET_PRIVATE(self);
 
 	self->priv->mutex = g_mutex_new();
+	self->priv->handlers = NULL;
 }
