@@ -43,6 +43,11 @@ kms_mixer_factory_dispose(KmsMixerFactory *self) {
 	G_OBJECT_GET_CLASS(self)->dispose(G_OBJECT(self));
 }
 
+void
+kms_mixer_factory_connect(KmsMixerFactory *self, KmsMixerFactory *other) {
+	KMS_LOG_DEBUG("TODO: Implement kms_mixer_factory_connect function");
+}
+
 static void
 constructed(GObject *object) {
 	/* Chain up to the parent class */

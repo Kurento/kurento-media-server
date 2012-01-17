@@ -27,10 +27,15 @@ static KmsMediaHandlerFactory*
 get_factory(KmsMediaHandlerManager *manager) {
 	KmsMixerManager *self = KMS_MIXER_MANAGER(manager);
 	KmsMixerFactory *factory;
+	GSList *l;
 
 	factory = g_object_new(KMS_TYPE_MIXER_FACTORY, NULL);
 	LOCK(self);
-	KMS_LOG_DEBUG("TODO: Connect to all other handlers\n");
+	l = self->priv->handlers;
+	while (l != NULL) {
+		kms_mixer_factory_connect(factory, l->data);
+		l = l->next;
+	}
 	self->priv->handlers = g_slist_prepend(self->priv->handlers,
 							g_object_ref(factory));
 	UNLOCK(self);

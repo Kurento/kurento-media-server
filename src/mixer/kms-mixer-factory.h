@@ -43,4 +43,6 @@ GType kms_mixer_factory_get_type (void);
 
 void kms_mixer_factory_dispose(KmsMixerFactory *self);
 
+void kms_mixer_factory_connect(KmsMixerFactory *self, KmsMixerFactory *other);
+
 #endif /* __KMS_MIXER_FACTORY_H__ */
