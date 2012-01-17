@@ -77,6 +77,10 @@ kms_mixer_factory_connect(KmsMixerFactory *self, KmsMixerFactory *other) {
 
 static void
 constructed(GObject *object) {
+	KmsMixerFactory *self = KMS_MIXER_FACTORY(object);
+
+	self->priv->src = g_object_new(KMS_TYPE_MIXER_SRC, NULL);
+	self->priv->sink = g_object_new(KMS_TYPE_MIXER_SINK, NULL);
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_factory_parent_class)->constructed(object);
 }
