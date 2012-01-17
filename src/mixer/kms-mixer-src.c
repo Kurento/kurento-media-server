@@ -21,8 +21,38 @@ enum {
 G_DEFINE_TYPE(KmsMixerSrc, kms_mixer_src, KMS_TYPE_MEDIA_HANDLER_SRC)
 
 static void
+create_audio_src(KmsMixerSrc *self) {
+	GstElement *adder, *tee;
+	GstPad *pad;
+
+	adder = gst_element_factory_make("adder", NULL);
+	tee = gst_element_factory_make("tee", NULL);
+
+	if (adder == NULL || tee == NULL) {
+		if (adder != NULL)
+			g_object_unref(adder);
+
+		if (tee != NULL)
+			g_object_unref(tee);
+	}
+
+	gst_element_set_state(adder, GST_STATE_PLAYING);
+	gst_element_set_state(tee, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), adder, tee, NULL);
+	gst_element_link_many(adder, tee, NULL);
+
+	pad = gst_element_get_pad(adder, "src");
+	kms_media_handler_src_set_raw_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
+							KMS_MEDIA_TYPE_AUDIO);
+}
+
+static void
 constructed(GObject *object) {
+	KmsMixerSrc *self = KMS_MIXER_SRC(object);
 	G_OBJECT_CLASS(kms_mixer_src_parent_class)->constructed(object);
+
+	create_audio_src(self);
 }
 
 static void
