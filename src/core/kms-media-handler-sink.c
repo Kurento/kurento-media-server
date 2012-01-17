@@ -47,6 +47,8 @@ kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 	gboolean done = FALSE;
 	GstPad *pad;
 
+	KMS_DEBUG_PIPE("disconnect_init");
+
 	if (src == NULL) {
 		g_warn_if_reached();
 		SET_ERROR(err, KMS_MEDIA_HANDLER_SINK_ERROR,
@@ -97,6 +99,8 @@ kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 		}
 	}
 	gst_iterator_free(it);
+
+	KMS_DEBUG_PIPE("disconnect_end");
 
 	return TRUE;
 }
