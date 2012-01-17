@@ -50,13 +50,13 @@ dispose_sink(KmsMixerFactory *self) {
 static KmsMediaHandlerSrc*
 get_src(KmsMediaHandlerFactory *iface) {
 	KmsMixerFactory *self = KMS_MIXER_FACTORY(iface);
-	return KMS_MEDIA_HANDLER_SRC(self->priv->src);
+	return g_object_ref(self->priv->src);
 }
 
 static KmsMediaHandlerSink*
 get_sink(KmsMediaHandlerFactory *iface) {
 	KmsMixerFactory *self = KMS_MIXER_FACTORY(iface);
-	return KMS_MEDIA_HANDLER_SINK(self->priv->sink);
+	return g_object_ref(self->priv->sink);
 }
 
 static void
