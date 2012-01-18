@@ -3,6 +3,7 @@
 
 #include <kms-core.h>
 #include <glib-object.h>
+#include <mixer/kms-mixer-src.h>
 
 #define KMS_TYPE_MIXER_SINK		(kms_mixer_sink_get_type())
 #define KMS_MIXER_SINK(obj)		(G_TYPE_CHECK_INSTANCE_CAST((obj), KMS_TYPE_MIXER_SINK, KmsMixerSink))
@@ -30,5 +31,7 @@ struct _KmsMixerSinkClass {
 };
 
 GType kms_mixer_sink_get_type (void);
+
+void kms_mixer_sink_link(KmsMixerSink *sink, KmsMixerSrc *src);
 
 #endif /* __KMS_MIXER_SINK_H__ */

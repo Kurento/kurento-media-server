@@ -72,7 +72,11 @@ kms_mixer_factory_dispose(KmsMixerFactory *self) {
 
 void
 kms_mixer_factory_connect(KmsMixerFactory *self, KmsMixerFactory *other) {
-	KMS_LOG_DEBUG("TODO: Implement kms_mixer_factory_connect function");
+
+	g_return_if_fail(self != NULL && other != NULL);
+
+	kms_mixer_sink_link(self->priv->sink, other->priv->src);
+	kms_mixer_sink_link(other->priv->sink, self->priv->src);
 }
 
 static void

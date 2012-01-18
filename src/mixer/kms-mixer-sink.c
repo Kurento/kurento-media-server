@@ -28,6 +28,13 @@ static GstStaticPadTemplate audio_sink = GST_STATIC_PAD_TEMPLATE (
 
 G_DEFINE_TYPE(KmsMixerSink, kms_mixer_sink, KMS_TYPE_MEDIA_HANDLER_SINK)
 
+void
+kms_mixer_sink_link(KmsMixerSink *sink, KmsMixerSrc *src) {
+
+	g_return_if_fail(sink != NULL && src != NULL);
+	KMS_LOG_DEBUG("TODO: Implement this method");
+}
+
 static void
 create_audio_sink(KmsMixerSink *self) {
 	GstElement *tee, *queue, *sink;
