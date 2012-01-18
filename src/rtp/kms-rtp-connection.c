@@ -104,8 +104,14 @@ get_factory(KmsMediaHandlerManager *iface) {
 }
 
 static void
+dispose_factory(KmsMediaHandlerManager *manager,  KmsMediaHandlerFactory *factory) {
+	/* Nothing to do, just avoid the warning */
+}
+
+static void
 media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 	iface->get_factory = get_factory;
+	iface->dispose_factory = dispose_factory;
 }
 
 static KmsMediaHandlerSrc*
