@@ -56,8 +56,27 @@ found_media(GstElement* elem, guint prob, GstCaps* caps, KmsMixerSrc *self) {
 }
 
 static void
-typefind_unlinked(GstPad *pad, GstPad *peer, KmsMixerSrc *self) {
-	KMS_LOG_DEBUG("TODO: Remove typefind element when unlinked");
+typefind_unlinked(GstPad *pad, GstPad *peer, gpointer not_used) {
+	GstElement *elem;
+	GstObject *parent;
+
+	elem = gst_pad_get_parent_element(pad);
+
+	if (elem == NULL)
+		return;
+
+	parent = gst_object_get_parent(GST_OBJECT(elem));
+
+	if (parent == NULL) {
+		g_object_unref(elem);
+		return;
+	}
+
+	gst_bin_remove(GST_BIN(parent), elem);
+	gst_element_set_state(elem, GST_STATE_NULL);
+
+	g_object_unref(elem);
+	g_object_unref(parent);
 }
 
 static GstPadLinkReturn
@@ -86,7 +105,7 @@ set_target_pad(KmsMixerSrc *self, GstPad *pad) {
 	}
 
 	g_object_connect(target_pad, "signal::unlinked", typefind_unlinked,
-								self, NULL);
+								NULL, NULL);
 
 	g_object_unref(target_pad);
 	return ret;
