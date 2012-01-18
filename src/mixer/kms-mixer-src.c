@@ -73,26 +73,53 @@ mixer_src_request_new_pad(GstElement *elem, GstPadTemplate *templ,
 }
 
 static void
+tee_pad_unlinked(GstPad *pad, gpointer not_used) {
+	GstElement *elem;
+
+	elem = gst_pad_get_parent_element(pad);
+
+	if (GST_IS_ELEMENT(elem))
+		gst_element_release_request_pad(elem, pad);
+}
+
+static void
+tee_pad_added(GstElement *tee, GstPad *pad, gpointer not_used) {
+	g_object_connect(pad, "signal::unlinked", tee_pad_unlinked, NULL, NULL);
+}
+
+static void
 create_audio_src(KmsMixerSrc *self) {
-	GstElement *adder, *tee;
+	GstElement *adder, *tee, *queue, *fake;
 	GstPad *pad;
 
 	adder = gst_element_factory_make("adder", NULL);
 	tee = gst_element_factory_make("tee", NULL);
+	queue = gst_element_factory_make("queue2", NULL);
+	fake = gst_element_factory_make("fakesink", NULL);
 
-	if (adder == NULL || tee == NULL) {
+	if (adder == NULL || tee == NULL || queue == NULL || fake == NULL) {
 		if (adder != NULL)
 			g_object_unref(adder);
 
 		if (tee != NULL)
 			g_object_unref(tee);
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
+		if (fake != NULL)
+			g_object_unref(fake);
 	}
+
+	g_object_connect(tee, "signal::pad_added", tee_pad_added, NULL, NULL);
 
 	gst_element_set_state(adder, GST_STATE_PLAYING);
 	gst_element_set_state(tee, GST_STATE_PLAYING);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(fake, GST_STATE_PLAYING);
 
-	gst_bin_add_many(GST_BIN(self), adder, tee, NULL);
-	gst_element_link_many(adder, tee, NULL);
+	gst_bin_add_many(GST_BIN(self), adder, tee, queue, fake, NULL);
+	gst_element_link_many(adder, tee, queue, fake, NULL);
 
 	pad = gst_element_get_pad(adder, "src");
 	kms_media_handler_src_set_raw_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
