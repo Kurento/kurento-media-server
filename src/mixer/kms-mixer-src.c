@@ -19,7 +19,7 @@ enum {
 };
 
 static GstStaticPadTemplate audio_sink = GST_STATIC_PAD_TEMPLATE (
-				"audio_sink%d",
+				"mixer_audio_sink%d",
 				GST_PAD_SINK,
 				GST_PAD_REQUEST,
 				GST_STATIC_CAPS(

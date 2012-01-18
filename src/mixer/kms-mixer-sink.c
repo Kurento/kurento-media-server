@@ -27,7 +27,7 @@ static GstStaticPadTemplate audio_sink = GST_STATIC_PAD_TEMPLATE (
 );
 
 static GstStaticPadTemplate audio_src = GST_STATIC_PAD_TEMPLATE (
-				"audio_src%d",
+				"mixer_audio_src%d",
 				GST_PAD_SRC,
 				GST_PAD_REQUEST,
 				GST_STATIC_CAPS(
