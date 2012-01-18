@@ -10,6 +10,8 @@
 
 struct _KmsMixerSinkPriv {
 	GMutex *mutex;
+
+	GstElement *tee;
 };
 
 enum {
@@ -38,23 +40,101 @@ static GstStaticPadTemplate audio_src = GST_STATIC_PAD_TEMPLATE (
 
 G_DEFINE_TYPE(KmsMixerSink, kms_mixer_sink, KMS_TYPE_MEDIA_HANDLER_SINK)
 
+static void
+release_tee(KmsMixerSink *self) {
+	if (self->priv->tee != NULL) {
+		g_object_unref(self->priv->tee);
+		self->priv->tee = NULL;
+	}
+}
+
 void
 kms_mixer_sink_link(KmsMixerSink *sink, KmsMixerSrc *src) {
+	GstPad *sink_pad, *src_pad;
 	g_return_if_fail(KMS_IS_MIXER_SINK(sink) && KMS_IS_MIXER_SRC(src));
-	KMS_LOG_DEBUG("TODO: Implement this method");
+
+	src_pad = gst_element_get_request_pad(GST_ELEMENT(sink),
+							"mixer_audio_src%d");
+	sink_pad = gst_element_get_request_pad(GST_ELEMENT(src),
+							"mixer_audio_sink%d");
+
+	if (src_pad == NULL || sink_pad == NULL) {
+		if (src_pad != NULL)
+			gst_element_release_request_pad(GST_ELEMENT(sink),
+								src_pad);
+
+		if (sink_pad != NULL)
+			gst_element_release_request_pad(GST_ELEMENT(src),
+								sink_pad);
+	}
+
+	if (GST_PAD_LINK_FAILED(gst_pad_link(src_pad, sink_pad))) {
+		gst_element_release_request_pad(GST_ELEMENT(sink), src_pad);
+		gst_element_release_request_pad(GST_ELEMENT(src), sink_pad);
+	}
+}
+
+static GstPadLinkReturn
+add_target_pad(KmsMixerSink *self, GstPad *pad) {
+	GstElement *tee, *queue;
+	GstPad *target_pad;
+	GstPadLinkReturn ret;
+
+	LOCK(self);
+	tee = self->priv->tee;
+	UNLOCK(self);
+
+	if (tee == NULL)
+		return GST_PAD_LINK_WRONG_HIERARCHY;
+
+	queue = kms_utils_create_queue(NULL);
+
+	if (queue == NULL)
+		return GST_PAD_LINK_WRONG_HIERARCHY;
+
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), queue);
+	kms_dynamic_connection_full(tee, queue, "src", TRUE);
+
+	target_pad = gst_element_get_static_pad(queue, "src");
+
+	if (!gst_ghost_pad_set_target(GST_GHOST_PAD(pad), target_pad)) {
+		gst_element_set_state(queue, GST_STATE_NULL);
+		gst_bin_remove(GST_BIN(self), queue);
+		ret = GST_PAD_LINK_REFUSED;
+	} else {
+		ret = GST_PAD_LINK_OK;
+	}
+
+	g_object_unref(target_pad);
+	return ret;
 }
 
 static GstPadLinkReturn
 link_pad(GstPad *pad, GstPad *peer) {
-	/* TODO: Implement this function */
-	KMS_LOG_DEBUG("TODO: Implement link_pad");
-	return GST_PAD_LINK_OK;
+	GstElement *elem;
+	KmsMixerSink *self;
+	GstPadLinkReturn ret;
+
+	elem = gst_pad_get_parent_element(pad);
+	if (elem == NULL)
+		return GST_PAD_LINK_WRONG_HIERARCHY;
+
+	self = KMS_MIXER_SINK(elem);
+
+	ret = add_target_pad(self, pad);
+
+	if (GST_PAD_LINKFUNC(peer) && GST_PAD_LINK_SUCCESSFUL(ret))
+		ret = GST_PAD_LINKFUNC(peer)(peer, pad);
+
+	g_object_unref(elem);
+	return ret;
 }
 
 static void
 pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
-	/* TODO: Implement this function */
-	KMS_LOG_DEBUG("TODO: Implement pad_unlinked");
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
+	gst_element_release_request_pad(elem, pad);
 }
 
 static GstPad*
@@ -111,6 +191,8 @@ create_audio_sink(KmsMixerSink *self) {
 		return;
 	}
 
+	self->priv->tee = g_object_ref(tee);
+
 	gst_element_set_state(tee, GST_STATE_PLAYING);
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 	gst_element_set_state(sink, GST_STATE_PLAYING);
@@ -118,6 +200,7 @@ create_audio_sink(KmsMixerSink *self) {
 	gst_bin_add_many(GST_BIN(self), tee, queue, sink, NULL);
 
 	gst_element_link_many(tee, queue, sink, NULL);
+	kms_utils_release_unlinked_pads(tee);
 
 	sink_pad = gst_element_get_static_pad(tee, "sink");
 
@@ -142,8 +225,12 @@ constructed(GObject *object) {
 
 static void
 dispose(GObject *object) {
+	KmsMixerSink *self = KMS_MIXER_SINK(object);
 
 	kms_utils_remove_src_pads(GST_ELEMENT(object));
+	LOCK(self);
+	release_tee(self);
+	UNLOCK(self);
 
 	G_OBJECT_CLASS(kms_mixer_sink_parent_class)->dispose(object);
 }
