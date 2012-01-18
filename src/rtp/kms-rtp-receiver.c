@@ -588,11 +588,12 @@ dispose(GObject *object) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
 
 	LOCK(self);
-	if (self->priv->udpsrc) {
-		gst_element_send_event(self->priv->udpsrc,
-				       gst_event_new_flush_start());
-		self->priv->udpsrc = NULL;
-	}
+	/* TODO: Evaluate the use of flush events */
+// 	if (self->priv->udpsrc) {
+// 		gst_element_send_event(self->priv->udpsrc,
+// 				       gst_event_new_flush_start());
+// 		self->priv->udpsrc = NULL;
+// 	}
 	dispose_local_spec(self);
 	UNLOCK(self);
 
