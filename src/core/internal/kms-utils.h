@@ -50,4 +50,8 @@ GstElement *kms_utils_create_queue(const gchar *name);
 
 gchar *kms_utils_generate_pad_name(gchar *pattern);
 
+void kms_utils_remove_src_pads(GstElement *self);
+
+void kms_utils_remove_sink_pads(GstElement *self);
+
 #endif /* __KMS_UTILS_H__ */

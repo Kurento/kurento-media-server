@@ -690,20 +690,6 @@ finalize(GObject *object) {
 }
 
 static void
-iterate_pad(GstPad *pad, GstElement *elem) {
-	gst_element_release_request_pad(elem, pad);
-	gst_object_unref(pad);
-}
-
-static void
-disconnect_pads(GstElement *self) {
-	GstIterator *it = gst_element_iterate_src_pads(self);
-
-	gst_iterator_foreach(it, (GFunc) iterate_pad, self);
-	gst_iterator_free(it);
-}
-
-static void
 dispose(GObject *object) {
 	GstObject *parent;
 	KmsMediaHandlerSrc *self = KMS_MEDIA_HANDLER_SRC(object);
@@ -719,7 +705,7 @@ dispose(GObject *object) {
 	dispose_video_other_pads(self);
 	UNLOCK(self);
 
-	disconnect_pads(GST_ELEMENT(self));
+	kms_utils_remove_src_pads(GST_ELEMENT(self));
 
 	if (parent != NULL && GST_IS_PIPELINE(parent)) {
 		/*

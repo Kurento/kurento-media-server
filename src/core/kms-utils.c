@@ -504,3 +504,25 @@ kms_utils_generate_pad_name(gchar *pattern) {
 
 	return name_str;
 }
+
+static void
+remove_pad(GstPad *pad, GstElement *elem) {
+	gst_element_release_request_pad(elem, pad);
+	gst_object_unref(pad);
+}
+
+void
+kms_utils_remove_src_pads(GstElement *self) {
+	GstIterator *it = gst_element_iterate_src_pads(self);
+
+	gst_iterator_foreach(it, (GFunc) remove_pad, self);
+	gst_iterator_free(it);
+}
+
+void
+kms_utils_remove_sink_pads(GstElement *self) {
+	GstIterator *it = gst_element_iterate_sink_pads(self);
+
+	gst_iterator_foreach(it, (GFunc) remove_pad, self);
+	gst_iterator_free(it);
+}
