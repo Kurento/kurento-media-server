@@ -49,3 +49,25 @@ kms_media_handler_manager_get_factory(KmsMediaHandlerManager *self) {
 		return NULL;
 	}
 }
+
+void
+kms_media_handler_manager_dispose_factory(KmsMediaHandlerManager *self,
+					KmsMediaHandlerFactory *factory) {
+	KmsMediaHandlerManagerInterface *iface;
+
+	g_return_if_fail(KMS_IS_MEDIA_HANDLER_MANAGER (self));
+	g_return_if_fail(KMS_IS_MEDIA_HANDLER_FACTORY(factory));
+
+	iface = KMS_MEDIA_HANDLER_MANAGER_GET_INTERFACE(self);
+
+	if (iface->dispose_factory != NULL) {
+		iface->dispose_factory(self, factory);
+	} else {
+		gchar *msg = g_strdup_printf(
+			"%s does not provide and implementation of "
+			"dispose_factory method",
+			G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+		g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
+		g_free(msg);
+	}
+}

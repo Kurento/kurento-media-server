@@ -72,6 +72,20 @@ dispose_other_video(KmsLocalConnection *self) {
 static void
 dispose_factory(KmsLocalConnection *self) {
 	if (self->priv->media_factory != NULL) {
+		KmsEndpoint *ep;
+
+		g_object_get(self, "endpoint", &ep, NULL);
+		if (ep != NULL) {
+			gpointer pmanager;
+
+			g_object_get(ep, "manager", &pmanager, NULL);
+			if (pmanager != NULL) {
+				kms_media_handler_manager_dispose_factory(
+						pmanager,
+						self->priv->media_factory);
+			}
+			g_object_unref(ep);
+		}
 		g_object_unref(G_OBJECT(self->priv->media_factory));
 		self->priv->media_factory = NULL;
 	}

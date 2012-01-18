@@ -84,6 +84,11 @@ endpoint_get_property(GObject *object, guint property_id, GValue *value,
 			g_value_set_string(value, self->priv->localname);
 			UNLOCK(self);
 			break;
+		case PROP_MANAGER:
+			LOCK(self);
+			g_value_set_pointer(value, self->priv->manager);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -295,7 +300,7 @@ kms_endpoint_class_init (KmsEndpointClass *klass) {
 	pspec = g_param_spec_pointer("manager", "The media handler manager",
 					"Media handler manager that will "
 					"provide a media handler factory",
-					G_PARAM_WRITABLE);
+					G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_MANAGER, pspec);
 

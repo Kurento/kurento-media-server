@@ -22,11 +22,16 @@ struct _KmsMediaHandlerManagerInterface
 
 	/* Virtual methods */
 	KmsMediaHandlerFactory *(*get_factory)(KmsMediaHandlerManager *self);
+	void (*dispose_factory)(KmsMediaHandlerManager *self,
+					KmsMediaHandlerFactory *factory);
 };
 
 GType kms_media_handler_manager_get_type(void);
 
 KmsMediaHandlerFactory*
 kms_media_handler_manager_get_factory(KmsMediaHandlerManager *self);
+
+void kms_media_handler_manager_dispose_factory(KmsMediaHandlerManager *self,
+					KmsMediaHandlerFactory *factory);
 
 #endif /* __KMS_MEDIA_HANDLER_MANAGER_H__ */
