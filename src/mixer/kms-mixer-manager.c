@@ -44,8 +44,24 @@ get_factory(KmsMediaHandlerManager *manager) {
 }
 
 static void
+dispose_factory(KmsMediaHandlerManager *manager,
+					KmsMediaHandlerFactory *factory) {
+	KmsMixerManager *self = KMS_MIXER_MANAGER(manager);
+
+	g_return_if_fail(KMS_IS_MIXER_MANAGER(self));
+	g_return_if_fail(KMS_IS_MIXER_FACTORY(factory));
+
+	LOCK(self);
+	self->priv->handlers = g_slist_remove(self->priv->handlers, factory);
+	kms_mixer_factory_dispose(KMS_MIXER_FACTORY(factory));
+	g_object_unref(G_OBJECT(factory));
+	UNLOCK(self);
+}
+
+static void
 media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 	iface->get_factory = get_factory;
+	iface->dispose_factory = dispose_factory;
 }
 
 static void
