@@ -40,11 +40,74 @@ dispose_adder(KmsMixerSrc *self) {
 	}
 }
 
+static void
+found_media(GstElement* elem, guint prob, GstCaps* caps, KmsMixerSrc *self) {
+	GstElement *adder;
+
+	LOCK(self);
+	adder = self->priv->adder;
+	UNLOCK(self);
+
+	if (adder == NULL)
+		/* TODO: Possibly add a queue to avoid errors */
+		return;
+
+	gst_element_link(elem, adder);
+}
+
+static void
+typefind_unlinked(GstPad *pad, GstPad *peer, KmsMixerSrc *self) {
+	KMS_LOG_DEBUG("TODO: Remove typefind element when unlinked");
+}
+
+static GstPadLinkReturn
+set_target_pad(KmsMixerSrc *self, GstPad *pad) {
+	GstElement *typefind;
+	GstPad *target_pad;
+	GstPadLinkReturn ret;
+
+	typefind = gst_element_factory_make("typefind", NULL);
+	g_object_connect(typefind, "signal::have-type", found_media, self, NULL);
+
+	if (typefind == NULL)
+		return GST_PAD_LINK_WRONG_HIERARCHY;
+
+	gst_element_set_state(typefind, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), typefind);
+
+	target_pad = gst_element_get_static_pad(typefind, "sink");
+
+	if (!gst_ghost_pad_set_target(GST_GHOST_PAD(pad), target_pad)) {
+		gst_element_set_state(typefind, GST_STATE_NULL);
+		gst_bin_remove(GST_BIN(self), typefind);
+		ret = GST_PAD_LINK_REFUSED;
+	} else {
+		ret = GST_PAD_LINK_OK;
+	}
+
+	g_object_connect(target_pad, "signal::unlinked", typefind_unlinked,
+								self, NULL);
+
+	g_object_unref(target_pad);
+	return ret;
+}
+
 static GstPadLinkReturn
 link_pad(GstPad *pad, GstPad *peer) {
-	/* TODO: Implement this function */
-	KMS_LOG_DEBUG("TODO: Implement this link_pad\n");
-	return GST_PAD_LINK_OK;
+	GstElement *elem;
+	KmsMixerSrc *self;
+	GstPadLinkReturn ret;
+
+	elem = gst_pad_get_parent_element(pad);
+	if (elem == NULL)
+		return GST_PAD_LINK_WRONG_HIERARCHY;
+
+	self = KMS_MIXER_SRC(elem);
+
+	ret = set_target_pad(self, pad);
+
+	g_object_unref(elem);
+	return ret;
 }
 
 static void
