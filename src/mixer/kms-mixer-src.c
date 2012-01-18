@@ -12,6 +12,8 @@
 
 struct _KmsMixerSrcPriv {
 	GMutex *mutex;
+
+	GstElement *adder;
 };
 
 enum {
@@ -29,6 +31,14 @@ static GstStaticPadTemplate audio_sink = GST_STATIC_PAD_TEMPLATE (
 );
 
 G_DEFINE_TYPE(KmsMixerSrc, kms_mixer_src, KMS_TYPE_MEDIA_HANDLER_SRC)
+
+static void
+dispose_adder(KmsMixerSrc *self) {
+	if (self->priv->adder == NULL) {
+		g_object_unref(self->priv->adder);
+		self->priv->adder = NULL;
+	}
+}
 
 static GstPadLinkReturn
 link_pad(GstPad *pad, GstPad *peer) {
@@ -97,6 +107,9 @@ create_audio_src(KmsMixerSrc *self) {
 	}
 
 	kms_utils_release_unlinked_pads(tee);
+	kms_utils_release_unlinked_pads(adder);
+
+	self->priv->adder = g_object_ref(adder);
 
 	gst_element_set_state(adder, GST_STATE_PLAYING);
 	gst_element_set_state(tee, GST_STATE_PLAYING);
@@ -121,8 +134,12 @@ constructed(GObject *object) {
 
 static void
 dispose(GObject *object) {
+	KmsMixerSrc *self = KMS_MIXER_SRC(object);
 
 	kms_utils_remove_sink_pads(GST_ELEMENT(object));
+	LOCK(self);
+	dispose_adder(self);
+	UNLOCK(self);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_src_parent_class)->dispose(object);
