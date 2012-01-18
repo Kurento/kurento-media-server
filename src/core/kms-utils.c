@@ -526,3 +526,23 @@ kms_utils_remove_sink_pads(GstElement *self) {
 	gst_iterator_foreach(it, (GFunc) remove_pad, self);
 	gst_iterator_free(it);
 }
+
+static void
+pad_unlinked(GstPad *pad, gpointer not_used) {
+	GstElement *elem;
+
+	elem = gst_pad_get_parent_element(pad);
+
+	if (GST_IS_ELEMENT(elem))
+		gst_element_release_request_pad(elem, pad);
+}
+
+static void
+pad_added(GstElement *tee, GstPad *pad, gpointer not_used) {
+	g_object_connect(pad, "signal::unlinked", pad_unlinked, NULL, NULL);
+}
+
+void
+kms_utils_release_unlinked_pads(GstElement *elem) {
+	g_object_connect(elem, "signal::pad_added", pad_added, NULL, NULL);
+}

@@ -54,4 +54,6 @@ void kms_utils_remove_src_pads(GstElement *self);
 
 void kms_utils_remove_sink_pads(GstElement *self);
 
+void kms_utils_release_unlinked_pads(GstElement *elem);
+
 #endif /* __KMS_UTILS_H__ */

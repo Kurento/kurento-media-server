@@ -73,21 +73,6 @@ mixer_src_request_new_pad(GstElement *elem, GstPadTemplate *templ,
 }
 
 static void
-tee_pad_unlinked(GstPad *pad, gpointer not_used) {
-	GstElement *elem;
-
-	elem = gst_pad_get_parent_element(pad);
-
-	if (GST_IS_ELEMENT(elem))
-		gst_element_release_request_pad(elem, pad);
-}
-
-static void
-tee_pad_added(GstElement *tee, GstPad *pad, gpointer not_used) {
-	g_object_connect(pad, "signal::unlinked", tee_pad_unlinked, NULL, NULL);
-}
-
-static void
 create_audio_src(KmsMixerSrc *self) {
 	GstElement *adder, *tee, *queue, *fake;
 	GstPad *pad;
@@ -111,7 +96,7 @@ create_audio_src(KmsMixerSrc *self) {
 			g_object_unref(fake);
 	}
 
-	g_object_connect(tee, "signal::pad_added", tee_pad_added, NULL, NULL);
+	kms_utils_release_unlinked_pads(tee);
 
 	gst_element_set_state(adder, GST_STATE_PLAYING);
 	gst_element_set_state(tee, GST_STATE_PLAYING);
