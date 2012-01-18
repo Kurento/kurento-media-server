@@ -477,3 +477,30 @@ kms_utils_create_queue(const gchar *name) {
 
 	return queue;
 }
+
+gchar*
+kms_utils_generate_pad_name(gchar *pattern) {
+	static int n = 0;
+	G_LOCK_DEFINE_STATIC(pad_n);
+	GString *name;
+	gchar *name_str;
+
+	if (g_str_has_suffix(pattern, "%d")) {
+		name = g_string_new(pattern);
+		name->str[name->len - 2] = '\0';
+		name->len = name->len -2;
+
+		G_LOCK(pad_n);
+		g_string_append_printf(name, "%d", n++);
+		G_UNLOCK(pad_n);
+
+		name_str = name->str;
+		g_string_free(name, FALSE);
+	} else {
+		G_LOCK(pad_n);
+		name_str = g_strdup_printf("pad_name%d", n++);
+		G_UNLOCK(pad_n);
+	}
+
+	return name_str;
+}

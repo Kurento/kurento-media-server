@@ -48,4 +48,6 @@ void kms_utils_transfer_caps(const GstCaps *from, GstCaps *to);
 
 GstElement *kms_utils_create_queue(const gchar *name);
 
+gchar *kms_utils_generate_pad_name(gchar *pattern);
+
 #endif /* __KMS_UTILS_H__ */

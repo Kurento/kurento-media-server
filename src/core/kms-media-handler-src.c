@@ -223,33 +223,6 @@ end:
 	return ret;
 }
 
-static gchar*
-generate_pad_name(gchar *pattern) {
-	static int n = 0;
-	G_LOCK_DEFINE_STATIC(pad_n);
-	GString *name;
-	gchar *name_str;
-
-	if (g_str_has_suffix(pattern, "%d")) {
-		name = g_string_new(pattern);
-		name->str[name->len - 2] = '\0';
-		name->len = name->len -2;
-
-		G_LOCK(pad_n);
-		g_string_append_printf(name, "%d", n++);
-		G_UNLOCK(pad_n);
-
-		name_str = name->str;
-		g_string_free(name, FALSE);
-	} else {
-		G_LOCK(pad_n);
-		name_str = g_strdup_printf("pad_name%d", n++);
-		G_UNLOCK(pad_n);
-	}
-
-	return name_str;
-}
-
 static void
 pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
@@ -565,7 +538,7 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	if (name != NULL)
 		new_name = g_strdup(name);
 	else
-		new_name = generate_pad_name(templ->name_template);
+		new_name = kms_utils_generate_pad_name(templ->name_template);
 
 	pad = gst_ghost_pad_new_no_target_from_template(new_name, templ);
 	g_free(new_name);
