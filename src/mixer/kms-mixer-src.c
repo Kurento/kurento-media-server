@@ -18,7 +18,59 @@ enum {
 	PROP_0,
 };
 
+static GstStaticPadTemplate audio_sink = GST_STATIC_PAD_TEMPLATE (
+				"audio_sink%d",
+				GST_PAD_SINK,
+				GST_PAD_REQUEST,
+				GST_STATIC_CAPS(
+					"audio/x-raw-int, endianness=1234, "
+					"signed=true, width=16, depth=16, "
+					"rate=8000, channels=1")
+);
+
 G_DEFINE_TYPE(KmsMixerSrc, kms_mixer_src, KMS_TYPE_MEDIA_HANDLER_SRC)
+
+static GstPadLinkReturn
+link_pad(GstPad *pad, GstPad *peer) {
+	/* TODO: Implement this function */
+	KMS_LOG_DEBUG("TODO: Implement this link_pad\n");
+	return GST_PAD_LINK_OK;
+}
+
+static void
+pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
+	/* TODO: Implement this function */
+	KMS_LOG_DEBUG("TODO: Implement this pad_unlinked\n");
+}
+
+static GstPad*
+mixer_src_request_new_pad(GstElement *elem, GstPadTemplate *templ,
+							const gchar *name) {
+	GstPad *pad;
+	gchar *new_name;
+
+	if (g_strcmp0(GST_PAD_TEMPLATE_NAME_TEMPLATE(templ),
+					audio_sink.name_template) != 0) {
+		GstElementClass *p_class =
+				GST_ELEMENT_CLASS(kms_mixer_src_parent_class);
+		return p_class->request_new_pad(elem, templ, name);
+	}
+
+	if (name != NULL)
+		new_name = g_strdup(name);
+	else
+		new_name = kms_utils_generate_pad_name(templ->name_template);
+
+	pad = gst_ghost_pad_new_no_target_from_template(new_name, templ);
+	g_free(new_name);
+
+	gst_pad_set_active(pad, TRUE);
+	gst_pad_set_link_function(pad, link_pad);
+	g_object_connect(pad, "signal::unlinked", pad_unlinked, elem, NULL);
+
+	gst_element_add_pad(elem, pad);
+	return pad;
+}
 
 static void
 create_audio_src(KmsMixerSrc *self) {
@@ -57,6 +109,9 @@ constructed(GObject *object) {
 
 static void
 dispose(GObject *object) {
+
+	kms_utils_remove_sink_pads(GST_ELEMENT(object));
+
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_src_parent_class)->dispose(object);
 }
@@ -74,12 +129,15 @@ finalize(GObject *object) {
 static void
 kms_mixer_src_class_init(KmsMixerSrcClass *klass) {
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
+	GstPadTemplate *templ;
 
 	g_type_class_add_private(klass, sizeof(KmsMixerSrcPriv));
 
 	object_class->finalize = finalize;
 	object_class->dispose = dispose;
 	object_class->constructed = constructed;
+
+	GST_ELEMENT_CLASS(klass)->request_new_pad = mixer_src_request_new_pad;
 
 	/* HACK:
 		Don't know why but padtemplates are NULL in child classes,
@@ -89,6 +147,10 @@ kms_mixer_src_class_init(KmsMixerSrcClass *klass) {
 		GST_ELEMENT_CLASS(kms_mixer_src_parent_class)->padtemplates;
 	GST_ELEMENT_CLASS(klass)->numpadtemplates =
 		GST_ELEMENT_CLASS(kms_mixer_src_parent_class)->numpadtemplates;
+
+	templ = gst_static_pad_template_get(&audio_sink);
+	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
+	g_object_unref(templ);
 }
 
 static void
