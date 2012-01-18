@@ -187,6 +187,7 @@ test_mixer() {
 	vpipe = send_video(video_port);
 
 	create_local_connections(ep, mixer);
+	create_local_connections(ep, mixer);
 
 	sleep(4);
 
