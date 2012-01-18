@@ -112,8 +112,8 @@ link_pad(GstPad *pad, GstPad *peer) {
 
 static void
 pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
-	/* TODO: Implement this function */
-	KMS_LOG_DEBUG("TODO: Implement this pad_unlinked\n");
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
+	gst_element_release_request_pad(elem, pad);
 }
 
 static GstPad*
