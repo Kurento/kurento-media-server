@@ -108,8 +108,6 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	gboolean ret = TRUE;
 	GstPadLinkReturn link_ret;
 
-	KMS_DEBUG_PIPE("connect_init");
-
 	if (sink == NULL) {
 		g_warn_if_reached();
 		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
@@ -213,8 +211,6 @@ end:
 
 	g_free(sink_name);
 	g_free(src_name);
-
-	KMS_DEBUG_PIPE("connect_end");
 
 	return ret;
 }
@@ -716,6 +712,8 @@ dispose(GObject *object) {
 	}
 
 	G_OBJECT_CLASS(kms_media_handler_src_parent_class)->dispose(object);
+
+	KMS_DEBUG_PIPE("dispose_src");
 }
 
 static void
