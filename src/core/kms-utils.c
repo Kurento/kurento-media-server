@@ -32,6 +32,7 @@ bus_msg(GstBus *bus, GstMessage *msg, gpointer not_used) {
 						(dbg_info) ? dbg_info : "none");
 		g_error_free(err);
 		g_free(dbg_info);
+		KMS_DEBUG_PIPE("error");
 		break;
 	}
 	case GST_MESSAGE_EOS:
