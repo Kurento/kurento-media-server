@@ -170,19 +170,15 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	sink_name = g_strdup_printf("%s_sink", evalue->value_nick);
 	src_pad = gst_element_get_request_pad(GST_ELEMENT(self), src_name);
 	if (src_pad == NULL) {
-		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
-				KMS_MEDIA_HANDLER_SRC_ERROR_PAD_NOT_FOUND,
-				"Pad was not found for source element");
-		ret = FALSE;
+		g_warn_if_reached();
+		ret = TRUE;
 		goto end;
 	}
 	sink_pad = gst_element_get_static_pad(GST_ELEMENT(sink), sink_name);
 	if (sink_pad == NULL) {
-		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
-				KMS_MEDIA_HANDLER_SRC_ERROR_PAD_NOT_FOUND,
-				"Pad was not found for sink element");
-		ret = FALSE;
 		gst_element_release_request_pad(GST_ELEMENT(self), src_pad);
+		g_warn_if_reached();
+		ret = TRUE;
 		goto end;
 	}
 
