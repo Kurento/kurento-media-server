@@ -193,13 +193,13 @@ mode_changed(KmsConnection *conn, KmsConnectionMode mode, KmsMediaType type,
 		ret = kms_media_handler_src_connect(self->priv->src,
 						other->priv->sink, type, err);
 		if (!ret)
-			return FALSE;
+			goto end;
 		break;
 	case COMP_FALSE:
 		ret = kms_media_handler_sink_disconnect(other->priv->sink,
 						self->priv->src, type, err);
 		if (!ret)
-			return FALSE;
+			goto end;
 		break;
 	default:
 		break;
@@ -211,20 +211,24 @@ mode_changed(KmsConnection *conn, KmsConnectionMode mode, KmsMediaType type,
 		ret = kms_media_handler_src_connect(other->priv->src,
 						self->priv->sink, type, err);
 		if (!ret)
-			return FALSE;
+			goto end;
 		break;
 	case COMP_FALSE:
 		ret = kms_media_handler_sink_disconnect(self->priv->sink,
 						other->priv->src, type, err);
 		if (!ret)
-			return FALSE;
+			goto end;
 		break;
 	default:
 		break;
 	}
+
+	ret = TRUE;
+
+end:
 	G_UNLOCK(local_connection);
 
-	return TRUE;
+	return ret;
 }
 
 static gboolean
