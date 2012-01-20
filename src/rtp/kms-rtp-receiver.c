@@ -235,23 +235,18 @@ prepare_depay(GstElement *depay, GstCaps *rtp_caps, GstCaps *enc_caps,
 static void
 add_elements_to_bin(KmsRtpReceiver *self, GstElement *orig, GstElement *deco,
 					GstElement *depay, KmsMediaType type) {
-	GstElement *deco_tee, *depay_tee, *buffer, *queue;
+	GstElement *deco_tee, *depay_tee, *queue;
 	GstPad *deco_src, *depay_src;
 
 	deco_tee = gst_element_factory_make("tee", NULL);
 	depay_tee = gst_element_factory_make("tee", NULL);
-	buffer = gst_element_factory_make("gstrtpjitterbuffer", NULL);
 	queue = kms_utils_create_queue(NULL);
-	if (deco_tee == NULL || depay_tee == NULL || buffer == NULL ||
-								queue == NULL) {
+	if (deco_tee == NULL || depay_tee == NULL || queue == NULL) {
 		if (depay_tee != NULL)
 			g_object_unref(depay_tee);
 
 		if (deco_tee != NULL)
 			g_object_unref(deco_tee);
-
-		if (buffer != NULL)
-			g_object_unref(buffer);
 
 		if (queue != NULL)
 			g_object_unref(queue);
@@ -262,17 +257,15 @@ add_elements_to_bin(KmsRtpReceiver *self, GstElement *orig, GstElement *deco,
 	}
 
 	gst_element_set_state(queue, GST_STATE_PLAYING);
-	gst_element_set_state(buffer, GST_STATE_PLAYING);
 	gst_element_set_state(deco, GST_STATE_PLAYING);
 	gst_element_set_state(depay, GST_STATE_PLAYING);
 	gst_element_set_state(deco_tee, GST_STATE_PLAYING);
 	gst_element_set_state(depay_tee, GST_STATE_PLAYING);
 
-	gst_bin_add_many(GST_BIN(self), queue, buffer, depay, depay_tee, deco,
+	gst_bin_add_many(GST_BIN(self), queue, depay, depay_tee, deco,
 								deco_tee, NULL);
 	kms_dynamic_connection(orig, queue, "src");
-	kms_dynamic_connection(queue, buffer, "src");
-	kms_dynamic_connection(buffer, depay, "src");
+	kms_dynamic_connection(queue, depay, "src");
 	kms_dynamic_connection_tee(depay, depay_tee);
 	kms_dynamic_connection(depay_tee, deco, "src");
 	kms_dynamic_connection_tee(deco, deco_tee);
@@ -450,15 +443,20 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	GstCaps *caps;
 	gint len, i;
 	gboolean has_clockrate = FALSE;
-	GstElement *tee, *sink, *fake_queue;
+	GstElement *buffer, *tee, *sink, *fake_queue;
 	KmsMediaType type;
 
+	buffer = gst_element_factory_make("gstrtpjitterbuffer", NULL);
 	tee = gst_element_factory_make("tee", NULL);
 	fake_queue = kms_utils_create_queue(NULL);
 	sink = gst_element_factory_make("fakesink", NULL);
 
-	if (tee == NULL || sink == NULL || fake_queue == NULL) {
+	if (buffer == NULL || tee == NULL || sink == NULL || fake_queue == NULL) {
 		g_warn_if_reached();
+
+		if (buffer != NULL)
+			g_object_unref(buffer);
+
 		if (tee != NULL)
 			g_object_unref(tee);
 
@@ -469,12 +467,13 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 			g_object_unref(fake_queue);
 	}
 
+	gst_element_set_state(buffer, GST_STATE_PLAYING);
 	gst_element_set_state(tee, GST_STATE_PLAYING);
 	gst_element_set_state(sink, GST_STATE_PLAYING);
 	gst_element_set_state(fake_queue, GST_STATE_PLAYING);
 
-	gst_bin_add_many(GST_BIN(user_data), tee, fake_queue, sink, NULL);
-	gst_element_link_many(demux, tee, fake_queue, sink, NULL);
+	gst_bin_add_many(GST_BIN(user_data), buffer, tee, fake_queue, sink, NULL);
+	gst_element_link_many(demux, buffer, tee, fake_queue, sink, NULL);
 
 	caps = GST_PAD_CAPS(pad);
 	len = gst_caps_get_size(caps);
