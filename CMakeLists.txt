@@ -10,7 +10,7 @@ set(LIB_PREFIX "lib")
 find_package(PkgConfig)
 
 pkg_check_modules(GLIB2 REQUIRED glib-2.0>=2.30)
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.36)
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.35)
 
 add_subdirectory(src)
 
