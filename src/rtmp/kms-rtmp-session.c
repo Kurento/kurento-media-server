@@ -307,13 +307,14 @@ kms_rtmp_create_from_string(const gchar *str) {
 	KmsRtmpSession *session;
 	gchar **tokens;
 	gchar *iter;
+	int i;
 
 	gchar *url = NULL, *offerer = NULL, *answerer = NULL;
 	gint width = -1, height = -1, fps_num = -1, fps_denom = -1;
 
 	tokens = g_strsplit(str, ";", 0);
 
-	for (iter = *tokens; iter != NULL; iter++) {
+	for (i = 0, iter = tokens[0]; iter != NULL; i++,iter=tokens[i]) {
 		gchar **id_value;
 		gchar *id, *value;
 
