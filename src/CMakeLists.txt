@@ -3,9 +3,10 @@ cmake_minimum_required(VERSION 2.8)
 aux_source_directory("core" CORE)
 aux_source_directory("rtp" RTP)
 aux_source_directory("mixer" MIXER)
+aux_source_directory("rtmp" RTMP)
 
-add_library(kmsclib SHARED ${CORE} ${RTP} ${MIXER})
-add_library(kmsclibst STATIC ${CORE} ${RTP} ${MIXER})
+add_library(kmsclib SHARED ${CORE} ${RTP} ${MIXER} ${RTMP})
+add_library(kmsclibst STATIC ${CORE} ${RTP} ${MIXER} ${RTMP})
 SET_TARGET_PROPERTIES(kmsclib kmsclibst PROPERTIES OUTPUT_NAME kmsc)
 
 find_package(PkgConfig)
@@ -32,3 +33,7 @@ install(FILES ${INCLUDES_RTP} DESTINATION ${INCLUDE_PREFIX}/rtp PERMISSIONS OWNE
 file(GLOB INCLUDES_MIXER "mixer/*.h")
 
 install(FILES ${INCLUDES_MIXER} DESTINATION ${INCLUDE_PREFIX}/mixer PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+file(GLOB INCLUDES_RTCP "rtcp/*.h")
+
+install(FILES ${INCLUDES_RTCP} DESTINATION ${INCLUDE_PREFIX}/rtcp PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
