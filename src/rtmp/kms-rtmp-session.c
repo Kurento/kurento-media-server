@@ -206,8 +206,8 @@ kms_rtmp_session_to_string(KmsRtmpSession *self) {
 
 	g_string_append(str, ";fps=");
 	if (self->priv->fps_denom != -1 && self->priv->fps_num != -1)
-		g_string_append_printf(str, "%d/%d", self->priv->fps_denom,
-							self->priv->fps_num);
+		g_string_append_printf(str, "%d/%d", self->priv->fps_num,
+							self->priv->fps_denom);
 	UNLOCK(self);
 
 	ret = str->str;
