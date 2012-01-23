@@ -244,6 +244,8 @@ constructed(GObject *object) {
 	offerer = generate_unique_identifier();
 	g_object_set(self->priv->local_spec, "offerer", offerer, NULL);
 	g_free(offerer);
+
+	self->priv->descriptor = kms_rtmp_session_copy(self->priv->local_spec);
 }
 
 static void
