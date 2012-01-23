@@ -2,6 +2,7 @@
 #include <rtmp/kms-rtmp-connection.h>
 #include <rtmp/kms-rtmp-sender.h>
 #include <rtmp/kms-rtmp-receiver.h>
+#include <rtmp/kms-rtmp-session.h>
 #include "internal/kms-utils.h"
 
 #define KMS_RTMP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTMP_CONNECTION, KmsRtmpConnectionPriv))
@@ -18,11 +19,11 @@ enum {
 
 struct _KmsRtmpConnectionPriv {
 	GStaticMutex mutex;
-	KmsSdpSession *local_spec;
-	KmsSdpSession *remote_spec;
-	KmsSdpSession *neg_local_spec;
-	KmsSdpSession *neg_remote_spec;
-	KmsSdpSession *descriptor;
+	KmsRtmpSession *local_spec;
+	KmsRtmpSession *remote_spec;
+	KmsRtmpSession *neg_local_spec;
+	KmsRtmpSession *neg_remote_spec;
+	KmsRtmpSession *descriptor;
 	KmsRtmpReceiver *receiver;
 	KmsRtmpSender *sender;
 	gboolean initialized;
@@ -262,7 +263,7 @@ kms_rtmp_connection_class_init (KmsRtmpConnectionClass *klass) {
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
-					KMS_TYPE_SDP_SESSION,
+					KMS_TYPE_RTMP_SESSION,
 					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_READWRITE);
 

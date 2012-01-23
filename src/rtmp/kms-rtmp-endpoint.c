@@ -1,5 +1,6 @@
 #include <rtmp/kms-rtmp-endpoint.h>
 #include <rtmp/kms-rtmp-connection.h>
+#include <rtmp/kms-rtmp-session.h>
 
 #define KMS_RTMP_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTMP_ENDPOINT, KmsRtmpEndpointPriv))
 
@@ -8,7 +9,7 @@
 
 struct _KmsRtmpEndpointPriv {
 	GStaticMutex mutex;
-	KmsSdpSession *local_spec;
+	KmsRtmpSession *local_spec;
 };
 
 enum {
@@ -31,7 +32,7 @@ static KmsConnection*
 create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 	KmsRtmpConnection *conn;
 	KmsRtmpEndpoint *self = KMS_RTMP_ENDPOINT(object);
-	KmsSdpSession *local_spec;
+	KmsRtmpSession *local_spec;
 
 	LOCK(self);
 	if (self->priv->local_spec == NULL) {
@@ -43,7 +44,7 @@ create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 		return NULL;
 	}
 
-	local_spec = kms_sdp_session_copy(self->priv->local_spec);
+	local_spec = kms_rtmp_session_copy(self->priv->local_spec);
 	conn = g_object_new(KMS_TYPE_RTMP_CONNECTION, "id", name,
 					"endpoint", self,
 					"local-spec", local_spec,
@@ -128,7 +129,7 @@ kms_rtmp_endpoint_class_init(KmsRtmpEndpointClass *klass) {
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 							"Local Session Spec",
-							KMS_TYPE_SDP_SESSION,
+							KMS_TYPE_RTMP_SESSION,
 							G_PARAM_CONSTRUCT |
 							G_PARAM_READWRITE);
 

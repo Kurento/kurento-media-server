@@ -1,5 +1,6 @@
 #include <kms-core.h>
 #include <rtmp/kms-rtmp-receiver.h>
+#include <rtmp/kms-rtmp-session.h>
 #include "internal/kms-utils.h"
 
 #define KMS_RTMP_RECEIVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTMP_RECEIVER, KmsRtmpReceiverPriv))
@@ -12,7 +13,7 @@
 struct _KmsRtmpReceiverPriv {
 	GMutex *mutex;
 
-	KmsSdpMedia *local_spec;
+	KmsRtmpSession *local_spec;
 };
 
 enum {
@@ -71,32 +72,12 @@ get_property(GObject *object, guint property_id, GValue *value,
 static void
 constructed(GObject *object) {
 	KmsRtmpReceiver *self = KMS_RTMP_RECEIVER(object);
-	GValueArray *medias;
-	gint i;
 
 	G_OBJECT_CLASS(kms_rtmp_receiver_parent_class)->constructed(object);
 
-	g_object_get(self->priv->local_spec, "medias", &medias, NULL);
+	g_return_if_fail(self->priv->local_spec != NULL);
 
-	for (i = 0; i < medias->n_values; i++) {
-		GValue *val;
-		KmsSdpMedia *media;
-		KmsMediaType type;
-
-		val = g_value_array_get_nth(medias, i);
-		media = g_value_get_object(val);
-
-		g_object_get(media, "type", &type, NULL);
-		switch (type) {
-		case KMS_MEDIA_TYPE_UNKNOWN:
-			g_print("TODO: Create media chain\n");
-			break;
-		default:
-			break;
-		}
-	}
-
-	g_value_array_free(medias);
+	g_print("TODO: Create media chain\n");
 }
 
 static void
@@ -136,7 +117,7 @@ kms_rtmp_receiver_class_init(KmsRtmpReceiverClass *klass) {
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
-					KMS_TYPE_SDP_SESSION,
+					KMS_TYPE_RTMP_SESSION,
 					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_READWRITE);
 

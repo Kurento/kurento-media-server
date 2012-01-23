@@ -1,5 +1,6 @@
 #include <kms-core.h>
 #include <rtmp/kms-rtmp-sender.h>
+#include <rtmp/kms-rtmp-session.h>
 #include "internal/kms-utils.h"
 
 #define KMS_RTMP_SENDER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTMP_SENDER, KmsRtmpSenderPriv))
@@ -10,7 +11,7 @@
 struct _KmsRtmpSenderPriv {
 	GMutex *mutex;
 
-	KmsSdpSession *remote_spec;
+	KmsRtmpSession *remote_spec;
 };
 
 enum {
@@ -32,34 +33,12 @@ dispose_remote_spec(KmsRtmpSender *self) {
 static void
 constructed(GObject *object) {
 	KmsRtmpSender *self = KMS_RTMP_SENDER(object);
-	GValueArray *medias;
-	gint i;
 
 	G_OBJECT_CLASS(kms_rtmp_sender_parent_class)->constructed(object);
 
 	g_return_if_fail(self->priv->remote_spec != NULL);
 
-	g_object_get(self->priv->remote_spec, "medias", &medias, NULL);
-
-	for (i = 0; i < medias->n_values; i++) {
-		GValue *val;
-		KmsSdpMedia *media;
-		KmsMediaType type;
-
-		val = g_value_array_get_nth(medias, i);
-		media = g_value_get_object(val);
-
-		g_object_get(media, "type", &type, NULL);
-		switch (type) {
-			case KMS_MEDIA_TYPE_UNKNOWN:
-				g_print("TODO: create media chain");
-				break;
-			default:
-				break;
-		}
-	}
-
-	g_value_array_free(medias);
+	g_print("TODO: create media chain");
 }
 
 static void
