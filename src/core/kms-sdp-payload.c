@@ -142,7 +142,7 @@ kms_sdp_payload_get_property(GObject *object, guint property_id, GValue *value,
 			break;
 		case PROP_FMTP:
 			LOCK(self);
-			g_value_set_object(value, self->priv->fmtp);
+			g_value_set_string(value, self->priv->fmtp);
 			UNLOCK(self);
 			break;
 		default:
