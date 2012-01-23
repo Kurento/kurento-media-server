@@ -8,6 +8,7 @@ add_executable(test_rtp test_rtp.c )
 add_executable(test_rtp_connection test_rtp_connection.c)
 add_executable(test_rtp_transmission test_rtp_transmission.c)
 add_executable(test_mixer test_mixer.c)
+add_executable(test_rtmp test_rtmp.c)
 
 find_package(PkgConfig)
 
@@ -40,6 +41,10 @@ include_directories(test_rtp_transmission ${kmsc-endpoints_SOURCE_DIR}/src)
 target_link_libraries(test_mixer kmsclib test_memory rtp-test-lib)
 include_directories(test_mixer ${kmsc-endpoints_SOURCE_DIR}/src/core)
 include_directories(test_mixer ${kmsc-endpoints_SOURCE_DIR}/src)
+
+target_link_libraries(test_rtmp kmsclib test_memory)
+include_directories(test_rtmp ${kmsc-endpoints_SOURCE_DIR}/src/core)
+include_directories(test_rtmp ${kmsc-endpoints_SOURCE_DIR}/src)
 
 add_subdirectory(kmsc-test-endpoints)
 
