@@ -358,11 +358,11 @@ kms_rtmp_session_create_from_string(const gchar *str) {
 		id_value = g_strsplit(iter, "=", 2);
 
 		id = id_value[0];
-		if (id != NULL)
+		if (id == NULL)
 			goto end;
 
 		value = id_value[1];
-		if (value != NULL)
+		if (value == NULL)
 			goto end;
 
 		if (g_strcmp0(id, "url") == 0) {
