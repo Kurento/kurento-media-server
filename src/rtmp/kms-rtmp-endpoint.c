@@ -36,12 +36,9 @@ create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 
 	LOCK(self);
 	if (self->priv->local_spec == NULL) {
-		UNLOCK(self);
-		SET_ERROR(err, KMS_RTMP_ENDPOINT_ERROR,
-				KMS_ENDPOINT_ERROR_NOT_FOUND,
-				"local-spec property is not set in class %s",
-				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
-		return NULL;
+		/* generate an default spec */
+		self->priv->local_spec = g_object_new(KMS_TYPE_RTMP_SESSION,
+									NULL);
 	}
 
 	local_spec = kms_rtmp_session_copy(self->priv->local_spec);
