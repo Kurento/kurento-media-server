@@ -3,6 +3,7 @@
 #include "memory.h"
 #include <glib.h>
 #include <rtmp/kms-rtmp-endpoint.h>
+#include <rtmp/kms-rtmp-session.h>
 #include <unistd.h>
 #include "internal/kms-utils.h"
 
@@ -165,24 +166,12 @@ create_second_session() {
 	return session;
 }
 
-static KmsSdpSession *
-create_session() {
-	KmsSdpSession *session;
-	GValueArray *medias;
-
-	medias = create_medias("w=320;h=240;fps=15/1");
-	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias, NULL);
-	g_value_array_free(medias);
-
-	return session;
-}
-
 static KmsEndpoint*
 create_endpoint() {
 	KmsEndpoint *ep;
-	KmsSdpSession *session;
+	KmsRtmpSession *session;
 
-	session = create_session();
+	session = kms_rtmp_create_from_string("w=320;h=240;fps=15/1");
 	ep = g_object_new(KMS_TYPE_RTMP_ENDPOINT, "localname", "kms/rtmp/1",
 						"local-spec", session, NULL);
 
