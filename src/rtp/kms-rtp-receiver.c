@@ -12,7 +12,7 @@
 struct _KmsRtpReceiverPriv {
 	GMutex *mutex;
 
-	KmsSdpMedia *local_spec;
+	KmsSdpSession *local_spec;
 
 	GstElement *udpsrc;
 
