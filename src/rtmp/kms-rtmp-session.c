@@ -273,6 +273,73 @@ kms_rtmp_session_get_sdp_session(KmsRtmpSession *session) {
 	return sdp_session;
 }
 
+KmsRtmpSession*
+kms_rtmp_session_create_from_sdp_session(KmsSdpSession *session) {
+	KmsRtmpSession *rtmp_session = NULL;
+	GValueArray *medias;
+	gint i, ii;
+
+	g_object_get(session, "medias", &medias, NULL);
+	if (medias == NULL)
+		return NULL;
+
+	for (i = 0; i < medias->n_values; i++) {
+		GValue *v_media;
+		KmsSdpMedia *media;
+		GValueArray *payloads;
+		KmsMediaType type;
+
+		v_media = g_value_array_get_nth(medias, i);
+		media = g_value_get_object(v_media);
+		g_object_get(media, "type", &type, NULL);
+
+		if (type != KMS_MEDIA_TYPE_UNKNOWN)
+			continue;
+
+		g_object_get(media, "payloads", &payloads, NULL);
+
+		if (payloads == NULL)
+			continue;
+
+		for (ii = 0; ii < payloads->n_values; ii++) {
+			GValue *v_pay;
+			KmsSdpPayload *payload;
+			gchar *name, *fmtp;
+
+			v_pay = g_value_array_get_nth(payloads, i);
+			payload = g_value_get_object(v_pay);
+
+			g_object_get(payload, "name", &name, NULL);
+
+			if (name == NULL)
+				continue;
+
+			if (g_ascii_strcasecmp(name, "RTMP") != 0) {
+				g_free(name);
+				continue;
+			}
+
+			g_free(name);
+
+			g_object_get(payload, "fmtp", &fmtp, NULL);
+
+			if (fmtp == NULL)
+				continue;
+
+			if (rtmp_session == NULL)
+				rtmp_session =
+					kms_rtmp_session_create_from_string(fmtp);
+
+			g_free(fmtp);
+		}
+
+		g_value_array_free(payloads);
+	}
+
+	g_value_array_free(medias);
+	return rtmp_session;
+}
+
 static void
 kms_rtmp_session_class_init(KmsRtmpSessionClass *klass) {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
