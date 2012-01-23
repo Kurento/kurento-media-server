@@ -256,7 +256,7 @@ kms_sdp_session_set_property(GObject  *object, guint property_id,
 			else
 				self->priv->medias = g_value_array_copy(va);
 
-			for (i=0; i < va->n_values; i++) {
+			for (i=0; i < self->priv->medias->n_values; i++) {
 				GValue *v;
 				KmsSdpMedia *media;
 
