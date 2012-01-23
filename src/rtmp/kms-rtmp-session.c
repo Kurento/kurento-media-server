@@ -236,6 +236,43 @@ kms_rtmp_session_finalize(GObject *object) {
 	G_OBJECT_CLASS (kms_rtmp_session_parent_class)->finalize(object);
 }
 
+KmsSdpSession*
+kms_rtmp_session_get_sdp_session(KmsRtmpSession *session) {
+	KmsSdpSession *sdp_session;
+	GValueArray *medias;
+	KmsSdpMedia *media;
+	GValueArray *payloads;
+	KmsSdpPayload *payload;
+	gchar *fmtp;
+	GValue pvalue = G_VALUE_INIT;
+	GValue mvalue = G_VALUE_INIT;
+
+	fmtp = kms_rtmp_session_to_string(session);
+
+	payload = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "RTMP",
+							"fmtp", fmtp,
+							"payload", 96, NULL);
+	g_free(fmtp);
+	payloads = g_value_array_new(1);
+	g_value_init(&pvalue, KMS_TYPE_SDP_PAYLOAD);
+	g_value_take_object(&pvalue, payload);
+	g_value_array_append(payloads, &pvalue);
+	g_value_unset(&pvalue);
+
+	media = g_object_new(KMS_TYPE_SDP_MEDIA, "payloads", payloads, NULL);
+	g_value_array_free(payloads);
+	medias = g_value_array_new(1);
+	g_value_init(&mvalue, KMS_TYPE_SDP_MEDIA);
+	g_value_take_object(&mvalue, media);
+	g_value_array_append(medias, &mvalue);
+	g_value_unset(&mvalue);
+
+	sdp_session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias, NULL);
+	g_value_array_free(medias);
+
+	return sdp_session;
+}
+
 static void
 kms_rtmp_session_class_init(KmsRtmpSessionClass *klass) {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);

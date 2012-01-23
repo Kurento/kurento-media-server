@@ -189,6 +189,7 @@ static void
 get_property(GObject *object, guint property_id, GValue *value,
 							GParamSpec *pspec) {
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(object);
+	KmsSdpSession *sdp_session;
 
 	switch (property_id) {
 		case PROP_LOCAL_SPEC:
@@ -198,7 +199,11 @@ get_property(GObject *object, guint property_id, GValue *value,
 			break;
 		case PROP_DESCRIPTOR:
 			LOCK(self);
-			g_value_set_object(value, self->priv->descriptor);
+			sdp_session = kms_rtmp_session_get_sdp_session(
+							self->priv->descriptor);
+			g_value_set_object(value, sdp_session);
+			if (sdp_session != NULL)
+				g_object_unref(sdp_session);
 			UNLOCK(self);
 			break;
 		default:
