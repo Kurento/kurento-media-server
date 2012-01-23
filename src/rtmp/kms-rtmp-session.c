@@ -257,7 +257,7 @@ kms_rtmp_session_class_init(KmsRtmpSessionClass *klass) {
 
 	pspec = g_param_spec_string("offerer", "Offerer",
 					"Stream identifier of offerer peer",
-					"", G_PARAM_CONSTRUCT_ONLY |
+					"", G_PARAM_CONSTRUCT |
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_OFFERER, pspec);

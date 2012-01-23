@@ -11,6 +11,11 @@ SET_TARGET_PROPERTIES(kmsclib kmsclibst PROPERTIES OUTPUT_NAME kmsc)
 
 find_package(PkgConfig)
 
+pkg_check_modules(UUID REQUIRED uuid)
+
+include_directories(kmsclib ${UUID_INCLUDE_DIRS})
+target_link_libraries(kmsclib ${UUID_LIBRARIES})
+
 include_directories(kmsclib ${GLIB2_INCLUDE_DIRS})
 target_link_libraries(kmsclib ${GLIB2_LIBRARIES})
 

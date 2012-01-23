@@ -4,6 +4,7 @@
 #include <rtmp/kms-rtmp-receiver.h>
 #include <rtmp/kms-rtmp-session.h>
 #include "internal/kms-utils.h"
+#include <uuid/uuid.h>
 
 #define KMS_RTMP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTMP_CONNECTION, KmsRtmpConnectionPriv))
 
@@ -207,8 +208,23 @@ get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
+static gchar*
+generate_unique_identifier() {
+	uuid_t uuid;
+	gchar *uuid_str;
+
+	uuid_str = g_malloc(sizeof(gchar) * 37);
+	uuid_generate(uuid);
+	uuid_unparse(uuid, uuid_str);
+
+	return uuid_str;
+}
+
 static void
 constructed(GObject *object) {
+	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(object);
+	gchar *offerer;
+
 	G_OBJECT_CLASS(kms_rtmp_connection_parent_class)->constructed(object);
 
 	if (kms_get_pipeline() == NULL) {
@@ -217,6 +233,12 @@ constructed(GObject *object) {
 		g_assert_not_reached();
 		return;
 	}
+
+	g_return_if_fail(self->priv->local_spec != NULL);
+
+	offerer = generate_unique_identifier();
+	g_object_set(self->priv->local_spec, "offerer", offerer, NULL);
+	g_free(offerer);
 }
 
 static void
