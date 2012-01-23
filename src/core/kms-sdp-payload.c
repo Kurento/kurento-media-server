@@ -11,7 +11,7 @@ struct _KmsSdpPayloadPriv {
 	gint clockrate;
 	gint payload;
 	KmsSdpMedia *media;
-
+	gchar *fmtp;
 };
 
 enum {
@@ -20,7 +20,8 @@ enum {
 	PROP_PAYLOAD,
 	PROP_NAME,
 	PROP_CLOCKRATE,
-	PROP_MEDIA
+	PROP_MEDIA,
+	PROP_FMTP,
 };
 
 G_DEFINE_TYPE(KmsSdpPayload, kms_sdp_payload, G_TYPE_OBJECT)
@@ -53,6 +54,14 @@ dispose_media(KmsSdpPayload *self) {
 		g_object_weak_unref(G_OBJECT(self->priv->media), media_unref,
 									self);
 		self->priv->media = NULL;
+	}
+}
+
+static void
+dispose_fmtp(KmsSdpPayload *self) {
+	if (self->priv->fmtp != NULL) {
+		g_free(self->priv->fmtp);
+		self->priv->fmtp = NULL;
 	}
 }
 
@@ -92,6 +101,12 @@ kms_sdp_payload_set_property(GObject  *object, guint property_id,
 							media_unref, self);
 			UNLOCK(self);
 			break;
+		case PROP_FMTP:
+			LOCK(self);
+			dispose_fmtp(self);
+			self->priv->fmtp = g_value_dup_string(value);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -123,6 +138,11 @@ kms_sdp_payload_get_property(GObject *object, guint property_id, GValue *value,
 		case PROP_MEDIA:
 			LOCK(self);
 			g_value_set_object(value, self->priv->media);
+			UNLOCK(self);
+			break;
+		case PROP_FMTP:
+			LOCK(self);
+			g_value_set_object(value, self->priv->fmtp);
 			UNLOCK(self);
 			break;
 		default:
@@ -160,6 +180,7 @@ kms_sdp_payload_to_string(KmsSdpPayload *self) {
 	GString *str;
 	gchar *ret;
 
+	LOCK(self);
 	if (self->priv->name == NULL || g_strcmp0(self->priv->name, "") == 0) {
 		return g_strdup("");
 	}
@@ -170,11 +191,16 @@ kms_sdp_payload_to_string(KmsSdpPayload *self) {
 							self->priv->name,
 							self->priv->clockrate);
 
-	/* TODO: Add format encodign parameters */
+	/* TODO: Add format encoding parameters */
 
 	g_string_append(str, "\r\n");
 
-	/* TODO: Add format parameters */
+	if (self->priv->fmtp != NULL && g_strcmp0(self->priv->fmtp, "") != 0) {
+		g_string_append_printf(str, "a=FMTP:%d %s\r\n",
+							self->priv->payload,
+							self->priv->fmtp);
+	}
+	UNLOCK(self);
 
 	ret = str->str;
 
@@ -240,7 +266,12 @@ end:
 
 void
 kms_sdp_payload_dispose(GObject *object) {
-	dispose_media(KMS_SDP_PAYLOAD(object));
+	KmsSdpPayload *self = KMS_SDP_PAYLOAD(object);
+
+	LOCK(self);
+	dispose_media(self);
+	dispose_fmtp(self);
+	UNLOCK(self);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (kms_sdp_payload_parent_class)->dispose(object);
@@ -296,6 +327,13 @@ kms_sdp_payload_class_init(KmsSdpPayloadClass *klass) {
 				G_PARAM_READWRITE);
 
 	g_object_class_install_property(gobject_class, PROP_MEDIA, pspec);
+
+	pspec = g_param_spec_string("fmtp", "Format Parameters",
+				"Format parameters",
+				NULL,
+				G_PARAM_READWRITE);
+
+	g_object_class_install_property(gobject_class, PROP_FMTP, pspec);
 }
 
 static void
@@ -307,4 +345,5 @@ kms_sdp_payload_init(KmsSdpPayload *self) {
 	self->priv->clockrate = 0;
 	self->priv->payload = 0;
 	self->priv->media = NULL;
+	self->priv->fmtp = NULL;
 }

@@ -257,10 +257,11 @@ main(gint argc, gchar **argv) {
 		g_object_unref(session);
 
 		new_mem = get_data_memory();
-		if (mem == 0)
-			mem = new_mem;
-
-		g_assert(mem == new_mem);
+		if (i > 20) {
+			if (mem == 0)
+				mem = new_mem;
+			g_assert(mem == new_mem);
+		}
 	}
 
 	return 0;
