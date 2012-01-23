@@ -1,5 +1,7 @@
 #include <kms-core.h>
 #include <rtmp/kms-rtmp-connection.h>
+#include <rtmp/kms-rtmp-sender.h>
+#include <rtmp/kms-rtmp-receiver.h>
 #include "internal/kms-utils.h"
 
 #define KMS_RTMP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTMP_CONNECTION, KmsRtmpConnectionPriv))
@@ -21,6 +23,8 @@ struct _KmsRtmpConnectionPriv {
 	KmsSdpSession *neg_local_spec;
 	KmsSdpSession *neg_remote_spec;
 	KmsSdpSession *descriptor;
+	KmsRtmpReceiver *receiver;
+	KmsRtmpSender *sender;
 	gboolean initialized;
 };
 
@@ -35,6 +39,26 @@ G_DEFINE_TYPE_WITH_CODE(KmsRtmpConnection, kms_rtmp_connection,
 				G_IMPLEMENT_INTERFACE(
 					KMS_TYPE_MEDIA_HANDLER_FACTORY,
 					media_handler_factory_iface_init))
+
+static void
+dispose_receiver(KmsRtmpConnection *self) {
+	if (self->priv->receiver != NULL) {
+		kms_media_handler_src_terminate(
+				KMS_MEDIA_HANDLER_SRC(self->priv->receiver));
+		g_object_unref(self->priv->receiver);
+		self->priv->receiver = NULL;
+	}
+}
+
+static void
+dispose_sender(KmsRtmpConnection *self) {
+	if (self->priv->sender != NULL) {
+		kms_media_handler_sink_terminate(
+				KMS_MEDIA_HANDLER_SINK(self->priv->sender));
+		g_object_unref(self->priv->sender);
+		self->priv->sender = NULL;
+	}
+}
 
 static void
 dispose_local_spec(KmsRtmpConnection *self) {
@@ -94,14 +118,32 @@ media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 
 static KmsMediaHandlerSrc*
 get_src(KmsMediaHandlerFactory *iface) {
-	g_warn_if_reached();
-	return NULL;
+	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(iface);
+	KmsMediaHandlerSrc *src;
+
+	LOCK(self);
+	if (self->priv->receiver != NULL)
+		src = KMS_MEDIA_HANDLER_SRC(g_object_ref(self->priv->receiver));
+	else
+		src = NULL;
+	UNLOCK(self);
+
+	return src;
 }
 
 static KmsMediaHandlerSink*
 get_sink(KmsMediaHandlerFactory *iface) {
-	g_warn_if_reached();
-	return NULL;
+	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(iface);
+	KmsMediaHandlerSink *sink;
+
+	LOCK(self);
+	if (self->priv->sender != NULL)
+		sink = KMS_MEDIA_HANDLER_SINK(g_object_ref(self->priv->sender));
+	else
+		sink = NULL;
+	UNLOCK(self);
+
+	return sink;
 }
 
 static void
@@ -186,6 +228,8 @@ kms_rtmp_connection_dispose(GObject *object) {
 	dispose_neg_local_spec(self);
 	dispose_neg_remote_spec(self);
 	dispose_descriptor(self);
+	dispose_receiver(self);
+	dispose_sender(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -239,6 +283,8 @@ kms_rtmp_connection_init (KmsRtmpConnection *self) {
 	g_static_mutex_init(&(self->priv->mutex));
 	self->priv->local_spec = NULL;
 	self->priv->descriptor = NULL;
+	self->priv->receiver = NULL;
+	self->priv->sender = NULL;
 	self->priv->remote_spec = NULL;
 	self->priv->initialized = FALSE;
 	self->priv->neg_remote_spec = NULL;
