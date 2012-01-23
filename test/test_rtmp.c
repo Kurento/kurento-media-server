@@ -171,7 +171,7 @@ create_endpoint() {
 	KmsEndpoint *ep;
 	KmsRtmpSession *session;
 
-	session = kms_rtmp_create_from_string("w=320;h=240;fps=15/1");
+	session = kms_rtmp_session_create_from_string("w=320;h=240;fps=15/1");
 	ep = g_object_new(KMS_TYPE_RTMP_ENDPOINT, "localname", "kms/rtmp/1",
 						"local-spec", session, NULL);
 

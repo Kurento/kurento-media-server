@@ -39,6 +39,6 @@ KmsRtmpSession *kms_rtmp_session_copy(KmsRtmpSession *self);
 
 gchar *kms_rtmp_session_to_string(KmsRtmpSession *self);
 
-KmsRtmpSession *kms_rtmp_create_from_string(const gchar *str);
+KmsRtmpSession *kms_rtmp_session_create_from_string(const gchar *str);
 
 #endif /* __KMS_RTMP_SESSION_H__ */

@@ -303,7 +303,7 @@ kms_rtmp_session_class_init(KmsRtmpSessionClass *klass) {
 }
 
 KmsRtmpSession*
-kms_rtmp_create_from_string(const gchar *str) {
+kms_rtmp_session_create_from_string(const gchar *str) {
 	KmsRtmpSession *session;
 	gchar **tokens;
 	gchar *iter;
