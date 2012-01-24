@@ -540,7 +540,7 @@ kms_rtmp_session_create_from_string(const gchar *str) {
 			url = g_strdup(value);
 		} else if (g_strcmp0(id, "offerer") == 0) {
 			offerer = g_strdup(value);
-		} else if (g_strcmp0(id, "anwserer") == 0) {
+		} else if (g_strcmp0(id, "answerer") == 0) {
 			answerer = g_strdup(value);
 		} else if (g_strcmp0(id, "w") == 0) {
 			width = atoi(value);
