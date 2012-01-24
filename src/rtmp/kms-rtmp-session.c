@@ -236,6 +236,81 @@ kms_rtmp_session_finalize(GObject *object) {
 	G_OBJECT_CLASS (kms_rtmp_session_parent_class)->finalize(object);
 }
 
+static gchar*
+choose_string(const gchar *offerer, const gchar *answerer) {
+	if (offerer != NULL && g_strcmp0(offerer, "") != 0)
+		return g_strdup(offerer);
+
+	return g_strdup(answerer);
+}
+
+static gint
+choose_integer(const gint offerer, const gint answerer) {
+	if (offerer == -1)
+		return answerer;
+	else if (answerer == -1)
+		return offerer;
+	else
+		return offerer < answerer ? offerer : answerer;
+}
+
+static void
+set_merged_fps(KmsRtmpSession *intersect, const KmsRtmpSession *offerer,
+					const KmsRtmpSession *answerer) {
+	double off, ans;
+
+	if (offerer->priv->fps_num == -1 && offerer->priv->fps_denom == -1) {
+		intersect->priv->fps_num = answerer->priv->fps_num;
+		intersect->priv->fps_denom = answerer->priv->fps_denom;
+		return;
+	} else if (answerer->priv->fps_num == -1 &&
+					answerer->priv->fps_denom == -1) {
+		intersect->priv->fps_num = offerer->priv->fps_num;
+		intersect->priv->fps_denom = offerer->priv->fps_denom;
+		return;
+	}
+
+
+	off = (double) offerer->priv->fps_num /
+					(double) offerer->priv->fps_denom;
+	ans = (double) answerer->priv->fps_num /
+					(double) answerer->priv->fps_denom;
+
+	if (off < ans) {
+		intersect->priv->fps_num = offerer->priv->fps_num;
+		intersect->priv->fps_denom = offerer->priv->fps_denom;
+	} else {
+		intersect->priv->fps_num = answerer->priv->fps_num;
+		intersect->priv->fps_denom = answerer->priv->fps_denom;
+	}
+}
+
+KmsRtmpSession*
+kms_rtmp_session_intersect(KmsRtmpSession *answerer, KmsRtmpSession *offerer) {
+	KmsRtmpSession *intersect;
+
+	if (answerer == NULL)
+		return kms_rtmp_session_copy(offerer);
+	else if (offerer == NULL)
+		return kms_rtmp_session_copy(answerer);
+
+	intersect = g_object_new(KMS_TYPE_RTMP_SESSION, NULL);
+
+	intersect->priv->url= choose_string(offerer->priv->url,
+							answerer->priv->url);
+	intersect->priv->answerer = g_strdup(answerer->priv->offerer);
+	intersect->priv->offerer = g_strdup(answerer->priv->offerer);
+
+	intersect->priv->height = choose_integer(offerer->priv->height,
+							answerer->priv->height);
+	intersect->priv->width = choose_integer(offerer->priv->width,
+							answerer->priv->width);
+
+	set_merged_fps(intersect, offerer, answerer);
+
+	return intersect;
+}
+
 KmsSdpSession*
 kms_rtmp_session_get_sdp_session(KmsRtmpSession *session) {
 	KmsSdpSession *sdp_session;
