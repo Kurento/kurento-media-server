@@ -22,12 +22,12 @@ struct _KmsRtmpConnectionPriv {
 	GStaticMutex mutex;
 	KmsRtmpSession *local_spec;
 	KmsRtmpSession *remote_spec;
-	KmsRtmpSession *neg_local_spec;
-	KmsRtmpSession *neg_remote_spec;
+	KmsRtmpSession *negotiated;
 	KmsRtmpSession *descriptor;
 	KmsRtmpReceiver *receiver;
 	KmsRtmpSender *sender;
 	gboolean initialized;
+	gboolean offerer;
 };
 
 static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
@@ -79,18 +79,10 @@ dispose_remote_spec(KmsRtmpConnection *self) {
 }
 
 static void
-dispose_neg_local_spec(KmsRtmpConnection *self) {
-	if (self->priv->neg_local_spec != NULL) {
-		g_object_unref(self->priv->neg_local_spec);
-		self->priv->neg_local_spec = NULL;
-	}
-}
-
-static void
-dispose_neg_remote_spec(KmsRtmpConnection *self) {
-	if (self->priv->neg_remote_spec != NULL) {
-		g_object_unref(self->priv->neg_remote_spec);
-		self->priv->neg_remote_spec = NULL;
+dispose_negotiated(KmsRtmpConnection *self) {
+	if (self->priv->negotiated != NULL) {
+		g_object_unref(self->priv->negotiated);
+		self->priv->negotiated = NULL;
 	}
 }
 
@@ -152,6 +144,51 @@ static void
 media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 	iface->get_sink = get_sink;
 	iface->get_src = get_src;
+}
+
+static gboolean
+connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
+	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(conn);
+
+	if (!KMS_IS_SDP_SESSION(spec)) {
+		SET_ERROR(err, KMS_RTMP_CONNECTION_ERROR,
+					KMS_RTMP_CONNECTION_ERROR_WRONG_VALUE,
+					"Given spect has incorrect type");
+		return FALSE;
+	}
+
+	LOCK(self);
+	if (self->priv->remote_spec != NULL) {
+		SET_ERROR(err, KMS_RTMP_CONNECTION_ERROR,
+					KMS_RTMP_CONNECTION_ERROR_ALREADY,
+					"Remote spec was already set");
+		return FALSE;
+	}
+
+	self->priv->remote_spec = kms_rtmp_session_create_from_sdp_session(spec);
+
+	if (self->priv->initialized) {
+		self->priv->offerer = TRUE;
+		self->priv->negotiated = kms_rtmp_session_intersect(
+							self->priv->remote_spec,
+							self->priv->local_spec);
+	} else {
+		self->priv->negotiated = kms_rtmp_session_intersect(
+							self->priv->local_spec,
+							self->priv->remote_spec);
+	}
+
+	dispose_descriptor(self);
+	self->priv->descriptor = g_object_ref(self->priv->negotiated);
+
+// 	/* Create rtmpsender */
+// 	create_rtmp_sender(self);
+// 	/* Create rtmpsender */
+// 	create_rtmp_receiver(self);
+
+	UNLOCK(self);
+
+	return TRUE;
 }
 
 static gboolean
@@ -255,8 +292,7 @@ kms_rtmp_connection_dispose(GObject *object) {
 	LOCK(self);
 	dispose_local_spec(self);
 	dispose_remote_spec(self);
-	dispose_neg_local_spec(self);
-	dispose_neg_remote_spec(self);
+	dispose_negotiated(self);
 	dispose_descriptor(self);
 	dispose_receiver(self);
 	dispose_sender(self);
@@ -284,6 +320,7 @@ kms_rtmp_connection_class_init (KmsRtmpConnectionClass *klass) {
 	g_type_class_add_private (klass, sizeof (KmsRtmpConnectionPriv));
 
 	KMS_CONNECTION_CLASS(klass)->mode_changed = mode_changed;
+	KMS_CONNECTION_CLASS(klass)->connect_to_remote = connect_to_remote;
 	gobject_class->dispose = kms_rtmp_connection_dispose;
 	gobject_class->finalize = kms_rtmp_connection_finalize;
 	gobject_class->constructed = constructed;
@@ -317,6 +354,5 @@ kms_rtmp_connection_init (KmsRtmpConnection *self) {
 	self->priv->sender = NULL;
 	self->priv->remote_spec = NULL;
 	self->priv->initialized = FALSE;
-	self->priv->neg_remote_spec = NULL;
-	self->priv->neg_local_spec = NULL;
+	self->priv->negotiated = NULL;
 }
