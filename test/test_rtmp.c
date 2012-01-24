@@ -129,55 +129,17 @@ create_local_connections(KmsEndpoint *ep) {
 	g_object_unref(lc2);
 }
 
-static GValueArray *
-create_payloads(const gchar *fmtp) {
-	GValueArray *payloads;
-	KmsSdpPayload *payload;
-	GValue vpayload = G_VALUE_INIT;
-
-	payloads = g_value_array_new(1);
-
-	payload = g_object_new(KMS_TYPE_SDP_PAYLOAD, "fmtp", fmtp, NULL);
-
-	g_value_init(&vpayload, KMS_TYPE_SDP_PAYLOAD);
-	g_value_take_object(&vpayload, payload);
-	g_value_array_append(payloads, &vpayload);
-	g_value_unset(&vpayload);
-
-	return payloads;
-}
-
-static GValueArray *
-create_medias(const gchar *fmtp) {
-	GValueArray *medias;
-	GValueArray *payloads;
-	KmsSdpMedia *media;
-	GValue vmedia = G_VALUE_INIT;
-
-	medias = g_value_array_new(1);
-	payloads = create_payloads(fmtp);
-
-	media = g_object_new(KMS_TYPE_SDP_MEDIA, "payloads", payloads, NULL);
-
-	g_value_init(&vmedia, KMS_TYPE_SDP_MEDIA);
-	g_value_take_object(&vmedia, media);
-	g_value_array_append(medias, &vmedia);
-	g_value_unset(&vmedia);
-
-	g_value_array_free(payloads);
-
-	return medias;
-}
-
 static KmsSdpSession *
 create_second_session() {
 	KmsSdpSession *session;
-	GValueArray *medias;
+	KmsRtmpSession *rtmp_session;
 
-	medias = create_medias("url=rtmp://localhost/videochat;"
+	rtmp_session = kms_rtmp_session_create_from_string(
+				"url=rtmp://localhost/videochat;"
 				"offerer=test_stream;w=320;h=240;fps=15/1");
-	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias, NULL);
-	g_value_array_free(medias);
+
+	session = kms_rtmp_session_get_sdp_session(rtmp_session);
+	g_object_unref(rtmp_session);
 
 	return session;
 }
