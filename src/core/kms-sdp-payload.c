@@ -182,6 +182,7 @@ kms_sdp_payload_to_string(KmsSdpPayload *self) {
 
 	LOCK(self);
 	if (self->priv->name == NULL || g_strcmp0(self->priv->name, "") == 0) {
+		UNLOCK(self);
 		return g_strdup("");
 	}
 
