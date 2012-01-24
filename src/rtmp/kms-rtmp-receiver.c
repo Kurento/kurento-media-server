@@ -15,6 +15,7 @@ struct _KmsRtmpReceiverPriv {
 
 	KmsRtmpSession *neg_spec;
 	gboolean offerer;
+	gboolean finished;
 };
 
 enum {
@@ -81,9 +82,69 @@ get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
+static GstElement *generate_rtmpsrc(KmsRtmpReceiver *self);
+
+static gboolean
+remove_rtmp(KmsRtmpReceiver *self) {
+	GstElement *rtmpsrc, *flvdemux;
+
+	LOCK(self);
+	if (self->priv->finished)
+		goto end;
+
+	rtmpsrc = gst_bin_get_by_name(GST_BIN(self), "rtmp");
+	if (rtmpsrc == NULL)
+		goto end;
+
+	gst_bin_remove(GST_BIN(self), rtmpsrc);
+	gst_element_set_state(rtmpsrc, GST_STATE_NULL);
+	g_object_unref(rtmpsrc);
+
+	rtmpsrc = generate_rtmpsrc(self);
+	gst_bin_add(GST_BIN(self), rtmpsrc);
+	gst_element_set_state(rtmpsrc, GST_STATE_PLAYING);
+
+	flvdemux = gst_bin_get_by_name(GST_BIN(self), "demux");
+
+	if (flvdemux == NULL)
+		goto end;
+
+	gst_element_link(rtmpsrc, flvdemux);
+
+end:
+	UNLOCK(self);
+	return FALSE;
+}
+
+static gboolean
+event_handler(GstPad *pad, GstEvent *event, KmsRtmpReceiver *self) {
+	if (!GST_IS_EVENT(event))
+		return TRUE;
+
+	if (GST_EVENT_TYPE(event) == GST_EVENT_EOS) {
+		g_timeout_add_full(G_PRIORITY_DEFAULT, 500,
+						(GSourceFunc) remove_rtmp,
+						g_object_ref(self),
+						g_object_unref);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 static void
-connect_rtmp_callbacks(GstElement *rtmpsrc) {
-	KMS_LOG_DEBUG("TODO: Add callbacks to rtmpsrc to handle eos");
+connect_rtmp_callbacks(KmsRtmpReceiver *self, GstElement *rtmpsrc) {
+	GstPad *src;
+
+	src = gst_element_get_static_pad(rtmpsrc, "src");
+
+	if (src == NULL)
+		return;
+
+	gst_pad_add_event_probe(src, G_CALLBACK(event_handler), self);
+
+	g_object_unref(src);
 }
 
 static void
@@ -91,20 +152,35 @@ demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
 	KMS_LOG_DEBUG("TODO: Connect new pad to flvdemux");
 }
 
+static GstElement*
+generate_rtmpsrc(KmsRtmpReceiver *self) {
+	GstElement *rtmpsrc;
+	gchar *url;
+
+	url = kms_rtmp_session_get_url(self->priv->neg_spec,
+				       self->priv->offerer);
+	if (url == NULL) {
+		g_warn_if_reached();
+		return NULL;
+	}
+
+	rtmpsrc = gst_element_factory_make("rtmpsrc", "rtmp");
+	if  (rtmpsrc != NULL) {
+		g_object_set(rtmpsrc, "location", url, NULL);
+		connect_rtmp_callbacks(self, rtmpsrc);
+	}
+
+	g_free(url);
+
+	return rtmpsrc;
+}
+
 static void
 create_media_chain(KmsRtmpReceiver *self) {
 	GstElement *rtmpsrc, *flvdemux;
-	gchar *url;
 
-	rtmpsrc = gst_element_factory_make("rtmpsrc", NULL);
-	flvdemux = gst_element_factory_make("flvdemux", NULL);
-
-	url = kms_rtmp_session_get_url(self->priv->neg_spec,
-							self->priv->offerer);
-	if (url == NULL) {
-		g_warn_if_reached();
-		return;
-	}
+	rtmpsrc = generate_rtmpsrc(self);
+	flvdemux = gst_element_factory_make("flvdemux", "demux");
 
 	if (rtmpsrc == NULL || flvdemux == NULL) {
 		if (rtmpsrc != NULL)
@@ -115,11 +191,7 @@ create_media_chain(KmsRtmpReceiver *self) {
 		return;
 	}
 
-	g_object_set(rtmpsrc, "location", url, NULL);
-	g_free(url);
-
 	g_object_connect(flvdemux, "signal::pad_added", demux_added, self, NULL);
-	connect_rtmp_callbacks(rtmpsrc);
 
 	gst_bin_add_many(GST_BIN(self), rtmpsrc, flvdemux, NULL);
 	gst_element_link(rtmpsrc, flvdemux);
@@ -144,6 +216,7 @@ dispose(GObject *object) {
 	KmsRtmpReceiver *self = KMS_RTMP_RECEIVER(object);
 
 	LOCK(self);
+	self->priv->finished = TRUE;
 	dispose_neg_spec(self);
 	UNLOCK(self);
 
@@ -206,4 +279,5 @@ kms_rtmp_receiver_init(KmsRtmpReceiver *self) {
 	self->priv->mutex = g_mutex_new();
 	self->priv->neg_spec = NULL;
 	self->priv->offerer = FALSE;
+	self->priv->finished = FALSE;
 }
