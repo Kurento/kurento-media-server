@@ -11,22 +11,24 @@
 struct _KmsRtmpSenderPriv {
 	GMutex *mutex;
 
-	KmsRtmpSession *remote_spec;
+	KmsRtmpSession *neg_spec;
+	gboolean offerer;
 };
 
 enum {
 	PROP_0,
 
-	PROP_REMOTE_SPEC,
+	PROP_NEG_SPEC,
+	PROP_OFFERER,
 };
 
 G_DEFINE_TYPE(KmsRtmpSender, kms_rtmp_sender, KMS_TYPE_MEDIA_HANDLER_SINK)
 
 static void
-dispose_remote_spec(KmsRtmpSender *self) {
-	if (self->priv->remote_spec != NULL) {
-		g_object_unref(self->priv->remote_spec);
-		self->priv->remote_spec = NULL;
+dispose_neg_spec(KmsRtmpSender *self) {
+	if (self->priv->neg_spec != NULL) {
+		g_object_unref(self->priv->neg_spec);
+		self->priv->neg_spec = NULL;
 	}
 }
 
@@ -36,9 +38,9 @@ constructed(GObject *object) {
 
 	G_OBJECT_CLASS(kms_rtmp_sender_parent_class)->constructed(object);
 
-	g_return_if_fail(self->priv->remote_spec != NULL);
+	g_return_if_fail(self->priv->neg_spec != NULL);
 
-	g_print("TODO: create media chain");
+	g_print("TODO: create media chain\n");
 }
 
 static void
@@ -47,10 +49,15 @@ set_property (GObject *object, guint property_id, const GValue *value,
 	KmsRtmpSender *self = KMS_RTMP_SENDER(object);
 
 	switch (property_id) {
-		case PROP_REMOTE_SPEC:
+		case PROP_NEG_SPEC:
 			LOCK(self);
-			dispose_remote_spec(self);
-			self->priv->remote_spec = g_value_dup_object(value);
+			dispose_neg_spec(self);
+			self->priv->neg_spec = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
+		case PROP_OFFERER:
+			LOCK(self);
+			self->priv->offerer = g_value_get_boolean(value);
 			UNLOCK(self);
 			break;
 		default:
@@ -66,9 +73,14 @@ get_property(GObject *object, guint property_id, GValue *value,
 	KmsRtmpSender *self = KMS_RTMP_SENDER(object);
 
 	switch (property_id) {
-		case PROP_REMOTE_SPEC:
+		case PROP_NEG_SPEC:
 			LOCK(self);
-			g_value_set_object(value, self->priv->remote_spec);
+			g_value_set_object(value, self->priv->neg_spec);
+			UNLOCK(self);
+			break;
+		case PROP_OFFERER:
+			LOCK(self);
+			g_value_set_boolean(value, self->priv->offerer);
 			UNLOCK(self);
 			break;
 		default:
@@ -83,7 +95,7 @@ dispose(GObject *object) {
 	KmsRtmpSender *self = KMS_RTMP_SENDER(object);
 
 	LOCK(self);
-	dispose_remote_spec(self);
+	dispose_neg_spec(self);
 	UNLOCK(self);
 
 	G_OBJECT_CLASS(kms_rtmp_sender_parent_class)->dispose(object);
@@ -120,13 +132,20 @@ kms_rtmp_sender_class_init(KmsRtmpSenderClass *klass) {
 	GST_ELEMENT_CLASS(klass)->numpadtemplates =
 		GST_ELEMENT_CLASS(kms_rtmp_sender_parent_class)->numpadtemplates;
 
-	pspec = g_param_spec_object("remote-spec", "Remote Session Spec",
-					"Remote Session Description",
-					KMS_TYPE_SDP_SESSION,
+	pspec = g_param_spec_object("neg-spec", "Negotiated Session Spec",
+					"Negotiated Session Description",
+					KMS_TYPE_RTMP_SESSION,
 					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_WRITABLE);
 
-	g_object_class_install_property(object_class, PROP_REMOTE_SPEC, pspec);
+	g_object_class_install_property(object_class, PROP_NEG_SPEC, pspec);
+
+	pspec = g_param_spec_boolean("offerer", "Offerer",
+					"If local party is offerer",
+					FALSE, G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_OFFERER, pspec);
 }
 
 static void
@@ -134,5 +153,6 @@ kms_rtmp_sender_init(KmsRtmpSender *self) {
 	self->priv = KMS_RTMP_SENDER_GET_PRIVATE(self);
 
 	self->priv->mutex = g_mutex_new();
-	self->priv->remote_spec = NULL;
+	self->priv->neg_spec = NULL;
+	self->priv->offerer = FALSE;
 }

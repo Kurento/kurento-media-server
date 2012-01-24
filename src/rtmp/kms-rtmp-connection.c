@@ -146,6 +146,22 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 	iface->get_src = get_src;
 }
 
+static void
+create_rtmp_sender(KmsRtmpConnection *self) {
+	self->priv->sender = g_object_new(KMS_TYPE_RTMP_SENDER,
+					"neg-spec", self->priv->negotiated,
+					"offerer", self->priv->offerer,
+					NULL);
+}
+
+static void
+create_rtmp_receiver(KmsRtmpConnection *self) {
+	self->priv->receiver = g_object_new(KMS_TYPE_RTMP_RECEIVER,
+					"neg-spec", self->priv->negotiated,
+					"offerer", self->priv->offerer,
+					NULL);
+}
+
 static gboolean
 connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(conn);
@@ -181,10 +197,10 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 	dispose_descriptor(self);
 	self->priv->descriptor = g_object_ref(self->priv->negotiated);
 
-// 	/* Create rtmpsender */
-// 	create_rtmp_sender(self);
-// 	/* Create rtmpsender */
-// 	create_rtmp_receiver(self);
+	/* Create rtmpsender */
+	create_rtmp_sender(self);
+	/* Create rtmpsender */
+	create_rtmp_receiver(self);
 
 	UNLOCK(self);
 

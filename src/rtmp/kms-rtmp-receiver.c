@@ -13,22 +13,24 @@
 struct _KmsRtmpReceiverPriv {
 	GMutex *mutex;
 
-	KmsRtmpSession *local_spec;
+	KmsRtmpSession *neg_spec;
+	gboolean offerer;
 };
 
 enum {
 	PROP_0,
 
-	PROP_LOCAL_SPEC,
+	PROP_NEG_SPEC,
+	PROP_OFFERER,
 };
 
 G_DEFINE_TYPE(KmsRtmpReceiver, kms_rtmp_receiver, KMS_TYPE_MEDIA_HANDLER_SRC)
 
 static void
-dispose_local_spec(KmsRtmpReceiver *self) {
-	if (self->priv->local_spec != NULL) {
-		g_object_unref(self->priv->local_spec);
-		self->priv->local_spec = NULL;
+dispose_neg_spec(KmsRtmpReceiver *self) {
+	if (self->priv->neg_spec != NULL) {
+		g_object_unref(self->priv->neg_spec);
+		self->priv->neg_spec = NULL;
 	}
 }
 
@@ -38,10 +40,15 @@ set_property (GObject *object, guint property_id, const GValue *value,
 	KmsRtmpReceiver *self = KMS_RTMP_RECEIVER(object);
 
 	switch (property_id) {
-		case PROP_LOCAL_SPEC:
+		case PROP_NEG_SPEC:
 			LOCK(self);
-			dispose_local_spec(self);
-			self->priv->local_spec = g_value_dup_object(value);
+			dispose_neg_spec(self);
+			self->priv->neg_spec = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
+		case PROP_OFFERER:
+			LOCK(self);
+			self->priv->offerer = g_value_get_boolean(value);
 			UNLOCK(self);
 			break;
 		default:
@@ -57,9 +64,14 @@ get_property(GObject *object, guint property_id, GValue *value,
 	KmsRtmpReceiver *self = KMS_RTMP_RECEIVER(object);
 
 	switch (property_id) {
-		case PROP_LOCAL_SPEC:
+		case PROP_NEG_SPEC:
 			LOCK(self);
-			g_value_set_object(value, self->priv->local_spec);
+			g_value_set_object(value, self->priv->neg_spec);
+			UNLOCK(self);
+			break;
+		case PROP_OFFERER:
+			LOCK(self);
+			g_value_set_boolean(value, self->priv->offerer);
 			UNLOCK(self);
 			break;
 		default:
@@ -75,7 +87,7 @@ constructed(GObject *object) {
 
 	G_OBJECT_CLASS(kms_rtmp_receiver_parent_class)->constructed(object);
 
-	g_return_if_fail(self->priv->local_spec != NULL);
+	g_return_if_fail(self->priv->neg_spec != NULL);
 
 	g_print("TODO: Create media chain\n");
 }
@@ -85,7 +97,7 @@ dispose(GObject *object) {
 	KmsRtmpReceiver *self = KMS_RTMP_RECEIVER(object);
 
 	LOCK(self);
-	dispose_local_spec(self);
+	dispose_neg_spec(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -115,13 +127,20 @@ kms_rtmp_receiver_class_init(KmsRtmpReceiverClass *klass) {
 	object_class->get_property = get_property;
 	object_class->constructed = constructed;
 
-	pspec = g_param_spec_object("local-spec", "Local Session Spec",
-					"Local Session Spec",
-					KMS_TYPE_RTMP_SESSION,
-					G_PARAM_CONSTRUCT_ONLY |
-					G_PARAM_READWRITE);
+	pspec = g_param_spec_object("neg-spec", "Negotiated Session Spec",
+				    "Negotiated Session Description",
+			     KMS_TYPE_RTMP_SESSION,
+			     G_PARAM_CONSTRUCT_ONLY |
+			     G_PARAM_WRITABLE);
 
-	g_object_class_install_property(object_class, PROP_LOCAL_SPEC, pspec);
+	g_object_class_install_property(object_class, PROP_NEG_SPEC, pspec);
+
+	pspec = g_param_spec_boolean("offerer", "Offerer",
+				     "If local party is offerer",
+			      FALSE, G_PARAM_CONSTRUCT_ONLY |
+			      G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_OFFERER, pspec);
 
 	/* HACK:
 		Don't know why but padtemplates are NULL in child classes,
@@ -138,5 +157,6 @@ kms_rtmp_receiver_init(KmsRtmpReceiver *self) {
 	self->priv = KMS_RTMP_RECEIVER_GET_PRIVATE(self);
 
 	self->priv->mutex = g_mutex_new();
-	self->priv->local_spec = NULL;
+	self->priv->neg_spec = NULL;
+	self->priv->offerer = FALSE;
 }
