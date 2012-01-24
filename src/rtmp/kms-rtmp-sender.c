@@ -91,7 +91,8 @@ create_media_chain(KmsRtmpSender *self) {
 	GstPad *audio_pad, *video_pad;
 	gchar *url;
 
-	url = kms_rtmp_session_get_url(self->priv->neg_spec, self->priv->offerer);
+	url = kms_rtmp_session_get_url(self->priv->neg_spec,
+							!self->priv->offerer);
 
 	if (url == NULL) {
 		g_warn_if_reached();
