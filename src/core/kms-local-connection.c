@@ -1,4 +1,5 @@
 #include <kms-core.h>
+#include <internal/kms-utils.h>
 
 #define KMS_LOCAL_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_LOCAL_CONNECTION, KmsLocalConnectionPriv))
 
@@ -237,6 +238,8 @@ connect(KmsConnection *conn, KmsConnection *other, KmsMediaType type,
 	gboolean ret = TRUE;
 	KmsLocalConnection *self, *other_local;
 
+	KMS_DEBUG_PIPE("before_connect");
+
 	if (!KMS_IS_LOCAL_CONNECTION(other)) {
 		SET_ERROR(err, KMS_CONNECTION_ERROR,
 				KMS_CONNECTION_ERROR_WRONG_ARGUMENT,
@@ -291,6 +294,7 @@ connect(KmsConnection *conn, KmsConnection *other, KmsMediaType type,
 	}
 
 end:
+	KMS_DEBUG_PIPE("after_connect");
 	return ret;
 }
 

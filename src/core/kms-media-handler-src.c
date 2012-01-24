@@ -187,6 +187,9 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 		g_object_unref(tmp_src);
 	}
 
+	g_print("linking: %s and %s\n", GST_OBJECT_NAME(self),
+							GST_OBJECT_NAME(sink));
+
 	link_ret = gst_pad_link(src_pad, sink_pad);
 
 	eclass = G_ENUM_CLASS(g_type_class_peek(GST_TYPE_PAD_LINK_RETURN));
@@ -219,7 +222,6 @@ static void
 pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
 	gst_element_release_request_pad(elem, pad);
-	KMS_DEBUG_PIPE("unlinked");
 }
 
 static gboolean
@@ -712,8 +714,6 @@ dispose(GObject *object) {
 	}
 
 	G_OBJECT_CLASS(kms_media_handler_src_parent_class)->dispose(object);
-
-	KMS_DEBUG_PIPE("dispose_src");
 }
 
 static void
