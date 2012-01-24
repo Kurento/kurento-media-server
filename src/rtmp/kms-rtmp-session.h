@@ -47,4 +47,6 @@ KmsRtmpSession *kms_rtmp_session_create_from_sdp_session(KmsSdpSession *session)
 
 KmsRtmpSession *kms_rtmp_session_intersect(KmsRtmpSession *answerer, KmsRtmpSession *offerer);
 
+gchar *kms_rtmp_session_get_url(KmsRtmpSession *session, gboolean offerer);
+
 #endif /* __KMS_RTMP_SESSION_H__ */

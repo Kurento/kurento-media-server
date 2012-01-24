@@ -289,6 +289,31 @@ set_merged_fps(KmsRtmpSession *intersect, const KmsRtmpSession *offerer,
 	}
 }
 
+gchar*
+kms_rtmp_session_get_url(KmsRtmpSession *self, gboolean offerer) {
+	gchar *url;
+	gchar *stream;
+	gchar *uri;
+
+	g_return_val_if_fail(KMS_IS_RTMP_SESSION(self), NULL);
+
+	url = self->priv->url;
+
+	g_return_val_if_fail(url != NULL, NULL);
+
+	if (offerer)
+		stream = self->priv->offerer;
+	else
+		stream = self->priv->answerer;
+
+	if (stream == NULL)
+		return NULL;
+
+	uri = g_strdup_printf("%s/%s", url, stream);
+
+	return uri;
+}
+
 KmsRtmpSession*
 kms_rtmp_session_intersect(KmsRtmpSession *answerer, KmsRtmpSession *offerer) {
 	KmsRtmpSession *intersect;
