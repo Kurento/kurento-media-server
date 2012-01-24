@@ -82,6 +82,53 @@ get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static void
+connect_rtmp_callbacks(GstElement *rtmpsrc) {
+	KMS_LOG_DEBUG("TODO: Add callbacks to rtmpsrc to handle eos");
+}
+
+static void
+demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
+	KMS_LOG_DEBUG("TODO: Connect new pad to flvdemux");
+}
+
+static void
+create_media_chain(KmsRtmpReceiver *self) {
+	GstElement *rtmpsrc, *flvdemux;
+	gchar *url;
+
+	rtmpsrc = gst_element_factory_make("rtmpsrc", NULL);
+	flvdemux = gst_element_factory_make("flvdemux", NULL);
+
+	url = kms_rtmp_session_get_url(self->priv->neg_spec,
+							self->priv->offerer);
+	if (url == NULL) {
+		g_warn_if_reached();
+		return;
+	}
+
+	if (rtmpsrc == NULL || flvdemux == NULL) {
+		if (rtmpsrc != NULL)
+			g_object_unref(rtmpsrc);
+
+		if (flvdemux != NULL)
+			g_object_unref(flvdemux);
+		return;
+	}
+
+	g_object_set(rtmpsrc, "location", url, NULL);
+	g_free(url);
+
+	g_object_connect(flvdemux, "signal::pad_added", demux_added, self, NULL);
+	connect_rtmp_callbacks(rtmpsrc);
+
+	gst_bin_add_many(GST_BIN(self), rtmpsrc, flvdemux, NULL);
+	gst_element_link(rtmpsrc, flvdemux);
+
+	gst_element_set_state(rtmpsrc, GST_STATE_PLAYING);
+	gst_element_set_state(flvdemux, GST_STATE_PLAYING);
+}
+
+static void
 constructed(GObject *object) {
 	KmsRtmpReceiver *self = KMS_RTMP_RECEIVER(object);
 
@@ -89,7 +136,7 @@ constructed(GObject *object) {
 
 	g_return_if_fail(self->priv->neg_spec != NULL);
 
-	g_print("TODO: Create media chain\n");
+	create_media_chain(self);
 }
 
 static void
