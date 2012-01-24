@@ -328,7 +328,7 @@ kms_rtmp_session_intersect(KmsRtmpSession *answerer, KmsRtmpSession *offerer) {
 	intersect->priv->url= choose_string(offerer->priv->url,
 							answerer->priv->url);
 	intersect->priv->answerer = g_strdup(answerer->priv->offerer);
-	intersect->priv->offerer = g_strdup(answerer->priv->offerer);
+	intersect->priv->offerer = g_strdup(offerer->priv->offerer);
 
 	intersect->priv->height = choose_integer(offerer->priv->height,
 							answerer->priv->height);
