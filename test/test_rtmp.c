@@ -13,24 +13,10 @@ static gchar*
 get_url(KmsSdpSession *session) {
 	KmsRtmpSession *rtmp_session;
 	gchar *url;
-	gchar *offerer;
-	gchar *uri;
 
 	rtmp_session = kms_rtmp_session_create_from_sdp_session(session);
 
-	g_assert(rtmp_session != NULL);
-
-	/* TODO: Implement this correctly*/
-	g_object_get(rtmp_session, "url", &url, "offerer", &offerer, NULL);
-
-	g_assert(url != NULL);
-	g_assert(offerer != NULL);
-
-	uri = g_strdup_printf("%s/%s", url, offerer);
-
-	g_print("%s\n", uri);
-	g_free(uri);
-	g_free(offerer);
+	url = kms_rtmp_session_get_url(rtmp_session, TRUE);
 	g_object_unref(rtmp_session);
 
 	return url;
