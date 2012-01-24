@@ -181,6 +181,10 @@ kms_rtmp_session_to_string(KmsRtmpSession *self) {
 	GString *str;
 	gchar *ret;
 
+	if (!KMS_IS_RTMP_SESSION(self)) {
+		return g_strdup("(null)");
+	}
+
 	LOCK(self);
 	str = g_string_sized_new(20);
 
