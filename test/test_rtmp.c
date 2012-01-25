@@ -16,7 +16,7 @@ get_url(KmsSdpSession *session) {
 
 	rtmp_session = kms_rtmp_session_create_from_sdp_session(session);
 
-	url = kms_rtmp_session_get_url(rtmp_session, TRUE);
+	url = kms_rtmp_session_get_url(rtmp_session, FALSE);
 	g_object_unref(rtmp_session);
 
 	return url;
