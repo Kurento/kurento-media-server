@@ -52,49 +52,112 @@ unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 	KMS_DEBUG_PIPE("unlinked_rtmp");
 }
 
-static gboolean
-video_event_probe(GstPad *pad, GstEvent *event, KmsRtmpSender *self) {
+static void
+found_audio(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 	GstElement *flvmux;
-	GstPad *sink;
-
-	if (!GST_IS_EVENT(event) ||
-			GST_EVENT_TYPE(event) != GST_EVENT_NEWSEGMENT ||
-			gst_ghost_pad_get_target(GST_GHOST_PAD(pad)) != NULL)
-		return TRUE;
+	GstPad *sink, *src;
 
 	flvmux = self->priv->flvmux;
 
 	if (flvmux == NULL)
-		return TRUE;
-
-	/* TODO: search on templates to request a pad */
-	sink = gst_element_get_request_pad(flvmux, "video");
-	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
-
-	return TRUE;
-}
-
-static gboolean
-audio_event_probe(GstPad *pad, GstEvent *event, KmsRtmpSender *self) {
-	GstElement *flvmux;
-	GstPad *sink;
-
-	if (!GST_IS_EVENT(event) ||
-			GST_EVENT_TYPE(event) != GST_EVENT_NEWSEGMENT ||
-			gst_ghost_pad_get_target(GST_GHOST_PAD(pad)) != NULL)
-		return TRUE;
-
-	flvmux = self->priv->flvmux;
-
-	if (flvmux == NULL)
-		return TRUE;
+		return;
 
 	/* TODO: search on templates to request a pad */
 	sink = gst_element_get_request_pad(flvmux, "audio");
+	src = gst_element_get_static_pad(tf, "src");
 
+	if (src == NULL || sink == NULL) {
+		g_warn_if_reached();
+
+		if (src != NULL)
+			g_object_unref(src);
+
+		if (sink != NULL)
+			gst_element_release_request_pad(flvmux, sink);
+
+		return;
+	}
+	gst_pad_link(src, sink);
+
+	g_object_unref(src);
+	g_object_unref(sink);
+}
+
+static void
+audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
+	GstElement *typefind;
+	GstPad *sink;
+
+	typefind = gst_element_factory_make("typefind", NULL);
+	if (typefind == NULL)
+		return;
+
+	gst_element_set_state(typefind, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), typefind);
+
+	g_object_connect(typefind, "signal::have-type", found_audio, self, NULL);
+
+	sink = gst_element_get_static_pad(typefind, "sink");
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
 
-	return TRUE;
+	/* TODO: Add callback to remove when unlinked */
+
+	g_object_unref(sink);
+}
+
+static void
+found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
+	GstElement *flvmux;
+	GstPad *sink, *src;
+
+	KMS_DEBUG;
+	flvmux = self->priv->flvmux;
+
+	if (flvmux == NULL)
+		return;
+
+	/* TODO: search on templates to request a pad */
+	sink = gst_element_get_request_pad(flvmux, "video");
+	src = gst_element_get_static_pad(tf, "src");
+
+	if (src == NULL || sink == NULL) {
+		g_warn_if_reached();
+
+		if (src != NULL)
+			g_object_unref(src);
+
+		if (sink != NULL)
+			gst_element_release_request_pad(flvmux, sink);
+
+		return;
+	}
+	gst_pad_link(src, sink);
+
+	g_object_unref(src);
+	g_object_unref(sink);
+}
+
+static void
+video_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
+	GstElement *typefind;
+	GstPad *sink;
+
+	KMS_DEBUG;
+	typefind = gst_element_factory_make("typefind", NULL);
+	if (typefind == NULL)
+		return;
+
+	gst_element_set_state(typefind, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), typefind);
+
+	g_object_connect(typefind, "signal::have-type", found_video, self, NULL);
+
+	sink = gst_element_get_static_pad(typefind, "sink");
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
+
+	/* TODO: Add callback to remove when unlinked */
+
+	g_object_unref(sink);
 }
 
 static void
@@ -152,8 +215,8 @@ create_media_chain(KmsRtmpSender *self) {
 		gst_pad_set_active(audio_pad, TRUE);
 		g_object_connect(audio_pad, "signal::unlinked", unlinked,
 								self, NULL);
-		gst_pad_add_event_probe(audio_pad,
-					G_CALLBACK(audio_event_probe), self);
+		g_object_connect(audio_pad, "signal::linked", audio_linked,
+								self, NULL);
 		gst_element_add_pad(GST_ELEMENT(self), audio_pad);
 	}
 	g_object_unref(audio_templ);
@@ -168,8 +231,8 @@ create_media_chain(KmsRtmpSender *self) {
 		gst_pad_set_active(video_pad, TRUE);
 		g_object_connect(video_pad, "signal::unlinked", unlinked,
 								self, NULL);
-		gst_pad_add_event_probe(video_pad,
-					G_CALLBACK(video_event_probe), self);
+		g_object_connect(video_pad, "signal::linked", video_linked,
+								self, NULL);
 		gst_element_add_pad(GST_ELEMENT(self), video_pad);
 	}
 	g_object_unref(video_templ);
