@@ -179,7 +179,8 @@ demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
 	kms_utils_release_unlinked_pads(tee);
 	gst_element_link_many(flvdemux, tee, queue, sink, NULL);
 
-	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
+	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self),
+				g_object_ref(pad), tee,
 				kms_media_type_from_nick(GST_OBJECT_NAME(pad)));
 }
 
