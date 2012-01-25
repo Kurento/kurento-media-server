@@ -148,40 +148,216 @@ connect_rtmp_callbacks(KmsRtmpReceiver *self, GstElement *rtmpsrc) {
 	g_object_unref(src);
 }
 
+static gboolean
+remove_tf_bin(GstElement *elem) {
+	GstObject *bin;
+
+	bin = gst_element_get_parent(elem);
+	if (bin == NULL)
+		goto end;
+
+	gst_element_set_state(GST_ELEMENT(elem), GST_STATE_NULL);
+	gst_bin_remove(GST_BIN(bin), GST_ELEMENT(elem));
+	g_object_unref(bin);
+
+end:
+	g_object_unref(elem);
+
+	return FALSE;
+}
+
+static GstElement*
+prepare_decoder(GstElement *deco, KmsMediaType type) {
+	GstElement *new_deco;
+	GstCaps *raw_caps;
+
+	kms_utils_configure_element(deco);
+
+	switch (type) {
+		case KMS_MEDIA_TYPE_AUDIO:
+			raw_caps = gst_caps_from_string(AUDIO_RAW_CAPS);
+			break;
+		case KMS_MEDIA_TYPE_VIDEO:
+			raw_caps = gst_caps_from_string(VIDEO_RAW_CAPS);
+			break;
+		default:
+			return deco;
+	}
+
+	new_deco = kms_generate_bin_with_caps(deco, NULL, raw_caps);
+	gst_caps_unref(raw_caps);
+
+	return new_deco;
+}
+
+static GstElement*
+prepare_identity(GstElement *identity, GstCaps *enc_caps, GstCaps *raw_caps) {
+	GstCaps *new_enc_caps;
+	GstElement *new_depay;
+
+	new_enc_caps = gst_caps_copy(enc_caps);
+	kms_utils_transfer_caps(raw_caps, new_enc_caps);
+
+	new_depay = kms_generate_bin_with_caps(identity, NULL, new_enc_caps);
+
+	gst_caps_unref(new_enc_caps);
+	return new_depay;
+}
+
+static void
+add_decoder(KmsRtmpReceiver *self, GstElement *deco) {
+	g_print("TODO: add decoder to element\n");
+}
+
+static void
+found_raw(GstElement* tf, guint probability, GstCaps* caps,
+							KmsRtmpReceiver *self) {
+	GstElementFactory *deco_fact;
+	GstElement *deco, *peer_elem, *new_deco, *identity, *tee;
+	GstObject *bin;
+	GstPad *bin_sink, *peer, *pad;
+	GstCaps *enc_caps;
+	KmsMediaType type;
+
+	KMS_DEBUG;
+
+	bin = gst_element_get_parent(tf);
+	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bin),
+						 MEDIA_TYPE_DATA));
+
+	deco = gst_bin_get_by_name(GST_BIN(bin), "deco");
+	deco_fact = gst_element_get_factory(deco);
+
+	bin_sink = gst_element_get_pad(GST_ELEMENT(bin), "sink");
+	if (!gst_pad_is_linked(bin_sink))
+		goto end;
+
+	/* Disconnect bin and connect new types */
+	peer = gst_pad_get_peer(bin_sink);
+	enc_caps = gst_caps_copy(GST_PAD_CAPS(bin_sink));
+	peer_elem = gst_pad_get_parent_element(peer);
+
+	new_deco = gst_element_factory_create(deco_fact, NULL);
+	new_deco = prepare_decoder(new_deco, type);
+
+	identity = gst_element_factory_make("identity", NULL);
+	identity = prepare_identity(identity, enc_caps, caps);
+
+	tee = gst_element_factory_make("tee", NULL);
+
+	gst_element_set_state(identity, GST_STATE_PLAYING);
+	gst_element_set_state(tee, GST_STATE_PLAYING);
+	gst_element_set_state(new_deco, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), identity, tee, NULL);
+
+	kms_dynamic_connection(peer_elem, identity, "src");
+	kms_dynamic_connection_tee(identity, tee);
+
+	add_decoder(self, new_deco);
+
+	gst_pad_unlink(peer, bin_sink);
+	g_object_unref(peer);
+
+	pad = gst_element_get_static_pad(identity, "src");
+	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
+									type);
+
+	g_object_unref(peer_elem);
+	gst_caps_unref(enc_caps);
+end:
+	g_object_unref(bin_sink);
+
+	/*
+	 * HACK: Bin has to be removed once this function finishes to avoid
+	 * memory leak or segmentation fault in typefind element
+	 */
+	g_timeout_add(100, (GSourceFunc) remove_tf_bin, g_object_ref(bin));
+	g_object_unref(deco);
+	g_object_unref(bin);
+}
+
 static void
 demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
-	GstElement *tee, *queue, *sink;
+	GstElement *bin, *deco, *typefind, *tee, *queue, *fakesink;
+	GstCaps *caps;
+	KmsMediaType type;
+	GstPad *deco_sink, *sink, *tee_sink;
+
+	type = kms_media_type_from_nick(GST_OBJECT_NAME(pad));
 
 	tee = gst_element_factory_make("tee", NULL);
 	queue = kms_utils_create_queue(NULL);
-	sink = gst_element_factory_make("fakesink", NULL);
+	fakesink = gst_element_factory_make("fakesink", NULL);
 
-	if (tee == NULL || queue == NULL || sink == NULL) {
-		g_warn_if_reached();
-
+	if (tee == NULL || queue == NULL || fakesink == NULL) {
 		if (tee != NULL)
 			g_object_unref(tee);
 
 		if (queue != NULL)
 			g_object_unref(queue);
 
-		if (sink != NULL)
-			g_object_unref(sink);
+		if (fakesink != NULL)
+			g_object_unref(fakesink);
 
 		return;
 	}
 
 	gst_element_set_state(tee, GST_STATE_PLAYING);
 	gst_element_set_state(queue, GST_STATE_PLAYING);
-	gst_element_set_state(sink, GST_STATE_PLAYING);
+	gst_element_set_state(fakesink, GST_STATE_PLAYING);
 
-	gst_bin_add_many(GST_BIN(self), tee, queue, sink, NULL);
+	gst_bin_add_many(GST_BIN(self), tee, queue, fakesink, NULL);
+	gst_element_link_many(tee, queue, fakesink, NULL);
+
 	kms_utils_release_unlinked_pads(tee);
-	gst_element_link_many(flvdemux, tee, queue, sink, NULL);
 
-	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self),
-				g_object_ref(pad), tee,
-				kms_media_type_from_nick(GST_OBJECT_NAME(pad)));
+	tee_sink = gst_element_get_static_pad(tee, "sink");
+	gst_pad_link(pad, tee_sink);
+	g_object_unref(tee_sink);
+
+	bin = gst_bin_new(NULL);
+	if (bin == NULL) {
+		g_warn_if_reached();
+		return;
+	}
+
+	g_object_set_data(G_OBJECT(bin), MEDIA_TYPE_DATA, GINT_TO_POINTER(type));
+
+	caps = gst_pad_get_caps(pad);
+	deco = kms_utils_get_element_for_caps(
+					GST_ELEMENT_FACTORY_TYPE_DECODER,
+					GST_RANK_NONE, caps, GST_PAD_SINK,
+					FALSE, "deco");
+	gst_caps_unref(caps);
+
+	if (deco == NULL) {
+		g_warn_if_reached();
+		g_object_unref(bin);
+		return;
+	}
+
+	gst_element_set_state(bin, GST_STATE_PLAYING);
+	gst_element_set_state(deco, GST_STATE_PLAYING);
+	gst_bin_add_many(GST_BIN(bin), deco, NULL);
+
+	typefind = gst_element_factory_make("typefind", "raw_find");
+	gst_element_set_state(typefind, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(bin), typefind);
+
+	g_object_connect(typefind, "signal::have_type", found_raw, self, NULL);
+
+	gst_element_link_many(deco, typefind, NULL);
+
+	deco_sink = gst_element_get_pad(deco, "sink");
+	sink = gst_ghost_pad_new("sink", deco_sink);
+	gst_pad_set_active(sink, TRUE);
+	gst_element_add_pad(bin, sink);
+	g_object_unref(deco_sink);
+
+	gst_bin_add(GST_BIN(self), bin);
+
+	gst_element_link(tee, bin);
 }
 
 static GstElement*
