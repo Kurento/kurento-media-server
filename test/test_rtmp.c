@@ -24,23 +24,25 @@ get_url(KmsSdpSession *session) {
 
 static GstElement*
 send_media(gchar *url) {
-	GstElement *apipe;
+	GstElement *pipe;
 	GError *err = NULL;
 	gchar *desc;
 
 	desc = g_strdup_printf("audiotestsrc ! ffenc_nellymoser ! queue2 ! "
-				"flvmux name=mux ! rtmpsink location='%s' "
-				"videotestsrc ! ffenc_flv ! mux.", url);
-	apipe = gst_parse_launch(desc, &err);
-	if (!apipe && err != NULL) {
+			"flvmux name=mux ! queue2 ! rtmpsink location=%s "
+			"videotestsrc ! ffenc_flv ! queue2 ! mux.",
+			url);
+	pipe = gst_parse_launch(desc, &err);
+	if (!pipe && err != NULL) {
 		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
 		g_error_free(err);
 	}
 	g_free(desc);
 
-	g_assert(apipe != NULL);
-	gst_element_set_state(apipe, GST_STATE_PLAYING);
-	return apipe;
+	g_assert(pipe != NULL);
+	gst_element_set_state(pipe, GST_STATE_PLAYING);
+
+	return pipe;
 }
 
 static void
@@ -191,7 +193,7 @@ test_connection() {
 
 	create_local_connections(ep);
 
-	sleep(2);
+	sleep(6);
 
 	KMS_DEBUG_PIPE("before_finish");
 
