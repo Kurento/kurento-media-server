@@ -142,7 +142,8 @@ connect_rtmp_callbacks(KmsRtmpReceiver *self, GstElement *rtmpsrc) {
 	if (src == NULL)
 		return;
 
-	gst_pad_add_event_probe(src, G_CALLBACK(event_handler), self);
+	gst_pad_add_event_probe_full(src, G_CALLBACK(event_handler),
+					g_object_ref(self), g_object_unref);
 
 	g_object_unref(src);
 }
