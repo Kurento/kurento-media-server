@@ -79,7 +79,10 @@ linked(GstPad *pad, GstPad *peer, gpointer orig) {
 	GstElement *dest;
 
 	dest = gst_pad_get_parent_element(pad);
-	gst_element_link(orig, dest);
+	if (!gst_element_link(orig, dest)) {
+		g_print("Error linking %s and %s\n", GST_ELEMENT_NAME(orig),
+							GST_ELEMENT_NAME(dest));
+	}
 	g_object_unref(dest);
 }
 
