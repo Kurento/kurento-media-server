@@ -58,7 +58,8 @@ video_event_probe(GstPad *pad, GstEvent *event, KmsRtmpSender *self) {
 	GstPad *sink;
 
 	if (!GST_IS_EVENT(event) ||
-				GST_EVENT_TYPE(event) != GST_EVENT_NEWSEGMENT)
+			GST_EVENT_TYPE(event) != GST_EVENT_NEWSEGMENT ||
+			gst_ghost_pad_get_target(GST_GHOST_PAD(pad)) != NULL)
 		return TRUE;
 
 	flvmux = self->priv->flvmux;
@@ -68,7 +69,6 @@ video_event_probe(GstPad *pad, GstEvent *event, KmsRtmpSender *self) {
 
 	/* TODO: search on templates to request a pad */
 	sink = gst_element_get_request_pad(flvmux, "video");
-
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
 
 	return TRUE;
@@ -80,7 +80,8 @@ audio_event_probe(GstPad *pad, GstEvent *event, KmsRtmpSender *self) {
 	GstPad *sink;
 
 	if (!GST_IS_EVENT(event) ||
-				GST_EVENT_TYPE(event) != GST_EVENT_NEWSEGMENT)
+			GST_EVENT_TYPE(event) != GST_EVENT_NEWSEGMENT ||
+			gst_ghost_pad_get_target(GST_GHOST_PAD(pad)) != NULL)
 		return TRUE;
 
 	flvmux = self->priv->flvmux;
