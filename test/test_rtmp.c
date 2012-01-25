@@ -30,8 +30,9 @@ send_media(gchar *url) {
 
 	desc = g_strdup_printf("audiotestsrc ! ffenc_nellymoser ! queue2 ! "
 			"flvmux name=mux ! queue2 ! rtmpsink location=%s "
-			"videotestsrc ! ffenc_flv ! queue2 ! mux.",
-			url);
+			"videotestsrc ! "
+			"video/x-raw-yuv,width=160,framerate=15/1 ! "
+			"ffenc_flv bitrate-tolerance=50000 ! queue2 ! mux.", url);
 	pipe = gst_parse_launch(desc, &err);
 	if (!pipe && err != NULL) {
 		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
