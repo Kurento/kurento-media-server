@@ -149,7 +149,37 @@ connect_rtmp_callbacks(KmsRtmpReceiver *self, GstElement *rtmpsrc) {
 
 static void
 demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
-	KMS_LOG_DEBUG("TODO: Connect new pad to flvdemux");
+	GstElement *tee, *queue, *sink;
+
+	tee = gst_element_factory_make("tee", NULL);
+	queue = kms_utils_create_queue(NULL);
+	sink = gst_element_factory_make("fakesink", NULL);
+
+	if (tee == NULL || queue == NULL || sink == NULL) {
+		g_warn_if_reached();
+
+		if (tee != NULL)
+			g_object_unref(tee);
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
+		if (sink != NULL)
+			g_object_unref(sink);
+
+		return;
+	}
+
+	gst_element_set_state(tee, GST_STATE_PLAYING);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(sink, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), tee, queue, sink, NULL);
+	kms_utils_release_unlinked_pads(tee);
+	gst_element_link_many(flvdemux, tee, queue, sink, NULL);
+
+	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
+				kms_media_type_from_nick(GST_OBJECT_NAME(pad)));
 }
 
 static GstElement*

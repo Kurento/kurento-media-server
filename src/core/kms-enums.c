@@ -36,3 +36,17 @@ kms_sdp_mode_get_type(void) {
 
 	return type;
 }
+
+KmsMediaType
+kms_media_type_from_nick(const gchar* name) {
+	GEnumClass *eclass;
+	GEnumValue *evalue;
+
+	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
+	evalue = g_enum_get_value_by_nick(eclass, name);
+
+	if (evalue == NULL)
+		return KMS_MEDIA_TYPE_UNKNOWN;
+
+	return evalue->value;
+}

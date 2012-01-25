@@ -19,6 +19,8 @@ typedef enum _KmsMediaType {
 	KMS_MEDIA_TYPE_VIDEO
 } KmsMediaType;
 
+KmsMediaType kms_media_type_from_nick(const gchar *name);
+
 #define KMS_SDP_MODE (kms_sdp_mode_get_type())
 
 GType kms_sdp_mode_get_type(void) G_GNUC_CONST;
