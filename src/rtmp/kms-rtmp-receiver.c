@@ -411,6 +411,8 @@ generate_rtmpsrc(KmsRtmpReceiver *self) {
 	rtmpsrc = gst_element_factory_make("rtmpsrc", "rtmp");
 	if  (rtmpsrc != NULL) {
 		g_object_set(rtmpsrc, "location", url, NULL);
+		g_object_set(rtmpsrc, "do-timestamp", TRUE, NULL);
+		g_object_set(rtmpsrc, "blocksize", 10, NULL);
 		connect_rtmp_callbacks(self, rtmpsrc);
 	}
 
