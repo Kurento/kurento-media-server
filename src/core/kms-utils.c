@@ -476,7 +476,7 @@ kms_utils_create_queue(const gchar *name) {
 
 	queue = gst_element_factory_make("queue", name);
 	if (queue != NULL) {
-		g_object_set(queue, "max-size-buffers", 1, "leaky", 2, NULL);
+		g_object_set(queue, "max-size-buffers", 4, "leaky", 2, NULL);
 	}
 
 	return queue;
