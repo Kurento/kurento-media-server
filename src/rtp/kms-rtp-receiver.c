@@ -262,6 +262,8 @@ add_elements_to_bin(KmsRtpReceiver *self, GstElement *orig, GstElement *deco,
 	gst_element_set_state(deco_tee, GST_STATE_PLAYING);
 	gst_element_set_state(depay_tee, GST_STATE_PLAYING);
 
+	/* TODO: Add a queue between deco and depay_tee */
+
 	gst_bin_add_many(GST_BIN(self), queue, depay, depay_tee, deco,
 								deco_tee, NULL);
 	kms_dynamic_connection(orig, queue, "src");

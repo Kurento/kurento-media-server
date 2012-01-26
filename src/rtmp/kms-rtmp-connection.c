@@ -305,6 +305,8 @@ static void
 kms_rtmp_connection_dispose(GObject *object) {
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(object);
 
+	/* TODO: Unset manager on endpoint */
+
 	LOCK(self);
 	dispose_local_spec(self);
 	dispose_remote_spec(self);
