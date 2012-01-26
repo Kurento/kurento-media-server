@@ -205,8 +205,44 @@ prepare_identity(GstElement *identity, GstCaps *enc_caps, GstCaps *raw_caps) {
 }
 
 static void
-add_decoder(KmsRtmpReceiver *self, GstElement *deco) {
-	g_print("TODO: add decoder to element\n");
+add_decoder(KmsRtmpReceiver *self, GstElement *prev_tee, GstElement *deco,
+							KmsMediaType type) {
+	GstElement *queue, *tee;
+	GstPad *deco_src;
+
+	queue = kms_utils_create_queue(NULL);
+	tee = gst_element_factory_make("tee", NULL);
+
+	if (queue == NULL || tee == NULL) {
+		g_warn_if_reached();
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
+		if (tee != NULL)
+			g_object_unref(tee);
+
+		g_object_unref(deco);
+		return;
+	}
+
+	gst_element_set_state(deco, GST_STATE_PLAYING);
+	gst_element_set_state(tee, GST_STATE_PLAYING);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), queue, deco, tee, NULL);
+
+	kms_dynamic_connection(prev_tee, queue, "src");
+	kms_dynamic_connection(queue, deco, "src");
+	kms_dynamic_connection_tee(deco, tee);
+
+	deco_src = gst_element_get_static_pad(deco, "src");
+
+	if (deco_src == NULL)
+		return;
+
+	kms_media_handler_src_set_raw_pad(KMS_MEDIA_HANDLER_SRC(self), deco_src,
+					  tee, type);
 }
 
 static void
@@ -254,7 +290,7 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	kms_dynamic_connection(peer_elem, identity, "src");
 	kms_dynamic_connection_tee(identity, tee);
 
-	add_decoder(self, new_deco);
+	add_decoder(self, tee, new_deco, type);
 
 	gst_pad_unlink(peer, bin_sink);
 	g_object_unref(peer);
