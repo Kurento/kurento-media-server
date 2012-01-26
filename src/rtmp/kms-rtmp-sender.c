@@ -85,22 +85,35 @@ found_audio(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 
 static void
 audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
-	GstElement *typefind;
+	GstElement *typefind, *queue;
 	GstPad *sink;
 
 	typefind = gst_element_factory_make("typefind", NULL);
-	if (typefind == NULL)
+	queue = kms_utils_create_queue(NULL);
+	if (typefind == NULL || queue == NULL) {
+		g_warn_if_reached();
+
+		if (typefind != NULL)
+			g_object_unref(typefind);
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
 		return;
+	}
 
 	gst_element_set_state(typefind, GST_STATE_PLAYING);
-	gst_bin_add(GST_BIN(self), typefind);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_bin_add_many(GST_BIN(self), typefind, queue, NULL);
 
 	g_object_connect(typefind, "signal::have-type", found_audio, self, NULL);
 
-	sink = gst_element_get_static_pad(typefind, "sink");
+	gst_element_link(queue, typefind);
+	sink = gst_element_get_static_pad(queue, "sink");
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
 
 	/* TODO: Add callback to remove when unlinked */
+	g_print("TODO: Add callback to remove when unlinked\n");
 
 	g_object_unref(sink);
 }
@@ -139,23 +152,36 @@ found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 
 static void
 video_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
-	GstElement *typefind;
+	GstElement *typefind, *queue;
 	GstPad *sink;
 
-	KMS_DEBUG;
 	typefind = gst_element_factory_make("typefind", NULL);
-	if (typefind == NULL)
+	queue = kms_utils_create_queue(NULL);
+
+	if (typefind == NULL || queue == NULL) {
+		g_warn_if_reached();
+
+		if (typefind != NULL)
+			g_object_unref(typefind);
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
 		return;
+	}
 
 	gst_element_set_state(typefind, GST_STATE_PLAYING);
-	gst_bin_add(GST_BIN(self), typefind);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_bin_add_many(GST_BIN(self), typefind, queue, NULL);
 
 	g_object_connect(typefind, "signal::have-type", found_video, self, NULL);
 
-	sink = gst_element_get_static_pad(typefind, "sink");
+	gst_element_link(queue, typefind);
+	sink = gst_element_get_static_pad(queue, "sink");
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
 
 	/* TODO: Add callback to remove when unlinked */
+	g_print("TODO: Add callback to remove when unlinked\n");
 
 	g_object_unref(sink);
 }
