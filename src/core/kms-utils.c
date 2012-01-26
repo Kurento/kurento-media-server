@@ -319,6 +319,7 @@ unlinked_delete(GstPad *pad, GstPad *peer, gpointer not_used) {
 
 	parent = gst_element_get_parent(elem);
 	if (parent == NULL) {
+		gst_element_set_state(elem, GST_STATE_NULL);
 		g_object_unref(elem);
 		return;
 	}
