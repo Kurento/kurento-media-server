@@ -162,7 +162,7 @@ video_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 create_media_chain(KmsRtmpSender *self) {
-	GstElement *rtmpsink, *flvmux;
+	GstElement *rtmpsink, *flvmux, *queue;
 	GstPadTemplate *audio_templ, *video_templ;
 	GstPad *audio_pad, *video_pad;
 	gchar *url;
@@ -177,8 +177,9 @@ create_media_chain(KmsRtmpSender *self) {
 
 	rtmpsink = gst_element_factory_make("rtmpsink", NULL);
 	flvmux = gst_element_factory_make("flvmux", NULL);
+	queue = kms_utils_create_queue(NULL);
 
-	if (rtmpsink == NULL || flvmux == NULL) {
+	if (rtmpsink == NULL || flvmux == NULL || queue == NULL) {
 		g_warn_if_reached();
 
 		if (rtmpsink == NULL)
@@ -187,9 +188,17 @@ create_media_chain(KmsRtmpSender *self) {
 		if (flvmux != NULL)
 			g_object_unref(flvmux);
 
+		if (queue != NULL)
+			g_object_unref(queue);
+
 		g_free(url);
 		return;
 	}
+
+	g_object_set(flvmux, "streamable", TRUE, NULL);
+	g_object_set(rtmpsink, "sync", FALSE, NULL);
+// 	g_object_set(rtmpsink, "enable-last-buffer", FALSE, NULL);
+	g_object_set(rtmpsink, "blocksize", 10, NULL);
 
 	self->priv->flvmux = g_object_ref(flvmux);
 	kms_utils_release_unlinked_pads(flvmux);
@@ -198,9 +207,10 @@ create_media_chain(KmsRtmpSender *self) {
 
 	gst_element_set_state(rtmpsink, GST_STATE_PLAYING);
 	gst_element_set_state(flvmux, GST_STATE_PLAYING);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
 
-	gst_bin_add_many(GST_BIN(self), rtmpsink, flvmux, NULL);
-	gst_element_link(flvmux, rtmpsink);
+	gst_bin_add_many(GST_BIN(self), rtmpsink, queue, flvmux, NULL);
+	gst_element_link_many(flvmux, queue, rtmpsink, NULL);
 
 	g_free(url);
 
