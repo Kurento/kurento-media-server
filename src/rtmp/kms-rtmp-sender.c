@@ -227,7 +227,7 @@ create_media_chain(KmsRtmpSender *self) {
 
 	g_object_set(flvmux, "streamable", TRUE, NULL);
 	g_object_set(rtmpsink, "sync", FALSE, NULL);
-// 	g_object_set(rtmpsink, "enable-last-buffer", FALSE, NULL);
+	g_object_set(rtmpsink, "enable-last-buffer", FALSE, NULL);
 	g_object_set(rtmpsink, "blocksize", 10, NULL);
 
 	self->priv->flvmux = g_object_ref(flvmux);
