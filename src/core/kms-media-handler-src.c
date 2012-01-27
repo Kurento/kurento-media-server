@@ -228,7 +228,7 @@ pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
 
 static gboolean
 check_pad_compatible(GstPad *pad, GstCaps *caps) {
-	GstCaps *pad_caps;
+	GstCaps *pad_caps, *intersect;
 	gboolean ret;
 
 	if (pad == NULL)
@@ -241,7 +241,9 @@ check_pad_compatible(GstPad *pad, GstCaps *caps) {
 		pad_caps = gst_pad_get_caps(pad);
 	}
 
-	ret = gst_caps_can_intersect(caps, pad_caps);
+	intersect = gst_caps_intersect(caps, pad_caps);
+	ret = !gst_caps_is_empty(intersect);
+	gst_caps_unref(intersect);
 	gst_caps_unref(pad_caps);
 
 	return ret;
@@ -415,6 +417,31 @@ error:
 	return NULL;
 }
 
+static gboolean
+check_raw_caps(KmsMediaType type, GstCaps *caps) {
+	GstCaps *raw, *intersect;
+	gboolean ret;
+
+	switch (type) {
+	case KMS_MEDIA_TYPE_AUDIO:
+		raw = gst_caps_from_string(AUDIO_RAW_CAPS);
+		break;
+	case KMS_MEDIA_TYPE_VIDEO:
+		raw = gst_caps_from_string(VIDEO_RAW_CAPS);
+		break;
+	default:
+		return FALSE;
+	}
+
+	intersect = gst_caps_intersect(raw, caps);
+
+	ret = !gst_caps_is_empty(intersect);
+
+	gst_caps_unref(intersect);
+	gst_caps_unref(raw);
+	return ret;
+}
+
 static GstPad*
 get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 						GstPad *raw, GSList **other,
@@ -435,7 +462,7 @@ get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 		goto end;
 	}
 	/* Check raw pad */
-	if (check_pad_compatible(raw, caps)) {
+	if (check_raw_caps(type, caps)) {
 		target = generate_raw_chain(self, raw, type);
 		goto end;
 	}
