@@ -9,7 +9,7 @@
 #define UNLOCK(obj) (g_mutex_unlock(KMS_RTMP_SENDER(obj)->priv->mutex))
 
 #define VIDEO_CAPS "video/x-flash-video;"
-#define AUDIO_CAPS "audio/x-nellymoser,channels=1,rate=11025;"
+#define AUDIO_CAPS "audio/mpeg,mpegversion=1,layer=3,rate=44100;"
 
 struct _KmsRtmpSenderPriv {
 	GMutex *mutex;
@@ -88,35 +88,38 @@ unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 found_audio(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
-	GstElement *flvmux;
-	GstPad *sink, *src;
+	GstElement *queue, *testsrc;
+	GstPad *sink, *src, *peer;
 
-	flvmux = self->priv->flvmux;
+	LOCK(self);
+	queue = gst_object_ref(self->priv->audio_queue);
+	testsrc = gst_object_ref(self->priv->audio_src);
+	UNLOCK(self);
 
-	if (flvmux == NULL)
-		return;
+	if (queue == NULL)
+		goto end;
 
-	/* TODO: search on templates to request a pad */
-	sink = gst_element_get_request_pad(flvmux, "audio");
-	src = gst_element_get_static_pad(tf, "src");
-
-	if (src == NULL || sink == NULL) {
-		g_warn_if_reached();
-
-		if (src != NULL)
-			g_object_unref(src);
-
-		if (sink != NULL) {
-			gst_element_release_request_pad(flvmux, sink);
-			gst_object_unref(sink);
-		}
-
-		return;
+	sink = gst_element_get_static_pad(queue, "sink");
+	if (gst_pad_is_linked(sink)) {
+		peer = gst_pad_get_peer(sink);
+		gst_pad_unlink(peer, sink);
+		gst_object_unref(peer);
 	}
-	gst_pad_link(src, sink);
 
-	g_object_unref(src);
-	g_object_unref(sink);
+	src = gst_element_get_static_pad(tf, "src");
+	g_print("pad link: %d\n", gst_pad_link(src, sink));
+	gst_object_unref(src);
+	gst_object_unref(sink);
+
+	gst_object_unref(queue);
+
+	if (testsrc != NULL) {
+		gst_element_set_state(testsrc, GST_STATE_PAUSED);
+	}
+
+end:
+	if (testsrc != NULL)
+		gst_object_unref(testsrc);
 }
 
 static void
@@ -224,6 +227,79 @@ video_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 }
 
 static void
+create_fake_audio_sender(KmsRtmpSender *self, GstElement *flvmux) {
+	GstElement *src, *enc, *filter, *tee, *queue, *sink;
+	GstCaps *caps;
+
+	src = gst_element_factory_make("audiotestsrc", NULL);
+	enc = gst_element_factory_make("lame", NULL);
+	filter = gst_element_factory_make("capsfilter", NULL);
+	queue = kms_utils_create_queue(NULL);
+	tee = gst_element_factory_make("tee", NULL);
+	sink = gst_element_factory_make("fakesink", NULL);
+
+	if (src == NULL || enc == NULL || filter == NULL || queue == NULL ||
+						tee == NULL || sink == NULL) {
+		g_warn_if_reached();
+		g_printerr("Check if you have lame plugin installed");
+
+		if (src != NULL)
+			g_object_unref(src);
+
+		if (filter != NULL)
+			g_object_unref(filter);
+
+		if (enc != NULL)
+			g_object_unref(enc);
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
+		if (tee != NULL)
+			g_object_unref(tee);
+
+		if (sink != NULL)
+			g_object_unref(sink);
+
+		return;
+	}
+
+	/* Configure src for silence */
+	g_object_set(src, "wave", 4, NULL);
+	g_object_set(src, "is-live", TRUE, NULL);
+	g_object_set(sink, "sync", TRUE, NULL);
+
+	g_object_set(enc, "bitrate", 64, NULL);
+
+	caps = gst_caps_from_string(AUDIO_CAPS);
+	g_object_set(filter, "caps", caps, NULL);
+	gst_caps_unref(caps);
+
+	gst_bin_add_many(GST_BIN(self), src, enc, filter, tee, sink, queue, NULL);
+	gst_element_link_many(tee, sink, NULL);
+	gst_element_link_many(src, enc, filter, tee, queue, flvmux, NULL);
+
+	kms_utils_release_unlinked_pads(tee);
+
+	gst_element_set_state(enc, GST_STATE_PLAYING);
+	gst_element_set_state(filter, GST_STATE_PLAYING);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(tee, GST_STATE_PLAYING);
+	gst_element_set_state(sink, GST_STATE_PLAYING);
+	gst_element_set_state(src, GST_STATE_PLAYING);
+
+	self->priv->audio_queue = gst_object_ref(queue);
+	self->priv->audio_src = gst_object_ref(src);
+
+	KMS_DEBUG_PIPE("Added");
+}
+
+static void
+create_fake_senders(KmsRtmpSender *self, GstElement *flvmux) {
+	create_fake_audio_sender(self, flvmux);
+}
+
+static void
 create_media_chain(KmsRtmpSender *self) {
 	GstElement *rtmpsink, *flvmux, *queue;
 	GstPadTemplate *audio_templ, *video_templ;
@@ -275,9 +351,11 @@ create_media_chain(KmsRtmpSender *self) {
 	gst_bin_add_many(GST_BIN(self), rtmpsink, queue, flvmux, NULL);
 	gst_element_link_many(flvmux, queue, rtmpsink, NULL);
 
+	create_fake_senders(self, flvmux);
+
 	g_free(url);
 
-	/* TODO: Get caps from the muxer template */
+	/* TODO: Add specific media configurations from rtmp-session */
 	audio_templ = gst_pad_template_new("audio_sink",
 					GST_PAD_SINK,
 					GST_PAD_ALWAYS,
