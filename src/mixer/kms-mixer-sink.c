@@ -59,18 +59,24 @@ kms_mixer_sink_link(KmsMixerSink *sink, KmsMixerSrc *src) {
 							"mixer_audio_sink%d");
 
 	if (src_pad == NULL || sink_pad == NULL) {
-		if (src_pad != NULL)
+		if (src_pad != NULL) {
 			gst_element_release_request_pad(GST_ELEMENT(sink),
 								src_pad);
+			gst_object_unref(src_pad);
+		}
 
-		if (sink_pad != NULL)
+		if (sink_pad != NULL) {
 			gst_element_release_request_pad(GST_ELEMENT(src),
 								sink_pad);
+			gst_object_unref(sink_pad);
+		}
 	}
 
 	if (GST_PAD_LINK_FAILED(gst_pad_link(src_pad, sink_pad))) {
 		gst_element_release_request_pad(GST_ELEMENT(sink), src_pad);
+		gst_object_unref(src_pad);
 		gst_element_release_request_pad(GST_ELEMENT(src), sink_pad);
+		gst_object_unref(sink_pad);
 	}
 }
 

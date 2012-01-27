@@ -175,6 +175,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	sink_pad = gst_element_get_static_pad(GST_ELEMENT(sink), sink_name);
 	if (sink_pad == NULL) {
 		gst_element_release_request_pad(GST_ELEMENT(self), src_pad);
+		gst_object_unref(src_pad);
 		g_warn_if_reached();
 		ret = TRUE;
 		goto end;
@@ -204,6 +205,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 					evalue->value_nick);
 		ret = FALSE;
 		gst_element_release_request_pad(GST_ELEMENT(self), src_pad);
+		gst_object_unref(src_pad);
 		g_object_unref(sink_pad);
 		goto end;
 	}

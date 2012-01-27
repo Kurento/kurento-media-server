@@ -72,8 +72,10 @@ found_audio(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 		if (src != NULL)
 			g_object_unref(src);
 
-		if (sink != NULL)
+		if (sink != NULL) {
 			gst_element_release_request_pad(flvmux, sink);
+			gst_object_unref(sink);
+		}
 
 		return;
 	}
@@ -139,8 +141,10 @@ found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 		if (src != NULL)
 			g_object_unref(src);
 
-		if (sink != NULL)
+		if (sink != NULL) {
 			gst_element_release_request_pad(flvmux, sink);
+			gst_object_unref(sink);
+		}
 
 		return;
 	}
