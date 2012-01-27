@@ -255,8 +255,6 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	GstCaps *enc_caps;
 	KmsMediaType type;
 
-	KMS_DEBUG;
-
 	bin = gst_element_get_parent(tf);
 	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bin),
 						 MEDIA_TYPE_DATA));

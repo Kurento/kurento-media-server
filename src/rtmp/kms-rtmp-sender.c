@@ -48,8 +48,6 @@ dispose_flvmux(KmsRtmpSender *self) {
 static void
 unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
-
-	KMS_DEBUG_PIPE("unlinked_rtmp");
 }
 
 static void
@@ -125,7 +123,6 @@ found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 	GstElement *flvmux;
 	GstPad *sink, *src;
 
-	KMS_DEBUG;
 	flvmux = self->priv->flvmux;
 
 	if (flvmux == NULL)
