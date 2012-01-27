@@ -18,6 +18,10 @@ struct _KmsRtmpSenderPriv {
 	gboolean offerer;
 
 	GstElement *flvmux;
+	GstElement *audio_queue;
+	GstElement *video_queue;
+	GstElement *audio_src;
+	GstElement *video_src;
 };
 
 enum {
@@ -42,6 +46,38 @@ dispose_flvmux(KmsRtmpSender *self) {
 	if (self->priv->flvmux != NULL) {
 		g_object_unref(self->priv->flvmux);
 		self->priv->flvmux = NULL;
+	}
+}
+
+static void
+dispose_audio_queue(KmsRtmpSender *self) {
+	if (self->priv->audio_queue != NULL) {
+		g_object_unref(self->priv->audio_queue);
+		self->priv->audio_queue = NULL;
+	}
+}
+
+static void
+dispose_video_queue(KmsRtmpSender *self) {
+	if (self->priv->video_queue != NULL) {
+		g_object_unref(self->priv->video_queue);
+		self->priv->video_queue = NULL;
+	}
+}
+
+static void
+dispose_audio_src(KmsRtmpSender *self) {
+	if (self->priv->audio_src != NULL) {
+		g_object_unref(self->priv->audio_src);
+		self->priv->audio_src = NULL;
+	}
+}
+
+static void
+dispose_video_src(KmsRtmpSender *self) {
+	if (self->priv->video_src != NULL) {
+		g_object_unref(self->priv->video_src);
+		self->priv->video_src = NULL;
 	}
 }
 
@@ -340,6 +376,10 @@ dispose(GObject *object) {
 	LOCK(self);
 	dispose_neg_spec(self);
 	dispose_flvmux(self);
+	dispose_audio_queue(self);
+	dispose_video_queue(self);
+	dispose_audio_src(self);
+	dispose_video_src(self);
 	UNLOCK(self);
 
 	G_OBJECT_CLASS(kms_rtmp_sender_parent_class)->dispose(object);
@@ -400,4 +440,8 @@ kms_rtmp_sender_init(KmsRtmpSender *self) {
 	self->priv->neg_spec = NULL;
 	self->priv->offerer = FALSE;
 	self->priv->flvmux = NULL;
+	self->priv->audio_queue = NULL;
+	self->priv->video_queue = NULL;
+	self->priv->audio_src = NULL;
+	self->priv->video_src = NULL;
 }
