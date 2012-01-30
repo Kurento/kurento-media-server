@@ -18,6 +18,7 @@ struct _KmsRtmpSenderPriv {
 	gboolean offerer;
 
 	GstElement *flvmux;
+	gchar *url;
 	GstElement *audio_queue;
 	GstElement *video_queue;
 	GstElement *audio_src;
@@ -86,6 +87,13 @@ unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
 }
 
+static void
+configure_rtmpsink(KmsRtmpSender *self, GstElement *rtmpsink) {
+	g_object_set(rtmpsink, "sync", FALSE, NULL);
+	g_object_set(rtmpsink, "enable-last-buffer", FALSE, NULL);
+	g_object_set(rtmpsink, "blocksize", 10, NULL);
+	g_object_set(rtmpsink, "location", self->priv->url, NULL);
+}
 static void
 found_audio(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 	GstElement *queue, *testsrc;
@@ -159,17 +167,44 @@ audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
-	GstElement *flvmux;
+	GstElement *flvmux, *rtmpsink, *queue;
 	GstPad *sink, *src;
 
 	flvmux = self->priv->flvmux;
+	rtmpsink = gst_bin_get_by_name(GST_BIN(self), "rtmpsink");
+	queue = gst_bin_get_by_name(GST_BIN(self), "queue");
 
-	if (flvmux == NULL)
+	if (flvmux == NULL || rtmpsink == NULL || queue == NULL) {
+		if (rtmpsink != NULL)
+			g_object_unref(rtmpsink);
+
+		if (queue != NULL)
+			g_object_unref(queue);
+
 		return;
+	}
 
 	/* TODO: search on templates to request a pad */
+	gst_element_set_state(flvmux, GST_STATE_READY);
+
+	gst_bin_remove_many(GST_BIN(self), rtmpsink, queue, NULL);
+	gst_element_set_state(rtmpsink, GST_STATE_NULL);
+	gst_element_set_state(queue, GST_STATE_NULL);
+	gst_object_unref(rtmpsink);
+	gst_object_unref(queue);
+
 	sink = gst_element_get_request_pad(flvmux, "video");
 	src = gst_element_get_static_pad(tf, "src");
+
+	queue = kms_utils_create_queue("queue");
+	rtmpsink = gst_element_factory_make("rtmpsink", "rtmpsink");
+	configure_rtmpsink(self, rtmpsink);
+	gst_bin_add_many(GST_BIN(self), rtmpsink, queue, NULL);
+	gst_element_link_many(flvmux, queue, rtmpsink, NULL);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(rtmpsink, GST_STATE_PLAYING);
+
+	gst_element_set_state(flvmux, GST_STATE_PLAYING);
 
 	if (src == NULL || sink == NULL) {
 		g_warn_if_reached();
@@ -314,9 +349,9 @@ create_media_chain(KmsRtmpSender *self) {
 		return;
 	}
 
-	rtmpsink = gst_element_factory_make("rtmpsink", NULL);
+	rtmpsink = gst_element_factory_make("rtmpsink", "rtmpsink");
 	flvmux = gst_element_factory_make("flvmux", NULL);
-	queue = kms_utils_create_queue(NULL);
+	queue = kms_utils_create_queue("queue");
 
 	if (rtmpsink == NULL || flvmux == NULL || queue == NULL) {
 		g_warn_if_reached();
@@ -334,26 +369,23 @@ create_media_chain(KmsRtmpSender *self) {
 		return;
 	}
 
+	self->priv->url = url;
+
 	g_object_set(flvmux, "streamable", TRUE, NULL);
-	g_object_set(rtmpsink, "sync", FALSE, NULL);
-	g_object_set(rtmpsink, "enable-last-buffer", FALSE, NULL);
-	g_object_set(rtmpsink, "blocksize", 10, NULL);
 
 	self->priv->flvmux = g_object_ref(flvmux);
 	kms_utils_release_unlinked_pads(flvmux);
 
-	g_object_set(rtmpsink, "location", url, NULL);
-
-	gst_element_set_state(rtmpsink, GST_STATE_PLAYING);
 	gst_element_set_state(flvmux, GST_STATE_PLAYING);
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 
 	gst_bin_add_many(GST_BIN(self), rtmpsink, queue, flvmux, NULL);
 	gst_element_link_many(flvmux, queue, rtmpsink, NULL);
 
-	create_fake_senders(self, flvmux);
+	configure_rtmpsink(self, rtmpsink);
+	gst_element_set_state(rtmpsink, GST_STATE_PLAYING);
 
-	g_free(url);
+	create_fake_senders(self, flvmux);
 
 	/* TODO: Add specific media configurations from rtmp-session */
 	audio_templ = gst_pad_template_new("audio_sink",
@@ -468,6 +500,8 @@ finalize(GObject *object) {
 	KmsRtmpSender *self = KMS_RTMP_SENDER(object);
 
 	g_mutex_free(self->priv->mutex);
+	if (self->priv->url != NULL)
+		g_free(self->priv->url);
 
 	G_OBJECT_CLASS(kms_rtmp_sender_parent_class)->finalize(object);
 }
@@ -518,6 +552,7 @@ kms_rtmp_sender_init(KmsRtmpSender *self) {
 	self->priv->neg_spec = NULL;
 	self->priv->offerer = FALSE;
 	self->priv->flvmux = NULL;
+	self->priv->url = NULL;
 	self->priv->audio_queue = NULL;
 	self->priv->video_queue = NULL;
 	self->priv->audio_src = NULL;
