@@ -288,14 +288,14 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	kms_dynamic_connection(peer_elem, identity, "src");
 	kms_dynamic_connection_tee(identity, tee);
 
+	pad = gst_element_get_static_pad(identity, "src");
+	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
+									type);
+
 	add_decoder(self, tee, new_deco, type);
 
 	gst_pad_unlink(peer, bin_sink);
 	g_object_unref(peer);
-
-	pad = gst_element_get_static_pad(identity, "src");
-	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
-									type);
 
 	g_object_unref(peer_elem);
 	gst_caps_unref(enc_caps);
