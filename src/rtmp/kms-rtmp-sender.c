@@ -9,15 +9,18 @@
 #define UNLOCK(obj) (g_mutex_unlock(KMS_RTMP_SENDER(obj)->priv->mutex))
 
 #define VIDEO_CAPS "video/x-flash-video;"
-#define AUDIO_CAPS "audio/mpeg,mpegversion=1,layer=3,rate=44100;"
+#define AUDIO_CAPS "audio/x-nellymoser;"
 
 struct _KmsRtmpSenderPriv {
 	GMutex *mutex;
 
 	KmsRtmpSession *neg_spec;
 	gboolean offerer;
+	guint timeout;
 
 	gchar *url;
+	GstElement *audio_elem;
+	GstElement *video_elem;
 };
 
 enum {
@@ -38,55 +41,159 @@ dispose_neg_spec(KmsRtmpSender *self) {
 }
 
 static void
+dispose_audio_elem(KmsRtmpSender *self) {
+	if (self->priv->audio_elem != NULL) {
+		g_object_unref(self->priv->audio_elem);
+		self->priv->audio_elem = NULL;
+	}
+}
+
+static void
+dispose_video_elem(KmsRtmpSender *self) {
+	if (self->priv->video_elem != NULL) {
+		g_object_unref(self->priv->video_elem);
+		self->priv->video_elem = NULL;
+	}
+}
+
+static void
+dispose_timeout(KmsRtmpSender *self) {
+	if (self->priv->timeout != 0) {
+		g_source_remove(self->priv->timeout);
+		self->priv->timeout = 0;
+	}
+}
+
+static void
 unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
 }
 
 static void
 remove_rtmpsink(KmsRtmpSender *self) {
-	GstElement *rtmpsink;
+	GstElement *rtmpsink, *queue, *flvmux;
 
 	rtmpsink = gst_bin_get_by_name(GST_BIN(self), "rtmpsink");
+	queue = gst_bin_get_by_name(GST_BIN(self), "queue");
+	flvmux = gst_bin_get_by_name(GST_BIN(self), "flvmux");
 
-	if (rtmpsink == NULL)
-		return;
+	if (flvmux != NULL) {
+		gst_bin_remove(GST_BIN(self), flvmux);
+		gst_element_set_state(flvmux, GST_STATE_NULL);
+		gst_object_unref(flvmux);
+	}
 
-	gst_bin_remove(GST_BIN(self), rtmpsink);
-	gst_element_set_state(rtmpsink, GST_STATE_NULL);
-	gst_object_unref(rtmpsink);
+	if (queue != NULL) {
+		gst_bin_remove(GST_BIN(self), queue);
+		gst_element_set_state(queue, GST_STATE_NULL);
+		gst_object_unref(queue);
+	}
+
+	if (rtmpsink != NULL) {
+		gst_bin_remove(GST_BIN(self), rtmpsink);
+		gst_element_set_state(rtmpsink, GST_STATE_NULL);
+		gst_object_unref(rtmpsink);
+	}
 }
 
-static void
-create_rtmpsink(KmsRtmpSender *self) {
-	GstElement *rtmpsink, *queue;
+static gboolean
+create_rtmpsink_cb(KmsRtmpSender *self) {
+	GstElement *rtmpsink, *queue, *flvmux;
+
+	LOCK(self);
+	if (self->priv->timeout == 0)
+		goto end;
+
+	self->priv->timeout = 0;
 
 	remove_rtmpsink(self);
 
-	queue = gst_bin_get_by_name(GST_BIN(self), "queue");
 	rtmpsink = gst_element_factory_make("rtmpsink", "rtmpsink");
+	queue = kms_utils_create_queue("queue");
+	flvmux = gst_element_factory_make("flvmux", "flvmux");
 
-	if (queue == NULL || rtmpsink == NULL) {
+	if (queue == NULL || rtmpsink == NULL || flvmux == NULL) {
 		if (queue != NULL)
 			gst_object_unref(queue);
 
 		if (rtmpsink != NULL)
 			gst_object_unref(rtmpsink);
 
-		return;
+		if (flvmux != NULL)
+			gst_object_unref(flvmux);
+
+		goto end;
 	}
 
+	g_object_set(flvmux, "streamable", TRUE, NULL);
 	g_object_set(rtmpsink, "sync", FALSE, NULL);
+	g_object_set(rtmpsink, "async", FALSE, NULL);
 	g_object_set(rtmpsink, "enable-last-buffer", FALSE, NULL);
 	g_object_set(rtmpsink, "blocksize", 10, NULL);
 	g_object_set(rtmpsink, "location", self->priv->url, NULL);
 
-	gst_bin_add(GST_BIN(self), rtmpsink);
-	gst_element_link_many(queue, rtmpsink, NULL);
 	gst_element_set_state(rtmpsink, GST_STATE_PLAYING);
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(flvmux, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), rtmpsink, queue, flvmux, NULL);
+	gst_element_link_many(flvmux, queue, rtmpsink, NULL);
+
+	if (self->priv->audio_elem != NULL)
+		gst_element_link(self->priv->audio_elem, flvmux);
+
+	if (self->priv->video_elem != NULL)
+		gst_element_link(self->priv->video_elem, flvmux);
+
+
+end:
+	UNLOCK(self);
+	return FALSE;
 }
+
+static void
+create_rtmpsink(KmsRtmpSender *self) {
+	/* Self should be locked */
+
+	if (self->priv->timeout != 0)
+		/* Callback already in process */
+		return;
+
+	self->priv->timeout = g_timeout_add(500,
+					(GSourceFunc) create_rtmpsink_cb,
+					self);
+}
+
+static void
+set_video_elem(KmsRtmpSender *self, GstElement *video_elem) {
+	LOCK(self);
+	dispose_video_elem(self);
+	self->priv->video_elem = gst_object_ref(video_elem);
+	create_rtmpsink(self);
+	UNLOCK(self);
+}
+
+static void
+set_audio_elem(KmsRtmpSender *self, GstElement *audio_elem) {
+	LOCK(self);
+	dispose_audio_elem(self);
+	self->priv->audio_elem = gst_object_ref(audio_elem);
+	create_rtmpsink(self);
+	UNLOCK(self);
+}
+
 static void
 found_audio(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
-	KMS_LOG_DEBUG("TODO");
+	GstElement *queue;
+
+	queue = kms_utils_create_queue(NULL);
+	KMS_LOG_DEBUG("TODO: add callback to remove when unlinked");
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), queue);
+
+	gst_element_link(tf, queue);
+
+	set_audio_elem(self, queue);
 }
 
 static void
@@ -95,7 +202,7 @@ audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 	GstPad *sink;
 
 	typefind = gst_element_factory_make("typefind", NULL);
-	queue = kms_utils_create_queue(NULL);
+	queue = kms_utils_create_queue("audio_queue");
 	if (typefind == NULL || queue == NULL) {
 		g_warn_if_reached();
 
@@ -126,41 +233,16 @@ audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
-	GstElement *flvmux;
-	GstPad *sink, *src;
+	GstElement *queue;
 
-	flvmux = gst_bin_get_by_name(GST_BIN(self), "flvmux");
+	queue = kms_utils_create_queue(NULL);
+	KMS_LOG_DEBUG("TODO: add callback to remove when unlinked");
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_bin_add(GST_BIN(self), queue);
 
-	if (flvmux == NULL)
-		return;
+	gst_element_link(tf, queue);
 
-	/* TODO: search on templates to request a pad */
-	gst_element_set_state(flvmux, GST_STATE_READY);
-	remove_rtmpsink(self);
-
-	sink = gst_element_get_request_pad(flvmux, "video");
-	src = gst_element_get_static_pad(tf, "src");
-
-	gst_element_set_state(flvmux, GST_STATE_PLAYING);
-	create_rtmpsink(self);
-
-	if (src == NULL || sink == NULL) {
-		g_warn_if_reached();
-
-		if (src != NULL)
-			g_object_unref(src);
-
-		if (sink != NULL) {
-			gst_element_release_request_pad(flvmux, sink);
-			gst_object_unref(sink);
-		}
-
-		return;
-	}
-	gst_pad_link(src, sink);
-
-	g_object_unref(src);
-	g_object_unref(sink);
+	set_video_elem(self, queue);
 }
 
 static void
@@ -169,7 +251,7 @@ video_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 	GstPad *sink;
 
 	typefind = gst_element_factory_make("typefind", NULL);
-	queue = kms_utils_create_queue(NULL);
+	queue = kms_utils_create_queue("video_queue");
 
 	if (typefind == NULL || queue == NULL) {
 		g_warn_if_reached();
@@ -201,7 +283,6 @@ video_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 create_media_chain(KmsRtmpSender *self) {
-	GstElement *flvmux, *queue;
 	GstPadTemplate *audio_templ, *video_templ;
 	GstPad *audio_pad, *video_pad;
 	gchar *url;
@@ -215,33 +296,7 @@ create_media_chain(KmsRtmpSender *self) {
 		return;
 	}
 
-	flvmux = gst_element_factory_make("flvmux", "flvmux");
-	queue = kms_utils_create_queue("queue");
-
-	if (flvmux == NULL || queue == NULL) {
-		g_warn_if_reached();
-
-		if (flvmux != NULL)
-			g_object_unref(flvmux);
-
-		if (queue != NULL)
-			g_object_unref(queue);
-		return;
-	}
-
-	g_object_set(flvmux, "streamable", TRUE, NULL);
-
-	kms_utils_release_unlinked_pads(flvmux);
-
-	gst_element_set_state(flvmux, GST_STATE_PLAYING);
-	gst_element_set_state(queue, GST_STATE_PLAYING);
-
-	gst_bin_add_many(GST_BIN(self), queue, flvmux, NULL);
-	gst_element_link(flvmux, queue);
-
-	create_rtmpsink(self);
-
-	/* TODO: Add specific media configurations from rtmp-session */
+	/* TODO: Get caps from flvmux factory */
 	audio_templ = gst_pad_template_new("audio_sink",
 					GST_PAD_SINK,
 					GST_PAD_ALWAYS,
@@ -338,7 +393,10 @@ dispose(GObject *object) {
 	KmsRtmpSender *self = KMS_RTMP_SENDER(object);
 
 	LOCK(self);
+	dispose_timeout(self);
 	dispose_neg_spec(self);
+	dispose_audio_elem(self);
+	dispose_video_elem(self);
 	UNLOCK(self);
 
 	G_OBJECT_CLASS(kms_rtmp_sender_parent_class)->dispose(object);
@@ -401,4 +459,7 @@ kms_rtmp_sender_init(KmsRtmpSender *self) {
 	self->priv->neg_spec = NULL;
 	self->priv->offerer = FALSE;
 	self->priv->url = NULL;
+	self->priv->audio_elem = NULL;
+	self->priv->video_elem = NULL;
+	self->priv->timeout = 0;
 }
