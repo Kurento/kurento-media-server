@@ -185,9 +185,14 @@ set_audio_elem(KmsRtmpSender *self, GstElement *audio_elem) {
 static void
 found_audio(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 	GstElement *queue;
+	GstPad *sink;
 
 	queue = kms_utils_create_queue(NULL);
-	KMS_LOG_DEBUG("TODO: add callback to remove when unlinked");
+
+	sink = gst_element_get_static_pad(queue, "sink");
+	kms_utils_remove_when_unlinked(sink);
+	gst_object_unref(sink);
+
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(self), queue);
 
@@ -234,9 +239,14 @@ audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 static void
 found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 	GstElement *queue;
+	GstPad *sink;
 
 	queue = kms_utils_create_queue(NULL);
-	KMS_LOG_DEBUG("TODO: add callback to remove when unlinked");
+
+	sink = gst_element_get_static_pad(queue, "sink");
+	kms_utils_remove_when_unlinked(sink);
+	gst_object_unref(sink);
+
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(self), queue);
 

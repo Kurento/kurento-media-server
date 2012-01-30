@@ -374,6 +374,14 @@ end:
 }
 
 void
+kms_utils_remove_when_unlinked(GstPad *pad) {
+	if (!GST_IS_PAD(pad))
+		return;
+
+	g_object_connect(pad, "signal::unlinked", unlinked_delete, NULL, NULL);
+}
+
+void
 kms_utils_configure_element(GstElement *elem) {
 	/* TODO: This function should be pluggable or configurable */
 	GstElementFactory *factory;
