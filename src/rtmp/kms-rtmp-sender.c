@@ -65,11 +65,6 @@ dispose_timeout(KmsRtmpSender *self) {
 }
 
 static void
-unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
-	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
-}
-
-static void
 remove_rtmpsink(KmsRtmpSender *self) {
 	GstElement *rtmpsink, *queue, *flvmux;
 
@@ -180,6 +175,34 @@ set_audio_elem(KmsRtmpSender *self, GstElement *audio_elem) {
 	self->priv->audio_elem = gst_object_ref(audio_elem);
 	create_rtmpsink(self);
 	UNLOCK(self);
+}
+
+static void
+unset_video_elem(KmsRtmpSender *self) {
+	LOCK(self);
+	dispose_video_elem(self);
+	create_rtmpsink(self);
+	UNLOCK(self);
+}
+
+static void
+unset_audio_elem(KmsRtmpSender *self) {
+	LOCK(self);
+	dispose_audio_elem(self);
+	create_rtmpsink(self);
+	UNLOCK(self);
+}
+
+static void
+audio_unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
+	unset_audio_elem(self);
+}
+
+static void
+video_unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
+	unset_video_elem(self);
 }
 
 static void
@@ -315,7 +338,7 @@ create_media_chain(KmsRtmpSender *self) {
 								audio_templ);
 	if (audio_pad != NULL) {
 		gst_pad_set_active(audio_pad, TRUE);
-		g_object_connect(audio_pad, "signal::unlinked", unlinked,
+		g_object_connect(audio_pad, "signal::unlinked", audio_unlinked,
 								self, NULL);
 		g_object_connect(audio_pad, "signal::linked", audio_linked,
 								self, NULL);
@@ -331,7 +354,7 @@ create_media_chain(KmsRtmpSender *self) {
 								video_templ);
 	if (video_pad != NULL) {
 		gst_pad_set_active(video_pad, TRUE);
-		g_object_connect(video_pad, "signal::unlinked", unlinked,
+		g_object_connect(video_pad, "signal::unlinked", video_unlinked,
 								self, NULL);
 		g_object_connect(video_pad, "signal::linked", video_linked,
 								self, NULL);
