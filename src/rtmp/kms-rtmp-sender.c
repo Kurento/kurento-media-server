@@ -126,39 +126,23 @@ audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 found_video(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
-	GstElement *flvmux, *rtmpsink, *queue;
+	GstElement *flvmux;
 	GstPad *sink, *src;
 
 	flvmux = gst_bin_get_by_name(GST_BIN(self), "flvmux");
-	rtmpsink = gst_bin_get_by_name(GST_BIN(self), "rtmpsink");
-	queue = gst_bin_get_by_name(GST_BIN(self), "queue");
 
-	if (flvmux == NULL || rtmpsink == NULL || queue == NULL) {
-		if (rtmpsink != NULL)
-			g_object_unref(rtmpsink);
-
-		if (queue != NULL)
-			g_object_unref(queue);
-
-		if (flvmux != NULL)
-			g_object_unref(flvmux);
-
+	if (flvmux == NULL)
 		return;
-	}
 
 	/* TODO: search on templates to request a pad */
 	gst_element_set_state(flvmux, GST_STATE_READY);
-
-	gst_bin_remove(GST_BIN(self), rtmpsink);
-	gst_element_set_state(rtmpsink, GST_STATE_NULL);
-	gst_object_unref(rtmpsink);
+	remove_rtmpsink(self);
 
 	sink = gst_element_get_request_pad(flvmux, "video");
 	src = gst_element_get_static_pad(tf, "src");
 
-	create_rtmpsink(self);
-
 	gst_element_set_state(flvmux, GST_STATE_PLAYING);
+	create_rtmpsink(self);
 
 	if (src == NULL || sink == NULL) {
 		g_warn_if_reached();
