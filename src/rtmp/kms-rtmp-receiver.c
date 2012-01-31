@@ -400,7 +400,7 @@ generate_rtmpsrc(KmsRtmpReceiver *self) {
 	gchar *url;
 
 	url = kms_rtmp_session_get_url(self->priv->neg_spec,
-				       self->priv->offerer);
+				       !self->priv->offerer);
 	if (url == NULL) {
 		g_warn_if_reached();
 		return NULL;

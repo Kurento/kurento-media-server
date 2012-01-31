@@ -292,7 +292,7 @@ create_media_chain(KmsRtmpSender *self) {
 	gchar *url;
 
 	url = kms_rtmp_session_get_url(self->priv->neg_spec,
-							!self->priv->offerer);
+							self->priv->offerer);
 	self->priv->url = url;
 
 	if (url == NULL) {
