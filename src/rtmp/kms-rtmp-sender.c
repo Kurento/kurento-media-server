@@ -195,14 +195,14 @@ unset_audio_elem(KmsRtmpSender *self) {
 
 static void
 audio_unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
-	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
 	unset_audio_elem(self);
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
 }
 
 static void
 video_unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
-	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
 	unset_video_elem(self);
+	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), NULL);
 }
 
 static void
@@ -240,9 +240,7 @@ audio_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 	sink = gst_element_get_static_pad(typefind, "sink");
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
-
-	/* TODO: Add callback to remove when unlinked */
-	g_print("TODO: Add callback to remove when unlinked\n");
+	kms_utils_remove_when_unlinked(sink);
 
 	g_object_unref(sink);
 }
@@ -282,9 +280,7 @@ video_linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 	sink = gst_element_get_static_pad(typefind, "sink");
 	gst_ghost_pad_set_target(GST_GHOST_PAD(pad), sink);
-
-	/* TODO: Add callback to remove when unlinked */
-	g_print("TODO: Add callback to remove when unlinked\n");
+	kms_utils_remove_when_unlinked(sink);
 
 	g_object_unref(sink);
 }
