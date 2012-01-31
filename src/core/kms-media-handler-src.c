@@ -276,6 +276,8 @@ generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
 
 		if (rate != NULL)
 			g_object_unref(rate);
+
+		return NULL;
 	}
 
 	g_object_set(convert, "dithering", 0, NULL);
