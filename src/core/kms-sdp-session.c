@@ -293,13 +293,11 @@ kms_sdp_session_set_property(GObject  *object, guint property_id,
 			break;
 		case PROP_ID:
 			LOCK(self);
-			free_username(self);
 			self->priv->id = g_value_get_long(value);
 			UNLOCK(self);
 			break;
 		case PROP_VERSION:
 			LOCK(self);
-			free_username(self);
 			self->priv->version = g_value_get_long(value);
 			UNLOCK(self);
 			break;
