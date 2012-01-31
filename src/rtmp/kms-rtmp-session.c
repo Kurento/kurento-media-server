@@ -371,7 +371,10 @@ kms_rtmp_session_get_sdp_session(KmsRtmpSession *session) {
 	g_value_array_append(medias, &mvalue);
 	g_value_unset(&mvalue);
 
-	sdp_session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias, NULL);
+	sdp_session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
+						"address", "localhost",
+						"remote_handler", "localhost",
+						NULL);
 	g_value_array_free(medias);
 
 	return sdp_session;
