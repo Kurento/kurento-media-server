@@ -267,6 +267,27 @@ kms_endpoint_dispose(GObject *gobject) {
 	G_OBJECT_CLASS(kms_endpoint_parent_class)->dispose(gobject);
 }
 
+static KmsResource*
+default_get_resource(KmsEndpoint *self, GType type, GError **err) {
+	gchar *msg = g_strdup_printf("Class %s does not reimplement "
+				"get_resource method",
+				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
+
+	g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
+
+	SET_ERROR(err, KMS_ENDPOINT_ERROR, KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED,
+									msg);
+
+	g_free(msg);
+
+	return NULL;
+}
+
+KmsResource*
+kms_endpoint_get_resource(KmsEndpoint *self, GType type, GError **err) {
+	return KMS_ENDPOINT_GET_CLASS(self)->get_resource(self, type, err);
+}
+
 static void
 kms_endpoint_finalize(GObject *gobject) {
 	KmsEndpoint *self = KMS_ENDPOINT(gobject);
@@ -306,6 +327,7 @@ kms_endpoint_class_init (KmsEndpointClass *klass) {
 
 	/* Set default implementation to avoid segment violation errors */
 	klass->create_connection = default_create_connection;
+	klass->get_resource = default_get_resource;
 }
 
 static void

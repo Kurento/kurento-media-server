@@ -6,6 +6,7 @@
 #define __KMS_ENDPOINT_H__
 
 #include <glib-object.h>
+#include <kms-resource.h>
 
 /*
  * Type macros.
@@ -45,6 +46,8 @@ struct _KmsEndpointClass {
 
 	KmsConnection *(*create_connection) (KmsEndpoint *self, gchar *name,
 					     GError **err);
+	KmsResource *(*get_resource)(KmsEndpoint *self, GType type,
+								GError **err);
 
 	/* class members */
 };
@@ -85,9 +88,7 @@ gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
 
 void kms_endpoint_delete_all_connections(KmsEndpoint *self);
 
-/*
- * TODO: Implement get_resource
-KmsResource kms_endpoint_get_resource(KmsEndpoint *self, GError *err);
-*/
+KmsResource *kms_endpoint_get_resource(KmsEndpoint *self, GType type,
+								GError **err);
 
 #endif /* __KMS_ENDPOINT_H__ */
