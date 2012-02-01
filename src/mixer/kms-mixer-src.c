@@ -30,6 +30,13 @@ static GstStaticPadTemplate audio_sink = GST_STATIC_PAD_TEMPLATE (
 					"rate=8000, channels=1")
 );
 
+static GstStaticPadTemplate audio_src = GST_STATIC_PAD_TEMPLATE (
+						"audio_src%d",
+						GST_PAD_SRC,
+						GST_PAD_REQUEST,
+						GST_STATIC_CAPS_ANY
+);
+
 G_DEFINE_TYPE(KmsMixerSrc, kms_mixer_src, KMS_TYPE_MEDIA_HANDLER_SRC)
 
 static void
@@ -249,17 +256,13 @@ kms_mixer_src_class_init(KmsMixerSrcClass *klass) {
 	object_class->constructed = constructed;
 
 	GST_ELEMENT_CLASS(klass)->request_new_pad = mixer_src_request_new_pad;
-
-	/* HACK:
-		Don't know why but padtemplates are NULL in child classes,
-		this hack takes them from parent class
-	*/
-	GST_ELEMENT_CLASS(klass)->padtemplates =
-		GST_ELEMENT_CLASS(kms_mixer_src_parent_class)->padtemplates;
-	GST_ELEMENT_CLASS(klass)->numpadtemplates =
-		GST_ELEMENT_CLASS(kms_mixer_src_parent_class)->numpadtemplates;
+	GST_ELEMENT_CLASS(klass)->numpadtemplates = 0;
 
 	templ = gst_static_pad_template_get(&audio_sink);
+	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
+	g_object_unref(templ);
+
+	templ = gst_static_pad_template_get(&audio_src);
 	gst_element_class_add_pad_template(GST_ELEMENT_CLASS(klass), templ);
 	g_object_unref(templ);
 }
