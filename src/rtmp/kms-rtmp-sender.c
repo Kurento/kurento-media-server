@@ -156,7 +156,6 @@ create_rtmpsink_cb(KmsRtmpSender *self) {
 	if (self->priv->video_elem != NULL)
 		gst_element_link(self->priv->video_elem, flvmux);
 
-
 end:
 	UNLOCK(self);
 	return FALSE;
