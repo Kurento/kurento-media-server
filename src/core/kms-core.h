@@ -6,6 +6,7 @@
 #define __KMS_CORE_H_INSIDE__
 
 #include <kms-resource.h>
+#include <kms-player.h>
 #include <kms-endpoint.h>
 #include <kms-connection.h>
 #include <kms-enums.h>
