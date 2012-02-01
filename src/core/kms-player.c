@@ -1,29 +1,18 @@
 #include <kms-core.h>
 
-#define KMS_PLAYER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_CONNECTION, KmsPlayerPriv))
-
-#define LOCK(obj) (g_mutex_lock(KMS_PLAYER(obj)->priv->mutex))
-#define UNLOCK(obj) (g_mutex_unlock(KMS_PLAYER(obj)->priv->mutex))
-
-struct _KmsPlayerPriv {
-	GMutex *mutex;
-};
-
-G_DEFINE_TYPE(KmsPlayer, kms_player, KMS_TYPE_RESOURCE)
-
 void
 kms_player_set_url(KmsPlayer *self, gchar *url) {
-	KMS_PLAYER_GET_CLASS(self)->set_url(self, url);
+	KMS_PLAYER_GET_INTERFACE(self)->set_url(self, url);
 }
 
 void
 kms_player_start(KmsPlayer *self) {
-	KMS_PLAYER_GET_CLASS(self)->start(self);
+	KMS_PLAYER_GET_INTERFACE(self)->start(self);
 }
 
 void
 kms_player_stop(KmsPlayer *self) {
-	KMS_PLAYER_GET_CLASS(self)->stop(self);
+	KMS_PLAYER_GET_INTERFACE(self)->stop(self);
 }
 
 void
@@ -45,38 +34,29 @@ kms_player_stop_default(KmsPlayer *self) {
 }
 
 static void
-kms_player_dispose(GObject *object) {
-	/* Chain up to the parent class */
-	G_OBJECT_CLASS (kms_player_parent_class)->dispose(object);
+kms_player_interface_init(gpointer g_class) {
+	KmsPlayerInterface *iface = (KmsPlayerInterface *) g_class;
+	/* add properties and signals to the interface here */
+
+	iface->start = kms_player_start_default;
+	iface->set_url = kms_player_set_url_default;
+	iface->stop = kms_player_stop_default;
 }
 
-static void
-kms_player_finalize(GObject *object) {
-	KmsPlayer *self = KMS_PLAYER(object);
+GType
+kms_player_get_type(void) {
+	static GType iface_type = 0;
+	if (iface_type == 0) {
+		static const GTypeInfo info = {
+			sizeof (KmsResourceInterface),
+			kms_player_interface_init,   /* base_init */
+			NULL,   /* base_finalize */
+		};
 
-	g_mutex_free(self->priv->mutex);
+		iface_type = g_type_register_static(KMS_TYPE_RESOURCE,
+							"KmsResourceInterface",
+							&info, 0);
+	}
 
-	/* Chain up to the parent class */
-	G_OBJECT_CLASS (kms_player_parent_class)->finalize(object);
-}
-
-static void
-kms_player_class_init(KmsPlayerClass *klass) {
-	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private(klass, sizeof (KmsPlayerPriv));
-
-	gobject_class->dispose = kms_player_dispose;
-	gobject_class->finalize = kms_player_finalize;
-
-	klass->start = kms_player_start_default;
-	klass->set_url = kms_player_set_url_default;
-	klass->stop = kms_player_stop_default;
-}
-
-static void
-kms_player_init(KmsPlayer *self) {
-	self->priv = KMS_PLAYER_GET_PRIVATE (self);
-
-	self->priv->mutex = g_mutex_new();
+	return iface_type;
 }

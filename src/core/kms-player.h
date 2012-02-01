@@ -12,28 +12,16 @@
 /*
  * Type macros.
  */
-#define KMS_TYPE_PLAYER		(kms_player_get_type ())
-#define KMS_PLAYER(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), KMS_TYPE_PLAYER, KmsPlayer))
-#define KMS_IS_PLAYER(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), KMS_TYPE_PLAYER))
-#define KMS_PLAYER_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), KMS_TYPE_PLAYER, KmsPlayerClass))
-#define KMS_IS_PLAYER_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_PLAYER))
-#define KMS_PLAYER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_PLAYER, KmsPlayerClass))
+#define KMS_TYPE_PLAYER			(kms_player_get_type ())
+#define KMS_PLAYER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), KMS_TYPE_PLAYER, KmsPlayer))
+#define KMS_IS_PLAYER(obj)		(G_TYPE_CHECK_INSTANCE_TYPE((obj), KMS_TYPE_PLAYER))
+#define KMS_PLAYER_GET_INTERFACE(obj)	(G_TYPE_INSTANCE_GET_INTERFACE((obj), KMS_TYPE_PLAYER, KmsPlayerInterface))
 
 typedef struct _KmsPlayer		KmsPlayer;
-typedef struct _KmsPlayerClass	KmsPlayerClass;
-typedef struct _KmsPlayerPriv	KmsPlayerPriv;
+typedef struct _KmsPlayerInterface	KmsPlayerInterface;
 
-
-struct _KmsPlayer {
-	KmsResource parent_instance;
-
-	/* instance members */
-
-	KmsPlayerPriv *priv;
-};
-
-struct _KmsPlayerClass {
-	KmsResourceClass parent_class;
+struct _KmsPlayerInterface {
+	KmsResourceInterface parent_class;
 
 	/* class members */
 
