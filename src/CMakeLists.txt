@@ -4,9 +4,10 @@ aux_source_directory("core" CORE)
 aux_source_directory("rtp" RTP)
 aux_source_directory("mixer" MIXER)
 aux_source_directory("rtmp" RTMP)
+aux_source_directory("player" RTMP)
 
-add_library(kmsclib SHARED ${CORE} ${RTP} ${MIXER} ${RTMP})
-add_library(kmsclibst STATIC ${CORE} ${RTP} ${MIXER} ${RTMP})
+add_library(kmsclib SHARED ${CORE} ${RTP} ${MIXER} ${RTMP} ${PLAYER})
+add_library(kmsclibst STATIC ${CORE} ${RTP} ${MIXER} ${RTMP} ${PLAYER})
 SET_TARGET_PROPERTIES(kmsclib kmsclibst PROPERTIES OUTPUT_NAME kmsc)
 
 find_package(PkgConfig)
@@ -42,3 +43,7 @@ install(FILES ${INCLUDES_MIXER} DESTINATION ${INCLUDE_PREFIX}/mixer PERMISSIONS 
 file(GLOB INCLUDES_RTMP "rtmp/*.h")
 
 install(FILES ${INCLUDES_RTMP} DESTINATION ${INCLUDE_PREFIX}/rtmp PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+file(GLOB INCLUDES_PLAYER "player/*.h")
+
+install(FILES ${INCLUDES_PLAYER} DESTINATION ${INCLUDE_PREFIX}/player PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
