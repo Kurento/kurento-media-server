@@ -8,8 +8,24 @@
 #define LOCK(obj) (g_mutex_lock(KMS_RTMP_SENDER(obj)->priv->mutex))
 #define UNLOCK(obj) (g_mutex_unlock(KMS_RTMP_SENDER(obj)->priv->mutex))
 
-#define VIDEO_CAPS "video/x-flash-video;"
-#define AUDIO_CAPS "audio/x-nellymoser;"
+#define VIDEO_CAPS "video/x-flash-video;"					\
+			"video/x-flash-screen;"					\
+			"video/x-vp6-flash;"					\
+			"video/x-vp6-alpha;"					\
+			"video/x-h264,stream-format=avc"			\
+
+#define AUDIO_CAPS "audio/x-nellymoser,channels=1,rate=11025;"			\
+		"audio/x-adpcm,layout=swf,channels={ 1, 2 },"			\
+					"rate:={ 5512, 11025, 22050, 44100 };"	\
+		"audio/mpeg,mpegversion=1,layer=3,channels={ 1, 2 },"		\
+			"rate={ 5512, 8000, 11025, 22050, 44100 },parsed=true;"	\
+		"audio/mpeg,mpegversion=4,framed=true;"				\
+		"audio/x-nellymoser,channels={ 1, 2 },"				\
+			"rate={ 5512, 8000, 11025, 16000, 22050, 44100 };"	\
+		"audio/x-alaw,channels={ 1, 2 },"				\
+				"rate={ 5512, 11025, 22050, 44100 };"		\
+		"audio/x-mulaw,channels={ 1, 2 },"				\
+				"rate={ 5512, 11025, 22050, 44100 }"		\
 
 struct _KmsRtmpSenderPriv {
 	GMutex *mutex;
