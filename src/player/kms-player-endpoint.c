@@ -13,7 +13,51 @@ enum {
 	PROP_0,
 };
 
-G_DEFINE_TYPE(KmsPlayerEndpoint, kms_player_endpoint, KMS_TYPE_ENDPOINT)
+static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
+static void media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE(KmsPlayerEndpoint, kms_player_endpoint,
+				KMS_TYPE_ENDPOINT,
+				G_IMPLEMENT_INTERFACE(
+					KMS_TYPE_MEDIA_HANDLER_MANAGER,
+					media_handler_manager_iface_init)
+				G_IMPLEMENT_INTERFACE(
+					KMS_TYPE_MEDIA_HANDLER_FACTORY,
+					media_handler_factory_iface_init)
+				)
+
+static KmsMediaHandlerFactory*
+get_factory(KmsMediaHandlerManager *iface) {
+	return KMS_MEDIA_HANDLER_FACTORY(g_object_ref(iface));
+}
+
+static void
+dispose_factory(KmsMediaHandlerManager *manager,  KmsMediaHandlerFactory *factory) {
+	/* Nothing to do, just avoid the warning */
+}
+
+static void
+media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
+	iface->get_factory = get_factory;
+	iface->dispose_factory = dispose_factory;
+}
+
+static KmsMediaHandlerSrc*
+get_src(KmsMediaHandlerFactory *iface) {
+	KMS_LOG_DEBUG("TODO: Implement get_src");
+	return NULL;
+}
+
+static KmsMediaHandlerSink*
+get_sink(KmsMediaHandlerFactory *iface) {
+	return NULL;
+}
+
+static void
+media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
+	iface->get_sink = get_sink;
+	iface->get_src = get_src;
+}
 
 static void
 dispose(GObject *object) {
