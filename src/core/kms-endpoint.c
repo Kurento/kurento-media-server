@@ -268,24 +268,16 @@ kms_endpoint_dispose(GObject *gobject) {
 }
 
 static KmsResource*
-default_get_resource(KmsEndpoint *self, GType type, GError **err) {
-	gchar *msg = g_strdup_printf("Class %s does not reimplement "
-				"get_resource method",
+default_get_resource(KmsEndpoint *self, GType type) {
+	g_warning("Class %s does not reimplement get_resource method",
 				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));
-
-	g_warn_message(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
-
-	SET_ERROR(err, KMS_ENDPOINT_ERROR, KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED,
-									msg);
-
-	g_free(msg);
 
 	return NULL;
 }
 
 KmsResource*
-kms_endpoint_get_resource(KmsEndpoint *self, GType type, GError **err) {
-	return KMS_ENDPOINT_GET_CLASS(self)->get_resource(self, type, err);
+kms_endpoint_get_resource(KmsEndpoint *self, GType type) {
+	return KMS_ENDPOINT_GET_CLASS(self)->get_resource(self, type);
 }
 
 static void

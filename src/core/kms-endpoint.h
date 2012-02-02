@@ -46,8 +46,7 @@ struct _KmsEndpointClass {
 
 	KmsConnection *(*create_connection) (KmsEndpoint *self, gchar *name,
 					     GError **err);
-	KmsResource *(*get_resource)(KmsEndpoint *self, GType type,
-								GError **err);
+	KmsResource *(*get_resource)(KmsEndpoint *self, GType type);
 
 	/* class members */
 };
@@ -88,7 +87,6 @@ gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
 
 void kms_endpoint_delete_all_connections(KmsEndpoint *self);
 
-KmsResource *kms_endpoint_get_resource(KmsEndpoint *self, GType type,
-								GError **err);
+KmsResource *kms_endpoint_get_resource(KmsEndpoint *self, GType type);
 
 #endif /* __KMS_ENDPOINT_H__ */

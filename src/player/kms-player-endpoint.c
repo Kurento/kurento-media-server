@@ -60,7 +60,7 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 }
 
 static KmsResource*
-get_resource(KmsEndpoint *self, GType type, GError **err) {
+get_resource(KmsEndpoint *self, GType type) {
 	KMS_LOG_DEBUG("TODO: Implement get_resource method");
 	return NULL;
 }
