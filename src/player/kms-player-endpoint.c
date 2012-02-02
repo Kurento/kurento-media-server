@@ -59,6 +59,12 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 	iface->get_src = get_src;
 }
 
+static KmsResource*
+get_resource(KmsEndpoint *self, GType type, GError **err) {
+	KMS_LOG_DEBUG("TODO: Implement get_resource method");
+	return NULL;
+}
+
 static void
 dispose(GObject *object) {
 	/* Chain up to the parent class */
@@ -82,6 +88,7 @@ kms_player_endpoint_class_init(KmsPlayerEndpointClass *klass) {
 
 	gobject_class->dispose = dispose;
 	gobject_class->finalize = finalize;
+	KMS_ENDPOINT_CLASS(klass)->get_resource = get_resource;
 }
 
 static void
