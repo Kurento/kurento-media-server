@@ -1,3 +1,4 @@
+#include <kms-core.h>
 #include <player/kms-player-endpoint.h>
 #include <player/kms-player-src.h>
 
@@ -55,8 +56,22 @@ media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface) {
 
 static KmsMediaHandlerSrc*
 get_src(KmsMediaHandlerFactory *iface) {
-	KMS_LOG_DEBUG("TODO: Implement get_src");
-	return NULL;
+	KmsPlayerEndpoint *self;
+	KmsMediaHandlerSrc *src;
+
+	if (!KMS_IS_PLAYER_ENDPOINT(iface))
+		return NULL;
+
+	self = KMS_PLAYER_ENDPOINT(iface);
+
+	LOCK(self);
+	if (self->priv->player != NULL)
+		src = KMS_MEDIA_HANDLER_SRC(g_object_ref(self->priv->player));
+	else
+		src = NULL;
+	UNLOCK(self);
+
+	return src;
 }
 
 static KmsMediaHandlerSink*
@@ -71,9 +86,24 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 }
 
 static KmsResource*
-get_resource(KmsEndpoint *self, GType type) {
-	KMS_LOG_DEBUG("TODO: Implement get_resource method");
-	return NULL;
+get_resource(KmsEndpoint *endpoint, GType type) {
+	KmsPlayerEndpoint *self;
+	KmsResource *resource;
+
+	if (!KMS_IS_PLAYER_ENDPOINT(endpoint))
+		return NULL;
+
+	self = KMS_PLAYER_ENDPOINT(endpoint);
+
+	LOCK(self);
+	if (G_TYPE_CHECK_INSTANCE_TYPE(self->priv->player, type)) {
+		resource = KMS_RESOURCE(g_object_ref(self->priv->player));
+	} else {
+		resource = NULL;
+	}
+	UNLOCK(self);
+
+	return resource;
 }
 
 static void
