@@ -1,4 +1,5 @@
 #include <player/kms-player-endpoint.h>
+#include <player/kms-player-src.h>
 
 #define KMS_PLAYER_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_PLAYER_ENDPOINT, KmsPlayerEndpointPriv))
 
@@ -7,6 +8,8 @@
 
 struct _KmsPlayerEndpointPriv {
 	GMutex *mutex;
+
+	KmsPlayerSrc *player;
 };
 
 enum {
@@ -25,6 +28,14 @@ G_DEFINE_TYPE_WITH_CODE(KmsPlayerEndpoint, kms_player_endpoint,
 					KMS_TYPE_MEDIA_HANDLER_FACTORY,
 					media_handler_factory_iface_init)
 				)
+
+static void
+dispose_player(KmsPlayerEndpoint *self) {
+	if (self->priv->player != NULL) {
+		g_object_unref(self->priv->player);
+		self->priv->player = NULL;
+	}
+}
 
 static KmsMediaHandlerFactory*
 get_factory(KmsMediaHandlerManager *iface) {
@@ -66,7 +77,20 @@ get_resource(KmsEndpoint *self, GType type) {
 }
 
 static void
+constructed(GObject *object) {
+	KmsPlayerEndpoint *self = KMS_PLAYER_ENDPOINT(object);
+
+	self->priv->player = g_object_new(KMS_TYPE_PLAYER_SRC, NULL);
+}
+
+static void
 dispose(GObject *object) {
+	KmsPlayerEndpoint *self = KMS_PLAYER_ENDPOINT(object);
+
+	LOCK(self);
+	dispose_player(self);
+	UNLOCK(self);
+
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_player_endpoint_parent_class)->dispose(object);
 }
@@ -88,6 +112,7 @@ kms_player_endpoint_class_init(KmsPlayerEndpointClass *klass) {
 
 	gobject_class->dispose = dispose;
 	gobject_class->finalize = finalize;
+	gobject_class->constructed = constructed;
 	KMS_ENDPOINT_CLASS(klass)->get_resource = get_resource;
 }
 
@@ -96,4 +121,5 @@ kms_player_endpoint_init(KmsPlayerEndpoint *self) {
 	self->priv = KMS_PLAYER_ENDPOINT_GET_PRIVATE(self);
 
 	self->priv->mutex = g_mutex_new();
+	self->priv->player = NULL;
 }
