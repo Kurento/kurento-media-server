@@ -88,6 +88,7 @@ static gboolean
 remove_rtmp(KmsRtmpReceiver *self) {
 	GstElement *rtmpsrc, *flvdemux;
 
+	g_print("Remove rtmp for element: %s\n", GST_OBJECT_NAME(self));
 	LOCK(self);
 	if (self->priv->finished)
 		goto end;
