@@ -123,7 +123,7 @@ event_handler(GstPad *pad, GstEvent *event, KmsRtmpReceiver *self) {
 		return TRUE;
 
 	if (GST_EVENT_TYPE(event) == GST_EVENT_EOS) {
-		g_timeout_add_full(G_PRIORITY_DEFAULT, 500,
+		g_timeout_add_full(G_PRIORITY_DEFAULT, 3000,
 						(GSourceFunc) remove_rtmp,
 						g_object_ref(self),
 						g_object_unref);
