@@ -14,7 +14,9 @@
 			"video/x-vp6-alpha;"					\
 			"video/x-h264,stream-format=avc"			\
 
-#define AUDIO_CAPS "audio/x-nellymoser,channels=1,rate=11025;"			\
+#define AUDIO_CAPS "audio/x-nellymoser,channels=1,rate=8000;"
+
+/*
 		"audio/x-adpcm,layout=swf,channels={ 1, 2 },"			\
 					"rate:={ 5512, 11025, 22050, 44100 };"	\
 		"audio/mpeg,mpegversion=1,layer=3,channels={ 1, 2 },"		\
@@ -26,6 +28,7 @@
 				"rate={ 5512, 11025, 22050, 44100 };"		\
 		"audio/x-mulaw,channels={ 1, 2 },"				\
 				"rate={ 5512, 11025, 22050, 44100 }"		\
+*/
 
 struct _KmsRtmpSenderPriv {
 	GMutex *mutex;
