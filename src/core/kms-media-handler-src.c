@@ -168,7 +168,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	sink_name = g_strdup_printf("%s_sink", evalue->value_nick);
 	src_pad = gst_element_get_request_pad(GST_ELEMENT(self), src_name);
 	if (src_pad == NULL) {
-		g_warn_if_reached();
+		g_print("Pad %s not found in %s", src_name, GST_OBJECT_NAME(self));
 		ret = TRUE;
 		goto end;
 	}
@@ -176,7 +176,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	if (sink_pad == NULL) {
 		gst_element_release_request_pad(GST_ELEMENT(self), src_pad);
 		gst_object_unref(src_pad);
-		g_warn_if_reached();
+		g_print("Pad %s not found int %s", sink_name, GST_OBJECT_NAME(sink));
 		ret = TRUE;
 		goto end;
 	}
@@ -255,6 +255,16 @@ generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
 	GstElement *tee, *queue, *convert, *resample, *rate;
 	GstPad *rate_src;
 
+	if (!GST_IS_PAD(raw)) {
+		g_warn_if_reached();
+		return NULL;
+	}
+
+	if (!KMS_IS_MEDIA_HANDLER_SRC(self)) {
+		g_warn_if_reached();
+		return NULL;
+	}
+
 	queue = kms_utils_create_queue(NULL);
 	convert = gst_element_factory_make("audioconvert", NULL);
 	resample = gst_element_factory_make("audioresample", NULL);
@@ -267,15 +277,26 @@ generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
 
 		if (queue != NULL)
 			g_object_unref(queue);
+		else
+			g_warning("queue is NULL");
 
 		if (convert != NULL)
 			g_object_unref(convert);
+		else
+			g_warning("convert is NULL");
 
 		if (resample != NULL)
 			g_object_unref(resample);
+		else
+			g_warning("resample is NULL");
 
 		if (rate != NULL)
 			g_object_unref(rate);
+		else
+			g_warning("rate is NULL");
+
+		if (tee == NULL)
+			g_warning("tee is NULL");
 
 		return NULL;
 	}
