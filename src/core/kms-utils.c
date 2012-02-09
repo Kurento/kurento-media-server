@@ -394,7 +394,8 @@ kms_utils_configure_element(GstElement *elem) {
 		return;
 
 	if (g_strcmp0(name, "rtpmp4vpay") == 0) {
-		g_object_set(G_OBJECT(elem), "config-interval", 2, NULL);
+		g_object_set(G_OBJECT(elem), "config-interval", 2,
+						"send-config", TRUE, NULL);
 	}
 }
 
