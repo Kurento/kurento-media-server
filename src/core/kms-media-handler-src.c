@@ -485,7 +485,7 @@ get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 		goto end;
 	}
 	/* Check raw pad */
-	if (check_raw_caps(type, caps)) {
+	if (GST_IS_PAD(raw) && check_raw_caps(type, caps)) {
 		target = generate_raw_chain(self, raw, type);
 		goto end;
 	}
