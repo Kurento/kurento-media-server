@@ -311,11 +311,17 @@ create_media_chain(KmsRtmpReceiver *self) {
 	flvdemux = gst_element_factory_make("flvdemux", "demux");
 
 	if (rtmpsrc == NULL || flvdemux == NULL) {
+		g_warn_if_reached();
+
 		if (rtmpsrc != NULL)
 			g_object_unref(rtmpsrc);
+		else
+			g_printerr("rtmpsrc should not be null\n");
 
 		if (flvdemux != NULL)
 			g_object_unref(flvdemux);
+		else
+			g_printerr("flvdemux should not be null\n");
 		return;
 	}
 

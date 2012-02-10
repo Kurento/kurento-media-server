@@ -188,6 +188,7 @@ mode_changed(KmsConnection *conn, KmsConnectionMode mode, KmsMediaType type,
 	self = KMS_LOCAL_CONNECTION(conn);
 
 	G_LOCK(local_connection);
+	KMS_DEBUG_PIPE("before_mode_changed");
 	switch (check_compatible(KMS_LOCAL_CONNECTION(self), mode, type,
 							GST_PAD_SRC, &other)) {
 	case COMP_OK:
@@ -227,6 +228,7 @@ mode_changed(KmsConnection *conn, KmsConnectionMode mode, KmsMediaType type,
 	ret = TRUE;
 
 end:
+	KMS_DEBUG_PIPE("after_mode_changed");
 	G_UNLOCK(local_connection);
 
 	return ret;
@@ -237,8 +239,6 @@ connect(KmsConnection *conn, KmsConnection *other, KmsMediaType type,
 								GError **err) {
 	gboolean ret = TRUE;
 	KmsLocalConnection *self, *other_local;
-
-	KMS_DEBUG_PIPE("before_connect");
 
 	if (!KMS_IS_LOCAL_CONNECTION(other)) {
 		SET_ERROR(err, KMS_CONNECTION_ERROR,
@@ -294,7 +294,6 @@ connect(KmsConnection *conn, KmsConnection *other, KmsMediaType type,
 	}
 
 end:
-	KMS_DEBUG_PIPE("after_connect");
 	return ret;
 }
 
