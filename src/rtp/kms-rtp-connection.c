@@ -172,6 +172,7 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 		SET_ERROR(err, KMS_RTP_CONNECTION_ERROR,
 					KMS_RTP_CONNECTION_ERROR_ALREADY,
 					"Remote spec was already set");
+		UNLOCK(self);
 		return FALSE;
 	}
 
