@@ -51,6 +51,8 @@ enum {
 
 G_DEFINE_TYPE(KmsRtmpSender, kms_rtmp_sender, KMS_TYPE_MEDIA_HANDLER_SINK)
 
+G_LOCK_DEFINE_STATIC(rtmp_sender_lock);
+
 static void
 dispose_neg_spec(KmsRtmpSender *self) {
 	if (self->priv->neg_spec != NULL) {
@@ -105,7 +107,9 @@ remove_rtmpsink(KmsRtmpSender *self) {
 
 	if (rtmpsink != NULL) {
 		gst_bin_remove(GST_BIN(self), rtmpsink);
+		G_LOCK(rtmp_sender_lock);
 		gst_element_set_state(rtmpsink, GST_STATE_NULL);
+		G_UNLOCK(rtmp_sender_lock);
 		gst_object_unref(rtmpsink);
 	}
 }
@@ -146,7 +150,9 @@ create_rtmpsink_cb(KmsRtmpSender *self) {
 	g_object_set(rtmpsink, "blocksize", 10, NULL);
 	g_object_set(rtmpsink, "location", self->priv->url, NULL);
 
+	G_LOCK(rtmp_sender_lock);
 	gst_element_set_state(rtmpsink, GST_STATE_PLAYING);
+	G_UNLOCK(rtmp_sender_lock);
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 	gst_element_set_state(flvmux, GST_STATE_PLAYING);
 

@@ -27,6 +27,8 @@ enum {
 
 G_DEFINE_TYPE(KmsRtmpReceiver, kms_rtmp_receiver, KMS_TYPE_MEDIA_HANDLER_SRC)
 
+G_LOCK_DEFINE_STATIC(rtmp_receiver_lock);
+
 static void
 dispose_neg_spec(KmsRtmpReceiver *self) {
 	if (self->priv->neg_spec != NULL) {
@@ -98,12 +100,16 @@ remove_rtmp(KmsRtmpReceiver *self) {
 		goto end;
 
 	gst_bin_remove(GST_BIN(self), rtmpsrc);
+	G_LOCK(rtmp_receiver_lock);
 	gst_element_set_state(rtmpsrc, GST_STATE_NULL);
+	G_UNLOCK(rtmp_receiver_lock);
 	g_object_unref(rtmpsrc);
 
 	rtmpsrc = generate_rtmpsrc(self);
 	gst_bin_add(GST_BIN(self), rtmpsrc);
+	G_LOCK(rtmp_receiver_lock);
 	gst_element_set_state(rtmpsrc, GST_STATE_PLAYING);
+	G_UNLOCK(rtmp_receiver_lock);
 
 	flvdemux = gst_bin_get_by_name(GST_BIN(self), "demux");
 
@@ -318,7 +324,11 @@ create_media_chain(KmsRtmpReceiver *self) {
 	gst_bin_add_many(GST_BIN(self), rtmpsrc, flvdemux, NULL);
 	gst_element_link(rtmpsrc, flvdemux);
 
+	/* Because rtmp lib has a problem, this code should not be executed at
+	 * the same time from different threads */
+	G_LOCK(rtmp_receiver_lock);
 	gst_element_set_state(rtmpsrc, GST_STATE_PLAYING);
+	G_UNLOCK(rtmp_receiver_lock);
 	gst_element_set_state(flvdemux, GST_STATE_PLAYING);
 }
 
