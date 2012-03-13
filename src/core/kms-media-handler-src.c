@@ -108,21 +108,11 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	gboolean ret = TRUE;
 	GstPadLinkReturn link_ret;
 
-	if (sink == NULL) {
-		g_warn_if_reached();
-		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
-				KMS_MEDIA_HANDLER_SRC_ERROR_LINK_ERROR,
-				"Sink is NULL");
-		return FALSE;
-	}
+	if (sink == NULL)
+		return TRUE;
 
-	if (self == NULL) {
-		g_warn_if_reached();
-		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
-				KMS_MEDIA_HANDLER_SRC_ERROR_LINK_ERROR,
-				"Source is NULL");
-		return FALSE;
-	}
+	if (self == NULL)
+		return TRUE;
 
 	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
 	evalue = g_enum_get_value(eclass, type);

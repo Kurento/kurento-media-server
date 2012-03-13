@@ -47,21 +47,11 @@ kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 	gboolean done = FALSE;
 	GstPad *pad;
 
-	if (src == NULL) {
-		g_warn_if_reached();
-		SET_ERROR(err, KMS_MEDIA_HANDLER_SINK_ERROR,
-				KMS_MEDIA_HANDLER_SINK_ERROR_UNLINK_ERROR,
-				"Source is NULL");
-		return FALSE;
-	}
+	if (src == NULL)
+		return TRUE;
 
-	if (self == NULL) {
-		g_warn_if_reached();
-		SET_ERROR(err, KMS_MEDIA_HANDLER_SINK_ERROR,
-				KMS_MEDIA_HANDLER_SINK_ERROR_UNLINK_ERROR,
-				"Sink is NULL");
-		return FALSE;
-	}
+	if (self == NULL)
+		return TRUE;
 
 	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
 	evalue = g_enum_get_value(eclass, type);
