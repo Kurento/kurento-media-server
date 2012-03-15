@@ -293,7 +293,8 @@ generate_raw_chain_audio(KmsMediaHandlerSrc *self, GstPad *raw,
 
 	g_object_set(convert, "dithering", 0, NULL);
 	g_object_set(resample, "quality", 8, NULL);
-	g_object_set(rate, "tolerance", GST_MSECOND * 250, NULL);
+	g_object_set(rate, "tolerance", GST_MSECOND * 250,
+				"skip-to-first", TRUE, NULL);
 
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 	gst_element_set_state(convert, GST_STATE_PLAYING);
