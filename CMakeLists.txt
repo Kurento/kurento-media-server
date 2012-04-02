@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(kmsc-endpoints)
+project(kmsc)
 
 # TODO: Check if HAVE_INIT_TYPES_H has to be added (not in all systems)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_NETINET_IN_H -pedantic -Wall -DHAVE_INTTYPES_H -std=c++0x")

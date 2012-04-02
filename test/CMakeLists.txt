@@ -20,31 +20,31 @@ target_link_libraries(test-endpoints ${GSTREAMER_LIBRARIES})
 
 target_link_libraries(test-endpoints kmsc-test-endpoints)
 
-include_directories(test-endpoints ${kmsc-endpoints_SOURCE_DIR}/src/core)
+include_directories(test-endpoints ${kmsc_SOURCE_DIR}/src/core)
 include_directories(test-endpoints kmsc-test-endpoints)
 
 target_link_libraries(test_sdp kmsclib test_memory)
-include_directories(test_sdp ${kmsc-endpoints_SOURCE_DIR}/src/core)
+include_directories(test_sdp ${kmsc_SOURCE_DIR}/src/core)
 
 target_link_libraries(test_rtp kmsclib test_memory rtp-test-lib)
-include_directories(test_rtp ${kmsc-endpoints_SOURCE_DIR}/src/core)
-include_directories(test_rtp ${kmsc-endpoints_SOURCE_DIR}/src)
+include_directories(test_rtp ${kmsc_SOURCE_DIR}/src/core)
+include_directories(test_rtp ${kmsc_SOURCE_DIR}/src)
 
 target_link_libraries(test_rtp_connection kmsclib test_memory rtp-test-lib)
-include_directories(test_rtp_connection ${kmsc-endpoints_SOURCE_DIR}/src/core)
-include_directories(test_rtp_connection ${kmsc-endpoints_SOURCE_DIR}/src)
+include_directories(test_rtp_connection ${kmsc_SOURCE_DIR}/src/core)
+include_directories(test_rtp_connection ${kmsc_SOURCE_DIR}/src)
 
 target_link_libraries(test_rtp_transmission kmsclib test_memory rtp-test-lib)
-include_directories(test_rtp_transmission ${kmsc-endpoints_SOURCE_DIR}/src/core)
-include_directories(test_rtp_transmission ${kmsc-endpoints_SOURCE_DIR}/src)
+include_directories(test_rtp_transmission ${kmsc_SOURCE_DIR}/src/core)
+include_directories(test_rtp_transmission ${kmsc_SOURCE_DIR}/src)
 
 target_link_libraries(test_mixer kmsclib test_memory rtp-test-lib)
-include_directories(test_mixer ${kmsc-endpoints_SOURCE_DIR}/src/core)
-include_directories(test_mixer ${kmsc-endpoints_SOURCE_DIR}/src)
+include_directories(test_mixer ${kmsc_SOURCE_DIR}/src/core)
+include_directories(test_mixer ${kmsc_SOURCE_DIR}/src)
 
 target_link_libraries(test_rtmp kmsclib test_memory)
-include_directories(test_rtmp ${kmsc-endpoints_SOURCE_DIR}/src/core)
-include_directories(test_rtmp ${kmsc-endpoints_SOURCE_DIR}/src)
+include_directories(test_rtmp ${kmsc_SOURCE_DIR}/src/core)
+include_directories(test_rtmp ${kmsc_SOURCE_DIR}/src)
 
 add_subdirectory(kmsc-test-endpoints)
 
