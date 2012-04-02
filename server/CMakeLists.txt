@@ -12,7 +12,9 @@ ExternalProject_Add(
 	UPDATE_COMMAND git checkout master
 )
 
-add_executable(kmsc main.cpp)
+aux_source_directory("handlers" HANDLERS)
+
+add_executable(kmsc main.cpp ${HANDLERS})
 add_dependencies(kmsc kmsiface-project)
 
 add_library(kmsiface STATIC IMPORTED)
