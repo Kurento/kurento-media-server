@@ -9,7 +9,9 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
-#include <glibmm/thread.h>
+#include <glibmm.h>
+
+#include "log.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -21,6 +23,11 @@ using namespace ::com::kurento::kms::api;
 
 using boost::shared_ptr;
 using com::kurento::kms::MediaServerServiceHandler;
+using ::com::kurento::log::Log;
+
+static Log l("main");
+#define d(...) aux_debug(l, __VA_ARGS__);
+#define i(...) aux_info(l, __VA_ARGS__);
 
 static void create_server_service() {
 	int port = 9090;
@@ -39,6 +46,8 @@ static void create_server_service() {
 	shared_ptr<TThreadedServer> server(new TThreadedServer(processor,
 					serverTransport, transportFactory,
 					protocolFactory, threadFactory));
+
+	i("Starting MediaServerService");
 	server->serve();
 }
 
