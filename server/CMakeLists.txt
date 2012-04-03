@@ -13,8 +13,9 @@ ExternalProject_Add(
 )
 
 aux_source_directory("handlers" HANDLERS)
+aux_source_directory("managers" MANAGERS)
 
-SET(KMSC_SOURCE main.cpp ${HANDLERS})
+SET(KMSC_SOURCE main.cpp ${HANDLERS} ${MANAGERS})
 SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 		PROPERTIES COMPILE_FLAGS
 		-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H)
