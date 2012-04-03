@@ -13,8 +13,8 @@ MediaSessionManager::~MediaSessionManager() {
 }
 
 MediaSessionManager *MediaSessionManager::getInstance() {
-	static shared_ptr<MediaSessionManager> instance(new MediaSessionManager());
-	return instance.get();
+	static MediaSessionManager *instance = new MediaSessionManager();
+	return instance;
 }
 
 void MediaSessionManager::releaseInstance(MediaSessionManager* manager) {
