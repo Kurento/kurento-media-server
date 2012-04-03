@@ -28,5 +28,5 @@ set_target_properties(kmsiface PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/
 add_library(mediaspec STATIC IMPORTED)
 set_target_properties(mediaspec PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libmediaspec.a)
 
-target_link_libraries(kmsc kmsiface mediaspec ${THRIFT_LIBRARIES})
+target_link_libraries(kmsc kmsiface mediaspec ${THRIFT_LIBRARIES} boost_thread)
 include_directories(kmsc ${THRIFT_INCLUDE_DIRS} ${KMSIFACE_INCLUDE_DIR})

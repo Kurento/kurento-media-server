@@ -9,6 +9,8 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
+#include <boost/thread.hpp>
+
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
@@ -20,7 +22,7 @@ using namespace ::com::kurento::kms::api;
 using boost::shared_ptr;
 using com::kurento::kms::MediaServerServiceHandler;
 
-TThreadedServer *create_server_service() {
+static void create_server_service() {
 	int port = 9090;
 
 	shared_ptr<MediaServerServiceHandler> handler(new MediaServerServiceHandler());
@@ -34,14 +36,17 @@ TThreadedServer *create_server_service() {
 
 	threadManager->threadFactory(threadFactory);
 
-	TThreadedServer *server = new TThreadedServer(processor, serverTransport, transportFactory, protocolFactory, threadFactory);
-	return server;
+	shared_ptr<TThreadedServer> server(new TThreadedServer(processor, serverTransport, transportFactory, protocolFactory, threadFactory));
+	server->serve();
 }
 
 int main(int argc, char **argv) {
 
-	shared_ptr<TThreadedServer> server(create_server_service());
-	server->serve();
+	boost::thread serverServiceThread(create_server_service);
+
+	// Waiting for server thread to finish
+
+	serverServiceThread.join();
 
 	return 0;
 }
