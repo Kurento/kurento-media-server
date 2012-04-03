@@ -7,27 +7,20 @@ namespace com { namespace kurento { namespace kms {
 
 MediaServerServiceHandler::MediaServerServiceHandler()
 {
-	std::cout << "Initializing" << std::endl;
+	manager = MediaSessionManager::getInstance();
 }
 
-void MediaServerServiceHandler::createMediaSession(MediaSession& _return) {
-	// Your implementation goes here
-	printf("createMediaSession\n");
+MediaServerServiceHandler::~MediaServerServiceHandler() {
+	MediaSessionManager::releaseInstance(manager);
+}
 
-	MediaServerException exception;
-	exception.__set_description("Not implemented");
-	exception.__set_code(ErrorCode::NO_RESOURCES);
-	throw exception;
+
+void MediaServerServiceHandler::createMediaSession(MediaSession& _return) {
+	_return = manager->createMediaSession();
 }
 
 void MediaServerServiceHandler::deleteMediaSession(const MediaSession& session) {
-	// Your implementation goes here
-	printf("deleteMediaSession\n");
-
-	MediaServerException exception;
-	exception.__set_description("Not implemented");
-	exception.__set_code(ErrorCode::NO_RESOURCES);
-	throw exception;
+	manager->deleteMediaSession(session);
 }
 
 }}} // com::kurento::kms
