@@ -32,11 +32,13 @@ static void create_server_service() {
 	shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
 	shared_ptr<PosixThreadFactory> threadFactory(new PosixThreadFactory ());
 
-	shared_ptr<ThreadManager>  threadManager=ThreadManager::newSimpleThreadManager(15);
+	shared_ptr<ThreadManager> threadManager= ThreadManager::newSimpleThreadManager(15);
 
 	threadManager->threadFactory(threadFactory);
 
-	shared_ptr<TThreadedServer> server(new TThreadedServer(processor, serverTransport, transportFactory, protocolFactory, threadFactory));
+	shared_ptr<TThreadedServer> server(new TThreadedServer(processor,
+					serverTransport, transportFactory,
+					protocolFactory, threadFactory));
 	server->serve();
 }
 
