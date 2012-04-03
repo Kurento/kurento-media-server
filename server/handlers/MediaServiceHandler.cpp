@@ -23,12 +23,12 @@ MediaServerServiceHandler::~MediaServerServiceHandler() {
 
 
 void MediaServerServiceHandler::createMediaSession(MediaSession& _return) {
-	i("createMediaSession");
 	_return = manager->createMediaSession();
+	i("Mediasession created with id %d", _return.parent.id);
 }
 
 void MediaServerServiceHandler::deleteMediaSession(const MediaSession& session) {
-	i("deleteMediaSession");
+	i("Deleting media session %d", session.parent.id);
 	manager->deleteMediaSession(session);
 }
 
