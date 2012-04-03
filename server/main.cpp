@@ -9,7 +9,7 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
-#include <boost/thread.hpp>
+#include <glibmm/thread.h>
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -42,11 +42,12 @@ static void create_server_service() {
 
 int main(int argc, char **argv) {
 
-	boost::thread serverServiceThread(create_server_service);
+	Glib::thread_init();
 
-	// Waiting for server thread to finish
+	sigc::slot<void> ss = sigc::ptr_fun(&create_server_service);
+	Glib::Thread *serverServiceThread = Glib::Thread::create(ss, true);
 
-	serverServiceThread.join();
+	serverServiceThread->join();
 
 	return 0;
 }
