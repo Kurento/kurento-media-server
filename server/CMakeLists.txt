@@ -14,7 +14,12 @@ ExternalProject_Add(
 
 aux_source_directory("handlers" HANDLERS)
 
-add_executable(kmsc main.cpp ${HANDLERS})
+SET(KMSC_SOURCE main.cpp ${HANDLERS})
+SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
+		PROPERTIES COMPILE_FLAGS
+		-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H)
+
+add_executable(kmsc ${KMSC_SOURCE})
 add_dependencies(kmsc kmsiface-project)
 
 add_library(kmsiface STATIC IMPORTED)
