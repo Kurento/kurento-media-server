@@ -69,3 +69,25 @@ Log::info(int line, std::string function, std::string file,
 	g_free(message);
 	va_end(args);
 }
+
+void
+Log::error(std::string format, ... ) {
+	va_list args;
+
+	va_start(args, format);
+	g_log(domain.c_str(), G_LOG_LEVEL_ERROR, format.c_str(), args);
+	va_end(args);
+}
+
+void
+Log::error(int line, std::string function, std::string file,
+						std::string format, ... ) {
+	char *message;
+	va_list args;
+
+	va_start(args, format);
+	message = append_log_formats(line, function, file, format, args);
+	g_log(domain.c_str(), G_LOG_LEVEL_ERROR, message);
+	g_free(message);
+	va_end(args);
+}

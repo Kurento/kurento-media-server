@@ -28,6 +28,7 @@ using ::com::kurento::log::Log;
 static Log l("main");
 #define d(...) aux_debug(l, __VA_ARGS__);
 #define i(...) aux_info(l, __VA_ARGS__);
+#define e(...) aux_error(l, __VA_ARGS__);
 
 static void create_server_service() {
 	int port = 9090;
