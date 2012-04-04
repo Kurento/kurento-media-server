@@ -6,43 +6,39 @@ using ::com::kurento::kms::MediaSessionImpl;
 using namespace ::com::kurento::kms::api;
 
 MediaSessionImpl::MediaSessionImpl() : MediaSession() {
-	MediaObjectImpl parent;
-	__set_parent(parent);
+	__set_parent(*this);
 }
 
-void
-MediaSessionImpl::createNetworkConnection(NetworkConnection& _return,
-		const MediaSession& mediaSession,
+NetworkConnection&
+MediaSessionImpl::createNetworkConnection(
 		const std::vector<NetworkConnectionConfig::type>& config) {
-
+	throw "Not implemented";
 }
 
 void
-MediaSessionImpl::deleteNetworkConnection(const MediaSession& mediaSession,
+MediaSessionImpl::deleteNetworkConnection(
 				const NetworkConnection& networConnection) {
+	throw "Not implemented";
+}
+
+std::vector<NetworkConnection>&
+MediaSessionImpl::getNetworkConnections() {
+	throw "Not implemented";
+}
+
+
+Mixer&
+MediaSessionImpl::createMixer(const std::vector<MixerConfig::type>& config) {
+	throw "Not implemented";
 }
 
 void
-MediaSessionImpl::getNetworkConnections(
-				std::vector<NetworkConnection>& _return,
-				const MediaSession& mediaSession) {
-
+MediaSessionImpl::deleteMixer(const Mixer& mixer) {
+	throw "Not implemented";
 }
 
-void
-MediaSessionImpl::createMixer(Mixer& _return, const MediaSession& mediaSession,
-			const std::vector<MixerConfig::type>& config) {
 
-}
-
-void
-MediaSessionImpl::deleteMixer(const MediaSession& mediaSession,
-							const Mixer& mixer) {
-
-}
-
-void
-MediaSessionImpl::getMixers(std::vector<Mixer>& _return,
-					const MediaSession& mediaSession) {
-
+std::vector<Mixer>&
+MediaSessionImpl::getMixers() {
+	throw "Not implemented";
 }

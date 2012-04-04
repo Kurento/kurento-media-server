@@ -26,11 +26,6 @@ MediaObjectImpl::MediaObjectImpl() : MediaObject() {
 }
 
 void
-MediaObjectImpl::ping(const MediaObject& mediaObject, const int32_t timeout) {
-	// TODO: Implement this method
-}
-
-void
-MediaObjectImpl::release(const MediaObject& mediaObject) {
+MediaObjectImpl::ping(const int32_t timeout) {
 	// TODO: Implement this method
 }

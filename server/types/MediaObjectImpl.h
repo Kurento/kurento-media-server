@@ -2,20 +2,17 @@
 #define MEDIA_OBJECT_IMPL
 
 #include "mediaObject_types.h"
-#include "MediaObjectService.h"
 
 using ::com::kurento::kms::api::MediaObject;
-using ::com::kurento::kms::api::MediaObjectServiceIf;
 
 namespace com { namespace kurento { namespace kms {
 
-class MediaObjectImpl : public MediaObject, virtual public MediaObjectServiceIf  {
+class MediaObjectImpl : public MediaObject  {
 public:
 	MediaObjectImpl();
 	~MediaObjectImpl() throw() {};
 
-	void ping(const MediaObject& mediaObject, const int32_t timeout);
-	void release(const MediaObject& mediaObject);
+	void ping(const int32_t timeout);
 };
 
 }}} // com::kurento::kms
