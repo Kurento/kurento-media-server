@@ -20,14 +20,14 @@ MediaSessionServiceHandler::~MediaSessionServiceHandler() {
 
 void
 MediaSessionServiceHandler::createNetworkConnection(NetworkConnection& _return,
-					const MediaSession& mediaSessionId,
+					const MediaSession& mediaSession,
 					const std::vector<NetworkConnectionConfig::type>& config) {
 	i("CreateNetworkConnection");
 }
 
 void
 MediaSessionServiceHandler::deleteNetworkConnection(
-				const MediaSession& mediaSessionId,
+				const MediaSession& mediaSession,
 				const NetworkConnection& networConnection) {
 	i("deleteNetworkConnection");
 }
@@ -35,26 +35,26 @@ MediaSessionServiceHandler::deleteNetworkConnection(
 void
 MediaSessionServiceHandler::getNetworkConnections(
 					std::vector<NetworkConnection>& _return,
-					const MediaSession& mediaSessionId) {
+					const MediaSession& mediaSession) {
 	i("getNetworkConnections");
 }
 
 void
 MediaSessionServiceHandler::createMixer(Mixer& _return,
-				const MediaSession& mediaSessionId,
+				const MediaSession& mediaSession,
 				const std::vector<MixerConfig::type>& config) {
 	i("createMixer");
 }
 
 void
-MediaSessionServiceHandler::deleteMixer(const MediaSession& mediaSessionId,
+MediaSessionServiceHandler::deleteMixer(const MediaSession& mediaSession,
 							const  Mixer& mixer) {
 	i("deleteMixer");
 }
 
 void
 MediaSessionServiceHandler::getMixers(std::vector<Mixer>& _return,
-					const MediaSession& mediaSessionId) {
+					const MediaSession& mediaSession) {
 	i("getMixers");
 }
 

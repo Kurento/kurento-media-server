@@ -18,12 +18,12 @@ namespace com { namespace kurento { namespace kms {
 		MediaSessionServiceHandler();
 		~MediaSessionServiceHandler();
 
-		void createNetworkConnection(NetworkConnection& _return, const MediaSession& mediaSessionId, const std::vector<NetworkConnectionConfig::type>& config);
-		void deleteNetworkConnection(const MediaSession& mediaSessionId, const NetworkConnection& networConnection);
-		void getNetworkConnections(std::vector<NetworkConnection>& _return, const MediaSession& mediaSessionId);
-		void createMixer(Mixer& _return, const MediaSession& mediaSessionId, const std::vector<MixerConfig::type>& config);
-		void deleteMixer(const MediaSession& mediaSessionId, const  Mixer& mixer);
-		void getMixers(std::vector<Mixer>& _return, const MediaSession& mediaSessionId);
+		void createNetworkConnection(NetworkConnection& _return, const MediaSession& mediaSession, const std::vector<NetworkConnectionConfig::type>& config);
+		void deleteNetworkConnection(const MediaSession& mediaSession, const NetworkConnection& networConnection);
+		void getNetworkConnections(std::vector<NetworkConnection>& _return, const MediaSession& mediaSession);
+		void createMixer(Mixer& _return, const MediaSession& mediaSession, const std::vector<MixerConfig::type>& config);
+		void deleteMixer(const MediaSession& mediaSession, const  Mixer& mixer);
+		void getMixers(std::vector<Mixer>& _return, const MediaSession& mediaSession);
 
 		void ping(const MediaObject& mediaObject, const int32_t timeout);
 		void release(const MediaObject& mediaObject);
