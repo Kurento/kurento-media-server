@@ -51,3 +51,25 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 		throw exception;
 	}
 }
+
+MediaSessionImpl&
+MediaSessionManager::getMediaSession(const MediaSession& session) {
+	std::list<MediaSessionImpl *>::iterator it;
+	MediaSessionImpl *ms;
+	bool found = FALSE;
+
+	mutex.lock();
+	for (it=sessions.begin(); !found && (it!=sessions.end()); it++) {
+		if (session == *(*it)) {
+			found = true;
+			ms = *it;
+		}
+	}
+	mutex.unlock();
+
+	if (!found) {
+		throw MediaSessionNotFoundException();
+	}
+
+	return *ms;
+}
