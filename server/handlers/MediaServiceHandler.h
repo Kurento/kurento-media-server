@@ -1,8 +1,8 @@
-#include "MediaServerService.h"
-#include "managers/MediaSessionManager.h"
-
 #ifndef MEDIA_SERVER_SERVICE
 #define MEDIA_SERVER_SERVICE
+
+#include "MediaServerService.h"
+#include "managers/MediaSessionManager.h"
 
 using ::com::kurento::kms::api::MediaServerServiceIf;
 using ::com::kurento::kms::api::ServerConfig;
