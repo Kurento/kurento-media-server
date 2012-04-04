@@ -11,9 +11,11 @@ static Log l("MediaSessionHandler");
 namespace com { namespace kurento { namespace kms {
 
 MediaSessionServiceHandler::MediaSessionServiceHandler() {
+	manager = MediaSessionManager::getInstance();
 }
 
 MediaSessionServiceHandler::~MediaSessionServiceHandler() {
+	MediaSessionManager::releaseInstance(manager);
 }
 
 void
