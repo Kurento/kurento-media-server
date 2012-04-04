@@ -31,7 +31,7 @@ Log::debug(std::string format, ... ) {
 	va_list args;
 
 	va_start(args, format);
-	g_log(domain.c_str(), G_LOG_LEVEL_DEBUG, format.c_str(), args);
+	g_logv(domain.c_str(), G_LOG_LEVEL_DEBUG, format.c_str(), args);
 	va_end(args);
 }
 
@@ -53,7 +53,7 @@ Log::info(std::string format, ... ) {
 	va_list args;
 
 	va_start(args, format);
-	g_log(domain.c_str(), G_LOG_LEVEL_INFO, format.c_str(), args);
+	g_logv(domain.c_str(), G_LOG_LEVEL_INFO, format.c_str(), args);
 	va_end(args);
 }
 
@@ -75,7 +75,7 @@ Log::error(std::string format, ... ) {
 	va_list args;
 
 	va_start(args, format);
-	g_log(domain.c_str(), G_LOG_LEVEL_ERROR, format.c_str(), args);
+	g_logv(domain.c_str(), G_LOG_LEVEL_ERROR, format.c_str(), args);
 	va_end(args);
 }
 
