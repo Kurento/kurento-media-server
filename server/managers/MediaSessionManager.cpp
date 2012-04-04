@@ -22,7 +22,7 @@ void MediaSessionManager::releaseInstance(MediaSessionManager* manager) {
 	// As instance is a singleton no action is needed
 }
 
-MediaSession &MediaSessionManager::createMediaSession() {
+MediaSessionImpl &MediaSessionManager::createMediaSession() {
 	MediaSessionImpl *session = new MediaSessionImpl();
 
 	mutex.lock();
@@ -33,7 +33,7 @@ MediaSession &MediaSessionManager::createMediaSession() {
 }
 
 void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
-	std::list<MediaSession *>::iterator it;
+	std::list<MediaSessionImpl *>::iterator it;
 	bool found = FALSE;
 
 	mutex.lock();

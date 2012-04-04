@@ -2,6 +2,7 @@
 #define MEDIA_SESSION_MANAGER
 
 #include "mediaSession_types.h"
+#include "types/MediaSessionImpl.h"
 #include <glibmm.h>
 
 using ::com::kurento::kms::api::MediaSession;
@@ -15,9 +16,9 @@ namespace com { namespace kurento { namespace kms {
 		MediaSessionManager();
 		~MediaSessionManager();
 
-		MediaSession& createMediaSession();
+		MediaSessionImpl& createMediaSession();
 
-		MediaSession& getMediaSession(ObjectId id);
+		MediaSessionImpl& getMediaSession(const MediaSession& session);
 
 		void deleteMediaSession(const MediaSession& session);
 
@@ -28,7 +29,7 @@ namespace com { namespace kurento { namespace kms {
 	private:
 
 		Glib::Mutex mutex; // Protects the list
-		std::list<MediaSession *> sessions;
+		std::list<MediaSessionImpl *> sessions;
 	};
 
 
