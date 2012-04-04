@@ -5,7 +5,7 @@
 using ::com::kurento::kms::MediaSessionImpl;
 using namespace ::com::kurento::kms::api;
 
-MediaSessionImpl::MediaSessionImpl() : MediaSession() {
+MediaSessionImpl::MediaSessionImpl() : MediaSession(), MediaObjectImpl() {
 	__set_parent(*this);
 }
 

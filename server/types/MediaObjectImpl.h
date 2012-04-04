@@ -7,7 +7,7 @@ using ::com::kurento::kms::api::MediaObject;
 
 namespace com { namespace kurento { namespace kms {
 
-class MediaObjectImpl : public MediaObject  {
+class MediaObjectImpl : public virtual MediaObject  {
 public:
 	MediaObjectImpl();
 	~MediaObjectImpl() throw() {};
