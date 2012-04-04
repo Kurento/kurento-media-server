@@ -23,6 +23,7 @@ using namespace ::com::kurento::kms::api;
 
 using boost::shared_ptr;
 using com::kurento::kms::MediaServerServiceHandler;
+using com::kurento::kms::api::ServerConfig;
 using ::com::kurento::log::Log;
 
 static Log l("main");
@@ -30,10 +31,21 @@ static Log l("main");
 #define i(...) aux_info(l, __VA_ARGS__);
 #define e(...) aux_error(l, __VA_ARGS__);
 
-static void create_server_service() {
-	int port = 9090;
+#define SERVER_SERVICE_PORT 9090
 
-	shared_ptr<MediaServerServiceHandler> handler(new MediaServerServiceHandler());
+static ServerConfig config;
+
+static void create_server_service() {
+	int port;
+
+	if (!config.__isset.serverServicePort) {
+		e("No port set in configuration for MediaServerService");
+		throw Glib::Thread::Exit();
+	} else {
+		port = config.serverServicePort;
+	}
+
+	shared_ptr<MediaServerServiceHandler> handler(new MediaServerServiceHandler(&config));
 	shared_ptr<TProcessor> processor(new MediaServerServiceProcessor(handler));
 	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
 	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
@@ -58,6 +70,8 @@ static void create_server_service() {
 int main(int argc, char **argv) {
 
 	Glib::thread_init();
+
+	config.__set_serverServicePort(SERVER_SERVICE_PORT);
 
 	sigc::slot<void> ss = sigc::ptr_fun(&create_server_service);
 	Glib::Thread *serverServiceThread = Glib::Thread::create(ss, true);

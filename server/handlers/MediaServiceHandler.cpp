@@ -12,15 +12,19 @@ static Log l("MediaServiceHandler");
 namespace com { namespace kurento { namespace kms {
 
 
-MediaServerServiceHandler::MediaServerServiceHandler()
+MediaServerServiceHandler::MediaServerServiceHandler(ServerConfig *config)
 {
 	manager = MediaSessionManager::getInstance();
+	this->config = config;
 }
 
 MediaServerServiceHandler::~MediaServerServiceHandler() {
 	MediaSessionManager::releaseInstance(manager);
 }
 
+void MediaServerServiceHandler::getServerconfig(ServerConfig& _return) {
+	_return = *config;
+}
 
 void MediaServerServiceHandler::createMediaSession(MediaSession& _return) {
 	_return = manager->createMediaSession();
