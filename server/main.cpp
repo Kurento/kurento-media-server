@@ -50,6 +50,9 @@ static void create_server_service() {
 
 	i("Starting MediaServerService");
 	server->serve();
+
+	i("MediaServerService stopped finishing thread");
+	throw Glib::Thread::Exit();
 }
 
 int main(int argc, char **argv) {
