@@ -18,10 +18,10 @@ public:
 
 	NetworkConnection &createNetworkConnection(const std::vector<NetworkConnectionConfig::type> & config);
 	void deleteNetworkConnection(const NetworkConnection& networConnection);
-	std::vector<NetworkConnection> &getNetworkConnections();
+	void getNetworkConnections(std::vector<NetworkConnection> &_return);
 	Mixer &createMixer(const std::vector<MixerConfig::type> & config);
 	void deleteMixer(const Mixer& mixer);
-	std::vector<Mixer> &getMixers();
+	void getMixers(std::vector<Mixer> &_return);
 
 private:
 

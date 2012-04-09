@@ -19,7 +19,9 @@ MediaSessionImpl::~MediaSessionImpl() throw() {
 NetworkConnection&
 MediaSessionImpl::createNetworkConnection(
 		const std::vector<NetworkConnectionConfig::type>& config) {
-	return ncManager->createNewtorkConnection(config);
+	NetworkConnection &nc = ncManager->createNewtorkConnection(config);
+	nc.__set_session(*this);
+	return nc;
 }
 
 void
@@ -28,9 +30,9 @@ MediaSessionImpl::deleteNetworkConnection(
 	throw "Not implemented";
 }
 
-std::vector<NetworkConnection>&
-MediaSessionImpl::getNetworkConnections() {
-	throw "Not implemented";
+void
+MediaSessionImpl::getNetworkConnections(std::vector<NetworkConnection> &_return) {
+	ncManager->getNetworkConnections(_return);
 }
 
 
@@ -45,7 +47,7 @@ MediaSessionImpl::deleteMixer(const Mixer& mixer) {
 }
 
 
-std::vector<Mixer>&
-MediaSessionImpl::getMixers() {
+void
+MediaSessionImpl::getMixers(std::vector<Mixer> &_return) {
 	throw "Not implemented";
 }

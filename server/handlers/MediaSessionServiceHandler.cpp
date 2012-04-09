@@ -40,6 +40,8 @@ MediaSessionServiceHandler::getNetworkConnections(
 					std::vector<NetworkConnection>& _return,
 					const MediaSession& mediaSession) {
 	i("getNetworkConnections");
+	MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+	session.getNetworkConnections(_return);
 }
 
 void

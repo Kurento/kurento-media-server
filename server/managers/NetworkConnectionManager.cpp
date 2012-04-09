@@ -18,3 +18,15 @@ NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(const s
 
 	return *nc;
 }
+
+void
+NetworkConnectionManager::getNetworkConnections(
+				std::vector<NetworkConnection> &_return) {
+	std::vector<NetworkConnectionImpl *>::iterator it;
+
+	mutex.lock();
+	for (it = connections.begin(); it != connections.end(); it++) {
+		_return.push_back(**it);
+	}
+	mutex.unlock();
+}
