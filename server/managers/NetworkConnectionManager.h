@@ -18,8 +18,7 @@ namespace com { namespace kurento { namespace kms {
 
 		void getNetworkConnections(std::vector<NetworkConnection> &_return);
 		NetworkConnectionImpl& getNetworkConnection(const NetworkConnection& nc);
-
-		void deleteMediaSession(const NetworkConnection& nc);
+		void deleteNetworkConnection(const NetworkConnection& nc);
 
 	private:
 
