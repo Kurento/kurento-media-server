@@ -2,21 +2,19 @@
 #define NETWORK_CONNECTION_MANAGER
 
 #include "types/NetworkConnectionImpl.h"
-#include "types/MediaSessionImpl.h"
 #include <glibmm.h>
 
 using ::com::kurento::kms::api::NetworkConnection;
 using ::com::kurento::kms::api::ObjectId;
-using ::com::kurento::kms::MediaSessionImpl;
 
 namespace com { namespace kurento { namespace kms {
 
 	class NetworkConnectionManager {
 	public:
-		NetworkConnectionManager(const MediaSessionImpl &session);
+		NetworkConnectionManager();
 		~NetworkConnectionManager();
 
-		NetworkConnectionImpl& createNewtorkConnection();
+		NetworkConnectionImpl& createNewtorkConnection(const std::vector<NetworkConnectionConfig::type> & config);
 
 		NetworkConnectionImpl& getNetworkConnection(const NetworkConnection& nc);
 
@@ -24,7 +22,6 @@ namespace com { namespace kurento { namespace kms {
 
 	private:
 
-		const MediaSessionImpl *ms;
 		Glib::Mutex mutex; // Protects the list
 		std::list<NetworkConnectionImpl *> connections;
 	};
