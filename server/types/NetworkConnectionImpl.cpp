@@ -5,5 +5,5 @@ using ::com::kurento::kms::NetworkConnectionImpl;
 using ::com::kurento::kms::api::NetworkConnection;
 
 NetworkConnectionImpl::NetworkConnectionImpl() : JoinableImpl(), NetworkConnection() {
-	((NetworkConnection *)this)->__set_parent(*this);
+	__set_joinable(*this);
 }

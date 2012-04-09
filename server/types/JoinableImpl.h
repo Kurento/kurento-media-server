@@ -10,7 +10,7 @@ using ::com::kurento::kms::api::StreamType;
 
 namespace com { namespace kurento { namespace kms {
 
-class JoinableImpl : public virtual Joinable, public virtual MediaObjectImpl {
+class JoinableImpl : public Joinable, public virtual MediaObjectImpl {
 public:
 	JoinableImpl();
 	~JoinableImpl() throw() {};
