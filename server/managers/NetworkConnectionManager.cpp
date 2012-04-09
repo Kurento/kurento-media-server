@@ -1,12 +1,27 @@
 #include "NetworkConnectionManager.h"
+#include <log.h>
 
 using namespace com::kurento::kms;
 
+using ::com::kurento::log::Log;
+
+static Log l("NetworkConnectionImpl");
+#define i(...) aux_info(l, __VA_ARGS__);
 
 NetworkConnectionManager::NetworkConnectionManager(){
 }
 
-NetworkConnectionManager::~NetworkConnectionManager(){
+NetworkConnectionManager::~NetworkConnectionManager() {
+	std::vector<NetworkConnectionImpl *>::iterator it;
+
+	mutex.lock();
+	for (it = connections.begin(); it != connections.end(); it++) {
+		if (it != connections.end()) {
+			delete *it;
+		}
+	}
+	connections.clear();
+	mutex.unlock();
 }
 
 NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(const std::vector<NetworkConnectionConfig::type> & config) {
