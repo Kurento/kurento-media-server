@@ -35,6 +35,27 @@ NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(const s
 }
 
 void
+NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
+	std::vector<NetworkConnectionImpl *>::iterator it;
+	bool found;
+
+	mutex.lock();
+	for (it = connections.begin(); it != connections.end(); it++) {
+		if (nc == *(*it)) {
+			found = true;
+			delete *it;
+			connections.erase(it);
+		}
+	}
+	mutex.unlock();
+
+	if (!found) {
+		NetworkConnectionNotFoundException exception;
+		throw exception;
+	}
+}
+
+void
 NetworkConnectionManager::getNetworkConnections(
 				std::vector<NetworkConnection> &_return) {
 	std::vector<NetworkConnectionImpl *>::iterator it;

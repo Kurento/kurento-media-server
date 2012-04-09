@@ -19,7 +19,7 @@ namespace com { namespace kurento { namespace kms {
 		~MediaSessionServiceHandler();
 
 		void createNetworkConnection(NetworkConnection& _return, const MediaSession& mediaSession, const std::vector<NetworkConnectionConfig::type>& config);
-		void deleteNetworkConnection(const MediaSession& mediaSession, const NetworkConnection& networConnection);
+		void deleteNetworkConnection(const MediaSession& mediaSession, const NetworkConnection& networkConnection);
 		void getNetworkConnections(std::vector<NetworkConnection>& _return, const MediaSession& mediaSession);
 		void createMixer(Mixer& _return, const MediaSession& mediaSession, const std::vector<MixerConfig::type>& config);
 		void deleteMixer(const MediaSession& mediaSession, const  Mixer& mixer);

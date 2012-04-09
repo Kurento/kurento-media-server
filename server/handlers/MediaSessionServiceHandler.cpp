@@ -31,8 +31,10 @@ MediaSessionServiceHandler::createNetworkConnection(NetworkConnection& _return,
 void
 MediaSessionServiceHandler::deleteNetworkConnection(
 				const MediaSession& mediaSession,
-				const NetworkConnection& networConnection) {
-	i("deleteNetworkConnection");
+				const NetworkConnection& networkConnection) {
+	i("deleteNetworkConnection: %d", networkConnection.joinable.object.id);
+	MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+	session.deleteNetworkConnection(networkConnection);
 }
 
 void

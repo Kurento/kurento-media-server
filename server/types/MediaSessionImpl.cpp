@@ -27,7 +27,7 @@ MediaSessionImpl::createNetworkConnection(
 void
 MediaSessionImpl::deleteNetworkConnection(
 				const NetworkConnection& networConnection) {
-	throw "Not implemented";
+	ncManager->deleteNetworkConnection(networConnection);
 }
 
 void
