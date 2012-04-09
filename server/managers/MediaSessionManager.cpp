@@ -34,7 +34,7 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 	bool found = FALSE;
 
 	mutex.lock();
-	for (it=sessions.begin(); !found && (it!=sessions.end()); it++) {
+	for (it = sessions.begin(); !found && (it != sessions.end()); it++) {
 		if (session == *(*it)) {
 			found = true;
 			delete *it;
