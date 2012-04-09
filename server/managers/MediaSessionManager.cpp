@@ -4,9 +4,6 @@
 using namespace ::com::kurento::kms;
 using namespace ::com::kurento::kms::api;
 
-void task() {
-}
-
 MediaSessionManager::MediaSessionManager() {
 }
 
