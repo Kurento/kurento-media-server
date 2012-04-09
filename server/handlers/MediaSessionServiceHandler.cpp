@@ -22,7 +22,10 @@ void
 MediaSessionServiceHandler::createNetworkConnection(NetworkConnection& _return,
 					const MediaSession& mediaSession,
 					const std::vector<NetworkConnectionConfig::type>& config) {
-	i("CreateNetworkConnection");
+	MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+	_return = session.createNetworkConnection(config);
+
+	i("Created NetworkConnection with id: %d", _return.joinable.object.id);
 }
 
 void

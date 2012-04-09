@@ -3,16 +3,23 @@
 #include <glibmm.h>
 
 using ::com::kurento::kms::MediaSessionImpl;
+using ::com::kurento::kms::NetworkConnectionManager;
 using namespace ::com::kurento::kms::api;
 
 MediaSessionImpl::MediaSessionImpl() : MediaObjectImpl(), MediaSession() {
 	__set_object(*this);
+
+	ncManager = new NetworkConnectionManager();
+}
+
+MediaSessionImpl::~MediaSessionImpl() throw() {
+	delete ncManager;
 }
 
 NetworkConnection&
 MediaSessionImpl::createNetworkConnection(
 		const std::vector<NetworkConnectionConfig::type>& config) {
-	throw "Not implemented";
+	return ncManager->createNewtorkConnection(config);
 }
 
 void
