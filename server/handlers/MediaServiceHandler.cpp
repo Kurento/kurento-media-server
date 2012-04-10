@@ -48,7 +48,10 @@ void MediaServerServiceHandler::deleteMediaSession(const MediaSession& session) 
 	} catch (MediaSessionNotFoundException e) {
 		throw e;
 	} catch (...) {
-		w("Unotified exeption while delting media session");
+		MediaServerException e;
+		e.__set_description("Unkown exception found");
+		e.__set_code(ErrorCode::type::UNEXPECTED);
+		throw e;
 	}
 }
 

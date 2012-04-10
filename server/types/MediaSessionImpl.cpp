@@ -20,7 +20,7 @@ NetworkConnection&
 MediaSessionImpl::createNetworkConnection(
 		const std::vector<NetworkConnectionConfig::type>& config) {
 	NetworkConnection &nc = ncManager->createNewtorkConnection(config);
-	nc.__set_session(*this);
+	nc.joinable.__set_session(*this);
 	return nc;
 }
 
