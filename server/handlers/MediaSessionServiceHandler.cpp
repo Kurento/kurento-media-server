@@ -144,7 +144,7 @@ MediaSessionServiceHandler::getMixers(std::vector<Mixer>& _return,
 void
 MediaSessionServiceHandler::ping(const MediaSession& mediaSession,
 							const int32_t timeout) {
-	i("ping");
+	i("ping on session: %d", mediaSession.object.id);
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		session.ping(timeout);

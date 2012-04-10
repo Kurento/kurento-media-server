@@ -2,10 +2,28 @@
 
 #include <glibmm.h>
 #include <uuid/uuid.h>
+#include <log.h>
+#include <mediaObject_constants.h>
+#include <managers/MediaSessionManager.h>
+#include <mediaSession_constants.h>
 
 using ::com::kurento::kms::MediaSessionImpl;
 using ::com::kurento::kms::NetworkConnectionManager;
+using ::com::kurento::kms::MediaSessionManager;
 using namespace ::com::kurento::kms::api;
+using ::com::kurento::log::Log;
+
+static Log l("MediaSessionImpl");
+#define d(...) aux_debug(l, __VA_ARGS__);
+#define i(...) aux_info(l, __VA_ARGS__);
+#define e(...) aux_error(l, __VA_ARGS__);
+#define w(...) aux_warn(l, __VA_ARGS__);
+
+bool MediaSessionImpl::pingTimeout() {
+	w("Timeout on session %d, deleting.", object.id);
+	MediaSessionManager::getInstance()->deleteMediaSession(this->object);
+	return false;
+}
 
 MediaSessionImpl::MediaSessionImpl() : MediaObjectImpl(), MediaSession() {
 	uuid_t uuid;
@@ -22,10 +40,14 @@ MediaSessionImpl::MediaSessionImpl() : MediaObjectImpl(), MediaSession() {
 	object.__set_token(tk);
 
 	ncManager = new NetworkConnectionManager();
-	// TODO: Subscribe to ping controller
+
+	conn = Glib::signal_timeout().connect_seconds(
+		sigc::mem_fun(*this, &MediaSessionImpl::pingTimeout),
+		g_mediaSession_constants.DEFAULT_TIMEOUT);
 }
 
 MediaSessionImpl::~MediaSessionImpl() throw() {
+	conn.disconnect();
 	delete ncManager;
 }
 
@@ -66,6 +88,7 @@ MediaSessionImpl::getMixers(std::vector<Mixer> &_return) {
 
 void
 MediaSessionImpl::ping(const int32_t timeout) {
-	// TODO: Implement this method
-	throw "Not implemented";
+	conn.disconnect();
+	conn = Glib::signal_timeout().connect_seconds(
+		sigc::mem_fun(*this, &MediaSessionImpl::pingTimeout), timeout);
 }

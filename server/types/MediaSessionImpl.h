@@ -4,6 +4,7 @@
 #include "mediaSession_types.h"
 #include "types/MediaObjectImpl.h"
 #include "managers/NetworkConnectionManager.h"
+#include <glibmm.h>
 
 using namespace ::com::kurento::kms::api;
 using ::com::kurento::kms::NetworkConnectionManager;
@@ -28,6 +29,9 @@ public:
 private:
 
 	NetworkConnectionManager *ncManager;
+	sigc::connection conn;
+
+	bool pingTimeout();
 };
 
 }}} // com::kurento::kms

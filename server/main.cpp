@@ -117,6 +117,8 @@ int main(int argc, char **argv) {
 	sigc::slot<void> mss = sigc::ptr_fun(&create_session_service);
 	Glib::Thread::create(mss, true);
 
+	Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create(true);
+	loop->run();
 	serverServiceThread->join();
 
 	// TODO: Finish all other threads and notify error
