@@ -30,5 +30,10 @@ set_target_properties(kmsiface PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/
 add_library(mediaspec STATIC IMPORTED)
 set_target_properties(mediaspec PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libmediaspec.a)
 
-target_link_libraries(kmsc kmsiface mediaspec ${THRIFT_LIBRARIES} ${GLIBMM_LIBRARIES})
-include_directories(kmsc ${THRIFT_INCLUDE_DIRS} ${GLIBMM_INCLUDE_DIRS} ${KMSIFACE_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/server)
+target_link_libraries(kmsc kmsiface mediaspec ${THRIFT_LIBRARIES})
+target_link_libraries(kmsc ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES} kmsclibst)
+include_directories(kmsc ${THRIFT_INCLUDE_DIRS} ${GLIBMM_INCLUDE_DIRS})
+include_directories(kmsc ${GSTREAMER_INCLUDE_DIRS})
+include_directories(kmsc ${KMSIFACE_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/server)
+include_directories(kmsc ${kmsc_SOURCE_DIR}/src/core)
+include_directories(kmsc ${kmsc_SOURCE_DIR}/src)
