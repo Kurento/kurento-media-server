@@ -85,19 +85,60 @@ void
 MediaSessionServiceHandler::createMixer(Mixer& _return,
 				const MediaSession& mediaSession,
 				const std::vector<MixerConfig::type>& config) {
-	i("createMixer");
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+		_return = session.createMixer(config);
+		i("Mixer created with id: %d", _return.joinable.object.id);
+	} catch (MediaSessionNotFoundException ex) {
+		throw ex;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
 MediaSessionServiceHandler::deleteMixer(const MediaSession& mediaSession,
 							const  Mixer& mixer) {
-	i("deleteMixer");
+	i("deleteMixer with id: %d", mixer.joinable.object.id);
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+		session.deleteMixer(mixer);
+	} catch(MixerNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		throw ex;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
 MediaSessionServiceHandler::getMixers(std::vector<Mixer>& _return,
 					const MediaSession& mediaSession) {
 	i("getMixers");
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+		session.getMixers(_return);
+	} catch (MediaSessionNotFoundException ex) {
+		throw ex;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
