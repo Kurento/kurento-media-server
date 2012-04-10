@@ -33,13 +33,13 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 	deleteMediaSession(session.object);
 }
 
-void MediaSessionManager::deleteMediaSession(const MediaObject &session) {
+void MediaSessionManager::deleteMediaSession(const MediaObject &object) {
 	std::list<MediaSessionImpl *>::iterator it;
 	bool found = FALSE;
 
 	mutex.lock();
 	for (it = sessions.begin(); !found && (it != sessions.end()); it++) {
-		if (session == *(*it)) {
+		if (object == (*it)->object) {
 			found = true;
 			delete *it;
 			sessions.erase(it);
@@ -61,14 +61,14 @@ MediaSessionManager::getMediaSession(const MediaSession& session) {
 }
 
 MediaSessionImpl&
-MediaSessionManager::getMediaSession(const MediaObject& session) {
+MediaSessionManager::getMediaSession(const MediaObject& object) {
 	std::list<MediaSessionImpl *>::iterator it;
 	MediaSessionImpl *ms;
 	bool found = FALSE;
 
 	mutex.lock();
 	for (it=sessions.begin(); !found && (it!=sessions.end()); it++) {
-		if (session == *(*it)) {
+		if (object == (*it)->object) {
 			found = true;
 			ms = *it;
 		}
