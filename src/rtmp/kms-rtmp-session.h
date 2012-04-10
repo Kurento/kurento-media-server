@@ -14,6 +14,8 @@
 #define KMS_IS_RTMP_SESSION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_RTMP_SESSION))
 #define KMS_RTMP_SESSION_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_RTMP_SESSION, KmsRtmpSessionClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsRtmpSession		KmsRtmpSession;
 typedef struct _KmsRtmpSessionClass	KmsRtmpSessionClass;
 typedef struct _KmsRtmpSessionPriv	KmsRtmpSessionPriv;
@@ -48,5 +50,7 @@ KmsRtmpSession *kms_rtmp_session_create_from_sdp_session(KmsSdpSession *session)
 KmsRtmpSession *kms_rtmp_session_intersect(KmsRtmpSession *answerer, KmsRtmpSession *offerer);
 
 gchar *kms_rtmp_session_get_url(KmsRtmpSession *session, gboolean offerer);
+
+G_END_DECLS
 
 #endif /* __KMS_RTMP_SESSION_H__ */

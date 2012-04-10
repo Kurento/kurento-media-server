@@ -18,6 +18,8 @@
 #define KMS_IS_LOCAL_CONNECTION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_LOCAL_CONNECTION))
 #define KMS_LOCAL_CONNECTION_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_LOCAL_CONNECTION, KmsLocalConnectionClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsLocalConnection		KmsLocalConnection;
 typedef struct _KmsLocalConnectionClass		KmsLocalConnectionClass;
 typedef struct _KmsLocalConnectionPriv		KmsLocalConnectionPriv;
@@ -42,5 +44,7 @@ GType kms_local_connection_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_LOCAL_CONNECTION_H__ */

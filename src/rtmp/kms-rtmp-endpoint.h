@@ -16,6 +16,8 @@
 
 #define KMS_RTMP_ENDPOINT_ERROR (g_quark_from_string("KmsRtmpEndpointError"))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsRtmpEndpoint		KmsRtmpEndpoint;
 typedef struct _KmsRtmpEndpointClass	KmsRtmpEndpointClass;
 typedef struct _KmsRtmpEndpointPriv	KmsRtmpEndpointPriv;
@@ -40,5 +42,7 @@ GType kms_rtmp_endpoint_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_RTMP_ENDPOINT_H__ */

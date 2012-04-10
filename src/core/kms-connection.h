@@ -19,6 +19,8 @@
 #define KMS_IS_CONNECTION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_CONNECTION))
 #define KMS_CONNECTION_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_CONNECTION, KmsConnectionClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsConnection		KmsConnection;
 typedef struct _KmsConnectionClass	KmsConnectionClass;
 typedef struct _KmsConnectionPriv	KmsConnectionPriv;
@@ -57,7 +59,11 @@ typedef enum _KmsConnectionMode {
 	KMS_CONNECTION_MODE_EXTENSION	/** Extension mode */
 } KmsConnectionMode;
 
+G_END_DECLS
+
 #include "kms-endpoint.h"
+
+G_BEGIN_DECLS
 
 struct _KmsConnection {
 	GObject parent_instance;
@@ -124,5 +130,7 @@ gboolean kms_connection_connect(KmsConnection *self, KmsConnection *other,
 
 gboolean kms_connection_connect_to_remote(KmsConnection *self,
 					KmsSdpSession *session, GError **err);
+
+G_END_DECLS
 
 #endif /* __KMS_CONNECTION_H__ */

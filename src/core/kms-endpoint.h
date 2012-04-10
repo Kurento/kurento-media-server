@@ -20,6 +20,8 @@
 
 #define KMS_ENDPOINT_ERROR (g_quark_from_string("KmsEndpointError"))
 
+G_BEGIN_DECLS
+
 enum {
 	KMS_ENDPOINT_ERROR_NOT_IMPLEMENTED,
 	KMS_ENDPOINT_ERROR_ALREADY_CREATED,
@@ -30,7 +32,11 @@ typedef struct _KmsEndpoint		KmsEndpoint;
 typedef struct _KmsEndpointClass	KmsEndpointClass;
 typedef struct _KmsEndpointPriv		KmsEndpointPriv;
 
+G_END_DECLS
+
 #include "kms-connection.h"
+
+G_BEGIN_DECLS
 
 struct _KmsEndpoint {
 	GObject parent_instance;
@@ -88,5 +94,7 @@ gboolean kms_endpoint_delete_connection(KmsEndpoint *self, KmsConnection *conn,
 void kms_endpoint_delete_all_connections(KmsEndpoint *self);
 
 KmsResource *kms_endpoint_get_resource(KmsEndpoint *self, GType type);
+
+G_END_DECLS
 
 #endif /* __KMS_ENDPOINT_H__ */

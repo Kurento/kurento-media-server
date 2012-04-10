@@ -11,6 +11,8 @@
 #define KMS_IS_PLAYER_SRC_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_PLAYER_SRC))
 #define KMS_PLAYER_SRC_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_PLAYER_SRC, KmsPlayerSrcClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsPlayerSrc		KmsPlayerSrc;
 typedef struct _KmsPlayerSrcClass	KmsPlayerSrcClass;
 typedef struct _KmsPlayerSrcPriv	KmsPlayerSrcPriv;
@@ -30,5 +32,7 @@ struct _KmsPlayerSrcClass {
 };
 
 GType kms_player_src_get_type (void);
+
+G_END_DECLS
 
 #endif /* __KMS_PLAYER_SRC_H__ */

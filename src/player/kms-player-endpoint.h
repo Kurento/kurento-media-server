@@ -16,6 +16,8 @@
 
 #define KMS_PLAYER_ENDPOINT_ERROR (g_quark_from_string("KmsPlayerEndpointError"))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsPlayerEndpoint	KmsPlayerEndpoint;
 typedef struct _KmsPlayerEndpointClass	KmsPlayerEndpointClass;
 typedef struct _KmsPlayerEndpointPriv	KmsPlayerEndpointPriv;
@@ -40,5 +42,7 @@ GType kms_player_endpoint_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_PLAYER_ENDPOINT_H__ */

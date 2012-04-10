@@ -14,6 +14,8 @@
 #define KMS_IS_RTMP_CONNECTION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_RTMP_CONNECTION))
 #define KMS_RTMP_CONNECTION_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_RTMP_CONNECTION, KmsRtmpConnectionClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsRtmpConnection		KmsRtmpConnection;
 typedef struct _KmsRtmpConnectionClass		KmsRtmpConnectionClass;
 typedef struct _KmsRtmpConnectionPriv		KmsRtmpConnectionPriv;
@@ -45,5 +47,7 @@ GType kms_rtmp_connection_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_RTMP_CONNECTION_H__ */

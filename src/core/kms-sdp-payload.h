@@ -17,6 +17,8 @@
 #define KMS_IS_SDP_PAYLOAD_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_SDP_PAYLOAD))
 #define KMS_SDP_PAYLOAD_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_SDP_PAYLOAD, KmsSdpPayloadClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsSdpPayload		KmsSdpPayload;
 typedef struct _KmsSdpPayloadClass	KmsSdpPayloadClass;
 typedef struct _KmsSdpPayloadPriv	KmsSdpPayloadPriv;
@@ -45,5 +47,7 @@ gchar *kms_sdp_payload_to_string(KmsSdpPayload *self);
 gboolean kms_sdp_payload_equals(KmsSdpPayload *a, KmsSdpPayload *b);
 
 GstCaps *kms_sdp_payload_to_caps(KmsSdpPayload *self);
+
+G_END_DECLS
 
 #endif /* __KMS_SDP_PAYLOAD_H__ */

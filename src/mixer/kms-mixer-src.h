@@ -11,6 +11,8 @@
 #define KMS_IS_MIXER_SRC_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_MIXER_SRC))
 #define KMS_MIXER_SRC_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_MIXER_SRC, KmsMixerSrcClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMixerSrc		KmsMixerSrc;
 typedef struct _KmsMixerSrcClass	KmsMixerSrcClass;
 typedef struct _KmsMixerSrcPriv	KmsMixerSrcPriv;
@@ -30,5 +32,7 @@ struct _KmsMixerSrcClass {
 };
 
 GType kms_mixer_src_get_type (void);
+
+G_END_DECLS
 
 #endif /* __KMS_MIXER_SRC_H__ */

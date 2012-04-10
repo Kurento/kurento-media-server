@@ -16,6 +16,8 @@
 
 #define KMS_MIXER_FACTORY_ERROR (g_quark_from_string("KmsMixerFactoryError"))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMixerFactory		KmsMixerFactory;
 typedef struct _KmsMixerFactoryClass	KmsMixerFactoryClass;
 typedef struct _KmsMixerFactoryPriv	KmsMixerFactoryPriv;
@@ -44,5 +46,7 @@ GType kms_mixer_factory_get_type (void);
 void kms_mixer_factory_dispose(KmsMixerFactory *self);
 
 void kms_mixer_factory_connect(KmsMixerFactory *self, KmsMixerFactory *other);
+
+G_END_DECLS
 
 #endif /* __KMS_MIXER_FACTORY_H__ */

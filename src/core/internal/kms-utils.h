@@ -24,6 +24,8 @@ do {									\
 	}								\
 } while(0);
 
+G_BEGIN_DECLS
+
 GstElement* kms_get_pipeline();
 
 void kms_dynamic_connection(GstElement *orig, GstElement *dest, const gchar *name);
@@ -57,5 +59,7 @@ void kms_utils_remove_sink_pads(GstElement *self);
 void kms_utils_release_unlinked_pads(GstElement *elem);
 
 void kms_utils_remove_when_unlinked(GstPad *pad);
+
+G_END_DECLS
 
 #endif /* __KMS_UTILS_H__ */

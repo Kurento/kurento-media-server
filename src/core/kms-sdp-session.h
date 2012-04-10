@@ -17,6 +17,8 @@
 #define KMS_IS_SDP_SESSION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_SDP_SESSION))
 #define KMS_SDP_SESSION_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_SDP_SESSION, KmsSdpSessionClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsSdpSession		KmsSdpSession;
 typedef struct _KmsSdpSessionClass	KmsSdpSessionClass;
 typedef struct _KmsSdpSessionPriv	KmsSdpSessionPriv;
@@ -44,5 +46,7 @@ gchar *kms_sdp_session_to_string(KmsSdpSession *session);
 
 void kms_sdp_session_intersect(KmsSdpSession *answerer, KmsSdpSession *offerer,
 			KmsSdpSession **neg_ans, KmsSdpSession **neg_off);
+
+G_END_DECLS
 
 #endif /* __KMS_SDP_SESSION_H__ */

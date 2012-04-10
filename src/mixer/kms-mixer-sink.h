@@ -12,6 +12,8 @@
 #define KMS_IS_MIXER_SINK_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_MIXER_SINK))
 #define KMS_MIXER_SINK_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_MIXER_SINK, KmsMixerSinkClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMixerSink		KmsMixerSink;
 typedef struct _KmsMixerSinkClass	KmsMixerSinkClass;
 typedef struct _KmsMixerSinkPriv	KmsMixerSinkPriv;
@@ -33,5 +35,7 @@ struct _KmsMixerSinkClass {
 GType kms_mixer_sink_get_type (void);
 
 void kms_mixer_sink_link(KmsMixerSink *sink, KmsMixerSrc *src);
+
+G_END_DECLS
 
 #endif /* __KMS_MIXER_SINK_H__ */

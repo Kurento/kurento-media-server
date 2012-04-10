@@ -20,6 +20,8 @@
 
 #define KMS_MIXER_ENDPOINT_ERROR (g_quark_from_string("KmsMixerEndpointError"))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMixerEndpoint		KmsMixerEndpoint;
 typedef struct _KmsMixerEndpointClass	KmsMixerEndpointClass;
 typedef struct _KmsMixerEndpointPriv	KmsMixerEndpointPriv;
@@ -44,5 +46,7 @@ GType kms_mixer_endpoint_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_MIXER_ENDPOINT_H__ */

@@ -15,6 +15,8 @@
 #define KMS_IS_MEDIA_HANDLER_SINK_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_MEDIA_HANDLER_SINK))
 #define KMS_MEDIA_HANDLER_SINK_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_MEDIA_HANDLER_SINK, KmsMediaHandlerSinkClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMediaHandlerSink		KmsMediaHandlerSink;
 typedef struct _KmsMediaHandlerSinkClass	KmsMediaHandlerSinkClass;
 typedef struct _KmsMediaHandlerSinkPriv		KmsMediaHandlerSinkPriv;
@@ -39,7 +41,11 @@ struct _KmsMediaHandlerSinkClass {
 	/* class members */
 };
 
+G_END_DECLS
+
 #include <kms-media-handler-src.h>
+
+G_BEGIN_DECLS
 
 GType kms_media_handler_sink_get_type (void);
 
@@ -48,5 +54,7 @@ gboolean kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 					KmsMediaType type, GError **err);
 
 void kms_media_handler_sink_terminate(KmsMediaHandlerSink *self);
+
+G_END_DECLS
 
 #endif /* __KMS_MEDIA_HANDLER_SINK_H__ */

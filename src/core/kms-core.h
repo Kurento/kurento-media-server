@@ -21,7 +21,11 @@
 
 #undef __KMS_CORE_H_INSIDE__
 
+G_BEGIN_DECLS
+
 void kms_init(gint *argc, gchar **argv[]);
+
+G_END_DECLS
 
 #define KMS_DEBUG g_print("%s:%d\n", __FILE__, __LINE__)
 

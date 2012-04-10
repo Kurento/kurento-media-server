@@ -15,6 +15,8 @@
 #define KMS_IS_MEDIA_HANDLER_SRC_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_MEDIA_HANDLER_SRC))
 #define KMS_MEDIA_HANDLER_SRC_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_MEDIA_HANDLER_SRC, KmsMediaHandlerSrcClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMediaHandlerSrc		KmsMediaHandlerSrc;
 typedef struct _KmsMediaHandlerSrcClass		KmsMediaHandlerSrcClass;
 typedef struct _KmsMediaHandlerSrcPriv		KmsMediaHandlerSrcPriv;
@@ -53,5 +55,7 @@ void kms_media_handler_src_set_raw_pad(KmsMediaHandlerSrc *self, GstPad *pad,
 				   GstElement *tee, KmsMediaType type);
 
 void kms_media_handler_src_terminate(KmsMediaHandlerSrc *self);
+
+G_END_DECLS
 
 #endif /* __KMS_MEDIA_HANDLER_SRC_H__ */

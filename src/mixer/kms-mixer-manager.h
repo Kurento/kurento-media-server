@@ -16,6 +16,8 @@
 
 #define KMS_MIXER_MANAGER_ERROR (g_quark_from_string("KmsMixerManagerError"))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMixerManager		KmsMixerManager;
 typedef struct _KmsMixerManagerClass	KmsMixerManagerClass;
 typedef struct _KmsMixerManagerPriv	KmsMixerManagerPriv;
@@ -40,5 +42,7 @@ GType kms_mixer_manager_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_MIXER_MANAGER_H__ */

@@ -18,6 +18,8 @@
 #define KMS_IS_RTP_CONNECTION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_RTP_CONNECTION))
 #define KMS_RTP_CONNECTION_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_RTP_CONNECTION, KmsRtpConnectionClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsRtpConnection		KmsRtpConnection;
 typedef struct _KmsRtpConnectionClass		KmsRtpConnectionClass;
 typedef struct _KmsRtpConnectionPriv		KmsRtpConnectionPriv;
@@ -49,5 +51,7 @@ GType kms_rtp_connection_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_RTP_CONNECTION_H__ */

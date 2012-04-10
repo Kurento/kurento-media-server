@@ -17,6 +17,8 @@
 #define KMS_IS_RESOURCE(obj)		(G_TYPE_CHECK_INSTANCE_TYPE((obj), KMS_TYPE_RESOURCE))
 #define KMS_RESOURCE_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_INTERFACE((obj), KMS_TYPE_RESOURCE, KmsResourceClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsResource		KmsResource;
 typedef struct _KmsResourceInterface	KmsResourceInterface;
 
@@ -32,5 +34,7 @@ GType kms_resource_get_type (void);
 /*
  * Method definitions.
  */
+
+G_END_DECLS
 
 #endif /* __KMS_RESOURCE_H__ */

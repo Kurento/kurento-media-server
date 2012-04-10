@@ -14,6 +14,8 @@
 #define KMS_IS_MEDIA_HANDLER_FACTORY(obj)		(G_TYPE_CHECK_INSTANCE_TYPE((obj), KMS_TYPE_MEDIA_HANDLER_FACTORY))
 #define KMS_MEDIA_HANDLER_FACTORY_GET_INTERFACE(inst)	(G_TYPE_INSTANCE_GET_INTERFACE((inst), KMS_TYPE_MEDIA_HANDLER_FACTORY, KmsMediaHandlerFactoryInterface))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsMediaHandlerFactory		KmsMediaHandlerFactory; /* dummy object */
 typedef struct _KmsMediaHandlerFactoryInterface	KmsMediaHandlerFactoryInterface;
 
@@ -31,5 +33,7 @@ GType kms_media_handler_factory_get_type (void);
 
 KmsMediaHandlerSrc *kms_media_handler_factory_get_src(KmsMediaHandlerFactory *self);
 KmsMediaHandlerSink *kms_media_handler_factory_get_sink(KmsMediaHandlerFactory *self);
+
+G_END_DECLS
 
 #endif /* __KMS_MEDIA_HANDLER_FACTORY_H__ */

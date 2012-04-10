@@ -17,6 +17,8 @@
 #define KMS_IS_SDP_MEDIA_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_SDP_MEDIA))
 #define KMS_SDP_MEDIA_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_SDP_MEDIA, KmsSdpMediaClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsSdpMedia		KmsSdpMedia;
 typedef struct _KmsSdpMediaClass	KmsSdpMediaClass;
 typedef struct _KmsSdpMediaPriv		KmsSdpMediaPriv;
@@ -43,5 +45,7 @@ gchar *kms_sdp_media_to_string(KmsSdpMedia *self);
 
 void kms_sdp_media_intersect(KmsSdpMedia *answerer, KmsSdpMedia *offerer,
 			       KmsSdpMedia **neg_ans, KmsSdpMedia **neg_off);
+
+G_END_DECLS
 
 #endif /* __KMS_SDP_MEDIA_H__ */

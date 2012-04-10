@@ -11,6 +11,8 @@
 #define KMS_IS_RTMP_SENDER_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_RTMP_SENDER))
 #define KMS_RTMP_SENDER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_RTMP_SENDER, KmsRtmpSenderClass))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsRtmpSender		KmsRtmpSender;
 typedef struct _KmsRtmpSenderClass	KmsRtmpSenderClass;
 typedef struct _KmsRtmpSenderPriv	KmsRtmpSenderPriv;
@@ -30,5 +32,7 @@ struct _KmsRtmpSenderClass {
 };
 
 GType kms_rtmp_sender_get_type (void);
+
+G_END_DECLS
 
 #endif /* __KMS_RTMP_SENDER_H__ */

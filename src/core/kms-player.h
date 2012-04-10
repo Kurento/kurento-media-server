@@ -17,6 +17,8 @@
 #define KMS_IS_PLAYER(obj)		(G_TYPE_CHECK_INSTANCE_TYPE((obj), KMS_TYPE_PLAYER))
 #define KMS_PLAYER_GET_INTERFACE(obj)	(G_TYPE_INSTANCE_GET_INTERFACE((obj), KMS_TYPE_PLAYER, KmsPlayerInterface))
 
+G_BEGIN_DECLS
+
 typedef struct _KmsPlayer		KmsPlayer;
 typedef struct _KmsPlayerInterface	KmsPlayerInterface;
 
@@ -51,4 +53,7 @@ void kms_player_set_url(KmsPlayer *self, gchar *url);
 void kms_player_start(KmsPlayer *self);
 
 void kms_player_stop(KmsPlayer *self);
+
+G_END_DECLS
+
 #endif /* __KMS_PLAYER_H__ */
