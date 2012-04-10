@@ -22,10 +22,21 @@ void
 MediaSessionServiceHandler::createNetworkConnection(NetworkConnection& _return,
 					const MediaSession& mediaSession,
 					const std::vector<NetworkConnectionConfig::type>& config) {
-	MediaSessionImpl &session = manager->getMediaSession(mediaSession);
-	_return = session.createNetworkConnection(config);
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+		_return = session.createNetworkConnection(config);
 
-	i("Created NetworkConnection with id: %d", _return.joinable.object.id);
+		i("Created NetworkConnection with id: %d", _return.joinable.object.id);
+	} catch (MediaSessionNotFoundException ex) {
+		throw ex;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
@@ -33,8 +44,21 @@ MediaSessionServiceHandler::deleteNetworkConnection(
 				const MediaSession& mediaSession,
 				const NetworkConnection& networkConnection) {
 	i("deleteNetworkConnection: %d", networkConnection.joinable.object.id);
-	MediaSessionImpl &session = manager->getMediaSession(mediaSession);
-	session.deleteNetworkConnection(networkConnection);
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+		session.deleteNetworkConnection(networkConnection);
+	} catch(NetworkConnectionNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		throw ex;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
@@ -42,8 +66,19 @@ MediaSessionServiceHandler::getNetworkConnections(
 					std::vector<NetworkConnection>& _return,
 					const MediaSession& mediaSession) {
 	i("getNetworkConnections");
-	MediaSessionImpl &session = manager->getMediaSession(mediaSession);
-	session.getNetworkConnections(_return);
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
+		session.getNetworkConnections(_return);
+	} catch (MediaSessionNotFoundException ex) {
+		throw ex;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
