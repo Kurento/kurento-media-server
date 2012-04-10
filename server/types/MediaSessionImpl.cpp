@@ -9,6 +9,8 @@ using namespace ::com::kurento::kms::api;
 MediaSessionImpl::MediaSessionImpl() : MediaObjectImpl(), MediaSession() {
 	__set_object(*this);
 
+	// TODO: Generate token and set it
+
 	ncManager = new NetworkConnectionManager();
 	// TODO: Subscribe to ping controller
 }
@@ -20,8 +22,7 @@ MediaSessionImpl::~MediaSessionImpl() throw() {
 NetworkConnection&
 MediaSessionImpl::createNetworkConnection(
 		const std::vector<NetworkConnectionConfig::type>& config) {
-	NetworkConnection &nc = ncManager->createNewtorkConnection(config);
-	nc.joinable.__set_session(*this);
+	NetworkConnection &nc = ncManager->createNewtorkConnection(*this, config);
 	return nc;
 }
 

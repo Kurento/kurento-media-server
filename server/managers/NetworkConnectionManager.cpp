@@ -24,8 +24,10 @@ NetworkConnectionManager::~NetworkConnectionManager() {
 	mutex.unlock();
 }
 
-NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(const std::vector<NetworkConnectionConfig::type> & config) {
-	NetworkConnectionImpl *nc = new NetworkConnectionImpl(config);
+NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(
+		MediaSession &session,
+		const std::vector<NetworkConnectionConfig::type> & config) {
+	NetworkConnectionImpl *nc = new NetworkConnectionImpl(session, config);
 
 	mutex.lock();
 	connections.push_back(nc);

@@ -14,7 +14,7 @@ namespace com { namespace kurento { namespace kms {
 		NetworkConnectionManager();
 		~NetworkConnectionManager();
 
-		NetworkConnectionImpl& createNewtorkConnection(const std::vector<NetworkConnectionConfig::type> & config);
+		NetworkConnectionImpl& createNewtorkConnection(MediaSession &session, const std::vector<NetworkConnectionConfig::type> & config);
 
 		void getNetworkConnections(std::vector<NetworkConnection> &_return);
 		NetworkConnectionImpl& getNetworkConnection(const NetworkConnection& nc);

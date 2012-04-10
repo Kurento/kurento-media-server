@@ -7,12 +7,13 @@
 using ::com::kurento::kms::api::Joinable;
 using ::com::kurento::kms::api::Direction;
 using ::com::kurento::kms::api::StreamType;
+using ::com::kurento::kms::api::MediaSession;
 
 namespace com { namespace kurento { namespace kms {
 
 class JoinableImpl : public Joinable, public virtual MediaObjectImpl {
 public:
-	JoinableImpl();
+	JoinableImpl(MediaSession &session);
 	~JoinableImpl() throw() {};
 
 	std::vector<StreamType::type> getStreams(const Joinable& joinable);
