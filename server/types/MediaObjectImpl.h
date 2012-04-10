@@ -11,8 +11,6 @@ class MediaObjectImpl : public virtual MediaObject  {
 public:
 	MediaObjectImpl();
 	~MediaObjectImpl() throw() {};
-
-	void ping(const int32_t timeout);
 };
 
 }}} // com::kurento::kms

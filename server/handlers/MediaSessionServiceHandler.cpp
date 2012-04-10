@@ -142,11 +142,11 @@ MediaSessionServiceHandler::getMixers(std::vector<Mixer>& _return,
 }
 
 void
-MediaSessionServiceHandler::ping(const MediaObject& mediaObject,
+MediaSessionServiceHandler::ping(const MediaSession& mediaSession,
 							const int32_t timeout) {
 	i("ping");
 	try {
-		MediaSessionImpl &session = manager->getMediaSession(mediaObject);
+		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		session.ping(timeout);
 	} catch (MediaSessionNotFoundException ex) {
 		MediaObjectNotFoundException monfe;

@@ -10,6 +10,7 @@ MediaSessionImpl::MediaSessionImpl() : MediaObjectImpl(), MediaSession() {
 	__set_object(*this);
 
 	ncManager = new NetworkConnectionManager();
+	// TODO: Subscribe to ping controller
 }
 
 MediaSessionImpl::~MediaSessionImpl() throw() {
@@ -49,5 +50,11 @@ MediaSessionImpl::deleteMixer(const Mixer& mixer) {
 
 void
 MediaSessionImpl::getMixers(std::vector<Mixer> &_return) {
+	throw "Not implemented";
+}
+
+void
+MediaSessionImpl::ping(const int32_t timeout) {
+	// TODO: Implement this method
 	throw "Not implemented";
 }

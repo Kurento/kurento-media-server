@@ -25,7 +25,7 @@ namespace com { namespace kurento { namespace kms {
 		void deleteMixer(const MediaSession& mediaSession, const  Mixer& mixer);
 		void getMixers(std::vector<Mixer>& _return, const MediaSession& mediaSession);
 
-		void ping(const MediaObject& mediaObject, const int32_t timeout);
+		void ping(const MediaSession& mediaSession, const int32_t timeout);
 		void release(const MediaObject& mediaObject);
 
 	private:

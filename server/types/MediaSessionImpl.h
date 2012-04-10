@@ -16,6 +16,8 @@ public:
 	MediaSessionImpl();
 	~MediaSessionImpl() throw();
 
+	void ping(const int32_t timeout);
+
 	NetworkConnection &createNetworkConnection(const std::vector<NetworkConnectionConfig::type> & config);
 	void deleteNetworkConnection(const NetworkConnection& networkConnection);
 	void getNetworkConnections(std::vector<NetworkConnection> &_return);

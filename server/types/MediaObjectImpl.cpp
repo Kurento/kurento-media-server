@@ -22,10 +22,4 @@ getId() {
 
 MediaObjectImpl::MediaObjectImpl() : MediaObject() {
 	id = getId();
-	// TODO: Start timer
-}
-
-void
-MediaObjectImpl::ping(const int32_t timeout) {
-	// TODO: Implement this method
 }
