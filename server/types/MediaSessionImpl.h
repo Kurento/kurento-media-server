@@ -17,7 +17,7 @@ public:
 	~MediaSessionImpl() throw();
 
 	NetworkConnection &createNetworkConnection(const std::vector<NetworkConnectionConfig::type> & config);
-	void deleteNetworkConnection(const NetworkConnection& networConnection);
+	void deleteNetworkConnection(const NetworkConnection& networkConnection);
 	void getNetworkConnections(std::vector<NetworkConnection> &_return);
 	Mixer &createMixer(const std::vector<MixerConfig::type> & config);
 	void deleteMixer(const Mixer& mixer);

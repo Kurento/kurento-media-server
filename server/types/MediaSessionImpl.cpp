@@ -26,8 +26,8 @@ MediaSessionImpl::createNetworkConnection(
 
 void
 MediaSessionImpl::deleteNetworkConnection(
-				const NetworkConnection& networConnection) {
-	ncManager->deleteNetworkConnection(networConnection);
+				const NetworkConnection& networkConnection) {
+	ncManager->deleteNetworkConnection(networkConnection);
 }
 
 void
