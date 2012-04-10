@@ -10,7 +10,7 @@ namespace com { namespace kurento { namespace kms {
 class MediaObjectImpl : public virtual MediaObject  {
 public:
 	MediaObjectImpl();
-	MediaObjectImpl(std::string token);
+	MediaObjectImpl(std::string &token);
 	~MediaObjectImpl() throw() {};
 };
 

@@ -24,7 +24,7 @@ MediaObjectImpl::MediaObjectImpl() : MediaObject() {
 	id = getId();
 }
 
-MediaObjectImpl::MediaObjectImpl(std::string token) : MediaObject() {
+MediaObjectImpl::MediaObjectImpl(std::string &token) : MediaObject() {
 	id = getId();
 	this->token = token;
 }
