@@ -30,6 +30,10 @@ MediaSessionImpl &MediaSessionManager::createMediaSession() {
 }
 
 void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
+	deleteMediaSession(session.object);
+}
+
+void MediaSessionManager::deleteMediaSession(const MediaObject &session) {
 	std::list<MediaSessionImpl *>::iterator it;
 	bool found = FALSE;
 
@@ -49,8 +53,15 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 	}
 }
 
+
+
 MediaSessionImpl&
 MediaSessionManager::getMediaSession(const MediaSession& session) {
+	return getMediaSession(session.object);
+}
+
+MediaSessionImpl&
+MediaSessionManager::getMediaSession(const MediaObject& session) {
 	std::list<MediaSessionImpl *>::iterator it;
 	MediaSessionImpl *ms;
 	bool found = FALSE;

@@ -145,11 +145,38 @@ void
 MediaSessionServiceHandler::ping(const MediaObject& mediaObject,
 							const int32_t timeout) {
 	i("ping");
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(mediaObject);
+		session.ping(timeout);
+	} catch (MediaSessionNotFoundException ex) {
+		MediaObjectNotFoundException monfe;
+		throw monfe;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
 MediaSessionServiceHandler::release(const MediaObject& mediaObject) {
 	i("release");
+	try {
+		manager->deleteMediaSession(mediaObject);
+	} catch (MediaSessionNotFoundException ex) {
+		MediaObjectNotFoundException monfe;
+		throw monfe;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 }}} // com::kurento::kms
