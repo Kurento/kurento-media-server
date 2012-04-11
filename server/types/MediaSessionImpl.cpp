@@ -9,6 +9,7 @@
 
 using ::com::kurento::kms::MediaSessionImpl;
 using ::com::kurento::kms::NetworkConnectionManager;
+using ::com::kurento::kms::MixerManager;
 using ::com::kurento::kms::MediaSessionManager;
 using namespace ::com::kurento::kms::api;
 using ::com::kurento::log::Log;
@@ -40,6 +41,7 @@ MediaSessionImpl::MediaSessionImpl() : MediaObjectImpl(), MediaSession() {
 	object.__set_token(tk);
 
 	ncManager = new NetworkConnectionManager();
+	mixerManager = new MixerManager();
 
 	conn = Glib::signal_timeout().connect_seconds(
 		sigc::mem_fun(*this, &MediaSessionImpl::pingTimeout),
@@ -72,7 +74,7 @@ MediaSessionImpl::getNetworkConnections(std::vector<NetworkConnection> &_return)
 
 Mixer&
 MediaSessionImpl::createMixer(const std::vector<MixerConfig::type>& config) {
-	throw "Not implemented";
+	return mixerManager->createMixer(*this, config);
 }
 
 void

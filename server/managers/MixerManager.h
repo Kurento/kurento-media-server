@@ -13,7 +13,7 @@ namespace com { namespace kurento { namespace kms {
 		MixerManager();
 		~MixerManager();
 
-		MixerImpl& createMixer(MediaSession &session, const std::vector<MixerConfig::type> & config);
+		MixerImpl& createMixer(MediaSession &session, const std::vector<MixerConfig::type> &config);
 
 		void getMixers(std::vector<Mixer> &_return);
 		MixerImpl& getMixer(const Mixer& mixer);

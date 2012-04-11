@@ -4,6 +4,7 @@
 #include "mediaSession_types.h"
 #include "types/MediaObjectImpl.h"
 #include "managers/NetworkConnectionManager.h"
+#include "managers/MixerManager.h"
 #include <glibmm.h>
 
 using namespace ::com::kurento::kms::api;
@@ -29,6 +30,7 @@ public:
 private:
 
 	NetworkConnectionManager *ncManager;
+	MixerManager *mixerManager;
 	sigc::connection conn;
 
 	bool pingTimeout();
