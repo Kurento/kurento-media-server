@@ -85,7 +85,7 @@ MediaSessionImpl::deleteMixer(const Mixer& mixer) {
 
 void
 MediaSessionImpl::getMixers(std::vector<Mixer> &_return) {
-	throw "Not implemented";
+	mixerManager->getMixers(_return);
 }
 
 void

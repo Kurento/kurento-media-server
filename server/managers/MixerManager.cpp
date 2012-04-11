@@ -52,3 +52,14 @@ MixerManager::deleteMixer(const Mixer& mixer) {
 		throw exception;
 	}
 }
+
+void
+MixerManager::getMixers(std::vector<Mixer> &_return) {
+	std::vector<MixerImpl *>::iterator it;
+
+	mutex.lock();
+	for (it = mixers.begin(); it != mixers.end(); it++) {
+		_return.push_back(**it);
+	}
+	mutex.unlock();
+}
