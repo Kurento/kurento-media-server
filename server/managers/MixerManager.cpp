@@ -30,3 +30,25 @@ MixerImpl& MixerManager::createMixer(
 
 	return *mixer;
 }
+
+void
+MixerManager::deleteMixer(const Mixer& mixer) {
+	std::vector<MixerImpl *>::iterator it;
+	bool found;
+
+	mutex.lock();
+	for (it = mixers.begin(); it != mixers.end(); it++) {
+		if (mixer == *(*it)) {
+			found = true;
+			delete *it;
+			mixers.erase(it);
+			break;
+		}
+	}
+	mutex.unlock();
+
+	if (!found) {
+		MixerNotFoundException exception;
+		throw exception;
+	}
+}
