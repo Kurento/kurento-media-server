@@ -47,6 +47,7 @@ NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
 			found = true;
 			delete *it;
 			connections.erase(it);
+			break;
 		}
 	}
 	mutex.unlock();

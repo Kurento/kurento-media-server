@@ -38,11 +38,12 @@ void MediaSessionManager::deleteMediaSession(const MediaObject &object) {
 	bool found = FALSE;
 
 	mutex.lock();
-	for (it = sessions.begin(); !found && (it != sessions.end()); it++) {
+	for (it = sessions.begin(); it != sessions.end(); it++) {
 		if (object == (*it)->object) {
 			found = true;
 			delete *it;
 			sessions.erase(it);
+			break;
 		}
 	}
 	mutex.unlock();
