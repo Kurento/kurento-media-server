@@ -19,8 +19,9 @@ append_log_formats(int line, std::string function, std::string file,
 
 	message = g_strdup_vprintf(format.c_str(), args);
 
-	formmated_message = g_strdup_printf("%s:%d %s", file.c_str(),
-							line, message);
+// 	formmated_message = g_strdup_printf("%s:%d %s", file.c_str(),
+// 							line, message);
+	formmated_message = g_strdup_printf("#%d %s", line, message);
 	g_free(message);
 
 	return formmated_message;
