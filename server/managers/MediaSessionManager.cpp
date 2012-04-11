@@ -1,8 +1,14 @@
 #include "MediaSessionManager.h"
 #include "types/MediaSessionImpl.h"
+#include <log.h>
 
 using namespace ::com::kurento::kms;
 using namespace ::com::kurento::kms::api;
+
+using ::com::kurento::log::Log;
+
+static Log l("MediaSessionManager");
+#define i(...) aux_info(l, __VA_ARGS__)
 
 MediaSessionManager::MediaSessionManager() {
 }
@@ -21,10 +27,14 @@ void MediaSessionManager::releaseInstance(MediaSessionManager* manager) {
 
 MediaSessionImpl &MediaSessionManager::createMediaSession() {
 	MediaSessionImpl *session = new MediaSessionImpl();
+	int size;
 
 	mutex.lock();
 	sessions[session->object.id] = session;
+	size = sessions.size();
 	mutex.unlock();
+
+	i("%d active sessions", size);
 
 	return *session;
 }
@@ -36,6 +46,7 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 void MediaSessionManager::deleteMediaSession(const MediaObject &object) {
 	std::map<ObjectId, MediaSessionImpl *>::iterator it;
 	bool found = FALSE;
+	int size;
 
 	mutex.lock();
 	it = sessions.find(object.id);
@@ -43,6 +54,7 @@ void MediaSessionManager::deleteMediaSession(const MediaObject &object) {
 		found = true;
 		delete it->second;
 		sessions.erase(it);
+		size = sessions.size();
 	} else {
 		found = false;
 	}
@@ -52,6 +64,8 @@ void MediaSessionManager::deleteMediaSession(const MediaObject &object) {
 	if (!found) {
 		MediaSessionNotFoundException exception;
 		throw exception;
+	} else {
+		i("%d active sessions", size);
 	}
 }
 
