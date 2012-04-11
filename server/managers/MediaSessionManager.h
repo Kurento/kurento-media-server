@@ -33,7 +33,7 @@ namespace com { namespace kurento { namespace kms {
 	private:
 
 		Glib::Mutex mutex; // Protects the list
-		std::list<MediaSessionImpl *> sessions;
+		std::map<ObjectId, MediaSessionImpl *> sessions;
 	};
 
 

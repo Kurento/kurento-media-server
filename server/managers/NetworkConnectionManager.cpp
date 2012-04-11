@@ -12,12 +12,12 @@ NetworkConnectionManager::NetworkConnectionManager(){
 }
 
 NetworkConnectionManager::~NetworkConnectionManager() {
-	std::vector<NetworkConnectionImpl *>::iterator it;
+	std::map<ObjectId, NetworkConnectionImpl *>::iterator it;
 
 	mutex.lock();
 	for (it = connections.begin(); it != connections.end(); it++) {
 		if (it != connections.end()) {
-			delete *it;
+			delete it->second;
 		}
 	}
 	connections.clear();
@@ -30,7 +30,7 @@ NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(
 	NetworkConnectionImpl *nc = new NetworkConnectionImpl(session, config);
 
 	mutex.lock();
-	connections.push_back(nc);
+	connections[nc->joinable.object.id] = nc;
 	mutex.unlock();
 
 	return *nc;
@@ -38,17 +38,17 @@ NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(
 
 void
 NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
-	std::vector<NetworkConnectionImpl *>::iterator it;
+	std::map<ObjectId, NetworkConnectionImpl *>::iterator it;
 	bool found;
 
 	mutex.lock();
-	for (it = connections.begin(); it != connections.end(); it++) {
-		if (nc == *(*it)) {
-			found = true;
-			delete *it;
-			connections.erase(it);
-			break;
-		}
+	it = connections.find(nc.joinable.object.id);
+	if (it != connections.end() && nc == *(it->second)) {
+		found = true;
+		delete it->second;
+		connections.erase(it);
+	} else {
+		found = false;
 	}
 	mutex.unlock();
 
@@ -61,11 +61,11 @@ NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
 void
 NetworkConnectionManager::getNetworkConnections(
 				std::vector<NetworkConnection> &_return) {
-	std::vector<NetworkConnectionImpl *>::iterator it;
+	std::map<ObjectId, NetworkConnectionImpl *>::iterator it;
 
 	mutex.lock();
 	for (it = connections.begin(); it != connections.end(); it++) {
-		_return.push_back(**it);
+		_return.push_back(*(it->second));
 	}
 	mutex.unlock();
 }

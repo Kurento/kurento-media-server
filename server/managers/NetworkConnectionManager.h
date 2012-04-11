@@ -23,7 +23,7 @@ namespace com { namespace kurento { namespace kms {
 	private:
 
 		Glib::Mutex mutex; // Protects the list
-		std::vector<NetworkConnectionImpl *> connections;
+		std::map<ObjectId, NetworkConnectionImpl *> connections;
 	};
 
 

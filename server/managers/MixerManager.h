@@ -22,7 +22,7 @@ namespace com { namespace kurento { namespace kms {
 	private:
 
 		Glib::Mutex mutex; // Protects the list
-		std::vector<MixerImpl *> mixers;
+		std::map<ObjectId, MixerImpl *> mixers;
 	};
 
 

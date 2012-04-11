@@ -7,13 +7,11 @@ MixerManager::MixerManager(){
 }
 
 MixerManager::~MixerManager() {
-	std::vector<MixerImpl *>::iterator it;
+	std::map<ObjectId, MixerImpl *>::iterator it;
 
 	mutex.lock();
 	for (it = mixers.begin(); it != mixers.end(); it++) {
-		if (it != mixers.end()) {
-			delete *it;
-		}
+		delete it->second;
 	}
 	mixers.clear();
 	mutex.unlock();
@@ -25,7 +23,7 @@ MixerImpl& MixerManager::createMixer(
 	MixerImpl *mixer = new MixerImpl(session, config);
 
 	mutex.lock();
-	mixers.push_back(mixer);
+	mixers[mixer->joinable.object.id] = mixer;
 	mutex.unlock();
 
 	return *mixer;
@@ -33,17 +31,17 @@ MixerImpl& MixerManager::createMixer(
 
 void
 MixerManager::deleteMixer(const Mixer& mixer) {
-	std::vector<MixerImpl *>::iterator it;
+	std::map<ObjectId, MixerImpl *>::iterator it;
 	bool found;
 
 	mutex.lock();
-	for (it = mixers.begin(); it != mixers.end(); it++) {
-		if (mixer == *(*it)) {
-			found = true;
-			delete *it;
-			mixers.erase(it);
-			break;
-		}
+	it = mixers.find(mixer.joinable.object.id);
+	if (it != mixers.end() && mixer == *(it->second)) {
+		found = true;
+		delete it->second;
+		mixers.erase(it);
+	} else {
+		found = false;
 	}
 	mutex.unlock();
 
@@ -55,11 +53,11 @@ MixerManager::deleteMixer(const Mixer& mixer) {
 
 void
 MixerManager::getMixers(std::vector<Mixer> &_return) {
-	std::vector<MixerImpl *>::iterator it;
+	std::map<ObjectId, MixerImpl *>::iterator it;
 
 	mutex.lock();
 	for (it = mixers.begin(); it != mixers.end(); it++) {
-		_return.push_back(**it);
+		_return.push_back(*(it->second));
 	}
 	mutex.unlock();
 }
