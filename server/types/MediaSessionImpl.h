@@ -29,8 +29,8 @@ public:
 
 private:
 
-	NetworkConnectionManager *ncManager;
-	MixerManager *mixerManager;
+	NetworkConnectionManager ncManager;
+	MixerManager mixerManager;
 	sigc::connection conn;
 
 	bool pingTimeout();
