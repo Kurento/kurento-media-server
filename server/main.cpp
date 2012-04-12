@@ -2,11 +2,9 @@
 #include "handlers/MediaSessionServiceHandler.h"
 
 #include <protocol/TBinaryProtocol.h>
-#include <server/TSimpleServer.h>
 #include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
 #include <server/TThreadedServer.h>
-#include <server/TNonblockingServer.h>
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
