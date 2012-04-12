@@ -32,6 +32,7 @@ static Log l("main");
 #define e(...) aux_error(l, __VA_ARGS__);
 #define w(...) aux_warn(l, __VA_ARGS__);
 
+#define SERVER_ADDRESS "localhost"
 #define SERVER_SERVICE_PORT 9090
 #define SESSION_SERVICE_PORT 9091
 
@@ -40,12 +41,7 @@ static ServerConfig config;
 static void create_server_service() {
 	int port;
 
-	if (!config.__isset.serverServicePort) {
-		e("No port set in configuration for MediaServerService");
-		throw Glib::Thread::Exit();
-	} else {
-		port = config.serverServicePort;
-	}
+	port = config.serverServicePort;
 
 	shared_ptr<MediaServerServiceHandler> handler(new MediaServerServiceHandler(&config));
 	shared_ptr<TProcessor> processor(new MediaServerServiceProcessor(handler));
@@ -106,6 +102,7 @@ int main(int argc, char **argv) {
 
 	Glib::thread_init();
 
+	config.__set_address(SERVER_ADDRESS);
 	config.__set_serverServicePort(SERVER_SERVICE_PORT);
 	config.__set_mediaSessionServicePort(SESSION_SERVICE_PORT);
 
