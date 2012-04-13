@@ -47,3 +47,11 @@ JoinableImpl::unjoin(const JoinableImpl& to) {
 	ex.__set_code(ErrorCode::UNEXPECTED);
 	throw ex;
 }
+
+void
+JoinableImpl::unjoin(const JoinableImpl& to, const StreamType::type stream) {
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
+}
