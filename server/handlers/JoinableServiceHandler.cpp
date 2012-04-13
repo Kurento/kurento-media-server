@@ -291,10 +291,26 @@ JoinableServiceHandler::getStreamJoinees(std::vector<Joinable> &_return,
 	i("getStreamJoinees of stream %s from %lld",
 			_StreamType_VALUES_TO_NAMES.find(stream)->second,
 			from.object.id);
-	MediaServerException ex;
-	ex.__set_description("Unimplemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(from.session);
+		JoinableImpl &f = session.getJoinable(from);
+		f.getJoinees(_return, stream);
+	} catch(JoinException ex){
+		throw ex;
+	} catch(JoinableNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		JoinableNotFoundException e;
+		e.__set_description("MediaSession not found");
+		throw e;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
