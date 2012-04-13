@@ -25,10 +25,10 @@ public:
 	void unjoin(const JoinableImpl& to, const StreamType::type stream);
 
 	void getJoinees(std::vector<Joinable> &_return);
-	void getDirectionJoiness(std::vector<Joinable> &_return, const Direction::type direction);
+	void getJoinees(std::vector<Joinable> &_return, const Direction::type direction);
 
 	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream);
-	void getDirectionJoiness(std::vector<Joinable> &_return, const StreamType::type stream, const Direction::type direction);
+	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream, const Direction::type direction);
 };
 
 }}} // com::kurento::kms

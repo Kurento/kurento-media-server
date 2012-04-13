@@ -57,7 +57,16 @@ JoinableImpl::unjoin(const JoinableImpl& to, const StreamType::type stream) {
 }
 
 void
-JoinableImpl::getJoinees(std::vector< Joinable >& _return) {
+JoinableImpl::getJoinees(std::vector<Joinable>& _return) {
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
+}
+
+void
+JoinableImpl::getJoinees(std::vector<Joinable>& _return,
+					const Direction::type direction) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
