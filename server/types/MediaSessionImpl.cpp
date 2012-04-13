@@ -3,7 +3,6 @@
 #include <glibmm.h>
 #include <uuid/uuid.h>
 #include <log.h>
-#include <mediaObject_constants.h>
 #include <managers/MediaSessionManager.h>
 #include <mediaSession_constants.h>
 
@@ -24,7 +23,7 @@ static Log l("MediaSessionImpl");
 
 bool MediaSessionImpl::pingTimeout() {
 	w("Timeout on session %d, deleting.", object.id);
-	MediaSessionManager::getInstance()->deleteMediaSession(this->object);
+	MediaSessionManager::getInstance()->deleteMediaSession(*this);
 	return false;
 }
 

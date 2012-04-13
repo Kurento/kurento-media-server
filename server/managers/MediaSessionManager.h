@@ -20,11 +20,7 @@ namespace com { namespace kurento { namespace kms {
 
 		MediaSessionImpl& getMediaSession(const MediaSession& session);
 
-		MediaSessionImpl& getMediaSession(const MediaObject& session);
-
 		void deleteMediaSession(const MediaSession& session);
-
-		void deleteMediaSession(const MediaObject& session);
 
 		static MediaSessionManager *getInstance();
 

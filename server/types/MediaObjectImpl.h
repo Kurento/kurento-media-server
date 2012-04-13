@@ -1,7 +1,7 @@
 #ifndef MEDIA_OBJECT_IMPL
 #define MEDIA_OBJECT_IMPL
 
-#include "mediaObject_types.h"
+#include "common_types.h"
 
 using ::com::kurento::kms::api::MediaObject;
 

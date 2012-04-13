@@ -29,7 +29,7 @@ public:
 	void getStreamJoinees(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream);
 	void getStreamDirectionJoinees(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream, const Direction::type direction);
 
-	void release(const MediaObject& mediaObject);
+	void release(const Joinable& joinable);
 
 protected:
 

@@ -149,8 +149,7 @@ MediaSessionServiceHandler::ping(const MediaSession& mediaSession,
 		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		session.ping(timeout);
 	} catch (MediaSessionNotFoundException ex) {
-		MediaObjectNotFoundException monfe;
-		throw monfe;
+		throw ex;
 	} catch (MediaServerException ex) {
 		throw ex;
 	} catch (...) {
@@ -162,13 +161,12 @@ MediaSessionServiceHandler::ping(const MediaSession& mediaSession,
 }
 
 void
-MediaSessionServiceHandler::release(const MediaObject& mediaObject) {
+MediaSessionServiceHandler::release(const MediaSession& session) {
 	i("release");
 	try {
-		manager->deleteMediaSession(mediaObject);
+		manager->deleteMediaSession(session);
 	} catch (MediaSessionNotFoundException ex) {
-		MediaObjectNotFoundException monfe;
-		throw monfe;
+		throw ex;
 	} catch (MediaServerException ex) {
 		throw ex;
 	} catch (...) {

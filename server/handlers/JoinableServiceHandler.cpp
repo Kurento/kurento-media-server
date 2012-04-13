@@ -363,8 +363,8 @@ JoinableServiceHandler::getStreamDirectionJoinees(std::vector<Joinable> &_return
 }
 
 void
-JoinableServiceHandler::release(const MediaObject& mediaObject) {
-	i("release joinable %lld", mediaObject.id);
+JoinableServiceHandler::release(const Joinable& joinable) {
+	i("release joinable %lld", joinable.object.id);
 	MediaServerException ex;
 	ex.__set_description("Unimplemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
