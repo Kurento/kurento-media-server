@@ -10,3 +10,11 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session, const std::v
 
 	__set_config(config);
 }
+
+SessionSpec&
+NetworkConnectionImpl::generateOffer() {
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
+}

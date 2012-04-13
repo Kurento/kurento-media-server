@@ -58,6 +58,31 @@ NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
 	}
 }
 
+NetworkConnectionImpl&
+NetworkConnectionManager::getNetworkConnection(const NetworkConnection &nc) {
+	std::map<ObjectId, NetworkConnectionImpl *>::iterator it;
+	NetworkConnectionImpl *conn;
+	bool found;
+
+	mutex.lock();
+	it = connections.find(nc.joinable.object.id);
+	if (it != connections.end() && nc == *(it->second)) {
+		found = true;
+		conn = it->second;
+	} else {
+		found = false;
+	}
+	mutex.unlock();
+
+	if (!found) {
+		JoinableNotFoundException ex;
+		ex.__set_description("Joinable not found");
+		throw ex;
+	}
+
+	return *conn;
+}
+
 JoinableImpl&
 NetworkConnectionManager::getJoinable(const Joinable &joinable) {
 	std::map<ObjectId, NetworkConnectionImpl *>::iterator it;

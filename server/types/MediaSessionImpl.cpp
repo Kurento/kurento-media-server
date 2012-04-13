@@ -9,6 +9,7 @@
 
 using ::com::kurento::kms::MediaSessionImpl;
 using ::com::kurento::kms::JoinableImpl;
+using ::com::kurento::kms::NetworkConnectionImpl;
 using ::com::kurento::kms::NetworkConnectionManager;
 using ::com::kurento::kms::MixerManager;
 using ::com::kurento::kms::MediaSessionManager;
@@ -100,4 +101,9 @@ MediaSessionImpl::getJoinable(const Joinable &joinable) {
 		// TODO: Try to find in other managers (if any)
 		throw e;
 	}
+}
+
+NetworkConnectionImpl&
+MediaSessionImpl::getNetworkConnection(const NetworkConnection &nc) {
+	return ncManager.getNetworkConnection(nc);
 }

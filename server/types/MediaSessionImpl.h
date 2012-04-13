@@ -28,6 +28,7 @@ public:
 	void getMixers(std::vector<Mixer> &_return);
 
 	JoinableImpl &getJoinable(const Joinable &joinable);
+	NetworkConnectionImpl &getNetworkConnection(const NetworkConnection &nc);
 
 private:
 
