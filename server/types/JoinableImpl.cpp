@@ -13,3 +13,8 @@ JoinableImpl::JoinableImpl(MediaSession &session) :
 	__set_object(*this);
 	__set_session(session);
 }
+
+void
+JoinableImpl::getStreams(std::vector<StreamType::type> &_return) {
+	// TODO: Implement this method
+}

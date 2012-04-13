@@ -8,6 +8,7 @@
 #include <mediaSession_constants.h>
 
 using ::com::kurento::kms::MediaSessionImpl;
+using ::com::kurento::kms::JoinableImpl;
 using ::com::kurento::kms::NetworkConnectionManager;
 using ::com::kurento::kms::MixerManager;
 using ::com::kurento::kms::MediaSessionManager;
@@ -89,4 +90,14 @@ MediaSessionImpl::ping(const int32_t timeout) {
 	conn.disconnect();
 	conn = Glib::signal_timeout().connect_seconds(
 		sigc::mem_fun(*this, &MediaSessionImpl::pingTimeout), timeout);
+}
+
+JoinableImpl &
+MediaSessionImpl::getJoinable(const Joinable &joinable) {
+	try {
+		return ncManager.getJoinable(joinable);
+	} catch (JoinableNotFoundException e) {
+		// TODO: Try to find in other managers (if any)
+		throw e;
+	}
 }

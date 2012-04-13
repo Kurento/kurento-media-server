@@ -27,6 +27,8 @@ public:
 	void deleteMixer(const Mixer& mixer);
 	void getMixers(std::vector<Mixer> &_return);
 
+	JoinableImpl &getJoinable(const Joinable &joinable);
+
 private:
 
 	NetworkConnectionManager ncManager;

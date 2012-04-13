@@ -3,6 +3,8 @@
 #include <log.h>
 
 using ::com::kurento::kms::JoinableServiceHandler;
+using ::com::kurento::kms::MediaSessionImpl;
+using ::com::kurento::kms::JoinableImpl;
 using namespace ::com::kurento::kms::api;
 
 using ::com::kurento::log::Log;
@@ -25,10 +27,24 @@ void
 JoinableServiceHandler::getStreams(std::vector<StreamType::type> &_return,
 						const Joinable& joinable) {
 	i("getStreams from joinable: %lld", joinable.object.id);
-	MediaServerException ex;
-	ex.__set_description("Unimplemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(joinable.session);
+		JoinableImpl &j = session.getJoinable(joinable);
+		j.getStreams(_return);
+	} catch(JoinableNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		JoinableNotFoundException e;
+		e.__set_description("MediaSession not found");
+		throw e;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void

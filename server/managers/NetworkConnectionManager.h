@@ -20,6 +20,8 @@ namespace com { namespace kurento { namespace kms {
 		NetworkConnectionImpl& getNetworkConnection(const NetworkConnection& nc);
 		void deleteNetworkConnection(const NetworkConnection& nc);
 
+		JoinableImpl& getJoinable(const Joinable &joinable);
+
 	private:
 
 		Glib::Mutex mutex; // Protects the list
