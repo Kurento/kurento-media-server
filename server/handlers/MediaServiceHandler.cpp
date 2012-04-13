@@ -30,7 +30,7 @@ void MediaServerServiceHandler::getServerconfig(ServerConfig& _return) {
 void MediaServerServiceHandler::createMediaSession(MediaSession& _return) {
 	try {
 		_return = manager->createMediaSession();
-		i("Mediasession created with id %d", _return.object.id);
+		i("Mediasession created with id %lld", _return.object.id);
 	} catch (MediaServerException e) {
 		throw e;
 	} catch (...) {
@@ -42,7 +42,7 @@ void MediaServerServiceHandler::createMediaSession(MediaSession& _return) {
 }
 
 void MediaServerServiceHandler::deleteMediaSession(const MediaSession& session) {
-	i("Deleting media session %d", session.object.id);
+	i("Deleting media session %lld", session.object.id);
 	try {
 		manager->deleteMediaSession(session);
 	} catch (MediaSessionNotFoundException e) {

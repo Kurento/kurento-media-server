@@ -26,7 +26,7 @@ MediaSessionServiceHandler::createNetworkConnection(NetworkConnection& _return,
 		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		_return = session.createNetworkConnection(config);
 
-		i("Created NetworkConnection with id: %d", _return.joinable.object.id);
+		i("Created NetworkConnection with id: %lld", _return.joinable.object.id);
 	} catch (MediaSessionNotFoundException ex) {
 		throw ex;
 	} catch (MediaServerException ex) {
@@ -43,7 +43,7 @@ void
 MediaSessionServiceHandler::deleteNetworkConnection(
 				const MediaSession& mediaSession,
 				const NetworkConnection& networkConnection) {
-	i("deleteNetworkConnection: %d", networkConnection.joinable.object.id);
+	i("deleteNetworkConnection: %lld", networkConnection.joinable.object.id);
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		session.deleteNetworkConnection(networkConnection);
@@ -88,7 +88,7 @@ MediaSessionServiceHandler::createMixer(Mixer& _return,
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		_return = session.createMixer(config);
-		i("Mixer created with id: %d", _return.joinable.object.id);
+		i("Mixer created with id: %lld", _return.joinable.object.id);
 	} catch (MediaSessionNotFoundException ex) {
 		throw ex;
 	} catch (MediaServerException ex) {
@@ -104,7 +104,7 @@ MediaSessionServiceHandler::createMixer(Mixer& _return,
 void
 MediaSessionServiceHandler::deleteMixer(const MediaSession& mediaSession,
 							const  Mixer& mixer) {
-	i("deleteMixer with id: %d", mixer.joinable.object.id);
+	i("deleteMixer with id: %lld", mixer.joinable.object.id);
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		session.deleteMixer(mixer);
@@ -144,7 +144,7 @@ MediaSessionServiceHandler::getMixers(std::vector<Mixer>& _return,
 void
 MediaSessionServiceHandler::ping(const MediaSession& mediaSession,
 							const int32_t timeout) {
-	i("ping on session: %d", mediaSession.object.id);
+	i("ping on session: %lld", mediaSession.object.id);
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(mediaSession);
 		session.ping(timeout);
