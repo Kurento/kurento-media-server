@@ -220,10 +220,26 @@ void
 JoinableServiceHandler::getJoinees(std::vector<Joinable> &_return,
 							const Joinable& from) {
 	i("getJoinees of %lld", from.object.id);
-	MediaServerException ex;
-	ex.__set_description("Unimplemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(from.session);
+		JoinableImpl &f = session.getJoinable(from);
+		f.getJoinees(_return);
+	} catch(JoinException ex){
+		throw ex;
+	} catch(JoinableNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		JoinableNotFoundException e;
+		e.__set_description("MediaSession not found");
+		throw e;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void
