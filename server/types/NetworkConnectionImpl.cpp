@@ -42,3 +42,11 @@ NetworkConnectionImpl::getLocalDescriptor() {
 	ex.__set_code(ErrorCode::UNEXPECTED);
 	throw ex;
 }
+
+SessionSpec&
+NetworkConnectionImpl::getRemoteDescriptor() {
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
+}

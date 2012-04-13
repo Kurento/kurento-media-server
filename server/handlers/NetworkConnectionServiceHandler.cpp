@@ -131,9 +131,23 @@ NetworkConnectionServiceHandler::getLocalDescriptor(SessionSpec &_return,
 void
 NetworkConnectionServiceHandler::getRemoteDescriptor(SessionSpec &_return,
 						const NetworkConnection &nc) {
-	// TODO:
-	MediaServerException ex;
-	ex.__set_description("Unimplemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+	i("Remote descriptor requested on connection %lld", nc.joinable.object.id);
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(
+			nc.joinable.session);
+		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
+		_return = conn.getRemoteDescriptor();
+	} catch(NetworkConnectionNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		NetworkConnectionNotFoundException e;
+		throw e;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
