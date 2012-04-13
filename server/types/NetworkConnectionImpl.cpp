@@ -18,3 +18,11 @@ NetworkConnectionImpl::generateOffer() {
 	ex.__set_code(ErrorCode::UNEXPECTED);
 	throw ex;
 }
+
+SessionSpec&
+NetworkConnectionImpl::processAnswer(const SessionSpec& anwser) {
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
+}
