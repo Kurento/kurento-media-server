@@ -31,3 +31,11 @@ JoinableImpl::join(const JoinableImpl& to, const Direction::type direction) {
 	ex.__set_code(ErrorCode::UNEXPECTED);
 	throw ex;
 }
+
+void
+JoinableImpl::unjoin(const JoinableImpl& to) {
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
+}
