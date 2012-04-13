@@ -1,6 +1,7 @@
 #include "handlers/MediaServiceHandler.h"
 #include "handlers/MediaSessionServiceHandler.h"
 #include "handlers/NetworkConnectionServiceHandler.h"
+#include "handlers/MixerServiceHandler.h"
 
 #include <protocol/TBinaryProtocol.h>
 #include <transport/TServerSocket.h>
@@ -25,6 +26,7 @@ using boost::shared_ptr;
 using com::kurento::kms::MediaServerServiceHandler;
 using com::kurento::kms::MediaSessionServiceHandler;
 using com::kurento::kms::NetworkConnectionServiceHandler;
+using com::kurento::kms::MixerServiceHandler;
 using com::kurento::kms::api::ServerConfig;
 using ::com::kurento::log::Log;
 
@@ -38,6 +40,7 @@ static Log l("main");
 #define SERVER_SERVICE_PORT 9090
 #define SESSION_SERVICE_PORT 9091
 #define NETWORK_CONNECTION_SERVICE_PORT 9092
+#define MIXER_SERVICE_PORT 9093
 
 static ServerConfig config;
 
@@ -132,6 +135,38 @@ static void create_network_connection_service() {
 	throw Glib::Thread::Exit();
 }
 
+static void create_mixer_service() {
+	int port;
+
+	if (!config.__isset.mixerServicePort) {
+		w("No port set in configuration for MixerService");
+		throw Glib::Thread::Exit();
+	} else {
+		port = config.mixerServicePort;
+	}
+
+	shared_ptr<MixerServiceHandler> handler(new MixerServiceHandler());
+	shared_ptr<TProcessor> processor(new MixerServiceProcessor(handler));
+	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
+	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
+	shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
+	shared_ptr<PosixThreadFactory> threadFactory(new PosixThreadFactory ());
+
+	shared_ptr<ThreadManager> threadManager= ThreadManager::newSimpleThreadManager(15);
+
+	threadManager->threadFactory(threadFactory);
+
+	shared_ptr<TThreadedServer> server(new TThreadedServer(processor,
+					serverTransport, transportFactory,
+					protocolFactory, threadFactory));
+
+	i("Starting MixerService");
+	server->serve();
+
+	i("MixerService stopped finishing thread");
+	throw Glib::Thread::Exit();
+}
+
 int main(int argc, char **argv) {
 
 	Glib::thread_init();
@@ -140,6 +175,7 @@ int main(int argc, char **argv) {
 	config.__set_serverServicePort(SERVER_SERVICE_PORT);
 	config.__set_mediaSessionServicePort(SESSION_SERVICE_PORT);
 	config.__set_networkConnectionServicePort(NETWORK_CONNECTION_SERVICE_PORT);
+	config.__set_mixerServicePort(MIXER_SERVICE_PORT);
 
 	sigc::slot<void> ss = sigc::ptr_fun(&create_server_service);
 	Glib::Thread *serverServiceThread = Glib::Thread::create(ss, true);
@@ -149,6 +185,9 @@ int main(int argc, char **argv) {
 
 	sigc::slot<void> ncss = sigc::ptr_fun(&create_network_connection_service);
 	Glib::Thread::create(ncss, true);
+
+	sigc::slot<void> mxss = sigc::ptr_fun(&create_mixer_service);
+	Glib::Thread::create(mxss, true);
 
 	Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create(true);
 	loop->run();
