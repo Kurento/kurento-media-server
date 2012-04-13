@@ -16,7 +16,7 @@ public:
 	JoinableImpl(MediaSession &session);
 	~JoinableImpl() throw() {};
 
-	std::vector<StreamType::type> getStreams(const Joinable& joinable);
+	void getStreams(std::vector<StreamType::type> &_return);
 
 	void join(const JoinableImpl& to, const Direction::type direction);
 	void unjoin(const JoinableImpl& to);
@@ -24,11 +24,11 @@ public:
 	void join(const JoinableImpl& to, const StreamType::type stream, const Direction::type direction);
 	void unjoin(const JoinableImpl& to, const StreamType::type stream);
 
-	std::vector<Joinable> &getJoinees();
-	std::vector<Joinable> &getDirectionJoiness(const Direction::type direction);
+	void getJoinees(std::vector<Joinable> &_return);
+	void getDirectionJoiness(std::vector<Joinable> &_return, const Direction::type direction);
 
-	std::vector<Joinable> &getJoinees(const StreamType::type stream);
-	std::vector<Joinable> &getDirectionJoiness(const StreamType::type stream, const Direction::type direction);
+	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream);
+	void getDirectionJoiness(std::vector<Joinable> &_return, const StreamType::type stream, const Direction::type direction);
 };
 
 }}} // com::kurento::kms
