@@ -6,6 +6,8 @@ using ::com::kurento::kms::MediaObjectImpl;
 using ::com::kurento::kms::JoinableImpl;
 using ::com::kurento::kms::api::MediaSession;
 using ::com::kurento::kms::api::Joinable;
+using ::com::kurento::kms::api::MediaServerException;
+using ::com::kurento::kms::api::ErrorCode;
 
 JoinableImpl::JoinableImpl(MediaSession &session) :
 					MediaObjectImpl(session.object.token),
@@ -16,5 +18,16 @@ JoinableImpl::JoinableImpl(MediaSession &session) :
 
 void
 JoinableImpl::getStreams(std::vector<StreamType::type> &_return) {
-	// TODO: Implement this method
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
+}
+
+void
+JoinableImpl::join(const JoinableImpl& to, const Direction::type direction) {
+	MediaServerException ex;
+	ex.__set_description("Not implemented");
+	ex.__set_code(ErrorCode::UNEXPECTED);
+	throw ex;
 }

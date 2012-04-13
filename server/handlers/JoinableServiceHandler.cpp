@@ -58,10 +58,33 @@ JoinableServiceHandler::join(const Joinable& from, const Joinable& to,
 
 	i("join %lld and %lld with direction %s", from.object.id, to.object.id,
 			_Direction_VALUES_TO_NAMES.find(direction)->second);
-	MediaServerException ex;
-	ex.__set_description("Unimplemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+	try {
+		if (from.session != to.session) {
+			JoinException ex;
+			ex.__set_description("Joinables are not in the same "
+								"session");
+			throw ex;
+		}
+		MediaSessionImpl &session = manager->getMediaSession(from.session);
+		JoinableImpl &f = session.getJoinable(from);
+		JoinableImpl &t = session.getJoinable(to);
+		f.join(t, direction);
+	} catch(JoinException ex){
+		throw ex;
+	} catch(JoinableNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		JoinableNotFoundException e;
+		e.__set_description("MediaSession not found");
+		throw e;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }
 
 void

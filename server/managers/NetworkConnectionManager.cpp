@@ -75,7 +75,9 @@ NetworkConnectionManager::getJoinable(const Joinable &joinable) {
 	mutex.unlock();
 
 	if (!found) {
-		throw JoinableNotFoundException();
+		JoinableNotFoundException ex;
+		ex.__set_description("Joinable not found");
+		throw ex;
 	}
 
 	return *j;
