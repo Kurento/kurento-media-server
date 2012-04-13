@@ -27,10 +27,6 @@ NetworkConnectionServiceHandler::generateOffer(SessionSpec &_return,
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
 		_return = conn.generateOffer();
 		i("Offer generated for connection %lld", nc.joinable.object.id);
-	} catch(StreamNotFoundException ex) {
-		throw ex;
-	} catch(JoinException ex){
-		throw ex;
 	} catch(NetworkConnectionNotFoundException ex) {
 		throw ex;
 	} catch (MediaSessionNotFoundException ex) {
@@ -56,9 +52,7 @@ NetworkConnectionServiceHandler::processAnswer(SessionSpec &_return,
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
 		_return = conn.processAnswer(anwser);
 		i("Answer processed for connection %lld", nc.joinable.object.id);
-	} catch(StreamNotFoundException ex) {
-		throw ex;
-	} catch(JoinException ex){
+	} catch(NegotiationException ex) {
 		throw ex;
 	} catch(NetworkConnectionNotFoundException ex) {
 		throw ex;
@@ -85,9 +79,7 @@ NetworkConnectionServiceHandler::processOffer(SessionSpec &_return,
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
 		_return = conn.processOffer(offer);
 		i("Offer processed for connection %lld", nc.joinable.object.id);
-	} catch(StreamNotFoundException ex) {
-		throw ex;
-	} catch(JoinException ex){
+	} catch(NegotiationException ex) {
 		throw ex;
 	} catch(NetworkConnectionNotFoundException ex) {
 		throw ex;
