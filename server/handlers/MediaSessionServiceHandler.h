@@ -34,4 +34,4 @@ namespace com { namespace kurento { namespace kms {
 
 }}} // com::kurento::kms::api
 
-#endif /* MEDIA_SERVER_SERVICE */
+#endif /* MEDIA_SESSION_SERVICE_HANDLER */
