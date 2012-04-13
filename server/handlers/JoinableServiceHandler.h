@@ -25,9 +25,9 @@ public:
 	void joinStream(const Joinable& from, const Joinable& to, const StreamType::type stream, const Direction::type direction);
 	void unjoinStream(const Joinable& from, const Joinable& to, const StreamType::type stream);
 	void getJoinees(std::vector<Joinable> & _return, const Joinable& from);
-	void getDirectionJoiness(std::vector<Joinable> & _return, const Joinable& from, const Direction::type direction);
+	void getDirectionJoinees(std::vector<Joinable> & _return, const Joinable& from, const Direction::type direction);
 	void getStreamJoinees(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream);
-	void getStreamDirectionJoiness(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream, const Direction::type direction);
+	void getStreamDirectionJoinees(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream, const Direction::type direction);
 
 	void release(const MediaObject& mediaObject);
 

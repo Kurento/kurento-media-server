@@ -243,7 +243,7 @@ JoinableServiceHandler::getJoinees(std::vector<Joinable> &_return,
 }
 
 void
-JoinableServiceHandler::getDirectionJoiness(std::vector<Joinable> &_return,
+JoinableServiceHandler::getDirectionJoinees(std::vector<Joinable> &_return,
 					const Joinable& from,
 					const Direction::type direction) {
 	if (_Direction_VALUES_TO_NAMES.find(direction) ==
@@ -282,7 +282,7 @@ JoinableServiceHandler::getStreamJoinees(std::vector<Joinable> &_return,
 }
 
 void
-JoinableServiceHandler::getStreamDirectionJoiness(std::vector<Joinable> &_return,
+JoinableServiceHandler::getStreamDirectionJoinees(std::vector<Joinable> &_return,
 						const Joinable& from,
 						const StreamType::type stream,
 						const Direction::type direction) {
