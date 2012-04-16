@@ -5,8 +5,8 @@
 #include "types/MediaObjectImpl.h"
 
 using ::com::kurento::kms::api::Joinable;
-using ::com::kurento::kms::api::Direction;
 using ::com::kurento::kms::api::StreamType;
+using ::com::kurento::kms::api::Direction;
 using ::com::kurento::kms::api::MediaSession;
 
 namespace com { namespace kurento { namespace kms {
@@ -18,17 +18,17 @@ public:
 
 	void getStreams(std::vector<StreamType::type> &_return);
 
-	void join(const JoinableImpl& to, const Direction::type direction);
+	void join(const JoinableImpl& to, const Direction direction);
 	void unjoin(const JoinableImpl& to);
 
-	void join(const JoinableImpl& to, const StreamType::type stream, const Direction::type direction);
+	void join(const JoinableImpl& to, const StreamType::type stream, const Direction direction);
 	void unjoin(const JoinableImpl& to, const StreamType::type stream);
 
 	void getJoinees(std::vector<Joinable> &_return);
-	void getJoinees(std::vector<Joinable> &_return, const Direction::type direction);
+	void getJoinees(std::vector<Joinable> &_return, const Direction direction);
 
 	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream);
-	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream, const Direction::type direction);
+	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream, const Direction direction);
 };
 
 }}} // com::kurento::kms

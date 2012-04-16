@@ -5,7 +5,7 @@
 #include "types/JoinableImpl.h"
 
 using namespace ::com::kurento::kms::api;
-using namespace ::com::kurento::commons::mediaspec;
+using ::com::kurento::commons::mediaspec::SessionSpec;
 
 namespace com { namespace kurento { namespace kms {
 

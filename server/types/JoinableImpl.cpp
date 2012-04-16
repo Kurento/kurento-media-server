@@ -25,7 +25,7 @@ JoinableImpl::getStreams(std::vector<StreamType::type> &_return) {
 }
 
 void
-JoinableImpl::join(const JoinableImpl& to, const Direction::type direction) {
+JoinableImpl::join(const JoinableImpl& to, const Direction direction) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
@@ -33,7 +33,8 @@ JoinableImpl::join(const JoinableImpl& to, const Direction::type direction) {
 }
 
 void
-JoinableImpl::join(const JoinableImpl& to, const StreamType::type stream, const Direction::type direction) {
+JoinableImpl::join(const JoinableImpl& to, const StreamType::type stream,
+						const Direction direction) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
@@ -66,7 +67,7 @@ JoinableImpl::getJoinees(std::vector<Joinable>& _return) {
 
 void
 JoinableImpl::getJoinees(std::vector<Joinable>& _return,
-					const Direction::type direction) {
+						const Direction direction) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
@@ -84,8 +85,8 @@ JoinableImpl::getJoinees(std::vector<Joinable>& _return,
 
 void
 JoinableImpl::getJoinees(std::vector<Joinable>& _return,
-					const StreamType::type stream,
-					const Direction::type direction) {
+						const StreamType::type stream,
+						const Direction direction) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);

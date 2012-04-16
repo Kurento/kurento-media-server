@@ -5,7 +5,7 @@
 using ::com::kurento::kms::JoinableServiceHandler;
 using ::com::kurento::kms::MediaSessionImpl;
 using ::com::kurento::kms::JoinableImpl;
-using namespace ::com::kurento::kms::api;
+using ::com::kurento::commons::mediaspec::_Direction_VALUES_TO_NAMES;
 
 using ::com::kurento::log::Log;
 
@@ -49,7 +49,7 @@ JoinableServiceHandler::getStreams(std::vector<StreamType::type> &_return,
 
 void
 JoinableServiceHandler::join(const Joinable& from, const Joinable& to,
-					const Direction::type direction) {
+					const Direction direction) {
 	if (_Direction_VALUES_TO_NAMES.find(direction) == _Direction_VALUES_TO_NAMES.end()) {
 		JoinException ex;
 		ex.__set_description("Invalid direction");
@@ -122,7 +122,7 @@ JoinableServiceHandler::unjoin(const Joinable& from, const Joinable& to) {
 void
 JoinableServiceHandler::joinStream(const Joinable& from, const Joinable& to,
 					const StreamType::type stream,
-					const Direction::type direction) {
+					const Direction direction) {
 	if (_Direction_VALUES_TO_NAMES.find(direction) ==
 					_Direction_VALUES_TO_NAMES.end()) {
 		JoinException ex;
@@ -245,7 +245,7 @@ JoinableServiceHandler::getJoinees(std::vector<Joinable> &_return,
 void
 JoinableServiceHandler::getDirectionJoinees(std::vector<Joinable> &_return,
 					const Joinable& from,
-					const Direction::type direction) {
+					const Direction direction) {
 	if (_Direction_VALUES_TO_NAMES.find(direction) ==
 					_Direction_VALUES_TO_NAMES.end()) {
 		JoinException ex;
@@ -319,7 +319,7 @@ void
 JoinableServiceHandler::getStreamDirectionJoinees(std::vector<Joinable> &_return,
 						const Joinable& from,
 						const StreamType::type stream,
-						const Direction::type direction) {
+						const Direction direction) {
 	if (_StreamType_VALUES_TO_NAMES.find(stream) ==
 					_StreamType_VALUES_TO_NAMES.end()) {
 		JoinException ex;
