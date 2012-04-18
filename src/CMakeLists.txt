@@ -23,7 +23,16 @@ target_link_libraries(kmsclib ${GLIB2_LIBRARIES})
 include_directories(kmsclib ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(kmsclib ${GSTREAMER_LIBRARIES})
 
+include_directories(kmsclib ${THRIFTC_INCLUDE_DIRS})
+target_link_libraries(kmsclib ${THRIFTC_LIBRARIES})
+
 include_directories(kmsclib core .)
+
+add_library(gmediaspec STATIC IMPORTED)
+set_target_properties(gmediaspec PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libgmediaspec.a)
+
+include_directories(kmsclib ${KMSIFACE_INCLUDE_DIR})
+target_link_libraries(kmsclib gmediaspec)
 
 install(TARGETS kmsclib LIBRARY DESTINATION ${LIB_PREFIX} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 install(TARGETS kmsclibst ARCHIVE DESTINATION ${LIB_PREFIX} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

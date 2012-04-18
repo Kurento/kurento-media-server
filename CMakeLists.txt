@@ -15,7 +15,21 @@ find_package(PkgConfig)
 pkg_check_modules(GLIB2 REQUIRED glib-2.0>=2.30)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.35)
 pkg_check_modules(THRIFT REQUIRED thrift>=0.8.0)
+pkg_check_modules(THRIFTC REQUIRED thrift_c_glib>=0.8.0)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.30)
+
+include(ExternalProject)
+
+SET(KMSIFACE_INSTALL_DIR ${CMAKE_BINARY_DIR}/kmsiface)
+SET(KMSIFACE_INCLUDE_DIR ${KMSIFACE_INSTALL_DIR}/include)
+SET(KMSIFACE_LIB_DIR ${KMSIFACE_INSTALL_DIR}/lib)
+
+ExternalProject_Add(
+	kmsiface-project
+	GIT_REPOSITORY ssh://git@repository.kurento.com/kms/kms-interface.git
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${KMSIFACE_INSTALL_DIR}
+	UPDATE_COMMAND git checkout master
+)
 
 add_subdirectory(src)
 add_subdirectory(server)

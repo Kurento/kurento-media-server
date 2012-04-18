@@ -1,17 +1,3 @@
-#Add here submodule
-include(ExternalProject)
-
-SET(KMSIFACE_INSTALL_DIR ${CMAKE_BINARY_DIR}/kmsiface)
-SET(KMSIFACE_INCLUDE_DIR ${KMSIFACE_INSTALL_DIR}/include)
-SET(KMSIFACE_LIB_DIR ${KMSIFACE_INSTALL_DIR}/lib)
-
-ExternalProject_Add(
-	kmsiface-project
-	GIT_REPOSITORY ssh://git@repository.kurento.com/kms/kms-interface.git
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${KMSIFACE_INSTALL_DIR}
-	UPDATE_COMMAND git checkout master
-)
-
 aux_source_directory("handlers" HANDLERS)
 aux_source_directory("managers" MANAGERS)
 aux_source_directory("types" TYPES)
