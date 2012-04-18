@@ -18,7 +18,7 @@ set_target_properties(mediaspec PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}
 
 target_link_libraries(kmsc kmsiface mediaspec ${THRIFT_LIBRARIES})
 target_link_libraries(kmsc ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES})
-target_link_libraries(kmsc ${UUID_LIBRARIES} kmsclibst)
+target_link_libraries(kmsc ${UUID_LIBRARIES} kmsclib)
 include_directories(kmsc ${THRIFT_INCLUDE_DIRS} ${GLIBMM_INCLUDE_DIRS})
 include_directories(kmsc ${GSTREAMER_INCLUDE_DIRS})
 include_directories(kmsc ${UUID_INCLUDE_DIRS})

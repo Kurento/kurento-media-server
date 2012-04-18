@@ -6,9 +6,8 @@ aux_source_directory("mixer" MIXER)
 aux_source_directory("rtmp" RTMP)
 aux_source_directory("player" RTMP)
 
-add_library(kmsclib SHARED ${CORE} ${RTP} ${MIXER} ${RTMP} ${PLAYER})
-add_library(kmsclibst STATIC ${CORE} ${RTP} ${MIXER} ${RTMP} ${PLAYER})
-SET_TARGET_PROPERTIES(kmsclib kmsclibst PROPERTIES OUTPUT_NAME kmsc)
+add_library(kmsclib STATIC ${CORE} ${RTP} ${MIXER} ${RTMP} ${PLAYER})
+SET_TARGET_PROPERTIES(kmsclib PROPERTIES OUTPUT_NAME kmsc)
 
 find_package(PkgConfig)
 
@@ -34,8 +33,7 @@ set_target_properties(gmediaspec PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR
 include_directories(kmsclib ${KMSIFACE_INCLUDE_DIR})
 target_link_libraries(kmsclib gmediaspec)
 
-install(TARGETS kmsclib LIBRARY DESTINATION ${LIB_PREFIX} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(TARGETS kmsclibst ARCHIVE DESTINATION ${LIB_PREFIX} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+install(TARGETS kmsclib ARCHIVE DESTINATION ${LIB_PREFIX} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 file(GLOB INCLUDES_CORE "core/*.h")
 
