@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 aux_source_directory("core" CORE)
 aux_source_directory("rtp" RTP)
 aux_source_directory("mixer" MIXER)
-aux_source_directory("rtmp" RTMP)
+#aux_source_directory("rtmp" RTMP)
 aux_source_directory("player" RTMP)
 
 add_library(kmsclib STATIC ${CORE} ${RTP} ${MIXER} ${RTMP} ${PLAYER})
