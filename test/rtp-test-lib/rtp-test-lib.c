@@ -6,8 +6,8 @@
 
 #define ADDR "127.0.0.1"
 #define SESSION_NAME "kurento session"
-#define SESSION_ID 12345
-#define SESSION_VERSION 54321
+#define SESSION_ID "12345"
+#define SESSION_VERSION "54321"
 #define SESSION_REMOTE_HANDLER "127.0.0.1"
 
 #define ADDR_2 "127.0.0.1"
@@ -22,54 +22,68 @@
 #define PORT_VIDEO_2 6000
 #define BANDWIDTH 0
 
-static GValueArray*
+static GPtrArray*
 create_audio_payloads(gboolean second) {
-	GValueArray *payloads;
+	GPtrArray *payloads;
 
-	payloads = g_value_array_new(2);
+	payloads = g_ptr_array_new_full(2, g_object_unref);
 
 	{
-		KmsSdpPayload *pay;
-		GValue vpay = G_VALUE_INIT;
+		KmsPayload *pay;
 
-		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "AMR",
-							"payload", 96,
-							"clockrate", 8000,
-							NULL);
+		pay = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 
-		g_value_init(&vpay, KMS_TYPE_SDP_PAYLOAD);
-		g_value_take_object(&vpay, pay);
-		g_value_array_append(payloads, &vpay);
-		g_value_unset(&vpay);
+		if (pay->rtp != NULL) {
+			pay->rtp = g_object_new(KMS_TYPE_PAYLOAD_RTP, NULL);
+		}
+
+		pay->__isset_rtp = TRUE;
+
+		if (pay->rtp->codecName != NULL)
+			g_free(pay->rtp->codecName);
+		pay->rtp->codecName = g_strdup("AMR");
+		pay->rtp->id = 96;
+		pay->rtp->clockRate = 8000;
+		pay->rtp->bitrate = BANDWIDTH;
+		pay->rtp->__isset_bitrate = TRUE;
+
+		g_ptr_array_add(payloads, pay);
 	}
 
 	if (!second) {
-		KmsSdpPayload *pay;
-		GValue vpay = G_VALUE_INIT;
+		KmsPayload *pay;
 
-		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "GSM",
-							"payload", 97,
-							"clockrate", 8000,
-							NULL);
+		pay = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 
-		g_value_init(&vpay, KMS_TYPE_SDP_PAYLOAD);
-		g_value_take_object(&vpay, pay);
-		g_value_array_append(payloads, &vpay);
-		g_value_unset(&vpay);
+		if (pay->rtp != NULL) {
+			pay->rtp = g_object_new(KMS_TYPE_PAYLOAD_RTP, NULL);
+		}
+
+		pay->__isset_rtp = TRUE;
+
+		if (pay->rtp->codecName != NULL)
+			g_free(pay->rtp->codecName);
+		pay->rtp->codecName = g_strdup("GSM");
+		pay->rtp->id = 97;
+		pay->rtp->clockRate = 8000;
+		pay->rtp->bitrate = BANDWIDTH;
+		pay->rtp->__isset_bitrate = TRUE;
+
+		g_ptr_array_add(payloads, pay);
 	}
 
 	return payloads;
 }
 
-static GValueArray*
-create_video_payloads(gboolean second) {
-	GValueArray *payloads;
 
-	payloads = g_value_array_new(2);
+static GPtrArray*
+create_video_payloads(gboolean second) {
+	GPtrArray *payloads;
+
+	payloads = g_ptr_array_new_full(2, g_object_unref);
 
 	{
-		KmsSdpPayload *pay;
-		GValue vpay = G_VALUE_INIT;
+		KmsPayload *pay;
 		gint pay_id;
 
 		if (second)
@@ -77,20 +91,27 @@ create_video_payloads(gboolean second) {
 		else
 			pay_id = 101;
 
-		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "MP4V-ES",
-							"payload", pay_id,
-							"clockrate", 90000,
-							NULL);
+		pay = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 
-		g_value_init(&vpay, KMS_TYPE_SDP_PAYLOAD);
-		g_value_take_object(&vpay, pay);
-		g_value_array_append(payloads, &vpay);
-		g_value_unset(&vpay);
+		if (pay->rtp != NULL) {
+			pay->rtp = g_object_new(KMS_TYPE_PAYLOAD_RTP, NULL);
+		}
+
+		pay->__isset_rtp = TRUE;
+
+		if (pay->rtp->codecName != NULL)
+			g_free(pay->rtp->codecName);
+		pay->rtp->codecName = g_strdup("MP4V-ES");
+		pay->rtp->id = pay_id;
+		pay->rtp->clockRate = 90000;
+		pay->rtp->bitrate = BANDWIDTH;
+		pay->rtp->__isset_bitrate = TRUE;
+
+		g_ptr_array_add(payloads, pay);
 	}
 
 	{
-		KmsSdpPayload *pay;
-		GValue vpay = G_VALUE_INIT;
+		KmsPayload *pay;
 		gint pay_id;
 
 		if (second)
@@ -98,34 +119,47 @@ create_video_payloads(gboolean second) {
 		else
 			pay_id = 100;
 
-		pay = g_object_new(KMS_TYPE_SDP_PAYLOAD, "name", "H263-1998",
-							"payload", pay_id,
-							"clockrate", 90000,
-							NULL);
+		pay = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 
-		g_value_init(&vpay, KMS_TYPE_SDP_PAYLOAD);
-		g_value_take_object(&vpay, pay);
-		g_value_array_append(payloads, &vpay);
-		g_value_unset(&vpay);
+		if (pay->rtp != NULL) {
+			pay->rtp = g_object_new(KMS_TYPE_PAYLOAD_RTP, NULL);
+		}
+
+		pay->__isset_rtp = TRUE;
+
+		if (pay->rtp->codecName != NULL)
+			g_free(pay->rtp->codecName);
+		pay->rtp->codecName = g_strdup("H263-1998");
+		pay->rtp->id = pay_id;
+		pay->rtp->clockRate = 90000;
+		pay->rtp->bitrate = BANDWIDTH;
+		pay->rtp->__isset_bitrate = TRUE;
+
+		g_ptr_array_add(payloads, pay);
 	}
 
 	return payloads;
 }
 
-static GValueArray*
+static GPtrArray*
 create_medias(gboolean second) {
-	GValueArray *payloads;
-	GValueArray *medias;
+	GPtrArray *payloads;
+	GPtrArray *medias;
 	gint port;
+	gchar *address;
 	KmsMediaType type;
 	KmsSdpMode mode;
-	glong bandwidth;
 
-	medias = g_value_array_new(2);
+	if (second) {
+		address = ADDR_2;
+	} else {
+		address = ADDR;
+	}
+
+	medias = g_ptr_array_new_full(2, g_object_unref);
 
 	{
-		KmsSdpMedia *media;
-		GValue vmedia = G_VALUE_INIT;
+		KmsMediaSpec *media;
 
 		payloads = create_audio_payloads(second);
 
@@ -135,26 +169,27 @@ create_medias(gboolean second) {
 			port = PORT_AUDIO;
 		type = KMS_MEDIA_TYPE_AUDIO;
 		mode = KMS_SDP_MODE_SENDRECV;
-		bandwidth = BANDWIDTH;
 
-		media = g_object_new(KMS_TYPE_SDP_MEDIA, "port", port,
-							"bandwidth", bandwidth,
-							"mode", mode,
-							"type", type,
-							"payloads", payloads,
-							NULL);
+		media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
 
-		g_value_init(&vmedia, KMS_TYPE_SDP_MEDIA);
-		g_value_take_object(&vmedia, media);
-		g_value_array_append(medias, &vmedia);
-		g_value_unset(&vmedia);
+		media->transport->__isset_rtp = TRUE;
+		media->transport->rtp->port = port;
+		media->transport->rtp->__isset_port = TRUE;
+		media->transport->rtp->address = g_strdup(address);
+		media->transport->rtp->__isset_address = TRUE;
 
-		g_value_array_free(payloads);
+		g_ptr_array_free(media->payloads, TRUE);
+		media->payloads = payloads;
+		media->direction = mode;
+
+		g_hash_table_insert(media->type, GINT_TO_POINTER(type),
+							GINT_TO_POINTER(type));
+
+		g_ptr_array_add(medias, media);
 	}
 
 	{
-		KmsSdpMedia *media;
-		GValue vmedia = G_VALUE_INIT;
+		KmsMediaSpec *media;
 
 		payloads = create_video_payloads(second);
 
@@ -162,64 +197,67 @@ create_medias(gboolean second) {
 			port = PORT_VIDEO_2;
 		else
 			port = PORT_VIDEO;
+
 		type = KMS_MEDIA_TYPE_VIDEO;
 		mode = KMS_SDP_MODE_SENDRECV;
-		bandwidth = BANDWIDTH;
 
-		media = g_object_new(KMS_TYPE_SDP_MEDIA, "port", port,
-							"bandwidth", bandwidth,
-							"mode", mode,
-							"type", type,
-							"payloads", payloads,
-							NULL);
+		media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
 
-		g_value_init(&vmedia, KMS_TYPE_SDP_MEDIA);
-		g_value_take_object(&vmedia, media);
-		g_value_array_append(medias, &vmedia);
-		g_value_unset(&vmedia);
+		media->transport->__isset_rtp = TRUE;
+		media->transport->rtp->port = port;
+		media->transport->rtp->__isset_port = TRUE;
+		media->transport->rtp->address = g_strdup(address);
+		media->transport->rtp->__isset_address = TRUE;
 
-		g_value_array_free(payloads);
+		g_ptr_array_free(media->payloads, TRUE);
+		media->payloads = payloads;
+		media->direction = mode;
+
+		g_hash_table_insert(media->type, GINT_TO_POINTER(type),
+				    GINT_TO_POINTER(type));
+
+		g_ptr_array_add(medias, media);
 	}
 
 	return medias;
 }
 
-static KmsSdpSession*
+static KmsSessionSpec*
 create_session() {
-	KmsSdpSession *session;
-	GValueArray *medias;
+	KmsSessionSpec *session;
+	GPtrArray *medias;
 
 	medias = create_medias(FALSE);
 
-	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
-				"address", ADDR,
-				"name", SESSION_NAME,
-				"id", SESSION_ID,
-				"version", SESSION_VERSION,
-				"remote-handler", SESSION_REMOTE_HANDLER,
-				NULL);
+	session = g_object_new(KMS_TYPE_SESSION_SPEC, NULL);
 
-	g_value_array_free(medias);
+	g_ptr_array_free(session->medias, TRUE);
+	session->medias = medias;
+
+	session->id = g_strdup(SESSION_ID);
+
+	session->version = g_strdup(SESSION_VERSION);
+	session->__isset_version = TRUE;
 
 	return session;
 }
 
-KmsSdpSession*
+KmsSessionSpec*
 create_second_session() {
-	KmsSdpSession *session;
-	GValueArray *medias;
+	KmsSessionSpec *session;
+	GPtrArray *medias;
 
 	medias = create_medias(TRUE);
 
-	session = g_object_new(KMS_TYPE_SDP_SESSION, "medias", medias,
-				"address", ADDR_2,
-				"name", SESSION_NAME_2,
-				"id", SESSION_ID_2,
-				"version", SESSION_VERSION_2,
-				"remote-handler", SESSION_REMOTE_HANDLER_2,
-				NULL);
+	session = g_object_new(KMS_TYPE_SESSION_SPEC, NULL);
 
-	g_value_array_free(medias);
+	g_ptr_array_free(session->medias, TRUE);
+	session->medias = medias;
+
+	session->id = g_strdup(SESSION_ID);
+
+	session->version = g_strdup(SESSION_VERSION);
+	session->__isset_version = TRUE;
 
 	return session;
 }
@@ -227,7 +265,7 @@ create_second_session() {
 KmsEndpoint*
 create_endpoint() {
 	KmsEndpoint *ep;
-	KmsSdpSession *session;
+	KmsSessionSpec *session;
 	gchar *name;
 
 	name = g_strdup_printf(LOCALNAME);

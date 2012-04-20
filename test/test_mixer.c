@@ -10,37 +10,27 @@
 #define TESTS 1
 
 static void
-get_ports(KmsSdpSession *session, gint *a_port, gint *v_port) {
-	GValueArray *medias;
+get_ports(KmsSessionSpec *session, gint *a_port, gint *v_port) {
+	GPtrArray *medias;
 	gint i;
 
-	g_object_get(session, "medias", &medias, NULL);
+	medias = session->medias;
 
-	for (i = 0; i < medias->n_values; i++) {
-		GValue *val;
-		KmsSdpMedia *media;
-		KmsMediaType type;
+	for (i = 0; i < medias->len; i++) {
+		KmsMediaSpec *media;
 
-		val = g_value_array_get_nth(medias, i);
-		media = g_value_get_object(val);
+		media = medias->pdata[i];
 
-		g_object_get(media, "type", &type, NULL);
+		if (g_hash_table_lookup(media->type,
+					(gpointer) KMS_MEDIA_TYPE_AUDIO)) {
+			*a_port = media->transport->rtp->port;
+		}
 
-		switch (type) {
-			case KMS_MEDIA_TYPE_AUDIO:
-				g_object_get(media, "port", a_port, NULL);
-				g_assert(*a_port != 0);
-				break;
-			case KMS_MEDIA_TYPE_VIDEO:
-				g_object_get(media, "port", v_port, NULL);
-				g_assert(*v_port != 0);
-				break;
-			default:
-				break;
+		if (g_hash_table_lookup(media->type,
+					(gpointer) KMS_MEDIA_TYPE_VIDEO)) {
+			*v_port = media->transport->rtp->port;
 		}
 	}
-
-	g_value_array_free(medias);
 }
 
 static GstElement*
@@ -143,7 +133,7 @@ static void
 test_mixer() {
 	KmsEndpoint *ep, *mixer;
 	KmsConnection *conn;
-	KmsSdpSession *session, *session2;
+	KmsSessionSpec *session, *session2;
 	GError *err = NULL;
 	gboolean ret;
 	gint audio_port, video_port;

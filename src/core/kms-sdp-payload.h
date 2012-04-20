@@ -6,47 +6,15 @@
 #define __KMS_SDP_PAYLOAD_H__
 
 #include <glib-object.h>
-
-/*
- * Type macros.
- */
-#define KMS_TYPE_SDP_PAYLOAD		(kms_sdp_payload_get_type ())
-#define KMS_SDP_PAYLOAD(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), KMS_TYPE_SDP_PAYLOAD, KmsSdpPayload))
-#define KMS_IS_SDP_PAYLOAD(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), KMS_TYPE_SDP_PAYLOAD))
-#define KMS_SDP_PAYLOAD_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), KMS_TYPE_SDP_PAYLOAD, KmsSdpPayloadClass))
-#define KMS_IS_SDP_PAYLOAD_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), KMS_TYPE_SDP_PAYLOAD))
-#define KMS_SDP_PAYLOAD_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), KMS_TYPE_SDP_PAYLOAD, KmsSdpPayloadClass))
+#include <gst/gst.h>
+#include <kms_media_spec_types.h>
+#include <kms_payload_types.h>
 
 G_BEGIN_DECLS
 
-typedef struct _KmsSdpPayload		KmsSdpPayload;
-typedef struct _KmsSdpPayloadClass	KmsSdpPayloadClass;
-typedef struct _KmsSdpPayloadPriv	KmsSdpPayloadPriv;
+gboolean kms_payload_equals(KmsPayload *a, KmsPayload *b);
 
-struct _KmsSdpPayload {
-	GObject parent_instance;
-
-	/* instance members */
-
-	KmsSdpPayloadPriv *priv;
-};
-
-struct _KmsSdpPayloadClass {
-	GObjectClass parent_class;
-
-	/* class members */
-};
-
-/* used by KMS_TYPE_SDP_PAYLOAD */
-GType kms_sdp_payload_get_type (void);
-
-KmsSdpPayload *kms_sdp_payload_copy(KmsSdpPayload *self);
-
-gchar *kms_sdp_payload_to_string(KmsSdpPayload *self);
-
-gboolean kms_sdp_payload_equals(KmsSdpPayload *a, KmsSdpPayload *b);
-
-GstCaps *kms_sdp_payload_to_caps(KmsSdpPayload *self);
+GstCaps *kms_payload_to_caps(KmsPayload *self, KmsMediaSpec *media);
 
 G_END_DECLS
 

@@ -43,7 +43,7 @@ gchar *kms_rtmp_session_to_string(KmsRtmpSession *self);
 
 KmsRtmpSession *kms_rtmp_session_create_from_string(const gchar *str);
 
-KmsSdpSession *kms_rtmp_session_get_sdp_session(KmsRtmpSession *session);
+KmsSessionSpec *kms_rtmp_session_get_sdp_session(KmsRtmpSession *session);
 
 KmsRtmpSession *kms_rtmp_session_create_from_sdp_session(KmsSdpSession *session);
 

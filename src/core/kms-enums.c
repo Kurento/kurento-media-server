@@ -5,7 +5,6 @@ kms_media_type_get_type(void) {
 	static const GEnumValue values[] = {
 		{ KMS_MEDIA_TYPE_AUDIO, "KMS_MEDIA_TYPE_AUDIO", "audio" },
 		{ KMS_MEDIA_TYPE_VIDEO, "KMS_MEDIA_TYPE_VIDEO", "video" },
-		{ KMS_MEDIA_TYPE_UNKNOWN, "KMS_MEDIA_TYPE_UNKNOWN", "unknown" },
 		{ 0, NULL, NULL}
 	};
 
@@ -46,7 +45,7 @@ kms_media_type_from_nick(const gchar* name) {
 	evalue = g_enum_get_value_by_nick(eclass, name);
 
 	if (evalue == NULL)
-		return KMS_MEDIA_TYPE_UNKNOWN;
+		return KMS_MEDIA_TYPE_AUDIO;
 
 	return evalue->value;
 }

@@ -7,7 +7,7 @@
 
 struct _KmsRtpEndpointPriv {
 	GStaticMutex mutex;
-	KmsSdpSession *local_spec;
+	KmsSessionSpec *local_spec;
 };
 
 enum {
@@ -30,7 +30,7 @@ static KmsConnection*
 create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 	KmsRtpConnection *conn;
 	KmsRtpEndpoint *self = KMS_RTP_ENDPOINT(object);
-	KmsSdpSession *local_spec;
+	KmsSessionSpec *local_spec;
 
 	LOCK(self);
 	if (self->priv->local_spec == NULL) {
@@ -42,7 +42,7 @@ create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 		return NULL;
 	}
 
-	local_spec = kms_sdp_session_copy(self->priv->local_spec);
+	local_spec = kms_session_spec_copy(self->priv->local_spec);
 	conn = g_object_new(KMS_TYPE_RTP_CONNECTION, "id", name,
 					"endpoint", self,
 					"local-spec", local_spec,
@@ -127,7 +127,7 @@ kms_rtp_endpoint_class_init(KmsRtpEndpointClass *klass) {
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 							"Local Session Spec",
-							KMS_TYPE_SDP_SESSION,
+							KMS_TYPE_SESSION_SPEC,
 							G_PARAM_CONSTRUCT |
 							G_PARAM_READWRITE);
 

@@ -10,7 +10,7 @@
 struct _KmsRtpSenderPriv {
 	GMutex *mutex;
 
-	KmsSdpSession *remote_spec;
+	KmsSessionSpec *remote_spec;
 	gint audio_fd;
 	gint video_fd;
 };
@@ -74,24 +74,40 @@ end:
 }
 
 static void
-create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
-	GValueArray *payloads;
-	KmsSdpPayload *payload;
+create_udpsink(KmsRtpSender *self, KmsMediaSpec *media, gint fd) {
+	KmsPayload *payload;
 	GstElement *udpsink, *payloader;
 	GstCaps *caps, *sink_caps, *pay_sink_caps;
 	gint port;
 	KmsMediaType type;
 	GstPad *pad, *sink_pad, *pay_sink;
 	GstPadTemplate *templ;
+	gchar *addr;
 
-	g_object_get(media, "payloads", &payloads, "port", &port, "type", &type,
-									NULL);
+	if (!media->transport->__isset_rtp || media->transport->rtp == NULL)
+		return;
 
-	if (payloads->n_values == 0 || port == 0)
-		goto end;
+	addr = media->transport->rtp->address;
+	if (addr == NULL)
+		return;
 
-	payload = g_value_get_object(g_value_array_get_nth(payloads, 0));
-	caps = kms_sdp_payload_to_caps(payload);
+	port = media->transport->rtp->port;
+
+	if (media->payloads->len == 0 || port == 0)
+		return;
+
+	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)
+								!= NULL) {
+		type = KMS_MEDIA_TYPE_AUDIO;
+	} else if (g_hash_table_lookup(media->type,
+				(gpointer) KMS_MEDIA_TYPE_VIDEO) != NULL) {
+		type = KMS_MEDIA_TYPE_VIDEO;
+	} else {
+		return;
+	}
+
+	payload = media->payloads->pdata[0];
+	caps = kms_payload_to_caps(payload, media);
 
 	payloader = kms_utils_get_element_for_caps(
 					GST_ELEMENT_FACTORY_TYPE_PAYLOADER,
@@ -105,7 +121,7 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 		if (udpsink != NULL)
 			g_object_unref(udpsink);
 
-		goto end;
+		return;
 	}
 
 	kms_utils_configure_element(payloader);
@@ -140,49 +156,25 @@ create_udpsink(KmsRtpSender *self, gchar *addr, KmsSdpMedia *media, gint fd) {
 	}
 	gst_caps_unref(sink_caps);
 	g_object_unref(sink_pad);
-end:
-	g_value_array_free(payloads);
 }
 
 static void
 constructed(GObject *object) {
 	KmsRtpSender *self = KMS_RTP_SENDER(object);
-	GValueArray *medias;
-	gchar *remote_addr;
+	KmsSessionSpec *spec = self->priv->remote_spec;
 	gint i;
 
 	G_OBJECT_CLASS(kms_rtp_sender_parent_class)->constructed(object);
 
 	g_return_if_fail(self->priv->remote_spec != NULL);
 
-	g_object_get(self->priv->remote_spec, "medias", &medias,
-						"address", &remote_addr, NULL);
+	for (i = 0; i < spec->medias->len; i++) {
+		KmsMediaSpec *media;
 
-	for (i = 0; i < medias->n_values; i++) {
-		GValue *val;
-		KmsSdpMedia *media;
-		KmsMediaType type;
+		media = spec->medias->pdata[i];
 
-		val = g_value_array_get_nth(medias, i);
-		media = g_value_get_object(val);
-
-		g_object_get(media, "type", &type, NULL);
-		switch (type) {
-			case KMS_MEDIA_TYPE_AUDIO:
-				create_udpsink(self, remote_addr, media,
-							self->priv->audio_fd);
-				break;
-			case KMS_MEDIA_TYPE_VIDEO:
-				create_udpsink(self, remote_addr, media,
-							self->priv->video_fd);
-				break;
-			default:
-				break;
-		}
+		create_udpsink(self, media, self->priv->audio_fd);
 	}
-
-	g_value_array_free(medias);
-	g_free(remote_addr);
 }
 
 static void
@@ -276,7 +268,7 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 
 	pspec = g_param_spec_object("remote-spec", "Remote Session Spec",
 					"Remote Session Description",
-					KMS_TYPE_SDP_SESSION,
+					KMS_TYPE_SESSION_SPEC,
 					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_WRITABLE);
 

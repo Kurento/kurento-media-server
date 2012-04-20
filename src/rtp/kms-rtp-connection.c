@@ -16,11 +16,11 @@ enum {
 
 struct _KmsRtpConnectionPriv {
 	GStaticMutex mutex;
-	KmsSdpSession *local_spec;
-	KmsSdpSession *remote_spec;
-	KmsSdpSession *neg_local_spec;
-	KmsSdpSession *neg_remote_spec;
-	KmsSdpSession *descriptor;
+	KmsSessionSpec *local_spec;
+	KmsSessionSpec *remote_spec;
+	KmsSessionSpec *neg_local_spec;
+	KmsSessionSpec *neg_remote_spec;
+	KmsSessionSpec *descriptor;
 	KmsRtpReceiver *receiver;
 	KmsRtpSender *sender;
 	gboolean initialized;
@@ -157,10 +157,10 @@ create_rtp_sender(KmsRtpConnection *self) {
 }
 
 static gboolean
-connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
+connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec, GError **err) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(conn);
 
-	if (!KMS_IS_SDP_SESSION(spec)) {
+	if (!KMS_IS_SESSION_SPEC(spec)) {
 		SET_ERROR(err, KMS_RTP_CONNECTION_ERROR,
 					KMS_RTP_CONNECTION_ERROR_WRONG_VALUE,
 					"Given spect has incorrect type");
@@ -179,11 +179,11 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 	self->priv->remote_spec = g_object_ref(spec);
 
 	if (self->priv->initialized) {
-		kms_sdp_session_intersect(spec, self->priv->local_spec,
+		kms_session_spec_intersect(spec, self->priv->local_spec,
 						&(self->priv->neg_remote_spec),
 						&(self->priv->neg_local_spec));
 	} else {
-		kms_sdp_session_intersect(self->priv->local_spec, spec,
+		kms_session_spec_intersect(self->priv->local_spec, spec,
 						&(self->priv->neg_local_spec),
 						&(self->priv->neg_remote_spec));
 	}
@@ -322,7 +322,7 @@ kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
-					KMS_TYPE_SDP_SESSION,
+					KMS_TYPE_SESSION_SPEC,
 					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_READWRITE);
 
@@ -330,7 +330,7 @@ kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 
 	pspec = g_param_spec_object("descriptor", "Session descriptor",
 					"The current session descriptor",
-					KMS_TYPE_SDP_SESSION,
+					KMS_TYPE_SESSION_SPEC,
 					G_PARAM_READABLE);
 
 	g_object_class_install_property(gobject_class, PROP_DESCRIPTOR, pspec);

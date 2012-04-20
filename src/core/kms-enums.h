@@ -6,18 +6,13 @@
 #define __KMS_SDP_ENUMS_H__
 
 #include <glib-object.h>
+#include <kms_media_spec_types.h>
 
 G_BEGIN_DECLS
 
 #define KMS_MEDIA_TYPE (kms_media_type_get_type())
 
 GType kms_media_type_get_type(void) G_GNUC_CONST;
-
-typedef enum _KmsMediaType {
-	KMS_MEDIA_TYPE_UNKNOWN,
-	KMS_MEDIA_TYPE_AUDIO,
-	KMS_MEDIA_TYPE_VIDEO
-} KmsMediaType;
 
 KmsMediaType kms_media_type_from_nick(const gchar *name);
 

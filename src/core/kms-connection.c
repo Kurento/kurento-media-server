@@ -142,7 +142,7 @@ kms_connection_terminate(KmsConnection *self, GError **err) {
 }
 
 gboolean
-kms_connection_connect_to_remote(KmsConnection *self, KmsSdpSession *session,
+kms_connection_connect_to_remote(KmsConnection *self, KmsSessionSpec *session,
 								GError **err) {
 
 	if (KMS_CONNECTION_GET_CLASS(self)->connect_to_remote == NULL) {

@@ -586,9 +586,6 @@ request_new_pad(GstElement *elem, GstPadTemplate *templ, const gchar *name) {
 	} else if (g_strstr_len(templ->name_template, -1, "video")) {
 		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
 				  GINT_TO_POINTER(KMS_MEDIA_TYPE_VIDEO));
-	} else {
-		g_object_set_data(G_OBJECT(pad), MEDIA_TYPE,
-					GINT_TO_POINTER(KMS_MEDIA_TYPE_UNKNOWN));
 	}
 	gst_pad_set_link_function(pad, link_pad);
 	g_object_connect(pad, "signal::unlinked", pad_unlinked, elem, NULL);

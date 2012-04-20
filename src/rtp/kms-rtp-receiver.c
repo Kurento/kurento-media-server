@@ -12,7 +12,7 @@
 struct _KmsRtpReceiverPriv {
 	GMutex *mutex;
 
-	KmsSdpSession *local_spec;
+	KmsSessionSpec *local_spec;
 
 	GstElement *udpsrc;
 
@@ -88,72 +88,62 @@ get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static GSList*
-get_pay_list(KmsSdpMedia *media){
+get_pay_list(KmsMediaSpec *media){
 	GSList *list = NULL;
-	GValueArray *payloads;
 	gint i;
 
-	g_object_get(media, "payloads", &payloads, NULL);
+	for (i = 0; i < media->payloads->len; i++) {
+		KmsPayload *aux;
 
-	for (i = 0; i < payloads->n_values; i++) {
-		KmsSdpPayload *aux;
-
-		aux = g_value_get_object(g_value_array_get_nth(payloads, i));
+		aux = media->payloads->pdata[i];
 		list = g_slist_prepend(list, aux);
 	}
-	g_value_array_free(payloads);
 
 	return list;
 }
 
 static gint
 compare_pay_pt(gconstpointer ppay, gconstpointer ppt) {
-	KmsSdpPayload *pay = (gpointer) ppay;
-	guint pt;
+	KmsPayload *pay = (gpointer) ppay;
 
-	g_object_get(pay, "payload", &pt, NULL);
+	if (!pay->__isset_rtp || pay->rtp == NULL)
+		return -1;
 
-	return pt - (*(int *)ppt);
+	return pay->rtp->id - (*(int *)ppt);
 }
 
 static GstCaps*
 get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
-	GValueArray *medias;
-	GSList *payloads = NULL;
+	KmsSessionSpec *spec = self->priv->local_spec;
 	GstCaps *caps = NULL;
-	GSList *l;
 	gint i;
 
 	LOCK(self);
-	g_object_get(self->priv->local_spec, "medias", &medias, NULL);
-	for (i = 0; i < medias->n_values; i++) {
-		KmsSdpMedia *aux;
-		KmsMediaType type;
+	for (i = 0; i < spec->medias->len; i++) {
+		KmsMediaSpec *media;
 
-		aux = g_value_get_object(g_value_array_get_nth(medias, i));
-		g_object_get(aux, "type", &type, NULL);
-		switch (type) {
-		case KMS_MEDIA_TYPE_AUDIO:
-			payloads = g_slist_concat(payloads, get_pay_list(aux));
-			break;
-		case KMS_MEDIA_TYPE_VIDEO:
-			payloads = g_slist_concat(payloads, get_pay_list(aux));
-			break;
-		default:
-			/* No action */
-			break;
+		media = spec->medias->pdata[i];
+
+		if (g_hash_table_size(media->type) != 1) {
+			GSList *payloads, *l;
+
+			payloads = get_pay_list(media);
+
+			l = g_slist_find_custom(payloads, &pt, compare_pay_pt);
+
+			if (l != NULL) {
+				caps = kms_payload_to_caps(l->data, media);
+			}
+
+			g_slist_free(payloads);
+
+			if (caps != NULL)
+				return caps;
 		}
 	}
 
-	l = g_slist_find_custom(payloads, &pt, compare_pay_pt);
-
-	if (l != NULL)
-		caps = kms_sdp_payload_to_caps(l->data);
-
 	UNLOCK(self);
 
-	g_value_array_free(medias);
-	g_slist_free(payloads);
 	return caps;
 }
 
@@ -550,7 +540,7 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 static void
 constructed(GObject *object) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
-	GValueArray *medias;
+	KmsSessionSpec *spec = self->priv->local_spec;
 	gint i;
 
 	G_OBJECT_CLASS(kms_rtp_receiver_parent_class)->constructed(object);
@@ -558,30 +548,26 @@ constructed(GObject *object) {
 	create_media_src(self, KMS_MEDIA_TYPE_AUDIO);
 	create_media_src(self, KMS_MEDIA_TYPE_VIDEO);
 
-	g_object_get(self->priv->local_spec, "medias", &medias, NULL);
-
-	for (i = 0; i < medias->n_values; i++) {
-		GValue *val;
-		KmsSdpMedia *media;
+	for (i = 0; i < spec->medias->len; i++) {
+		KmsMediaSpec *media;
 		KmsMediaType type;
 
-		val = g_value_array_get_nth(medias, i);
-		media = g_value_get_object(val);
+		media = spec->medias->pdata[i];
 
 		g_object_get(media, "type", &type, NULL);
+
+		// TODO: Check if types contains audio or video
 		switch (type) {
 		case KMS_MEDIA_TYPE_AUDIO:
-			g_object_set(media, "port", self->priv->audio_port, NULL);
+			media->transport->rtp->port = self->priv->audio_port;
 			break;
 		case KMS_MEDIA_TYPE_VIDEO:
-			g_object_set(media, "port", self->priv->video_port, NULL);
+			media->transport->rtp->port = self->priv->video_port;
 			break;
 		default:
 			break;
 		}
 	}
-
-	g_value_array_free(medias);
 }
 
 static void
@@ -627,7 +613,7 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
-					KMS_TYPE_SDP_SESSION,
+					KMS_TYPE_SESSION_SPEC,
 					G_PARAM_CONSTRUCT |
 					G_PARAM_READWRITE);
 

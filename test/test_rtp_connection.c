@@ -10,42 +10,26 @@
 #define TESTS 6000
 
 static void
-check_ports(KmsSdpSession *session) {
-	GValueArray *medias;
+check_ports(KmsSessionSpec *session) {
+	GPtrArray *medias;
 	gint i;
 
-	g_object_get(session, "medias", &medias, NULL);
+	medias = session->medias;
 
-	for (i = 0; i < medias->n_values; i++) {
-		GValue *val;
-		KmsSdpMedia *media;
-		KmsMediaType type;
-		gint port;
+	for (i = 0; i < medias->len; i++) {
+		KmsMediaSpec *media;
 
-		val = g_value_array_get_nth(medias, i);
-		media = g_value_get_object(val);
+		media = medias->pdata[i];
 
-		g_object_get(media, "type", &type, NULL);
-
-		switch (type) {
-			case KMS_MEDIA_TYPE_AUDIO:
-			case KMS_MEDIA_TYPE_VIDEO:
-				g_object_get(media, "port", &port, NULL);
-				g_assert(port != 0);
-				break;
-			default:
-				break;
-		}
+		g_assert(media->transport->rtp->port != 0);
 	}
-
-	g_value_array_free(medias);
 }
 
 static void
 test_connection() {
 	KmsEndpoint *ep;
 	KmsConnection *conn;
-	KmsSdpSession *session, *second_spec;
+	KmsSessionSpec *session, *second_spec;
 	GError *err = NULL;
 	gboolean ret;
 
