@@ -14,6 +14,9 @@ G_BEGIN_DECLS
 
 gboolean kms_payload_equals(KmsPayload *a, KmsPayload *b);
 
+gboolean kms_payload_intersect(KmsPayload *answerer, KmsPayload *offerer,
+				KmsPayload **neg_answ, KmsPayload **neg_off);
+
 GstCaps *kms_payload_to_caps(KmsPayload *self, KmsMediaSpec *media);
 
 G_END_DECLS

@@ -15,6 +15,13 @@ kms_payload_equals(KmsPayload *a, KmsPayload *b) {
 	return FALSE;
 }
 
+gboolean
+kms_payload_intersect(KmsPayload *answerer, KmsPayload *offerer,
+				KmsPayload **neg_answ, KmsPayload **neg_off) {
+	// TODO: Implement this function
+	return FALSE;
+}
+
 GstCaps*
 kms_payload_to_caps(KmsPayload *payload, KmsMediaSpec *media) {
 	GstCaps *caps = NULL;
