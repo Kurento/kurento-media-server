@@ -12,8 +12,6 @@
 
 G_BEGIN_DECLS
 
-gboolean kms_payload_equals(KmsPayload *a, KmsPayload *b);
-
 gboolean kms_payload_intersect(KmsPayload *answerer, KmsPayload *offerer,
 				KmsPayload **neg_answ, KmsPayload **neg_off);
 
