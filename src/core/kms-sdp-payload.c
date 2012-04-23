@@ -26,7 +26,6 @@ GstCaps*
 kms_payload_to_caps(KmsPayload *payload, KmsMediaSpec *media) {
 	GstCaps *caps = NULL;
 	GString *caps_str = NULL;
-// 	KmsMediaType type;
 
 	if (!KMS_IS_PAYLOAD(payload) || !KMS_IS_MEDIA_SPEC(media))
 		goto end;
@@ -36,7 +35,6 @@ kms_payload_to_caps(KmsPayload *payload, KmsMediaSpec *media) {
 
 	caps_str = g_string_new("application/x-rtp");
 
-	// TODO: Set Media type correctly
 	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)
 								!= NULL) {
 		g_string_append(caps_str, ",media=(string)audio");
