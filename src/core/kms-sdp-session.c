@@ -2,13 +2,94 @@
 #include <thrift/transport/thrift_memory_buffer.h>
 #include <thrift/protocol/thrift_binary_protocol.h>
 
-void
+gboolean
 kms_session_spec_intersect(KmsSessionSpec *answerer, KmsSessionSpec *offerer,
 						KmsSessionSpec **neg_answ,
 						KmsSessionSpec **neg_off) {
+	GPtrArray *off_list, *answ_list, *new_off_list, *new_answ_list;
+	GPtrArray *used_medias;
+	gint i, j;
+
+	if (KMS_IS_SESSION_SPEC(answerer) || KMS_IS_SESSION_SPEC(offerer) ||
+					neg_answ == NULL || neg_off == NULL ||
+					*neg_answ != NULL || *neg_off != NULL) {
+		g_error("Invalid arguments on kms_session_spec_intersect");
+		return FALSE;
+	}
 
 	*neg_off = g_object_new(KMS_TYPE_SESSION_SPEC, NULL);
 	*neg_answ = g_object_new(KMS_TYPE_SESSION_SPEC, NULL);
+
+	off_list = offerer->medias;
+	answ_list = answerer->medias;
+
+	new_off_list = (*neg_off)->medias;
+	new_answ_list = (*neg_answ)->medias;
+
+	used_medias = g_ptr_array_new();
+
+	for (i = 0; i < off_list->len; i++) {
+		KmsMediaSpec *of_media = g_ptr_array_index(off_list, i);
+		KmsMediaSpec *neg_of_media = NULL;
+		KmsMediaSpec *neg_ans_media = NULL;
+		gboolean neg = FALSE;
+
+		for (j = 0; j < answ_list->len; j++) {
+			KmsMediaSpec *a_media = g_ptr_array_index(answ_list, j);
+
+			if (kms_g_ptr_array_contains(used_medias, a_media))
+				continue;
+
+			neg = kms_media_spec_intersect(a_media, of_media,
+						 &neg_ans_media, &neg_of_media);
+			if (neg) {
+				g_ptr_array_add(used_medias, a_media);
+				break;
+			}
+		}
+
+		if (!neg) {
+			GList *l;
+			GList *keys = g_hash_table_get_keys(of_media->type);
+
+			neg_of_media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+			neg_of_media->direction = KMS_DIRECTION_INACTIVE;
+			for (l = keys; l != NULL; l = l->next) {
+				g_hash_table_replace(neg_of_media->type,
+						l->data, (gpointer) TRUE);
+			}
+			neg_ans_media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+			neg_ans_media->direction = KMS_DIRECTION_INACTIVE;
+			for (l = keys; l != NULL; l = l->next) {
+				g_hash_table_replace(neg_ans_media->type,
+						l->data, (gpointer) TRUE);
+			}
+			g_list_free(keys);
+		}
+
+		g_ptr_array_add(new_off_list, neg_of_media);
+		g_ptr_array_add(new_answ_list, neg_ans_media);
+	}
+
+	g_ptr_array_free(used_medias, TRUE);
+
+	if (offerer->id != NULL)
+		(*neg_off)->id = g_strdup(offerer->id);
+
+	if (answerer->id != NULL)
+		(*neg_answ)->id = g_strdup(answerer->id);
+
+	if (offerer->__isset_version && offerer->version != NULL) {
+		(*neg_off)->version = g_strdup(offerer->version);
+		(*neg_off)->__isset_version = TRUE;
+	}
+
+	if (answerer->__isset_version && answerer->version != NULL) {
+		(*neg_answ)->version = g_strdup(answerer->version);
+		(*neg_answ)->__isset_version = TRUE;
+	}
+
+	return TRUE;
 }
 
 KmsSessionSpec*

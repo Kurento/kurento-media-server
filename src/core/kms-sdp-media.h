@@ -13,7 +13,7 @@ G_BEGIN_DECLS
 /* used by KMS_TYPE_SDP_MEDIA */
 GType kms_sdp_media_get_type (void);
 
-void kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
+gboolean kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 				KmsMediaSpec **neg_ans, KmsMediaSpec **neg_off);
 
 G_END_DECLS

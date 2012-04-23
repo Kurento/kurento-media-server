@@ -557,3 +557,19 @@ void
 kms_utils_release_unlinked_pads(GstElement *elem) {
 	g_object_connect(elem, "signal::pad_added", pad_added, NULL, NULL);
 }
+
+gboolean
+kms_g_ptr_array_contains(GPtrArray *array, gpointer value) {
+	gint i;
+
+	if (array == NULL)
+		return FALSE;
+
+	for (i = 0; i < array->len; i++) {
+		gpointer current = g_ptr_array_index(array, i);
+
+		if (current == value)
+			return TRUE;
+	}
+	return FALSE;
+}

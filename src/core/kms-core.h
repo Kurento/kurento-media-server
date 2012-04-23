@@ -25,6 +25,8 @@ G_BEGIN_DECLS
 
 void kms_init(gint *argc, gchar **argv[]);
 
+gboolean kms_g_ptr_array_contains(GPtrArray *array, gpointer value);
+
 G_END_DECLS
 
 #define KMS_DEBUG g_print("%s:%d\n", __FILE__, __LINE__)

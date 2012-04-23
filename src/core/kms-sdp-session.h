@@ -12,7 +12,7 @@ G_BEGIN_DECLS
 
 KmsSessionSpec *kms_session_spec_copy(KmsSessionSpec *session);
 
-void kms_session_spec_intersect(
+gboolean kms_session_spec_intersect(
 			KmsSessionSpec *answerer, KmsSessionSpec *offerer,
 			KmsSessionSpec **neg_ans, KmsSessionSpec **neg_off);
 
