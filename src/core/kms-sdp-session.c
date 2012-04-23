@@ -54,15 +54,15 @@ kms_session_spec_intersect(KmsSessionSpec *answerer, KmsSessionSpec *offerer,
 
 			neg_of_media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
 			neg_of_media->direction = KMS_DIRECTION_INACTIVE;
-			for (l = keys; l != NULL; l = l->next) {
-				g_hash_table_replace(neg_of_media->type,
-						l->data, (gpointer) TRUE);
-			}
+
 			neg_ans_media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
 			neg_ans_media->direction = KMS_DIRECTION_INACTIVE;
+
 			for (l = keys; l != NULL; l = l->next) {
 				g_hash_table_replace(neg_ans_media->type,
 						l->data, (gpointer) TRUE);
+				g_hash_table_replace(neg_of_media->type,
+						     l->data, (gpointer) TRUE);
 			}
 			g_list_free(keys);
 		}
