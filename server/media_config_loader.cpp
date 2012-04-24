@@ -1,6 +1,12 @@
 #include "media_config_loader.h"
 #include "log.h"
 
+#include <thrift/transport/TBufferTransports.h>
+#include <thrift/protocol/TDebugProtocol.h>
+
+using ::apache::thrift::protocol::TDebugProtocol;
+using ::apache::thrift::transport::TMemoryBuffer;
+
 using ::com::kurento::log::Log;
 
 static Log l("media_config_loader");
@@ -237,4 +243,14 @@ load_spec(Glib::KeyFile &configFile, SessionSpec &spec) {
 	}
 
 	spec.__set_id(DEFAULT_ID);
+
+	print_spec(spec);
+}
+
+void
+print_spec(SessionSpec &spec) {
+	boost::shared_ptr<TMemoryBuffer> buffer(new TMemoryBuffer());
+	TDebugProtocol proto(buffer);
+	spec.write(&proto);
+	d(buffer->getBufferAsString());
 }
