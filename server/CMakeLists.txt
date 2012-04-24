@@ -2,7 +2,8 @@ aux_source_directory("handlers" HANDLERS)
 aux_source_directory("managers" MANAGERS)
 aux_source_directory("types" TYPES)
 
-SET(KMSC_SOURCE main.cpp log.cpp ${HANDLERS} ${MANAGERS} ${TYPES})
+SET(KMSC_SOURCE main.cpp log.cpp media_config_loader.cpp ${HANDLERS}
+							${MANAGERS} ${TYPES})
 SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 		PROPERTIES COMPILE_FLAGS
 		-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H)

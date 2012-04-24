@@ -10,8 +10,9 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
-#include <glibmm.h>
+#include "media_config_loader.h"
 
+#include <glibmm.h>
 #include <fstream>
 
 #include "log.h"
@@ -48,16 +49,14 @@ static Log l("main");
 #define NETWORK_CONNECTION_SERVICE_PORT 9092
 #define MIXER_SERVICE_PORT 9093
 
-#define SERVER_GROUP "Server"
 #define SERVER_ADDRESS_KEY "serverAddress"
 #define SERVER_PORT_KEY "serverPort"
 #define SESSION_PORT_KEY "sessionPort"
 #define NETWORK_CONNECTION_PORT_KEY "connectionPort"
 #define MIXER_PORT_KEY "mixerPort"
 
-#define CODECS_GROUP "Codecs"
-
 static ServerConfig config;
+static SessionSpec sessionSpec;
 
 static KeyFile configFile;
 
@@ -192,15 +191,6 @@ static void set_default_server_config() {
 	config.__set_mixerServicePort(MIXER_SERVICE_PORT);
 }
 
-static void load_codecs() {
-	if (!configFile.has_group(CODECS_GROUP)) {
-		e("No codecs set, you won't be able to communicate with others");
-		return;
-	}
-
-	// TODO: Implement codecs parser
-}
-
 static void check_port(int port) {
 	if (port <=0 || port > G_MAXUSHORT)
 		throw Glib::KeyFileError(Glib::KeyFileError::PARSE,
@@ -301,7 +291,13 @@ static void load_config(const std::string &file_name) {
 		config.__set_mixerServicePort(MIXER_SERVICE_PORT);
 	}
 
-	load_codecs();
+	try {
+		load_spec(configFile, sessionSpec);
+		d("configured %d medias", sessionSpec.medias.size());
+	} catch (Glib::KeyFileError err) {
+		w(err.what());
+		w("Wrong codec configuration, communication won't be possible");
+	}
 
 	std::ofstream f(file_name, std::ios::out | std::ios::trunc);
 	f << configFile.to_data();
