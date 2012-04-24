@@ -12,6 +12,8 @@
 
 #include <glibmm.h>
 
+#include <fstream>
+
 #include "log.h"
 
 using namespace ::apache::thrift;
@@ -29,6 +31,8 @@ using com::kurento::kms::NetworkConnectionServiceHandler;
 using com::kurento::kms::MixerServiceHandler;
 using com::kurento::kms::api::ServerConfig;
 using ::com::kurento::log::Log;
+using ::Glib::KeyFile;
+using ::Glib::KeyFileFlags;
 
 static Log l("main");
 #define d(...) aux_debug(l, __VA_ARGS__);
@@ -36,13 +40,26 @@ static Log l("main");
 #define e(...) aux_error(l, __VA_ARGS__);
 #define w(...) aux_warn(l, __VA_ARGS__);
 
+#define DEFAULT_CONFIG_FILE "kms.conf"
+
 #define SERVER_ADDRESS "localhost"
 #define SERVER_SERVICE_PORT 9090
 #define SESSION_SERVICE_PORT 9091
 #define NETWORK_CONNECTION_SERVICE_PORT 9092
 #define MIXER_SERVICE_PORT 9093
 
+#define SERVER_GROUP "Server"
+#define SERVER_ADDRESS_KEY "serverAddress"
+#define SERVER_PORT_KEY "serverPort"
+#define SESSION_PORT_KEY "sessionPort"
+#define NETWORK_CONNECTION_PORT_KEY "connectionPort"
+#define MIXER_PORT_KEY "mixerPort"
+
+#define CODECS_GROUP "Codecs"
+
 static ServerConfig config;
+
+static KeyFile configFile;
 
 static void create_server_service() {
 	int port;
@@ -167,15 +184,121 @@ static void create_mixer_service() {
 	throw Glib::Thread::Exit();
 }
 
-int main(int argc, char **argv) {
-
-	Glib::thread_init();
-
+static void set_default_server_config() {
 	config.__set_address(SERVER_ADDRESS);
 	config.__set_serverServicePort(SERVER_SERVICE_PORT);
 	config.__set_mediaSessionServicePort(SESSION_SERVICE_PORT);
 	config.__set_networkConnectionServicePort(NETWORK_CONNECTION_SERVICE_PORT);
 	config.__set_mixerServicePort(MIXER_SERVICE_PORT);
+}
+
+static void load_codecs() {
+	if (!configFile.has_group(CODECS_GROUP)) {
+		e("No codecs set, you won't be able to communicate with others");
+		return;
+	}
+
+	// TODO: Implement codecs parser
+}
+
+static void load_config(const std::string &file_name) {
+	i("Reading configuration from: " + file_name);
+	/* Try to open de file */
+	{
+		std::ifstream file(file_name);
+		if (!file) {
+			i("Config file not found, creating a new one");
+			std::ofstream of(file_name);
+		}
+	}
+	try {
+		if (!configFile.load_from_file(file_name,
+				KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
+				KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS )) {
+			w("Error loading configuration from " + file_name +
+						", loading "
+						"default server config, but no "
+						"codecs will be available");
+			set_default_server_config();
+			return;
+		}
+	} catch (Glib::Error ex) {
+		w("Error loading configuration: " + ex.what());
+		w("Error loading configuration from " + file_name + ", loading "
+						"default server config, but no "
+						"codecs will be available");
+		set_default_server_config();
+		return;
+	}
+
+	try {
+		config.__set_address(configFile.get_string(SERVER_GROUP,
+							SERVER_ADDRESS_KEY));
+	} catch (Glib::KeyFileError err) {
+		i(err.what());
+		i("Setting default address");
+		configFile.set_string(SERVER_GROUP, SERVER_ADDRESS_KEY,
+								SERVER_ADDRESS);
+	}
+
+	try {
+		config.__set_serverServicePort(configFile.get_integer(
+						SERVER_GROUP, SERVER_PORT_KEY));
+	} catch (Glib::KeyFileError err) {
+		i(err.what());
+		i("Setting default server port");
+		configFile.set_integer(SERVER_GROUP, SERVER_PORT_KEY,
+							SERVER_SERVICE_PORT);
+	}
+
+	try {
+		config.__set_mediaSessionServicePort(configFile.get_integer(
+						SERVER_GROUP, SESSION_PORT_KEY));
+	} catch (Glib::KeyFileError err) {
+		i(err.what());
+		i("Setting default media session port");
+		configFile.set_integer(SERVER_GROUP, SESSION_PORT_KEY,
+							SESSION_SERVICE_PORT);
+	}
+
+	try {
+		config.__set_networkConnectionServicePort(
+					configFile.get_integer(
+						SERVER_GROUP,
+						NETWORK_CONNECTION_PORT_KEY));
+	} catch (Glib::KeyFileError err) {
+		i(err.what());
+		i("Setting default network connection port");
+		configFile.set_integer(SERVER_GROUP,
+					NETWORK_CONNECTION_PORT_KEY,
+					NETWORK_CONNECTION_SERVICE_PORT);
+	}
+
+	try {
+		config.__set_mixerServicePort(configFile.get_integer(
+						SERVER_GROUP, MIXER_PORT_KEY));
+	} catch (Glib::KeyFileError err) {
+		i(err.what());
+		i("Setting default mixer port");
+		configFile.set_integer(SERVER_GROUP, MIXER_PORT_KEY,
+							MIXER_SERVICE_PORT);
+	}
+
+	load_codecs();
+
+	std::ofstream f(file_name, std::ios::out | std::ios::trunc);
+	f << configFile.to_data();
+	f.close();
+
+	i("Configuration loaded successfully");
+	d("Final config file:\n" + configFile.to_data());
+}
+
+int main(int argc, char **argv) {
+
+	Glib::thread_init();
+
+	load_config(DEFAULT_CONFIG_FILE);
 
 	sigc::slot<void> ss = sigc::ptr_fun(&create_server_service);
 	Glib::Thread *serverServiceThread = Glib::Thread::create(ss, true);
