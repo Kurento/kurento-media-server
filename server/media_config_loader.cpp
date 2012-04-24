@@ -18,6 +18,9 @@ static Log l("media_config_loader");
 #define TRANSPORT_KEY "transport"
 
 #define TRANSPORT_GROUP "Transport"
+#define RTP_KEY "rtp"
+
+#define TRANSPORT_RTP_GROUP "TransportRtp"
 #define ADDRESS_KEY "address"
 
 #define CODEC_GROUP "Codec"
@@ -33,6 +36,7 @@ static Log l("media_config_loader");
 
 using ::com::kurento::commons::mediaspec::MediaSpec;
 using ::com::kurento::commons::mediaspec::Transport;
+using ::com::kurento::commons::mediaspec::TransportRtp;
 using ::com::kurento::commons::mediaspec::Payload;
 
 static void
@@ -43,12 +47,31 @@ load_codec(Glib::KeyFile &configFile, const std::string &codecgrp, Payload &pay)
 }
 
 static void
+load_transport_rtp(Glib::KeyFile &configFile, const std::string &transportgrp,
+							TransportRtp &rtp) {
+	d("Loading config for: " + transportgrp);
+
+	rtp.__set_address(configFile.get_string(transportgrp, ADDRESS_KEY));
+}
+
+static void
 load_transport(Glib::KeyFile &configFile, const std::string &transportgrp,
 								Transport &tr) {
 	d("Loading config for: " + transportgrp);
 
-	tr.rtp.__set_address(configFile.get_string(transportgrp, ADDRESS_KEY));
-	tr.__isset.rtp = true;
+	try {
+		std::string rtp = configFile.get_string(transportgrp, RTP_KEY);
+		load_transport_rtp(configFile, TRANSPORT_RTP_GROUP " " + rtp,
+									tr.rtp);
+		tr.__isset.rtp = true;
+	} catch (Glib::KeyFileError ex) {
+	}
+
+	// In the future more thransports should be avaliable, check them here
+	if (!tr.__isset.rtp) {
+		throw Glib::KeyFileError(Glib::KeyFileError::NOT_FOUND,
+						"No valid transport set");
+	}
 }
 
 static void
