@@ -3,8 +3,39 @@
 
 using com::kurento::log::Log;
 
+static void
+log_info(const gchar *log_domain,
+	    GLogLevelFlags log_level,
+	    const gchar *message,
+	    gpointer user_data) {
+	g_print("INFO: %s: %s\n", log_domain, message);
+}
+
+static void
+log_debug(const gchar *log_domain,
+	    GLogLevelFlags log_level,
+	    const gchar *message,
+	    gpointer user_data) {
+	g_print("DEBUG: %s: %s\n", log_domain, message);
+}
+
+static void
+log_warning(const gchar *log_domain,
+	    GLogLevelFlags log_level,
+	    const gchar *message,
+	    gpointer user_data) {
+	g_print("**WARNING**: %s: %s\n\n", log_domain, message);
+}
+
 Log::Log(std::string domain) {
 	this->domain = domain;
+
+	g_log_set_handler (domain.c_str(), (GLogLevelFlags) (G_LOG_LEVEL_INFO),
+				log_info, NULL);
+	g_log_set_handler (domain.c_str(), (GLogLevelFlags) (G_LOG_LEVEL_DEBUG),
+				log_debug, NULL);
+	g_log_set_handler (domain.c_str(), (GLogLevelFlags) (G_LOG_LEVEL_WARNING),
+			   log_warning, NULL);
 }
 
 Log::~Log() {
