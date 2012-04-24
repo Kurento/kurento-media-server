@@ -247,6 +247,7 @@ static void load_config(const std::string &file_name) {
 		i("Setting default address");
 		configFile.set_string(SERVER_GROUP, SERVER_ADDRESS_KEY,
 								SERVER_ADDRESS);
+		config.__set_address(SERVER_ADDRESS);
 	}
 
 	try {
@@ -270,7 +271,7 @@ static void load_config(const std::string &file_name) {
 		i("Setting default media session port");
 		configFile.set_integer(SERVER_GROUP, SESSION_PORT_KEY,
 							SESSION_SERVICE_PORT);
-		config.__set_serverServicePort(SESSION_SERVICE_PORT);
+		config.__set_mediaSessionServicePort(SESSION_SERVICE_PORT);
 	}
 
 	try {
@@ -284,7 +285,8 @@ static void load_config(const std::string &file_name) {
 		configFile.set_integer(SERVER_GROUP,
 					NETWORK_CONNECTION_PORT_KEY,
 					NETWORK_CONNECTION_SERVICE_PORT);
-		config.__set_serverServicePort(NETWORK_CONNECTION_SERVICE_PORT);
+		config.__set_networkConnectionServicePort(
+					NETWORK_CONNECTION_SERVICE_PORT);
 	}
 
 	try {
