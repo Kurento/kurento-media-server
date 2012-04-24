@@ -201,7 +201,15 @@ static void load_codecs() {
 	// TODO: Implement codecs parser
 }
 
+static void check_port(int port) {
+	if (port <=0 || port > G_MAXUSHORT)
+		throw Glib::KeyFileError(Glib::KeyFileError::PARSE,
+							"Invalid value");
+}
+
 static void load_config(const std::string &file_name) {
+	gint port;
+
 	i("Reading configuration from: " + file_name);
 	/* Try to open de file */
 	{
@@ -242,46 +250,53 @@ static void load_config(const std::string &file_name) {
 	}
 
 	try {
-		config.__set_serverServicePort(configFile.get_integer(
-						SERVER_GROUP, SERVER_PORT_KEY));
+		port = configFile.get_integer(SERVER_GROUP, SERVER_PORT_KEY);
+		check_port(port);
+		config.__set_serverServicePort(port);
 	} catch (Glib::KeyFileError err) {
 		i(err.what());
 		i("Setting default server port");
 		configFile.set_integer(SERVER_GROUP, SERVER_PORT_KEY,
 							SERVER_SERVICE_PORT);
+		config.__set_serverServicePort(SERVER_SERVICE_PORT);
 	}
 
 	try {
-		config.__set_mediaSessionServicePort(configFile.get_integer(
-						SERVER_GROUP, SESSION_PORT_KEY));
+		port = configFile.get_integer(SERVER_GROUP, SESSION_PORT_KEY);
+		check_port(port);
+		config.__set_mediaSessionServicePort(port);
 	} catch (Glib::KeyFileError err) {
 		i(err.what());
 		i("Setting default media session port");
 		configFile.set_integer(SERVER_GROUP, SESSION_PORT_KEY,
 							SESSION_SERVICE_PORT);
+		config.__set_serverServicePort(SESSION_SERVICE_PORT);
 	}
 
 	try {
-		config.__set_networkConnectionServicePort(
-					configFile.get_integer(
-						SERVER_GROUP,
-						NETWORK_CONNECTION_PORT_KEY));
+		port = configFile.get_integer(SERVER_GROUP,
+						NETWORK_CONNECTION_PORT_KEY);
+		check_port(port);
+		config.__set_networkConnectionServicePort(port);
 	} catch (Glib::KeyFileError err) {
 		i(err.what());
 		i("Setting default network connection port");
 		configFile.set_integer(SERVER_GROUP,
 					NETWORK_CONNECTION_PORT_KEY,
 					NETWORK_CONNECTION_SERVICE_PORT);
+		config.__set_serverServicePort(NETWORK_CONNECTION_SERVICE_PORT);
 	}
 
 	try {
-		config.__set_mixerServicePort(configFile.get_integer(
-						SERVER_GROUP, MIXER_PORT_KEY));
+		port =configFile.get_integer(SERVER_GROUP, MIXER_PORT_KEY);
+		check_port(port);
+		config.__set_mixerServicePort(port);
 	} catch (Glib::KeyFileError err) {
 		i(err.what());
 		i("Setting default mixer port");
 		configFile.set_integer(SERVER_GROUP, MIXER_PORT_KEY,
 							MIXER_SERVICE_PORT);
+		config.__set_mixerServicePort(MIXER_SERVICE_PORT);
 	}
 
 	load_codecs();
