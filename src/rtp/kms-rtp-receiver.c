@@ -550,22 +550,16 @@ constructed(GObject *object) {
 
 	for (i = 0; i < spec->medias->len; i++) {
 		KmsMediaSpec *media;
-		KmsMediaType type;
 
 		media = spec->medias->pdata[i];
 
-		g_object_get(media, "type", &type, NULL);
-
-		// TODO: Check if types contains audio or video
-		switch (type) {
-		case KMS_MEDIA_TYPE_AUDIO:
+		if (g_hash_table_lookup(media->type, KMS_MEDIA_TYPE_AUDIO) !=
+							(gpointer) TRUE) {
 			media->transport->rtp->port = self->priv->audio_port;
-			break;
-		case KMS_MEDIA_TYPE_VIDEO:
+		} else if (g_hash_table_lookup(media->type,
+						KMS_MEDIA_TYPE_AUDIO) !=
+							(gpointer) TRUE) {
 			media->transport->rtp->port = self->priv->video_port;
-			break;
-		default:
-			break;
 		}
 	}
 }

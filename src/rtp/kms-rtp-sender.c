@@ -74,7 +74,7 @@ end:
 }
 
 static void
-create_udpsink(KmsRtpSender *self, KmsMediaSpec *media, gint fd) {
+create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 	KmsPayload *payload;
 	GstElement *udpsink, *payloader;
 	GstCaps *caps, *sink_caps, *pay_sink_caps;
@@ -83,6 +83,7 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media, gint fd) {
 	GstPad *pad, *sink_pad, *pay_sink;
 	GstPadTemplate *templ;
 	gchar *addr;
+	gint fd;
 
 	if (!media->transport->__isset_rtp || media->transport->rtp == NULL)
 		return;
@@ -96,12 +97,18 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media, gint fd) {
 	if (media->payloads->len == 0 || port == 0)
 		return;
 
+	if (media->direction == KMS_DIRECTION_INACTIVE ||
+				media->direction == KMS_DIRECTION_RECVONLY)
+		return;
+
 	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)
 								!= NULL) {
 		type = KMS_MEDIA_TYPE_AUDIO;
+		fd = self->priv->audio_fd;
 	} else if (g_hash_table_lookup(media->type,
 				(gpointer) KMS_MEDIA_TYPE_VIDEO) != NULL) {
 		type = KMS_MEDIA_TYPE_VIDEO;
+		fd = self->priv->video_fd;
 	} else {
 		return;
 	}
@@ -173,7 +180,7 @@ constructed(GObject *object) {
 
 		media = spec->medias->pdata[i];
 
-		create_udpsink(self, media, self->priv->audio_fd);
+		create_udpsink(self, media);
 	}
 }
 
