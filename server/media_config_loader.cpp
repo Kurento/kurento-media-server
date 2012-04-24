@@ -18,6 +18,7 @@ static Log l("media_config_loader");
 #define TRANSPORT_KEY "transport"
 
 #define TRANSPORT_GROUP "Transport"
+#define ADDRESS_KEY "address"
 
 #define CODEC_GROUP "Codec"
 #define ID_KEY "id"
@@ -44,9 +45,10 @@ load_codec(Glib::KeyFile &configFile, const std::string &codecgrp, Payload &pay)
 static void
 load_transport(Glib::KeyFile &configFile, const std::string &transportgrp,
 								Transport &tr) {
-	// TODO: Implement this function
 	d("Loading config for: " + transportgrp);
-	throw Glib::KeyFileError(Glib::KeyFileError::NOT_FOUND, "Not implemented");
+
+	tr.rtp.__set_address(configFile.get_string(transportgrp, ADDRESS_KEY));
+	tr.__isset.rtp = true;
 }
 
 static void
