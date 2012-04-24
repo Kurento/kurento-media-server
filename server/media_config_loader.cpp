@@ -24,26 +24,94 @@ static Log l("media_config_loader");
 #define ADDRESS_KEY "address"
 
 #define CODEC_GROUP "Codec"
+
+#define CODEC_RTP_GROUP "CodecRtp"
 #define ID_KEY "id"
 #define NAME_KEY "name"
 #define CLOCKRATE_KEY "clockRate"
-#define CHANNELS "channels"
-#define WIDTH "width"
-#define HEIGHT "height"
-#define BITRATE "bitrate"
+#define CHANNELS_KEY "channels"
+#define WIDTH_KEY "width"
+#define HEIGHT_KEY "height"
+#define BITRATE_KEY "bitrate"
 
-#define EXTRA_PARAMS "extra"
+#define EXTRA_PARAMS_KEY "extra"
 
 using ::com::kurento::commons::mediaspec::MediaSpec;
 using ::com::kurento::commons::mediaspec::Transport;
 using ::com::kurento::commons::mediaspec::TransportRtp;
 using ::com::kurento::commons::mediaspec::Payload;
+using ::com::kurento::commons::mediaspec::PayloadRtp;
+
+static int
+gen_id() {
+	static int curr_id = 96;
+	return curr_id++;
+}
+
+static void
+load_codec_rtp(Glib::KeyFile &configFile, const std::string &codecgrp,
+							PayloadRtp &pay) {
+	d("Loading config for: " + codecgrp);
+
+	pay.__set_id(gen_id());
+	pay.__set_codecName(configFile.get_string(codecgrp, NAME_KEY).uppercase());
+	pay.__set_clockRate(configFile.get_integer(codecgrp, CLOCKRATE_KEY));
+
+	try {
+		pay.__set_channels(configFile.get_integer(codecgrp, CHANNELS_KEY));
+	} catch (Glib::KeyFileError ex) {
+	}
+
+	try {
+		pay.__set_width(configFile.get_integer(codecgrp, WIDTH_KEY));
+	} catch (Glib::KeyFileError ex) {
+	}
+
+	try {
+		pay.__set_height(configFile.get_integer(codecgrp, HEIGHT_KEY));
+	} catch (Glib::KeyFileError ex) {
+	}
+
+	try {
+		pay.__set_bitrate(configFile.get_integer(codecgrp, BITRATE_KEY));
+	} catch (Glib::KeyFileError ex) {
+	}
+
+	try {
+		Glib::ArrayHandle<Glib::ustring> extra =
+			configFile.get_string_list(codecgrp, EXTRA_PARAMS_KEY);
+
+		Glib::ArrayHandle<Glib::ustring>::const_iterator it =
+								extra.begin();
+		for (; it != extra.end(); it ++) {
+			try{
+				pay.extraParams[*it] = configFile.get_string(
+								codecgrp, *it);
+				pay.__isset.extraParams = true;
+			} catch(Glib::KeyFileError ex) {
+			}
+		}
+	} catch (Glib::KeyFileError ex) {
+	}
+}
 
 static void
 load_codec(Glib::KeyFile &configFile, const std::string &codecgrp, Payload &pay) {
-	// TODO: Implement this function
 	d("Loading config for: " + codecgrp);
-	throw Glib::KeyFileError(Glib::KeyFileError::NOT_FOUND, "Not implemented");
+
+	try {
+		std::string rtp = configFile.get_string(codecgrp, RTP_KEY);
+		load_codec_rtp(configFile, CODEC_RTP_GROUP " " + rtp, pay.rtp);
+		pay.__isset.rtp = true;
+	} catch (Glib::KeyFileError ex) {
+		w(ex.what());
+	}
+
+	// In the future more types should be avaliable, check them here
+	if (!pay.__isset.rtp) {
+		throw Glib::KeyFileError(Glib::KeyFileError::NOT_FOUND,
+							"No valid payload set");
+	}
 }
 
 static void
