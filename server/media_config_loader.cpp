@@ -17,6 +17,7 @@ static Log l("media_config_loader");
 #define CODECS_KEY "codecs"
 #define TRANSPORT_KEY "transport"
 #define DIRECTION_KEY "direction"
+#define TYPE_KEY "type"
 
 #define TRANSPORT_GROUP "Transport"
 #define RTP_KEY "rtp"
@@ -40,6 +41,8 @@ static Log l("media_config_loader");
 using ::com::kurento::commons::mediaspec::MediaSpec;
 using ::com::kurento::commons::mediaspec::Direction;
 using ::com::kurento::commons::mediaspec::_Direction_VALUES_TO_NAMES;
+using ::com::kurento::commons::mediaspec::MediaType;
+using ::com::kurento::commons::mediaspec::_MediaType_VALUES_TO_NAMES;
 using ::com::kurento::commons::mediaspec::Transport;
 using ::com::kurento::commons::mediaspec::TransportRtp;
 using ::com::kurento::commons::mediaspec::Payload;
@@ -159,6 +162,20 @@ get_direction_value(std::string str) {
 							"No valid value found");
 }
 
+static MediaType::type
+get_media_type_value(std::string str) {
+	std::map<int, const char *>::const_iterator it =
+					_MediaType_VALUES_TO_NAMES.begin();
+	for (; it != _MediaType_VALUES_TO_NAMES.end(); it++) {
+		if (it->second == str) {
+			return (MediaType::type) it->first;
+		}
+	}
+
+	throw Glib::KeyFileError(Glib::KeyFileError::NOT_FOUND,
+							"No valid value found");
+}
+
 static void
 load_media(Glib::KeyFile &configFile, const std::string &mediagrp,
 							MediaSpec &media)
@@ -190,6 +207,16 @@ load_media(Glib::KeyFile &configFile, const std::string &mediagrp,
 
 	media.direction = get_direction_value(configFile.get_string(mediagrp,
 						DIRECTION_KEY).uppercase());
+
+	Glib::ArrayHandle<Glib::ustring> types =
+				configFile.get_string_list(mediagrp, TYPE_KEY);
+	for (it = types.begin(); it != types.end(); it++) {
+		try{
+			media.type.insert(get_media_type_value(
+							(*it).uppercase()));
+		} catch(Glib::KeyFileError ex) {
+		}
+	}
 }
 
 void
