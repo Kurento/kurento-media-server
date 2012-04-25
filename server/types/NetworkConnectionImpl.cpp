@@ -1,8 +1,7 @@
 #include "types/NetworkConnectionImpl.h"
 #include <rtp/kms-rtp.h>
 
-#include <thrift/protocol/TBinaryProtocol.h>
-#include <thrift/transport/TBufferTransports.h>
+#include <utils.h>
 
 #include <log.h>
 
@@ -10,8 +9,7 @@ using ::com::kurento::kms::JoinableImpl;
 using ::com::kurento::kms::NetworkConnectionImpl;
 using ::com::kurento::kms::api::NetworkConnection;
 
-using ::apache::thrift::protocol::TBinaryProtocol;
-using ::apache::thrift::transport::TMemoryBuffer;
+using ::com::kurento::kms::utils::convert_session_spec;
 
 using ::com::kurento::log::Log;
 
@@ -29,26 +27,8 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 	__set_joinable(*this);
 	__set_config(config);
 
-	boost::shared_ptr<TMemoryBuffer> trans(new TMemoryBuffer());
-	TBinaryProtocol proto(trans);
 	KmsSessionSpec *local_spec;
-
-	this->spec.write(&proto);
-
-	guint len;
-	guchar *buff;
-
-	trans->getBuffer(&buff, &len);
-
-	local_spec = kms_session_spec_from_binary(buff, len);
-
-	if (local_spec == NULL) {
-		MediaServerException ex;
-		ex.__set_code(ErrorCode::NO_RESOURCES);
-		ex.__set_description("Unable to get local session description");
-		w(ex.description);
-		throw ex;
-	}
+	local_spec = convert_session_spec(this->spec);
 
 	endpoint = KMS_ENDPOINT(g_object_new(KMS_TYPE_RTP_ENDPOINT, "local-spec",
 							local_spec, NULL));
