@@ -92,6 +92,29 @@ kms_session_spec_intersect(KmsSessionSpec *answerer, KmsSessionSpec *offerer,
 	return TRUE;
 }
 
+gint
+kms_session_spec_to_byte_array(const KmsSessionSpec *spec, guchar data[],
+						guint max, GError **err) {
+	ThriftTransport *transport;
+	ThriftProtocol *protocol;
+	gint len = -1;
+
+	transport = g_object_new(THRIFT_TYPE_MEMORY_BUFFER,
+						"buf_size", max, NULL);
+	protocol = g_object_new(THRIFT_TYPE_BINARY_PROTOCOL,
+						"transport", transport, NULL);
+	len = thrift_struct_write(THRIFT_STRUCT(spec), protocol, err);
+	if (len < 0)
+		goto end;
+
+	len = thrift_transport_read(transport, data, max, err);
+
+end:
+	g_object_unref(transport);
+	g_object_unref(protocol);
+	return len;
+}
+
 KmsSessionSpec*
 kms_session_spec_copy(KmsSessionSpec *self) {
 	ThriftMemoryBuffer *transport;
@@ -158,6 +181,7 @@ kms_session_spec_from_binary(const guchar data[], guint len) {
 		spec = NULL;
 		goto end;
 	};
+
 end:
 	g_object_unref(transport);
 	g_object_unref(protocol);

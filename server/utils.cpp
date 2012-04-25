@@ -13,6 +13,8 @@ using ::com::kurento::kms::api::ErrorCode;
 
 using ::com::kurento::log::Log;
 
+using ::apache::thrift::TException;
+
 static Log l("utils");
 #define d(...) aux_debug(l, __VA_ARGS__);
 #define i(...) aux_info(l, __VA_ARGS__);
@@ -22,7 +24,7 @@ static Log l("utils");
 namespace com { namespace kurento { namespace kms { namespace utils {
 
 KmsSessionSpec *
-convert_session_spec(SessionSpec &spec) {
+convert_session_spec(const SessionSpec &spec) {
 	boost::shared_ptr<TMemoryBuffer> trans(new TMemoryBuffer());
 	TBinaryProtocol proto(trans);
 	KmsSessionSpec *local_spec;
@@ -36,7 +38,7 @@ convert_session_spec(SessionSpec &spec) {
 
 	local_spec = kms_session_spec_from_binary(buff, len);
 
-	if (local_spec) {
+	if (local_spec == NULL) {
 		MediaServerException ex;
 		ex.__set_code(ErrorCode::NO_RESOURCES);
 		ex.__set_description("Unable to transform session description");
@@ -45,6 +47,38 @@ convert_session_spec(SessionSpec &spec) {
 	}
 
 	return local_spec;
+}
+
+void
+convert_session_spec_to_cpp(SessionSpec &_return, const KmsSessionSpec *spec) {
+	boost::shared_ptr<TMemoryBuffer> trans(new TMemoryBuffer());
+	TBinaryProtocol proto(trans);
+	guchar data[2048];
+	gint len;
+	GError *err = NULL;
+
+	len = kms_session_spec_to_byte_array(spec, data, 2048, &err);
+	if (len < 0) {
+		MediaServerException ex;
+		ex.__set_code(ErrorCode::NO_RESOURCES);
+		if (err != NULL)
+			ex.__set_description(err->message);
+		else
+			ex.__set_description("Unable to transform session description");
+		w(ex.description);
+		throw ex;
+	}
+
+	try {
+		trans->write(data, (uint32_t) len);
+		_return.read(&proto);
+	} catch (TException ex) {
+		w(ex.what());
+		MediaServerException e;
+		e.__set_description(ex.what());
+		e.__set_code(ErrorCode::UNEXPECTED);
+		throw e;
+	}
 }
 
 }}}} /* com::kurento::kms:utils */

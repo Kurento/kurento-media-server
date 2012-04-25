@@ -18,6 +18,9 @@ gboolean kms_session_spec_intersect(
 
 KmsSessionSpec *kms_session_spec_from_binary(const guchar data[], guint len);
 
+gint kms_session_spec_to_byte_array(const KmsSessionSpec *spec, guchar data[],
+						guint max, GError **error);
+
 G_END_DECLS
 
 #endif /* __KMS_SDP_SESSION_H__ */

@@ -10,6 +10,7 @@ using ::com::kurento::kms::NetworkConnectionImpl;
 using ::com::kurento::kms::api::NetworkConnection;
 
 using ::com::kurento::kms::utils::convert_session_spec;
+using ::com::kurento::kms::utils::convert_session_spec_to_cpp;
 
 using ::com::kurento::log::Log;
 
@@ -111,20 +112,55 @@ NetworkConnectionImpl::processAnswer(SessionSpec &_return,
 void
 NetworkConnectionImpl::processOffer(SessionSpec& _return,
 						const SessionSpec& offer) {
-	MediaServerException ex;
-	ex.__set_description("Not implemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	w(ex.description);
-	throw ex;
+	if (rtp_connection == NULL) {
+		MediaServerException ex;
+		ex.__set_description("RtpConnection is NULL");
+		ex.__set_code(ErrorCode::UNEXPECTED);
+		w(ex.description);
+		throw ex;
+	}
+
+	KmsSessionSpec *spec = convert_session_spec(offer);
+	GError *error = NULL;
+
+	if (!kms_connection_connect_to_remote(rtp_connection, spec, FALSE,
+								&error)) {
+		MediaServerException ex;
+		if (error != NULL) {
+			ex.description = error->message;
+			g_error_free(error);
+		} else {
+			ex.description = "Cannot negotiate format";
+		}
+		g_object_unref(spec);
+		w(ex.description);
+		throw ex;
+	}
+	g_object_unref(spec);
+
+	_return = offer;
+	getLocalDescriptor(_return);
 }
 
 void
 NetworkConnectionImpl::getLocalDescriptor(SessionSpec& _return) {
-	MediaServerException ex;
-	ex.__set_description("Not implemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	w(ex.description);
-	throw ex;
+	if (rtp_connection == NULL) {
+		MediaServerException ex;
+		ex.__set_description("RtpConnection is NULL");
+		ex.__set_code(ErrorCode::UNEXPECTED);
+		w(ex.description);
+		throw ex;
+	}
+
+	KmsSessionSpec *cspec;
+	g_object_get(rtp_connection, "local-spec", &cspec, NULL);
+	try {
+		convert_session_spec_to_cpp(_return, cspec);
+	} catch (MediaServerException ex) {
+		g_object_unref(cspec);
+		throw ex;
+	}
+	g_object_unref(cspec);
 }
 
 void
