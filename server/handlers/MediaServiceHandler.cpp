@@ -13,10 +13,11 @@ static Log l("MediaServiceHandler");
 namespace com { namespace kurento { namespace kms {
 
 
-MediaServerServiceHandler::MediaServerServiceHandler(ServerConfig *config)
-{
+MediaServerServiceHandler::MediaServerServiceHandler(const ServerConfig &config,
+						const SessionSpec &spec):
+								config(config),
+								spec(spec) {
 	manager = MediaSessionManager::getInstance();
-	this->config = config;
 }
 
 MediaServerServiceHandler::~MediaServerServiceHandler() {
@@ -24,12 +25,12 @@ MediaServerServiceHandler::~MediaServerServiceHandler() {
 }
 
 void MediaServerServiceHandler::getServerconfig(ServerConfig& _return) {
-	_return = *config;
+	_return = config;
 }
 
 void MediaServerServiceHandler::createMediaSession(MediaSession& _return) {
 	try {
-		_return = manager->createMediaSession();
+		_return = manager->createMediaSession(spec);
 		i("Mediasession created with id %lld", _return.object.id);
 	} catch (MediaServerException e) {
 		throw e;

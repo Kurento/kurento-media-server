@@ -65,7 +65,8 @@ static void create_server_service() {
 
 	port = config.serverServicePort;
 
-	shared_ptr<MediaServerServiceHandler> handler(new MediaServerServiceHandler(&config));
+	shared_ptr<MediaServerServiceHandler> handler(
+			new MediaServerServiceHandler(config, sessionSpec));
 	shared_ptr<TProcessor> processor(new MediaServerServiceProcessor(handler));
 	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
 	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());

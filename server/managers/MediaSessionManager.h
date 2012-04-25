@@ -16,7 +16,7 @@ namespace com { namespace kurento { namespace kms {
 		MediaSessionManager();
 		~MediaSessionManager();
 
-		MediaSessionImpl& createMediaSession();
+		MediaSessionImpl& createMediaSession(const SessionSpec &spec);
 
 		MediaSessionImpl& getMediaSession(const MediaSession& session);
 

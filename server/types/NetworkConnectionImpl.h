@@ -12,7 +12,9 @@ namespace com { namespace kurento { namespace kms {
 	class NetworkConnectionImpl : public NetworkConnection,
 					public virtual JoinableImpl {
 	public:
-		NetworkConnectionImpl(MediaSession &session, const std::vector<NetworkConnectionConfig::type> & config);
+		NetworkConnectionImpl(MediaSession &session,
+				const std::vector<NetworkConnectionConfig::type> & config,
+				const SessionSpec &spec);
 		~NetworkConnectionImpl() throw() {};
 
 		SessionSpec& generateOffer();
@@ -20,6 +22,9 @@ namespace com { namespace kurento { namespace kms {
 		SessionSpec& processOffer(const SessionSpec& offer);
 		SessionSpec& getLocalDescriptor();
 		SessionSpec& getRemoteDescriptor();
+
+	private:
+		SessionSpec spec;
 	};
 
 }}} // com::kurento::kms

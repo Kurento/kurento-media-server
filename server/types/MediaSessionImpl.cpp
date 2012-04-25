@@ -27,7 +27,10 @@ bool MediaSessionImpl::pingTimeout() {
 	return false;
 }
 
-MediaSessionImpl::MediaSessionImpl() : MediaObjectImpl(), MediaSession() {
+MediaSessionImpl::MediaSessionImpl(const SessionSpec &spec) :
+							MediaObjectImpl(),
+							MediaSession(),
+							ncManager(spec) {
 	uuid_t uuid;
 	char *uuid_str;
 

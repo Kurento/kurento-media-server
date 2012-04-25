@@ -11,7 +11,7 @@ namespace com { namespace kurento { namespace kms {
 
 	class NetworkConnectionManager {
 	public:
-		NetworkConnectionManager();
+		NetworkConnectionManager(const SessionSpec &spec);
 		~NetworkConnectionManager();
 
 		NetworkConnectionImpl& createNewtorkConnection(MediaSession &session, const std::vector<NetworkConnectionConfig::type> & config);
@@ -26,6 +26,8 @@ namespace com { namespace kurento { namespace kms {
 
 		Glib::Mutex mutex; // Protects the list
 		std::map<ObjectId, NetworkConnectionImpl *> connections;
+
+		SessionSpec spec;
 	};
 
 

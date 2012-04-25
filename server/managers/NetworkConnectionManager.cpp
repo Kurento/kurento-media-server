@@ -8,7 +8,8 @@ using ::com::kurento::log::Log;
 static Log l("NetworkConnectionImpl");
 #define i(...) aux_info(l, __VA_ARGS__);
 
-NetworkConnectionManager::NetworkConnectionManager(){
+NetworkConnectionManager::NetworkConnectionManager(const SessionSpec &spec):
+								spec(spec) {
 }
 
 NetworkConnectionManager::~NetworkConnectionManager() {
@@ -27,7 +28,8 @@ NetworkConnectionManager::~NetworkConnectionManager() {
 NetworkConnectionImpl& NetworkConnectionManager::createNewtorkConnection(
 		MediaSession &session,
 		const std::vector<NetworkConnectionConfig::type> & config) {
-	NetworkConnectionImpl *nc = new NetworkConnectionImpl(session, config);
+	NetworkConnectionImpl *nc = new NetworkConnectionImpl(session, config,
+									spec);
 
 	mutex.lock();
 	connections[nc->joinable.object.id] = nc;

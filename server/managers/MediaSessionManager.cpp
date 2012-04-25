@@ -25,8 +25,8 @@ void MediaSessionManager::releaseInstance(MediaSessionManager* manager) {
 	// As instance is a singleton no action is needed
 }
 
-MediaSessionImpl &MediaSessionManager::createMediaSession() {
-	MediaSessionImpl *session = new MediaSessionImpl();
+MediaSessionImpl &MediaSessionManager::createMediaSession(const SessionSpec &spec) {
+	MediaSessionImpl *session = new MediaSessionImpl(spec);
 	int size;
 
 	mutex.lock();
