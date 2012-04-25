@@ -16,6 +16,8 @@ gboolean kms_session_spec_intersect(
 			KmsSessionSpec *answerer, KmsSessionSpec *offerer,
 			KmsSessionSpec **neg_ans, KmsSessionSpec **neg_off);
 
+KmsSessionSpec *kms_session_spec_from_binary(const guchar data[], guint len);
+
 G_END_DECLS
 
 #endif /* __KMS_SDP_SESSION_H__ */

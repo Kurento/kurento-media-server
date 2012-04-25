@@ -126,3 +126,40 @@ end:
 	g_object_unref(protocol);
 	return spec;
 }
+
+KmsSessionSpec*
+kms_session_spec_from_binary(const guchar data[], guint len) {
+	ThriftMemoryBuffer *transport;
+	ThriftProtocol *protocol;
+	KmsSessionSpec *spec;
+	GError *error = NULL;
+
+	transport = g_object_new(THRIFT_TYPE_MEMORY_BUFFER, "buf_size", len,
+									NULL);
+	protocol = g_object_new(THRIFT_TYPE_BINARY_PROTOCOL,
+						"transport", transport, NULL);
+
+	if (thrift_transport_write(THRIFT_TRANSPORT(transport), (gpointer) data,
+							len, &error) < 0) {
+		if (error != NULL) {
+			g_error("Error on write %s\n", error->message);
+			g_error_free(error);
+		}
+		goto end;
+	}
+
+	spec = g_object_new(KMS_TYPE_SESSION_SPEC, NULL);
+	if (thrift_struct_read(THRIFT_STRUCT(spec), protocol, &error) < 0) {
+		if (error != NULL) {
+			g_error("Error on write %s\n", error->message);
+			g_error_free(error);
+		}
+		g_object_unref(spec);
+		spec = NULL;
+		goto end;
+	};
+end:
+	g_object_unref(transport);
+	g_object_unref(protocol);
+	return spec;
+}
