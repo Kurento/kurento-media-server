@@ -67,7 +67,7 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 	gint i, j;
 	GList *keys, *l;
 
-	if (KMS_IS_MEDIA_SPEC(answerer) || KMS_IS_MEDIA_SPEC(offerer) ||
+	if (!KMS_IS_MEDIA_SPEC(answerer) || !KMS_IS_MEDIA_SPEC(offerer) ||
 					neg_ans == NULL || neg_off == NULL ||
 					*neg_ans != NULL || *neg_off != NULL) {
 		g_error("Invalid arguments on kms_media_spec_intersect");

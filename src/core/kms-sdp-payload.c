@@ -71,6 +71,13 @@ kms_payload_intersect(KmsPayload *answerer, KmsPayload *offerer,
 	KmsPayload *ret_ans, *ret_off;
 	gboolean ret = FALSE;
 
+	if (!KMS_IS_PAYLOAD(answerer) || !KMS_IS_PAYLOAD(offerer) ||
+					neg_answ == NULL || neg_off == NULL ||
+					*neg_answ != NULL || *neg_off != NULL) {
+		g_error("Invalid arguments on kms_media_spec_intersect");
+		return FALSE;
+	}
+
 	ret_ans = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 	ret_off = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 

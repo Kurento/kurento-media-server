@@ -10,7 +10,7 @@ kms_session_spec_intersect(KmsSessionSpec *answerer, KmsSessionSpec *offerer,
 	GPtrArray *used_medias;
 	gint i, j;
 
-	if (KMS_IS_SESSION_SPEC(answerer) || KMS_IS_SESSION_SPEC(offerer) ||
+	if (!KMS_IS_SESSION_SPEC(answerer) || !KMS_IS_SESSION_SPEC(offerer) ||
 					neg_answ == NULL || neg_off == NULL ||
 					*neg_answ != NULL || *neg_off != NULL) {
 		g_error("Invalid arguments on kms_session_spec_intersect");
