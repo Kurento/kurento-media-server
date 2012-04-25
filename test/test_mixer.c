@@ -154,7 +154,7 @@ test_mixer() {
 	g_assert(conn != NULL);
 
 	session2 = create_second_session();
-	ret = kms_connection_connect_to_remote(conn, session2, &err);
+	ret = kms_connection_connect_to_remote(conn, session2, FALSE, &err);
 	if (ret && err != NULL) {
 		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
 		g_error_free(err);

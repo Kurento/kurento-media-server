@@ -23,7 +23,6 @@ struct _KmsRtpConnectionPriv {
 	KmsSessionSpec *descriptor;
 	KmsRtpReceiver *receiver;
 	KmsRtpSender *sender;
-	gboolean initialized;
 };
 
 static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
@@ -157,7 +156,8 @@ create_rtp_sender(KmsRtpConnection *self) {
 }
 
 static gboolean
-connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec, GError **err) {
+connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec,
+					gboolean local_offerer, GError **err) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(conn);
 
 	if (!KMS_IS_SESSION_SPEC(spec)) {
@@ -178,7 +178,7 @@ connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec, GError **err) {
 
 	self->priv->remote_spec = g_object_ref(spec);
 
-	if (self->priv->initialized) {
+	if (local_offerer) {
 		kms_session_spec_intersect(spec, self->priv->local_spec,
 						&(self->priv->neg_remote_spec),
 						&(self->priv->neg_local_spec));
@@ -346,7 +346,6 @@ kms_rtp_connection_init (KmsRtpConnection *self) {
 	self->priv->receiver = NULL;
 	self->priv->sender = NULL;
 	self->priv->remote_spec = NULL;
-	self->priv->initialized = FALSE;
 	self->priv->neg_remote_spec = NULL;
 	self->priv->neg_local_spec = NULL;
 }

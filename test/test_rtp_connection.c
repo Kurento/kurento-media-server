@@ -52,7 +52,7 @@ test_connection() {
 	}
 
 	second_spec = create_second_session();
-	ret = kms_connection_connect_to_remote(conn, second_spec, &err);
+	ret = kms_connection_connect_to_remote(conn, second_spec, FALSE, &err);
 	if (!ret && err != NULL) {
 		g_printerr("error connecting: %s\n", err->message);
 		g_error_free(err);

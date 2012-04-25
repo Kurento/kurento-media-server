@@ -82,7 +82,9 @@ struct _KmsConnectionClass {
 	gboolean (*mode_changed)(KmsConnection *self, KmsConnectionMode mode,
 					KmsMediaType type, GError **err);
 	gboolean (*connect_to_remote)(KmsConnection *self,
-					KmsSessionSpec *session, GError **err);
+						KmsSessionSpec *session,
+						gboolean local_offerer,
+						GError **err);
 	gboolean (*connect)(KmsConnection *self, KmsConnection *other,
 					KmsMediaType type, GError **err);
 };
@@ -129,7 +131,9 @@ gboolean kms_connection_connect(KmsConnection *self, KmsConnection *other,
 						KmsMediaType type, GError **err);
 
 gboolean kms_connection_connect_to_remote(KmsConnection *self,
-					KmsSessionSpec *session, GError **err);
+						KmsSessionSpec *session,
+						gboolean local_offerer,
+						GError **err);
 
 G_END_DECLS
 
