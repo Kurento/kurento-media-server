@@ -15,7 +15,7 @@ namespace com { namespace kurento { namespace kms {
 		NetworkConnectionImpl(MediaSession &session,
 				const std::vector<NetworkConnectionConfig::type> & config,
 				const SessionSpec &spec);
-		~NetworkConnectionImpl() throw() {};
+		~NetworkConnectionImpl() throw();
 
 		SessionSpec& generateOffer();
 		SessionSpec& processAnswer(const SessionSpec& anwser);
@@ -25,6 +25,7 @@ namespace com { namespace kurento { namespace kms {
 
 	private:
 		SessionSpec spec;
+		KmsConnection *rtp_connection = NULL;
 	};
 
 }}} // com::kurento::kms

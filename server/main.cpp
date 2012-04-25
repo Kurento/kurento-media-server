@@ -15,6 +15,8 @@
 #include <glibmm.h>
 #include <fstream>
 
+#include <kms-core.h>
+
 #include "log.h"
 
 using namespace ::apache::thrift;
@@ -309,6 +311,8 @@ static void load_config(const std::string &file_name) {
 }
 
 int main(int argc, char **argv) {
+
+	kms_init(&argc, &argv);
 
 	Glib::thread_init();
 

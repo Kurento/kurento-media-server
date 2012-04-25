@@ -4,6 +4,8 @@
 #include "joinable_types.h"
 #include "types/MediaObjectImpl.h"
 
+#include <kms-core.h>
+
 using ::com::kurento::kms::api::Joinable;
 using ::com::kurento::kms::api::StreamType;
 using ::com::kurento::kms::api::Direction;
@@ -29,6 +31,10 @@ public:
 
 	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream);
 	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream, const Direction direction);
+
+protected:
+
+	KmsEndpoint *endpoint = NULL;
 };
 
 }}} // com::kurento::kms
