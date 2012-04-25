@@ -89,8 +89,8 @@ NetworkConnectionImpl::~NetworkConnectionImpl() throw() {
 	endpoint = NULL;
 }
 
-SessionSpec&
-NetworkConnectionImpl::generateOffer() {
+void
+NetworkConnectionImpl::generateOffer(SessionSpec& _return) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
@@ -98,8 +98,9 @@ NetworkConnectionImpl::generateOffer() {
 	throw ex;
 }
 
-SessionSpec&
-NetworkConnectionImpl::processAnswer(const SessionSpec& anwser) {
+void
+NetworkConnectionImpl::processAnswer(SessionSpec &_return,
+						const SessionSpec& anwser) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
@@ -107,8 +108,9 @@ NetworkConnectionImpl::processAnswer(const SessionSpec& anwser) {
 	throw ex;
 }
 
-SessionSpec&
-NetworkConnectionImpl::processOffer(const SessionSpec& offer) {
+void
+NetworkConnectionImpl::processOffer(SessionSpec& _return,
+						const SessionSpec& offer) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
@@ -116,8 +118,8 @@ NetworkConnectionImpl::processOffer(const SessionSpec& offer) {
 	throw ex;
 }
 
-SessionSpec&
-NetworkConnectionImpl::getLocalDescriptor() {
+void
+NetworkConnectionImpl::getLocalDescriptor(SessionSpec& _return) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);
@@ -125,8 +127,8 @@ NetworkConnectionImpl::getLocalDescriptor() {
 	throw ex;
 }
 
-SessionSpec&
-NetworkConnectionImpl::getRemoteDescriptor() {
+void
+NetworkConnectionImpl::getRemoteDescriptor(SessionSpec& _return) {
 	MediaServerException ex;
 	ex.__set_description("Not implemented");
 	ex.__set_code(ErrorCode::UNEXPECTED);

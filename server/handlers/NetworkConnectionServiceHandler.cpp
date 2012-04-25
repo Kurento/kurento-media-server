@@ -25,7 +25,7 @@ NetworkConnectionServiceHandler::generateOffer(SessionSpec &_return,
 		MediaSessionImpl &session = manager->getMediaSession(
 							nc.joinable.session);
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
-		_return = conn.generateOffer();
+		conn.generateOffer(_return);
 		i("Offer generated for connection %lld", nc.joinable.object.id);
 	} catch(NetworkConnectionNotFoundException ex) {
 		throw ex;
@@ -50,7 +50,7 @@ NetworkConnectionServiceHandler::processAnswer(SessionSpec &_return,
 		MediaSessionImpl &session = manager->getMediaSession(
 							nc.joinable.session);
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
-		_return = conn.processAnswer(anwser);
+		conn.processAnswer(_return, anwser);
 		i("Answer processed for connection %lld", nc.joinable.object.id);
 	} catch(NegotiationException ex) {
 		throw ex;
@@ -77,7 +77,7 @@ NetworkConnectionServiceHandler::processOffer(SessionSpec &_return,
 		MediaSessionImpl &session = manager->getMediaSession(
 							nc.joinable.session);
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
-		_return = conn.processOffer(offer);
+		conn.processOffer(_return, offer);
 		i("Offer processed for connection %lld", nc.joinable.object.id);
 	} catch(NegotiationException ex) {
 		throw ex;
@@ -104,7 +104,7 @@ NetworkConnectionServiceHandler::getLocalDescriptor(SessionSpec &_return,
 		MediaSessionImpl &session = manager->getMediaSession(
 			nc.joinable.session);
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
-		_return = conn.getLocalDescriptor();
+		conn.getLocalDescriptor(_return);
 	} catch(NetworkConnectionNotFoundException ex) {
 		throw ex;
 	} catch (MediaSessionNotFoundException ex) {
@@ -128,7 +128,7 @@ NetworkConnectionServiceHandler::getRemoteDescriptor(SessionSpec &_return,
 		MediaSessionImpl &session = manager->getMediaSession(
 			nc.joinable.session);
 		NetworkConnectionImpl &conn = session.getNetworkConnection(nc);
-		_return = conn.getRemoteDescriptor();
+		conn.getRemoteDescriptor(_return);
 	} catch(NetworkConnectionNotFoundException ex) {
 		throw ex;
 	} catch (MediaSessionNotFoundException ex) {

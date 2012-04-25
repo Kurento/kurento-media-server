@@ -17,11 +17,11 @@ namespace com { namespace kurento { namespace kms {
 				const SessionSpec &spec);
 		~NetworkConnectionImpl() throw();
 
-		SessionSpec& generateOffer();
-		SessionSpec& processAnswer(const SessionSpec& anwser);
-		SessionSpec& processOffer(const SessionSpec& offer);
-		SessionSpec& getLocalDescriptor();
-		SessionSpec& getRemoteDescriptor();
+		void generateOffer(SessionSpec& _return);
+		void processAnswer(SessionSpec& _return, const SessionSpec& anwser);
+		void processOffer(SessionSpec& _return, const SessionSpec& offer);
+		void getLocalDescriptor(SessionSpec& _return);
+		void getRemoteDescriptor(SessionSpec& _return);
 
 	private:
 		SessionSpec spec;
