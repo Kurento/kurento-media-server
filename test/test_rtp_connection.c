@@ -21,6 +21,7 @@ check_ports(KmsSessionSpec *session) {
 
 		media = medias->pdata[i];
 
+		g_assert(media->transport->__isset_rtp);
 		g_assert(media->transport->rtp->port != 0);
 	}
 }
