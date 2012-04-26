@@ -19,7 +19,7 @@ namespace com { namespace kurento { namespace kms {
 		MixerImpl& getMixer(const Mixer& mixer);
 		JoinableImpl& getJoinable(const Joinable &joinable);
 		void deleteMixer(const Mixer& mixer);
-		void deleteJoinable(Joinable &joinable);
+		void deleteJoinable(const Joinable &joinable);
 
 	private:
 

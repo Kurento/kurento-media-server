@@ -53,6 +53,28 @@ MixerManager::deleteMixer(const Mixer& mixer) {
 }
 
 void
+MixerManager::deleteJoinable(const Joinable& joinable) {
+	std::map<ObjectId, MixerImpl *>::iterator it;
+	bool found;
+
+	mutex.lock();
+	it = mixers.find(joinable.object.id);
+	if (it != mixers.end() && joinable == it->second->joinable) {
+		found = true;
+		delete it->second;
+		mixers.erase(it);
+	} else {
+		found = false;
+	}
+	mutex.unlock();
+
+	if (!found) {
+		MixerNotFoundException exception;
+		throw exception;
+	}
+}
+
+void
 MixerManager::getMixers(std::vector<Mixer> &_return) {
 	std::map<ObjectId, MixerImpl *>::iterator it;
 
