@@ -30,6 +30,8 @@ public:
 	JoinableImpl &getJoinable(const Joinable &joinable);
 	NetworkConnectionImpl &getNetworkConnection(const NetworkConnection &nc);
 
+	void deleteJoinable(const Joinable &joinable);
+
 private:
 
 	NetworkConnectionManager ncManager;

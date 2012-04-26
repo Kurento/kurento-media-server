@@ -42,6 +42,7 @@ void
 NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
 	std::map<ObjectId, NetworkConnectionImpl *>::iterator it;
 	bool found;
+	int size = -1;
 
 	mutex.lock();
 	it = connections.find(nc.joinable.object.id);
@@ -49,6 +50,7 @@ NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
 		found = true;
 		delete it->second;
 		connections.erase(it);
+		size = connections.size();
 	} else {
 		found = false;
 	}
@@ -58,7 +60,38 @@ NetworkConnectionManager::deleteNetworkConnection(const NetworkConnection& nc) {
 		NetworkConnectionNotFoundException exception;
 		throw exception;
 	}
+
+	i("%d active connections for session %lld", size,
+						nc.joinable.session.object.id);
 }
+
+void
+NetworkConnectionManager::deleteJoinable(const Joinable &joinable) {
+	std::map<ObjectId, NetworkConnectionImpl *>::iterator it;
+	bool found;
+	int size = -1;
+
+	mutex.lock();
+	it = connections.find(joinable.object.id);
+	if (it != connections.end() && joinable == it->second->joinable) {
+		found = true;
+		delete it->second;
+		connections.erase(it);
+		size = connections.size();
+	} else {
+		found = false;
+	}
+	mutex.unlock();
+
+	if (!found) {
+		JoinableNotFoundException exception;
+		throw exception;
+	}
+
+	i("%d active connections for session %lld", size,
+						joinable.session.object.id);
+}
+
 
 NetworkConnectionImpl&
 NetworkConnectionManager::getNetworkConnection(const NetworkConnection &nc) {

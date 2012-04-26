@@ -21,6 +21,7 @@ namespace com { namespace kurento { namespace kms {
 		void deleteNetworkConnection(const NetworkConnection& nc);
 
 		JoinableImpl& getJoinable(const Joinable &joinable);
+		void deleteJoinable(const Joinable &joinable);
 
 	private:
 

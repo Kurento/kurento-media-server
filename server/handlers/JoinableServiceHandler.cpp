@@ -365,8 +365,22 @@ JoinableServiceHandler::getStreamDirectionJoinees(std::vector<Joinable> &_return
 void
 JoinableServiceHandler::release(const Joinable& joinable) {
 	i("release joinable %lld", joinable.object.id);
-	MediaServerException ex;
-	ex.__set_description("Unimplemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+
+	try {
+		MediaSessionImpl &session = manager->getMediaSession(joinable.session);
+		session.deleteJoinable(joinable);
+	} catch(JoinableNotFoundException ex) {
+		throw ex;
+	} catch (MediaSessionNotFoundException ex) {
+		JoinableNotFoundException e;
+		e.__set_description("MediaSession not found");
+		throw e;
+	} catch (MediaServerException ex) {
+		throw ex;
+	} catch (...) {
+		MediaServerException ex;
+		ex.__set_description("Unkown exception found");
+		ex.__set_code(ErrorCode::type::UNEXPECTED);
+		throw ex;
+	}
 }

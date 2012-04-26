@@ -105,6 +105,16 @@ MediaSessionImpl::getJoinable(const Joinable &joinable) {
 	}
 }
 
+void
+MediaSessionImpl::deleteJoinable(const Joinable &joinable) {
+	try {
+		ncManager.deleteJoinable(joinable);
+	} catch (JoinableNotFoundException e) {
+		// TODO: Try to find in other managers (if any)
+		throw e;
+	}
+}
+
 NetworkConnectionImpl&
 MediaSessionImpl::getNetworkConnection(const NetworkConnection &nc) {
 	return ncManager.getNetworkConnection(nc);
