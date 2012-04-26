@@ -20,8 +20,8 @@ void
 kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
 			  KmsPayload *neg_answ, KmsPayload *neg_off) {
 	if (!answerer->__isset_rtp || !offerer->__isset_rtp ||
-					answerer->rtp->codecName != NULL ||
-					offerer->rtp->codecName != NULL)
+					answerer->rtp->codecName == NULL ||
+					offerer->rtp->codecName == NULL)
 		return;
 
 	if (g_ascii_strcasecmp(answerer->rtp->codecName,
