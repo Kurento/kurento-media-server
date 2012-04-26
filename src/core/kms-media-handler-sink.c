@@ -53,8 +53,9 @@ kms_media_handler_sink_disconnect(KmsMediaHandlerSink *self,
 	if (self == NULL)
 		return TRUE;
 
-	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
+	eclass = G_ENUM_CLASS(g_type_class_ref(KMS_MEDIA_TYPE));
 	evalue = g_enum_get_value(eclass, type);
+	g_type_class_unref(eclass);
 
 	it = gst_element_iterate_sink_pads(GST_ELEMENT(self));
 	while (!done) {

@@ -114,8 +114,9 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	if (self == NULL)
 		return TRUE;
 
-	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
+	eclass = G_ENUM_CLASS(g_type_class_ref(KMS_MEDIA_TYPE));
 	evalue = g_enum_get_value(eclass, type);
+	g_type_class_unref(eclass);
 
 	/* Check if it is already linked otherwise link */
 	it = gst_element_iterate_sink_pads(GST_ELEMENT(sink));
@@ -183,8 +184,9 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 
 	link_ret = gst_pad_link(src_pad, sink_pad);
 
-	eclass = G_ENUM_CLASS(g_type_class_peek(GST_TYPE_PAD_LINK_RETURN));
+	eclass = G_ENUM_CLASS(g_type_class_ref(GST_TYPE_PAD_LINK_RETURN));
 	evalue = g_enum_get_value(eclass, link_ret);
+	g_type_class_unref(eclass);
 
 	if (GST_PAD_LINK_FAILED(link_ret)) {
 		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,

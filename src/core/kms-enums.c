@@ -41,8 +41,9 @@ kms_media_type_from_nick(const gchar* name) {
 	GEnumClass *eclass;
 	GEnumValue *evalue;
 
-	eclass = G_ENUM_CLASS(g_type_class_peek(KMS_MEDIA_TYPE));
+	eclass = G_ENUM_CLASS(g_type_class_ref(KMS_MEDIA_TYPE));
 	evalue = g_enum_get_value_by_nick(eclass, name);
+	g_type_class_unref(eclass);
 
 	if (evalue == NULL)
 		return KMS_MEDIA_TYPE_AUDIO;
