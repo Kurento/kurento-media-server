@@ -17,7 +17,9 @@ namespace com { namespace kurento { namespace kms {
 
 		void getMixers(std::vector<Mixer> &_return);
 		MixerImpl& getMixer(const Mixer& mixer);
+		JoinableImpl& getJoinable(const Joinable &joinable);
 		void deleteMixer(const Mixer& mixer);
+		void deleteJoinable(Joinable &joinable);
 
 	private:
 

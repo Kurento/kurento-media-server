@@ -2,6 +2,7 @@
 
 using ::com::kurento::kms::MixerManager;
 using ::com::kurento::kms::MixerImpl;
+using ::com::kurento::kms::JoinableImpl;
 
 MixerManager::MixerManager(){
 }
@@ -60,4 +61,52 @@ MixerManager::getMixers(std::vector<Mixer> &_return) {
 		_return.push_back(*(it->second));
 	}
 	mutex.unlock();
+}
+
+MixerImpl&
+MixerManager::getMixer(const Mixer &m) {
+	std::map<ObjectId, MixerImpl *>::iterator it;
+	MixerImpl *mixer;
+	bool found;
+
+	mutex.lock();
+	it = mixers.find(m.joinable.object.id);
+	if (it != mixers.end() && m == *(it->second)) {
+		found = true;
+		mixer = it->second;
+	} else {
+		found = false;
+	}
+	mutex.unlock();
+
+	if (!found) {
+		MixerNotFoundException ex;
+		throw ex;
+	}
+
+	return *mixer;
+}
+
+JoinableImpl&
+MixerManager::getJoinable(const Joinable &j) {
+	std::map<ObjectId, MixerImpl *>::iterator it;
+	MixerImpl *mixer;
+	bool found;
+
+	mutex.lock();
+	it = mixers.find(j.object.id);
+	if (it != mixers.end() && j == it->second->joinable) {
+		found = true;
+		mixer = it->second;
+	} else {
+		found = false;
+	}
+	mutex.unlock();
+
+	if (!found) {
+		MixerNotFoundException ex;
+		throw ex;
+	}
+
+	return *mixer;
 }

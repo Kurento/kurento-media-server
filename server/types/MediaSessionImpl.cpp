@@ -100,8 +100,7 @@ MediaSessionImpl::getJoinable(const Joinable &joinable) {
 	try {
 		return ncManager.getJoinable(joinable);
 	} catch (JoinableNotFoundException e) {
-		// TODO: Try to find in other managers (if any)
-		throw e;
+		return mixerManager.getJoinable(joinable);
 	}
 }
 
@@ -110,8 +109,7 @@ MediaSessionImpl::deleteJoinable(const Joinable &joinable) {
 	try {
 		ncManager.deleteJoinable(joinable);
 	} catch (JoinableNotFoundException e) {
-		// TODO: Try to find in other managers (if any)
-		throw e;
+		mixerManager.deleteJoinable(joinable);
 	}
 }
 
