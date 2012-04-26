@@ -20,10 +20,10 @@ kms_media_type_get_type(void) {
 GType
 kms_direction_get_type(void) {
 	static const GEnumValue values[] = {
-		{ KMS_DIRECTION_SENDRECV, "KMS_SDP_MODE_SENDRECV", "sendrecv" },
-		{ KMS_DIRECTION_SENDONLY, "KMS_SDP_MODE_SENDONLY", "sendonly" },
-		{ KMS_DIRECTION_RECVONLY, "KMS_SDP_MODE_RECVONLY", "recvonly" },
-		{ KMS_DIRECTION_INACTIVE, "KMS_SDP_MODE_INACTIVE", "inactive" },
+		{ KMS_DIRECTION_SENDRECV, "KMS_DIRECTION_SENDRECV", "sendrecv" },
+		{ KMS_DIRECTION_SENDONLY, "KMS_DIRECTION_SENDONLY", "sendonly" },
+		{ KMS_DIRECTION_RECVONLY, "KMS_DIRECTION_RECVONLY", "recvonly" },
+		{ KMS_DIRECTION_INACTIVE, "KMS_DIRECTION_INACTIVE", "inactive" },
 		{ 0, NULL, NULL}
 	};
 
