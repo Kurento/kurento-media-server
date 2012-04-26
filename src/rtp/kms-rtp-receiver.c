@@ -138,12 +138,12 @@ get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 			g_slist_free(payloads);
 
 			if (caps != NULL)
-				return caps;
+				goto end;
 		}
 	}
 
+end:
 	UNLOCK(self);
-
 	return caps;
 }
 
