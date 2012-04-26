@@ -16,16 +16,9 @@ GType kms_media_type_get_type(void) G_GNUC_CONST;
 
 KmsMediaType kms_media_type_from_nick(const gchar *name);
 
-#define KMS_SDP_MODE (kms_sdp_mode_get_type())
+#define KMS_DIRECTION (kms_direction_get_type())
 
-GType kms_sdp_mode_get_type(void) G_GNUC_CONST;
-
-typedef enum _KmsSdpMode {
-	KMS_SDP_MODE_SENDRECV,
-	KMS_SDP_MODE_SENDONLY,
-	KMS_SDP_MODE_RECVONLY,
-	KMS_SDP_MODE_INACTIVE
-} KmsSdpMode;
+GType kms_direction_get_type(void) G_GNUC_CONST;
 
 G_END_DECLS
 

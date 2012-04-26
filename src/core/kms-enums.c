@@ -18,19 +18,19 @@ kms_media_type_get_type(void) {
 }
 
 GType
-kms_sdp_mode_get_type(void) {
+kms_direction_get_type(void) {
 	static const GEnumValue values[] = {
-		{ KMS_SDP_MODE_SENDRECV, "KMS_SDP_MODE_SENDRECV", "sendrecv" },
-		{ KMS_SDP_MODE_SENDONLY, "KMS_SDP_MODE_SENDONLY", "sendonly" },
-		{ KMS_SDP_MODE_RECVONLY, "KMS_SDP_MODE_RECVONLY", "recvonly" },
-		{ KMS_SDP_MODE_INACTIVE, "KMS_SDP_MODE_INACTIVE", "inactive" },
+		{ KMS_DIRECTION_SENDRECV, "KMS_SDP_MODE_SENDRECV", "sendrecv" },
+		{ KMS_DIRECTION_SENDONLY, "KMS_SDP_MODE_SENDONLY", "sendonly" },
+		{ KMS_DIRECTION_RECVONLY, "KMS_SDP_MODE_RECVONLY", "recvonly" },
+		{ KMS_DIRECTION_INACTIVE, "KMS_SDP_MODE_INACTIVE", "inactive" },
 		{ 0, NULL, NULL}
 	};
 
 	static GType type = 0;
 
 	if (type == 0) {
-		type = g_enum_register_static ("KmsSdpMode", values);
+		type = g_enum_register_static ("KmsDirection", values);
 	}
 
 	return type;

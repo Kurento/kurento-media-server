@@ -94,10 +94,10 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 		o_dir = KMS_DIRECTION_RECVONLY;
 	} else if (a_dir == KMS_DIRECTION_RECVONLY ||
 					o_dir == KMS_DIRECTION_SENDONLY) {
-		a_dir = KMS_SDP_MODE_RECVONLY;
-		o_dir = KMS_SDP_MODE_SENDONLY;
+		a_dir = KMS_DIRECTION_RECVONLY;
+		o_dir = KMS_DIRECTION_SENDONLY;
 	} else {
-		a_dir = o_dir = KMS_SDP_MODE_SENDRECV;
+		a_dir = o_dir = KMS_DIRECTION_SENDRECV;
 	}
 
 	*neg_off = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);

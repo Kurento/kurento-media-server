@@ -148,7 +148,7 @@ create_medias(gboolean second) {
 	gint port;
 	gchar *address;
 	KmsMediaType type;
-	KmsSdpMode mode;
+	KmsDirection mode;
 
 	if (second) {
 		address = ADDR_2;
@@ -168,7 +168,7 @@ create_medias(gboolean second) {
 		else
 			port = PORT_AUDIO;
 		type = KMS_MEDIA_TYPE_AUDIO;
-		mode = KMS_SDP_MODE_SENDRECV;
+		mode = KMS_DIRECTION_SENDRECV;
 
 		media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
 
@@ -199,7 +199,7 @@ create_medias(gboolean second) {
 			port = PORT_VIDEO;
 
 		type = KMS_MEDIA_TYPE_VIDEO;
-		mode = KMS_SDP_MODE_SENDRECV;
+		mode = KMS_DIRECTION_SENDRECV;
 
 		media = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
 

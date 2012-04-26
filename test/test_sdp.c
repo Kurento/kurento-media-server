@@ -11,7 +11,7 @@
 
 #define PORT(i) ((i * 17) % G_MAXUSHORT)
 #define TYPE(i) (i / (KMS_MEDIA_TYPE_VIDEO + 1))
-#define MODE(i) (i / (KMS_SDP_MODE_INACTIVE + 1))
+#define MODE(i) (i / (KMS_DIRECTION_INACTIVE + 1))
 #define BANDWIDTH(i) ((i * 121) % G_MAXINT)
 
 #define SESSION_ADDR "test.com"
@@ -105,7 +105,7 @@ create_medias(GPtrArray *medias) {
 	gint i;
 	gint port;
 	KmsMediaType type;
-	KmsSdpMode mode;
+	KmsDirection mode;
 
 	for (i = 0; i < N_MEDIAS; i++) {
 		KmsMediaSpec *media;
@@ -135,7 +135,7 @@ check_medias(GPtrArray *medias, gint ii) {
 	gint i;
 	gint port;
 	gchar *address;
-	KmsSdpMode mode;
+	KmsDirection mode;
 
 	g_assert(ii < medias->len);
 
