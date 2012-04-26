@@ -109,11 +109,10 @@ kms_payload_to_caps(KmsPayload *payload, KmsMediaSpec *media) {
 
 	caps_str = g_string_new("application/x-rtp");
 
-	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)
-								!= NULL) {
+	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)) {
 		g_string_append(caps_str, ",media=(string)audio");
 	} else if (g_hash_table_lookup(media->type,
-				(gpointer) KMS_MEDIA_TYPE_VIDEO) != NULL) {
+					(gpointer) KMS_MEDIA_TYPE_VIDEO)) {
 		g_string_append(caps_str, ",media=(string)video");
 	} else {
 		g_print("Unsupported media");

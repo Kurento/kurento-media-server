@@ -183,7 +183,7 @@ create_medias(gboolean second) {
 		media->direction = mode;
 
 		g_hash_table_insert(media->type, GINT_TO_POINTER(type),
-							GINT_TO_POINTER(type));
+								(gpointer) 1);
 
 		g_ptr_array_add(medias, media);
 	}
@@ -214,7 +214,7 @@ create_medias(gboolean second) {
 		media->direction = mode;
 
 		g_hash_table_insert(media->type, GINT_TO_POINTER(type),
-				    GINT_TO_POINTER(type));
+								(gpointer) 1);
 
 		g_ptr_array_add(medias, media);
 	}

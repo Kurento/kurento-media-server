@@ -101,12 +101,11 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 				media->direction == KMS_DIRECTION_RECVONLY)
 		return;
 
-	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)
-								!= NULL) {
+	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)) {
 		type = KMS_MEDIA_TYPE_AUDIO;
 		fd = self->priv->audio_fd;
 	} else if (g_hash_table_lookup(media->type,
-				(gpointer) KMS_MEDIA_TYPE_VIDEO) != NULL) {
+					(gpointer) KMS_MEDIA_TYPE_VIDEO)) {
 		type = KMS_MEDIA_TYPE_VIDEO;
 		fd = self->priv->video_fd;
 	} else {

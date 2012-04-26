@@ -554,12 +554,10 @@ constructed(GObject *object) {
 		media = spec->medias->pdata[i];
 
 		if (g_hash_table_lookup(media->type, (gpointer)
-						KMS_MEDIA_TYPE_AUDIO) !=
-							(gpointer) TRUE) {
+						KMS_MEDIA_TYPE_AUDIO)) {
 			media->transport->rtp->port = self->priv->audio_port;
 		} else if (g_hash_table_lookup(media->type, (gpointer)
-						KMS_MEDIA_TYPE_VIDEO) !=
-							(gpointer) TRUE) {
+						KMS_MEDIA_TYPE_VIDEO)) {
 			media->transport->rtp->port = self->priv->video_port;
 		}
 	}

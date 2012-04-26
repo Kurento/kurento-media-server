@@ -9,7 +9,7 @@ is_compatible_type(KmsMediaSpec *a, KmsMediaSpec *b) {
 
 	keys = g_hash_table_get_keys(a->type);
 	for (l = keys; l != NULL; l = l->next) {
-		if (g_hash_table_lookup(b->type, l->data) == (gpointer) FALSE) {
+		if (!g_hash_table_lookup(b->type, l->data)) {
 			ret = FALSE;
 			goto end;
 		}
