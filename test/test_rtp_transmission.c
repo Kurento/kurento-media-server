@@ -20,6 +20,9 @@ get_ports(KmsSessionSpec *session, gint *a_port, gint *v_port) {
 
 		media = medias->pdata[i];
 
+		if (!media->transport->__isset_rtp)
+			g_assert_not_reached();
+
 		if (g_hash_table_lookup(media->type,
 					(gpointer) KMS_MEDIA_TYPE_AUDIO)) {
 			*a_port = media->transport->rtp->port;
@@ -188,7 +191,7 @@ test_connection() {
 		g_assert_not_reached();
 	}
 
-		g_object_get(conn, "descriptor", &session, NULL);
+	g_object_get(conn, "descriptor", &session, NULL);
 	g_assert(session != NULL);
 	get_ports(session, &audio_port, &video_port);
 
