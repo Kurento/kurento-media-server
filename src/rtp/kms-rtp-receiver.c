@@ -124,7 +124,7 @@ get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 
 		media = spec->medias->pdata[i];
 
-		if (g_hash_table_size(media->type) != 1) {
+		if (g_hash_table_size(media->type) == 1) {
 			GSList *payloads, *l;
 
 			payloads = get_pay_list(media);
