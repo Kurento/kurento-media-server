@@ -153,7 +153,7 @@ NetworkConnectionImpl::getLocalDescriptor(SessionSpec& _return) {
 	}
 
 	KmsSessionSpec *cspec;
-	g_object_get(rtp_connection, "local-spec", &cspec, NULL);
+	g_object_get(rtp_connection, "descriptor", &cspec, NULL);
 	try {
 		convert_session_spec_to_cpp(_return, cspec);
 	} catch (MediaServerException ex) {
