@@ -145,6 +145,9 @@ gboolean
 kms_connection_connect_to_remote(KmsConnection *self, KmsSessionSpec *session,
 					gboolean local_offerer, GError **err) {
 
+	if (!KMS_IS_CONNECTION(self))
+		return FALSE;
+
 	if (KMS_CONNECTION_GET_CLASS(self)->connect_to_remote == NULL) {
 		g_warn_if_reached();
 		SET_ERROR(err, KMS_CONNECTION_ERROR,
