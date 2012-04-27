@@ -11,7 +11,7 @@ namespace com { namespace kurento { namespace kms {
 	class MixerImpl : public Mixer, public virtual JoinableImpl {
 	public:
 		MixerImpl(MediaSession &session, const std::vector<MixerConfig::type> &config);
-		~MixerImpl() throw() {};
+		~MixerImpl() throw();
 
 	};
 
