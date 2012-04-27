@@ -177,19 +177,112 @@ JoinableImpl::join(JoinableImpl& to, const StreamType::type stream,
 }
 
 void
-JoinableImpl::unjoin(const JoinableImpl& to) {
-	MediaServerException ex;
-	ex.__set_description("Not implemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+JoinableImpl::unjoin(JoinableImpl& to) {
+	if (!KMS_IS_ENDPOINT(endpoint) && !KMS_IS_ENDPOINT(to.endpoint)) {
+		JoinException ex;
+		ex.__set_description("Joinable does not have a valid endpoint");
+		w(ex.description);
+		throw ex;
+	}
+
+	std::map<JoinableImpl *, KmsLocalConnection *>::iterator it;
+
+	GError *err = NULL;
+
+	it = joinees.find(&to);
+	if (it != joinees.end()) {
+
+		if (!kms_endpoint_delete_connection(endpoint,
+						KMS_CONNECTION(it->second),
+						&err)) {
+			JoinException ex;
+			if (err != NULL) {
+				ex.__set_description(err->message);
+				g_error_free(err);
+			} else {
+				ex.__set_description("Cannot set mode");
+			}
+			w(ex.description);
+			throw ex;
+		}
+		g_object_unref(it->second);
+		joinees.erase(it);
+	}
+
+	it = to.joinees.find(this);
+	if (it == to.joinees.end()) {
+		if (!kms_endpoint_delete_connection(to.endpoint,
+						KMS_CONNECTION(it->second),
+						&err)) {
+			JoinException ex;
+			if (err != NULL) {
+				ex.__set_description(err->message);
+				g_error_free(err);
+			} else {
+				ex.__set_description("Cannot set mode");
+			}
+			w(ex.description);
+			throw ex;
+		}
+		g_object_unref(it->second);
+		to.joinees.erase(it);
+	}
 }
 
 void
-JoinableImpl::unjoin(const JoinableImpl& to, const StreamType::type stream) {
-	MediaServerException ex;
-	ex.__set_description("Not implemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	throw ex;
+JoinableImpl::unjoin(JoinableImpl& to, const StreamType::type stream) {
+	if (!KMS_IS_ENDPOINT(endpoint) && !KMS_IS_ENDPOINT(to.endpoint)) {
+		JoinException ex;
+		ex.__set_description("Joinable does not have a valid endpoint");
+		w(ex.description);
+		throw ex;
+	}
+
+	std::map<JoinableImpl *, KmsLocalConnection *>::iterator it;
+
+	GError *err = NULL;
+	KmsMediaType type;
+
+	try {
+		type = get_media_type_from_stream(stream);
+	} catch (int ie) {
+		StreamNotFoundException ex;
+		ex.__set_description("Invalid stream");
+		w(ex.description);
+		throw ex;
+	}
+
+	it = joinees.find(&to);
+	if (it != joinees.end()) {
+		if (!kms_connection_set_mode(KMS_CONNECTION(it->second),
+				KMS_CONNECTION_MODE_INACTIVE, type, &err)) {
+			JoinException ex;
+			if (err != NULL) {
+				ex.__set_description(err->message);
+				g_error_free(err);
+			} else {
+				ex.__set_description("Cannot set mode");
+			}
+			w(ex.description);
+			throw ex;
+		}
+	}
+
+	it = to.joinees.find(this);
+	if (it == to.joinees.end()) {
+		if (!kms_connection_set_mode(KMS_CONNECTION(it->second),
+				KMS_CONNECTION_MODE_INACTIVE, type, &err)) {
+			JoinException ex;
+			if (err != NULL) {
+				ex.__set_description(err->message);
+				g_error_free(err);
+			} else {
+				ex.__set_description("Cannot set mode");
+			}
+			w(ex.description);
+			throw ex;
+		}
+	}
 }
 
 void
