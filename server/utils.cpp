@@ -81,4 +81,48 @@ convert_session_spec_to_cpp(SessionSpec &_return, const KmsSessionSpec *spec) {
 	}
 }
 
+KmsMediaType
+get_media_type_from_stream(StreamType::type stream) throw (int) {
+	switch (stream) {
+	case StreamType::type::AUDIO:
+		return KMS_MEDIA_TYPE_AUDIO;
+	case StreamType::type::VIDEO:
+		return KMS_MEDIA_TYPE_VIDEO;
+	default:
+		throw -1;
+	}
+}
+
+KmsConnectionMode
+get_connection_mode_from_direction(Direction direction) throw (int) {
+	switch (direction) {
+	case Direction::INACTIVE:
+		return KMS_CONNECTION_MODE_INACTIVE;
+	case Direction::RECVONLY:
+		return KMS_CONNECTION_MODE_RECVONLY;
+	case Direction::SENDONLY:
+		return KMS_CONNECTION_MODE_SENDONLY;
+	case Direction::SENDRECV:
+		return KMS_CONNECTION_MODE_SENDRECV;
+	default:
+		throw -1;
+	}
+}
+
+KmsConnectionMode
+get_inverse_connection_mode(KmsConnectionMode mode) throw (int) {
+	switch (mode) {
+	case KMS_CONNECTION_MODE_INACTIVE:
+		return KMS_CONNECTION_MODE_INACTIVE;
+	case KMS_CONNECTION_MODE_RECVONLY:
+		return KMS_CONNECTION_MODE_SENDONLY;
+	case KMS_CONNECTION_MODE_SENDONLY:
+		return KMS_CONNECTION_MODE_RECVONLY;
+	case KMS_CONNECTION_MODE_SENDRECV:
+		return KMS_CONNECTION_MODE_SENDRECV;
+	default:
+		throw -1;
+	}
+}
+
 }}}} /* com::kurento::kms:utils */

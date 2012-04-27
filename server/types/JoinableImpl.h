@@ -16,14 +16,14 @@ namespace com { namespace kurento { namespace kms {
 class JoinableImpl : public Joinable, public virtual MediaObjectImpl {
 public:
 	JoinableImpl(MediaSession &session);
-	~JoinableImpl() throw() {};
+	~JoinableImpl() throw();
 
 	void getStreams(std::vector<StreamType::type> &_return);
 
 	void join(const JoinableImpl& to, const Direction direction);
 	void unjoin(const JoinableImpl& to);
 
-	void join(const JoinableImpl& to, const StreamType::type stream, const Direction direction);
+	void join(com::kurento::kms::JoinableImpl &to, const StreamType::type stream, const Direction direction);
 	void unjoin(const JoinableImpl& to, const StreamType::type stream);
 
 	void getJoinees(std::vector<Joinable> &_return);
@@ -35,6 +35,11 @@ public:
 protected:
 
 	KmsEndpoint *endpoint = NULL;
+	std::map<JoinableImpl *, KmsLocalConnection *> joinees;
+
+private:
+
+	KmsConnection &create_local_connection();
 };
 
 }}} // com::kurento::kms
