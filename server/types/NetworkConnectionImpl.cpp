@@ -84,10 +84,9 @@ NetworkConnectionImpl::~NetworkConnectionImpl() throw() {
 				w("Unknown error deleting rtp_connection");
 			}
 		}
+		g_object_unref(rtp_connection);
 	}
 	rtp_connection = NULL;
-	g_object_unref(endpoint);
-	endpoint = NULL;
 }
 
 void

@@ -23,8 +23,8 @@ public:
 	void join(const JoinableImpl& to, const Direction direction);
 	void unjoin(const JoinableImpl& to);
 
-	void join(com::kurento::kms::JoinableImpl &to, const StreamType::type stream, const Direction direction);
 	void unjoin(const JoinableImpl& to, const StreamType::type stream);
+	void join(JoinableImpl &to, const StreamType::type stream, const Direction direction);
 
 	void getJoinees(std::vector<Joinable> &_return);
 	void getJoinees(std::vector<Joinable> &_return, const Direction direction);

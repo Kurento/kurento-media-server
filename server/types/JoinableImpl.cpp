@@ -34,7 +34,17 @@ JoinableImpl::JoinableImpl(MediaSession &session) :
 }
 
 JoinableImpl::~JoinableImpl() throw () {
-	// TODO: Destroy all local connections in joinees
+	std::map<JoinableImpl *, KmsLocalConnection *>::iterator it;
+	for (it = joinees.begin(); it != joinees.end(); it++) {
+		g_object_unref(it->second);
+	}
+	joinees.clear();
+
+	if (endpoint != NULL) {
+		kms_endpoint_delete_all_connections(endpoint);
+		g_object_unref(endpoint);
+		endpoint = NULL;
+	}
 }
 
 void

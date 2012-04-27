@@ -35,6 +35,4 @@ MixerImpl::MixerImpl(MediaSession &session,
 }
 
 MixerImpl::~MixerImpl() throw () {
-	g_object_unref(endpoint);
-	endpoint = NULL;
 }
