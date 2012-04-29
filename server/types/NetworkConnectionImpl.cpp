@@ -96,12 +96,34 @@ NetworkConnectionImpl::generateOffer(SessionSpec& _return) {
 
 void
 NetworkConnectionImpl::processAnswer(SessionSpec &_return,
-						const SessionSpec& anwser) {
-	MediaServerException ex;
-	ex.__set_description("Not implemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	w(ex.description);
-	throw ex;
+						const SessionSpec& answer) {
+	if (rtp_connection == NULL) {
+		MediaServerException ex;
+		ex.__set_description("RtpConnection is NULL");
+		ex.__set_code(ErrorCode::UNEXPECTED);
+		w(ex.description);
+		throw ex;
+	}
+
+	KmsSessionSpec *spec = convert_session_spec(answer);
+	GError *error = NULL;
+
+	if (!kms_connection_connect_to_remote(rtp_connection, spec, TRUE,
+								&error)) {
+		MediaServerException ex;
+		if (error != NULL) {
+			ex.description = error->message;
+			g_error_free(error);
+		} else {
+			ex.description = "Cannot negotiate format";
+		}
+		g_object_unref(spec);
+		w(ex.description);
+		throw ex;
+	}
+	g_object_unref(spec);
+
+	getLocalDescriptor(_return);
 }
 
 void
@@ -133,7 +155,6 @@ NetworkConnectionImpl::processOffer(SessionSpec& _return,
 	}
 	g_object_unref(spec);
 
-	_return = offer;
 	getLocalDescriptor(_return);
 }
 

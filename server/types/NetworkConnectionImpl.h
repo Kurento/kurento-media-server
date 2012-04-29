@@ -18,7 +18,7 @@ namespace com { namespace kurento { namespace kms {
 		~NetworkConnectionImpl() throw();
 
 		void generateOffer(SessionSpec& _return);
-		void processAnswer(SessionSpec& _return, const SessionSpec& anwser);
+		void processAnswer(SessionSpec &_return, const SessionSpec &answer);
 		void processOffer(SessionSpec& _return, const SessionSpec& offer);
 		void getLocalDescriptor(SessionSpec& _return);
 		void getRemoteDescriptor(SessionSpec& _return);
