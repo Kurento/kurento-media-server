@@ -91,11 +91,7 @@ NetworkConnectionImpl::~NetworkConnectionImpl() throw() {
 
 void
 NetworkConnectionImpl::generateOffer(SessionSpec& _return) {
-	MediaServerException ex;
-	ex.__set_description("Not implemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	w(ex.description);
-	throw ex;
+	getLocalDescriptor(_return);
 }
 
 void
