@@ -1,4 +1,6 @@
 #include <kms-core.h>
+#include <thrift/transport/thrift_memory_buffer.h>
+#include <thrift/protocol/thrift_binary_protocol.h>
 
 gboolean
 get_minor(gint32 *ret, gint a, gboolean a_is_set, gint b, gboolean b_is_set) {
@@ -18,7 +20,9 @@ get_minor(gint32 *ret, gint a, gboolean a_is_set, gint b, gboolean b_is_set) {
 
 void
 kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
-			  KmsPayload *neg_answ, KmsPayload *neg_off) {
+							KmsPayload *neg_answ) {
+	GList *keys, *l;
+
 	if (!answerer->__isset_rtp || !offerer->__isset_rtp ||
 					answerer->rtp->codecName == NULL ||
 					offerer->rtp->codecName == NULL)
@@ -32,13 +36,9 @@ kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
 	}
 
 	neg_answ->__isset_rtp = TRUE;
-	neg_off->__isset_rtp = TRUE;
 	neg_answ->rtp->id = offerer->rtp->id;
-	neg_off->rtp->id = offerer->rtp->id;
 	neg_answ->rtp->clockRate = offerer->rtp->clockRate;
-	neg_off->rtp->clockRate = offerer->rtp->clockRate;
 	neg_answ->rtp->codecName = g_strdup(offerer->rtp->codecName);
-	neg_off->rtp->codecName = g_strdup(offerer->rtp->codecName);
 
 	neg_answ->rtp->__isset_channels = get_minor((&neg_answ->rtp->channels),
 						answerer->rtp->channels,
@@ -63,12 +63,99 @@ kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
 						answerer->rtp->__isset_bitrate,
 						offerer->rtp->bitrate,
 						offerer->rtp->__isset_bitrate);
+
+	if (offerer->rtp->__isset_extraParams) {
+		neg_answ->rtp->__isset_extraParams = TRUE;
+		keys = g_hash_table_get_keys(offerer->rtp->extraParams);
+		for (l = keys; l != NULL; l = l->next) {
+			gchar *key;
+			gchar *value;
+			gchar *pvalue = g_hash_table_lookup(
+						offerer->rtp->extraParams,
+						l->data);
+
+			if (pvalue == NULL)
+				continue;
+
+			key = g_strdup(l->data);
+			value = g_strdup(pvalue);
+
+			g_print("Insert 1: %s - %s\n", key, value);
+			g_hash_table_insert(neg_answ->rtp->extraParams, key,
+									value);
+		}
+
+		g_list_free(keys);
+	}
+
+	if (answerer->rtp->__isset_extraParams) {
+		neg_answ->rtp->__isset_extraParams = TRUE;
+		keys = g_hash_table_get_keys(answerer->rtp->extraParams);
+		for (l = keys; l != NULL; l = l->next) {
+			gchar *key;
+			gchar *value;
+			gchar *pvalue = g_hash_table_lookup(
+						answerer->rtp->extraParams,
+						l->data);
+			gchar *old_value = g_hash_table_lookup(
+						neg_answ->rtp->extraParams,
+						l->data);
+
+			if (pvalue == NULL || old_value != NULL)
+				continue;
+
+			key = g_strdup(l->data);
+			value = g_strdup(pvalue);
+
+			g_print("Insert 2: %s - %s\n", key, value);
+			g_hash_table_insert(neg_answ->rtp->extraParams, key,
+									value);
+		}
+
+		g_list_free(keys);
+	}
+}
+
+static KmsPayload*
+kms_payload_clone(KmsPayload *orig) {
+	ThriftMemoryBuffer *transport;
+	ThriftProtocol *protocol;
+	KmsPayload *pay;
+	GError *err = NULL;
+
+	transport = g_object_new(THRIFT_TYPE_MEMORY_BUFFER,
+				 "buf_size", 2048, NULL);
+	protocol = g_object_new(THRIFT_TYPE_BINARY_PROTOCOL,
+				"transport", transport, NULL);
+	if (thrift_struct_write(THRIFT_STRUCT(orig), protocol, &err) < 0) {
+		if (err != NULL) {
+			g_print("Error on write %s\n", err->message);
+			g_error_free(err);
+		}
+		goto end;
+	}
+
+	pay = g_object_new(KMS_TYPE_PAYLOAD, NULL);
+	if (thrift_struct_read(THRIFT_STRUCT(pay), protocol, &err) < 0) {
+		if (err != NULL) {
+			g_print("Error on write %s\n", err->message);
+			g_error_free(err);
+		}
+		g_object_unref(pay);
+		pay = NULL;
+		goto end;
+	};
+
+end:
+	g_object_unref(transport);
+	g_object_unref(protocol);
+	return pay;
 }
 
 gboolean
 kms_payload_intersect(KmsPayload *answerer, KmsPayload *offerer,
 				KmsPayload **neg_answ, KmsPayload **neg_off) {
-	KmsPayload *ret_ans, *ret_off;
+	KmsPayload *ret_ans;
 	gboolean ret = FALSE;
 
 	if (!KMS_IS_PAYLOAD(answerer) || !KMS_IS_PAYLOAD(offerer) ||
@@ -79,18 +166,16 @@ kms_payload_intersect(KmsPayload *answerer, KmsPayload *offerer,
 	}
 
 	ret_ans = g_object_new(KMS_TYPE_PAYLOAD, NULL);
-	ret_off = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 
-	kms_payload_rtp_intersect(answerer, offerer, ret_ans, ret_off);
+	kms_payload_rtp_intersect(answerer, offerer, ret_ans);
 
-	ret = ret_ans->__isset_rtp && ret_off->__isset_rtp;
+	ret = ret_ans->__isset_rtp;
 
 	if (!ret) {
 		g_object_unref(ret_ans);
-		g_object_unref(ret_off);
 	} else {
+		*neg_off = kms_payload_clone(ret_ans);
 		*neg_answ = ret_ans;
-		*neg_off = ret_off;
 	}
 
 	return ret;
