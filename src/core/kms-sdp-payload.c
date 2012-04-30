@@ -80,7 +80,6 @@ kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
 			key = g_strdup(l->data);
 			value = g_strdup(pvalue);
 
-			g_print("Insert 1: %s - %s\n", key, value);
 			g_hash_table_insert(neg_answ->rtp->extraParams, key,
 									value);
 		}
@@ -107,7 +106,6 @@ kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
 			key = g_strdup(l->data);
 			value = g_strdup(pvalue);
 
-			g_print("Insert 2: %s - %s\n", key, value);
 			g_hash_table_insert(neg_answ->rtp->extraParams, key,
 									value);
 		}
