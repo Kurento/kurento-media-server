@@ -73,18 +73,14 @@ kms_session_spec_intersect(KmsSessionSpec *answerer, KmsSessionSpec *offerer,
 
 	g_ptr_array_free(used_medias, TRUE);
 
-	if (offerer->id != NULL)
+	if (offerer->id != NULL) {
 		(*neg_off)->id = g_strdup(offerer->id);
-
-	if (answerer->id != NULL)
-		(*neg_answ)->id = g_strdup(answerer->id);
+		(*neg_answ)->id = g_strdup(offerer->id);
+	}
 
 	if (offerer->__isset_version && offerer->version != NULL) {
 		(*neg_off)->version = g_strdup(offerer->version);
 		(*neg_off)->__isset_version = TRUE;
-	}
-
-	if (answerer->__isset_version && answerer->version != NULL) {
 		(*neg_answ)->version = g_strdup(answerer->version);
 		(*neg_answ)->__isset_version = TRUE;
 	}
