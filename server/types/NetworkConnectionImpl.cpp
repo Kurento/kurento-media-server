@@ -181,9 +181,27 @@ NetworkConnectionImpl::getLocalDescriptor(SessionSpec& _return) {
 
 void
 NetworkConnectionImpl::getRemoteDescriptor(SessionSpec& _return) {
-	MediaServerException ex;
-	ex.__set_description("Not implemented");
-	ex.__set_code(ErrorCode::UNEXPECTED);
-	w(ex.description);
-	throw ex;
+	if (rtp_connection == NULL) {
+		MediaServerException ex;
+		ex.__set_description("RtpConnection is NULL");
+		ex.__set_code(ErrorCode::UNEXPECTED);
+		w(ex.description);
+		throw ex;
+	}
+
+	KmsSessionSpec *cspec;
+	g_object_get(rtp_connection, "remote-spec", &cspec, NULL);
+	if (cspec == NULL) {
+		NegotiationException ex;
+		ex.__set_description("Not negotiated yet");
+		throw ex;
+	}
+
+	try {
+		convert_session_spec_to_cpp(_return, cspec);
+	} catch (MediaServerException ex) {
+		g_object_unref(cspec);
+		throw ex;
+	}
+	g_object_unref(cspec);
 }
