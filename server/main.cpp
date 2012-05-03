@@ -19,7 +19,7 @@
 
 #include "log.h"
 
-#include "config.h"
+#include <version.h>
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -318,7 +318,7 @@ int main(int argc, char **argv) {
 
 	Glib::thread_init();
 
-	i("Kmsc version: " KMSC_VERSION);
+	i("Kmsc version: %s", get_version());
 
 	load_config(DEFAULT_CONFIG_FILE);
 
