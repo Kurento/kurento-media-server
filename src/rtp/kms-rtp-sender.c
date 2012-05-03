@@ -98,7 +98,7 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 		return;
 
 	if (media->direction == KMS_DIRECTION_INACTIVE ||
-				media->direction == KMS_DIRECTION_RECVONLY)
+				media->direction == KMS_DIRECTION_SENDONLY)
 		return;
 
 	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)) {
