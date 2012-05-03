@@ -72,7 +72,7 @@ send_video(gint port) {
 				"clock-rate=90000,payload=106 ! "
 				"udpsink host=127.0.0.1 port=%d", port);
 	vpipe = gst_parse_launch(desc, &err);
-	if (vpipe != NULL && err != NULL) {
+	if (vpipe == NULL && err != NULL) {
 		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
 		g_error_free(err);
 	}
