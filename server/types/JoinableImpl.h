@@ -39,7 +39,7 @@ protected:
 
 private:
 
-	KmsConnection &create_local_connection();
+	KmsConnection* create_local_connection();
 };
 
 }}} // com::kurento::kms

@@ -63,13 +63,13 @@ JoinableImpl::join(const JoinableImpl& to, const Direction direction) {
 	throw ex;
 }
 
-KmsConnection&
+KmsConnection*
 JoinableImpl::create_local_connection() {
 	GError *err = NULL;
 	KmsConnection *lc;
 	lc = kms_endpoint_create_connection(endpoint,
-					     KMS_CONNECTION_TYPE_LOCAL,
-				      &err);
+						KMS_CONNECTION_TYPE_LOCAL,
+						&err);
 	if (lc == NULL) {
 		JoinException ex;
 		if (err != NULL) {
@@ -81,7 +81,7 @@ JoinableImpl::create_local_connection() {
 		throw ex;
 	}
 
-	return *lc;
+	return lc;
 }
 
 void
@@ -100,7 +100,7 @@ JoinableImpl::join(JoinableImpl& to, const StreamType::type stream,
 
 	it1 = joinees.find(&to);
 	if (it1 == joinees.end()) {
-		lc1 = &(create_local_connection());
+		lc1 = create_local_connection();
 		joinees[&to] = KMS_LOCAL_CONNECTION(lc1);
 	} else {
 		lc1 = KMS_CONNECTION(joinees[&to]);
@@ -108,7 +108,7 @@ JoinableImpl::join(JoinableImpl& to, const StreamType::type stream,
 
 	it2 = to.joinees.find(this);
 	if (it1 == joinees.end()) {
-		lc2 = &(to.create_local_connection());
+		lc2 = to.create_local_connection();
 		to.joinees[this] = KMS_LOCAL_CONNECTION(lc2);
 	} else {
 		lc2 = KMS_CONNECTION(to.joinees[this]);
