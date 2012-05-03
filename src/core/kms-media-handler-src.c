@@ -159,7 +159,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	sink_name = g_strdup_printf("%s_sink", evalue->value_nick);
 	src_pad = gst_element_get_request_pad(GST_ELEMENT(self), src_name);
 	if (src_pad == NULL) {
-		g_print("Pad %s not found in %s", src_name, GST_OBJECT_NAME(self));
+		g_print("Pad %s not found in %s\n", src_name, GST_OBJECT_NAME(self));
 		ret = TRUE;
 		goto end;
 	}
@@ -167,7 +167,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	if (sink_pad == NULL) {
 		gst_element_release_request_pad(GST_ELEMENT(self), src_pad);
 		gst_object_unref(src_pad);
-		g_print("Pad %s not found int %s", sink_name, GST_OBJECT_NAME(sink));
+		g_print("Pad %s not found in %s\n", sink_name, GST_OBJECT_NAME(sink));
 		ret = TRUE;
 		goto end;
 	}
