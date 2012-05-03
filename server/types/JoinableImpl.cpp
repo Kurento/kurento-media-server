@@ -103,15 +103,15 @@ JoinableImpl::join(JoinableImpl& to, const StreamType::type stream,
 		lc1 = create_local_connection();
 		joinees[&to] = KMS_LOCAL_CONNECTION(lc1);
 	} else {
-		lc1 = KMS_CONNECTION(joinees[&to]);
+		lc1 = KMS_CONNECTION(it1->second);
 	}
 
 	it2 = to.joinees.find(this);
-	if (it1 == joinees.end()) {
+	if (it2 == to.joinees.end()) {
 		lc2 = to.create_local_connection();
 		to.joinees[this] = KMS_LOCAL_CONNECTION(lc2);
 	} else {
-		lc2 = KMS_CONNECTION(to.joinees[this]);
+		lc2 = KMS_CONNECTION(it2->second);
 	}
 
 	GError *err = NULL;
