@@ -19,6 +19,8 @@
 
 #include "log.h"
 
+#include "config.h"
+
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
@@ -315,6 +317,8 @@ int main(int argc, char **argv) {
 	kms_init(&argc, &argv);
 
 	Glib::thread_init();
+
+	i("Kmsc version: " KMSC_VERSION);
 
 	load_config(DEFAULT_CONFIG_FILE);
 
