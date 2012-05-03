@@ -35,6 +35,7 @@ public:
 protected:
 
 	KmsEndpoint *endpoint = NULL;
+	// TODO: Protect the list against concurrency
 	std::map<JoinableImpl *, KmsLocalConnection *> joinees;
 
 private:
