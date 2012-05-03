@@ -40,8 +40,8 @@ send_receive_media(SessionSpec &spec) {
 
 	std::stringstream stream;
 
-	if (media.direction == Direction::SENDONLY) {
-		std::cout << "Sendonly" << std::endl;
+	if (media.direction == Direction::RECVONLY) {
+		std::cout << "server recvonly" << std::endl;
 		std::cout << "Port: " << media.transport.rtp.port << std::endl;
 		std::cout << "Codec name: " << pay.rtp.codecName << std::endl;
 
@@ -53,8 +53,8 @@ send_receive_media(SessionSpec &spec) {
 			"payload=(int)" << pay.rtp.id << " ! udpsink port=" <<
 			media.transport.rtp.port << " host=" <<
 			media.transport.rtp.address;
-	} else if (media.direction == Direction::RECVONLY) {
-		std::cout << "recvonly" << std::endl;
+	} else if (media.direction == Direction::SENDONLY) {
+		std::cout << "server sendonly" << std::endl;
 		std::cout << "Port: " << DEFAULT_PORT << std::endl;
 		std::cout << "Codec name: " << pay.rtp.codecName << std::endl;
 
@@ -109,7 +109,7 @@ create_session_spec(SessionSpec &spec) {
 	ms.transport.rtp.address = LOCAL_ADDRESS;
 	ms.transport.rtp.port = DEFAULT_PORT;
 	ms.transport.__isset.rtp = true;
-	ms.direction = Direction::type::SENDONLY;
+	ms.direction = Direction::type::RECVONLY;
 	ms.type.insert(MediaType::VIDEO);
 	ms.payloads.push_back(pay);
 
@@ -131,7 +131,7 @@ create_second_session_spec(SessionSpec &spec) {
 	ms.transport.rtp.address = LOCAL_ADDRESS;
 	ms.transport.rtp.port = DEFAULT_PORT;
 	ms.transport.__isset.rtp = true;
-	ms.direction = Direction::type::RECVONLY;
+	ms.direction = Direction::type::SENDONLY;
 	ms.type.insert(MediaType::VIDEO);
 	ms.payloads.push_back(pay);
 
@@ -187,7 +187,7 @@ join_network_connections(ServerConfig &mc, NetworkConnection& nc,
 	transport->open();
 
 	service.joinStream(nc.joinable, nc2.joinable, StreamType::type::VIDEO,
-							Direction::SENDRECV);
+							Direction::RECVONLY);
 }
 
 static void
