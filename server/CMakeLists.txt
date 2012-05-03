@@ -11,12 +11,6 @@ SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 add_executable(kmsc ${KMSC_SOURCE})
 add_dependencies(kmsc kmsiface-project)
 
-add_library(kmsiface STATIC IMPORTED)
-set_target_properties(kmsiface PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libkmsiface.a)
-
-add_library(mediaspec STATIC IMPORTED)
-set_target_properties(mediaspec PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libmediaspec.a)
-
 target_link_libraries(kmsc kmsiface mediaspec ${THRIFT_LIBRARIES})
 target_link_libraries(kmsc ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES})
 target_link_libraries(kmsc ${UUID_LIBRARIES} kmsclib)

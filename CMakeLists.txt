@@ -31,6 +31,12 @@ ExternalProject_Add(
 	UPDATE_COMMAND git checkout master
 )
 
+add_library(kmsiface STATIC IMPORTED)
+set_target_properties(kmsiface PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libkmsiface.a)
+
+add_library(mediaspec STATIC IMPORTED)
+set_target_properties(mediaspec PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libmediaspec.a)
+
 add_subdirectory(src)
 add_subdirectory(server)
 
@@ -45,3 +51,4 @@ add_test(test_rtp_connection test/test_rtp_connection)
 add_test(test_rtp_transmission test/test_rtp_transmission)
 add_test(test_mixer test/test_mixer)
 #add_test(test_rtmp test/test_rtmp)
+add_test(test_server test/test_server)
