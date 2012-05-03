@@ -87,7 +87,7 @@ JoinableImpl::create_local_connection() {
 void
 JoinableImpl::join(JoinableImpl& to, const StreamType::type stream,
 						const Direction direction) {
-	if (!KMS_IS_ENDPOINT(endpoint)) {
+	if (!KMS_IS_ENDPOINT(endpoint) || !KMS_IS_ENDPOINT(to.endpoint)) {
 		JoinException ex;
 		ex.__set_description("Joinable does not have a valid endpoint");
 		w(ex.description);
@@ -210,7 +210,7 @@ JoinableImpl::unjoin(JoinableImpl& to) {
 	}
 
 	it = to.joinees.find(this);
-	if (it == to.joinees.end()) {
+	if (it != to.joinees.end()) {
 		if (!kms_endpoint_delete_connection(to.endpoint,
 						KMS_CONNECTION(it->second),
 						&err)) {
@@ -269,7 +269,7 @@ JoinableImpl::unjoin(JoinableImpl& to, const StreamType::type stream) {
 	}
 
 	it = to.joinees.find(this);
-	if (it == to.joinees.end()) {
+	if (it != to.joinees.end()) {
 		if (!kms_connection_set_mode(KMS_CONNECTION(it->second),
 				KMS_CONNECTION_MODE_INACTIVE, type, &err)) {
 			JoinException ex;
