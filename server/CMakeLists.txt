@@ -21,3 +21,5 @@ include_directories(kmsc ${UUID_INCLUDE_DIRS})
 include_directories(kmsc ${KMSIFACE_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/server)
 include_directories(kmsc ${kmsc_SOURCE_DIR}/src/core)
 include_directories(kmsc ${kmsc_SOURCE_DIR}/src)
+
+install(TARGETS kmsc RUNTIME DESTINATION bin)

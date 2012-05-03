@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(kmsc)
+project(kmsc-project)
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 	execute_process(COMMAND git describe --abbrev=6 --tags --dirty --always
@@ -67,3 +67,12 @@ add_test(test_rtp_transmission test/test_rtp_transmission)
 add_test(test_mixer test/test_mixer)
 #add_test(test_rtmp test/test_rtmp)
 add_test(test_server test/test_server)
+
+set(CPACK_GENERATOR "DEB;TGZ;STGZ")
+set(CPACK_PACKAGE_CONTACT "kurento@googlegroups.com")
+
+SET(CPACK_PACKAGE_NAME "kmsc")
+SET(CPACK_PACKAGE_VENDOR "Kurento")
+SET(CPACK_PACKAGE_VERSION ${KMSC_VERSION})
+
+include(CPack)
