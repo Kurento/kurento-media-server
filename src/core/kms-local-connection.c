@@ -166,7 +166,7 @@ check_compatible(KmsLocalConnection *self, KmsConnectionMode mode,
 			other_mode == KMS_CONNECTION_MODE_INACTIVE)
 		return COMP_FALSE;
 	else if (mode == inverse_mode ||
-				other_mode == KMS_CONNECTION_MODE_RECVONLY)
+				other_mode == direct_mode)
 		return COMP_FALSE;
 	else if ((mode == direct_mode ||
 				mode == KMS_CONNECTION_MODE_SENDRECV ||
