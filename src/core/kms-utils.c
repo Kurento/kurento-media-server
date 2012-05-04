@@ -396,6 +396,25 @@ kms_utils_configure_element(GstElement *elem) {
 	if (g_strcmp0(name, "rtpmp4vpay") == 0) {
 		g_object_set(G_OBJECT(elem), "config-interval", 2,
 						"send-config", TRUE, NULL);
+	} else if (g_strcmp0(name, "xvidenc") == 0) {
+		// TODO: Set bandwidth
+		g_object_set(G_OBJECT(elem), "max-bquant", 0,
+						"bquant-ratio", 0,
+						"motion", 0, NULL);
+	} else if (g_strcmp0(name, "rtph264pay") == 0) {
+		g_object_set(G_OBJECT(elem), "config-interval", 5, NULL);
+	} else if (g_strcmp0(name, "x264enc") == 0) {
+		// TODO: Set bandwidth
+		g_object_set(G_OBJECT(elem), "vbv-buf-capacity", 0,
+						"profile", 0,
+						"trellis", FALSE,
+						"speed-preset", 2,
+						"sync-lookahead", 0,
+						"rc-lookahead", 0,
+						"b-adapt", FALSE,
+						"pb-factor", 2,
+						"mb-tree", FALSE,
+						"pass", 17 /* pass1 */, NULL);
 	}
 }
 
