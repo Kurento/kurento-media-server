@@ -47,9 +47,10 @@ send_receive_media(SessionSpec &spec) {
 
 		stream << "autovideosrc ! "
 			"video/x-raw-yuv,framerate=30/1,width=352 ! "
-			"ffenc_h263 ! rtph263ppay ! "
+			"xvidenc max-bquant=0 bquant-ratio=0 motion=0 ! "
+			"rtpmp4vpay config-interval=2 send-config=TRUE ! "
 			"application/x-rtp,media=video,clock-rate=(int)" <<
-			pay.rtp.clockRate << ",encoding-name=(string)H263-1998,"
+			pay.rtp.clockRate << ",encoding-name=(string)MP4V-ES,"
 			"payload=(int)" << pay.rtp.id << " ! udpsink port=" <<
 			media.transport.rtp.port << " host=" <<
 			media.transport.rtp.address;
@@ -62,7 +63,7 @@ send_receive_media(SessionSpec &spec) {
 				" ! application/x-rtp,encoding-name=" <<
 				pay.rtp.codecName << ",clock-rate=" <<
 				pay.rtp.clockRate << ",payload=" <<
-				pay.rtp.id << " ! rtpmp4vdepay ! ffdec_mpeg4 ! "
+				pay.rtp.id << " ! rtph264depay ! ffdec_h264 ! "
 				"autovideosink";
 	}
 
@@ -100,7 +101,7 @@ create_session_spec(SessionSpec &spec) {
 	Payload pay;
 
 	pay.__isset.rtp = true;
-	pay.rtp.codecName = "MP4V-ES";
+	pay.rtp.codecName = "H264";
 	pay.rtp.id = 96;
 	pay.rtp.clockRate = 90000;
 
@@ -122,7 +123,7 @@ create_second_session_spec(SessionSpec &spec) {
 	Payload pay;
 
 	pay.__isset.rtp = true;
-	pay.rtp.codecName = "H263-1998";
+	pay.rtp.codecName = "MP4V-ES";
 	pay.rtp.id = 96;
 	pay.rtp.clockRate = 90000;
 
