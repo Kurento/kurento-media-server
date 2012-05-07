@@ -1,3 +1,4 @@
 *.kdev4
 build
 *swp
+/nbproject/
