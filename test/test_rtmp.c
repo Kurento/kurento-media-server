@@ -20,27 +20,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "memory.h"
 #include <glib.h>
 #include <rtmp/kms-rtmp-endpoint.h>
-#include <rtmp/kms-rtmp-session.h>
 #include <unistd.h>
 #include "internal/kms-utils.h"
 
-#define TESTS 30
+#define TESTS 5
+
+#define URL "rtmp://localhost/videochat"
 
 static gchar*
-get_url(KmsSdpSession *session) {
-	KmsRtmpSession *rtmp_session;
+get_url(KmsMediaSpec *media) {
 	gchar *url;
 
-	rtmp_session = kms_rtmp_session_create_from_sdp_session(session);
+	g_assert(media->transport->__isset_rtmp);
+	g_assert(media->transport->rtmp->__isset_url);
+	g_assert(media->transport->rtmp->url != NULL);
+	g_assert(media->transport->rtmp->__isset_publish);
+	g_assert(media->transport->rtmp->publish != NULL);
 
-	url = kms_rtmp_session_get_url(rtmp_session, TRUE);
-	g_object_unref(rtmp_session);
-
+	url = g_strdup_printf("%s/%s", media->transport->rtmp->url,
+					media->transport->rtmp->publish);
 	return url;
 }
 
+static gchar*
+get_type_url(KmsSessionSpec *session, KmsMediaType type) {
+	gchar *url;
+	gint i;
+
+	for (i = 0; i < session->medias->len; i++) {
+		KmsMediaSpec *media;
+
+		media = session->medias->pdata[i];
+
+		if (g_hash_table_lookup(media->type, (gpointer) type)) {
+			url = get_url(media);
+			return url;
+		}
+	}
+
+	return NULL;
+}
+
 static GstElement*
-send_media(gchar *url) {
+send_media(gchar *audio_url, gchar *video_url) {
 	GstElement *pipe;
 	GError *err = NULL;
 	gchar *desc;
@@ -51,7 +73,8 @@ send_media(gchar *url) {
 			"rtmpsink location=%s videotestsrc pattern=18 ! "
 			"video/x-raw-yuv,width=320,framerate=15/1 ! "
 			"ffenc_flv ! "
-			"queue2 ! mux.", url);
+			"queue2 ! flvmux ! queue2 ! rtmpsink location=%s",
+							audio_url, video_url);
 	pipe = gst_parse_launch(desc, &err);
 	if (!pipe && err != NULL) {
 		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
@@ -137,17 +160,66 @@ create_local_connections(KmsEndpoint *ep) {
 	g_object_unref(lc2);
 }
 
-static KmsSdpSession *
+static KmsSessionSpec *
 create_second_session() {
-	KmsSdpSession *session;
-	KmsRtmpSession *rtmp_session;
+	KmsSessionSpec *session;
+	KmsMediaSpec *amedia, *vmedia;
 
-	rtmp_session = kms_rtmp_session_create_from_string(
-				"url=rtmp://localhost/videochat;"
-				"offerer=test_stream;w=320;h=240;fps=15/1");
+	session = g_object_new(KMS_TYPE_SESSION_SPEC, NULL);
 
-	session = kms_rtmp_session_get_sdp_session(rtmp_session);
-	g_object_unref(rtmp_session);
+	// Add medias
+	amedia = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+	amedia->direction = KMS_DIRECTION_SENDRECV;
+	g_hash_table_insert(amedia->type, (gpointer) KMS_MEDIA_TYPE_AUDIO,
+								(gpointer) 1);
+	amedia->transport->__isset_rtmp = TRUE;
+	g_free(amedia->transport->rtmp->url);
+	amedia->transport->rtmp->__isset_url = TRUE;
+	amedia->transport->rtmp->url = g_strdup(URL);
+	g_free(amedia->transport->rtmp->publish);
+	amedia->transport->rtmp->__isset_publish = TRUE;
+	amedia->transport->rtmp->publish = g_strdup("test_audio");
+
+	vmedia = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+	vmedia->direction = KMS_DIRECTION_SENDRECV;
+	g_hash_table_insert(vmedia->type, (gpointer) KMS_MEDIA_TYPE_VIDEO,
+								(gpointer) 1);
+	vmedia->transport->__isset_rtmp = TRUE;
+	g_free(vmedia->transport->rtmp->url);
+	vmedia->transport->rtmp->__isset_url = TRUE;
+	vmedia->transport->rtmp->url = g_strdup(URL);
+	g_free(vmedia->transport->rtmp->publish);
+	vmedia->transport->rtmp->__isset_publish = TRUE;
+	vmedia->transport->rtmp->publish = g_strdup("test_video");
+
+	g_ptr_array_add(session->medias, amedia);
+	g_ptr_array_add(session->medias, vmedia);
+
+	return session;
+}
+
+static KmsSessionSpec *
+create_session() {
+	KmsSessionSpec *session;
+	KmsMediaSpec *amedia, *vmedia;
+
+	session = g_object_new(KMS_TYPE_SESSION_SPEC, NULL);
+
+	// Add medias
+	amedia = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+	amedia->transport->__isset_rtmp = TRUE;
+	amedia->direction = KMS_DIRECTION_SENDRECV;
+	g_hash_table_insert(amedia->type, (gpointer) KMS_MEDIA_TYPE_AUDIO,
+								(gpointer) 1);
+
+	vmedia = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+	vmedia->transport->__isset_rtmp = TRUE;
+	vmedia->direction = KMS_DIRECTION_SENDRECV;
+	g_hash_table_insert(vmedia->type, (gpointer) KMS_MEDIA_TYPE_VIDEO,
+								(gpointer) 1);
+
+	g_ptr_array_add(session->medias, amedia);
+	g_ptr_array_add(session->medias, vmedia);
 
 	return session;
 }
@@ -155,12 +227,11 @@ create_second_session() {
 static KmsEndpoint*
 create_endpoint() {
 	KmsEndpoint *ep;
-	KmsRtmpSession *session;
+	KmsSessionSpec *session;
 
-	session = kms_rtmp_session_create_from_string("w=320;h=240;fps=15/1");
+	session = create_session();
 	ep = g_object_new(KMS_TYPE_RTMP_ENDPOINT, "localname", "kms/rtmp/1",
 						"local-spec", session, NULL);
-
 	g_object_unref(session);
 
 	return ep;
@@ -170,11 +241,11 @@ static void
 test_connection() {
 	KmsEndpoint *ep;
 	KmsConnection *conn;
-	KmsSdpSession *session, *session2;
+	KmsSessionSpec *session, *session2;
 	GError *err = NULL;
 	gboolean ret;
 	GstElement *pipe;
-	gchar *url;
+	gchar *aurl, *vurl;
 
 	ep = create_endpoint();
 
@@ -189,7 +260,7 @@ test_connection() {
 	g_assert(conn != NULL);
 
 	session2 = create_second_session();
-	ret = kms_connection_connect_to_remote(conn, session2, &err);
+	ret = kms_connection_connect_to_remote(conn, session2, FALSE, &err);
 	if (!ret && err != NULL) {
 		g_printerr("%s:%d: %s\n", __FILE__, __LINE__, err->message);
 		g_error_free(err);
@@ -204,16 +275,18 @@ test_connection() {
 
 	g_object_get(conn, "descriptor", &session, NULL);
 	g_assert(session != NULL);
-	url = get_url(session);
+	aurl = get_type_url(session, KMS_MEDIA_TYPE_AUDIO);
+	vurl = get_type_url(session, KMS_MEDIA_TYPE_VIDEO);
 
 	g_object_unref(session);
 
-	pipe = send_media(url);
-	g_free(url);
+	pipe = send_media(aurl, vurl);
+	g_free(aurl);
+	g_free(vurl);
 
 	create_local_connections(ep);
 
-	sleep(6);
+	sleep(10);
 
 	KMS_DEBUG_PIPE("before_finish");
 
