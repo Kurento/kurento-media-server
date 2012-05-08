@@ -74,6 +74,59 @@ end:
 	return copy;
 }
 
+static void
+intersect_transport(KmsTransport *answerer, KmsTransport *offerer,
+				KmsTransport *neg_ans, KmsTransport *neg_off) {
+	if (!KMS_IS_TRANSPORT(answerer) || !KMS_IS_TRANSPORT(offerer) ||
+						!KMS_IS_TRANSPORT(neg_ans) ||
+						!KMS_IS_TRANSPORT(neg_off))
+		return;
+
+	if (!answerer->__isset_rtmp || !offerer->__isset_rtmp ||
+						!neg_ans->__isset_rtmp ||
+						!neg_off->__isset_rtmp)
+		return;
+
+	if (offerer->rtmp->__isset_publish) {
+		g_free(neg_ans->rtmp->play);
+		neg_ans->rtmp->__isset_play = TRUE;
+		neg_ans->rtmp->play = g_strdup(offerer->rtmp->publish);
+	} else {
+		goto fail;
+	}
+
+	if (answerer->rtmp->__isset_publish) {
+		g_free(neg_off->rtmp->play);
+		neg_off->rtmp->__isset_play = TRUE;
+		neg_off->rtmp->play = g_strdup(answerer->rtmp->publish);
+	} else {
+		goto fail;
+	}
+
+	if (offerer->rtmp->__isset_url) {
+		g_free(neg_off->rtmp->url);
+		neg_off->rtmp->__isset_url = TRUE;
+		neg_off->rtmp->url = g_strdup(offerer->rtmp->url);
+		g_free(neg_ans->rtmp->url);
+		neg_ans->rtmp->__isset_url = TRUE;
+		neg_ans->rtmp->url = g_strdup(offerer->rtmp->url);
+	} else if (answerer->rtmp->__isset_url) {
+		g_free(neg_off->rtmp->url);
+		neg_off->rtmp->__isset_url = TRUE;
+		neg_off->rtmp->url = g_strdup(answerer->rtmp->url);
+		g_free(neg_ans->rtmp->url);
+		neg_ans->rtmp->__isset_url = TRUE;
+		neg_ans->rtmp->url = g_strdup(answerer->rtmp->url);
+	} else {
+		goto fail;
+	}
+
+	return;
+fail:
+	neg_ans->__isset_rtmp = FALSE;
+	neg_off->__isset_rtmp = FALSE;
+}
+
 gboolean
 kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 				KmsMediaSpec **neg_ans, KmsMediaSpec **neg_off) {
@@ -153,6 +206,9 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 		(*neg_ans)->transport = kms_media_transport_copy(
 							answerer->transport);
 	}
+	intersect_transport(answerer->transport, offerer->transport,
+							(*neg_ans)->transport,
+							(*neg_off)->transport);
 
 	(*neg_off)->direction = o_dir;
 	(*neg_ans)->direction = a_dir;
