@@ -397,6 +397,18 @@ kms_utils_remove_when_unlinked(GstPad *pad) {
 }
 
 void
+kms_utils_remove_when_unlinked_pad_name(GstElement *elem, const gchar* pad_name) {
+	GstPad *pad;
+
+	pad = gst_element_get_static_pad(elem, pad_name);
+	g_return_if_fail(pad != NULL);
+
+	kms_utils_remove_when_unlinked(pad);
+
+	g_object_unref(pad);
+}
+
+void
 kms_utils_configure_element(GstElement *elem) {
 	/* TODO: This function should be pluggable or configurable */
 	GstElementFactory *factory;

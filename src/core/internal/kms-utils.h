@@ -77,6 +77,9 @@ void kms_utils_release_unlinked_pads(GstElement *elem);
 
 void kms_utils_remove_when_unlinked(GstPad *pad);
 
+void kms_utils_remove_when_unlinked_pad_name(GstElement *elem,
+							const gchar* pad_name);
+
 G_END_DECLS
 
 #endif /* __KMS_UTILS_H__ */

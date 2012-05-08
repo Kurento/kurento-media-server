@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <kms-core.h>
 #include <rtmp/kms-rtmp-receiver.h>
-#include <rtmp/kms-rtmp-session.h>
 #include "internal/kms-utils.h"
+#include <kms_session_spec_types.h>
 
 #define KMS_RTMP_RECEIVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTMP_RECEIVER, KmsRtmpReceiverPriv))
 
@@ -26,12 +26,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define UNLOCK(obj) (g_mutex_unlock(KMS_RTMP_RECEIVER(obj)->priv->mutex))
 
 #define MEDIA_TYPE_DATA "type"
+#define SELF_DATA "self"
+#define MEDIA_DATA "media"
+#define DEMUX_DATA "demux"
 
 struct _KmsRtmpReceiverPriv {
 	GMutex *mutex;
 
-	KmsRtmpSession *neg_spec;
-	gboolean offerer;
+	KmsSessionSpec *neg_spec;
 	gboolean finished;
 };
 
@@ -39,7 +41,6 @@ enum {
 	PROP_0,
 
 	PROP_NEG_SPEC,
-	PROP_OFFERER,
 };
 
 G_DEFINE_TYPE(KmsRtmpReceiver, kms_rtmp_receiver, KMS_TYPE_MEDIA_HANDLER_SRC)
@@ -66,11 +67,6 @@ set_property (GObject *object, guint property_id, const GValue *value,
 			self->priv->neg_spec = g_value_dup_object(value);
 			UNLOCK(self);
 			break;
-		case PROP_OFFERER:
-			LOCK(self);
-			self->priv->offerer = g_value_get_boolean(value);
-			UNLOCK(self);
-			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -89,11 +85,6 @@ get_property(GObject *object, guint property_id, GValue *value,
 			g_value_set_object(value, self->priv->neg_spec);
 			UNLOCK(self);
 			break;
-		case PROP_OFFERER:
-			LOCK(self);
-			g_value_set_boolean(value, self->priv->offerer);
-			UNLOCK(self);
-			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -101,18 +92,40 @@ get_property(GObject *object, guint property_id, GValue *value,
 	}
 }
 
-static GstElement *generate_rtmpsrc(KmsRtmpReceiver *self);
+static GstElement *generate_rtmpsrc(KmsRtmpReceiver *self, KmsMediaSpec *media,
+							GstElement *flvdemux);
 
 static gboolean
-remove_rtmp(KmsRtmpReceiver *self) {
-	GstElement *rtmpsrc, *flvdemux;
+remove_rtmp(GstElement *rtmpsrc) {
+	GstElement *flvdemux;
+	KmsRtmpReceiver *self;
+	KmsMediaSpec *media;
+
+	self = g_object_get_data(G_OBJECT(rtmpsrc), SELF_DATA);
+	if (self == NULL) {
+		g_warn_if_reached();
+		return FALSE;
+	}
+	g_object_ref(self);
 
 	g_print("Remove rtmp for element: %s\n", GST_OBJECT_NAME(self));
+
+	media = g_object_get_data(G_OBJECT(rtmpsrc), MEDIA_DATA);
+
+	if (media == NULL) {
+		g_warn_if_reached();
+		goto end;
+	}
+	g_object_ref(media);
+
+	flvdemux = g_object_get_data(G_OBJECT(rtmpsrc), DEMUX_DATA);
+	if (flvdemux != NULL)
+		g_object_ref(flvdemux);
+
 	LOCK(self);
 	if (self->priv->finished)
 		goto end;
 
-	rtmpsrc = gst_bin_get_by_name(GST_BIN(self), "rtmp");
 	if (rtmpsrc == NULL)
 		goto end;
 
@@ -122,13 +135,11 @@ remove_rtmp(KmsRtmpReceiver *self) {
 	G_UNLOCK(rtmp_receiver_lock);
 	g_object_unref(rtmpsrc);
 
-	rtmpsrc = generate_rtmpsrc(self);
+	rtmpsrc = generate_rtmpsrc(self, media, flvdemux);
 	gst_bin_add(GST_BIN(self), rtmpsrc);
 	G_LOCK(rtmp_receiver_lock);
 	gst_element_set_state(rtmpsrc, GST_STATE_PLAYING);
 	G_UNLOCK(rtmp_receiver_lock);
-
-	flvdemux = gst_bin_get_by_name(GST_BIN(self), "demux");
 
 	if (flvdemux == NULL)
 		goto end;
@@ -137,18 +148,26 @@ remove_rtmp(KmsRtmpReceiver *self) {
 
 end:
 	UNLOCK(self);
+	g_object_unref(self);
+	if (media != NULL)
+		g_object_unref(media);
+	if (flvdemux != NULL)
+		g_object_unref(flvdemux);
 	return FALSE;
 }
 
 static gboolean
 event_handler(GstPad *pad, GstEvent *event, KmsRtmpReceiver *self) {
+	GstElement *rtmpsrc;
+
 	if (!GST_IS_EVENT(event))
 		return TRUE;
 
 	if (GST_EVENT_TYPE(event) == GST_EVENT_EOS) {
+		rtmpsrc = gst_pad_get_parent_element(pad);
 		g_timeout_add_full(G_PRIORITY_DEFAULT, 3000,
 						(GSourceFunc) remove_rtmp,
-						g_object_ref(self),
+						rtmpsrc,
 						g_object_unref);
 
 		return FALSE;
@@ -275,7 +294,7 @@ demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
 	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self),
 						gst_object_ref(pad), tee, type);
 
-	tee_sink = gst_element_get_static_pad(tee, "sink");
+	tee_sink = gst_element_get_static_pad(tee, NULL);
 	gst_pad_link(pad, tee_sink);
 	g_object_unref(tee_sink);
 
@@ -295,23 +314,60 @@ demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
 	add_decoder(self, tee, deco, type);
 }
 
+static gchar*
+kms_get_play_url_from_media(KmsMediaSpec *media) {
+	KmsTransportRtmp *rtmp;
+	gchar *url;
+	gchar *stream;
+	gchar *uri;
+
+	g_return_val_if_fail(KMS_IS_MEDIA_SPEC(media), NULL);
+
+	if (!media->transport->__isset_rtmp)
+		return NULL;
+
+	rtmp = media->transport->rtmp;
+	url = rtmp->url;
+
+	g_return_val_if_fail(url != NULL, NULL);
+
+	stream = rtmp->play;
+
+	if (stream == NULL)
+		return NULL;
+
+	uri = g_strdup_printf("%s/%s", url, stream);
+
+	return uri;
+}
+
 static GstElement*
-generate_rtmpsrc(KmsRtmpReceiver *self) {
+generate_rtmpsrc(KmsRtmpReceiver *self, KmsMediaSpec *media,
+							GstElement *flvdemux) {
 	GstElement *rtmpsrc;
 	gchar *url;
 
-	url = kms_rtmp_session_get_url(self->priv->neg_spec,
-				       !self->priv->offerer);
+	url = kms_get_play_url_from_media(media);
 	if (url == NULL) {
 		g_warn_if_reached();
 		return NULL;
 	}
 
-	rtmpsrc = gst_element_factory_make("rtmpsrc", "rtmp");
+	rtmpsrc = gst_element_factory_make("rtmpsrc", NULL);
 	if  (rtmpsrc != NULL) {
 		g_object_set(rtmpsrc, "location", url, NULL);
 		g_object_set(rtmpsrc, "do-timestamp", TRUE, NULL);
 		g_object_set(rtmpsrc, "blocksize", 10, NULL);
+
+		g_object_set_data_full(G_OBJECT(rtmpsrc), SELF_DATA,
+							g_object_ref(self),
+							g_object_unref);
+		g_object_set_data_full(G_OBJECT(rtmpsrc), MEDIA_DATA,
+							g_object_ref(media),
+							g_object_unref);
+		g_object_set_data_full(G_OBJECT(rtmpsrc), DEMUX_DATA,
+							g_object_ref(flvdemux),
+							g_object_unref);
 		connect_rtmp_callbacks(self, rtmpsrc);
 	}
 
@@ -321,11 +377,11 @@ generate_rtmpsrc(KmsRtmpReceiver *self) {
 }
 
 static void
-create_media_chain(KmsRtmpReceiver *self) {
+create_media_chain(KmsRtmpReceiver *self, KmsMediaSpec *media) {
 	GstElement *rtmpsrc, *flvdemux;
 
-	rtmpsrc = generate_rtmpsrc(self);
-	flvdemux = gst_element_factory_make("flvdemux", "demux");
+	flvdemux = gst_element_factory_make("flvdemux", NULL);
+	rtmpsrc = generate_rtmpsrc(self, media, flvdemux);
 
 	if (rtmpsrc == NULL || flvdemux == NULL) {
 		g_warn_if_reached();
@@ -358,12 +414,18 @@ create_media_chain(KmsRtmpReceiver *self) {
 static void
 constructed(GObject *object) {
 	KmsRtmpReceiver *self = KMS_RTMP_RECEIVER(object);
+	gint i;
 
 	G_OBJECT_CLASS(kms_rtmp_receiver_parent_class)->constructed(object);
 
 	g_return_if_fail(self->priv->neg_spec != NULL);
 
-	create_media_chain(self);
+	for (i = 0; i < self->priv->neg_spec->medias->len; i ++) {
+		KmsMediaSpec *media;
+
+		media = self->priv->neg_spec->medias->pdata[i];
+		create_media_chain(self, media);
+	}
 }
 
 static void
@@ -403,19 +465,12 @@ kms_rtmp_receiver_class_init(KmsRtmpReceiverClass *klass) {
 	object_class->constructed = constructed;
 
 	pspec = g_param_spec_object("neg-spec", "Negotiated Session Spec",
-				    "Negotiated Session Description",
-			     KMS_TYPE_RTMP_SESSION,
-			     G_PARAM_CONSTRUCT_ONLY |
-			     G_PARAM_WRITABLE);
+					"Negotiated Session Description",
+					KMS_TYPE_SESSION_SPEC,
+					G_PARAM_CONSTRUCT_ONLY |
+					G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_NEG_SPEC, pspec);
-
-	pspec = g_param_spec_boolean("offerer", "Offerer",
-				     "If local party is offerer",
-			      FALSE, G_PARAM_CONSTRUCT_ONLY |
-			      G_PARAM_WRITABLE);
-
-	g_object_class_install_property(object_class, PROP_OFFERER, pspec);
 
 	/* HACK:
 		Don't know why but padtemplates are NULL in child classes,
@@ -433,6 +488,5 @@ kms_rtmp_receiver_init(KmsRtmpReceiver *self) {
 
 	self->priv->mutex = g_mutex_new();
 	self->priv->neg_spec = NULL;
-	self->priv->offerer = FALSE;
 	self->priv->finished = FALSE;
 }

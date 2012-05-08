@@ -43,7 +43,7 @@ ExternalProject_Add(
 	kmsiface-project
 	GIT_REPOSITORY ssh://git@repository.kurento.com/kms/kms-interface.git
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${KMSIFACE_INSTALL_DIR}
-	UPDATE_COMMAND git checkout master
+	UPDATE_COMMAND git checkout develop
 )
 
 add_library(kmsiface STATIC IMPORTED)
@@ -65,7 +65,7 @@ add_test(test_rtp test/test_rtp)
 add_test(test_rtp_connection test/test_rtp_connection)
 add_test(test_rtp_transmission test/test_rtp_transmission)
 add_test(test_mixer test/test_mixer)
-#add_test(test_rtmp test/test_rtmp)
+add_test(test_rtmp test/test_rtmp)
 add_test(test_server test/test_server)
 
 set(CPACK_GENERATOR "DEB;TGZ;STGZ")

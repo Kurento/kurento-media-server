@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <rtmp/kms-rtmp-connection.h>
 #include <rtmp/kms-rtmp-sender.h>
 #include <rtmp/kms-rtmp-receiver.h>
-#include <rtmp/kms-rtmp-session.h>
 #include "internal/kms-utils.h"
 #include <uuid/uuid.h>
+#include <kms_session_spec_types.h>
 
 #define KMS_RTMP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTMP_CONNECTION, KmsRtmpConnectionPriv))
 
@@ -37,14 +37,13 @@ enum {
 
 struct _KmsRtmpConnectionPriv {
 	GStaticMutex mutex;
-	KmsRtmpSession *local_spec;
-	KmsRtmpSession *remote_spec;
-	KmsRtmpSession *negotiated;
-	KmsRtmpSession *descriptor;
+	KmsSessionSpec *local_spec;
+	KmsSessionSpec *remote_spec;
+	KmsSessionSpec *neg_remote;
+	KmsSessionSpec *neg_local;
+	KmsSessionSpec *descriptor;
 	KmsRtmpReceiver *receiver;
 	KmsRtmpSender *sender;
-	gboolean initialized;
-	gboolean offerer;
 };
 
 static void media_handler_manager_iface_init(KmsMediaHandlerManagerInterface *iface);
@@ -96,10 +95,18 @@ dispose_remote_spec(KmsRtmpConnection *self) {
 }
 
 static void
-dispose_negotiated(KmsRtmpConnection *self) {
-	if (self->priv->negotiated != NULL) {
-		g_object_unref(self->priv->negotiated);
-		self->priv->negotiated = NULL;
+dispose_neg_local(KmsRtmpConnection *self) {
+	if (self->priv->neg_local != NULL) {
+		g_object_unref(self->priv->neg_local);
+		self->priv->neg_local = NULL;
+	}
+}
+
+static void
+dispose_neg_remote(KmsRtmpConnection *self) {
+	if (self->priv->neg_remote != NULL) {
+		g_object_unref(self->priv->neg_remote);
+		self->priv->neg_remote = NULL;
 	}
 }
 
@@ -166,24 +173,23 @@ media_handler_factory_iface_init(KmsMediaHandlerFactoryInterface *iface) {
 static void
 create_rtmp_sender(KmsRtmpConnection *self) {
 	self->priv->sender = g_object_new(KMS_TYPE_RTMP_SENDER,
-					"neg-spec", self->priv->negotiated,
-					"offerer", self->priv->offerer,
+					"neg-spec", self->priv->neg_local,
 					NULL);
 }
 
 static void
 create_rtmp_receiver(KmsRtmpConnection *self) {
 	self->priv->receiver = g_object_new(KMS_TYPE_RTMP_RECEIVER,
-					"neg-spec", self->priv->negotiated,
-					"offerer", self->priv->offerer,
+					"neg-spec", self->priv->neg_local,
 					NULL);
 }
 
 static gboolean
-connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
+connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec,
+					gboolean local_offerer, GError **err) {
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(conn);
 
-	if (!KMS_IS_SDP_SESSION(spec)) {
+	if (!KMS_IS_SESSION_SPEC(spec)) {
 		SET_ERROR(err, KMS_RTMP_CONNECTION_ERROR,
 					KMS_RTMP_CONNECTION_ERROR_WRONG_VALUE,
 					"Given spect has incorrect type");
@@ -199,21 +205,22 @@ connect_to_remote(KmsConnection *conn, KmsSdpSession *spec, GError **err) {
 		return FALSE;
 	}
 
-	self->priv->remote_spec = kms_rtmp_session_create_from_sdp_session(spec);
+	self->priv->remote_spec = g_object_ref(spec);
 
-	if (self->priv->initialized) {
-		self->priv->offerer = TRUE;
-		self->priv->negotiated = kms_rtmp_session_intersect(
-							self->priv->remote_spec,
-							self->priv->local_spec);
+	if (local_offerer) {
+		kms_session_spec_intersect(self->priv->remote_spec,
+						self->priv->local_spec,
+						&(self->priv->neg_remote),
+						&(self->priv->neg_local));
 	} else {
-		self->priv->negotiated = kms_rtmp_session_intersect(
-							self->priv->local_spec,
-							self->priv->remote_spec);
+		kms_session_spec_intersect(self->priv->local_spec,
+						self->priv->remote_spec,
+						&(self->priv->neg_local),
+						&(self->priv->neg_remote));
 	}
 
 	dispose_descriptor(self);
-	self->priv->descriptor = g_object_ref(self->priv->negotiated);
+	self->priv->descriptor = g_object_ref(self->priv->neg_local);
 
 	/* Create rtmpsender */
 	create_rtmp_sender(self);
@@ -260,7 +267,6 @@ static void
 get_property(GObject *object, guint property_id, GValue *value,
 							GParamSpec *pspec) {
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(object);
-	KmsSdpSession *sdp_session;
 
 	switch (property_id) {
 		case PROP_LOCAL_SPEC:
@@ -270,11 +276,7 @@ get_property(GObject *object, guint property_id, GValue *value,
 			break;
 		case PROP_DESCRIPTOR:
 			LOCK(self);
-			sdp_session = kms_rtmp_session_get_sdp_session(
-							self->priv->descriptor);
-			g_value_set_object(value, sdp_session);
-			if (sdp_session != NULL)
-				g_object_unref(sdp_session);
+			g_value_set_object(value, self->priv->descriptor);
 			UNLOCK(self);
 			break;
 		default:
@@ -297,9 +299,29 @@ generate_unique_identifier() {
 }
 
 static void
+set_publish_url(KmsSessionSpec *spec) {
+	gint i;
+
+	for (i = 0; i < spec->medias->len; i++) {
+		KmsMediaSpec *media;
+		KmsTransportRtmp *transport;
+
+		media = spec->medias->pdata[i];
+
+		if (!media->transport->__isset_rtmp)
+			continue;
+
+		transport = media->transport->rtmp;
+		if (transport->publish != NULL)
+			g_free(transport->publish);
+
+		transport->publish = generate_unique_identifier();
+	}
+}
+
+static void
 constructed(GObject *object) {
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(object);
-	gchar *offerer;
 
 	G_OBJECT_CLASS(kms_rtmp_connection_parent_class)->constructed(object);
 
@@ -312,11 +334,7 @@ constructed(GObject *object) {
 
 	g_return_if_fail(self->priv->local_spec != NULL);
 
-	offerer = generate_unique_identifier();
-	g_object_set(self->priv->local_spec, "offerer", offerer, NULL);
-	g_free(offerer);
-
-	self->priv->descriptor = kms_rtmp_session_copy(self->priv->local_spec);
+	set_publish_url(self->priv->local_spec);
 }
 
 static void
@@ -328,7 +346,8 @@ kms_rtmp_connection_dispose(GObject *object) {
 	LOCK(self);
 	dispose_local_spec(self);
 	dispose_remote_spec(self);
-	dispose_negotiated(self);
+	dispose_neg_local(self);
+	dispose_neg_remote(self);
 	dispose_descriptor(self);
 	dispose_receiver(self);
 	dispose_sender(self);
@@ -365,7 +384,7 @@ kms_rtmp_connection_class_init (KmsRtmpConnectionClass *klass) {
 
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
-					KMS_TYPE_RTMP_SESSION,
+					KMS_TYPE_SESSION_SPEC,
 					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_READWRITE);
 
@@ -373,7 +392,7 @@ kms_rtmp_connection_class_init (KmsRtmpConnectionClass *klass) {
 
 	pspec = g_param_spec_object("descriptor", "Session descriptor",
 					"The current session descriptor",
-					KMS_TYPE_SDP_SESSION,
+					KMS_TYPE_SESSION_SPEC,
 					G_PARAM_READABLE);
 
 	g_object_class_install_property(gobject_class, PROP_DESCRIPTOR, pspec);
@@ -389,6 +408,6 @@ kms_rtmp_connection_init (KmsRtmpConnection *self) {
 	self->priv->receiver = NULL;
 	self->priv->sender = NULL;
 	self->priv->remote_spec = NULL;
-	self->priv->initialized = FALSE;
-	self->priv->negotiated = NULL;
+	self->priv->neg_local = NULL;
+	self->priv->neg_remote = NULL;
 }
