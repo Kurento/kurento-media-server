@@ -81,7 +81,7 @@ create_rtmpsink(KmsRtmpSender *self, const gchar *url) {
 	GstElement *rtmpsink, *queue, *flvmux;
 
 	rtmpsink = gst_element_factory_make("rtmpsink", NULL);
-	queue = kms_utils_create_queue("queue");
+	queue = kms_utils_create_queue(NULL);
 	flvmux = gst_element_factory_make("flvmux", NULL);
 
 	if (queue == NULL || rtmpsink == NULL || flvmux == NULL) {
@@ -120,8 +120,6 @@ create_rtmpsink(KmsRtmpSender *self, const gchar *url) {
 
 	kms_utils_remove_when_unlinked_pad_name(rtmpsink, "sink");
 	kms_utils_remove_when_unlinked_pad_name(queue, "sink");
-	kms_utils_remove_when_unlinked_pad_name(flvmux, "audio");
-	kms_utils_remove_when_unlinked_pad_name(flvmux, "video");
 
 	gst_element_link_many(flvmux, queue, rtmpsink, NULL);
 
@@ -136,7 +134,7 @@ unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 found_media(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
-	GstElement *queue, *rtmpsink;
+	GstElement *queue, *sink;
 	gchar *url;
 
 	url = g_object_get_data(G_OBJECT(tf), URL_DATA);
@@ -151,10 +149,21 @@ found_media(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 
 	gst_element_link(tf, queue);
 
-	rtmpsink = create_rtmpsink(self, url);
+	sink = create_rtmpsink(self, url);
 
-	if (rtmpsink != NULL)
-		gst_element_link(queue, rtmpsink);
+	if (sink != NULL) {
+		GstPad *pad, *peer;
+		gst_element_link(queue, sink);
+		pad = gst_element_get_pad(queue, "src");
+		if (pad != NULL) {
+			peer = gst_pad_get_peer(pad);
+			if (peer != NULL) {
+				kms_utils_remove_when_unlinked(peer);
+				g_object_unref(peer);
+			}
+			g_object_unref(pad);
+		}
+	}
 	// TODO: In case of error, unlink typefind and notify error
 }
 
@@ -189,8 +198,6 @@ linked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 static gchar*
 kms_get_publish_url_from_media(KmsMediaSpec *media) {
 	KmsTransportRtmp *rtmp;
-	gchar *url;
-	gchar *stream;
 	gchar *uri;
 
 	g_return_val_if_fail(KMS_IS_MEDIA_SPEC(media), NULL);
@@ -199,16 +206,18 @@ kms_get_publish_url_from_media(KmsMediaSpec *media) {
 		return NULL;
 
 	rtmp = media->transport->rtmp;
-	url = rtmp->url;
-
-	g_return_val_if_fail(url != NULL, NULL);
-
-	stream = rtmp->publish;
-
-	if (stream == NULL)
+	if (!rtmp->__isset_url)
 		return NULL;
 
-	uri = g_strdup_printf("%s/%s", url, stream);
+
+	g_return_val_if_fail(rtmp->url != NULL, NULL);
+
+	if (!rtmp->__isset_publish)
+		return NULL;
+
+	g_return_val_if_fail(rtmp->publish != NULL, NULL);
+
+	uri = g_strdup_printf("%s/%s", rtmp->url, rtmp->publish);
 
 	return uri;
 }
@@ -240,7 +249,6 @@ create_media_chain(KmsRtmpSender *self, KmsMediaSpec *media) {
 		g_warn_if_reached();
 		return;
 	}
-
 
 	template = gst_pad_template_new(templ_name,
 					GST_PAD_SINK,

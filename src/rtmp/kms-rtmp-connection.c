@@ -220,7 +220,7 @@ connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec,
 	}
 
 	dispose_descriptor(self);
-	self->priv->descriptor = g_object_ref(self->priv->neg_local);
+	self->priv->descriptor = g_object_ref(self->priv->neg_remote);
 
 	/* Create rtmpsender */
 	create_rtmp_sender(self);
@@ -315,6 +315,7 @@ set_publish_url(KmsSessionSpec *spec) {
 		if (transport->publish != NULL)
 			g_free(transport->publish);
 
+		transport->__isset_publish = TRUE;
 		transport->publish = generate_unique_identifier();
 	}
 }

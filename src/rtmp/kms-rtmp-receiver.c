@@ -111,7 +111,6 @@ remove_rtmp(GstElement *rtmpsrc) {
 	g_print("Remove rtmp for element: %s\n", GST_OBJECT_NAME(self));
 
 	media = g_object_get_data(G_OBJECT(rtmpsrc), MEDIA_DATA);
-
 	if (media == NULL) {
 		g_warn_if_reached();
 		goto end;
@@ -123,17 +122,19 @@ remove_rtmp(GstElement *rtmpsrc) {
 		g_object_ref(flvdemux);
 
 	LOCK(self);
-	if (self->priv->finished)
+	if (self->priv->finished) {
+		UNLOCK(self);
 		goto end;
+	}
+	UNLOCK(self);
 
 	if (rtmpsrc == NULL)
 		goto end;
 
-	gst_bin_remove(GST_BIN(self), rtmpsrc);
 	G_LOCK(rtmp_receiver_lock);
 	gst_element_set_state(rtmpsrc, GST_STATE_NULL);
 	G_UNLOCK(rtmp_receiver_lock);
-	g_object_unref(rtmpsrc);
+	gst_bin_remove(GST_BIN(self), rtmpsrc);
 
 	rtmpsrc = generate_rtmpsrc(self, media, flvdemux);
 	gst_bin_add(GST_BIN(self), rtmpsrc);
@@ -147,12 +148,12 @@ remove_rtmp(GstElement *rtmpsrc) {
 	gst_element_link(rtmpsrc, flvdemux);
 
 end:
-	UNLOCK(self);
 	g_object_unref(self);
 	if (media != NULL)
 		g_object_unref(media);
 	if (flvdemux != NULL)
 		g_object_unref(flvdemux);
+
 	return FALSE;
 }
 
@@ -165,6 +166,8 @@ event_handler(GstPad *pad, GstEvent *event, KmsRtmpReceiver *self) {
 
 	if (GST_EVENT_TYPE(event) == GST_EVENT_EOS) {
 		rtmpsrc = gst_pad_get_parent_element(pad);
+		if (rtmpsrc == NULL)
+			return FALSE;
 		g_timeout_add_full(G_PRIORITY_DEFAULT, 3000,
 						(GSourceFunc) remove_rtmp,
 						rtmpsrc,
@@ -294,7 +297,7 @@ demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
 	kms_media_handler_src_set_pad(KMS_MEDIA_HANDLER_SRC(self),
 						gst_object_ref(pad), tee, type);
 
-	tee_sink = gst_element_get_static_pad(tee, NULL);
+	tee_sink = gst_element_get_static_pad(tee, "sink");
 	gst_pad_link(pad, tee_sink);
 	g_object_unref(tee_sink);
 
@@ -317,8 +320,6 @@ demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
 static gchar*
 kms_get_play_url_from_media(KmsMediaSpec *media) {
 	KmsTransportRtmp *rtmp;
-	gchar *url;
-	gchar *stream;
 	gchar *uri;
 
 	g_return_val_if_fail(KMS_IS_MEDIA_SPEC(media), NULL);
@@ -327,16 +328,17 @@ kms_get_play_url_from_media(KmsMediaSpec *media) {
 		return NULL;
 
 	rtmp = media->transport->rtmp;
-	url = rtmp->url;
-
-	g_return_val_if_fail(url != NULL, NULL);
-
-	stream = rtmp->play;
-
-	if (stream == NULL)
+	if (!rtmp->__isset_url)
 		return NULL;
 
-	uri = g_strdup_printf("%s/%s", url, stream);
+	g_return_val_if_fail(rtmp->url != NULL, NULL);
+
+	if (!rtmp->__isset_play)
+		return NULL;
+
+	g_return_val_if_fail(rtmp->play != NULL, NULL);
+
+	uri = g_strdup_printf("%s/%s", rtmp->url, rtmp->play);
 
 	return uri;
 }
