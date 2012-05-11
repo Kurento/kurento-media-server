@@ -134,6 +134,7 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 	KmsDirection o_dir;
 	GPtrArray *ans_payload;
 	GPtrArray *off_payload;
+	KmsMediaSpec *ret_ans, *ret_off;
 	gint i, j;
 	GList *keys, *l;
 
@@ -170,11 +171,11 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 		a_dir = o_dir = KMS_DIRECTION_SENDRECV;
 	}
 
-	*neg_off = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
-	*neg_ans = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+	ret_off = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
+	ret_ans = g_object_new(KMS_TYPE_MEDIA_SPEC, NULL);
 
-	ans_payload = (*neg_ans)->payloads;
-	off_payload = (*neg_off)->payloads;
+	ans_payload = ret_ans->payloads;
+	off_payload = ret_off->payloads;
 
 	for (i = 0; i < answerer->payloads->len; i++) {
 		KmsPayload *ans_pay = g_ptr_array_index(answerer->payloads, i);
@@ -195,33 +196,48 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 		}
 	}
 
-	if ((*neg_off)->transport != NULL) {
-		g_object_unref((*neg_off)->transport);
-		(*neg_off)->transport = kms_media_transport_copy(
+	if (offerer->transport != NULL) {
+		g_object_unref(ret_off->transport);
+		ret_off->transport = kms_media_transport_copy(
 							offerer->transport);
 	}
 
-	if ((*neg_ans)->transport != NULL) {
-		g_object_unref((*neg_ans)->transport);
-		(*neg_ans)->transport = kms_media_transport_copy(
+	if (answerer->transport != NULL) {
+		g_object_unref(ret_ans->transport);
+		ret_ans->transport = kms_media_transport_copy(
 							answerer->transport);
 	}
-	intersect_transport(answerer->transport, offerer->transport,
-							(*neg_ans)->transport,
-							(*neg_off)->transport);
 
-	(*neg_off)->direction = o_dir;
-	(*neg_ans)->direction = a_dir;
+	intersect_transport(answerer->transport, offerer->transport,
+							ret_ans->transport,
+							ret_off->transport);
+
+	if ((!ret_ans->transport->__isset_rtp &&
+					!ret_ans->transport->__isset_rtmp) ||
+				(!ret_off->transport->__isset_rtp &&
+					!ret_off->transport->__isset_rtmp))
+		goto fail;
+
+	ret_off->direction = o_dir;
+	ret_ans->direction = a_dir;
 
 	keys = g_hash_table_get_keys(offerer->type);
 
 	for (l = keys; l != NULL; l = l->next) {
-		g_hash_table_replace((*neg_off)->type,
+		g_hash_table_replace(ret_off->type,
 				     l->data, (gpointer) TRUE);
-		g_hash_table_replace((*neg_ans)->type,
+		g_hash_table_replace(ret_ans->type,
 				     l->data, (gpointer) TRUE);
 	}
 	g_list_free(keys);
 
+	*neg_ans = ret_ans;
+	*neg_off = ret_off;
 	return TRUE;
+
+fail:
+	g_object_unref(ret_ans);
+	g_object_unref(ret_off);
+
+	return FALSE;
 }
