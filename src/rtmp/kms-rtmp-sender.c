@@ -209,7 +209,6 @@ kms_get_publish_url_from_media(KmsMediaSpec *media) {
 	if (!rtmp->__isset_url)
 		return NULL;
 
-
 	g_return_val_if_fail(rtmp->url != NULL, NULL);
 
 	if (!rtmp->__isset_publish)
