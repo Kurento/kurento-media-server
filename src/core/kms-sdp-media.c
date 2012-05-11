@@ -195,6 +195,7 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 			}
 		}
 	}
+	// TODO: if no payloads are set, set to inactive?
 
 	if (offerer->transport != NULL) {
 		g_object_unref(ret_off->transport);
