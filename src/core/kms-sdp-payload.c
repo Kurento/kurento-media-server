@@ -35,6 +35,33 @@ get_minor(gint32 *ret, gint a, gboolean a_is_set, gint b, gboolean b_is_set) {
 	return b_is_set;
 }
 
+KmsFraction*
+copy_fraction(KmsFraction *orig) {
+	KmsFraction *ret = g_object_new(KMS_TYPE_FRACTION, NULL);
+	ret->num = orig->num;
+	ret->denom = orig->denom;
+	return ret;
+}
+
+gboolean
+get_minor_fraction(KmsFraction **ret, KmsFraction* a, gboolean a_is_set,
+					KmsFraction* b, gboolean b_is_set) {
+	if (!a_is_set && b_is_set) {
+		*ret = copy_fraction(b);
+		return TRUE;
+	} else if (!b_is_set && a_is_set) {
+		*ret = copy_fraction(b);
+		return TRUE;
+	} else if (a_is_set && b_is_set) {
+		*ret = g_object_new(KMS_TYPE_FRACTION, NULL);
+		(*ret)->num = a->num < b->num ? a->num : b->num;
+		(*ret)->denom = a->denom < b->denom ? a->denom : b->denom;
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
 void
 kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
 							KmsPayload *neg_answ) {
@@ -80,6 +107,13 @@ kms_payload_rtp_intersect(KmsPayload *answerer, KmsPayload *offerer,
 						answerer->rtp->__isset_bitrate,
 						offerer->rtp->bitrate,
 						offerer->rtp->__isset_bitrate);
+
+	neg_answ->rtp->__isset_framerate = get_minor_fraction(
+					(&neg_answ->rtp->framerate),
+					answerer->rtp->framerate,
+					answerer->rtp->__isset_framerate,
+					offerer->rtp->framerate,
+					offerer->rtp->__isset_framerate);
 
 	if (offerer->rtp->__isset_extraParams) {
 		neg_answ->rtp->__isset_extraParams = TRUE;
