@@ -426,6 +426,9 @@ constructed(GObject *object) {
 		KmsMediaSpec *media;
 
 		media = self->priv->neg_spec->medias->pdata[i];
+		if (!media->transport->__isset_rtmp)
+			continue;
+
 		create_media_chain(self, media);
 	}
 }
