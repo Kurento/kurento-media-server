@@ -20,6 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <thrift/protocol/thrift_binary_protocol.h>
 
 static gboolean
+is_compatible_transport(KmsMediaSpec *a, KmsMediaSpec *b) {
+	return (a->transport->__isset_rtmp && b->transport->__isset_rtmp) ||
+					(a->transport->__isset_rtp &&
+						b->transport->__isset_rtp);
+}
+
+static gboolean
 is_compatible_type(KmsMediaSpec *a, KmsMediaSpec *b) {
 	GList *keys, *l;
 	gboolean ret = TRUE;
@@ -146,6 +153,10 @@ kms_media_spec_intersect(KmsMediaSpec *answerer, KmsMediaSpec *offerer,
 	}
 
 	if (!is_compatible_type(answerer, offerer)) {
+		return FALSE;
+	}
+
+	if (!is_compatible_transport(answerer, offerer)) {
 		return FALSE;
 	}
 
