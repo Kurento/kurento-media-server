@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "types/NetworkConnectionImpl.h"
 #include <rtp/kms-rtp.h>
+#include <rtmp/kms-rtmp-endpoint.h>
 
 #include <utils.h>
 
@@ -45,11 +46,26 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 	__set_joinable(*this);
 	__set_config(config);
 
+
+	if (config.size() != 1) {
+		MediaServerException ex;
+		ex.__set_description("Configuration not supported");
+		ex.__set_code(ErrorCode::UNEXPECTED);
+		throw ex;
+	}
+
 	KmsSessionSpec *local_spec;
 	local_spec = convert_session_spec(this->spec);
 
-	endpoint = KMS_ENDPOINT(g_object_new(KMS_TYPE_RTP_ENDPOINT, "local-spec",
+	if ((*config.begin()) == NetworkConnectionConfig::type::RTP)
+		endpoint = KMS_ENDPOINT(g_object_new(KMS_TYPE_RTP_ENDPOINT,
+							"local-spec",
 							local_spec, NULL));
+	else if ((*config.begin()) == NetworkConnectionConfig::type::RTMP)
+		endpoint = KMS_ENDPOINT(g_object_new(KMS_TYPE_RTMP_ENDPOINT,
+							"local-spec",
+							local_spec, NULL));
+
 	g_object_unref(local_spec);
 
 	if (endpoint == NULL) {
