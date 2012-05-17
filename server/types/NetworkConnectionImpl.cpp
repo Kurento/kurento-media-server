@@ -328,7 +328,7 @@ void
 NetworkConnectionImpl::getRemoteDescriptor(SessionSpec& _return) {
 	if (rtp_connection == NULL) {
 		MediaServerException ex;
-		ex.__set_description("RtpConnection is NULL");
+		ex.__set_description("Not negotiated");
 		ex.__set_code(ErrorCode::UNEXPECTED);
 		w(ex.description);
 		throw ex;
