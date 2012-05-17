@@ -27,6 +27,8 @@ using ::com::kurento::kms::JoinableImpl;
 using ::com::kurento::kms::NetworkConnectionImpl;
 using ::com::kurento::kms::api::NetworkConnection;
 
+using ::com::kurento::commons::mediaspec::MediaSpec;
+
 using ::com::kurento::kms::utils::convert_session_spec;
 using ::com::kurento::kms::utils::convert_session_spec_to_cpp;
 
@@ -241,25 +243,60 @@ NetworkConnectionImpl::processOffer(SessionSpec& _return,
 	getLocalDescriptor(_return);
 }
 
-void
-NetworkConnectionImpl::getLocalDescriptor(SessionSpec& _return) {
-	if (rtp_connection == NULL) {
-		MediaServerException ex;
-		ex.__set_description("RtpConnection is NULL");
-		ex.__set_code(ErrorCode::UNEXPECTED);
-		w(ex.description);
-		throw ex;
-	}
+static bool
+getLocalDescriptorAux(SessionSpec& _return, KmsConnection *connection) {
+	if (connection == NULL)
+		return false;
 
 	KmsSessionSpec *cspec;
-	g_object_get(rtp_connection, "descriptor", &cspec, NULL);
+	g_object_get(connection, "descriptor", &cspec, NULL);
 	try {
 		convert_session_spec_to_cpp(_return, cspec);
 	} catch (MediaServerException ex) {
 		g_object_unref(cspec);
-		throw ex;
+		return false;
 	}
 	g_object_unref(cspec);
+
+	return true;
+}
+
+static void
+mergeSpecs(SessionSpec& from, SessionSpec& to) {
+	std::vector<MediaSpec>::const_iterator it = from.medias.begin();
+
+	for (; it != from.medias.end(); it++) {
+		to.medias.push_back(*it);
+	}
+
+	to.id = from.id;
+	to.version = from.version;
+}
+
+void
+NetworkConnectionImpl::getLocalDescriptor(SessionSpec& _return) {
+	if (rtp_connection != NULL) {
+		getLocalDescriptorAux(_return, rtp_connection);
+	} else {
+		SessionSpec spec;
+		bool found = false;
+
+		std::map<NetworkConnectionConfig::type, KmsConnection *>::const_iterator it = connections.begin();
+		for (; it != connections.end(); it++) {
+			if (getLocalDescriptorAux(spec, it->second)) {
+				mergeSpecs(spec, _return);
+				found = true;
+			}
+		}
+
+		if (!found) {
+			MediaServerException ex;
+			ex.__set_description("No valid descriptor found");
+			ex.__set_code(ErrorCode::UNEXPECTED);
+			w(ex.description);
+			throw ex;
+		}
+	}
 }
 
 void
