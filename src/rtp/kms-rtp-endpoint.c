@@ -80,7 +80,9 @@ set_property (GObject *object, guint property_id, const GValue *value,
 		case PROP_LOCAL_SPEC:
 			LOCK(self);
 			dispose_local_spec(self);
-			self->priv->local_spec = g_value_dup_object(value);
+			self->priv->local_spec = kms_session_spec_filter_transport(
+						g_value_get_object(value),
+						KMS_TYPE_TRANSPORT_RTP);
 			UNLOCK(self);
 			break;
 		default:

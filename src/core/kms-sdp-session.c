@@ -200,3 +200,46 @@ end:
 	g_object_unref(protocol);
 	return spec;
 }
+
+KmsSessionSpec *
+kms_session_spec_filter_transport(KmsSessionSpec *session, GType type) {
+	KmsSessionSpec *ret;
+	GSList *l, *remove = NULL;
+	gint i;
+
+	if (session == NULL)
+		return NULL;
+
+	ret = kms_session_spec_copy(session);
+
+	if (ret == NULL)
+		return NULL;
+
+	for (i = 0; i < ret->medias->len; i++) {
+		KmsMediaSpec *spec;
+
+		spec = ret->medias->pdata[i];
+		if (type == KMS_TYPE_TRANSPORT_RTMP) {
+			if (!spec->transport->__isset_rtmp) {
+				remove = g_slist_prepend(remove, spec);
+			} else {
+				spec->transport->__isset_rtp = FALSE;
+			}
+		} else if (type == KMS_TYPE_TRANSPORT_RTP) {
+			if (!spec->transport->__isset_rtp) {
+				remove = g_slist_prepend(remove, spec);
+			} else {
+				spec->transport->__isset_rtmp = FALSE;
+			}
+		}
+	}
+
+	for (l = remove; l != NULL; l = l->next) {
+		g_ptr_array_remove(ret->medias, l->data);
+	}
+
+	// ptr_array unrefs the data
+	g_slist_free(remove);
+
+	return ret;
+}
