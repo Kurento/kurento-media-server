@@ -46,47 +46,116 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 	__set_joinable(*this);
 	__set_config(config);
 
-
-	if (config.size() != 1) {
-		MediaServerException ex;
-		ex.__set_description("Configuration not supported");
-		ex.__set_code(ErrorCode::UNEXPECTED);
-		throw ex;
-	}
-
 	KmsSessionSpec *local_spec;
 	local_spec = convert_session_spec(this->spec);
 
-	if ((*config.begin()) == NetworkConnectionConfig::type::RTP)
-		endpoint = KMS_ENDPOINT(g_object_new(KMS_TYPE_RTP_ENDPOINT,
-							"local-spec",
-							local_spec, NULL));
-	else if ((*config.begin()) == NetworkConnectionConfig::type::RTMP)
-		endpoint = KMS_ENDPOINT(g_object_new(KMS_TYPE_RTMP_ENDPOINT,
-							"local-spec",
-							local_spec, NULL));
+	std::vector<NetworkConnectionConfig::type>::const_iterator it = config.begin();
+	for (; it != config.end(); it++) {
+		try {
+			initialize_connection(*it, local_spec);
+		} catch (MediaServerException ex) {
+			std::map <int, const char* > values =
+				_NetworkConnectionConfig_VALUES_TO_NAMES;
+			std::map <int, const char* >::const_iterator it =
+								values.begin();
+
+			for (; it != values.end(); it++) {
+				finalize_connection(
+					(NetworkConnectionConfig::type) it->first);
+			}
+
+			g_object_unref(local_spec);
+			throw ex;
+		}
+	}
 
 	g_object_unref(local_spec);
 
-	if (endpoint == NULL) {
+	if (config.size() == 1) {
+		endpoint = KMS_ENDPOINT(g_object_ref(endpoints.begin()->second));
+		rtp_connection = KMS_CONNECTION(connections.begin()->second);
+	}
+}
+
+NetworkConnectionImpl::~NetworkConnectionImpl() throw() {
+	std::map <int, const char* > values = _NetworkConnectionConfig_VALUES_TO_NAMES;
+	std::map <int, const char* >::const_iterator it = values.begin();
+
+	rtp_connection = NULL;
+
+	for (; it != values.end(); it++) {
+		finalize_connection((NetworkConnectionConfig::type) it->first);
+	}
+}
+
+void
+NetworkConnectionImpl::finalize_connection(NetworkConnectionConfig::type config) {
+	KmsEndpoint *ep;
+
+	ep = endpoints[config];
+
+	if (ep == NULL)
+		return;
+
+	GError *error = NULL;
+
+	KmsConnection *connection = connections[config];
+
+	if (connection != NULL) {
+		if (!kms_endpoint_delete_connection(ep, connection, &error)) {
+			if (error != NULL) {
+				w("Error deleting rtp_connection: %s",
+								error->message);
+				g_error_free(error);
+				error = NULL;
+			} else {
+				w("Unknown error deleting rtp_connection");
+			}
+			}
+			g_object_unref(connection);
+			connections[config] = NULL;
+	}
+
+	g_object_unref(ep);
+	endpoints[config] = NULL;
+}
+
+void
+NetworkConnectionImpl::initialize_connection(
+					NetworkConnectionConfig::type config,
+					KmsSessionSpec *local_spec)
+						throw (MediaServerException) {
+	KmsEndpoint *ep;
+	KmsConnection *connection;
+
+	if (config == NetworkConnectionConfig::type::RTP)
+		ep = KMS_ENDPOINT(g_object_new(KMS_TYPE_RTP_ENDPOINT,
+							"local-spec",
+							local_spec, NULL));
+	else if (config == NetworkConnectionConfig::type::RTMP)
+		ep= KMS_ENDPOINT(g_object_new(KMS_TYPE_RTMP_ENDPOINT,
+							"local-spec",
+							local_spec, NULL));
+
+	if (ep == NULL) {
 		MediaServerException ex;
 		ex.__set_code(ErrorCode::NO_RESOURCES);
-		ex.__set_description("Unable to create network connection");
+		ex.__set_description("Unable to create endpoint");
 		w(ex.description);
 		throw ex;
 	}
 
 	GError *error = NULL;
 
-	rtp_connection =  kms_endpoint_create_connection(endpoint,
+	connection =  kms_endpoint_create_connection(ep,
 							KMS_CONNECTION_TYPE_RTP,
 							&error);
 
-	if (rtp_connection == NULL) {
+	if (connection == NULL) {
 		MediaServerException ex;
 
-		g_object_unref(endpoint);
-		endpoint = NULL;
+		g_object_unref(ep);
+		ep = NULL;
 		ex.__set_code(ErrorCode::NO_RESOURCES);
 		if (error != NULL) {
 			ex.__set_description(error->message);
@@ -98,28 +167,9 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 		w(ex.description);
 		throw ex;
 	}
-}
 
-NetworkConnectionImpl::~NetworkConnectionImpl() throw() {
-	if (endpoint == NULL)
-		return;
-
-	GError *error = NULL;
-
-	if (rtp_connection != NULL) {
-		if (!kms_endpoint_delete_connection(endpoint, rtp_connection,
-								&error)) {
-			if (error != NULL) {
-				w("Error deleting rtp_connection: %s",
-								error->message);
-				g_error_free(error);
-			} else {
-				w("Unknown error deleting rtp_connection");
-			}
-		}
-		g_object_unref(rtp_connection);
-	}
-	rtp_connection = NULL;
+	connections[config] = connection;
+	endpoints[config] = ep;
 }
 
 void

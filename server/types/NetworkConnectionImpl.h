@@ -43,6 +43,13 @@ namespace com { namespace kurento { namespace kms {
 	private:
 		SessionSpec spec;
 		KmsConnection *rtp_connection = NULL;
+		std::map<NetworkConnectionConfig::type, KmsEndpoint *> endpoints;
+		std::map<NetworkConnectionConfig::type, KmsConnection *> connections;
+
+		void initialize_connection(NetworkConnectionConfig::type config,
+					KmsSessionSpec *local_spec)
+						throw (MediaServerException);
+		void finalize_connection(NetworkConnectionConfig::type config);
 	};
 
 }}} // com::kurento::kms
