@@ -32,6 +32,7 @@ enum {
 	PROP_0,
 
 	PROP_LOCAL_SPEC,
+	PROP_REMOTE_SPEC,
 	PROP_DESCRIPTOR,
 };
 
@@ -279,6 +280,11 @@ get_property(GObject *object, guint property_id, GValue *value,
 			g_value_set_object(value, self->priv->descriptor);
 			UNLOCK(self);
 			break;
+		case PROP_REMOTE_SPEC:
+			LOCK(self);
+			g_value_set_object(value, self->priv->neg_remote);
+			UNLOCK(self);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -397,6 +403,14 @@ kms_rtmp_connection_class_init (KmsRtmpConnectionClass *klass) {
 					G_PARAM_READABLE);
 
 	g_object_class_install_property(gobject_class, PROP_DESCRIPTOR, pspec);
+
+	pspec = g_param_spec_object("remote-spec", "Remote Session Spec",
+					"Remote Session Spec",
+					KMS_TYPE_SESSION_SPEC,
+					G_PARAM_READABLE);
+
+	g_object_class_install_property(gobject_class, PROP_REMOTE_SPEC, pspec);
+
 }
 
 static void
