@@ -74,8 +74,7 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 	g_object_unref(local_spec);
 
 	if (config.size() == 1) {
-		endpoint = KMS_ENDPOINT(g_object_ref(endpoints.begin()->second));
-		rtp_connection = KMS_CONNECTION(connections.begin()->second);
+		select_config(*(config.begin()));
 	}
 }
 
@@ -173,6 +172,32 @@ NetworkConnectionImpl::initialize_config(
 	connections[config] = connection;
 	endpoints[config] = ep;
 }
+
+void
+NetworkConnectionImpl::select_config(NetworkConnectionConfig::type config) {
+	std::map <NetworkConnectionConfig::type, KmsEndpoint* >::iterator it =
+							endpoints.begin();
+	for (; it != endpoints.end(); it++) {
+		if (it->first == config) {
+			endpoint = KMS_ENDPOINT(g_object_ref(it->second));
+		} else {
+			g_object_unref(it->second);
+			it->second = NULL;
+		}
+	}
+
+	std::map <NetworkConnectionConfig::type, KmsConnection* >::iterator itc =
+							connections.begin();
+	for (; itc != connections.end(); itc++) {
+		if (itc->first == config) {
+			rtp_connection = KMS_CONNECTION(g_object_ref(itc->second));
+		} else {
+			g_object_unref(itc->second);
+			itc->second = NULL;
+		}
+	}
+}
+
 
 void
 NetworkConnectionImpl::generateOffer(SessionSpec& _return) {

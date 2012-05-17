@@ -50,6 +50,7 @@ namespace com { namespace kurento { namespace kms {
 					KmsSessionSpec *local_spec)
 						throw (MediaServerException);
 		void finalize_config(NetworkConnectionConfig::type config);
+		void select_config(NetworkConnectionConfig::type config);
 	};
 
 }}} // com::kurento::kms
