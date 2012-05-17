@@ -46,10 +46,10 @@ namespace com { namespace kurento { namespace kms {
 		std::map<NetworkConnectionConfig::type, KmsEndpoint *> endpoints;
 		std::map<NetworkConnectionConfig::type, KmsConnection *> connections;
 
-		void initialize_connection(NetworkConnectionConfig::type config,
+		void initialize_config(NetworkConnectionConfig::type config,
 					KmsSessionSpec *local_spec)
 						throw (MediaServerException);
-		void finalize_connection(NetworkConnectionConfig::type config);
+		void finalize_config(NetworkConnectionConfig::type config);
 	};
 
 }}} // com::kurento::kms

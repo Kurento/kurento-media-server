@@ -54,7 +54,7 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 	std::vector<NetworkConnectionConfig::type>::const_iterator it = config.begin();
 	for (; it != config.end(); it++) {
 		try {
-			initialize_connection(*it, local_spec);
+			initialize_config(*it, local_spec);
 		} catch (MediaServerException ex) {
 			std::map <int, const char* > values =
 				_NetworkConnectionConfig_VALUES_TO_NAMES;
@@ -62,7 +62,7 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 								values.begin();
 
 			for (; it != values.end(); it++) {
-				finalize_connection(
+				finalize_config(
 					(NetworkConnectionConfig::type) it->first);
 			}
 
@@ -86,12 +86,12 @@ NetworkConnectionImpl::~NetworkConnectionImpl() throw() {
 	rtp_connection = NULL;
 
 	for (; it != values.end(); it++) {
-		finalize_connection((NetworkConnectionConfig::type) it->first);
+		finalize_config((NetworkConnectionConfig::type) it->first);
 	}
 }
 
 void
-NetworkConnectionImpl::finalize_connection(NetworkConnectionConfig::type config) {
+NetworkConnectionImpl::finalize_config(NetworkConnectionConfig::type config) {
 	KmsEndpoint *ep;
 
 	ep = endpoints[config];
@@ -123,7 +123,7 @@ NetworkConnectionImpl::finalize_connection(NetworkConnectionConfig::type config)
 }
 
 void
-NetworkConnectionImpl::initialize_connection(
+NetworkConnectionImpl::initialize_config(
 					NetworkConnectionConfig::type config,
 					KmsSessionSpec *local_spec)
 						throw (MediaServerException) {
