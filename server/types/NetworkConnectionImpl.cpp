@@ -175,25 +175,17 @@ NetworkConnectionImpl::initialize_config(
 
 void
 NetworkConnectionImpl::select_config(NetworkConnectionConfig::type config) {
-	std::map <NetworkConnectionConfig::type, KmsEndpoint* >::iterator it =
-							endpoints.begin();
-	for (; it != endpoints.end(); it++) {
-		if (it->first == config) {
-			endpoint = KMS_ENDPOINT(g_object_ref(it->second));
-		} else {
-			g_object_unref(it->second);
-			it->second = NULL;
-		}
-	}
+	std::map <int, const char* > values = _NetworkConnectionConfig_VALUES_TO_NAMES;
+	std::map <int, const char* >::const_iterator it = values.begin();
 
-	std::map <NetworkConnectionConfig::type, KmsConnection* >::iterator itc =
-							connections.begin();
-	for (; itc != connections.end(); itc++) {
-		if (itc->first == config) {
-			rtp_connection = KMS_CONNECTION(g_object_ref(itc->second));
+	rtp_connection = NULL;
+
+	for (; it != values.end(); it++) {
+		if (it->first == config) {
+			rtp_connection = KMS_CONNECTION(g_object_ref(connections[config]));
+			endpoint = KMS_ENDPOINT(g_object_ref(endpoints[config]));
 		} else {
-			g_object_unref(itc->second);
-			itc->second = NULL;
+			finalize_config((NetworkConnectionConfig::type) it->first);
 		}
 	}
 }
