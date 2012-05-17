@@ -190,76 +190,6 @@ NetworkConnectionImpl::select_config(NetworkConnectionConfig::type config) {
 	}
 }
 
-
-void
-NetworkConnectionImpl::generateOffer(SessionSpec& _return) {
-	getLocalDescriptor(_return);
-}
-
-void
-NetworkConnectionImpl::processAnswer(SessionSpec &_return,
-						const SessionSpec& answer) {
-	if (rtp_connection == NULL) {
-		MediaServerException ex;
-		ex.__set_description("RtpConnection is NULL");
-		ex.__set_code(ErrorCode::UNEXPECTED);
-		w(ex.description);
-		throw ex;
-	}
-
-	KmsSessionSpec *spec = convert_session_spec(answer);
-	GError *error = NULL;
-
-	if (!kms_connection_connect_to_remote(rtp_connection, spec, TRUE,
-								&error)) {
-		MediaServerException ex;
-		if (error != NULL) {
-			ex.description = error->message;
-			g_error_free(error);
-		} else {
-			ex.description = "Cannot negotiate format";
-		}
-		g_object_unref(spec);
-		w(ex.description);
-		throw ex;
-	}
-	g_object_unref(spec);
-
-	getLocalDescriptor(_return);
-}
-
-void
-NetworkConnectionImpl::processOffer(SessionSpec& _return,
-						const SessionSpec& offer) {
-	if (rtp_connection == NULL) {
-		MediaServerException ex;
-		ex.__set_description("RtpConnection is NULL");
-		ex.__set_code(ErrorCode::UNEXPECTED);
-		w(ex.description);
-		throw ex;
-	}
-
-	KmsSessionSpec *spec = convert_session_spec(offer);
-	GError *error = NULL;
-
-	if (!kms_connection_connect_to_remote(rtp_connection, spec, FALSE,
-								&error)) {
-		MediaServerException ex;
-		if (error != NULL) {
-			ex.description = error->message;
-			g_error_free(error);
-		} else {
-			ex.description = "Cannot negotiate format";
-		}
-		g_object_unref(spec);
-		w(ex.description);
-		throw ex;
-	}
-	g_object_unref(spec);
-
-	getLocalDescriptor(_return);
-}
-
 static bool
 getLocalDescriptorAux(SessionSpec& _return, KmsConnection *connection) {
 	if (connection == NULL)
@@ -288,6 +218,135 @@ mergeSpecs(SessionSpec& from, SessionSpec& to) {
 
 	to.id = from.id;
 	to.version = from.version;
+}
+
+static bool
+checkActiveSession(SessionSpec& spec) {
+	std::vector<MediaSpec>::const_iterator it = spec.medias.begin();
+
+	for (; it != spec.medias.end(); it++) {
+		if ((*it).direction != Direction::INACTIVE)
+			return true;
+	}
+
+	return false;
+}
+
+void
+NetworkConnectionImpl::generateOffer(SessionSpec& _return) {
+	getLocalDescriptor(_return);
+}
+
+void
+NetworkConnectionImpl::processAnswer(SessionSpec &_return,
+						const SessionSpec& answer) {
+	KmsSessionSpec *spec = convert_session_spec(answer);
+	GError *error = NULL;
+
+	if (rtp_connection != NULL) {
+		if (!kms_connection_connect_to_remote(rtp_connection, spec,
+							TRUE, &error)) {
+			MediaServerException ex;
+			if (error != NULL) {
+				ex.description = error->message;
+				g_error_free(error);
+			} else {
+				ex.description = "Cannot negotiate format";
+			}
+			g_object_unref(spec);
+			w(ex.description);
+			throw ex;
+		}
+	} else {
+		bool found = false;
+		SessionSpec session;
+
+		std::map<NetworkConnectionConfig::type, KmsConnection *>::const_iterator it = connections.begin();
+		for (; it != connections.end(); it++) {
+			if (kms_connection_connect_to_remote(it->second, spec,
+								TRUE, &error)) {
+				getLocalDescriptorAux(session, it->second);
+
+				if (!checkActiveSession(session))
+					continue;
+
+				select_config(it->first);
+				found = true;
+				break;
+			} else {
+				g_error_free(error);
+				error = NULL;
+			}
+		}
+
+		if (!found) {
+			g_object_unref(spec);
+			NegotiationException ex;
+			ex.__set_description("Cannot negotiate format");
+			w(ex.description);
+			throw ex;
+		}
+	}
+
+	g_object_unref(spec);
+
+	getLocalDescriptor(_return);
+}
+
+void
+NetworkConnectionImpl::processOffer(SessionSpec& _return,
+						const SessionSpec& offer) {
+	KmsSessionSpec *spec = convert_session_spec(offer);
+	GError *error = NULL;
+
+	if (rtp_connection != NULL) {
+		if (!kms_connection_connect_to_remote(rtp_connection, spec,
+							FALSE, &error)) {
+			MediaServerException ex;
+			if (error != NULL) {
+				ex.description = error->message;
+				g_error_free(error);
+			} else {
+				ex.description = "Cannot negotiate format";
+			}
+			g_object_unref(spec);
+			w(ex.description);
+			throw ex;
+		}
+	} else {
+		bool found = false;
+		SessionSpec session;
+
+		std::map<NetworkConnectionConfig::type, KmsConnection *>::const_iterator it = connections.begin();
+		for (; it != connections.end(); it++) {
+			if (kms_connection_connect_to_remote(it->second, spec,
+							FALSE, &error)) {
+				getLocalDescriptorAux(session, it->second);
+
+				if (!checkActiveSession(session))
+					continue;
+
+				select_config(it->first);
+				found = true;
+				break;
+			} else {
+				g_error_free(error);
+				error = NULL;
+			}
+		}
+
+		if (!found) {
+			g_object_unref(spec);
+			NegotiationException ex;
+			ex.__set_description("Cannot negotiate format");
+			w(ex.description);
+			throw ex;
+		}
+	}
+
+	g_object_unref(spec);
+
+	getLocalDescriptor(_return);
 }
 
 void
