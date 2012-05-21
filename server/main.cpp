@@ -15,6 +15,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <signal.h>
+#include <execinfo.h>
+
 #include "handlers/MediaServiceHandler.h"
 #include "handlers/MediaSessionServiceHandler.h"
 #include "handlers/NetworkConnectionServiceHandler.h"
@@ -329,7 +332,52 @@ static void load_config(const std::string &file_name) {
 	d("Final config file:\n" + configFile.to_data());
 }
 
+void
+bt_sighandler(int sig, struct sigcontext ctx) {
+
+	void *trace[16];
+	char **messages = (char **)NULL;
+	int i, trace_size = 0;
+
+	if (sig == SIGSEGV)
+		printf("Got signal %d, faulty address is %p, "
+		"from %p\n", sig, (gpointer) ctx.cr2, (gpointer) ctx.eip);
+	else
+		printf("Got signal %d\n", sig);
+
+	trace_size = backtrace(trace, 16);
+	/* overwrite sigaction with caller's address */
+	//trace[1] = (void *)ctx.eip;
+	messages = backtrace_symbols(trace, trace_size);
+	/* skip first stack frame (points here) */
+	printf("[bt] Execution path:\n");
+	for (i=1; i<trace_size; ++i) {
+		printf("[bt] #%d %s\n", i, messages[i]);
+
+		char syscom[256];
+		//last parameter is the name of this app
+		sprintf(syscom,"addr2line %p -e kmsc", trace[i]);
+		system(syscom);
+	}
+
+	if (sig == SIGPIPE) {
+		d("Ignore sigpipe");
+	} else {
+		exit(sig);
+	}
+}
+
 int main(int argc, char **argv) {
+
+	/* Install our signal handler */
+	struct sigaction sa;
+
+	sa.sa_handler = (void (*)(int))bt_sighandler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+
+	sigaction(SIGSEGV, &sa, NULL);
+	sigaction(SIGPIPE, &sa, NULL);
 
 	kms_init(&argc, &argv);
 
