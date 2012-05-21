@@ -30,11 +30,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define AUDIO_TEMPL "audio_sink"
 #define VIDEO_TEMPL "video_sink"
 
-#define VIDEO_CAPS "video/x-flash-video;"					\
+#define VIDEO_CAPS "video/x-flash-video;"
+/*
 			"video/x-flash-screen;"					\
 			"video/x-vp6-flash;"					\
 			"video/x-vp6-alpha;"					\
 			"video/x-h264,stream-format=avc"			\
+*/
 
 #define AUDIO_CAPS "audio/x-nellymoser,channels=1,rate=8000;"
 
