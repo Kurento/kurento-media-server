@@ -332,31 +332,75 @@ static void load_config(const std::string &file_name) {
 	d("Final config file:\n" + configFile.to_data());
 }
 
-void
-bt_sighandler(int sig, struct sigcontext ctx) {
+static void
+initialiseExecutableName(char *exe, int size) {
+	char link[1024];
+	int len;
 
-	void *trace[16];
+	snprintf(link, sizeof(link), "/proc/%d/exe", getpid());
+	len = readlink(link, exe, size);
+
+	if(len ==-1) {
+		fprintf(stderr,"ERROR GETTING NAME\n");
+		exit(1);
+	}
+
+	exe[len] = '\0';
+}
+
+static const char*
+getExecutableName() {
+	static char* exe = NULL;
+	static char aux[1024];
+
+	if (exe == NULL) {
+		initialiseExecutableName(aux, sizeof(aux));
+		exe = aux;
+	}
+
+	return exe;
+}
+
+static void
+bt_sighandler(int sig, siginfo_t *info, gpointer data) {
+
+	void *trace[35];
 	char **messages = (char **)NULL;
 	int i, trace_size = 0;
+	ucontext_t *uc = (ucontext_t *)data;
 
+	/* Do something useful with siginfo_t */
 	if (sig == SIGSEGV)
 		printf("Got signal %d, faulty address is %p, "
-		"from %p\n", sig, (gpointer) ctx.cr2, (gpointer) ctx.eip);
+				"from %p\n", sig, (gpointer) info->si_addr,
+				(gpointer) uc->uc_mcontext.gregs[REG_EIP]);
 	else
 		printf("Got signal %d\n", sig);
 
-	trace_size = backtrace(trace, 16);
+	trace_size = backtrace(trace, 35);
 	/* overwrite sigaction with caller's address */
-	//trace[1] = (void *)ctx.eip;
+	//trace[1] = (void *) uc->uc_mcontext.gregs[REG_EIP];
+
 	messages = backtrace_symbols(trace, trace_size);
 	/* skip first stack frame (points here) */
-	printf("[bt] Execution path:\n");
+	g_print("\t[bt] Execution path:\n");
 	for (i=1; i<trace_size; ++i) {
-		printf("[bt] #%d %s\n", i, messages[i]);
-
+		g_print("\t[bt] #%d %s\n", i, messages[i]);
 		char syscom[256];
-		//last parameter is the name of this app
-		sprintf(syscom,"addr2line %p -e kmsc", trace[i]);
+		gchar **strs;
+		const gchar *exe;
+
+		strs = g_strsplit(messages[i], "(", 2);
+
+		if (strs[1] == NULL)
+			exe = getExecutableName();
+		else
+			exe = strs[0];
+
+		sprintf(syscom, "echo -n \"\t[bt]\t\t\"; addr2line %p -s -e %s",
+								trace[i], exe);
+
+		g_strfreev(strs);
 		system(syscom);
 	}
 
@@ -372,9 +416,9 @@ int main(int argc, char **argv) {
 	/* Install our signal handler */
 	struct sigaction sa;
 
-	sa.sa_handler = (void (*)(int))bt_sighandler;
+	sa.sa_sigaction = (void (*)(int, siginfo*, gpointer))bt_sighandler;
 	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
+	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGPIPE, &sa, NULL);
