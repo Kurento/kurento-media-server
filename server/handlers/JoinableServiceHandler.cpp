@@ -390,7 +390,13 @@ JoinableServiceHandler::release(const Joinable& joinable) {
 		throw ex;
 	} catch (MediaSessionNotFoundException ex) {
 		JoinableNotFoundException e;
-		e.__set_description("MediaSession not found");
+		e.__set_description("Joinable not found");
+		w(e.description);
+		throw e;
+	} catch (MixerNotFoundException ex) {
+		JoinableNotFoundException e;
+		e.__set_description("Joinable not found");
+		w(e.description);
 		throw e;
 	} catch (MediaServerException ex) {
 		throw ex;
