@@ -22,8 +22,9 @@ using namespace com::kurento::kms;
 
 using ::com::kurento::log::Log;
 
-static Log l("NetworkConnectionImpl");
+static Log l("NetworkConnectionManager");
 #define i(...) aux_info(l, __VA_ARGS__);
+#define w(...) aux_warn(l, __VA_ARGS__);
 
 NetworkConnectionManager::NetworkConnectionManager(const SessionSpec &spec):
 								spec(spec) {
