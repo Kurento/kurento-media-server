@@ -54,6 +54,10 @@ JoinableImpl::~JoinableImpl() throw () {
 	std::map<JoinableImpl *, KmsLocalConnection *>::iterator it;
 	for (it = joinees.begin(); it != joinees.end(); it++) {
 		g_object_unref(it->second);
+		std::map<JoinableImpl *, KmsLocalConnection *>::iterator it2;
+		it2 = it->first->joinees.find(this);
+		if (it2 != it->first->joinees.end())
+			it->first->deleteConnection(it2);
 	}
 	joinees.clear();
 
@@ -247,6 +251,15 @@ JoinableImpl::unjoin(JoinableImpl& to) {
 }
 
 void
+JoinableImpl::deleteConnection(
+		std::map<JoinableImpl *, KmsLocalConnection *>::iterator it) {
+	kms_endpoint_delete_connection(endpoint, KMS_CONNECTION(it->second),
+									NULL);
+	g_object_unref(it->second);
+	joinees.erase(it);
+}
+
+void
 JoinableImpl::unjoin(JoinableImpl& to, const StreamType::type stream) {
 	if (!KMS_IS_ENDPOINT(endpoint) && !KMS_IS_ENDPOINT(to.endpoint)) {
 		JoinException ex;
@@ -258,10 +271,14 @@ JoinableImpl::unjoin(JoinableImpl& to, const StreamType::type stream) {
 	std::map<JoinableImpl *, KmsLocalConnection *>::iterator it;
 
 	GError *err = NULL;
-	KmsMediaType type;
+	KmsMediaType type, other_type;
 
 	try {
 		type = get_media_type_from_stream(stream);
+		if (type == KMS_MEDIA_TYPE_VIDEO)
+			other_type = KMS_MEDIA_TYPE_AUDIO;
+		else
+			other_type = KMS_MEDIA_TYPE_VIDEO;
 	} catch (int ie) {
 		StreamNotFoundException ex;
 		ex.__set_description("Invalid stream");
@@ -283,6 +300,11 @@ JoinableImpl::unjoin(JoinableImpl& to, const StreamType::type stream) {
 			w(ex.description);
 			throw ex;
 		}
+
+		if (kms_connection_get_mode(KMS_CONNECTION(it->second),
+				other_type) == KMS_CONNECTION_MODE_INACTIVE) {
+			deleteConnection(it);
+		}
 	}
 
 	it = to.joinees.find(this);
@@ -298,6 +320,11 @@ JoinableImpl::unjoin(JoinableImpl& to, const StreamType::type stream) {
 			}
 			w(ex.description);
 			throw ex;
+		}
+
+		if (kms_connection_get_mode(KMS_CONNECTION(it->second),
+				other_type) == KMS_CONNECTION_MODE_INACTIVE) {
+			to.deleteConnection(it);
 		}
 	}
 }

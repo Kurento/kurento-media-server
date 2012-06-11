@@ -58,6 +58,8 @@ protected:
 private:
 
 	KmsConnection* create_local_connection();
+	void deleteConnection(
+		std::map<JoinableImpl *, KmsLocalConnection *>::iterator it);
 };
 
 }}} // com::kurento::kms
