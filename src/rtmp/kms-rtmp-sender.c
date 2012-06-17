@@ -109,7 +109,7 @@ create_rtmpsink(KmsRtmpSender *self, const gchar *url) {
 	g_object_set(rtmpsink, "sync", FALSE, NULL);
 	g_object_set(rtmpsink, "async", FALSE, NULL);
 	g_object_set(rtmpsink, "enable-last-buffer", FALSE, NULL);
-	g_object_set(rtmpsink, "blocksize", 10, NULL);
+	g_object_set(rtmpsink, "blocksize", 256, NULL);
 	g_object_set(rtmpsink, "location", url, NULL);
 
 	G_LOCK(rtmp_sender_lock);

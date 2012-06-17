@@ -359,7 +359,7 @@ generate_rtmpsrc(KmsRtmpReceiver *self, KmsMediaSpec *media,
 	if  (rtmpsrc != NULL) {
 		g_object_set(rtmpsrc, "location", url, NULL);
 		g_object_set(rtmpsrc, "do-timestamp", TRUE, NULL);
-		g_object_set(rtmpsrc, "blocksize", 10, NULL);
+		g_object_set(rtmpsrc, "blocksize", 256, NULL);
 
 		g_object_set_data_full(G_OBJECT(rtmpsrc), SELF_DATA,
 							g_object_ref(self),
