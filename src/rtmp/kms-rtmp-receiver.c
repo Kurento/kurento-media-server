@@ -338,7 +338,7 @@ kms_get_play_url_from_media(KmsMediaSpec *media) {
 
 	g_return_val_if_fail(rtmp->play != NULL, NULL);
 
-	uri = g_strdup_printf("%s/%s", rtmp->url, rtmp->play);
+	uri = g_strdup_printf("%s/%s live=1", rtmp->url, rtmp->play);
 
 	return uri;
 }
