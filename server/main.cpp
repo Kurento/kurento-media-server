@@ -371,9 +371,8 @@ bt_sighandler(int sig, siginfo_t *info, gpointer data) {
 
 	/* Do something useful with siginfo_t */
 	if (sig == SIGSEGV)
-		printf("Got signal %d, faulty address is %p, "
-				"from %p\n", sig, (gpointer) info->si_addr,
-				(gpointer) uc->uc_mcontext.gregs[REG_EIP]);
+		printf("Got signal %d, faulty address is %p\n", sig,
+						(gpointer) info->si_addr);
 	else
 		printf("Got signal %d\n", sig);
 

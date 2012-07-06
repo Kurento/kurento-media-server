@@ -168,7 +168,7 @@ check_medias(GPtrArray *medias, gint ii) {
 	g_assert(port == PORT(ii));
 	g_assert(g_strcmp0(address, SESSION_ADDR) == 0);
 	g_assert(mode == MODE(ii));
-	g_assert(g_hash_table_lookup(media->type, (gpointer) TYPE(ii)));
+	g_assert(g_hash_table_lookup(media->type, GUINT_TO_POINTER(TYPE(ii))));
 	g_assert(g_hash_table_size(media->type) == 1);
 
 	for (i = 0; i < media->payloads->len; i++ ) {
