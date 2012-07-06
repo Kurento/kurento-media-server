@@ -258,7 +258,7 @@ connect(KmsConnection *conn, KmsConnection *other, KmsMediaType type,
 	KmsLocalConnection *self, *other_local;
 
 	if (!KMS_IS_LOCAL_CONNECTION(other)) {
-		SET_ERROR(err, KMS_CONNECTION_ERROR,
+		g_set_error(err, KMS_CONNECTION_ERROR,
 				KMS_CONNECTION_ERROR_WRONG_ARGUMENT,
 				"Other connection must be of type "
 				"KmsLocalConnection");
@@ -272,7 +272,7 @@ connect(KmsConnection *conn, KmsConnection *other, KmsMediaType type,
 	if (!((type == KMS_MEDIA_TYPE_AUDIO) ||
 					(type == KMS_MEDIA_TYPE_VIDEO))) {
 		ret = FALSE;
-		SET_ERROR(err, KMS_CONNECTION_ERROR,
+		g_set_error(err, KMS_CONNECTION_ERROR,
 					KMS_CONNECTION_ERROR_WRONG_ARGUMENT,
 					"Unsupported media type");
 	}

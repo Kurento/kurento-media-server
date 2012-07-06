@@ -78,7 +78,7 @@ do_set_mode(KmsConnection *self, KmsConnectionMode mode,
 
 	if (KMS_CONNECTION_GET_CLASS(self)->mode_changed == NULL) {
 		g_warn_if_reached();
-		SET_ERROR(err, KMS_CONNECTION_ERROR,
+		g_set_error(err, KMS_CONNECTION_ERROR,
 				KMS_CONNECTION_ERROR_NOT_IMPLEMENTED,
 				"Class %s does not reimplement "
 				"mode_changed method",
@@ -113,7 +113,7 @@ kms_connection_set_mode(KmsConnection *self, KmsConnectionMode mode,
 	LOCK(self);
 
 	if (self->priv->finished) {
-		SET_ERROR(err, KMS_CONNECTION_ERROR,
+		g_set_error(err, KMS_CONNECTION_ERROR,
 					KMS_CONNECTION_ERROR_TERMINATED,
 					"Connection %s has been "
 					"terminated and cannot be used.",
@@ -167,7 +167,7 @@ kms_connection_connect_to_remote(KmsConnection *self, KmsSessionSpec *session,
 
 	if (KMS_CONNECTION_GET_CLASS(self)->connect_to_remote == NULL) {
 		g_warn_if_reached();
-		SET_ERROR(err, KMS_CONNECTION_ERROR,
+		g_set_error(err, KMS_CONNECTION_ERROR,
 				KMS_CONNECTION_ERROR_NOT_IMPLEMENTED,
 				"Class %s does not reimplement "
 				"connect_to_remote method",
@@ -185,7 +185,7 @@ kms_connection_connect(KmsConnection *self, KmsConnection *other,
 					KmsMediaType type, GError **err) {
 	if (KMS_CONNECTION_GET_CLASS(self)->connect == NULL) {
 		g_warn_if_reached();
-		SET_ERROR(err, KMS_CONNECTION_ERROR,
+		g_set_error(err, KMS_CONNECTION_ERROR,
 				KMS_CONNECTION_ERROR_NOT_IMPLEMENTED,
 				"Class %s does not reimplement "
 				"connect_to_remote method",

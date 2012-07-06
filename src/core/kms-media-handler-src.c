@@ -206,7 +206,7 @@ kms_media_handler_src_connect(KmsMediaHandlerSrc *self,
 	g_type_class_unref(eclass);
 
 	if (GST_PAD_LINK_FAILED(link_ret)) {
-		SET_ERROR(err, KMS_MEDIA_HANDLER_SRC_ERROR,
+		g_set_error(err, KMS_MEDIA_HANDLER_SRC_ERROR,
 					KMS_MEDIA_HANDLER_SRC_ERROR_LINK_ERROR,
 					"Error linking %s and %s: %s",
 					GST_OBJECT_NAME(self),

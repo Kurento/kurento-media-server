@@ -52,7 +52,7 @@ create_connection(KmsEndpoint *object, gchar *name, GError **err) {
 	LOCK(self);
 	if (self->priv->local_spec == NULL) {
 		UNLOCK(self);
-		SET_ERROR(err, KMS_RTP_ENDPOINT_ERROR,
+		g_set_error(err, KMS_RTP_ENDPOINT_ERROR,
 				KMS_ENDPOINT_ERROR_NOT_FOUND,
 				"local-spec property is not set in class %s",
 				G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(self)));

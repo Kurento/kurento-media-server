@@ -191,7 +191,7 @@ connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec,
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(conn);
 
 	if (!KMS_IS_SESSION_SPEC(spec)) {
-		SET_ERROR(err, KMS_RTMP_CONNECTION_ERROR,
+		g_set_error(err, KMS_RTMP_CONNECTION_ERROR,
 					KMS_RTMP_CONNECTION_ERROR_WRONG_VALUE,
 					"Given spect has incorrect type");
 		return FALSE;
@@ -199,7 +199,7 @@ connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec,
 
 	LOCK(self);
 	if (self->priv->remote_spec != NULL) {
-		SET_ERROR(err, KMS_RTMP_CONNECTION_ERROR,
+		g_set_error(err, KMS_RTMP_CONNECTION_ERROR,
 					KMS_RTMP_CONNECTION_ERROR_ALREADY,
 					"Remote spec was already set");
 		UNLOCK(self);
