@@ -48,6 +48,7 @@ JoinableImpl::JoinableImpl(MediaSession &session) :
 					Joinable() {
 	__set_object(*this);
 	__set_session(session);
+	endpoint = NULL;
 }
 
 JoinableImpl::~JoinableImpl() throw () {

@@ -41,7 +41,7 @@ typedef struct _KmsMediaHandlerSinkPriv		KmsMediaHandlerSinkPriv;
 #define KMS_MEDIA_HANDLER_SINK_ERROR (g_quark_from_string("KmsMediaHandlerSinkError"))
 
 enum {
-	KMS_MEDIA_HANDLER_SINK_ERROR_UNLINK_ERROR,
+	KMS_MEDIA_HANDLER_SINK_ERROR_UNLINK_ERROR
 };
 
 struct _KmsMediaHandlerSink {

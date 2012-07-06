@@ -48,6 +48,8 @@ NetworkConnectionImpl::NetworkConnectionImpl(MediaSession &session,
 	__set_joinable(*this);
 	__set_config(config);
 
+	rtp_connection = NULL;
+
 	KmsSessionSpec *local_spec;
 	local_spec = convert_session_spec(this->spec);
 

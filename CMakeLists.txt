@@ -18,7 +18,7 @@ endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 # TODO: Check if HAVE_INIT_TYPES_H has to be added (not in all systems)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Werror -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -std=c++0x")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wall -Werror -std=c99")
 
 set(CUSTOM_PREFIX "kmsc")

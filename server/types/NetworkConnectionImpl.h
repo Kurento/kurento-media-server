@@ -42,7 +42,7 @@ namespace com { namespace kurento { namespace kms {
 
 	private:
 		SessionSpec spec;
-		KmsConnection *rtp_connection = NULL;
+		KmsConnection *rtp_connection;
 		std::map<NetworkConnectionConfig::type, KmsEndpoint *> endpoints;
 		std::map<NetworkConnectionConfig::type, KmsConnection *> connections;
 
