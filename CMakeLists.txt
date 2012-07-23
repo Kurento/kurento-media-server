@@ -43,7 +43,7 @@ ExternalProject_Add(
 	kmsiface-project
 	GIT_REPOSITORY ssh://git@repository.kurento.com/kms/kms-interface.git
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${KMSIFACE_INSTALL_DIR}
-	UPDATE_COMMAND git checkout master
+	UPDATE_COMMAND git checkout develop
 )
 
 add_library(kmsiface STATIC IMPORTED)
