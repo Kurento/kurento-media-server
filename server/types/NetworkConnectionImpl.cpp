@@ -27,7 +27,7 @@ using ::com::kurento::kms::JoinableImpl;
 using ::com::kurento::kms::NetworkConnectionImpl;
 using ::com::kurento::kms::api::NetworkConnection;
 
-using ::com::kurento::commons::mediaspec::MediaSpec;
+using ::com::kurento::mediaspec::MediaSpec;
 
 using ::com::kurento::kms::utils::convert_session_spec;
 using ::com::kurento::kms::utils::convert_session_spec_to_cpp;

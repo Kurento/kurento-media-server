@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "types/JoinableImpl.h"
 
 using namespace ::com::kurento::kms::api;
-using ::com::kurento::commons::mediaspec::SessionSpec;
+using ::com::kurento::mediaspec::SessionSpec;
 
 namespace com { namespace kurento { namespace kms {
 

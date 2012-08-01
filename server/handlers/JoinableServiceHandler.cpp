@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using ::com::kurento::kms::JoinableServiceHandler;
 using ::com::kurento::kms::MediaSessionImpl;
 using ::com::kurento::kms::JoinableImpl;
-using ::com::kurento::commons::mediaspec::_Direction_VALUES_TO_NAMES;
+using ::com::kurento::mediaspec::_Direction_VALUES_TO_NAMES;
 
 using ::com::kurento::log::Log;
 

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ::com::kurento::kms::api::NetworkConnectionServiceIf;
 using ::com::kurento::kms::api::MediaObject;
-using ::com::kurento::commons::mediaspec::SessionSpec;
+using ::com::kurento::mediaspec::SessionSpec;
 using ::com::kurento::kms::api::NetworkConnection;
 
 namespace com { namespace kurento { namespace kms {

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <joinable_types.h>
 #include <kms-core.h>
 
-using ::com::kurento::commons::mediaspec::SessionSpec;
+using ::com::kurento::mediaspec::SessionSpec;
 using ::com::kurento::kms::api::StreamType;
 using ::com::kurento::kms::api::Direction;
 

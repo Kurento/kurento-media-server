@@ -65,16 +65,16 @@ static Log l("media_config_loader");
 
 #define EXTRA_PARAMS_KEY "extra"
 
-using ::com::kurento::commons::mediaspec::MediaSpec;
-using ::com::kurento::commons::mediaspec::Direction;
-using ::com::kurento::commons::mediaspec::_Direction_VALUES_TO_NAMES;
-using ::com::kurento::commons::mediaspec::MediaType;
-using ::com::kurento::commons::mediaspec::_MediaType_VALUES_TO_NAMES;
-using ::com::kurento::commons::mediaspec::Transport;
-using ::com::kurento::commons::mediaspec::TransportRtp;
-using ::com::kurento::commons::mediaspec::TransportRtmp;
-using ::com::kurento::commons::mediaspec::Payload;
-using ::com::kurento::commons::mediaspec::PayloadRtp;
+using ::com::kurento::mediaspec::MediaSpec;
+using ::com::kurento::mediaspec::Direction;
+using ::com::kurento::mediaspec::_Direction_VALUES_TO_NAMES;
+using ::com::kurento::mediaspec::MediaType;
+using ::com::kurento::mediaspec::_MediaType_VALUES_TO_NAMES;
+using ::com::kurento::mediaspec::Transport;
+using ::com::kurento::mediaspec::TransportRtp;
+using ::com::kurento::mediaspec::TransportRtmp;
+using ::com::kurento::mediaspec::Payload;
+using ::com::kurento::mediaspec::PayloadRtp;
 
 static int
 gen_id() {

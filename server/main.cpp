@@ -367,7 +367,7 @@ bt_sighandler(int sig, siginfo_t *info, gpointer data) {
 	void *trace[35];
 	char **messages = (char **)NULL;
 	int i, trace_size = 0;
-	ucontext_t *uc = (ucontext_t *)data;
+// 	ucontext_t *uc = (ucontext_t *)data;
 
 	/* Do something useful with siginfo_t */
 	if (sig == SIGSEGV)
@@ -415,7 +415,7 @@ int main(int argc, char **argv) {
 	/* Install our signal handler */
 	struct sigaction sa;
 
-	sa.sa_sigaction = (void (*)(int, siginfo*, gpointer))bt_sighandler;
+	sa.sa_sigaction = /*(void (*)(int, siginfo*, gpointer))*/bt_sighandler;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 

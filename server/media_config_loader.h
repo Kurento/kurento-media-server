@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SERVER_GROUP "Server"
 
-using ::com::kurento::commons::mediaspec::SessionSpec;
+using ::com::kurento::mediaspec::SessionSpec;
 
 void load_spec(Glib::KeyFile &configFile, SessionSpec &session);
 
