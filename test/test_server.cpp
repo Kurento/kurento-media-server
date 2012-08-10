@@ -48,7 +48,7 @@ using ::apache::thrift::transport::TSocket;
 // using ::apache::thrift::transport::TMemoryBuffer;
 
 #define DEFAULT_PORT 5050
-#define LOCAL_ADDRESS "193.147.51.16"
+#define LOCAL_ADDRESS "127.0.0.1"
 
 static void
 send_receive_media(SessionSpec &spec) {
