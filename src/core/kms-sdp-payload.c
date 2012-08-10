@@ -253,7 +253,7 @@ kms_payload_to_caps(KmsPayload *payload, KmsMediaSpec *media) {
 		goto end;
 	}
 
-	if (payload->rtp-> clockRate != 0)
+	if (payload->rtp->clockRate != 0)
 		g_string_append_printf(caps_str, ",clock-rate=(int)%d",
 							payload->rtp->clockRate);
 
