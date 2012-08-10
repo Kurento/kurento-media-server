@@ -72,6 +72,7 @@ kms_init(gint *argc, gchar **argv[]) {
 
 		g_type_init();
 		gst_init(argc, argv);
+
 		pipe = gst_pipeline_new(NULL);
 		gst_element_set_state(pipe, GST_STATE_PLAYING);
 
@@ -441,7 +442,7 @@ kms_utils_configure_element(GstElement *elem) {
 						"sync-lookahead", 0,
 						"rc-lookahead", 0,
 						"b-adapt", FALSE,
-						"pb-factor", 2,
+						"pb-factor", 2.0,
 						"mb-tree", FALSE,
 						"pass", 17 /* pass1 */, NULL);
 	}
