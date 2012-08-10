@@ -270,6 +270,14 @@ kms_payload_to_caps(KmsPayload *payload, KmsMediaSpec *media) {
 		g_string_append_printf(caps_str, ",bandwidth=(int)%d",
 							payload->rtp->bitrate);
 
+	if (payload->rtp->__isset_width && payload->rtp->width > 0)
+		g_string_append_printf(caps_str, ",width=(int)%d",
+							payload->rtp->width);
+
+	if (payload->rtp->__isset_height && payload->rtp->height > 0)
+		g_string_append_printf(caps_str, ",height=(int)%d",
+							payload->rtp->height);
+
 	/* TODO: Add custom function for each codec, by now just add crc to
 	 * amr encoding type.
 	 */
