@@ -69,6 +69,7 @@ kms_init(gint *argc, gchar **argv[]) {
 	G_LOCK(mutex);
 	if (!init) {
 		GstBus *bus;
+		GThread *thread;
 
 		g_type_init();
 		gst_init(argc, argv);
@@ -80,7 +81,12 @@ kms_init(gint *argc, gchar **argv[]) {
 		gst_bus_add_watch(bus, gst_bus_async_signal_func, NULL);
 		g_object_connect(bus, "signal::message", bus_msg, NULL, NULL);
 
-		g_thread_create(gstreamer_thread, NULL, TRUE, NULL);
+#if !GLIB_CHECK_VERSION(2,32,0)
+		thread = g_thread_create(gstreamer_thread, NULL, TRUE, NULL);
+#else
+		thread = g_thread_new("main_thread", gstreamer_thread, NULL);
+#endif
+		g_thread_unref(thread);
 
 		init = TRUE;
 	}
