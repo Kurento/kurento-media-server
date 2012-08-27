@@ -40,7 +40,12 @@ static Log l("MediaSessionImpl");
 
 bool MediaSessionImpl::pingTimeout() {
 	w("Timeout on session %d, deleting.", object.id);
-	MediaSessionManager::getInstance()->deleteMediaSession(*this);
+	try {
+		MediaSessionManager::getInstance()->deleteMediaSession(*this);
+	} catch (...) {
+		i("Exception during deletion");
+	}
+	i("Done deleting session");
 	return false;
 }
 

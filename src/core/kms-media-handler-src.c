@@ -742,6 +742,16 @@ finalize(GObject *object) {
 	G_OBJECT_CLASS(kms_media_handler_src_parent_class)->finalize(object);
 }
 
+static gpointer
+set_to_null_state(gpointer object) {
+	gst_element_set_locked_state(GST_ELEMENT(object), FALSE);
+	gst_element_set_state(GST_ELEMENT(object), GST_STATE_NULL);
+
+	g_object_unref(object);
+
+	return NULL;
+}
+
 static void
 dispose(GObject *object) {
 	GstObject *parent;
@@ -768,11 +778,22 @@ dispose(GObject *object) {
 		 */
 		g_object_ref(object);
 		gst_bin_remove(GST_BIN(parent), GST_ELEMENT(object));
-		gst_element_set_locked_state(GST_ELEMENT(object), FALSE);
-		gst_element_set_state(GST_ELEMENT(object), GST_STATE_NULL);
 	}
 
-	G_OBJECT_CLASS(kms_media_handler_src_parent_class)->dispose(object);
+	if (GST_STATE(object) != GST_STATE_NULL) {
+		GThread *thread;
+
+#if !GLIB_CHECK_VERSION(2,32,0)
+		thread = g_thread_create(set_to_null_state, g_object_ref(object),
+								TRUE, NULL);
+#else
+		thread = g_thread_new("set_to_null_state", set_to_null_state,
+							g_object_ref(object));
+#endif
+		g_thread_unref(thread);
+	} else {
+		G_OBJECT_CLASS(kms_media_handler_src_parent_class)->dispose(object);
+	}
 }
 
 static void

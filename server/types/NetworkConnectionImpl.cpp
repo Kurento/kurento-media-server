@@ -114,9 +114,9 @@ NetworkConnectionImpl::finalize_config(NetworkConnectionConfig::type config) {
 			} else {
 				w("Unknown error deleting rtp_connection");
 			}
-			}
-			g_object_unref(connection);
-			connections[config] = NULL;
+		}
+		g_object_unref(connection);
+		connections[config] = NULL;
 	}
 
 	g_object_unref(ep);

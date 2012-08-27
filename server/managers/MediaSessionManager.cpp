@@ -26,6 +26,7 @@ using ::com::kurento::log::Log;
 
 static Log l("MediaSessionManager");
 #define i(...) aux_info(l, __VA_ARGS__)
+#define e(...) aux_error(l, __VA_ARGS__)
 
 MediaSessionManager::MediaSessionManager() {
 }
@@ -60,12 +61,13 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 	std::map<ObjectId, MediaSessionImpl *>::iterator it;
 	bool found = FALSE;
 	int size;
+	MediaSessionImpl *ms = NULL;
 
 	mutex.lock();
 	it = sessions.find(session.object.id);
 	if (it != sessions.end() && session == *(it->second)) {
 		found = true;
-		delete it->second;
+		ms = it->second;
 		sessions.erase(it);
 		size = sessions.size();
 	} else {
@@ -76,8 +78,11 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 
 	if (!found) {
 		MediaSessionNotFoundException exception;
+		e("Session %lld not found", session.object.id);
 		throw exception;
 	} else {
+		if (ms != NULL)
+			delete ms;
 		i("%d active sessions", size);
 	}
 }
