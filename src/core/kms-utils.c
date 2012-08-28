@@ -478,7 +478,7 @@ kms_utils_configure_element(GstElement *elem) {
 
 static void
 transfer_structure(const GstStructure *st, GstCaps *to) {
-	gint width, height, fr_num, fr_denom, rate, clockrate;
+	gint width, height, fr_num, fr_denom, rate, clockrate, bandwidth;
 	gint i;
 
 	if (!gst_structure_get_int(st, "width", &width))
@@ -497,6 +497,9 @@ transfer_structure(const GstStructure *st, GstCaps *to) {
 
 	if (!gst_structure_get_int(st, "clock-rate", &clockrate))
 		clockrate = 0;
+
+	if (!gst_structure_get_int(st, "bandwidth", &bandwidth))
+		bandwidth = 0;
 
 	/* Set this attributes in all the destination structs */
 	for (i = 0; i < gst_caps_get_size(to); i++) {
@@ -531,6 +534,10 @@ transfer_structure(const GstStructure *st, GstCaps *to) {
 				gst_structure_set(dest, "rate", G_TYPE_INT,
 							clockrate, NULL);
 		}
+
+		if (bandwidth != 0)
+			gst_structure_set(dest, "bandwidth", G_TYPE_INT,
+							bandwidth, NULL);
 
 		if (!gst_structure_can_intersect(dest, dest_orig)) {
 			gst_caps_remove_structure(to, i);
