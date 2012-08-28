@@ -35,6 +35,13 @@ struct _KmsMediaHandlerSrcPriv {
 	GstPad *video_prefered_pad;
 	GstPad *video_raw_pad;
 	GSList *video_other_pads;
+	GstElement *audio_bw_queue;
+	GstElement *audio_bw_sink;
+	GstElement *video_bw_queue;
+	GstElement *video_bw_sink;
+
+	guint audio_bps;
+	guint video_bps;
 };
 
 enum {
@@ -57,6 +64,48 @@ static GstStaticPadTemplate video_src = GST_STATIC_PAD_TEMPLATE (
 					);
 
 G_DEFINE_TYPE(KmsMediaHandlerSrc, kms_media_handler_src, GST_TYPE_BIN)
+
+static void
+dispose_internal_element(KmsMediaHandlerSrc *self, GstElement *elem) {
+	GstBin *bin = GST_BIN(self);
+
+	g_object_ref(elem);
+	gst_bin_remove(bin, elem);
+	gst_element_set_state(elem, GST_STATE_NULL);
+	g_object_unref(elem);
+}
+
+static void
+dispose_audio_bw_queue(KmsMediaHandlerSrc *self) {
+	if (self->priv->audio_bw_queue != NULL) {
+		dispose_internal_element(self, self->priv->audio_bw_queue);
+		self->priv->audio_bw_queue = NULL;
+	}
+}
+
+static void
+dispose_audio_bw_sink(KmsMediaHandlerSrc *self) {
+	if (self->priv->audio_bw_sink != NULL) {
+		dispose_internal_element(self, self->priv->audio_bw_sink);
+		self->priv->audio_bw_sink = NULL;
+	}
+}
+
+static void
+dispose_video_bw_queue(KmsMediaHandlerSrc *self) {
+	if (self->priv->video_bw_queue != NULL) {
+		dispose_internal_element(self, self->priv->video_bw_queue);
+		self->priv->video_bw_queue = NULL;
+	}
+}
+
+static void
+dispose_video_bw_sink(KmsMediaHandlerSrc *self) {
+	if (self->priv->video_bw_sink != NULL) {
+		dispose_internal_element(self, self->priv->video_bw_sink);
+		self->priv->video_bw_sink = NULL;
+	}
+}
 
 static void
 dispose_audio_prefered_pad(KmsMediaHandlerSrc *self) {
@@ -413,6 +462,7 @@ generate_new_target_pad(KmsMediaHandlerSrc *self, GstPad *raw,
 					GST_ELEMENT_FACTORY_TYPE_ENCODER,
 					GST_RANK_NONE, caps, GST_PAD_SRC,
 					FALSE, NULL);
+
 	if (encoder == NULL)
 		return NULL;
 
@@ -650,6 +700,104 @@ connect_pads(KmsMediaHandlerSrc *self) {
 	gst_iterator_free(it);
 }
 
+static guint
+get_bw(GstElement *queue) {
+	if (GST_IS_ELEMENT(queue)) {
+		guint bytes;
+		guint64 time_ns;
+		gdouble time_s;
+
+		g_object_get(queue, "current-level-bytes", &bytes, NULL);
+		g_object_get(queue, "current-level-time", &time_ns, NULL);
+
+		time_s = time_ns / (gdouble) G_GUINT64_CONSTANT(1000000000);
+
+		if (time_s > 1.5) {
+			glong bps;
+
+			bps = (glong) ((((gdouble) bytes) * 8) / time_s);
+			return bps;
+		}
+	}
+
+	return 0;
+}
+
+static gboolean
+bw_calculator(gpointer data) {
+	KmsMediaHandlerSrc *self = data;
+	GstElement *queue;
+
+	if (!KMS_IS_MEDIA_HANDLER_SRC(self)) {
+		return FALSE;
+	}
+
+	LOCK(self);
+	queue = self->priv->audio_bw_queue;
+	self->priv->audio_bps = get_bw(queue);
+	queue = self->priv->video_bw_queue;
+	self->priv->video_bps = get_bw(queue);
+	UNLOCK(self);
+	return TRUE;
+}
+
+static void
+create_bw_calculator(KmsMediaHandlerSrc *self, KmsMediaType type, GstPad *pad,
+							GstElement *tee) {
+	GstElement *queue, *fakesink;
+
+	if (type != KMS_MEDIA_TYPE_AUDIO && type != KMS_MEDIA_TYPE_VIDEO)
+		return;
+
+	queue = kms_utils_create_queue(NULL);
+	fakesink = kms_utils_create_fakesink(NULL);
+
+	if (queue == NULL || fakesink == NULL) {
+		if (queue != NULL)
+			g_object_unref(queue);
+
+		if (fakesink != NULL)
+			g_object_unref(fakesink);
+	}
+
+	g_object_set(queue, "max-size-buffers", 0, "max-size-bytes", 0,
+		     "max-size-time", G_GUINT64_CONSTANT(2000000000), NULL);
+	g_object_set(fakesink, "ts-offset", G_GUINT64_CONSTANT(2000000000),
+		     "sync", TRUE, NULL);
+
+	gst_element_set_state(queue, GST_STATE_PLAYING);
+	gst_element_set_state(fakesink, GST_STATE_PLAYING);
+
+	gst_bin_add_many(GST_BIN(self), queue, fakesink, NULL);
+
+	if (type == KMS_MEDIA_TYPE_AUDIO) {
+		dispose_audio_bw_queue(self);
+		self->priv->audio_bw_queue = queue;
+		dispose_audio_bw_sink(self);
+		self->priv->audio_bw_sink = fakesink;
+	} else if (type == KMS_MEDIA_TYPE_VIDEO) {
+		dispose_video_bw_queue(self);
+		self->priv->video_bw_queue = queue;
+		dispose_video_bw_sink(self);
+		self->priv->video_bw_sink = fakesink;
+	}
+
+	gst_element_link_many(tee, queue, fakesink, NULL);
+}
+
+guint
+kms_media_handler_sink_get_bandwidth(KmsMediaHandlerSrc *self,
+							KmsMediaType type) {
+	if (type == KMS_MEDIA_TYPE_AUDIO) {
+		return self->priv->audio_bps;
+	} else if (type == KMS_MEDIA_TYPE_VIDEO) {
+		return self->priv->video_bps;
+	} else {
+		g_warning("Requested bandwidth of an unknown type");
+		return 0;
+	}
+}
+
 /**
  * kms_media_handler_src_set_pad:
  *
@@ -670,12 +818,14 @@ kms_media_handler_src_set_pad(KmsMediaHandlerSrc *self, GstPad *pad,
 		LOCK(self);
 		dispose_audio_prefered_pad(self);
 		self->priv->audio_prefered_pad = pad;
+		create_bw_calculator(self, type, pad, tee);
 		UNLOCK(self);
 		break;
 	case KMS_MEDIA_TYPE_VIDEO:
 		LOCK(self);
 		dispose_video_prefered_pad(self);
 		self->priv->video_prefered_pad = pad;
+		create_bw_calculator(self, type, pad, tee);
 		UNLOCK(self);
 		break;
 	default:
@@ -766,6 +916,10 @@ dispose(GObject *object) {
 	dispose_video_raw_pad(self);
 	dispose_audio_other_pads(self);
 	dispose_video_other_pads(self);
+	dispose_video_bw_queue(self);
+	dispose_audio_bw_queue(self);
+	dispose_video_bw_sink(self);
+	dispose_audio_bw_sink(self);
 	UNLOCK(self);
 
 	kms_utils_remove_src_pads(GST_ELEMENT(self));
@@ -828,4 +982,12 @@ kms_media_handler_src_init(KmsMediaHandlerSrc *self) {
 	self->priv->video_raw_pad = NULL;
 	self->priv->audio_other_pads = NULL;
 	self->priv->video_other_pads = NULL;
+	self->priv->video_bw_queue = NULL;
+	self->priv->audio_bw_queue = NULL;
+	self->priv->video_bw_sink = NULL;
+	self->priv->audio_bw_sink = NULL;
+	self->priv->audio_bps = 0;
+	self->priv->video_bps = 0;
+
+	g_timeout_add(1000, bw_calculator, self);
 }
