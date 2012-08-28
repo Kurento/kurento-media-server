@@ -544,6 +544,19 @@ kms_utils_create_queue(const gchar *name) {
 	return queue;
 }
 
+GstElement*
+kms_utils_create_fakesink(const gchar *name) {
+	GstElement *fakesink;
+
+	fakesink = gst_element_factory_make("fakesink", name);
+	if (fakesink != NULL) {
+		g_object_set(fakesink, "enable-last-buffer", FALSE,
+							"silent", TRUE, NULL);
+	}
+
+	return fakesink;
+}
+
 gchar*
 kms_utils_generate_pad_name(gchar *pattern) {
 	static int n = 0;

@@ -270,7 +270,7 @@ demux_added(GstElement *flvdemux, GstPad *pad, KmsRtmpReceiver *self) {
 
 	tee = gst_element_factory_make("tee", NULL);
 	queue = kms_utils_create_queue(NULL);
-	fakesink = gst_element_factory_make("fakesink", NULL);
+	fakesink = kms_utils_create_fakesink(NULL);
 
 	if (tee == NULL || queue == NULL || fakesink == NULL) {
 		if (tee != NULL)

@@ -197,7 +197,7 @@ create_audio_sink(KmsMixerSink *self) {
 
 	tee = gst_element_factory_make("tee", NULL);
 	queue = kms_utils_create_queue(NULL);
-	sink = gst_element_factory_make("fakesink", NULL);
+	sink = kms_utils_create_fakesink(NULL);
 
 	if (tee == NULL || queue == NULL || sink == NULL) {
 		g_warn_if_reached();

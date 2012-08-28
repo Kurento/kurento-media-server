@@ -196,7 +196,7 @@ create_audio_src(KmsMixerSrc *self) {
 	adder = gst_element_factory_make("liveadder", NULL);
 	tee = gst_element_factory_make("tee", NULL);
 	queue = gst_element_factory_make("queue2", NULL);
-	fake = gst_element_factory_make("fakesink", NULL);
+	fake = kms_utils_create_fakesink(NULL);
 
 	if (adder == NULL || tee == NULL || queue == NULL || fake == NULL) {
 		if (adder != NULL)

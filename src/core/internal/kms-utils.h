@@ -67,6 +67,8 @@ void kms_utils_transfer_caps(const GstCaps *from, GstCaps *to);
 
 GstElement *kms_utils_create_queue(const gchar *name);
 
+GstElement *kms_utils_create_fakesink(const gchar *name);
+
 gchar *kms_utils_generate_pad_name(gchar *pattern);
 
 void kms_utils_remove_src_pads(GstElement *self);

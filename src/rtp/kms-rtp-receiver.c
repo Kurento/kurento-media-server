@@ -458,7 +458,7 @@ new_payload_type(GstElement *demux, guint pt, GstPad *pad, gpointer user_data) {
 	buffer = gst_element_factory_make("gstrtpjitterbuffer", NULL);
 	tee = gst_element_factory_make("tee", NULL);
 	fake_queue = kms_utils_create_queue(NULL);
-	sink = gst_element_factory_make("fakesink", NULL);
+	sink = kms_utils_create_fakesink(NULL);
 
 	if (buffer == NULL || tee == NULL || sink == NULL || fake_queue == NULL) {
 		g_warn_if_reached();
