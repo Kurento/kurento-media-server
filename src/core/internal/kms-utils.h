@@ -82,6 +82,8 @@ void kms_utils_remove_when_unlinked(GstPad *pad);
 void kms_utils_remove_when_unlinked_pad_name(GstElement *elem,
 							const gchar* pad_name);
 
+gint kms_utils_get_bandwidth_from_caps(GstCaps *caps);
+
 G_END_DECLS
 
 #endif /* __KMS_UTILS_H__ */

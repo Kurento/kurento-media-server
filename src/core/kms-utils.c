@@ -415,6 +415,28 @@ kms_utils_remove_when_unlinked_pad_name(GstElement *elem, const gchar* pad_name)
 	g_object_unref(pad);
 }
 
+gint
+kms_utils_get_bandwidth_from_caps(GstCaps *caps) {
+	gint i, retval = -1, aux;
+
+	if (caps == NULL)
+		return -1;
+
+	for (i = 0; i < gst_caps_get_size(caps); i++) {
+		GstStructure *st;
+
+		st = gst_caps_get_structure(caps, i);
+
+		if (gst_structure_get_int(st, "bandwidth", &aux)) {
+			if (retval == -1 || aux < retval) {
+				retval = aux;
+			}
+		}
+	}
+
+	return retval;
+}
+
 void
 kms_utils_configure_element(GstElement *elem) {
 	/* TODO: This function should be pluggable or configurable */
