@@ -22,6 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ATTR_DYNAMIC "dynamic"
 #define ATTR_REMOVE "remove"
 
+#define GST_CAT_DEFAULT kms_utils
+GST_DEBUG_CATEGORY_STATIC(GST_CAT_DEFAULT);
+
 static GstElement *pipe = NULL;
 G_LOCK_DEFINE_STATIC(mutex);
 static gboolean init = FALSE;
@@ -89,6 +92,9 @@ kms_init(gint *argc, gchar **argv[]) {
 		g_thread_unref(thread);
 
 		init = TRUE;
+
+		GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "kms-utils",
+					GST_DEBUG_FG_CYAN, "kms utils file");
 	}
 	G_UNLOCK(mutex);
 }
