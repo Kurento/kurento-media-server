@@ -461,14 +461,12 @@ kms_utils_configure_element(GstElement *elem) {
 		g_object_set(G_OBJECT(elem), "config-interval", 2,
 						"send-config", TRUE, NULL);
 	} else if (g_strcmp0(name, "xvidenc") == 0) {
-		// TODO: Set bandwidth
 		g_object_set(G_OBJECT(elem), "max-bquant", 0,
 						"bquant-ratio", 0,
 						"motion", 0, NULL);
 	} else if (g_strcmp0(name, "rtph264pay") == 0) {
 		g_object_set(G_OBJECT(elem), "config-interval", 5, NULL);
 	} else if (g_strcmp0(name, "x264enc") == 0) {
-		// TODO: Set bandwidth
 		g_object_set(G_OBJECT(elem), "vbv-buf-capacity", 0,
 						"profile", 0,
 						"trellis", FALSE,
@@ -479,6 +477,42 @@ kms_utils_configure_element(GstElement *elem) {
 						"pb-factor", 2.0,
 						"mb-tree", FALSE,
 						"pass", 17 /* pass1 */, NULL);
+	}
+}
+
+void
+kms_utils_configure_bw(GstElement *elem, guint neg_bw, guint bw) {
+	GstElementFactory *factory;
+	gchar *name;
+	guint final_bw;
+
+	factory = gst_element_get_factory(elem);
+	if (factory == NULL)
+		return;
+
+	name = GST_OBJECT_NAME(factory);
+	if (name == NULL)
+		return;
+
+	if (bw == 0)
+		return;
+
+	if (neg_bw == 0) {
+		final_bw = bw;
+	} else {
+		final_bw = bw < neg_bw ? bw : neg_bw;
+	}
+
+	GST_DEBUG("Setting bw to: %d", final_bw);
+	if (g_strcmp0(name, "xvidenc") == 0 ||
+					g_strcmp0(name, "ffenc_h263") == 0 ||
+					g_strcmp0(name, "ffenc_h263p") == 0) {
+		g_object_set(G_OBJECT(elem), "bitrate", (gint) final_bw, NULL);
+	} else if (g_strcmp0(name, "x264enc") == 0) {
+		g_object_set(G_OBJECT(elem), "bitrate", (gint)(final_bw / 1000),
+									NULL);
+	} else {
+		GST_WARNING("Unknown factory: %s", name);
 	}
 }
 
