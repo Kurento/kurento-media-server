@@ -482,6 +482,7 @@ generate_new_target_pad(KmsMediaHandlerSrc *self, GstPad *raw,
 	kms_utils_configure_element(encoder);
 
 	bw = kms_utils_get_bandwidth_from_caps(caps);
+	bw = bw == - 1 ? 0 : bw * 1000;
 	g_object_set_data(G_OBJECT(encoder), NEG_BW, GINT_TO_POINTER(bw));
 	g_object_set_data(G_OBJECT(encoder), MEDIA_TYPE, GINT_TO_POINTER(type));
 	self->priv->encoders = g_slist_prepend(self->priv->encoders, encoder);
