@@ -293,33 +293,6 @@ pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
 }
 
 static gboolean
-check_caps_compatible(GstCaps *caps, GstCaps *caps2) {
-	guint i;
-
-	for (i = 0; i < gst_caps_get_size(caps); i++) {
-		GstStructure *st;
-
-		st = gst_caps_get_structure(caps, i);
-
-		if (gst_caps_is_subset_structure(caps2, st)) {
-			return TRUE;
-		}
-	}
-
-	for (i = 0; i < gst_caps_get_size(caps2); i++) {
-		GstStructure *st;
-
-		st = gst_caps_get_structure(caps2, i);
-
-		if (gst_caps_is_subset_structure(caps, st)) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-static gboolean
 check_pad_compatible(GstPad *pad, GstCaps *caps) {
 	GstCaps *pad_caps, *neg_caps = NULL;
 	gboolean ret = FALSE;
@@ -329,14 +302,14 @@ check_pad_compatible(GstPad *pad, GstCaps *caps) {
 
 	pad_caps = gst_pad_get_caps(pad);
 
-	ret = check_caps_compatible(pad_caps, caps);
+	ret = gst_caps_can_intersect(pad_caps, caps);
 
 	/* If there are caps negotiated, check that match with the target caps */
 	neg_caps = gst_pad_get_negotiated_caps(pad);
 	if (neg_caps == NULL)
 		goto end;
 
-	if (check_caps_compatible(neg_caps, caps)) {
+	if (gst_caps_can_intersect(neg_caps, caps)) {
 		ret = TRUE;
 		goto end;
 	}
