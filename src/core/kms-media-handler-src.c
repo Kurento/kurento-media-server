@@ -28,6 +28,7 @@ GST_DEBUG_CATEGORY_STATIC(GST_CAT_DEFAULT);
 
 #define TEE "tee"
 #define MEDIA_TYPE "type"
+#define NEG_BW "neg_bg"
 
 struct _KmsMediaHandlerSrcPriv {
 	GStaticMutex mutex;
@@ -47,6 +48,8 @@ struct _KmsMediaHandlerSrcPriv {
 	guint video_bps;
 
 	guint bw_source;
+
+	GSList *encoders;
 };
 
 enum {
@@ -462,6 +465,7 @@ generate_new_target_pad(KmsMediaHandlerSrc *self, GstPad *raw,
 					GstCaps *caps, KmsMediaType type) {
 	GstElement *encoder, *orig_elem;
 	GstPad *orig_pad = NULL, *target_pad;
+	gint bw;
 
 	encoder = kms_utils_get_element_for_caps(
 					GST_ELEMENT_FACTORY_TYPE_ENCODER,
@@ -476,6 +480,12 @@ generate_new_target_pad(KmsMediaHandlerSrc *self, GstPad *raw,
 		goto error;
 
 	kms_utils_configure_element(encoder);
+
+	bw = kms_utils_get_bandwidth_from_caps(caps);
+	g_object_set_data(G_OBJECT(encoder), NEG_BW, GINT_TO_POINTER(bw));
+	g_object_set_data(G_OBJECT(encoder), MEDIA_TYPE, GINT_TO_POINTER(type));
+	self->priv->encoders = g_slist_prepend(self->priv->encoders, encoder);
+
 	encoder = kms_generate_bin_with_caps(encoder, NULL, caps);
 
 	orig_elem = g_object_get_data(G_OBJECT(orig_pad), TEE);
@@ -705,6 +715,23 @@ connect_pads(KmsMediaHandlerSrc *self) {
 	gst_iterator_free(it);
 }
 
+static void
+fix_bandwidth(KmsMediaHandlerSrc *self, GstElement *encoder) {
+	KmsMediaType type;
+	gint neg_bw;
+	guint bw;
+
+	neg_bw = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(encoder), NEG_BW));
+	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(encoder), MEDIA_TYPE));
+
+	bw = kms_media_handler_sink_get_bandwidth(self, type);
+
+	GST_DEBUG("Neg bw: %d, current bw:%d, encoder: %" GST_PTR_FORMAT,
+							neg_bw, bw, encoder);
+
+	kms_utils_configure_bw(encoder, neg_bw, bw);
+}
+
 static guint
 get_bw(GstElement *queue) {
 	if (GST_IS_ELEMENT(queue)) {
@@ -732,6 +759,7 @@ static gboolean
 bw_calculator(gpointer data) {
 	KmsMediaHandlerSrc *self = data;
 	GstElement *queue;
+	GSList *l;
 
 	if (!KMS_IS_MEDIA_HANDLER_SRC(self)) {
 		return FALSE;
@@ -742,6 +770,10 @@ bw_calculator(gpointer data) {
 	self->priv->audio_bps = get_bw(queue);
 	queue = self->priv->video_bw_queue;
 	self->priv->video_bps = get_bw(queue);
+
+	for (l = self->priv->encoders; l != NULL; l = l->next) {
+		fix_bandwidth(self, l->data);
+	}
 	UNLOCK(self);
 	return TRUE;
 }
@@ -925,6 +957,8 @@ dispose(GObject *object) {
 	dispose_audio_bw_queue(self);
 	dispose_video_bw_sink(self);
 	dispose_audio_bw_sink(self);
+	g_slist_free(self->priv->encoders);
+	self->priv->encoders = NULL;
 	g_source_remove(self->priv->bw_source);
 	UNLOCK(self);
 
@@ -997,6 +1031,7 @@ kms_media_handler_src_init(KmsMediaHandlerSrc *self) {
 	self->priv->audio_bw_sink = NULL;
 	self->priv->audio_bps = 0;
 	self->priv->video_bps = 0;
+	self->priv->encoders = NULL;
 
 	self->priv->bw_source = g_timeout_add(1000, bw_calculator, self);
 }
