@@ -505,8 +505,9 @@ kms_utils_configure_bw(GstElement *elem, guint neg_bw, guint bw) {
 
 	GST_DEBUG("Setting bw to: %d", final_bw);
 	if (g_strcmp0(name, "xvidenc") == 0 ||
-					g_strcmp0(name, "ffenc_h263") == 0 ||
-					g_strcmp0(name, "ffenc_h263p") == 0) {
+				g_strcmp0(name, "ffenc_h263") == 0 ||
+				g_strcmp0(name, "ffenc_h263p") == 0 ||
+				g_strcmp0(name, "ffenc_nellymoser") == 0) {
 		g_object_set(G_OBJECT(elem), "bitrate", (gint) final_bw, NULL);
 	} else if (g_strcmp0(name, "x264enc") == 0) {
 		g_object_set(G_OBJECT(elem), "bitrate", (gint)(final_bw / 1000),
