@@ -37,7 +37,7 @@ static KmsMediaHandlerFactory*
 get_factory(KmsMediaHandlerManager *iface) {
 	/*KmsTestConnection *self = KMS_TEST_CONNECTION(iface);*/
 
-	g_print("No media handler factory defined yet");
+	g_print("No media handler factory defined yet\n");
 	return NULL;
 }
 
