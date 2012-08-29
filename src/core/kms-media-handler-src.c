@@ -45,6 +45,8 @@ struct _KmsMediaHandlerSrcPriv {
 
 	guint audio_bps;
 	guint video_bps;
+
+	guint bw_source;
 };
 
 enum {
@@ -923,6 +925,7 @@ dispose(GObject *object) {
 	dispose_audio_bw_queue(self);
 	dispose_video_bw_sink(self);
 	dispose_audio_bw_sink(self);
+	g_source_remove(self->priv->bw_source);
 	UNLOCK(self);
 
 	kms_utils_remove_src_pads(GST_ELEMENT(self));
@@ -995,5 +998,5 @@ kms_media_handler_src_init(KmsMediaHandlerSrc *self) {
 	self->priv->audio_bps = 0;
 	self->priv->video_bps = 0;
 
-	g_timeout_add(1000, bw_calculator, self);
+	self->priv->bw_source = g_timeout_add(1000, bw_calculator, self);
 }
