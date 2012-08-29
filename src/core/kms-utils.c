@@ -503,7 +503,7 @@ kms_utils_configure_bw(GstElement *elem, guint neg_bw, guint bw) {
 		final_bw = bw < neg_bw ? bw : neg_bw;
 	}
 
-	GST_DEBUG("Setting bw to: %d", final_bw);
+	GST_DEBUG("Setting bw of %P to: %d", elem, final_bw);
 	if (g_strcmp0(name, "xvidenc") == 0 ||
 				g_strcmp0(name, "ffenc_h263") == 0 ||
 				g_strcmp0(name, "ffenc_h263p") == 0 ||
