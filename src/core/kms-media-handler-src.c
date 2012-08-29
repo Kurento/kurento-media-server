@@ -763,9 +763,6 @@ fix_bandwidth(KmsMediaHandlerSrc *self, GstElement *encoder) {
 
 	bw = kms_media_handler_sink_get_bandwidth(self, type);
 
-	GST_DEBUG("Neg bw: %d, current bw:%d, encoder: %" GST_PTR_FORMAT,
-							neg_bw, bw, encoder);
-
 	kms_utils_configure_bw(encoder, neg_bw, bw);
 }
 
