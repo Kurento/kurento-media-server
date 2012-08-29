@@ -23,6 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define LOCK(obj) (g_static_mutex_lock(&(KMS_MEDIA_HANDLER_SRC(obj)->priv->mutex)))
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_MEDIA_HANDLER_SRC(obj)->priv->mutex)))
 
+#define GST_CAT_DEFAULT kms_media_handler_src
+GST_DEBUG_CATEGORY_STATIC(GST_CAT_DEFAULT);
+
 #define TEE "tee"
 #define MEDIA_TYPE "type"
 
@@ -954,6 +957,9 @@ static void
 kms_media_handler_src_class_init(KmsMediaHandlerSrcClass *klass) {
 	GstPadTemplate *templ;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "kms-handler-src",
+				GST_DEBUG_FG_CYAN, "KmsMediaHandlerSrc");
 
 	g_type_class_add_private(klass, sizeof(KmsMediaHandlerSrcPriv));
 
