@@ -293,24 +293,60 @@ pad_unlinked(GstPad  *pad, GstPad  *peer, GstElement *elem) {
 }
 
 static gboolean
+check_caps_compatible(GstCaps *caps, GstCaps *caps2) {
+	guint i;
+
+	for (i = 0; i < gst_caps_get_size(caps); i++) {
+		GstStructure *st;
+
+		st = gst_caps_get_structure(caps, i);
+
+		if (gst_caps_is_subset_structure(caps2, st)) {
+			return TRUE;
+		}
+	}
+
+	for (i = 0; i < gst_caps_get_size(caps2); i++) {
+		GstStructure *st;
+
+		st = gst_caps_get_structure(caps2, i);
+
+		if (gst_caps_is_subset_structure(caps, st)) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static gboolean
 check_pad_compatible(GstPad *pad, GstCaps *caps) {
-	GstCaps *pad_caps, *intersect;
-	gboolean ret;
+	GstCaps *pad_caps, *neg_caps = NULL;
+	gboolean ret = FALSE;
 
 	if (pad == NULL)
 		return FALSE;
 
-	pad_caps = GST_PAD_CAPS(pad);
-	if (pad_caps != NULL) {
-		gst_caps_ref(pad_caps);
-	} else {
-		pad_caps = gst_pad_get_caps(pad);
+	pad_caps = gst_pad_get_caps(pad);
+
+	ret = check_caps_compatible(pad_caps, caps);
+
+	/* If there are caps negotiated, check that match with the target caps */
+	neg_caps = gst_pad_get_negotiated_caps(pad);
+	if (neg_caps == NULL)
+		goto end;
+
+	if (check_caps_compatible(neg_caps, caps)) {
+		ret = TRUE;
+		goto end;
 	}
 
-	intersect = gst_caps_intersect(caps, pad_caps);
-	ret = !gst_caps_is_empty(intersect);
-	gst_caps_unref(intersect);
+	ret = FALSE;
+
+end:
 	gst_caps_unref(pad_caps);
+	if (neg_caps)
+		gst_caps_unref(neg_caps);
 
 	return ret;
 }
