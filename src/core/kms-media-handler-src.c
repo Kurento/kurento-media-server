@@ -304,6 +304,9 @@ check_pad_compatible(GstPad *pad, GstCaps *caps) {
 
 	ret = gst_caps_can_intersect(pad_caps, caps);
 
+	if (!ret)
+		goto end;
+
 	/* If there are caps negotiated, check that match with the target caps */
 	neg_caps = gst_pad_get_negotiated_caps(pad);
 	if (neg_caps == NULL)
@@ -558,12 +561,8 @@ get_target_pad(KmsMediaHandlerSrc *self, GstPad *peer, GstPad *prefered,
 	GstPad *new_pad, *target = NULL;
 	GSList *l;
 
-	caps = GST_PAD_CAPS(peer);
-	if (caps != NULL) {
-		gst_caps_ref(caps);
-	} else {
-		caps = gst_pad_get_caps(peer);
-	}
+	caps = gst_pad_get_caps(peer);
+
 	/* Check prefered pad */
 	if (check_pad_compatible(prefered, caps)) {
 		target = g_object_ref(prefered);
