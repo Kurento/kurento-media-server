@@ -294,7 +294,7 @@ end:
 }
 
 static void
-set_fixed_bw(GstCaps *caps) {
+set_fixed(GstCaps *caps, const gchar *field) {
 	guint i;
 
 	for (i = 0; i < gst_caps_get_size(caps); i++) {
@@ -302,25 +302,25 @@ set_fixed_bw(GstCaps *caps) {
 
 		st = gst_caps_get_structure(caps, i);
 
-		if (gst_structure_has_field_typed(st, "bandwidth", G_TYPE_INT)) {
+		if (gst_structure_has_field_typed(st, field, G_TYPE_INT)) {
 			// Already fixed
-		} else if (gst_structure_has_field(st, "bandwidth")) {
+		} else if (gst_structure_has_field(st, field)) {
 			const GValue *val;
 			gint max;
 
-			val = gst_structure_get_value(st, "bandwidth");
+			val = gst_structure_get_value(st, field);
 			if (val == NULL || !GST_VALUE_HOLDS_INT_RANGE(val)) {
-				gst_structure_remove_field(st, "bandwidth");
+				gst_structure_remove_field(st, field);
 			}
 
 			max = gst_value_get_int_range_max(val);
-			gst_structure_set(st, "bandwidth", G_TYPE_INT, max, NULL);
+			gst_structure_set(st, field, G_TYPE_INT, max, NULL);
 		}
 	}
 }
 
 static void
-set_range_bw(GstCaps *caps) {
+set_range(GstCaps *caps, const gchar *field) {
 	guint i;
 
 	for (i = 0; i < gst_caps_get_size(caps); i++) {
@@ -329,21 +329,35 @@ set_range_bw(GstCaps *caps) {
 
 		st = gst_caps_get_structure(caps, i);
 
-		if (gst_structure_get_int(st, "bandwidth", &max)) {
-			gst_structure_set(st, "bandwidth", GST_TYPE_INT_RANGE,
+		if (gst_structure_get_int(st, field, &max)) {
+			gst_structure_set(st, field, GST_TYPE_INT_RANGE,
 								0, max, NULL);
 
-		} else if (gst_structure_has_field(st, "bandwidth")) {
+		} else if (gst_structure_has_field(st, field)) {
 			const GValue *val;
 
-			val = gst_structure_get_value(st, "bandwidth");
+			val = gst_structure_get_value(st, field);
 			if (val == NULL || !GST_VALUE_HOLDS_INT_RANGE(val)) {
-				gst_structure_remove_field(st, "bandwidth");
+				gst_structure_remove_field(st, field);
 			}
 
 			// Already int range
 		}
 	}
+}
+
+static void
+set_as_src_caps(GstCaps *caps) {
+	set_fixed(caps, "bandwidth");
+	set_fixed(caps, "width");
+	set_fixed(caps, "height");
+}
+
+static void
+set_as_sink_caps(GstCaps *caps) {
+	set_range(caps, "bandwidth");
+	set_range(caps, "width");
+	set_range(caps, "height");
 }
 
 GstElement*
@@ -371,8 +385,8 @@ kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 		copy_src_caps = gst_pad_get_caps(src);
 
 	// Source has a fixed bandwidth while sink has it open from 0 to max
-	set_fixed_bw(copy_src_caps);
-	set_range_bw(copy_sink_caps);
+	set_as_src_caps(copy_src_caps);
+	set_as_sink_caps(copy_sink_caps);
 
 	sink_temp = gst_pad_template_new("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
 								copy_sink_caps);
