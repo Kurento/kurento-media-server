@@ -293,6 +293,59 @@ end:
 	return elem;
 }
 
+static void
+set_fixed_bw(GstCaps *caps) {
+	guint i;
+
+	for (i = 0; i < gst_caps_get_size(caps); i++) {
+		GstStructure *st;
+
+		st = gst_caps_get_structure(caps, i);
+
+		if (gst_structure_has_field_typed(st, "bandwidth", G_TYPE_INT)) {
+			// Already fixed
+		} else if (gst_structure_has_field(st, "bandwidth")) {
+			const GValue *val;
+			gint max;
+
+			val = gst_structure_get_value(st, "bandwidth");
+			if (val == NULL || !GST_VALUE_HOLDS_INT_RANGE(val)) {
+				gst_structure_remove_field(st, "bandwidth");
+			}
+
+			max = gst_value_get_int_range_max(val);
+			gst_structure_set(st, "bandwidth", G_TYPE_INT, max, NULL);
+		}
+	}
+}
+
+static void
+set_range_bw(GstCaps *caps) {
+	guint i;
+
+	for (i = 0; i < gst_caps_get_size(caps); i++) {
+		GstStructure *st;
+		gint max;
+
+		st = gst_caps_get_structure(caps, i);
+
+		if (gst_structure_get_int(st, "bandwidth", &max)) {
+			gst_structure_set(st, "bandwidth", GST_TYPE_INT_RANGE,
+								0, max, NULL);
+
+		} else if (gst_structure_has_field(st, "bandwidth")) {
+			const GValue *val;
+
+			val = gst_structure_get_value(st, "bandwidth");
+			if (val == NULL || !GST_VALUE_HOLDS_INT_RANGE(val)) {
+				gst_structure_remove_field(st, "bandwidth");
+			}
+
+			// Already int range
+		}
+	}
+}
+
 GstElement*
 kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 							GstCaps *src_caps) {
@@ -316,6 +369,10 @@ kms_generate_bin_with_caps(GstElement *elem, GstCaps *sink_caps,
 		copy_src_caps = gst_caps_copy(src_caps);
 	else
 		copy_src_caps = gst_pad_get_caps(src);
+
+	// Source has a fixed bandwidth while sink has it open from 0 to max
+	set_fixed_bw(copy_src_caps);
+	set_range_bw(copy_sink_caps);
 
 	sink_temp = gst_pad_template_new("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
 								copy_sink_caps);
@@ -430,6 +487,7 @@ kms_utils_get_bandwidth_from_caps(GstCaps *caps) {
 
 	for (i = 0; i < gst_caps_get_size(caps); i++) {
 		GstStructure *st;
+		aux = -1;
 
 		st = gst_caps_get_structure(caps, i);
 
@@ -437,6 +495,18 @@ kms_utils_get_bandwidth_from_caps(GstCaps *caps) {
 			if (retval == -1 || aux < retval) {
 				retval = aux;
 			}
+		} else if (gst_structure_has_field(st, "bandwidth")) {
+			const GValue *val;
+
+			val = gst_structure_get_value(st, "bandwidth");
+			if (val == NULL || !GST_VALUE_HOLDS_INT_RANGE(val))
+				continue;
+
+			aux = gst_value_get_int_range_max(val);
+		}
+
+		if (retval == -1 || (aux > 0 && aux < retval)) {
+			retval = aux;
 		}
 	}
 
