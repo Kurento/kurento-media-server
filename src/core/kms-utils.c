@@ -586,7 +586,8 @@ void
 kms_utils_configure_bw(GstElement *elem, guint neg_bw, guint bw) {
 	GstElementFactory *factory;
 	gchar *name;
-	guint final_bw;
+	gint final_bw, current_bw, diff;
+
 
 	factory = gst_element_get_factory(elem);
 	if (factory == NULL)
@@ -602,19 +603,43 @@ kms_utils_configure_bw(GstElement *elem, guint neg_bw, guint bw) {
 	if (neg_bw == 0) {
 		final_bw = bw;
 	} else {
-		final_bw = bw < neg_bw ? bw : neg_bw;
+		final_bw = bw < neg_bw ? (bw + neg_bw) / 2 : neg_bw;
 	}
 
-	GST_DEBUG("Setting bw of %P to: %d", elem, final_bw);
 	if (g_strcmp0(name, "xvidenc") == 0 ||
+				g_strcmp0(name, "ffenc_mpeg4") == 0 ||
 				g_strcmp0(name, "ffenc_h263") == 0 ||
 				g_strcmp0(name, "ffenc_h263p") == 0 ||
 				g_strcmp0(name, "ffenc_flv") == 0 ||
 				g_strcmp0(name, "ffenc_nellymoser") == 0) {
-		g_object_set(G_OBJECT(elem), "bitrate", (gint) final_bw, NULL);
+		g_object_get(G_OBJECT(elem), "bitrate", &current_bw, NULL);
+
+		diff = final_bw > current_bw ? final_bw - current_bw :
+							current_bw - final_bw;
+
+		if (diff > 70000) {
+			GST_DEBUG("Setting bw of %P to: %d, current: %d", elem,
+							final_bw, current_bw);
+			gst_element_set_state(elem, GST_STATE_READY);
+			g_object_set(G_OBJECT(elem), "bitrate", final_bw, NULL);
+			gst_element_set_state(elem, GST_STATE_PLAYING);
+		}
 	} else if (g_strcmp0(name, "x264enc") == 0) {
-		g_object_set(G_OBJECT(elem), "bitrate", (gint)(final_bw / 1000),
-									NULL);
+		gint x264bw;
+
+		g_object_get(G_OBJECT(elem), "bitrate", &current_bw, NULL);
+		x264bw = final_bw / 1000;
+
+		diff = x264bw > current_bw ? x264bw - current_bw :
+		current_bw - x264bw;
+
+		if (diff > 70) {
+			GST_DEBUG("Setting bw of %P to: %d, current: %d", elem,
+							x264bw, current_bw);
+			gst_element_set_state(elem, GST_STATE_READY);
+			g_object_set(G_OBJECT(elem), "bitrate", x264bw, NULL);
+			gst_element_set_state(elem, GST_STATE_PLAYING);
+		}
 	} else {
 		GST_WARNING("Unknown factory: %s", name);
 	}
