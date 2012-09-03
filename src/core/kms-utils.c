@@ -553,11 +553,12 @@ kms_utils_configure_element(GstElement *elem) {
 						"min-iquant", 0,
 						"max-pquant", 20,
 						"min-pquant", 0,
-						"motion", 0,
+						"motion", 6,
 						"trellis", TRUE,
 						"lumimasking", TRUE,
 						"quant-type", 1,
 						"profile", 148,
+						"max-key-interval", 5,
 						"bitrate", 300000, NULL);
 	} else if (g_strcmp0(name, "rtph264pay") == 0) {
 		g_object_set(G_OBJECT(elem), "config-interval", 5, NULL);
