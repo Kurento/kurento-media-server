@@ -545,9 +545,20 @@ kms_utils_configure_element(GstElement *elem) {
 		g_object_set(G_OBJECT(elem), "config-interval", 2,
 						"send-config", TRUE, NULL);
 	} else if (g_strcmp0(name, "xvidenc") == 0) {
-		g_object_set(G_OBJECT(elem), "max-bquant", 0,
+		g_object_set(G_OBJECT(elem), "max-bquant", 31,
+						"min-bquant", 31,
 						"bquant-ratio", 0,
-						"motion", 0, NULL);
+						"max-bframes", 0,
+						"max-iquant", 20,
+						"min-iquant", 0,
+						"max-pquant", 20,
+						"min-pquant", 0,
+						"motion", 0,
+						"trellis", TRUE,
+						"lumimasking", TRUE,
+						"quant-type", 1,
+						"profile", 148,
+						"bitrate", 300000, NULL);
 	} else if (g_strcmp0(name, "rtph264pay") == 0) {
 		g_object_set(G_OBJECT(elem), "config-interval", 5, NULL);
 	} else if (g_strcmp0(name, "x264enc") == 0) {
@@ -560,7 +571,14 @@ kms_utils_configure_element(GstElement *elem) {
 						"b-adapt", FALSE,
 						"pb-factor", 2.0,
 						"mb-tree", FALSE,
-						"pass", 17 /* pass1 */, NULL);
+						"pass", 17 /* pass1 */,
+						"bitrate", 300, NULL);
+	} else if (g_strcmp0(name, "ffenc_mpeg4") == 0) {
+		g_object_set(G_OBJECT(elem), "bitrate", 300000,
+						"qcompress", 0.0,
+						"qblur", 0.0,
+						"gop-size", 5,
+						"trellis", 0, NULL);
 	}
 }
 
