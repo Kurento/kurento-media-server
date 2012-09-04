@@ -611,8 +611,7 @@ kms_utils_configure_bw(GstElement *elem, guint neg_bw, guint bw) {
 				g_strcmp0(name, "ffenc_mpeg4") == 0 ||
 				g_strcmp0(name, "ffenc_h263") == 0 ||
 				g_strcmp0(name, "ffenc_h263p") == 0 ||
-				g_strcmp0(name, "ffenc_flv") == 0 ||
-				g_strcmp0(name, "ffenc_nellymoser") == 0) {
+				g_strcmp0(name, "ffenc_flv") == 0) {
 		g_object_get(G_OBJECT(elem), "bitrate", &current_bw, NULL);
 
 		diff = final_bw > current_bw ? final_bw - current_bw :
