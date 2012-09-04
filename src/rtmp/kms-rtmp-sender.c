@@ -31,6 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VIDEO_TEMPL "video_sink"
 
 #define VIDEO_CAPS "video/x-flash-video;"
+
+// #define VIDEO_CAPS "video/x-h264,stream-format=byte-stream,profile=constrained-baseline,alignment=au"
+
 /*
 			"video/x-flash-screen;"					\
 			"video/x-vp6-flash;"					\
@@ -136,7 +139,8 @@ unlinked(GstPad *pad, GstPad *peer, KmsRtmpSender *self) {
 
 static void
 found_media(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
-	GstElement *queue, *sink;
+	GstElement *queue, *sink, *h264parser = NULL;
+	GstCaps *h264caps;
 	gchar *url;
 
 	url = g_object_get_data(G_OBJECT(tf), URL_DATA);
@@ -149,13 +153,33 @@ found_media(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 	gst_element_set_state(queue, GST_STATE_PLAYING);
 	gst_bin_add(GST_BIN(self), queue);
 
+	h264caps = gst_caps_from_string("video/x-h264");
+
+	if (gst_caps_can_intersect(caps, h264caps)) {
+		h264parser = gst_element_factory_make("h264parse", NULL);
+
+		kms_utils_remove_when_unlinked_pad_name(h264parser, "sink");
+		kms_utils_remove_when_unlinked_pad_name(h264parser, "src");
+
+		g_object_set(G_OBJECT(h264parser), "config-interval", 3, NULL);
+
+		gst_element_set_state(h264parser, GST_STATE_PLAYING);
+		gst_bin_add(GST_BIN(self), h264parser);
+	}
+
+	gst_caps_unref(h264caps);
+
 	gst_element_link(tf, queue);
 
 	sink = create_rtmpsink(self, url);
 
 	if (sink != NULL) {
 		GstPad *pad, *peer;
-		gst_element_link(queue, sink);
+		if (h264parser != NULL)
+			gst_element_link_many(queue, h264parser, sink, NULL);
+		else
+			gst_element_link(queue, sink);
+
 		pad = gst_element_get_pad(queue, "src");
 		if (pad != NULL) {
 			peer = gst_pad_get_peer(pad);
