@@ -31,8 +31,6 @@ struct _KmsRtpReceiverPriv {
 
 	KmsSessionSpec *local_spec;
 
-	GstElement *udpsrc;
-
 	gint audio_port;
 	gint video_port;
 	gint audio_fd;
@@ -543,8 +541,6 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 	gst_element_set_state(ptdemux, GST_STATE_PLAYING);
 
 	g_object_get(udpsrc, "port", port, "sock", fd, NULL);
-
-	self->priv->udpsrc = udpsrc;
 
 	g_object_set_data(G_OBJECT(ptdemux), MEDIA_TYPE_DATA,
 							GINT_TO_POINTER(type));
