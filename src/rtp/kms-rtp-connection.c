@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define LOCK(obj) (g_static_mutex_lock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
 
+#define ICE_TIMEOUT 10
 #define STREAM_ID_DATA "stream_id"
 
 enum {
@@ -45,6 +46,10 @@ struct _KmsRtpConnectionPriv {
 
 	NiceAgent *audio_agent;
 	NiceAgent *video_agent;
+	gboolean audio_gathered;
+	gboolean video_gathered;
+	GMutex ice_mutex;
+	GCond ice_cond;
 
 	KmsRtpReceiver *receiver;
 	KmsRtpSender *sender;
@@ -304,11 +309,19 @@ get_property(GObject *object, guint property_id, GValue *value,
 static void
 candidates_ready_audio(NiceAgent *agent, guint stream_id, KmsRtpConnection *self) {
 	g_print("audio candidates ready\n");
+	g_mutex_lock(&(self->priv->ice_mutex));
+	self->priv->audio_gathered = TRUE;
+	g_cond_signal(&self->priv->ice_cond);
+	g_mutex_unlock(&(self->priv->ice_mutex));
 }
 
 static void
 candidates_ready_video(NiceAgent *agent, guint stream_id, KmsRtpConnection *self) {
 	g_print("video candidates ready\n");
+	g_mutex_lock(&(self->priv->ice_mutex));
+	self->priv->video_gathered = TRUE;
+	g_cond_signal(&self->priv->ice_cond);
+	g_mutex_unlock(&(self->priv->ice_mutex));
 }
 
 static void
@@ -388,6 +401,22 @@ create_nice_agents(KmsRtpConnection *self) {
 		goto error;
 	}
 
+	g_mutex_lock(&(self->priv->ice_mutex));
+	while (!self->priv->audio_gathered || !self->priv->video_gathered) {
+		guint64 end_time = g_get_monotonic_time() +
+					ICE_TIMEOUT * G_TIME_SPAN_SECOND;
+
+		if (!g_cond_wait_until(&self->priv->ice_cond,
+					&self->priv->ice_mutex, end_time)) {
+			dispose_audio_agent(self);
+			dispose_video_agent(self);
+			g_warning("Timeout getting candidates");
+			g_mutex_unlock(&(self->priv->ice_mutex));
+			return;
+		}
+	}
+	g_mutex_unlock(&(self->priv->ice_mutex));
+
 	return;
 error:
 	dispose_audio_agent(self);
@@ -445,6 +474,8 @@ kms_rtp_connection_finalize(GObject *object) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
 
 	g_static_mutex_free(&(self->priv->mutex));
+	g_mutex_clear(&(self->priv->ice_mutex));
+	g_cond_clear(&(self->priv->ice_cond));
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_rtp_connection_parent_class)->finalize(object);
@@ -502,4 +533,8 @@ kms_rtp_connection_init(KmsRtpConnection *self) {
 	self->priv->neg_local_spec = NULL;
 	self->priv->audio_agent = NULL;
 	self->priv->video_agent = NULL;
+	self->priv->audio_gathered = FALSE;
+	self->priv->video_gathered = FALSE;
+	g_mutex_init(&(self->priv->ice_mutex));
+	g_cond_init(&(self->priv->ice_cond));
 }
