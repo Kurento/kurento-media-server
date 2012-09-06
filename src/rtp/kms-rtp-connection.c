@@ -329,7 +329,7 @@ kms_rtp_connection_finalize(GObject *object) {
 }
 
 static void
-kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
+kms_rtp_connection_class_init(KmsRtpConnectionClass *klass) {
 	GParamSpec *pspec;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
@@ -367,7 +367,7 @@ kms_rtp_connection_class_init (KmsRtpConnectionClass *klass) {
 }
 
 static void
-kms_rtp_connection_init (KmsRtpConnection *self) {
+kms_rtp_connection_init(KmsRtpConnection *self) {
 	self->priv = KMS_RTP_CONNECTION_GET_PRIVATE(self);
 
 	g_static_mutex_init(&(self->priv->mutex));
