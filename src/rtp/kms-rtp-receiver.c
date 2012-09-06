@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <kms-core.h>
 #include <rtp/kms-rtp.h>
 #include "internal/kms-utils.h"
+#include <nice.h>
 
 #define KMS_RTP_RECEIVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTP_RECEIVER, KmsRtpReceiverPriv))
 
@@ -30,6 +31,9 @@ struct _KmsRtpReceiverPriv {
 	GMutex *mutex;
 
 	KmsSessionSpec *local_spec;
+
+	NiceAgent *audio_agent;
+	NiceAgent *video_agent;
 
 	gint audio_port;
 	gint video_port;
@@ -46,6 +50,22 @@ enum {
 };
 
 G_DEFINE_TYPE(KmsRtpReceiver, kms_rtp_receiver, KMS_TYPE_MEDIA_HANDLER_SRC)
+
+static void
+dispose_video_agent(KmsRtpReceiver *self) {
+	if (self->priv->video_agent != NULL) {
+		g_object_unref(self->priv->video_agent);
+		self->priv->video_agent = NULL;
+	}
+}
+
+static void
+dispose_audio_agent(KmsRtpReceiver *self) {
+	if (self->priv->audio_agent != NULL) {
+		g_object_unref(self->priv->audio_agent);
+		self->priv->audio_agent = NULL;
+	}
+}
 
 static void
 dispose_local_spec(KmsRtpReceiver *self) {
@@ -588,6 +608,8 @@ dispose(GObject *object) {
 // 		self->priv->udpsrc = NULL;
 // 	}
 	dispose_local_spec(self);
+	dispose_audio_agent(self);
+	dispose_video_agent(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -653,4 +675,6 @@ kms_rtp_receiver_init(KmsRtpReceiver *self) {
 
 	self->priv->mutex = g_mutex_new();
 	self->priv->local_spec = NULL;
+	self->priv->audio_agent = NULL;
+	self->priv->video_agent = NULL;
 }

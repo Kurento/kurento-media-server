@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <kms-core.h>
 #include <rtp/kms-rtp.h>
 #include "internal/kms-utils.h"
+#include <nice.h>
 
 #define KMS_RTP_SENDER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTP_SENDER, KmsRtpSenderPriv))
 
@@ -30,6 +31,9 @@ struct _KmsRtpSenderPriv {
 	KmsSessionSpec *remote_spec;
 	gint audio_fd;
 	gint video_fd;
+
+	NiceAgent *audio_agent;
+	NiceAgent *video_agent;
 };
 
 enum {
@@ -41,6 +45,22 @@ enum {
 };
 
 G_DEFINE_TYPE(KmsRtpSender, kms_rtp_sender, KMS_TYPE_MEDIA_HANDLER_SINK)
+
+static void
+dispose_video_agent(KmsRtpSender *self) {
+	if (self->priv->video_agent != NULL) {
+		g_object_unref(self->priv->video_agent);
+		self->priv->video_agent = NULL;
+	}
+}
+
+static void
+dispose_audio_agent(KmsRtpSender *self) {
+	if (self->priv->audio_agent != NULL) {
+		g_object_unref(self->priv->audio_agent);
+		self->priv->audio_agent = NULL;
+	}
+}
 
 static void
 dispose_remote_spec(KmsRtpSender *self) {
@@ -253,6 +273,8 @@ dispose(GObject *object) {
 
 	LOCK(self);
 	dispose_remote_spec(self);
+	dispose_audio_agent(self);
+	dispose_video_agent(self);
 	UNLOCK(self);
 
 	G_OBJECT_CLASS(kms_rtp_sender_parent_class)->dispose(object);
@@ -322,4 +344,6 @@ kms_rtp_sender_init(KmsRtpSender *self) {
 	self->priv->remote_spec = NULL;
 	self->priv->audio_fd = -1;
 	self->priv->video_fd = -1;
+	self->priv->audio_agent = NULL;
+	self->priv->video_agent = NULL;
 }

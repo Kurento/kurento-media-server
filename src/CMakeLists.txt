@@ -25,6 +25,9 @@ target_link_libraries(kmsclib ${GSTREAMER_LIBRARIES})
 include_directories(kmsclib ${THRIFTC_INCLUDE_DIRS})
 target_link_libraries(kmsclib ${THRIFTC_LIBRARIES})
 
+include_directories(kmsclib ${NICE_INCLUDE_DIRS})
+target_link_libraries(kmsclib ${NICE_LIBRARIES})
+
 include_directories(kmsclib core .)
 
 add_library(gmediaspec STATIC IMPORTED)

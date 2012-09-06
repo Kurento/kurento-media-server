@@ -18,11 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <kms-core.h>
 #include <rtp/kms-rtp.h>
 #include "internal/kms-utils.h"
+#include <nice.h>
 
 #define KMS_RTP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTP_CONNECTION, KmsRtpConnectionPriv))
 
 #define LOCK(obj) (g_static_mutex_lock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
 #define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
+
+#define STREAM_ID_DATA "stream_id"
 
 enum {
 	PROP_0,
@@ -39,6 +42,10 @@ struct _KmsRtpConnectionPriv {
 	KmsSessionSpec *neg_local_spec;
 	KmsSessionSpec *neg_remote_spec;
 	KmsSessionSpec *descriptor;
+
+	NiceAgent *audio_agent;
+	NiceAgent *video_agent;
+
 	KmsRtpReceiver *receiver;
 	KmsRtpSender *sender;
 };
@@ -54,6 +61,22 @@ G_DEFINE_TYPE_WITH_CODE(KmsRtpConnection, kms_rtp_connection,
 				G_IMPLEMENT_INTERFACE(
 					KMS_TYPE_MEDIA_HANDLER_FACTORY,
 					media_handler_factory_iface_init))
+
+static void
+dispose_video_agent(KmsRtpConnection *self) {
+	if (self->priv->video_agent != NULL) {
+		g_object_unref(self->priv->video_agent);
+		self->priv->video_agent = NULL;
+	}
+}
+
+static void
+dispose_audio_agent(KmsRtpConnection *self) {
+	if (self->priv->audio_agent != NULL) {
+		g_object_unref(self->priv->audio_agent);
+		self->priv->audio_agent = NULL;
+	}
+}
 
 static void
 dispose_receiver(KmsRtpConnection *self) {
@@ -279,6 +302,101 @@ get_property(GObject *object, guint property_id, GValue *value,
 }
 
 static void
+candidates_ready_audio(NiceAgent *agent, guint stream_id, KmsRtpConnection *self) {
+	g_print("audio candidates ready\n");
+}
+
+static void
+candidates_ready_video(NiceAgent *agent, guint stream_id, KmsRtpConnection *self) {
+	g_print("video candidates ready\n");
+}
+
+static void
+state_changed_audio(NiceAgent *agent, guint stream_id, guint component_id,
+					guint state, KmsRtpConnection *self) {
+}
+
+static void
+state_changed_video(NiceAgent *agent, guint stream_id, guint component_id,
+					guint state, KmsRtpConnection *self) {
+}
+
+static void
+audio_nice_recv() {
+	// Dummy, just used to allow get ICE candidates
+}
+
+static void
+video_nice_recv() {
+	// Dummy, just used to get ICE candidates
+}
+
+static void
+create_nice_agents(KmsRtpConnection *self) {
+	guint astream_id, vstream_id;
+
+	self->priv->audio_agent = nice_agent_new(g_main_context_default(),
+						NICE_COMPATIBILITY_RFC5245);
+	self->priv->video_agent = nice_agent_new(g_main_context_default(),
+						NICE_COMPATIBILITY_RFC5245);
+
+	GObject *aagent = G_OBJECT(self->priv->audio_agent);
+
+	g_signal_connect(aagent, "candidate-gathering-done",
+				G_CALLBACK(candidates_ready_audio), self);
+	g_signal_connect(aagent, "component-state-changed",
+				G_CALLBACK(state_changed_audio), self);
+
+	GObject *vagent = G_OBJECT(self->priv->video_agent);
+
+	g_signal_connect(vagent, "candidate-gathering-done",
+				G_CALLBACK(candidates_ready_video), self);
+	g_signal_connect(vagent, "component-state-changed",
+				G_CALLBACK(state_changed_video), self);
+
+	g_object_set(aagent, "stun-server", "193.147.51.24", NULL);
+	g_object_set(aagent, "stun-server-port", (guint) 3478 , NULL);
+
+	g_object_set(vagent, "stun-server", "193.147.51.24", NULL);
+	g_object_set(vagent, "stun-server-port", (guint) 3478 , NULL);
+
+	astream_id = nice_agent_add_stream(self->priv->audio_agent, 1);
+	g_object_set_data(aagent, STREAM_ID_DATA, GUINT_TO_POINTER(astream_id));
+
+	if (astream_id == 0)
+		goto error;
+
+	vstream_id = nice_agent_add_stream(self->priv->video_agent, 1);
+	g_object_set_data(vagent, STREAM_ID_DATA, GUINT_TO_POINTER(vstream_id));
+
+	if (vstream_id == 0)
+		goto error;
+
+	nice_agent_attach_recv(self->priv->audio_agent, astream_id, 1,
+			       g_main_context_default(), video_nice_recv, NULL);
+
+	nice_agent_attach_recv(self->priv->video_agent, vstream_id, 1,
+			       g_main_context_default(), audio_nice_recv, NULL);
+
+	if (!nice_agent_gather_candidates(self->priv->audio_agent, astream_id)) {
+		g_print("Error getting candidates audio");
+		goto error;
+	}
+
+	if (!nice_agent_gather_candidates(self->priv->video_agent, vstream_id)) {
+		g_print("Error getting candidates for video");
+		goto error;
+	}
+
+	return;
+error:
+	dispose_audio_agent(self);
+	dispose_video_agent(self);
+	g_warning("Error while initializing ice agents for %s",
+							GST_ELEMENT_NAME(self));
+}
+
+static void
 constructed(GObject *object) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
 
@@ -290,6 +408,8 @@ constructed(GObject *object) {
 		g_assert_not_reached();
 		return;
 	}
+
+	create_nice_agents(self);
 
 	g_return_if_fail(self->priv->local_spec != NULL);
 
@@ -312,6 +432,8 @@ kms_rtp_connection_dispose(GObject *object) {
 	dispose_descriptor(self);
 	dispose_receiver(self);
 	dispose_sender(self);
+	dispose_audio_agent(self);
+	dispose_video_agent(self);
 	UNLOCK(self);
 
 	/* Chain up to the parent class */
@@ -378,4 +500,6 @@ kms_rtp_connection_init(KmsRtpConnection *self) {
 	self->priv->remote_spec = NULL;
 	self->priv->neg_remote_spec = NULL;
 	self->priv->neg_local_spec = NULL;
+	self->priv->audio_agent = NULL;
+	self->priv->video_agent = NULL;
 }
