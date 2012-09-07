@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 static gboolean
 is_compatible_transport(KmsMediaSpec *a, KmsMediaSpec *b) {
 	return (a->transport->__isset_rtmp && b->transport->__isset_rtmp) ||
-					(a->transport->__isset_rtp &&
-						b->transport->__isset_rtp);
+		(a->transport->__isset_rtp && b->transport->__isset_rtp) ||
+		(a->transport->__isset_ice && b->transport->__isset_ice);
 }
 
 static gboolean
@@ -88,6 +88,24 @@ intersect_transport(KmsTransport *answerer, KmsTransport *offerer,
 						!KMS_IS_TRANSPORT(neg_ans) ||
 						!KMS_IS_TRANSPORT(neg_off))
 		return;
+
+	if (!neg_ans->__isset_rtmp)
+		neg_off->__isset_rtmp = FALSE;
+
+	if (!neg_off->__isset_rtmp)
+		neg_ans->__isset_rtmp = FALSE;
+
+	if (!neg_ans->__isset_rtp)
+		neg_off->__isset_rtp = FALSE;
+
+	if (!neg_off->__isset_rtp)
+		neg_ans->__isset_rtp = FALSE;
+
+	if (!neg_ans->__isset_ice)
+		neg_off->__isset_ice = FALSE;
+
+	if (!neg_off->__isset_ice)
+		neg_ans->__isset_ice = FALSE;
 
 	if (!answerer->__isset_rtmp || !offerer->__isset_rtmp ||
 						!neg_ans->__isset_rtmp ||
