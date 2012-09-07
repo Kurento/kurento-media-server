@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define UNLOCK(obj) (g_mutex_unlock(KMS_RTP_RECEIVER(obj)->priv->mutex))
 
 #define MEDIA_TYPE_DATA "type"
+#define STREAM_ID_DATA "stream_id"
 
 struct _KmsRtpReceiverPriv {
 	GMutex *mutex;
@@ -39,6 +40,8 @@ struct _KmsRtpReceiverPriv {
 	gint video_port;
 	gint audio_fd;
 	gint video_fd;
+
+	gboolean constructed;
 };
 
 enum {
@@ -47,6 +50,8 @@ enum {
 	PROP_LOCAL_SPEC,
 	PROP_AUDIO_FD,
 	PROP_VIDEO_FD,
+	PROP_AUDIO_AGENT,
+	PROP_VIDEO_AGENT,
 };
 
 G_DEFINE_TYPE(KmsRtpReceiver, kms_rtp_receiver, KMS_TYPE_MEDIA_HANDLER_SRC)
@@ -76,6 +81,69 @@ dispose_local_spec(KmsRtpReceiver *self) {
 }
 
 static void
+process_negotiated_transport(KmsRtpReceiver *self) {
+	gint32 i;
+
+	for (i = 0; i < self->priv->local_spec->medias->len; i++) {
+		KmsMediaSpec *media;
+		NiceAgent *agent;
+		gchar *src_name, *demux_name;
+		guint stream_id;
+		gint *fd;
+
+		media = self->priv->local_spec->medias->pdata[i];
+
+		if (g_hash_table_lookup(media->type,
+					(gpointer) KMS_MEDIA_TYPE_VIDEO)) {
+			agent = self->priv->video_agent;
+			src_name = "src_video";
+			demux_name = "demux_video";
+			fd = &self->priv->video_fd;
+		} else if (g_hash_table_lookup(media->type,
+					(gpointer) KMS_MEDIA_TYPE_AUDIO)) {
+			agent = self->priv->audio_agent;
+			src_name = "src_audio";
+			demux_name = "demux_audio";
+			fd = &self->priv->audio_fd;
+		} else {
+			continue;
+		}
+
+		if (agent == NULL)
+			continue;
+
+		if (media->transport->__isset_rtp) {
+			GstElement *src, *demux;
+
+			stream_id = GPOINTER_TO_UINT(g_object_get_data(
+					G_OBJECT(agent), STREAM_ID_DATA));
+			nice_agent_remove_stream(agent, stream_id);
+			nice_agent_restart(agent);
+
+			src = gst_bin_get_by_name(GST_BIN(self), src_name);
+			demux = gst_bin_get_by_name(GST_BIN(self), demux_name);
+
+			gst_bin_remove(GST_BIN(self), src);
+			gst_element_set_state(src, GST_STATE_NULL);
+			gst_object_unref(src);
+
+			src = gst_element_factory_make("udpsrc", src_name);
+			g_object_set(src, "port", media->transport->rtp->port, NULL);
+
+			gst_element_set_state(src, GST_STATE_PLAYING);
+			gst_bin_add(GST_BIN(self), src);
+			gst_element_link(src, demux);
+
+			g_object_get(src, "sock", fd, NULL);
+
+			g_object_unref(demux);
+		} else {
+			continue;
+		}
+	}
+}
+
+static void
 set_property (GObject *object, guint property_id, const GValue *value,
 							GParamSpec *pspec) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
@@ -85,6 +153,20 @@ set_property (GObject *object, guint property_id, const GValue *value,
 			LOCK(self);
 			dispose_local_spec(self);
 			self->priv->local_spec = g_value_dup_object(value);
+			if (self->priv->constructed)
+				process_negotiated_transport(self);
+			UNLOCK(self);
+			break;
+		case PROP_AUDIO_AGENT:
+			LOCK(self);
+			dispose_audio_agent(self);
+			self->priv->audio_agent = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
+		case PROP_VIDEO_AGENT:
+			LOCK(self);
+			dispose_video_agent(self);
+			self->priv->video_agent = g_value_dup_object(value);
 			UNLOCK(self);
 			break;
 		default:
@@ -525,42 +607,153 @@ end:
 }
 
 static void
+process_candidates(KmsRtpReceiver *self, NiceAgent *agent, KmsMediaType type,
+								gint *port) {
+	GSList *candidates, *l, *final_candidates = NULL;
+	guint stream_id;
+	guint32 priority = 0;
+	gchar addr[NICE_ADDRESS_STRING_LEN];
+	gchar aux[NICE_ADDRESS_STRING_LEN];
+	gint i;
+
+	stream_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(agent),
+						       STREAM_ID_DATA));
+
+	candidates = nice_agent_get_local_candidates(agent, stream_id, 1);
+
+	for (l = candidates; l != NULL; l = l->next) {
+		NiceCandidate *cand = l->data;
+		KmsTransportIceCandidate *trcand;
+
+		nice_address_to_string(&(cand->addr), aux);
+
+		if (g_strrstr(aux, ":")) {
+			continue;
+		}
+
+		trcand = g_object_new(KMS_TYPE_TRANSPORT_ICE_CANDIDATE, NULL);
+		if (trcand->address != NULL)
+			g_free(trcand->address);
+		trcand->address = g_strdup(aux);
+		trcand->port = nice_address_get_port(&(cand->addr));
+		if (trcand->baseAddress != NULL)
+			g_free(trcand->baseAddress);
+		nice_address_to_string(&(cand->base_addr), aux);
+		trcand->baseAddress = g_strdup(aux);
+		trcand->__isset_baseAddress = TRUE;
+		trcand->basePort = nice_address_get_port(&(cand->base_addr));
+		trcand->__isset_basePort = TRUE;
+		trcand->componentId = 1;
+		trcand->foundation = g_strdup(cand->foundation);
+		trcand->priority = cand->priority;
+		trcand->streamId = cand->stream_id;
+		trcand->__isset_streamId = TRUE;
+		trcand->transport = cand->transport;
+		trcand->type = cand->type;
+
+		if (trcand->username != NULL)
+			g_free(trcand->username);
+
+		if (trcand->password != NULL)
+			g_free(trcand->password);
+
+		nice_agent_get_local_credentials(agent, stream_id,
+					&trcand->username, &trcand->password);
+
+		final_candidates = g_slist_prepend(final_candidates, trcand);
+
+		if (cand->type == NICE_CANDIDATE_TYPE_PEER_REFLEXIVE &&
+						cand->priority <= priority)
+			continue;
+
+		priority = cand->priority;
+		nice_address_to_string(&(cand->addr), addr);
+		*port = nice_address_get_port(&(cand->addr));
+	}
+
+	g_slist_free_full(candidates, (GDestroyNotify) nice_candidate_free);
+
+	for (i = 0; i < self->priv->local_spec->medias->len; i++) {
+		KmsMediaSpec *media;
+
+		media = self->priv->local_spec->medias->pdata[i];
+
+		if (!g_hash_table_lookup(media->type, (gpointer) type)) {
+			continue;
+		}
+
+		media->transport->__isset_ice = TRUE;
+
+		for (l = final_candidates; l != NULL; l = l->next)
+			g_ptr_array_add(media->transport->ice->candidates, l->data);
+
+		if (priority != 0) {
+			media->transport->__isset_rtp = TRUE;
+			media->transport->rtp->__isset_port = TRUE;
+			media->transport->rtp->port = *port;
+			if (media->transport->rtp->address != NULL)
+				g_free(media->transport->rtp->address);
+			media->transport->rtp->__isset_address = TRUE;
+			media->transport->rtp->address = g_strdup(addr);
+		}
+	}
+
+	g_slist_free(final_candidates);
+}
+
+static void
 create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
-	GstElement *udpsrc, *ptdemux;
-	GstCaps *caps;
-	gchar *udpsrc_name;
+	GstElement *src, *ptdemux;
+	gchar *src_name, *demux_name;
 	gint *port, *fd;
+	NiceAgent *agent;
 
 	switch (type) {
 	case KMS_MEDIA_TYPE_AUDIO:
-		udpsrc_name = "udpsrc_audio";
+		src_name = "src_audio";
+		demux_name = "demux_audio";
 		port = &(self->priv->audio_port);
 		fd = &(self->priv->audio_fd);
+		agent = self->priv->audio_agent;
 		break;
 	case KMS_MEDIA_TYPE_VIDEO:
-		udpsrc_name = "udpsrc_video";
+		src_name = "src_video";
+		demux_name = "demux_video";
 		port = &(self->priv->video_port);
 		fd = &(self->priv->video_fd);
+		agent = self->priv->video_agent;
 		break;
 	default:
 		return;
 	}
 
-	caps = gst_caps_from_string("application/x-rtp");
-	udpsrc = gst_element_factory_make("udpsrc", udpsrc_name);
-	g_object_set(udpsrc, "port", 0, NULL);
-	g_object_set(udpsrc, "caps", caps, NULL);
-	gst_caps_unref(caps);
+	if (agent != NULL) {
+		guint stream_id;
 
-	ptdemux = gst_element_factory_make("gstrtpptdemux", NULL);
+		src = gst_element_factory_make("nicesrc", src_name);
+		stream_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(agent),
+							STREAM_ID_DATA));
+		process_candidates(self, agent, type, port);
 
-	gst_bin_add_many(GST_BIN(self), udpsrc, ptdemux, NULL);
-	gst_element_link(udpsrc, ptdemux);
+		g_object_set(src, "agent", agent, "stream", stream_id,
+						"component", (guint) 1, NULL);
+	} else {
+		src = gst_element_factory_make("udpsrc", src_name);
+		g_object_set(src, "port", 0, NULL);
+	}
 
-	gst_element_set_state(udpsrc, GST_STATE_PLAYING);
+	ptdemux = gst_element_factory_make("gstrtpptdemux", demux_name);
+
+	gst_bin_add_many(GST_BIN(self), src, ptdemux, NULL);
+	gst_element_link(src, ptdemux);
+
+	if (agent == NULL)
+		gst_element_set_state(src, GST_STATE_PLAYING);
 	gst_element_set_state(ptdemux, GST_STATE_PLAYING);
 
-	g_object_get(udpsrc, "port", port, "sock", fd, NULL);
+	if (agent == NULL) {
+		g_object_get(src, "port", port, "sock", fd, NULL);
+	}
 
 	g_object_set_data(G_OBJECT(ptdemux), MEDIA_TYPE_DATA,
 							GINT_TO_POINTER(type));
@@ -594,6 +787,8 @@ constructed(GObject *object) {
 			media->transport->rtp->port = self->priv->video_port;
 		}
 	}
+
+	self->priv->constructed = TRUE;
 }
 
 static void
@@ -659,6 +854,22 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 
 	g_object_class_install_property(object_class, PROP_VIDEO_FD, pspec);
 
+	pspec = g_param_spec_object("audio-agent", "ICE Audio Agent",
+						"ICE Audio Agent",
+						NICE_TYPE_AGENT,
+						G_PARAM_CONSTRUCT_ONLY |
+						G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_AUDIO_AGENT, pspec);
+
+	pspec = g_param_spec_object("video-agent", "ICE Video Agent",
+						"ICE Video Agent",
+						NICE_TYPE_AGENT,
+						G_PARAM_CONSTRUCT_ONLY |
+						G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_VIDEO_AGENT, pspec);
+
 	/* HACK:
 		Don't know why but padtemplates are NULL in child classes,
 		this hack takes them from parent class
@@ -677,4 +888,8 @@ kms_rtp_receiver_init(KmsRtpReceiver *self) {
 	self->priv->local_spec = NULL;
 	self->priv->audio_agent = NULL;
 	self->priv->video_agent = NULL;
+	self->priv->video_port = 0;
+	self->priv->audio_port = 0;
+
+	self->priv->constructed = FALSE;
 }
