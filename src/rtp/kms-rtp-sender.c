@@ -81,10 +81,10 @@ create_pad_template(KmsRtpSender *self, const GstCaps *caps, KmsMediaType type) 
 	l = templates;
 	switch(type) {
 	case KMS_MEDIA_TYPE_AUDIO:
-		type_str = g_strdup("audio");
+		type_str = g_strdup("audio_sink");
 		break;
 	case KMS_MEDIA_TYPE_VIDEO:
-		type_str = g_strdup("video");
+		type_str = g_strdup("video_sink");
 		break;
 	default:
 		return NULL;
