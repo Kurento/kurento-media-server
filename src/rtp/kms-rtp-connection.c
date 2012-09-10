@@ -209,15 +209,18 @@ configure_agents(KmsRtpConnection *self) {
 		KmsMediaSpec *media;
 		NiceAgent *agent;
 		guint stream_id;
+		KmsMediaType type;
 
 		media = self->priv->remote_spec->medias->pdata[i];
 
 		if (g_hash_table_lookup(media->type,
 					(gpointer) KMS_MEDIA_TYPE_VIDEO)) {
 			agent = self->priv->video_agent;
+			type = KMS_MEDIA_TYPE_VIDEO;
 		} else if (g_hash_table_lookup(media->type,
 					(gpointer) KMS_MEDIA_TYPE_AUDIO)) {
 			agent = self->priv->audio_agent;
+			type = KMS_MEDIA_TYPE_AUDIO;
 		} else {
 			continue;
 		}
@@ -285,9 +288,16 @@ configure_agents(KmsRtpConnection *self) {
 			nice_agent_set_remote_candidates(agent, stream_id, 1,
 							 candidates);
 
+			// TODO: Wait until agents have negotiated?
+
 			g_slist_free_full(candidates,
 					  (GDestroyNotify) nice_candidate_free);
 		} else {
+			nice_agent_remove_stream(agent, stream_id);
+			if (type == KMS_MEDIA_TYPE_AUDIO)
+				dispose_audio_agent(self);
+			else if (type == KMS_MEDIA_TYPE_VIDEO)
+				dispose_video_agent(self);
 			continue;
 		}
 	}
@@ -331,8 +341,11 @@ connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec,
 	dispose_descriptor(self);
 	self->priv->descriptor = g_object_ref(self->priv->neg_local_spec);
 
-	g_object_set(self->priv->receiver, "local-spec", self->priv->descriptor,
-									NULL);
+	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER,
+					"local-spec", self->priv->descriptor,
+					"audio-agent", self->priv->audio_agent,
+					"video-agent", self->priv->video_agent,
+					NULL);
 
 	/* Create rtpsender */
 	create_rtp_sender(self);
@@ -519,6 +532,100 @@ error:
 }
 
 static void
+process_candidates(KmsRtpConnection *self, NiceAgent *agent, KmsMediaType type) {
+	GSList *candidates, *l, *final_candidates = NULL;
+	guint stream_id;
+	guint32 priority = 0;
+	gchar addr[NICE_ADDRESS_STRING_LEN];
+	gchar aux[NICE_ADDRESS_STRING_LEN];
+	gint i, port;
+
+	stream_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(agent),
+						       STREAM_ID_DATA));
+
+	candidates = nice_agent_get_local_candidates(agent, stream_id, 1);
+
+	for (l = candidates; l != NULL; l = l->next) {
+		NiceCandidate *cand = l->data;
+		KmsTransportIceCandidate *trcand;
+
+		nice_address_to_string(&(cand->addr), aux);
+
+		if (g_strrstr(aux, ":")) {
+			continue;
+		}
+
+		trcand = g_object_new(KMS_TYPE_TRANSPORT_ICE_CANDIDATE, NULL);
+		if (trcand->address != NULL)
+			g_free(trcand->address);
+		trcand->address = g_strdup(aux);
+		trcand->port = nice_address_get_port(&(cand->addr));
+		if (trcand->baseAddress != NULL)
+			g_free(trcand->baseAddress);
+		nice_address_to_string(&(cand->base_addr), aux);
+		trcand->baseAddress = g_strdup(aux);
+		trcand->__isset_baseAddress = TRUE;
+		trcand->basePort = nice_address_get_port(&(cand->base_addr));
+		trcand->__isset_basePort = TRUE;
+		trcand->componentId = 1;
+		trcand->foundation = g_strdup(cand->foundation);
+		trcand->priority = cand->priority;
+		trcand->streamId = cand->stream_id;
+		trcand->__isset_streamId = TRUE;
+		trcand->transport = cand->transport;
+		trcand->type = cand->type;
+
+		if (trcand->username != NULL)
+			g_free(trcand->username);
+
+		if (trcand->password != NULL)
+			g_free(trcand->password);
+
+		nice_agent_get_local_credentials(agent, stream_id,
+					&trcand->username, &trcand->password);
+
+		final_candidates = g_slist_prepend(final_candidates, trcand);
+
+		if (cand->type == NICE_CANDIDATE_TYPE_PEER_REFLEXIVE &&
+						cand->priority <= priority)
+			continue;
+
+		priority = cand->priority;
+		nice_address_to_string(&(cand->addr), addr);
+		port = nice_address_get_port(&(cand->addr));
+	}
+
+	g_slist_free_full(candidates, (GDestroyNotify) nice_candidate_free);
+
+	for (i = 0; i < self->priv->local_spec->medias->len; i++) {
+		KmsMediaSpec *media;
+
+		media = self->priv->local_spec->medias->pdata[i];
+
+		if (!g_hash_table_lookup(media->type, (gpointer) type)) {
+			continue;
+		}
+
+		media->transport->__isset_ice = TRUE;
+
+		for (l = final_candidates; l != NULL; l = l->next)
+			g_ptr_array_add(media->transport->ice->candidates, l->data);
+
+		if (priority != 0) {
+			media->transport->__isset_rtp = TRUE;
+			media->transport->rtp->__isset_port = TRUE;
+			media->transport->rtp->port = port;
+			if (media->transport->rtp->address != NULL)
+				g_free(media->transport->rtp->address);
+			media->transport->rtp->__isset_address = TRUE;
+			media->transport->rtp->address = g_strdup(addr);
+		}
+	}
+
+	g_slist_free(final_candidates);
+}
+
+static void
 constructed(GObject *object) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
 
@@ -532,14 +639,10 @@ constructed(GObject *object) {
 	}
 
 	create_nice_agents(self);
+	process_candidates(self, self->priv->audio_agent, KMS_MEDIA_TYPE_AUDIO);
+	process_candidates(self, self->priv->video_agent, KMS_MEDIA_TYPE_VIDEO);
 
 	g_return_if_fail(self->priv->local_spec != NULL);
-
-	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER,
-					"local-spec", self->priv->local_spec,
-					"audio-agent", self->priv->audio_agent,
-					"video-agent", self->priv->video_agent,
-					NULL);
 }
 
 static void
