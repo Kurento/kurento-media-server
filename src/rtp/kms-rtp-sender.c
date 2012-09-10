@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define LOCK(obj) (g_mutex_lock(KMS_RTP_SENDER(obj)->priv->mutex))
 #define UNLOCK(obj) (g_mutex_unlock(KMS_RTP_SENDER(obj)->priv->mutex))
 
+#define STREAM_ID_DATA "stream_id"
+
 struct _KmsRtpSenderPriv {
 	GMutex *mutex;
 
@@ -42,6 +44,8 @@ enum {
 	PROP_REMOTE_SPEC,
 	PROP_AUDIO_FD,
 	PROP_VIDEO_FD,
+	PROP_AUDIO_AGENT,
+	PROP_VIDEO_AGENT,
 };
 
 G_DEFINE_TYPE(KmsRtpSender, kms_rtp_sender, KMS_TYPE_MEDIA_HANDLER_SINK)
@@ -110,10 +114,23 @@ end:
 	return templ;
 }
 
+static gint
+get_address_port(KmsMediaSpec *media, gchar **addr) {
+	if (!media->transport->__isset_rtp || media->transport->rtp == NULL)
+		return 0;
+
+	*addr = media->transport->rtp->address;
+	if (*addr == NULL)
+		return 0;
+
+	return media->transport->rtp->port;
+}
+
 static void
 create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
+	NiceAgent *agent;
 	KmsPayload *payload;
-	GstElement *udpsink, *payloader;
+	GstElement *networksink, *payloader;
 	GstCaps *caps, *sink_caps, *pay_sink_caps;
 	gint port;
 	KmsMediaType type;
@@ -122,16 +139,9 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 	gchar *addr;
 	gint fd;
 
-	if (!media->transport->__isset_rtp || media->transport->rtp == NULL)
-		return;
+	port = get_address_port(media, &addr);
 
-	addr = media->transport->rtp->address;
-	if (addr == NULL)
-		return;
-
-	port = media->transport->rtp->port;
-
-	if (media->payloads->len == 0 || port == 0)
+	if (media->payloads->len == 0)
 		return;
 
 	if (media->direction == KMS_DIRECTION_INACTIVE ||
@@ -141,13 +151,18 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 	if (g_hash_table_lookup(media->type, (gpointer) KMS_MEDIA_TYPE_AUDIO)) {
 		type = KMS_MEDIA_TYPE_AUDIO;
 		fd = self->priv->audio_fd;
+		agent = self->priv->audio_agent;
 	} else if (g_hash_table_lookup(media->type,
 					(gpointer) KMS_MEDIA_TYPE_VIDEO)) {
 		type = KMS_MEDIA_TYPE_VIDEO;
 		fd = self->priv->video_fd;
+		agent = self->priv->video_agent;
 	} else {
 		return;
 	}
+
+	if (agent == NULL && port == 0)
+		return;
 
 	payload = media->payloads->pdata[0];
 	caps = kms_payload_to_caps(payload, media);
@@ -156,13 +171,17 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 					GST_ELEMENT_FACTORY_TYPE_PAYLOADER,
 					GST_RANK_NONE, caps, GST_PAD_SRC,
 					FALSE, NULL);
-	udpsink = gst_element_factory_make("udpsink", NULL);
 
-	if (payloader == NULL || udpsink == NULL) {
+	if (agent == NULL)
+		networksink = gst_element_factory_make("udpsink", NULL);
+	else
+		networksink = gst_element_factory_make("nicesink", NULL);
+
+	if (payloader == NULL || networksink == NULL) {
 		if (payload != NULL)
 			g_object_unref(payload);
-		if (udpsink != NULL)
-			g_object_unref(udpsink);
+		if (networksink != NULL)
+			g_object_unref(networksink);
 
 		return;
 	}
@@ -175,14 +194,25 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 	gst_caps_unref(pay_sink_caps);
 	g_object_unref(pay_sink);
 
-	g_object_set(udpsink, "host", addr, "port", port, "sync", FALSE, NULL);
-	if (fd != -1)
-		g_object_set(udpsink, "sockfd", fd, "closefd", FALSE, NULL);
+	if (agent == NULL) {
+		g_object_set(networksink, "host", addr, "port", port,
+							"sync", FALSE, NULL);
+		if (fd != -1)
+			g_object_set(networksink, "sockfd", fd,
+							"closefd", FALSE, NULL);
+	} else {
+		guint stream_id;
 
-	gst_element_set_state(udpsink, GST_STATE_PLAYING);
+		stream_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(agent),
+							STREAM_ID_DATA));
+		g_object_set(networksink, "agent", agent, "stream", stream_id,
+						"component", (guint) 1, NULL);
+	}
+
+	gst_element_set_state(networksink, GST_STATE_PLAYING);
 	gst_element_set_state(payloader, GST_STATE_PLAYING);
-	gst_bin_add_many(GST_BIN(self), payloader, udpsink, NULL);
-	gst_element_link(payloader, udpsink);
+	gst_bin_add_many(GST_BIN(self), payloader, networksink, NULL);
+	gst_element_link(payloader, networksink);
 
 	sink_pad = gst_element_get_static_pad(payloader, "sink");
 	sink_caps = gst_pad_get_caps(sink_pad);
@@ -240,6 +270,18 @@ set_property (GObject *object, guint property_id, const GValue *value,
 		case PROP_VIDEO_FD:
 			LOCK(self);
 			self->priv->video_fd = g_value_get_int(value);
+			UNLOCK(self);
+			break;
+		case PROP_AUDIO_AGENT:
+			LOCK(self);
+			dispose_audio_agent(self);
+			self->priv->audio_agent = g_value_dup_object(value);
+			UNLOCK(self);
+			break;
+		case PROP_VIDEO_AGENT:
+			LOCK(self);
+			dispose_video_agent(self);
+			self->priv->video_agent = g_value_dup_object(value);
 			UNLOCK(self);
 			break;
 		default:
@@ -334,6 +376,22 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 					G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_VIDEO_FD, pspec);
+
+	pspec = g_param_spec_object("audio-agent", "ICE Audio Agent",
+				    "ICE Audio Agent",
+			     NICE_TYPE_AGENT,
+			     G_PARAM_CONSTRUCT_ONLY |
+			     G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_AUDIO_AGENT, pspec);
+
+	pspec = g_param_spec_object("video-agent", "ICE Video Agent",
+				    "ICE Video Agent",
+			     NICE_TYPE_AGENT,
+			     G_PARAM_CONSTRUCT_ONLY |
+			     G_PARAM_WRITABLE);
+
+	g_object_class_install_property(object_class, PROP_VIDEO_AGENT, pspec);
 }
 
 static void

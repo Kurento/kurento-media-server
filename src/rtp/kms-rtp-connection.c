@@ -198,6 +198,8 @@ create_rtp_sender(KmsRtpConnection *self) {
 				"remote-spec", self->priv->neg_remote_spec,
 				"audio-fd", audio_fd,
 				"video-fd", video_fd,
+				"audio-agent", self->priv->audio_agent,
+				"video-agent", self->priv->video_agent,
 				NULL);
 }
 
