@@ -48,6 +48,8 @@ struct _KmsRtpConnectionPriv {
 	NiceAgent *video_agent;
 	gboolean audio_gathered;
 	gboolean video_gathered;
+	gboolean audio_connected;
+	gboolean video_connected;
 	GMutex ice_mutex;
 	GCond ice_cond;
 
@@ -204,6 +206,43 @@ create_rtp_sender(KmsRtpConnection *self) {
 }
 
 static void
+create_media_transmission(KmsRtpConnection *self) {
+	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER,
+				    "local-spec", self->priv->descriptor,
+				    "audio-agent", self->priv->audio_agent,
+				    "video-agent", self->priv->video_agent,
+				    NULL);
+
+	/* Create rtpsender */
+	create_rtp_sender(self);
+}
+
+static gpointer
+create_media_transmission_thread(gpointer data) {
+	KmsRtpConnection *self = data;
+
+	g_mutex_lock(&(self->priv->ice_mutex));
+	while (!self->priv->audio_connected ||
+				!self->priv->video_connected) {
+		guint64 end_time = g_get_monotonic_time() +
+				ICE_TIMEOUT * G_TIME_SPAN_SECOND;
+
+		if (!g_cond_wait_until(&self->priv->ice_cond,
+			&self->priv->ice_mutex, end_time)) {
+			g_warning("Timeout waiting for connection");
+			g_mutex_unlock(&(self->priv->ice_mutex));
+			// TODO: notify error to signal plane
+			return NULL;
+		}
+	}
+	g_mutex_unlock(&(self->priv->ice_mutex));
+
+	g_object_unref(self);
+	return NULL;
+}
+
+
+static void
 configure_agents(KmsRtpConnection *self) {
 	gint32 i;
 
@@ -290,8 +329,6 @@ configure_agents(KmsRtpConnection *self) {
 			nice_agent_set_remote_candidates(agent, stream_id, 1,
 							 candidates);
 
-			// TODO: Wait until agents have negotiated?
-
 			g_slist_free_full(candidates,
 					  (GDestroyNotify) nice_candidate_free);
 		} else {
@@ -338,19 +375,23 @@ connect_to_remote(KmsConnection *conn, KmsSessionSpec *spec,
 						&(self->priv->neg_remote_spec));
 	}
 
-	configure_agents(self);
-
 	dispose_descriptor(self);
 	self->priv->descriptor = g_object_ref(self->priv->neg_local_spec);
 
-	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER,
-					"local-spec", self->priv->descriptor,
-					"audio-agent", self->priv->audio_agent,
-					"video-agent", self->priv->video_agent,
-					NULL);
+	configure_agents(self);
 
-	/* Create rtpsender */
-	create_rtp_sender(self);
+	if (self->priv->audio_agent == NULL || self->priv->video_agent == NULL) {
+		dispose_audio_agent(self);
+		dispose_video_agent(self);
+
+		create_media_transmission(self);
+	} else {
+		GThread *t;
+
+		t = g_thread_new("WaitAgents", create_media_transmission_thread,
+							g_object_ref(self));
+		g_thread_unref(t);
+	}
 
 	UNLOCK(self);
 
@@ -435,16 +476,28 @@ candidates_ready_video(NiceAgent *agent, guint stream_id, KmsRtpConnection *self
 static void
 state_changed_audio(NiceAgent *agent, guint stream_id, guint component_id,
 					guint state, KmsRtpConnection *self) {
+	if (state == NICE_COMPONENT_STATE_CONNECTED) {
+		g_mutex_lock(&(self->priv->ice_mutex));
+		self->priv->audio_connected = TRUE;
+		g_cond_signal(&self->priv->ice_cond);
+		g_mutex_unlock(&(self->priv->ice_mutex));
+	}
 }
 
 static void
 state_changed_video(NiceAgent *agent, guint stream_id, guint component_id,
 					guint state, KmsRtpConnection *self) {
+	if (state == NICE_COMPONENT_STATE_CONNECTED) {
+		g_mutex_lock(&(self->priv->ice_mutex));
+		self->priv->video_connected = TRUE;
+		g_cond_signal(&self->priv->ice_cond);
+		g_mutex_unlock(&(self->priv->ice_mutex));
+	}
 }
 
 static void
 audio_nice_recv() {
-	// Dummy, just used to allow get ICE candidates
+	// Dummy, just used to get ICE candidates
 }
 
 static void
@@ -735,6 +788,8 @@ kms_rtp_connection_init(KmsRtpConnection *self) {
 	self->priv->video_agent = NULL;
 	self->priv->audio_gathered = FALSE;
 	self->priv->video_gathered = FALSE;
+	self->priv->audio_connected = FALSE;
+	self->priv->video_connected = FALSE;
 	g_mutex_init(&(self->priv->ice_mutex));
 	g_cond_init(&(self->priv->ice_cond));
 }
