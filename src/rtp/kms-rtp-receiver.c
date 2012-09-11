@@ -40,8 +40,6 @@ struct _KmsRtpReceiverPriv {
 	gint video_port;
 	gint audio_fd;
 	gint video_fd;
-
-	gboolean constructed;
 };
 
 enum {
@@ -625,8 +623,6 @@ constructed(GObject *object) {
 
 	create_media_src(self, KMS_MEDIA_TYPE_AUDIO);
 	create_media_src(self, KMS_MEDIA_TYPE_VIDEO);
-
-	self->priv->constructed = TRUE;
 }
 
 static void
@@ -728,6 +724,4 @@ kms_rtp_receiver_init(KmsRtpReceiver *self) {
 	self->priv->video_agent = NULL;
 	self->priv->video_port = 0;
 	self->priv->audio_port = 0;
-
-	self->priv->constructed = FALSE;
 }
