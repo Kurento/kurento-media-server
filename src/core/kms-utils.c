@@ -156,7 +156,7 @@ unlinked(GstPad *pad, gpointer orig) {
 	remove = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(pad), ATTR_REMOVE));
 	dest = gst_pad_get_parent_element(pad);
 	sink = gst_element_get_static_pad(dest, "sink");
-	GST_OBJECT_LOCK(dest);
+// 	GST_OBJECT_LOCK(dest);
 	if (gst_pad_is_linked(sink) && !check_sources_linked(dest)) {
 		peer = gst_pad_get_peer(sink);
 		if (peer != NULL) {
@@ -168,7 +168,7 @@ unlinked(GstPad *pad, gpointer orig) {
 			}
 		}
 	}
-	GST_OBJECT_UNLOCK(dest);
+// 	GST_OBJECT_UNLOCK(dest);
 
 	dynamic = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(pad), ATTR_DYNAMIC));
 	if (dynamic)
