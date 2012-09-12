@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MEDIA_TYPE_DATA "type"
 #define STREAM_ID_DATA "stream_id"
 
+static void start_media(KmsRtpReceiver *self);
+
 struct _KmsRtpReceiverPriv {
 	GMutex *mutex;
 
@@ -88,6 +90,7 @@ set_property (GObject *object, guint property_id, const GValue *value,
 			LOCK(self);
 			dispose_local_spec(self);
 			self->priv->local_spec = g_value_dup_object(value);
+			start_media(self);
 			UNLOCK(self);
 			break;
 		case PROP_AUDIO_AGENT:
@@ -600,12 +603,9 @@ create_media_src(KmsRtpReceiver *self, KmsMediaType type) {
 }
 
 static void
-constructed(GObject *object) {
-	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
+start_media(KmsRtpReceiver *self) {
 	KmsSessionSpec *spec = self->priv->local_spec;
 	gint i;
-
-	G_OBJECT_CLASS(kms_rtp_receiver_parent_class)->constructed(object);
 
 	for (i = 0; i < spec->medias->len; i++) {
 		KmsMediaSpec *media;
@@ -613,16 +613,21 @@ constructed(GObject *object) {
 		media = spec->medias->pdata[i];
 
 		if (g_hash_table_lookup(media->type, (gpointer)
-						KMS_MEDIA_TYPE_AUDIO)) {
+			KMS_MEDIA_TYPE_AUDIO)) {
 			self->priv->audio_port = media->transport->rtp->port;
-		} else if (g_hash_table_lookup(media->type, (gpointer)
-						KMS_MEDIA_TYPE_VIDEO)) {
-			self->priv->video_port = media->transport->rtp->port;
-		}
+			} else if (g_hash_table_lookup(media->type, (gpointer)
+				KMS_MEDIA_TYPE_VIDEO)) {
+				self->priv->video_port = media->transport->rtp->port;
+				}
 	}
 
 	create_media_src(self, KMS_MEDIA_TYPE_AUDIO);
 	create_media_src(self, KMS_MEDIA_TYPE_VIDEO);
+}
+
+static void
+constructed(GObject *object) {
+	G_OBJECT_CLASS(kms_rtp_receiver_parent_class)->constructed(object);
 }
 
 static void
@@ -671,7 +676,6 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 	pspec = g_param_spec_object("local-spec", "Local Session Spec",
 					"Local Session Spec",
 					KMS_TYPE_SESSION_SPEC,
-					G_PARAM_CONSTRUCT |
 					G_PARAM_READWRITE);
 
 	g_object_class_install_property(object_class, PROP_LOCAL_SPEC, pspec);
@@ -691,7 +695,6 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 	pspec = g_param_spec_object("audio-agent", "ICE Audio Agent",
 						"ICE Audio Agent",
 						NICE_TYPE_AGENT,
-						G_PARAM_CONSTRUCT_ONLY |
 						G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_AUDIO_AGENT, pspec);
@@ -699,7 +702,6 @@ kms_rtp_receiver_class_init(KmsRtpReceiverClass *klass) {
 	pspec = g_param_spec_object("video-agent", "ICE Video Agent",
 						"ICE Video Agent",
 						NICE_TYPE_AGENT,
-						G_PARAM_CONSTRUCT_ONLY |
 						G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_VIDEO_AGENT, pspec);

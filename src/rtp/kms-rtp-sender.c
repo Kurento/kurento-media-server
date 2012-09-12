@@ -232,14 +232,11 @@ create_udpsink(KmsRtpSender *self, KmsMediaSpec *media) {
 }
 
 static void
-constructed(GObject *object) {
-	KmsRtpSender *self = KMS_RTP_SENDER(object);
+start_media(KmsRtpSender *self) {
 	KmsSessionSpec *spec = self->priv->remote_spec;
 	gint i;
 
-	G_OBJECT_CLASS(kms_rtp_sender_parent_class)->constructed(object);
-
-	g_return_if_fail(self->priv->remote_spec != NULL);
+	g_assert(self->priv->remote_spec != NULL);
 
 	for (i = 0; i < spec->medias->len; i++) {
 		KmsMediaSpec *media;
@@ -248,6 +245,12 @@ constructed(GObject *object) {
 
 		create_udpsink(self, media);
 	}
+}
+
+static void
+constructed(GObject *object) {
+	G_OBJECT_CLASS(kms_rtp_sender_parent_class)->constructed(object);
+
 }
 
 static void
@@ -260,6 +263,7 @@ set_property (GObject *object, guint property_id, const GValue *value,
 			LOCK(self);
 			dispose_remote_spec(self);
 			self->priv->remote_spec = g_value_dup_object(value);
+			start_media(self);
 			UNLOCK(self);
 			break;
 		case PROP_AUDIO_FD:
@@ -356,7 +360,6 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	pspec = g_param_spec_object("remote-spec", "Remote Session Spec",
 					"Remote Session Description",
 					KMS_TYPE_SESSION_SPEC,
-					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_REMOTE_SPEC, pspec);
@@ -364,7 +367,6 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	pspec = g_param_spec_int("audio-fd", "Audio fd",
 					"File descriptor used to send audio",
 					-1, G_MAXINT, -1,
-					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_AUDIO_FD, pspec);
@@ -372,7 +374,6 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	pspec = g_param_spec_int("video-fd", "Video fd",
 					"File descriptor used to send video",
 					-1, G_MAXINT, -1,
-					G_PARAM_CONSTRUCT_ONLY |
 					G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_VIDEO_FD, pspec);
@@ -380,7 +381,6 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	pspec = g_param_spec_object("audio-agent", "ICE Audio Agent",
 				    "ICE Audio Agent",
 			     NICE_TYPE_AGENT,
-			     G_PARAM_CONSTRUCT_ONLY |
 			     G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_AUDIO_AGENT, pspec);
@@ -388,7 +388,6 @@ kms_rtp_sender_class_init(KmsRtpSenderClass *klass) {
 	pspec = g_param_spec_object("video-agent", "ICE Video Agent",
 				    "ICE Video Agent",
 			     NICE_TYPE_AGENT,
-			     G_PARAM_CONSTRUCT_ONLY |
 			     G_PARAM_WRITABLE);
 
 	g_object_class_install_property(object_class, PROP_VIDEO_AGENT, pspec);

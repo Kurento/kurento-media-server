@@ -196,22 +196,28 @@ create_rtp_sender(KmsRtpConnection *self) {
 						"video-fd", &video_fd,
 						NULL);
 
-	self->priv->sender = g_object_new(KMS_TYPE_RTP_SENDER,
+	g_object_set(G_OBJECT(self->priv->sender),
+					"audio-fd", audio_fd,
+					"video-fd", video_fd,
+					"audio-agent", self->priv->audio_agent,
+					"video-agent", self->priv->video_agent,
+					NULL);
+
+	g_object_set(G_OBJECT(self->priv->sender),
 				"remote-spec", self->priv->neg_remote_spec,
-				"audio-fd", audio_fd,
-				"video-fd", video_fd,
-				"audio-agent", self->priv->audio_agent,
-				"video-agent", self->priv->video_agent,
 				NULL);
 }
 
 static void
 create_media_transmission(KmsRtpConnection *self) {
-	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER,
-				    "local-spec", self->priv->descriptor,
-				    "audio-agent", self->priv->audio_agent,
-				    "video-agent", self->priv->video_agent,
-				    NULL);
+	g_object_set(G_OBJECT(self->priv->receiver),
+					"audio-agent", self->priv->audio_agent,
+					"video-agent", self->priv->video_agent,
+					NULL);
+
+	g_object_set(G_OBJECT(self->priv->receiver),
+					"local-spec", self->priv->descriptor,
+					NULL);
 
 	/* Create rtpsender */
 	create_rtp_sender(self);
@@ -698,6 +704,9 @@ constructed(GObject *object) {
 	process_candidates(self, self->priv->video_agent, KMS_MEDIA_TYPE_VIDEO);
 
 	g_return_if_fail(self->priv->local_spec != NULL);
+
+	self->priv->receiver = g_object_new(KMS_TYPE_RTP_RECEIVER, NULL);
+	self->priv->sender = g_object_new(KMS_TYPE_RTP_SENDER, NULL);
 }
 
 static void
