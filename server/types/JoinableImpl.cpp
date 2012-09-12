@@ -53,12 +53,17 @@ JoinableImpl::JoinableImpl(MediaSession &session) :
 
 JoinableImpl::~JoinableImpl() throw () {
 	std::map<JoinableImpl *, KmsLocalConnection *>::iterator it;
-	for (it = joinees.begin(); it != joinees.end(); it++) {
+
+	for (it = joinees.begin(); it != joinees.end(); it = joinees.begin()) {
+		JoinableImpl *other;
 		g_object_unref(it->second);
+		it->second = NULL;
 		std::map<JoinableImpl *, KmsLocalConnection *>::iterator it2;
-		it2 = it->first->joinees.find(this);
-		if (it2 != it->first->joinees.end())
-			it->first->deleteConnection(it2);
+		other = it->first;
+		joinees.erase(it);
+		it2 = other->joinees.find(this);
+		if (it2 != other->joinees.end())
+			other->deleteConnection(it2);
 	}
 	joinees.clear();
 
@@ -254,9 +259,18 @@ JoinableImpl::unjoin(JoinableImpl& to) {
 void
 JoinableImpl::deleteConnection(
 		std::map<JoinableImpl *, KmsLocalConnection *>::iterator it) {
-	kms_endpoint_delete_connection(endpoint, KMS_CONNECTION(it->second),
-									NULL);
+	GError *err  = NULL;
+
+	if (it->second == NULL)
+		return;
+
+	if (!kms_endpoint_delete_connection(endpoint, KMS_CONNECTION(it->second),
+									&err)) {
+		e("Error deleting local connectio: %s", err->message);
+		g_error_free(err);
+	}
 	g_object_unref(it->second);
+	it->second = NULL;
 	joinees.erase(it);
 }
 
