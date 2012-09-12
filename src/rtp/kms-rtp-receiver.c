@@ -88,9 +88,15 @@ set_property (GObject *object, guint property_id, const GValue *value,
 	switch (property_id) {
 		case PROP_LOCAL_SPEC:
 			LOCK(self);
+			if (self->priv->local_spec != NULL) {
+				g_warn_if_reached();
+				UNLOCK(self);
+				return;
+			}
 			dispose_local_spec(self);
 			self->priv->local_spec = g_value_dup_object(value);
-			start_media(self);
+			if (self->priv->local_spec != NULL)
+				start_media(self);
 			UNLOCK(self);
 			break;
 		case PROP_AUDIO_AGENT:
@@ -167,11 +173,16 @@ compare_pay_pt(gconstpointer ppay, gconstpointer ppt) {
 
 static GstCaps*
 get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
-	KmsSessionSpec *spec = self->priv->local_spec;
+	KmsSessionSpec *spec;
 	GstCaps *caps = NULL;
 	gint i;
 
 	LOCK(self);
+	spec = self->priv->local_spec;
+
+	if (spec != NULL)
+		goto end;
+
 	for (i = 0; i < spec->medias->len; i++) {
 		KmsMediaSpec *media;
 

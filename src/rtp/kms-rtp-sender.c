@@ -261,9 +261,15 @@ set_property (GObject *object, guint property_id, const GValue *value,
 	switch (property_id) {
 		case PROP_REMOTE_SPEC:
 			LOCK(self);
+			if (self->priv->remote_spec != NULL) {
+				g_warn_if_reached();
+				UNLOCK(self);
+				return;
+			}
 			dispose_remote_spec(self);
 			self->priv->remote_spec = g_value_dup_object(value);
-			start_media(self);
+			if (self->priv->remote_spec != NULL)
+				start_media(self);
 			UNLOCK(self);
 			break;
 		case PROP_AUDIO_FD:
