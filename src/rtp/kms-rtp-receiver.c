@@ -180,7 +180,7 @@ get_caps_for_pt(KmsRtpReceiver *self, guint pt) {
 	LOCK(self);
 	spec = self->priv->local_spec;
 
-	if (spec != NULL)
+	if (spec == NULL)
 		goto end;
 
 	for (i = 0; i < spec->medias->len; i++) {
