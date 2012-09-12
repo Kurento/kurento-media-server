@@ -528,11 +528,11 @@ create_nice_agents(KmsRtpConnection *self) {
 	g_signal_connect(vagent, "component-state-changed",
 				G_CALLBACK(state_changed_video), self);
 
-	g_object_set(aagent, "stun-server", "193.147.51.24", NULL);
-	g_object_set(aagent, "stun-server-port", (guint) 3478 , NULL);
+// 	g_object_set(aagent, "stun-server", "193.147.51.24", NULL);
+// 	g_object_set(aagent, "stun-server-port", (guint) 3478 , NULL);
 
-	g_object_set(vagent, "stun-server", "193.147.51.24", NULL);
-	g_object_set(vagent, "stun-server-port", (guint) 3478 , NULL);
+// 	g_object_set(vagent, "stun-server", "193.147.51.24", NULL);
+// 	g_object_set(vagent, "stun-server-port", (guint) 3478 , NULL);
 
 	astream_id = nice_agent_add_stream(self->priv->audio_agent, 1);
 	g_object_set_data(aagent, STREAM_ID_DATA, GUINT_TO_POINTER(astream_id));
