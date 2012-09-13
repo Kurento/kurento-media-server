@@ -10,6 +10,7 @@ add_executable(test_rtp_transmission test_rtp_transmission.c)
 add_executable(test_mixer test_mixer.c)
 add_executable(test_server test_server.cpp)
 add_executable(test_rtmp test_rtmp.c)
+add_executable(test_ice test_ice.cpp)
 
 find_package(PkgConfig)
 
@@ -63,6 +64,14 @@ include_directories(test_server ${KMSIFACE_INCLUDE_DIR})
 include_directories(test_server ${THRIFT_INCLUDE_DIRS})
 include_directories(test_server ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(test_server ${GSTREAMER_LIBRARIES})
+
+target_link_libraries(test_ice kmsiface mediaspec ${THRIFT_LIBRARIES})
+include_directories(test_ice ${KMSIFACE_INCLUDE_DIR})
+include_directories(test_ice ${THRIFT_INCLUDE_DIRS})
+include_directories(test_ice ${GSTREAMER_INCLUDE_DIRS})
+include_directories(test_ice ${NICE_INCLUDE_DIRS})
+target_link_libraries(test_ice ${GSTREAMER_LIBRARIES})
+target_link_libraries(test_ice ${NICE_LIBRARIES})
 
 add_subdirectory(kmsc-test-endpoints)
 
