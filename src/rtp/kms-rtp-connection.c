@@ -237,11 +237,14 @@ create_media_transmission_thread(gpointer data) {
 			&self->priv->ice_mutex, end_time)) {
 			g_warning("Timeout waiting for connection");
 			g_mutex_unlock(&(self->priv->ice_mutex));
+			g_object_unref(self);
 			// TODO: notify error to signal plane
 			return NULL;
 		}
 	}
 	g_mutex_unlock(&(self->priv->ice_mutex));
+
+	create_media_transmission(self);
 
 	g_object_unref(self);
 	return NULL;
