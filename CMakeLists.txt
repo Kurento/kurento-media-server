@@ -21,7 +21,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pedantic -Wall -std=c++0x")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -pedantic -Wall -Werror -std=c99")
 
-set(CUSTOM_PREFIX "kmsc")
+set(CUSTOM_PREFIX "kurento")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
 set(LIB_PREFIX "lib")
 
@@ -72,15 +72,25 @@ add_test(test_server test/test_server)
 set(CPACK_GENERATOR "DEB;TGZ;STGZ")
 set(CPACK_PACKAGE_CONTACT "kurento@googlegroups.com")
 
-set(CPACK_PACKAGE_NAME "kmsc")
+set(CPACK_PACKAGE_NAME "kurento")
 set(CPACK_PACKAGE_VENDOR "Kurento")
 set(CPACK_PACKAGE_VERSION ${KMSC_VERSION})
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/license.txt)
+set(CPACK_PACKAGING_INSTALL_PREFIX "/")
+
+include(CheckTypeSize)
+check_type_size("void *" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
+
+if (${SIZEOF_VOID_P} GREATER 4)
+	set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+else(${SIZEOF_VOID_P} GREATER 4)
+	set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i686")
+endif(${SIZEOF_VOID_P} GREATER 4)
 
 if(NOT DEFINED SYSCONFDIR)
 	set(SYSCONFDIR etc)
 endif(NOT DEFINED SYSCONFDIR)
 
-install(FILES kms.conf DESTINATION ${SYSCONFDIR})
+install(FILES kurento.conf DESTINATION ${SYSCONFDIR}/${CUSTOM_PREFIX})
 
 include(CPack)
