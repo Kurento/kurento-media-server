@@ -65,7 +65,7 @@ static Log l("main");
 #define e(...) aux_error(l, __VA_ARGS__);
 #define w(...) aux_warn(l, __VA_ARGS__);
 
-#define DEFAULT_CONFIG_FILE "kms.conf"
+#define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"
 
 #define SERVER_ADDRESS "localhost"
 #define SERVER_SERVICE_PORT 9090
