@@ -87,7 +87,7 @@ else(${SIZEOF_VOID_P} GREATER 4)
 	set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i686")
 endif(${SIZEOF_VOID_P} GREATER 4)
 
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libglib2.0-0 (>= 2.30), libgstreamer-0.10-0 (>= 0.10.36), libthrift (>= 0.8.0), libthrift_c_glib (>= 0.8.0), libglibmm-2.4-1c2a (>= 2.30), libnice10 (>= 0.1.1), libuuid1, gstreamer0.10-plugins-bad, gstreamer0.10-plugins-farsight, gstreamer0.10-plugins-ugly, gstreamer0.10-plugins-bad-multiverse, gstreamer0.10-plugins-good, gstreamer0.10-plugins-cutter, gstreamer0.10-plugins-really-bad, gstreamer0.10-plugins-ugly-multiverse, gstreamer0.10-plugins-base, gstreamer0.10-plugins-bad, lsb-base, logrotate")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libglib2.0-0 (>= 2.30), libgstreamer0.10-0 (>= 0.10.36), libthrift (>= 0.8.0), libthrift_c_glib (>= 0.8.0), libglibmm-2.4-1c2a (>= 2.30), libnice10 (>= 0.1.1), libuuid1, gstreamer0.10-plugins-bad, gstreamer0.10-plugins-farsight, gstreamer0.10-plugins-ugly, gstreamer0.10-plugins-good, gstreamer0.10-plugins-cutter, gstreamer0.10-plugins-base, gstreamer0.10-plugins-bad, lsb-base, logrotate")
 # Is also possible to set DEBIAN_PACKAGE_BUILDS_DEPENDS
 
 if(NOT DEFINED SYSCONFDIR)
