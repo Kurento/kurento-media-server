@@ -1,0 +1,19 @@
+# Defaults for kurento initscript
+# sourced by /etc/init.d/kurento
+# installed at /etc/default/kurento by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+#uncommment the next line to allow the init.d script to start the stun daemon
+#START_DAEMON=true
+
+# Additional options that are passed to the Daemon.
+DAEMON_OPTS=""
+
+# whom the daemons should run as
+DAEMON_USER=nobody
+
+# Logging
+LOG_SIZE=10M
