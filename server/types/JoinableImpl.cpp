@@ -40,7 +40,6 @@ using ::com::kurento::log::Log;
 static Log l("JoinableImpl");
 #define d(...) aux_debug(l, __VA_ARGS__);
 #define i(...) aux_info(l, __VA_ARGS__);
-#define e(...) aux_error(l, __VA_ARGS__);
 #define w(...) aux_warn(l, __VA_ARGS__);
 
 JoinableImpl::JoinableImpl(MediaSession &session) :
@@ -266,7 +265,7 @@ JoinableImpl::deleteConnection(
 
 	if (!kms_endpoint_delete_connection(endpoint, KMS_CONNECTION(it->second),
 									&err)) {
-		e("Error deleting local connectio: %s", err->message);
+		w("Error deleting local connection: %s", err->message);
 		g_error_free(err);
 	}
 	g_object_unref(it->second);

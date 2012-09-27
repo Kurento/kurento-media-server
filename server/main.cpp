@@ -62,7 +62,6 @@ using ::Glib::KeyFileFlags;
 static Log l("main");
 #define d(...) aux_debug(l, __VA_ARGS__);
 #define i(...) aux_info(l, __VA_ARGS__);
-#define e(...) aux_error(l, __VA_ARGS__);
 #define w(...) aux_warn(l, __VA_ARGS__);
 
 #define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"

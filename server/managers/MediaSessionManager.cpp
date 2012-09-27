@@ -26,7 +26,7 @@ using ::com::kurento::log::Log;
 
 static Log l("MediaSessionManager");
 #define i(...) aux_info(l, __VA_ARGS__)
-#define e(...) aux_error(l, __VA_ARGS__)
+#define w(...) aux_warn(l, __VA_ARGS__)
 
 MediaSessionManager::MediaSessionManager() {
 }
@@ -78,7 +78,7 @@ void MediaSessionManager::deleteMediaSession(const MediaSession &session) {
 
 	if (!found) {
 		MediaSessionNotFoundException exception;
-		e("Session %lld not found", session.object.id);
+		w("Session %lld not found", session.object.id);
 		throw exception;
 	} else {
 		if (ms != NULL)

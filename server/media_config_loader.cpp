@@ -226,7 +226,7 @@ load_media(Glib::KeyFile &configFile, const std::string &mediagrp,
 {
 	d("Loading config for media: " + mediagrp);
 	if (!configFile.has_group(mediagrp)) {
-		e("No codecs set, you won't be able to communicate with others");
+		w("No codecs set, you won't be able to communicate with others");
 		return;
 	}
 

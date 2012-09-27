@@ -24,7 +24,7 @@ namespace com { namespace kurento { namespace log {
 
 #define aux_debug(log, ...) log.debug(__LINE__, __FUNCTION__, __FILE__, __VA_ARGS__)
 #define aux_info(log, ...) log.info(__LINE__, __FUNCTION__, __FILE__, __VA_ARGS__)
-#define aux_error(log, ...) log.error(__LINE__, __FUNCTION__, __FILE__, __VA_ARGS__)
+// #define aux_error(log, ...) log.error(__LINE__, __FUNCTION__, __FILE__, __VA_ARGS__)
 #define aux_warn(log, ...) log.warn(__LINE__, __FUNCTION__, __FILE__, __VA_ARGS__)
 
 class Log {
