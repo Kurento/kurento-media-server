@@ -530,12 +530,16 @@ create_nice_agents(KmsRtpConnection *self) {
 	g_signal_connect(aagent, "component-state-changed",
 				G_CALLBACK(state_changed_audio), self);
 
+	g_object_set(aagent, "upnp", FALSE, NULL);
+
 	GObject *vagent = G_OBJECT(self->priv->video_agent);
 
 	g_signal_connect(vagent, "candidate-gathering-done",
 				G_CALLBACK(candidates_ready_video), self);
 	g_signal_connect(vagent, "component-state-changed",
 				G_CALLBACK(state_changed_video), self);
+
+	g_object_set(vagent, "upnp", FALSE, NULL);
 
 // 	g_object_set(aagent, "stun-server", "193.147.51.24", NULL);
 // 	g_object_set(aagent, "stun-server-port", (guint) 3478 , NULL);
