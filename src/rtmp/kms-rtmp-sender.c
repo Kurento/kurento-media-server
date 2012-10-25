@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define AUDIO_TEMPL "audio_sink"
 #define VIDEO_TEMPL "video_sink"
 
-#define VIDEO_CAPS "video/x-flash-video;"
+#define VIDEO_CAPS "video/x-flash-video,pixel-aspect-ratio=(fraction)1/1;"
 
 // #define VIDEO_CAPS "video/x-h264,stream-format=byte-stream,profile=constrained-baseline,alignment=au"
 
