@@ -370,7 +370,7 @@ found_raw(GstElement* tf, guint probability, GstCaps* caps,
 	deco_fact = gst_element_get_factory(deco);
 	depay_fact = gst_element_get_factory(depay);
 
-	bin_sink = gst_element_get_pad(GST_ELEMENT(bin), "sink");
+	bin_sink = gst_element_get_static_pad(GST_ELEMENT(bin), "sink");
 	if (!gst_pad_is_linked(bin_sink))
 		goto end;
 
@@ -484,7 +484,7 @@ connect_depay_chain(KmsRtpReceiver *self, GstElement *orig, GstCaps *caps,
 
 	gst_element_link_many(queue, depay, typefind, NULL);
 
-	queue_sink = gst_element_get_pad(queue, "sink");
+	queue_sink = gst_element_get_static_pad(queue, "sink");
 	sink = gst_ghost_pad_new("sink", queue_sink);
 	gst_pad_set_active(sink, TRUE);
 	gst_element_add_pad(bin, sink);

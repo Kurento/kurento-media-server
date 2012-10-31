@@ -180,7 +180,7 @@ found_media(GstElement *tf, guint prob, GstCaps *caps, KmsRtmpSender *self) {
 		else
 			gst_element_link(queue, sink);
 
-		pad = gst_element_get_pad(queue, "src");
+		pad = gst_element_get_static_pad(queue, "src");
 		if (pad != NULL) {
 			peer = gst_pad_get_peer(pad);
 			if (peer != NULL) {

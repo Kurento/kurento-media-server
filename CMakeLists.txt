@@ -18,8 +18,8 @@ endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 # TODO: Check if HAVE_INIT_TYPES_H has to be added (not in all systems)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pedantic -Wall -std=c++0x")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -pedantic -Wall -Werror -std=c99")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pedantic -Wall -std=c++0x -DGST_DISABLE_DEPRECATED")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -pedantic -Wall -Werror -std=c99 -DGST_DISABLE_DEPRECATED")
 
 set(CUSTOM_PREFIX "kurento")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")

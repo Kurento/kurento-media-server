@@ -225,7 +225,7 @@ create_audio_src(KmsMixerSrc *self) {
 	gst_bin_add_many(GST_BIN(self), adder, tee, queue, fake, NULL);
 	gst_element_link_many(adder, tee, queue, fake, NULL);
 
-	pad = gst_element_get_pad(adder, "src");
+	pad = gst_element_get_static_pad(adder, "src");
 	kms_media_handler_src_set_raw_pad(KMS_MEDIA_HANDLER_SRC(self), pad, tee,
 							KMS_MEDIA_TYPE_AUDIO);
 }
