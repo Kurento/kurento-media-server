@@ -10,7 +10,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 	set(KMSC_MAJOR_VERSION 1)
 	set(KMSC_MINOR_VERSION 0)
-	set(KMSC_PATCH_VERSION 1)
+	set(KMSC_PATCH_VERSION 2)
 	set(KMSC_VERSION
 		${KMSC_MAJOR_VERSION}.${KMSC_MINOR_VERSION}.${KMSC_PATCH_VERSION})
 endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
@@ -44,7 +44,7 @@ ExternalProject_Add(
 	kmsiface-project
 	GIT_REPOSITORY ssh://git@repository.kurento.com/kms/kms-interface.git
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${KMSIFACE_INSTALL_DIR}
-	UPDATE_COMMAND git checkout develop
+	UPDATE_COMMAND git checkout master
 )
 
 add_library(kmsiface STATIC IMPORTED)
