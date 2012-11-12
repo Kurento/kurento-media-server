@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_RTMP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTMP_CONNECTION, KmsRtmpConnectionPriv))
 
-#define LOCK(obj) (g_static_mutex_lock(&(KMS_RTMP_CONNECTION(obj)->priv->mutex)))
-#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_RTMP_CONNECTION(obj)->priv->mutex)))
+#define LOCK(obj) (g_mutex_lock(&(KMS_RTMP_CONNECTION(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_RTMP_CONNECTION(obj)->priv->mutex)))
 
 enum {
 	PROP_0,
@@ -37,7 +37,7 @@ enum {
 };
 
 struct _KmsRtmpConnectionPriv {
-	GStaticMutex mutex;
+	GMutex mutex;
 	KmsSessionSpec *local_spec;
 	KmsSessionSpec *remote_spec;
 	KmsSessionSpec *neg_remote;
@@ -368,7 +368,7 @@ static void
 kms_rtmp_connection_finalize(GObject *object) {
 	KmsRtmpConnection *self = KMS_RTMP_CONNECTION(object);
 
-	g_static_mutex_free(&(self->priv->mutex));
+	g_mutex_clear(&(self->priv->mutex));
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_rtmp_connection_parent_class)->finalize(object);
@@ -417,7 +417,7 @@ static void
 kms_rtmp_connection_init (KmsRtmpConnection *self) {
 	self->priv = KMS_RTMP_CONNECTION_GET_PRIVATE(self);
 
-	g_static_mutex_init(&(self->priv->mutex));
+	g_mutex_init(&(self->priv->mutex));
 	self->priv->local_spec = NULL;
 	self->priv->descriptor = NULL;
 	self->priv->receiver = NULL;

@@ -20,13 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_LOCAL_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_LOCAL_CONNECTION, KmsLocalConnectionPriv))
 
-#define LOCK(obj) (g_static_mutex_lock(&(KMS_LOCAL_CONNECTION(obj)->priv->mutex)))
-#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_LOCAL_CONNECTION(obj)->priv->mutex)))
+#define LOCK(obj) (g_mutex_lock(&(KMS_LOCAL_CONNECTION(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_LOCAL_CONNECTION(obj)->priv->mutex)))
 
 G_LOCK_DEFINE_STATIC(local_connection);
 
 struct _KmsLocalConnectionPriv {
-	GStaticMutex mutex;
+	GMutex mutex;
 	KmsMediaHandlerFactory *media_factory;
 	KmsMediaHandlerSrc *src;
 	KmsMediaHandlerSink *sink;
@@ -398,7 +398,7 @@ static void
 finalize(GObject *object) {
 	KmsLocalConnection *self = KMS_LOCAL_CONNECTION(object);
 
-	g_static_mutex_free(&(self->priv->mutex));
+	g_mutex_clear(&(self->priv->mutex));
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_local_connection_parent_class)->finalize(object);
@@ -432,7 +432,7 @@ static void
 kms_local_connection_init (KmsLocalConnection *self) {
 	self->priv = KMS_LOCAL_CONNECTION_GET_PRIVATE(self);
 
-	g_static_mutex_init(&(self->priv->mutex));
+	g_mutex_init(&(self->priv->mutex));
 
 	self->priv->media_factory = NULL;
 	self->priv->src = NULL;

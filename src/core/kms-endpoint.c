@@ -19,13 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_ENDPOINT, KmsEndpointPriv))
 
-#define LOCK(obj) (g_static_mutex_lock(&(KMS_ENDPOINT(obj)->priv->mutex)))
-#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_ENDPOINT(obj)->priv->mutex)))
+#define LOCK(obj) (g_mutex_lock(&(KMS_ENDPOINT(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_ENDPOINT(obj)->priv->mutex)))
 
 struct _KmsEndpointPriv {
 	gchar *localname;
 	gulong local_count;
-	GStaticMutex mutex;
+	GMutex mutex;
 	KmsMediaHandlerManager *manager;
 	KmsConnection *connection;
 	GSList *connections;
@@ -302,7 +302,7 @@ kms_endpoint_finalize(GObject *gobject) {
 	KmsEndpoint *self = KMS_ENDPOINT(gobject);
 
 	free_localname(self);
-	g_static_mutex_free(&(self->priv->mutex));
+	g_mutex_clear(&(self->priv->mutex));
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (kms_endpoint_parent_class)->finalize(gobject);
@@ -345,7 +345,7 @@ kms_endpoint_init (KmsEndpoint *self) {
 
 	self->priv->localname = NULL;
 	self->priv->local_count = 0;
-	g_static_mutex_init(&(self->priv->mutex));
+	g_mutex_init(&(self->priv->mutex));
 	self->priv->manager = NULL;
 	self->priv->connection = NULL;
 	self->priv->connections = NULL;

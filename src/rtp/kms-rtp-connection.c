@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_RTP_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTP_CONNECTION, KmsRtpConnectionPriv))
 
-#define LOCK(obj) (g_static_mutex_lock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
-#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
+#define LOCK(obj) (g_mutex_lock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_RTP_CONNECTION(obj)->priv->mutex)))
 
 #define ICE_TIMEOUT 10
 #define STREAM_ID_DATA "stream_id"
@@ -37,7 +37,7 @@ enum {
 };
 
 struct _KmsRtpConnectionPriv {
-	GStaticMutex mutex;
+	GMutex mutex;
 	KmsSessionSpec *local_spec;
 	KmsSessionSpec *remote_spec;
 	KmsSessionSpec *neg_local_spec;
@@ -742,7 +742,7 @@ static void
 kms_rtp_connection_finalize(GObject *object) {
 	KmsRtpConnection *self = KMS_RTP_CONNECTION(object);
 
-	g_static_mutex_free(&(self->priv->mutex));
+	g_mutex_clear(&(self->priv->mutex));
 	g_mutex_clear(&(self->priv->ice_mutex));
 	g_cond_clear(&(self->priv->ice_cond));
 
@@ -792,7 +792,7 @@ static void
 kms_rtp_connection_init(KmsRtpConnection *self) {
 	self->priv = KMS_RTP_CONNECTION_GET_PRIVATE(self);
 
-	g_static_mutex_init(&(self->priv->mutex));
+	g_mutex_init(&(self->priv->mutex));
 	self->priv->local_spec = NULL;
 	self->priv->descriptor = NULL;
 	self->priv->receiver = NULL;

@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_RTP_RECEIVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTP_RECEIVER, KmsRtpReceiverPriv))
 
-#define LOCK(obj) (g_mutex_lock(KMS_RTP_RECEIVER(obj)->priv->mutex))
-#define UNLOCK(obj) (g_mutex_unlock(KMS_RTP_RECEIVER(obj)->priv->mutex))
+#define LOCK(obj) (g_mutex_lock(&(KMS_RTP_RECEIVER(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_RTP_RECEIVER(obj)->priv->mutex)))
 
 #define MEDIA_TYPE_DATA "type"
 #define STREAM_ID_DATA "stream_id"
@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 static void start_media(KmsRtpReceiver *self);
 
 struct _KmsRtpReceiverPriv {
-	GMutex *mutex;
+	GMutex mutex;
 
 	KmsSessionSpec *local_spec;
 
@@ -665,7 +665,7 @@ static void
 finalize(GObject *object) {
 	KmsRtpReceiver *self = KMS_RTP_RECEIVER(object);
 
-	g_mutex_free(self->priv->mutex);
+	g_mutex_clear(&self->priv->mutex);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_rtp_receiver_parent_class)->finalize(object);
@@ -731,7 +731,7 @@ static void
 kms_rtp_receiver_init(KmsRtpReceiver *self) {
 	self->priv = KMS_RTP_RECEIVER_GET_PRIVATE(self);
 
-	self->priv->mutex = g_mutex_new();
+	g_mutex_init(&self->priv->mutex);
 	self->priv->local_spec = NULL;
 	self->priv->audio_agent = NULL;
 	self->priv->video_agent = NULL;

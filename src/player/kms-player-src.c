@@ -21,11 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_PLAYER_SRC_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_PLAYER_SRC, KmsPlayerSrcPriv))
 
-#define LOCK(obj) (g_mutex_lock(KMS_PLAYER_SRC(obj)->priv->mutex))
-#define UNLOCK(obj) (g_mutex_unlock(KMS_PLAYER_SRC(obj)->priv->mutex))
+#define LOCK(obj) (g_mutex_lock(&(KMS_PLAYER_SRC(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_PLAYER_SRC(obj)->priv->mutex)))
 
 struct _KmsPlayerSrcPriv {
-	GMutex *mutex;
+	GMutex mutex;
 };
 
 static void player_iface_init(KmsPlayerInterface *iface);
@@ -74,7 +74,7 @@ static void
 finalize(GObject *object) {
 	KmsPlayerSrc *self = KMS_PLAYER_SRC(object);
 
-	g_mutex_free(self->priv->mutex);
+	g_mutex_clear(&self->priv->mutex);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_player_src_parent_class)->finalize(object);
@@ -104,5 +104,5 @@ static void
 kms_player_src_init(KmsPlayerSrc *self) {
 	self->priv = KMS_PLAYER_SRC_GET_PRIVATE(self);
 
-	self->priv->mutex = g_mutex_new();
+	g_mutex_init(&self->priv->mutex);
 }

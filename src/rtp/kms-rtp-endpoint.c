@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_RTP_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_RTP_ENDPOINT, KmsRtpEndpointPriv))
 
-#define LOCK(obj) (g_static_mutex_lock(&(KMS_RTP_ENDPOINT(obj)->priv->mutex)))
-#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_RTP_ENDPOINT(obj)->priv->mutex)))
+#define LOCK(obj) (g_mutex_lock(&(KMS_RTP_ENDPOINT(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_RTP_ENDPOINT(obj)->priv->mutex)))
 
 struct _KmsRtpEndpointPriv {
-	GStaticMutex mutex;
+	GMutex mutex;
 	KmsSessionSpec *local_spec;
 };
 
@@ -126,7 +126,7 @@ static void
 finalize(GObject *object) {
 	KmsRtpEndpoint *self = KMS_RTP_ENDPOINT(object);
 
-	g_static_mutex_free(&(self->priv->mutex));
+	g_mutex_clear(&(self->priv->mutex));
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_rtp_endpoint_parent_class)->finalize(object);
@@ -157,6 +157,6 @@ static void
 kms_rtp_endpoint_init(KmsRtpEndpoint *self) {
 	self->priv = KMS_RTP_ENDPOINT_GET_PRIVATE(self);
 
-	g_static_mutex_init(&(self->priv->mutex));
+	g_mutex_init(&(self->priv->mutex));
 	self->priv->local_spec = NULL;
 }

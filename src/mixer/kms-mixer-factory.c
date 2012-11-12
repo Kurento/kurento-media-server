@@ -23,11 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_MIXER_FACTORY_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_MIXER_FACTORY, KmsMixerFactoryPriv))
 
-#define LOCK(obj) (g_mutex_lock(KMS_MIXER_FACTORY(obj)->priv->mutex))
-#define UNLOCK(obj) (g_mutex_unlock(KMS_MIXER_FACTORY(obj)->priv->mutex))
+#define LOCK(obj) (g_mutex_lock(&(KMS_MIXER_FACTORY(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_MIXER_FACTORY(obj)->priv->mutex)))
 
 struct _KmsMixerFactoryPriv {
-	GMutex *mutex;
+	GMutex mutex;
 
 	KmsMixerSrc *src;
 	KmsMixerSink *sink;
@@ -123,10 +123,7 @@ static void
 finalize(GObject *object) {
 	KmsMixerFactory *self = KMS_MIXER_FACTORY(object);
 
-	if (self->priv->mutex != NULL) {
-		g_mutex_free(self->priv->mutex);
-		self->priv->mutex = NULL;
-	}
+	g_mutex_clear(&self->priv->mutex);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_factory_parent_class)->finalize(object);
@@ -146,7 +143,7 @@ static void
 kms_mixer_factory_init(KmsMixerFactory *self) {
 	self->priv = KMS_MIXER_FACTORY_GET_PRIVATE(self);
 
-	self->priv->mutex = g_mutex_new();
+	g_mutex_init(&self->priv->mutex);
 	self->priv->src = NULL;
 	self->priv->sink = NULL;
 }

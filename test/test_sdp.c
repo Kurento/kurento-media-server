@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define TESTS 10000
 
-static GValueArray *names = NULL;
+static GArray *names = NULL;
 
 static void
 create_names() {
@@ -46,16 +46,13 @@ create_names() {
 	if (names != NULL)
 		return;
 
-	names = g_value_array_new(N_PAYS);
+	names = g_array_sized_new(TRUE, TRUE, sizeof(GString*), N_PAYS);
 
 	for (i = 0; i < N_PAYS; i++) {
-		gchar *name = g_strdup_printf("name%d", i);
-		GValue vname = G_VALUE_INIT;
+		GString *str = g_string_new("");
+		g_string_append_printf(str, "name%d", i);
 
-		g_value_init(&vname, G_TYPE_STRING);
-		g_value_take_string(&vname, name);
-		g_value_array_append(names, &vname);
-		g_value_unset(&vname);
+		g_array_append_val(names, str);
 	}
 }
 
@@ -65,6 +62,7 @@ create_payloads(GPtrArray *payloads) {
 
 	for (i = 0; i < N_PAYS; i++) {
 		KmsPayload *pay;
+		GString *str;
 
 		pay = g_object_new(KMS_TYPE_PAYLOAD, NULL);
 
@@ -76,8 +74,8 @@ create_payloads(GPtrArray *payloads) {
 
 		if (pay->rtp->codecName != NULL)
 			g_free(pay->rtp->codecName);
-		pay->rtp->codecName = g_value_dup_string(
-						g_value_array_get_nth(names, i));
+		str = g_array_index(names, GString*, i);
+		pay->rtp->codecName = g_strndup(str->str, str->len);
 		pay->rtp->id = PAYLOAD(i);
 		pay->rtp->clockRate = CLOCKRATE(i);
 		pay->rtp->bitrate = BANDWIDTH(i);
@@ -90,7 +88,7 @@ create_payloads(GPtrArray *payloads) {
 static void
 check_payload(GPtrArray *payloads, gint i) {
 	KmsPayload *payload;
-	GValue *str;
+	GString *str;
 	gchar *name;
 	gint pay, rate;
 	gint bandwidth;
@@ -109,9 +107,10 @@ check_payload(GPtrArray *payloads, gint i) {
 	else
 		bandwidth = -2;
 
-	str = g_value_array_get_nth(names, i);
 
-	g_assert(g_ascii_strcasecmp(g_value_get_string(str), name) == 0);
+	str = g_array_index(names, GString*, i);
+
+	g_assert(g_ascii_strcasecmp(str->str, name) == 0);
 	g_assert(pay == PAYLOAD(i));
 	g_assert(rate == CLOCKRATE(i));
 	g_assert(bandwidth == BANDWIDTH(i));

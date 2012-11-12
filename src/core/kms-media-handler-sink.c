@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define UNLOCK(obj) (g_mutex_unlock(&(KMS_MEDIA_HANDLER_SINK(obj)->priv->mutex)))
 
 struct _KmsMediaHandlerSinkPriv {
-	GMutex *mutex;
+	GMutex mutex;
 };
 
 enum {
@@ -127,7 +127,7 @@ static void
 finalize(GObject *object) {
 	KmsMediaHandlerSink *self = KMS_MEDIA_HANDLER_SINK(object);
 
-	g_mutex_free(self->priv->mutex);
+	g_mutex_clear(&self->priv->mutex);
 
 	G_OBJECT_CLASS(kms_media_handler_sink_parent_class)->finalize(object);
 }
@@ -198,5 +198,5 @@ static void
 kms_media_handler_sink_init(KmsMediaHandlerSink *self) {
 	self->priv = KMS_MEDIA_HANDLER_SINK_GET_PRIVATE(self);
 
-	self->priv->mutex = g_mutex_new();
+	g_mutex_init(&self->priv->mutex);
 }

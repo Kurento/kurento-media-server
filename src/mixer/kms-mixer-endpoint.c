@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_MIXER_ENDPOINT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), KMS_TYPE_MIXER_ENDPOINT, KmsMixerEndpointPriv))
 
-#define LOCK(obj) (g_mutex_lock(KMS_MIXER_ENDPOINT(obj)->priv->mutex))
-#define UNLOCK(obj) (g_mutex_unlock(KMS_MIXER_ENDPOINT(obj)->priv->mutex))
+#define LOCK(obj) (g_mutex_lock(&(KMS_MIXER_ENDPOINT(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_MIXER_ENDPOINT(obj)->priv->mutex)))
 
 struct _KmsMixerEndpointPriv {
-	GMutex *mutex;
+	GMutex mutex;
 
 	KmsMixerManager *manager;
 };
@@ -74,10 +74,7 @@ static void
 finalize(GObject *object) {
 	KmsMixerEndpoint *self = KMS_MIXER_ENDPOINT(object);
 
-	if (self->priv->mutex != NULL) {
-		g_mutex_free(self->priv->mutex);
-		self->priv->mutex = NULL;
-	}
+	g_mutex_clear(&self->priv->mutex);
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS(kms_mixer_endpoint_parent_class)->finalize(object);
@@ -97,6 +94,6 @@ static void
 kms_mixer_endpoint_init(KmsMixerEndpoint *self) {
 	self->priv = KMS_MIXER_ENDPOINT_GET_PRIVATE(self);
 
-	self->priv->mutex = g_mutex_new();
+	g_mutex_init(&self->priv->mutex);
 	self->priv->manager = NULL;
 }

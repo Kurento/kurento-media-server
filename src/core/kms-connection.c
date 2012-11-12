@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_CONNECTION, KmsConnectionPriv))
 
-#define LOCK(obj) (g_static_mutex_lock(&(KMS_CONNECTION(obj)->priv->mutex)))
-#define UNLOCK(obj) (g_static_mutex_unlock(&(KMS_CONNECTION(obj)->priv->mutex)))
+#define LOCK(obj) (g_mutex_lock(&(KMS_CONNECTION(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_CONNECTION(obj)->priv->mutex)))
 
 struct _KmsConnectionPriv {
-	GStaticMutex mutex;
+	GMutex mutex;
 	gchar *id;
 	gboolean finished;
 	KmsEndpoint *endpoint;
@@ -269,7 +269,7 @@ kms_connection_finalize(GObject *object) {
 	KmsConnection *self = KMS_CONNECTION(object);
 
 	free_id(self);
-	g_static_mutex_free(&(self->priv->mutex));
+	g_mutex_clear(&(self->priv->mutex));
 
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (kms_connection_parent_class)->finalize(object);
@@ -310,7 +310,7 @@ static void
 kms_connection_init(KmsConnection *self) {
 	self->priv = KMS_CONNECTION_GET_PRIVATE (self);
 
-	g_static_mutex_init(&(self->priv->mutex));
+	g_mutex_init(&(self->priv->mutex));
 	self->priv->id = NULL;
 	self->priv->finished = FALSE;
 	self->priv->endpoint = NULL;

@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KMS_RTMP_SENDER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_RTMP_SENDER, KmsRtmpSenderPriv))
 
-#define LOCK(obj) (g_mutex_lock(KMS_RTMP_SENDER(obj)->priv->mutex))
-#define UNLOCK(obj) (g_mutex_unlock(KMS_RTMP_SENDER(obj)->priv->mutex))
+#define LOCK(obj) (g_mutex_lock(&(KMS_RTMP_SENDER(obj)->priv->mutex)))
+#define UNLOCK(obj) (g_mutex_unlock(&(KMS_RTMP_SENDER(obj)->priv->mutex)))
 
 #define URL_DATA "url"
 
@@ -58,7 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 struct _KmsRtmpSenderPriv {
-	GMutex *mutex;
+	GMutex mutex;
 
 	KmsSessionSpec *neg_spec;
 };
@@ -365,7 +365,7 @@ static void
 finalize(GObject *object) {
 	KmsRtmpSender *self = KMS_RTMP_SENDER(object);
 
-	g_mutex_free(self->priv->mutex);
+	g_mutex_clear(&self->priv->mutex);
 
 	G_OBJECT_CLASS(kms_rtmp_sender_parent_class)->finalize(object);
 }
@@ -405,6 +405,6 @@ static void
 kms_rtmp_sender_init(KmsRtmpSender *self) {
 	self->priv = KMS_RTMP_SENDER_GET_PRIVATE(self);
 
-	self->priv->mutex = g_mutex_new();
+	g_mutex_init(&self->priv->mutex);
 	self->priv->neg_spec = NULL;
 }
