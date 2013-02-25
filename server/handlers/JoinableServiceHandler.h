@@ -36,14 +36,14 @@ public:
 	virtual ~JoinableServiceHandler();
 
 	void getStreams(std::vector<StreamType::type> & _return, const Joinable& joinable);
-	void join(const Joinable& from, const Joinable& to, const Direction direction);
+	void join(const Joinable& from, const Joinable& to, const Direction::type direction);
 	void unjoin(const Joinable& from, const Joinable& to);
-	void joinStream(const Joinable& from, const Joinable& to, const StreamType::type stream, const Direction direction);
+	void joinStream(const Joinable& from, const Joinable& to, const StreamType::type stream, const Direction::type direction);
 	void unjoinStream(const Joinable& from, const Joinable& to, const StreamType::type stream);
 	void getJoinees(std::vector<Joinable> & _return, const Joinable& from);
-	void getDirectionJoinees(std::vector<Joinable> & _return, const Joinable& from, const Direction direction);
+	void getDirectionJoinees(std::vector<Joinable> & _return, const Joinable& from, const Direction::type direction);
 	void getStreamJoinees(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream);
-	void getStreamDirectionJoinees(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream, const Direction direction);
+	void getStreamDirectionJoinees(std::vector<Joinable> & _return, const Joinable& from, const StreamType::type stream, const Direction::type direction);
 
 	void release(const Joinable& joinable);
 

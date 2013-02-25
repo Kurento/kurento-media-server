@@ -31,7 +31,7 @@ namespace com { namespace kurento { namespace kms {
 
 
 MediaServerServiceHandler::MediaServerServiceHandler(const ServerConfig &config,
-						const SessionSpec &spec):
+						const std::string &spec):
 								config(config),
 								spec(spec) {
 	manager = MediaSessionManager::getInstance();

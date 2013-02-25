@@ -36,7 +36,7 @@ NetworkConnectionServiceHandler::NetworkConnectionServiceHandler() {
 }
 
 void
-NetworkConnectionServiceHandler::generateOffer(SessionSpec &_return,
+NetworkConnectionServiceHandler::generateOffer(std::string &_return,
 						const NetworkConnection &nc) {
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(
@@ -60,9 +60,9 @@ NetworkConnectionServiceHandler::generateOffer(SessionSpec &_return,
 }
 
 void
-NetworkConnectionServiceHandler::processAnswer(SessionSpec &_return,
+NetworkConnectionServiceHandler::processAnswer(std::string &_return,
 						const NetworkConnection &nc,
-						const SessionSpec &anwser) {
+						const std::string &anwser) {
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(
 							nc.joinable.session);
@@ -87,9 +87,9 @@ NetworkConnectionServiceHandler::processAnswer(SessionSpec &_return,
 }
 
 void
-NetworkConnectionServiceHandler::processOffer(SessionSpec &_return,
+NetworkConnectionServiceHandler::processOffer(std::string &_return,
 						const NetworkConnection &nc,
-						const SessionSpec &offer) {
+						const std::string &offer) {
 	try {
 		MediaSessionImpl &session = manager->getMediaSession(
 							nc.joinable.session);
@@ -114,7 +114,7 @@ NetworkConnectionServiceHandler::processOffer(SessionSpec &_return,
 }
 
 void
-NetworkConnectionServiceHandler::getLocalDescriptor(SessionSpec &_return,
+NetworkConnectionServiceHandler::getLocalDescriptor(std::string &_return,
 						const NetworkConnection &nc) {
 	i("Local descriptor requested on connection %lld", nc.joinable.object.id);
 	try {
@@ -138,7 +138,7 @@ NetworkConnectionServiceHandler::getLocalDescriptor(SessionSpec &_return,
 }
 
 void
-NetworkConnectionServiceHandler::getRemoteDescriptor(SessionSpec &_return,
+NetworkConnectionServiceHandler::getRemoteDescriptor(std::string &_return,
 						const NetworkConnection &nc) {
 	i("Remote descriptor requested on connection %lld", nc.joinable.object.id);
 	try {

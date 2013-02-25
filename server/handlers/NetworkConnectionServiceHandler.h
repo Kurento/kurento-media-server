@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ::com::kurento::kms::api::NetworkConnectionServiceIf;
 using ::com::kurento::kms::api::MediaObject;
-using ::com::kurento::mediaspec::SessionSpec;
 using ::com::kurento::kms::api::NetworkConnection;
 
 namespace com { namespace kurento { namespace kms {
@@ -35,11 +34,11 @@ public:
 	NetworkConnectionServiceHandler();
 	~NetworkConnectionServiceHandler() {};
 
-	void generateOffer(SessionSpec &_return, const NetworkConnection &nc);
-	void processAnswer(SessionSpec &_return, const NetworkConnection &nc, const SessionSpec &anwser);
-	void processOffer(SessionSpec &_return, const NetworkConnection &nc, const SessionSpec &offer);
-	void getLocalDescriptor(SessionSpec &_return, const NetworkConnection &nc);
-	void getRemoteDescriptor(SessionSpec &_return, const NetworkConnection &nc);
+	void generateOffer(std::string &_return, const NetworkConnection &nc);
+	void processAnswer(std::string &_return, const NetworkConnection &nc, const std::string &anwser);
+	void processOffer(std::string &_return, const NetworkConnection &nc, const std::string &offer);
+	void getLocalDescriptor(std::string &_return, const NetworkConnection &nc);
+	void getRemoteDescriptor(std::string &_return, const NetworkConnection &nc);
 };
 
 }}} // com::kurento::kms::api

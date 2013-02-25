@@ -49,7 +49,7 @@ bool MediaSessionImpl::pingTimeout() {
 	return false;
 }
 
-MediaSessionImpl::MediaSessionImpl(const SessionSpec &spec) :
+MediaSessionImpl::MediaSessionImpl(const std::string &spec) :
 							MediaObjectImpl(),
 							MediaSession(),
 							ncManager(spec) {

@@ -19,14 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define __MEDIA_CONFIG_LOADER__
 
 #include <glibmm.h>
-#include <sessionSpec_types.h>
 
 #define SERVER_GROUP "Server"
 
-using ::com::kurento::mediaspec::SessionSpec;
+void load_spec(Glib::KeyFile &configFile, std::string &session);
 
-void load_spec(Glib::KeyFile &configFile, SessionSpec &session);
-
-void print_spec(SessionSpec &spec);
+void print_spec(std::string &spec);
 
 #endif /* __MEDIA_CONFIG_LOADER__ */

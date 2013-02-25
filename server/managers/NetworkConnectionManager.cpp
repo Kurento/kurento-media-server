@@ -26,7 +26,7 @@ static Log l("NetworkConnectionManager");
 #define i(...) aux_info(l, __VA_ARGS__);
 #define w(...) aux_warn(l, __VA_ARGS__);
 
-NetworkConnectionManager::NetworkConnectionManager(const SessionSpec &spec):
+NetworkConnectionManager::NetworkConnectionManager(const std::string &spec):
 								spec(spec) {
 }
 

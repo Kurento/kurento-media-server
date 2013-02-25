@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "types/JoinableImpl.h"
 
 using namespace ::com::kurento::kms::api;
-using ::com::kurento::mediaspec::SessionSpec;
 
 namespace com { namespace kurento { namespace kms {
 
@@ -31,26 +30,15 @@ namespace com { namespace kurento { namespace kms {
 	public:
 		NetworkConnectionImpl(MediaSession &session,
 				const std::vector<NetworkConnectionConfig::type> & config,
-				const SessionSpec &spec);
+				const std::string &spec);
 		~NetworkConnectionImpl() throw();
 
-		void generateOffer(SessionSpec& _return);
-		void processAnswer(SessionSpec &_return, const SessionSpec &answer);
-		void processOffer(SessionSpec& _return, const SessionSpec& offer);
-		void getLocalDescriptor(SessionSpec& _return);
-		void getRemoteDescriptor(SessionSpec& _return);
+		void generateOffer(std::string& _return);
+		void processAnswer(std::string &_return, const std::string &answer);
+		void processOffer(std::string& _return, const std::string& offer);
+		void getLocalDescriptor(std::string& _return);
+		void getRemoteDescriptor(std::string& _return);
 
-	private:
-		SessionSpec spec;
-		KmsConnection *rtp_connection;
-		std::map<NetworkConnectionConfig::type, KmsEndpoint *> endpoints;
-		std::map<NetworkConnectionConfig::type, KmsConnection *> connections;
-
-		void initialize_config(NetworkConnectionConfig::type config,
-					KmsSessionSpec *local_spec)
-						throw (MediaServerException);
-		void finalize_config(NetworkConnectionConfig::type config);
-		void select_config(NetworkConnectionConfig::type config);
 	};
 
 }}} // com::kurento::kms

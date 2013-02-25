@@ -29,7 +29,7 @@ namespace com { namespace kurento { namespace kms {
 class MediaServerServiceHandler : virtual public MediaServerServiceIf {
 public:
 	MediaServerServiceHandler(const ServerConfig &config,
-						const SessionSpec &spec);
+						const std::string &spec);
 	~MediaServerServiceHandler();
 
 	void getServerconfig(ServerConfig& _return);
@@ -39,7 +39,7 @@ public:
 private:
 	MediaSessionManager *manager;
 	ServerConfig config;
-	SessionSpec spec;
+	std::string spec;
 };
 
 }}} // com::kurento::kms::api

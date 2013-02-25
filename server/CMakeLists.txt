@@ -2,7 +2,7 @@ aux_source_directory("handlers" HANDLERS)
 aux_source_directory("managers" MANAGERS)
 aux_source_directory("types" TYPES)
 
-SET(KMSC_SOURCE main.cpp log.cpp media_config_loader.cpp utils.cpp version.cpp
+SET(KMSC_SOURCE main.cpp log.cpp media_config_loader.cpp version.cpp
 						${HANDLERS} ${MANAGERS} ${TYPES})
 SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 		PROPERTIES COMPILE_FLAGS
@@ -11,9 +11,10 @@ SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 add_executable(kurento ${KMSC_SOURCE})
 add_dependencies(kurento kmsiface-project)
 
-target_link_libraries(kurento kmsiface mediaspec ${THRIFT_LIBRARIES} ${THRIFTC_LIBRARIES})
+target_link_libraries(kurento kmsiface ${THRIFT_LIBRARIES} ${THRIFTC_LIBRARIES})
 target_link_libraries(kurento ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES})
-target_link_libraries(kurento ${UUID_LIBRARIES} kmsclib)
+target_link_libraries(kurento ${UUID_LIBRARIES})
+target_link_libraries(kurento ${GLIB2_LIBRARIES})
 include_directories(kurento ${CMAKE_BINARY_DIR})
 include_directories(kurento ${THRIFT_INCLUDE_DIRS} ${GLIBMM_INCLUDE_DIRS})
 include_directories(kurento ${THRIFTC_INCLUDE_DIRS} ${GSTREAMER_INCLUDE_DIRS})

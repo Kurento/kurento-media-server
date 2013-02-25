@@ -33,7 +33,7 @@ namespace com { namespace kurento { namespace kms {
 		MediaSessionManager();
 		~MediaSessionManager();
 
-		MediaSessionImpl& createMediaSession(const SessionSpec &spec);
+		MediaSessionImpl& createMediaSession(const std::string &spec);
 
 		MediaSessionImpl& getMediaSession(const MediaSession& session);
 

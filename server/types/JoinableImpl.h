@@ -21,8 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "joinable_types.h"
 #include "types/MediaObjectImpl.h"
 
-#include <kms-core.h>
-
 using ::com::kurento::kms::api::Joinable;
 using ::com::kurento::kms::api::StreamType;
 using ::com::kurento::kms::api::Direction;
@@ -37,29 +35,18 @@ public:
 
 	void getStreams(std::vector<StreamType::type> &_return);
 
-	void join(const JoinableImpl& to, const Direction direction);
+	void join(const JoinableImpl& to, const Direction::type direction);
 	void unjoin(JoinableImpl& to);
 
-	void join(JoinableImpl &to, const StreamType::type stream, const Direction direction);
+	void join(JoinableImpl &to, const StreamType::type stream, const Direction::type direction);
 	void unjoin(JoinableImpl &to, const StreamType::type stream);
 
 	void getJoinees(std::vector<Joinable> &_return);
-	void getJoinees(std::vector<Joinable> &_return, const Direction direction);
+	void getJoinees(std::vector<Joinable> &_return, const Direction::type direction);
 
 	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream);
-	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream, const Direction direction);
+	void getJoinees(std::vector<Joinable> &_return, const StreamType::type stream, const Direction::type direction);
 
-protected:
-
-	KmsEndpoint *endpoint;
-	// TODO: Protect the list against concurrency
-	std::map<JoinableImpl *, KmsLocalConnection *> joinees;
-
-private:
-
-	KmsConnection* create_local_connection();
-	void deleteConnection(
-		std::map<JoinableImpl *, KmsLocalConnection *>::iterator it);
 };
 
 }}} // com::kurento::kms

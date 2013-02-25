@@ -32,7 +32,7 @@ namespace com { namespace kurento { namespace kms {
 class MediaSessionImpl : public MediaSession,
 			public virtual MediaObjectImpl {
 public:
-	MediaSessionImpl(const SessionSpec &spec);
+	MediaSessionImpl(const std::string &spec);
 	~MediaSessionImpl() throw();
 
 	void ping(const int32_t timeout);

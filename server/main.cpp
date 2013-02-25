@@ -35,8 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <glibmm.h>
 #include <fstream>
 
-#include <kms-core.h>
-
 #include "log.h"
 
 #include <version.h>
@@ -79,7 +77,7 @@ static Log l("main");
 #define MIXER_PORT_KEY "mixerPort"
 
 static ServerConfig config;
-static SessionSpec sessionSpec;
+static std::string sessionSpec;
 
 static KeyFile configFile;
 
@@ -317,7 +315,6 @@ static void load_config(const std::string &file_name) {
 
 	try {
 		load_spec(configFile, sessionSpec);
-		d("configured %d medias", sessionSpec.medias.size());
 	} catch (Glib::KeyFileError err) {
 		w(err.what());
 		w("Wrong codec configuration, communication won't be possible");
@@ -420,9 +417,6 @@ int main(int argc, char **argv) {
 
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGPIPE, &sa, NULL);
-
-	kms_init(&argc, &argv);
-
 	Glib::thread_init();
 
 	i("Kmsc version: %s", get_version());

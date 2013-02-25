@@ -43,7 +43,7 @@ void MediaSessionManager::releaseInstance(MediaSessionManager* manager) {
 	// As instance is a singleton no action is needed
 }
 
-MediaSessionImpl &MediaSessionManager::createMediaSession(const SessionSpec &spec) {
+MediaSessionImpl &MediaSessionManager::createMediaSession(const std::string &spec) {
 	MediaSessionImpl *session = new MediaSessionImpl(spec);
 	int size;
 
