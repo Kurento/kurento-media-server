@@ -18,10 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <signal.h>
 #include <execinfo.h>
 
-#include "handlers/MediaServiceHandler.h"
-#include "handlers/MediaSessionServiceHandler.h"
-#include "handlers/NetworkConnectionServiceHandler.h"
-#include "handlers/MixerServiceHandler.h"
+#include "MediaServerServiceHandler.h"
 
 #include <protocol/TBinaryProtocol.h>
 #include <transport/TServerSocket.h>
@@ -45,14 +42,10 @@ using namespace ::apache::thrift::transport;
 using namespace ::apache::thrift::server;
 using namespace ::apache::thrift::concurrency;
 
-using namespace ::com::kurento::kms::api;
+using namespace ::kurento;
 
 using boost::shared_ptr;
-using com::kurento::kms::MediaServerServiceHandler;
-using com::kurento::kms::MediaSessionServiceHandler;
-using com::kurento::kms::NetworkConnectionServiceHandler;
-using com::kurento::kms::MixerServiceHandler;
-using com::kurento::kms::api::ServerConfig;
+using ::kurento::MediaServerServiceHandler;
 using ::com::kurento::log::Log;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
@@ -64,30 +57,24 @@ static Log l("main");
 
 #define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"
 
-#define SERVER_ADDRESS "localhost"
-#define SERVER_SERVICE_PORT 9090
-#define SESSION_SERVICE_PORT 9091
-#define NETWORK_CONNECTION_SERVICE_PORT 9092
-#define MIXER_SERVICE_PORT 9093
+#define MEDIA_SERVER_ADDRESS "localhost"
+#define MEDIA_SERVER_SERVICE_PORT 9090
 
-#define SERVER_ADDRESS_KEY "serverAddress"
-#define SERVER_PORT_KEY "serverPort"
-#define SESSION_PORT_KEY "sessionPort"
-#define NETWORK_CONNECTION_PORT_KEY "connectionPort"
-#define MIXER_PORT_KEY "mixerPort"
+#define MEDIA_SERVER_ADDRESS_KEY "serverAddress"
+#define MEDIA_SERVER_SERVICE_PORT_KEY "serverPort"
 
-static ServerConfig config;
+static std::string serverAddress;
+static gint serverServicePort;
 static std::string sessionSpec;
-
 static KeyFile configFile;
 
-static void create_server_service() {
+static void create_media_server_service() {
 	int port;
 
-	port = config.serverServicePort;
+	port = MEDIA_SERVER_SERVICE_PORT;
 
 	shared_ptr<MediaServerServiceHandler> handler(
-			new MediaServerServiceHandler(config, sessionSpec));
+			new MediaServerServiceHandler());
 	shared_ptr<TProcessor> processor(new MediaServerServiceProcessor(handler));
 	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
 	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
@@ -109,114 +96,19 @@ static void create_server_service() {
 	throw Glib::Thread::Exit();
 }
 
-static void create_session_service() {
-	int port;
-
-	if (!config.__isset.mediaSessionServicePort) {
-		w("No port set in configuration for MediaSessionService");
-		throw Glib::Thread::Exit();
-	} else {
-		port = config.mediaSessionServicePort;
-	}
-
-	shared_ptr<MediaSessionServiceHandler> handler(new MediaSessionServiceHandler());
-	shared_ptr<TProcessor> processor(new MediaSessionServiceProcessor(handler));
-	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
-	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
-	shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
-	shared_ptr<PosixThreadFactory> threadFactory(new PosixThreadFactory ());
-
-	shared_ptr<ThreadManager> threadManager= ThreadManager::newSimpleThreadManager(15);
-
-	threadManager->threadFactory(threadFactory);
-
-	shared_ptr<TThreadedServer> server(new TThreadedServer(processor,
-					serverTransport, transportFactory,
-					protocolFactory, threadFactory));
-
-	i("Starting MediaSessionService");
-	server->serve();
-
-	i("MediaSessionService stopped finishing thread");
-	throw Glib::Thread::Exit();
-}
-
-static void create_network_connection_service() {
-	int port;
-
-	if (!config.__isset.networkConnectionServicePort) {
-		w("No port set in configuration for NetworkConnectionService");
-		throw Glib::Thread::Exit();
-	} else {
-		port = config.networkConnectionServicePort;
-	}
-
-	shared_ptr<NetworkConnectionServiceHandler> handler(new NetworkConnectionServiceHandler());
-	shared_ptr<TProcessor> processor(new NetworkConnectionServiceProcessor(handler));
-	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
-	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
-	shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
-	shared_ptr<PosixThreadFactory> threadFactory(new PosixThreadFactory ());
-
-	shared_ptr<ThreadManager> threadManager= ThreadManager::newSimpleThreadManager(15);
-
-	threadManager->threadFactory(threadFactory);
-
-	shared_ptr<TThreadedServer> server(new TThreadedServer(processor,
-					serverTransport, transportFactory,
-					protocolFactory, threadFactory));
-
-	i("Starting NetworkConnectionService");
-	server->serve();
-
-	i("NetworkConnectionService stopped finishing thread");
-	throw Glib::Thread::Exit();
-}
-
-static void create_mixer_service() {
-	int port;
-
-	if (!config.__isset.mixerServicePort) {
-		w("No port set in configuration for MixerService");
-		throw Glib::Thread::Exit();
-	} else {
-		port = config.mixerServicePort;
-	}
-
-	shared_ptr<MixerServiceHandler> handler(new MixerServiceHandler());
-	shared_ptr<TProcessor> processor(new MixerServiceProcessor(handler));
-	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
-	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
-	shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
-	shared_ptr<PosixThreadFactory> threadFactory(new PosixThreadFactory ());
-
-	shared_ptr<ThreadManager> threadManager= ThreadManager::newSimpleThreadManager(15);
-
-	threadManager->threadFactory(threadFactory);
-
-	shared_ptr<TThreadedServer> server(new TThreadedServer(processor,
-					serverTransport, transportFactory,
-					protocolFactory, threadFactory));
-
-	i("Starting MixerService");
-	server->serve();
-
-	i("MixerService stopped finishing thread");
-	throw Glib::Thread::Exit();
-}
-
-static void set_default_server_config() {
-	config.__set_address(SERVER_ADDRESS);
-	config.__set_serverServicePort(SERVER_SERVICE_PORT);
-	config.__set_mediaSessionServicePort(SESSION_SERVICE_PORT);
-	config.__set_networkConnectionServicePort(NETWORK_CONNECTION_SERVICE_PORT);
-	config.__set_mixerServicePort(MIXER_SERVICE_PORT);
-}
-
-static void check_port(int port) {
+static void
+check_port(int port)
+{
 	if (port <=0 || port > G_MAXUSHORT)
 		throw Glib::KeyFileError(Glib::KeyFileError::PARSE,
 							"Invalid value");
+}
+
+static void
+set_default_server_config()
+{
+	serverAddress = MEDIA_SERVER_ADDRESS;
+	serverServicePort = MEDIA_SERVER_SERVICE_PORT;
 }
 
 static void load_config(const std::string &file_name) {
@@ -252,65 +144,26 @@ static void load_config(const std::string &file_name) {
 	}
 
 	try {
-		config.__set_address(configFile.get_string(SERVER_GROUP,
-							SERVER_ADDRESS_KEY));
+		serverAddress = configFile.get_string(SERVER_GROUP,
+							MEDIA_SERVER_ADDRESS_KEY);
 	} catch (Glib::KeyFileError err) {
 		i(err.what());
 		i("Setting default address");
-		configFile.set_string(SERVER_GROUP, SERVER_ADDRESS_KEY,
-								SERVER_ADDRESS);
-		config.__set_address(SERVER_ADDRESS);
+		configFile.set_string(SERVER_GROUP, MEDIA_SERVER_ADDRESS_KEY,
+								MEDIA_SERVER_ADDRESS);
+		serverAddress = MEDIA_SERVER_ADDRESS;
 	}
 
 	try {
-		port = configFile.get_integer(SERVER_GROUP, SERVER_PORT_KEY);
+		port = configFile.get_integer(SERVER_GROUP, MEDIA_SERVER_SERVICE_PORT_KEY);
 		check_port(port);
-		config.__set_serverServicePort(port);
+		serverServicePort = port;
 	} catch (Glib::KeyFileError err) {
 		i(err.what());
 		i("Setting default server port");
-		configFile.set_integer(SERVER_GROUP, SERVER_PORT_KEY,
-							SERVER_SERVICE_PORT);
-		config.__set_serverServicePort(SERVER_SERVICE_PORT);
-	}
-
-	try {
-		port = configFile.get_integer(SERVER_GROUP, SESSION_PORT_KEY);
-		check_port(port);
-		config.__set_mediaSessionServicePort(port);
-	} catch (Glib::KeyFileError err) {
-		i(err.what());
-		i("Setting default media session port");
-		configFile.set_integer(SERVER_GROUP, SESSION_PORT_KEY,
-							SESSION_SERVICE_PORT);
-		config.__set_mediaSessionServicePort(SESSION_SERVICE_PORT);
-	}
-
-	try {
-		port = configFile.get_integer(SERVER_GROUP,
-						NETWORK_CONNECTION_PORT_KEY);
-		check_port(port);
-		config.__set_networkConnectionServicePort(port);
-	} catch (Glib::KeyFileError err) {
-		i(err.what());
-		i("Setting default network connection port");
-		configFile.set_integer(SERVER_GROUP,
-					NETWORK_CONNECTION_PORT_KEY,
-					NETWORK_CONNECTION_SERVICE_PORT);
-		config.__set_networkConnectionServicePort(
-					NETWORK_CONNECTION_SERVICE_PORT);
-	}
-
-	try {
-		port =configFile.get_integer(SERVER_GROUP, MIXER_PORT_KEY);
-		check_port(port);
-		config.__set_mixerServicePort(port);
-	} catch (Glib::KeyFileError err) {
-		i(err.what());
-		i("Setting default mixer port");
-		configFile.set_integer(SERVER_GROUP, MIXER_PORT_KEY,
-							MIXER_SERVICE_PORT);
-		config.__set_mixerServicePort(MIXER_SERVICE_PORT);
+		configFile.set_integer(SERVER_GROUP, MEDIA_SERVER_SERVICE_PORT_KEY,
+							MEDIA_SERVER_SERVICE_PORT);
+		serverServicePort = MEDIA_SERVER_SERVICE_PORT;
 	}
 
 	try {
@@ -423,17 +276,8 @@ int main(int argc, char **argv) {
 
 	load_config(DEFAULT_CONFIG_FILE);
 
-	sigc::slot<void> ss = sigc::ptr_fun(&create_server_service);
+	sigc::slot<void> ss = sigc::ptr_fun(&create_media_server_service);
 	Glib::Thread *serverServiceThread = Glib::Thread::create(ss, true);
-
-	sigc::slot<void> mss = sigc::ptr_fun(&create_session_service);
-	Glib::Thread::create(mss, true);
-
-	sigc::slot<void> ncss = sigc::ptr_fun(&create_network_connection_service);
-	Glib::Thread::create(ncss, true);
-
-	sigc::slot<void> mxss = sigc::ptr_fun(&create_mixer_service);
-	Glib::Thread::create(mxss, true);
 
 	Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create(true);
 	loop->run();
