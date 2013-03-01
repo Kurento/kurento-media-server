@@ -68,6 +68,9 @@ static gint serverServicePort;
 static std::string sessionSpec;
 static KeyFile configFile;
 
+Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create(true);
+static TNonblockingServer *p_server = NULL;
+
 static void create_media_server_service() {
 	int port;
 
@@ -83,6 +86,7 @@ static void create_media_server_service() {
 	threadManager->threadFactory(threadFactory);
 	threadManager->start();
 	TNonblockingServer server(processor, protocolFactory, port, threadManager);
+	p_server = &server,
 	i("Starting MediaServerService");
 	server.serve();
 
@@ -213,11 +217,17 @@ bt_sighandler(int sig, siginfo_t *info, gpointer data) {
 // 	ucontext_t *uc = (ucontext_t *)data;
 
 	/* Do something useful with siginfo_t */
-	if (sig == SIGSEGV)
+	if (sig == SIGSEGV) {
 		printf("Got signal %d, faulty address is %p\n", sig,
 						(gpointer) info->si_addr);
-	else
+	} else if (sig == SIGKILL || sig == SIGINT) {
+		loop->quit();
+		if (p_server != NULL)
+			p_server->stop();
+		return;
+	} else {
 		printf("Got signal %d\n", sig);
+	}
 
 	trace_size = backtrace(trace, 35);
 	/* overwrite sigaction with caller's address */
@@ -264,6 +274,8 @@ int main(int argc, char **argv) {
 
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGPIPE, &sa, NULL);
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGKILL, &sa, NULL);
 	Glib::thread_init();
 
 	i("Kmsc version: %s", get_version());
@@ -272,12 +284,8 @@ int main(int argc, char **argv) {
 
 	sigc::slot<void> ss = sigc::ptr_fun(&create_media_server_service);
 	Glib::Thread *serverServiceThread = Glib::Thread::create(ss, true);
-
-	Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create(true);
 	loop->run();
 	serverServiceThread->join();
-
-	// TODO: Finish all other threads and notify error
 
 	return 0;
 }
