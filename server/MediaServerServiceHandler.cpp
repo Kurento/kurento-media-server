@@ -16,6 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MediaServerServiceHandler.h"
+#include <gst/gst.h>
+
+#define GST_CAT_DEFAULT media_server_service_handler
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "media_server_service_handler"
 
 using ::kurento::MediaServerServiceHandler;
 using ::kurento::MediaObject;
@@ -23,7 +28,7 @@ using ::kurento::MediaType;
 
 MediaServerServiceHandler::MediaServerServiceHandler()
 {
-	
+	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
 }
 
 MediaServerServiceHandler::~MediaServerServiceHandler()
@@ -48,7 +53,7 @@ MediaServerServiceHandler::release(const MediaObject& mediaObject)
 void
 MediaServerServiceHandler::createMediaFactory(MediaObject& _return)
 {
-	
+	GST_INFO("createMediaFactory");
 }
 
 void
@@ -147,7 +152,7 @@ MediaServerServiceHandler::getMediaSinksByMediaType(std::vector<MediaObject> & _
 void
 MediaServerServiceHandler::play(const MediaObject& mediaPlayer)
 {
-	
+	GST_INFO("play");
 }
 
 void
@@ -185,19 +190,22 @@ MediaServerServiceHandler::stopRecorder(const MediaObject& mediaRecorder)
 void
 MediaServerServiceHandler::generateOffer(std::string& _return, const MediaObject& stream)
 {
-	
+	GST_INFO("generateOffer");
+	_return.assign("SessionDescriptor test from generateOffer");
 }
 
 void
 MediaServerServiceHandler::processAnswer(std::string& _return, const MediaObject& stream, const std::string& anwser)
 {
-	
+	GST_INFO("generateOffer");
+	_return.assign("SessionDescriptor test from processAnswer");
 }
 
 void
 MediaServerServiceHandler::processOffer(std::string& _return, const MediaObject& stream, const std::string& offer)
 {
-	
+	GST_INFO("generateOffer");
+	_return.assign("SessionDescriptor test from processOffer");
 }
 
 void

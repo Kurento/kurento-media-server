@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <glibmm.h>
 #include <fstream>
 
-#include "log.h"
+#include <gst/gst.h>
 
 #include <version.h>
 
@@ -46,14 +46,13 @@ using namespace ::kurento;
 
 using boost::shared_ptr;
 using ::kurento::MediaServerServiceHandler;
-using ::com::kurento::log::Log;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
 
-static Log l("main");
-#define d(...) aux_debug(l, __VA_ARGS__);
-#define i(...) aux_info(l, __VA_ARGS__);
-#define w(...) aux_warn(l, __VA_ARGS__);
+
+#define GST_CAT_DEFAULT media_server
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "media_server"
 
 #define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"
 
@@ -86,11 +85,11 @@ static void create_media_server_service() {
 	threadManager->threadFactory(threadFactory);
 	threadManager->start();
 	TNonblockingServer server(processor, protocolFactory, port, threadManager);
-	p_server = &server,
-	i("Starting MediaServerService");
+	p_server = &server;
+	GST_INFO("Starting MediaServerService");
 	server.serve();
 
-	i("MediaServerService stopped finishing thread");
+	GST_INFO("MediaServerService stopped finishing thread");
 	throw Glib::Thread::Exit();
 }
 
@@ -112,12 +111,12 @@ set_default_server_config()
 static void load_config(const std::string &file_name) {
 	gint port;
 
-	i("Reading configuration from: " + file_name);
+	GST_INFO("Reading configuration from: %s", file_name.c_str());
 	/* Try to open de file */
 	{
 		std::ifstream file(file_name);
 		if (!file) {
-			i("Config file not found, creating a new one");
+			GST_INFO("Config file not found, creating a new one");
 			std::ofstream of(file_name);
 		}
 	}
@@ -125,18 +124,17 @@ static void load_config(const std::string &file_name) {
 		if (!configFile.load_from_file(file_name,
 				KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
 				KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS )) {
-			w("Error loading configuration from " + file_name +
-						", loading "
+			GST_WARNING("Error loading configuration from %s, loading "
 						"default server config, but no "
-						"codecs will be available");
+						"codecs will be available", file_name.c_str());
 			set_default_server_config();
 			return;
 		}
 	} catch (Glib::Error ex) {
-		w("Error loading configuration: " + ex.what());
-		w("Error loading configuration from " + file_name + ", loading "
+		GST_WARNING("Error loading configuration: %s", ex.what().c_str());
+		GST_WARNING("Error loading configuration from %s, loading "
 						"default server config, but no "
-						"codecs will be available");
+						"codecs will be available", file_name.c_str());
 		set_default_server_config();
 		return;
 	}
@@ -145,8 +143,8 @@ static void load_config(const std::string &file_name) {
 		serverAddress = configFile.get_string(SERVER_GROUP,
 							MEDIA_SERVER_ADDRESS_KEY);
 	} catch (Glib::KeyFileError err) {
-		i(err.what());
-		i("Setting default address");
+		GST_INFO(err.what().c_str());
+		GST_INFO("Setting default address");
 		configFile.set_string(SERVER_GROUP, MEDIA_SERVER_ADDRESS_KEY,
 								MEDIA_SERVER_ADDRESS);
 		serverAddress = MEDIA_SERVER_ADDRESS;
@@ -157,8 +155,8 @@ static void load_config(const std::string &file_name) {
 		check_port(port);
 		serverServicePort = port;
 	} catch (Glib::KeyFileError err) {
-		i(err.what());
-		i("Setting default server port");
+		GST_INFO(err.what().c_str());
+		GST_INFO("Setting default server port");
 		configFile.set_integer(SERVER_GROUP, MEDIA_SERVER_SERVICE_PORT_KEY,
 							MEDIA_SERVER_SERVICE_PORT);
 		serverServicePort = MEDIA_SERVER_SERVICE_PORT;
@@ -167,16 +165,16 @@ static void load_config(const std::string &file_name) {
 	try {
 		load_spec(configFile, sessionSpec);
 	} catch (Glib::KeyFileError err) {
-		w(err.what());
-		w("Wrong codec configuration, communication won't be possible");
+		GST_WARNING(err.what().c_str());
+		GST_WARNING("Wrong codec configuration, communication won't be possible");
 	}
 
 	std::ofstream f(file_name, std::ios::out | std::ios::trunc);
 	f << configFile.to_data();
 	f.close();
 
-	i("Configuration loaded successfully");
-	d("Final config file:\n" + configFile.to_data());
+	GST_INFO("Configuration loaded successfully");
+	GST_DEBUG("Final config file:\n%s", configFile.to_data().c_str());
 }
 
 static void
@@ -259,17 +257,19 @@ bt_sighandler(int sig, siginfo_t *info, gpointer data) {
 	}
 
 	if (sig == SIGPIPE) {
-		d("Ignore sigpipe");
+		GST_DEBUG("Ignore sigpipe");
 	} else {
 		exit(sig);
 	}
 }
 
 int main(int argc, char **argv) {
-
-	/* Install our signal handler */
 	struct sigaction sa;
 
+	gst_init(&argc, &argv);
+	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+
+	/* Install our signal handler */
 	sa.sa_sigaction = /*(void (*)(int, siginfo*, gpointer))*/bt_sighandler;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
@@ -280,7 +280,7 @@ int main(int argc, char **argv) {
 	sigaction(SIGKILL, &sa, NULL);
 	Glib::thread_init();
 
-	i("Kmsc version: %s", get_version());
+	GST_INFO("Kmsc version: %s", get_version());
 
 	load_config(DEFAULT_CONFIG_FILE);
 

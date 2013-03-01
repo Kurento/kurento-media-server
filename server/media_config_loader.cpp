@@ -16,15 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "media_config_loader.h"
-#include "log.h"
-
-using ::com::kurento::log::Log;
-
-static Log l("media_config_loader");
-#define d(...) aux_debug(l, __VA_ARGS__);
-#define i(...) aux_info(l, __VA_ARGS__);
-#define e(...) aux_error(l, __VA_ARGS__);
-#define w(...) aux_warn(l, __VA_ARGS__);
+#include <gst/gst.h>
 
 void load_spec(Glib::KeyFile &configFile, std::string &session) {
 	

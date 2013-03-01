@@ -18,7 +18,7 @@ endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 # TODO: Check if HAVE_INIT_TYPES_H has to be added (not in all systems)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pedantic -Wall -Werror -std=c++0x -DGST_DISABLE_DEPRECATED")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror -std=c++0x -DGST_DISABLE_DEPRECATED")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -pedantic -Wall -Werror -std=c99 -DGST_DISABLE_DEPRECATED")
 
 set(CUSTOM_PREFIX "kurento")
@@ -28,7 +28,7 @@ set(LIB_PREFIX "lib")
 find_package(PkgConfig)
 
 pkg_check_modules(GLIB2 REQUIRED glib-2.0>=2.30)
-#pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.36)
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.0.5)
 pkg_check_modules(THRIFT REQUIRED thrift-nb>=0.9.0)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.30)
