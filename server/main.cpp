@@ -222,8 +222,10 @@ bt_sighandler(int sig, siginfo_t *info, gpointer data) {
 						(gpointer) info->si_addr);
 	} else if (sig == SIGKILL || sig == SIGINT) {
 		loop->quit();
-		if (p_server != NULL)
+		if (p_server != NULL) {
 			p_server->stop();
+			p_server = NULL;
+		}
 		return;
 	} else {
 		printf("Got signal %d\n", sig);
