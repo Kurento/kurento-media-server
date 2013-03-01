@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <protocol/TBinaryProtocol.h>
 #include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
-#include <server/TThreadedServer.h>
+#include <server/TNonblockingServer.h>
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
@@ -76,21 +76,15 @@ static void create_media_server_service() {
 	shared_ptr<MediaServerServiceHandler> handler(
 			new MediaServerServiceHandler());
 	shared_ptr<TProcessor> processor(new MediaServerServiceProcessor(handler));
-	shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
-	shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
 	shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
 	shared_ptr<PosixThreadFactory> threadFactory(new PosixThreadFactory ());
-
 	shared_ptr<ThreadManager> threadManager= ThreadManager::newSimpleThreadManager(15);
 
 	threadManager->threadFactory(threadFactory);
-
-	shared_ptr<TThreadedServer> server(new TThreadedServer(processor,
-					serverTransport, transportFactory,
-					protocolFactory, threadFactory));
-
+	threadManager->start();
+	TNonblockingServer server(processor, protocolFactory, port, threadManager);
 	i("Starting MediaServerService");
-	server->serve();
+	server.serve();
 
 	i("MediaServerService stopped finishing thread");
 	throw Glib::Thread::Exit();
