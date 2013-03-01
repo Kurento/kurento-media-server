@@ -29,10 +29,11 @@ find_package(PkgConfig)
 
 pkg_check_modules(GLIB2 REQUIRED glib-2.0>=2.30)
 #pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10>=0.10.36)
-pkg_check_modules(THRIFT REQUIRED thrift>=0.9.0)
-pkg_check_modules(THRIFTC REQUIRED thrift_c_glib>=0.9.0)
+pkg_check_modules(THRIFT REQUIRED thrift-nb>=0.9.0)
+pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.30)
 pkg_check_modules(NICE REQUIRED nice>=0.1.1)
+
 
 include(ExternalProject)
 
