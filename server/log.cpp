@@ -92,7 +92,7 @@ Log::debug(int line, std::string function, std::string file,
 
 	va_start(args, format);
 	message = append_log_formats(line, function, file, format, args);
-	g_log(domain.c_str(), G_LOG_LEVEL_DEBUG, message);
+	g_log(domain.c_str(), G_LOG_LEVEL_DEBUG, "%s", message);
 	g_free(message);
 	va_end(args);
 }
@@ -114,7 +114,7 @@ Log::info(int line, std::string function, std::string file,
 
 	va_start(args, format);
 	message = append_log_formats(line, function, file, format, args);
-	g_log(domain.c_str(), G_LOG_LEVEL_INFO, message);
+	g_log(domain.c_str(), G_LOG_LEVEL_INFO, "%s", message);
 	g_free(message);
 	va_end(args);
 }
@@ -136,7 +136,7 @@ Log::error(int line, std::string function, std::string file,
 
 	va_start(args, format);
 	message = append_log_formats(line, function, file, format, args);
-	g_log(domain.c_str(), G_LOG_LEVEL_ERROR, message);
+	g_log(domain.c_str(), G_LOG_LEVEL_ERROR, "%s", message);
 	g_free(message);
 	va_end(args);
 }
@@ -158,7 +158,7 @@ Log::warn(int line, std::string function, std::string file,
 
 	va_start(args, format);
 	message = append_log_formats(line, function, file, format, args);
-	g_log(domain.c_str(), G_LOG_LEVEL_WARNING, message);
+	g_log(domain.c_str(), G_LOG_LEVEL_WARNING, "%s", message);
 	g_free(message);
 	va_end(args);
 }
