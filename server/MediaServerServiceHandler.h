@@ -36,7 +36,7 @@ public:
 	void createMediaPlayer(MediaObject& _return, const MediaObject& mediaFactory);
 	void createMediaRecorder(MediaObject& _return, const MediaObject& mediaFactory);
 	void createStream(MediaObject& _return, const MediaObject& mediaFactory);
-	void createMixer(MediaObject& _return, const MediaObject& mediaFactory);
+	void createMixer(MediaObject& _return, const MediaObject& mediaFactory, const int32_t mixerId);
 
 	MediaType::type getMediaType(const MediaObject& mediaElement);
 	void connect(const MediaObject& mediaSrc, const MediaObject& mediaSink);
@@ -60,7 +60,7 @@ public:
 	void stopRecorder(const MediaObject& mediaRecorder);
 
 	void generateOffer(std::string& _return, const MediaObject& stream);
-	void processAnswer(std::string& _return, const MediaObject& stream, const std::string& anwser);
+	void processAnswer(std::string& _return, const MediaObject& stream, const std::string& answer);
 	void processOffer(std::string& _return, const MediaObject& stream, const std::string& offer);
 	void getLocalDescriptor(std::string& _return, const MediaObject& stream);
 	void getRemoteDescriptor(std::string& _return, const MediaObject& stream);

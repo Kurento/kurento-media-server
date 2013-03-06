@@ -75,9 +75,9 @@ MediaServerServiceHandler::createStream(MediaObject& _return, const MediaObject&
 }
 
 void
-MediaServerServiceHandler::createMixer(MediaObject& _return, const MediaObject& mediaFactory)
+MediaServerServiceHandler::createMixer(MediaObject& _return, const MediaObject& mediaFactory, const int32_t mixerId)
 {
-	GST_INFO("createMixer");
+	GST_INFO("createMixer: %d", mixerId);
 }
 
 
@@ -196,16 +196,16 @@ MediaServerServiceHandler::generateOffer(std::string& _return, const MediaObject
 }
 
 void
-MediaServerServiceHandler::processAnswer(std::string& _return, const MediaObject& stream, const std::string& anwser)
+MediaServerServiceHandler::processAnswer(std::string& _return, const MediaObject& stream, const std::string& answer)
 {
-	GST_INFO("generateOffer");
+	GST_INFO("processAnswer: %s", answer.c_str());
 	_return.assign("SessionDescriptor test from processAnswer");
 }
 
 void
 MediaServerServiceHandler::processOffer(std::string& _return, const MediaObject& stream, const std::string& offer)
 {
-	GST_INFO("generateOffer");
+	GST_INFO("processOffer: %s", offer.c_str());
 	_return.assign("SessionDescriptor test from processOffer");
 }
 
