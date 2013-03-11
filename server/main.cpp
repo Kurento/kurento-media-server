@@ -70,6 +70,14 @@ static KeyFile configFile;
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create(true);
 static TNonblockingServer *p_server = NULL;
 
+static gchar *conf_file;
+
+static GOptionEntry entries[] =
+{
+	{ "conf-file", 'f', 0, G_OPTION_ARG_FILENAME, &conf_file, "Configuration file", NULL },
+	{ NULL }
+};
+
 static void create_media_server_service() {
 	int port;
 
@@ -264,7 +272,18 @@ bt_sighandler(int sig, siginfo_t *info, gpointer data) {
 }
 
 int main(int argc, char **argv) {
+	GError *error = NULL;
+	GOptionContext *context;
+
 	struct sigaction sa;
+
+	context = g_option_context_new("");
+	g_option_context_add_main_entries(context, entries, NULL);
+	g_option_context_add_group(context, gst_init_get_option_group());
+	if (!g_option_context_parse(context, &argc, &argv, &error)) {
+		GST_ERROR("option parsing failed: %s\n", error->message);
+		exit (1);
+	}
 
 	gst_init(&argc, &argv);
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
