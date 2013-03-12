@@ -18,12 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __MEDIA_CONFIG_LOADER__
 #define __MEDIA_CONFIG_LOADER__
 
+#include <gst/sdp/gstsdpmessage.h>
 #include <glibmm.h>
 
 #define SERVER_GROUP "Server"
 
-void load_spec(Glib::KeyFile &configFile, std::string &session);
-
-void print_spec(std::string &spec);
+GstSDPMessage* load_session_descriptor(Glib::KeyFile &configFile);
 
 #endif /* __MEDIA_CONFIG_LOADER__ */

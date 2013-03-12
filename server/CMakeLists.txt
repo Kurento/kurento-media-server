@@ -11,6 +11,7 @@ add_dependencies(kurento kmsiface-project)
 
 target_link_libraries(kurento kmsiface ${THRIFT_LIBRARIES} ${EVENT_LIBRARIES})
 target_link_libraries(kurento ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES})
+target_link_libraries(kurento ${GSTREAMER_SDP_LIBRARIES} )
 target_link_libraries(kurento ${UUID_LIBRARIES})
 target_link_libraries(kurento ${GLIB2_LIBRARIES})
 include_directories(kurento ${CMAKE_BINARY_DIR})

@@ -36,6 +36,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <version.h>
 
+#include "log.h"
+
+#define GST_DEFAULT_NAME "media_server"
+
+GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
+
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
@@ -50,10 +56,6 @@ using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
 
 
-#define GST_CAT_DEFAULT media_server
-GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "media_server"
-
 #define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"
 
 #define MEDIA_SERVER_ADDRESS "localhost"
@@ -64,7 +66,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 static std::string serverAddress;
 static gint serverServicePort;
-static std::string sessionSpec;
+static GstSDPMessage *sdp_message;
 static KeyFile configFile;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create(true);
@@ -171,7 +173,7 @@ static void load_config(const std::string &file_name) {
 	}
 
 	try {
-		load_spec(configFile, sessionSpec);
+		sdp_message = load_session_descriptor(configFile);
 	} catch (Glib::KeyFileError err) {
 		GST_WARNING(err.what().c_str());
 		GST_WARNING("Wrong codec configuration, communication won't be possible");
@@ -301,7 +303,10 @@ int main(int argc, char **argv) {
 
 	GST_INFO("Kmsc version: %s", get_version());
 
-	load_config(DEFAULT_CONFIG_FILE);
+	if (!conf_file)
+		load_config(DEFAULT_CONFIG_FILE);
+	else
+		load_config((std::string)conf_file);
 
 	sigc::slot<void> ss = sigc::ptr_fun(&create_media_server_service);
 	Glib::Thread *serverServiceThread = Glib::Thread::create(ss, true);
