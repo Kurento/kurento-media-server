@@ -23,6 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SERVER_GROUP "Server"
 
-GstSDPMessage* load_session_descriptor(Glib::KeyFile &configFile);
+GstSDPMessage *load_session_descriptor (Glib::KeyFile &configFile);
 
 #endif /* __MEDIA_CONFIG_LOADER__ */

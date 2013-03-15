@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <config.h>
 #include <version.h>
 
-const char
-*get_version() {
-	return KMSC_VERSION;
+const char *
+get_version ()
+{
+  return KMSC_VERSION;
 }
