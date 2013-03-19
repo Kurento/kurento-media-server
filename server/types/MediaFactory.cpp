@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * MediaFactory.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#include "MediaFactory.h"
 
-const char *get_version ();
+#include <glibmm.h>
 
-#endif /* __VERSION_H__ */
+namespace kurento
+{
+
+MediaFactory::MediaFactory() : MediaObjectImpl()
+{
+//         conn = Glib::signal_timeout().connect_seconds(
+//                 sigc::mem_fun(*this, &MediaSessionImpl::pingTimeout),
+//                 g_mediaSession_constants.DEFAULT_TIMEOUT);
+}
+
+MediaFactory::~MediaFactory() throw()
+{
+
+}
+
+} // kurento

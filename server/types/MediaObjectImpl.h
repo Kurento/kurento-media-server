@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * MediaObjectImpl.h - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef MEDIA_OBJECT_IMPL
+#define MEDIA_OBJECT_IMPL
 
-const char *get_version ();
+#include "mediaServer_types.h"
 
-#endif /* __VERSION_H__ */
+using ::kurento::MediaObject;
+
+namespace kurento
+{
+
+class MediaObjectImpl : public virtual MediaObject
+{
+public:
+  MediaObjectImpl();
+  MediaObjectImpl (std::string &token);
+  virtual ~MediaObjectImpl() throw () = 0;
+};
+
+} // kurento
+
+#endif /* MEDIA_OBJECT_IMPL */

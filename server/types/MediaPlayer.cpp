@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * MediaPlayer.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#include "types/MediaPlayer.h"
 
-const char *get_version ();
+namespace kurento
+{
 
-#endif /* __VERSION_H__ */
+MediaPlayer::MediaPlayer (MediaFactory &mediaFactory) : Joinable (mediaFactory)
+{
+
+}
+
+MediaPlayer::~MediaPlayer() throw ()
+{
+
+}
+
+void
+MediaPlayer::play ()
+{
+
+}
+
+void
+MediaPlayer::pause ()
+{
+
+}
+
+void
+MediaPlayer::stop ()
+{
+
+}
+
+} // kurento

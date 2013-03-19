@@ -37,7 +37,7 @@ pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0>=1.0.5)
 pkg_check_modules(THRIFT REQUIRED thrift-nb>=0.9.0)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.30)
-pkg_check_modules(NICE REQUIRED nice>=0.1.1)
+pkg_check_modules(UUID REQUIRED uuid>=2.20.0)
 
 include(ExternalProject)
 

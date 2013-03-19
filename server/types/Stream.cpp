@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * Stream.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#include "types/Stream.h"
 
-const char *get_version ();
+namespace kurento
+{
 
-#endif /* __VERSION_H__ */
+Stream::Stream (MediaFactory &mediaFactory) : Joinable (mediaFactory)
+{
+
+}
+
+Stream::~Stream() throw ()
+{
+
+}
+
+void
+generateOffer (std::string &_return)
+{
+
+}
+
+void
+processAnswer (std::string &_return, const std::string &answer)
+{
+
+}
+
+void
+processOffer (std::string &_return, const std::string &offer)
+{
+
+}
+
+void
+getLocalDescriptor (std::string &_return)
+{
+
+}
+
+void
+getRemoteDescriptor (std::string &_return)
+{
+
+}
+
+} // kurento

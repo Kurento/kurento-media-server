@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * Stream.h - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef STREAM_H
+#define STREAM_H
 
-const char *get_version ();
+#include "types/Joinable.h"
 
-#endif /* __VERSION_H__ */
+namespace kurento
+{
+
+class Stream : public virtual Joinable
+{
+public:
+  Stream (MediaFactory &mediaFactory);
+  ~Stream() throw ();
+
+  void generateOffer (std::string &_return);
+  void processAnswer (std::string &_return, const std::string &answer);
+  void processOffer (std::string &_return, const std::string &offer);
+  void getLocalDescriptor (std::string &_return);
+  void getRemoteDescriptor (std::string &_return);
+};
+
+} // kurento
+
+#endif /* STREAM_H */

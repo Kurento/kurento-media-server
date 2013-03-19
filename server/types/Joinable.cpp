@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * Joinable.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#include "types/Joinable.h"
 
-const char *get_version ();
+namespace kurento
+{
 
-#endif /* __VERSION_H__ */
+Joinable::Joinable (MediaFactory &mediaFactory) : MediaObjectImpl (mediaFactory.token)
+{
+
+}
+
+Joinable::~Joinable () throw ()
+{
+
+}
+
+void
+Joinable::join (const Joinable &to)
+{
+}
+
+void
+Joinable::unjoin (Joinable &to)
+{
+}
+
+void
+Joinable::getMediaSrcs (std::vector < MediaSrc > &_return)
+{
+}
+
+void
+Joinable::getMediaSinks (std::vector < MediaSink > &_return)
+{
+}
+
+void
+Joinable::getMediaSrcsByMediaType (std::vector < MediaSrc > &_return, const MediaType::type mediaType)
+{
+}
+
+void Joinable::getMediaSinksByMediaType (std::vector < MediaSink > &_return, const MediaType::type mediaType)
+{
+}
+
+} // kurento

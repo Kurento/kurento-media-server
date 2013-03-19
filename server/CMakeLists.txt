@@ -1,7 +1,7 @@
 aux_source_directory("types" TYPES)
 
 SET(KMSC_SOURCE main.cpp media_config_loader.cpp version.cpp MediaServerServiceHandler.cpp
-						${TYPES})
+              ${TYPES})
 SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 		PROPERTIES COMPILE_FLAGS
 		-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H)

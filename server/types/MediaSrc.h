@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * MediaSrc.h - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef MEDIA_SRC_H
+#define MEDIA_SRC_H
 
-const char *get_version ();
+#include "types/MediaObjectImpl.h"
+#include "types/MediaFactory.h"
+#include "types/MediaSink.h"
 
-#endif /* __VERSION_H__ */
+namespace kurento
+{
+
+class MediaSrc : public virtual MediaObjectImpl
+{
+public:
+  MediaSrc (MediaFactory &mediaFactory);
+  ~MediaSrc() throw ();
+
+  MediaType::type getMediaType ();
+  void connect (const MediaSink &mediaSink);
+  void disconnect (const MediaSink &mediaSink);
+  void getConnectedSinks (std::vector<MediaSink> &_return);
+};
+
+} // kurento
+
+#endif /* MEDIA_SRC_H */

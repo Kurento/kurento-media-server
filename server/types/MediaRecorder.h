@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * MediaRecorder.h - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef MEDIA_RECORDER_H
+#define MEDIA_RECORDER_H
 
-const char *get_version ();
+#include "types/Joinable.h"
 
-#endif /* __VERSION_H__ */
+namespace kurento
+{
+
+class MediaRecorder : public virtual Joinable
+{
+public:
+  MediaRecorder (MediaFactory &mediaFactory);
+  ~MediaRecorder() throw ();
+
+  void record ();
+  void pause ();
+  void stop ();
+};
+
+} // kurento
+
+#endif /* MEDIA_RECORDER_H */

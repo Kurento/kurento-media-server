@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * MediaFactory.h - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#include "types/MediaObjectImpl.h"
 
-const char *get_version ();
 
-#endif /* __VERSION_H__ */
+#ifndef MEDIAFACTORY_H
+#define MEDIAFACTORY_H
+
+namespace kurento
+{
+
+class MediaFactory : public virtual MediaObjectImpl
+{
+
+public:
+  MediaFactory();
+  ~MediaFactory() throw();
+};
+
+} // kurento
+
+#endif // MEDIAFACTORY_H
