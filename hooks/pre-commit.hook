@@ -1,0 +1,117 @@
+#!/bin/bash
+#
+# Check that the code follows a consistant code style
+#
+
+# Check for existence of indent, and error out if not present.
+# On some *bsd systems the binary seems to be called gnunindent,
+# so check for that first.
+
+version=`gnuindent --version 2>/dev/null`
+if test "x$version" = "x"; then
+  version=`indent --version 2>/dev/null`
+  if test "x$version" = "x"; then
+    echo "Kurento git pre-commit hook:"
+    echo "Did not find GNU indent, please install it before continuing."
+    exit 1
+  fi
+  INDENT=indent
+else
+  INDENT=gnuindent
+fi
+
+case `$INDENT --version` in
+  GNU*)
+      ;;
+  default)
+      echo "Kurento git pre-commit hook:"
+      echo "Did not find GNU indent, please install it before continuing."
+      echo "(Found $INDENT, but it doesn't seem to be GNU indent)"
+      exit 1
+      ;;
+esac
+
+INDENT_PARAMETERS="--braces-on-if-line\
+ --case-brace-indentation0\
+ --case-indentation2\
+ --braces-after-struct-decl-line\
+ --line-length80\
+ --no-tabs\
+ --cuddle-else\
+ --dont-line-up-parentheses\
+ --continuation-indentation4\
+ --tab-size8\
+ --indent-level2\
+ --leave-preprocessor-space\
+ --swallow-optional-blank-lines\
+ --blank-lines-after-declarations\
+ --blank-lines-after-procedures"
+
+function version {
+ echo "$@" | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3); }';
+}
+
+ASTYLE_VERSION=$(astyle --version 2>&1)
+
+VERSION=$(echo ${ASTYLE_VERSION##* })
+
+if [ $(version $VERSION) -eq 0 ]; then
+  echo "Kurento git pre-commit hook:"
+  echo "Did not find astyle, please install it before continuing."
+  exit 1
+fi
+
+ASTYLE_PARAMS="--style=linux\
+ --indent=spaces=2\
+ --indent-preprocessor\
+ --min-conditional-indent=2\
+ --max-instatement-indent=2\
+ --break-blocks\
+ --pad-oper\
+ --pad-paren-out\
+ --convert-tabs\
+ --align-pointer=name\
+ --lineend=linux\
+ --break-blocks"
+
+if [ $(version $VERSION) -ge $(version "2.02") ]; then
+  ASTYLE_PARAMS="$ASTYLE_PARAMS --align-reference=name"
+fi
+
+echo "--Checking style--"
+for file in `git diff-index --cached --name-only HEAD --diff-filter=ACMR| grep "\.\(c\(pp\)\?\|h\)$"` ; do
+    # nf is the temporary checkout. This makes sure we check against the
+    # revision in the index (and not the checked out version).
+    nf=`git checkout-index --temp ${file} | cut -f 1`
+    newfile=`mktemp /tmp/${nf}.XXXXXX` || exit 1
+    if [ "$(echo "$file" | grep -e "\.cpp$")" ]; then
+      astyle ${ASTYLE_PARAMS} < ${file} > ${newfile} 2>> /dev/null
+      FIX_COMMAND="astyle ${ASTYLE_PARAMS} $file; git add $file; git commit"
+    else
+      $INDENT ${INDENT_PARAMETERS} \
+          $nf -o $newfile 2>> /dev/null
+      # FIXME: Call indent twice as it tends to do line-breaks
+      # different for every second call.
+      $INDENT ${INDENT_PARAMETERS} \
+          $newfile 2>> /dev/null
+
+      FIX_COMMAND="$INDENT ${INDENT_PARAMETERS} $file; git add $file; git commit"
+    fi
+    diff -u -p "${nf}" "${newfile}"
+    r=$?
+    rm "${newfile}"
+    rm "${nf}"
+    if [ $r != 0 ] ; then
+echo "================================================================================================="
+echo " Code style error in: $file                                                                      "
+echo "                                                                                                 "
+echo " Please fix before committing. Don't forget to run git add before trying to commit again.        "
+echo " If the whole file is to be committed, this should work (run from the top-level directory):      "
+echo "                                                                                                 "
+echo "   $FIX_COMMAND"
+echo "                                                                                                 "
+echo "================================================================================================="
+        exit 1
+    fi
+done
+echo "--Checking style pass--"

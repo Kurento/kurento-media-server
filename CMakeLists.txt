@@ -7,6 +7,10 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 			OUTPUT_VARIABLE KMSC_VERSION
 			OUTPUT_STRIP_TRAILING_WHITESPACE)
 	string(REGEX REPLACE "^kmsc-(.*)" "\\1" KMSC_VERSION ${KMSC_VERSION})
+	if (NOT EXISTS "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit")
+		execute_process(COMMAND ln -s ../../hooks/pre-commit.hook
+			${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit)
+	endif(NOT EXISTS "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit")
 else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 	set(KMSC_MAJOR_VERSION 2)
 	set(KMSC_MINOR_VERSION 0)
@@ -34,7 +38,6 @@ pkg_check_modules(THRIFT REQUIRED thrift-nb>=0.9.0)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.30)
 pkg_check_modules(NICE REQUIRED nice>=0.1.1)
-
 
 include(ExternalProject)
 
