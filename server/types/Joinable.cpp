@@ -19,13 +19,20 @@
  */
 
 #include "Joinable.hpp"
+#include <gst/gst.h>
+
+#define GST_CAT_DEFAULT media_joinable
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "media_joinable"
 
 namespace kurento
 {
 
 Joinable::Joinable (MediaFactory &mediaFactory) : MediaObjectImpl (mediaFactory.token)
 {
-
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
+  this->mediaFactory = &mediaFactory;
 }
 
 Joinable::~Joinable () throw ()
@@ -36,30 +43,61 @@ Joinable::~Joinable () throw ()
 void
 Joinable::join (const Joinable &to)
 {
+  GST_INFO ("join %ld to %ld", this->id, to.id);
 }
 
 void
 Joinable::unjoin (Joinable &to)
 {
+  GST_INFO ("unjoin %ld to %ld", this->id, to.id);
 }
 
-void
-Joinable::getMediaSrcs (std::vector < MediaSrc > &_return)
+std::vector < MediaSrc > *
+Joinable::getMediaSrcs ()
 {
+  std::vector<MediaSrc> *mediaSrcs = new std::vector<MediaSrc>();
+
+  //TODO: complete
+  MediaSrc mediaSrc (*mediaFactory);
+  mediaSrcs->push_back (mediaSrc);
+
+  return mediaSrcs;
 }
 
-void
-Joinable::getMediaSinks (std::vector < MediaSink > &_return)
+std::vector < MediaSink > *
+Joinable::getMediaSinks()
 {
+  std::vector<MediaSink> *mediaSinks = new std::vector<MediaSink>();
+
+  //TODO: complete
+  MediaSink mediaSink (*mediaFactory);
+  mediaSinks->push_back (mediaSink);
+
+  return mediaSinks;
 }
 
-void
-Joinable::getMediaSrcsByMediaType (std::vector < MediaSrc > &_return, const MediaType::type mediaType)
+std::vector < MediaSrc > *
+Joinable::getMediaSrcsByMediaType (const MediaType::type mediaType)
 {
+  std::vector<MediaSrc> *mediaSrcs = new std::vector<MediaSrc>();
+
+  //TODO: complete
+  MediaSrc mediaSrc (*mediaFactory);
+  mediaSrcs->push_back (mediaSrc);
+
+  return mediaSrcs;
 }
 
-void Joinable::getMediaSinksByMediaType (std::vector < MediaSink > &_return, const MediaType::type mediaType)
+std::vector < MediaSink > *
+Joinable::getMediaSinksByMediaType (const MediaType::type mediaType)
 {
+  std::vector<MediaSink> *mediaSinks = new std::vector<MediaSink>();
+
+  //TODO: complete
+  MediaSink mediaSink (*mediaFactory);
+  mediaSinks->push_back (mediaSink);
+
+  return mediaSinks;
 }
 
 } // kurento

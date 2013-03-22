@@ -157,42 +157,74 @@ void
 MediaServerServiceHandler::join (const MediaObject &joinableA,
     const MediaObject &joinableB)
 {
-  GST_INFO ("join");
+  Joinable *jA, *jB;
+
+  jA = mediaSet.getJoinable (joinableA);
+  jB = mediaSet.getJoinable (joinableB);
+  jA->join (*jB);
 }
 
 void
 MediaServerServiceHandler::unjoin (const MediaObject &joinableA,
     const MediaObject &joinableB)
 {
-  GST_INFO ("unjoin");
+  Joinable *jA, *jB;
+
+  jA = mediaSet.getJoinable (joinableA);
+  jB = mediaSet.getJoinable (joinableB);
+  jA->unjoin (*jB);
 }
 
 void
 MediaServerServiceHandler::getMediaSrcs (std::vector < MediaObject > &_return,
     const MediaObject &joinable)
 {
-  GST_INFO ("getMediaSrcs");
+  Joinable *j;
+  std::vector < MediaSrc > *mediaSrcs;
+
+  j = mediaSet.getJoinable (joinable);
+  mediaSrcs = j->getMediaSrcs();
+  _return.insert (_return.begin(), mediaSrcs->begin(), mediaSrcs->end() );
+  delete mediaSrcs;
 }
 
 void
 MediaServerServiceHandler::getMediaSinks (std::vector < MediaObject > &_return,
     const MediaObject &joinable)
 {
-  GST_INFO ("getMediaSinks");
+  Joinable *j;
+  std::vector < MediaSink > *mediaSinks;
+
+  j = mediaSet.getJoinable (joinable);
+  mediaSinks = j->getMediaSinks();
+  _return.insert (_return.begin(), mediaSinks->begin(), mediaSinks->end() );
+  delete mediaSinks;
 }
 
 void
 MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector < MediaObject >
     &_return, const MediaObject &joinable, const MediaType::type mediaType)
 {
-  GST_INFO ("getMediaSrcsByMediaType");
+  Joinable *j;
+  std::vector < MediaSrc > *mediaSrcs;
+
+  j = mediaSet.getJoinable (joinable);
+  mediaSrcs = j->getMediaSrcs();
+  _return.insert (_return.begin(), mediaSrcs->begin(), mediaSrcs->end() );
+  delete mediaSrcs;
 }
 
 void
 MediaServerServiceHandler::getMediaSinksByMediaType (std::vector < MediaObject >
     &_return, const MediaObject &joinable, const MediaType::type mediaType)
 {
-  GST_INFO ("getMediaSinksByMediaType");
+  Joinable *j;
+  std::vector < MediaSink > *mediaSinks;
+
+  j = mediaSet.getJoinable (joinable);
+  mediaSinks = j->getMediaSinks();
+  _return.insert (_return.begin(), mediaSinks->begin(), mediaSinks->end() );
+  delete mediaSinks;
 }
 
 void

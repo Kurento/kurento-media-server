@@ -38,10 +38,13 @@ public:
   void join (const Joinable &to);
   void unjoin (Joinable &to);
 
-  void getMediaSrcs (std::vector < MediaSrc > &_return);
-  void getMediaSinks (std::vector < MediaSink > &_return);
-  void getMediaSrcsByMediaType (std::vector < MediaSrc > &_return, const MediaType::type mediaType);
-  void getMediaSinksByMediaType (std::vector < MediaSink > &_return, const MediaType::type mediaType);
+  std::vector < MediaSrc > * getMediaSrcs ();
+  std::vector < MediaSink > * getMediaSinks();
+  std::vector < MediaSrc > * getMediaSrcsByMediaType (const MediaType::type mediaType);
+  std::vector < MediaSink > * getMediaSinksByMediaType (const MediaType::type mediaType);
+
+private:
+  MediaFactory *mediaFactory;
 };
 
 } // kurento
