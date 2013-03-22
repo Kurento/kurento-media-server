@@ -198,19 +198,28 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector < MediaObject >
 void
 MediaServerServiceHandler::play (const MediaObject &mediaPlayer)
 {
-  GST_INFO ("play");
+  MediaPlayer *mp;
+
+  mp = mediaSet.getMediaPlayer (mediaPlayer);
+  mp->play();
 }
 
 void
 MediaServerServiceHandler::pausePlayer (const MediaObject &mediaPlayer)
 {
-  GST_INFO ("pausePlayer");
+  MediaPlayer *mp;
+
+  mp = mediaSet.getMediaPlayer (mediaPlayer);
+  mp->pause();
 }
 
 void
 MediaServerServiceHandler::stopPlayer (const MediaObject &mediaPlayer)
 {
-  GST_INFO ("stopPlayer");
+  MediaPlayer *mp;
+
+  mp = mediaSet.getMediaPlayer (mediaPlayer);
+  mp->stop();
 }
 
 void
