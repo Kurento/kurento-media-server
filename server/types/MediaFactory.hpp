@@ -26,9 +26,9 @@
 namespace kurento
 {
 
-  class MediaPlayer;
-  class MediaRecorder;
-  class Stream;
+class MediaPlayer;
+class MediaRecorder;
+class Stream;
 
 class MediaFactory : public MediaObjectImpl
 {
