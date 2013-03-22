@@ -24,6 +24,7 @@
 #include "ConcurrentMap.hpp"
 #include "types/MediaFactory.hpp"
 #include "types/MediaPlayer.hpp"
+#include "types/MediaRecorder.hpp"
 
 namespace kurento
 {
@@ -36,7 +37,9 @@ public:
   void put (MediaObject *mediaObject);
   int size();
   MediaFactory *getMediaFactory (const MediaObject &mediaObject);
+  Joinable *getJoinable (const MediaObject &mediaObject);
   MediaPlayer *getMediaPlayer (const MediaObject &mediaObject);
+  MediaRecorder *getMediaRecorder (const MediaObject &mediaObject);
 
 private:
   ConcurrentMap<ObjectId, MediaObject *> mediaObjectMap;

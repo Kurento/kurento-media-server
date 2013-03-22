@@ -50,6 +50,21 @@ MediaSet::getMediaFactory (const MediaObject &mediaObject)
   return mf;
 }
 
+Joinable *
+MediaSet::getJoinable (const MediaObject &mediaObject)
+{
+  MediaObject *mo;
+  Joinable *j;
+
+  mo = mediaObjectMap.getValue (mediaObject.id);
+  j = dynamic_cast<Joinable *> (mo);
+
+  if (j == NULL )
+    throw MediaObjectNotFoundException();
+
+  return j;
+}
+
 MediaPlayer *
 MediaSet::getMediaPlayer (const MediaObject &mediaObject)
 {
@@ -63,6 +78,21 @@ MediaSet::getMediaPlayer (const MediaObject &mediaObject)
     throw MediaObjectNotFoundException();
 
   return mp;
+}
+
+MediaRecorder *
+MediaSet::getMediaRecorder (const MediaObject &mediaObject)
+{
+  MediaObject *mo;
+  MediaRecorder *mr;
+
+  mo = mediaObjectMap.getValue (mediaObject.id);
+  mr = dynamic_cast<MediaRecorder *> (mo);
+
+  if (mr == NULL)
+    throw MediaObjectNotFoundException();
+
+  return mr;
 }
 
 } // kurento
