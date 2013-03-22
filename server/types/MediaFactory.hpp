@@ -26,12 +26,20 @@
 namespace kurento
 {
 
+  class MediaPlayer;
+  class MediaRecorder;
+  class Stream;
+
 class MediaFactory : public MediaObjectImpl
 {
 
 public:
   MediaFactory();
   ~MediaFactory() throw();
+
+  MediaPlayer *createMediaPlayer();
+  MediaRecorder *createMediaRecorder();
+  Stream *createStream();
 };
 
 } // kurento

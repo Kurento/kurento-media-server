@@ -19,6 +19,9 @@
  */
 
 #include "MediaFactory.hpp"
+#include "MediaPlayer.hpp"
+#include "MediaRecorder.hpp"
+#include "Stream.hpp"
 
 #include <glibmm.h>
 
@@ -35,6 +38,27 @@ MediaFactory::MediaFactory() : MediaObjectImpl()
 MediaFactory::~MediaFactory() throw()
 {
 
+}
+
+MediaPlayer *
+MediaFactory::createMediaPlayer()
+{
+//TODO: complete
+  return new MediaPlayer (*this);
+}
+
+MediaRecorder *
+MediaFactory::createMediaRecorder()
+{
+//TODO: complete
+  return new MediaRecorder (*this);
+}
+
+Stream *
+MediaFactory::createStream()
+{
+//TODO: complete
+  return new Stream (*this);
 }
 
 } // kurento
