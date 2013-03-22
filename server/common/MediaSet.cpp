@@ -29,6 +29,12 @@ MediaSet::put (std::shared_ptr<MediaObject> mediaObject)
   mediaObjectMap.put (mediaObject->id, mediaObject );
 }
 
+void
+MediaSet::remove (const MediaObject &mediaObject)
+{
+  mediaObjectMap.remove (mediaObject.id);
+}
+
 int
 MediaSet::size ()
 {

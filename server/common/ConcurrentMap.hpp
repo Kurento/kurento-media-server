@@ -35,6 +35,7 @@ public:
   ConcurrentMap () {};
 
   void put (K key, V value);
+  void remove (K key);
   V getValue (K key);
   int size();
 
@@ -49,6 +50,15 @@ ConcurrentMap<K, V>::put (K key, V value)
 {
   mutex.lock();
   map[key] = value;
+  mutex.unlock();
+}
+
+template <class K, class V>
+void
+ConcurrentMap<K, V>::remove (K key)
+{
+  mutex.lock();
+  map.erase (key);
   mutex.unlock();
 }
 

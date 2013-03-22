@@ -52,7 +52,7 @@ MediaServerServiceHandler::ping (const MediaObject &resource,
 void
 MediaServerServiceHandler::release (const MediaObject &mediaObject)
 {
-  GST_INFO ("release");
+  mediaSet.remove (mediaObject);
 }
 
 void

@@ -35,6 +35,7 @@ public:
   MediaSet () {};
 
   void put (std::shared_ptr<MediaObject> mediaObject);
+  void remove (const MediaObject &mediaObject);
   int size();
   std::shared_ptr<MediaFactory> getMediaFactory (const MediaObject &mediaObject);
   std::shared_ptr<Joinable> getJoinable (const MediaObject &mediaObject);
