@@ -101,5 +101,20 @@ MediaSet::getMediaRecorder (const MediaObject &mediaObject)
   return mr;
 }
 
+std::shared_ptr<Stream>
+MediaSet::getStream (const MediaObject &mediaObject)
+{
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr<Stream> s;
+
+  mo = mediaObjectMap.getValue (mediaObject.id);
+  s = std::dynamic_pointer_cast<Stream> (mo);
+
+  if (s == NULL)
+    throw MediaObjectNotFoundException();
+
+  return s;
+}
+
 } // kurento
 

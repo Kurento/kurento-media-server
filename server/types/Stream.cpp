@@ -34,33 +34,33 @@ Stream::~Stream() throw ()
 }
 
 void
-generateOffer (std::string &_return)
+Stream::generateOffer (std::string &_return)
 {
-
+  _return.assign ("SessionDescriptor test from generateOffer");
 }
 
 void
-processAnswer (std::string &_return, const std::string &answer)
+Stream::processAnswer (std::string &_return, const std::string &answer)
 {
-
+  _return.assign ("SessionDescriptor test from processAnswer");
 }
 
 void
-processOffer (std::string &_return, const std::string &offer)
+Stream::processOffer (std::string &_return, const std::string &offer)
 {
-
+  _return.assign ("SessionDescriptor test from processOffer");
 }
 
 void
-getLocalDescriptor (std::string &_return)
+Stream::getLocalDescriptor (std::string &_return)
 {
-
+  _return.assign ("Local SessionDescriptor");
 }
 
 void
-getRemoteDescriptor (std::string &_return)
+Stream::getRemoteDescriptor (std::string &_return)
 {
-
+  _return.assign ("Remote SessionDescriptor");
 }
 
 } // kurento

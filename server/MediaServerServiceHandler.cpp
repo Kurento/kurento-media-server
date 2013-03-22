@@ -285,38 +285,50 @@ void
 MediaServerServiceHandler::generateOffer (std::string &_return,
     const MediaObject &stream)
 {
-  GST_INFO ("generateOffer");
-  _return.assign ("SessionDescriptor test from generateOffer");
+  std::shared_ptr<Stream> s;
+
+  s = mediaSet.getStream (stream);
+  s->generateOffer (_return);
 }
 
 void
 MediaServerServiceHandler::processAnswer (std::string &_return,
     const MediaObject &stream, const std::string &answer)
 {
-  GST_INFO ("processAnswer: %s", answer.c_str () );
-  _return.assign ("SessionDescriptor test from processAnswer");
+  std::shared_ptr<Stream> s;
+
+  s = mediaSet.getStream (stream);
+  s->processAnswer (_return, answer);
 }
 
 void
 MediaServerServiceHandler::processOffer (std::string &_return,
     const MediaObject &stream, const std::string &offer)
 {
-  GST_INFO ("processOffer: %s", offer.c_str () );
-  _return.assign ("SessionDescriptor test from processOffer");
+  std::shared_ptr<Stream> s;
+
+  s = mediaSet.getStream (stream);
+  s->processOffer (_return, offer);
 }
 
 void
 MediaServerServiceHandler::getLocalDescriptor (std::string &_return,
     const MediaObject &stream)
 {
-  GST_INFO ("getLocalDescriptor");
+  std::shared_ptr<Stream> s;
+
+  s = mediaSet.getStream (stream);
+  s->getLocalDescriptor (_return);
 }
 
 void
 MediaServerServiceHandler::getRemoteDescriptor (std::string &_return,
     const MediaObject &stream)
 {
-  GST_INFO ("getRemoteDescriptor");
+  std::shared_ptr<Stream> s;
+
+  s = mediaSet.getStream (stream);
+  s->getRemoteDescriptor (_return);
 }
 
 void
