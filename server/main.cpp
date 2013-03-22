@@ -21,7 +21,7 @@
 #include <signal.h>
 #include <execinfo.h>
 
-#include "MediaServerServiceHandler.h"
+#include "MediaServerServiceHandler.hpp"
 
 #include <protocol/TBinaryProtocol.h>
 #include <transport/TServerSocket.h>
@@ -30,16 +30,15 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
-#include "media_config_loader.h"
+#include "media_config_loader.hpp"
 
 #include <glibmm.h>
 #include <fstream>
 
 #include <gst/gst.h>
 
-#include <version.h>
-
-#include "log.h"
+#include <version.hpp>
+#include "log.hpp"
 
 #define GST_DEFAULT_NAME "media_server"
 

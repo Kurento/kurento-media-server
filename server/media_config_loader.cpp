@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "media_config_loader.h"
+#include "media_config_loader.hpp"
 #include <gst/gst.h>
-#include "log.h"
+#include "log.hpp"
 
 #define DEFAULT_VERSION "0"
 #define DEFAULT_ID "12345"

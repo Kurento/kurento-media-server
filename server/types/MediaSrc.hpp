@@ -1,5 +1,5 @@
 /*
- * MediaSrc.h - Kurento Media Server
+ * MediaSrc.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,17 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIA_SRC_H
-#define MEDIA_SRC_H
+#ifndef __MEDIA_SRC_HPP__
+#define __MEDIA_SRC_HPP__
 
-#include "types/MediaObjectImpl.h"
-#include "types/MediaFactory.h"
-#include "types/MediaSink.h"
+#include "MediaObjectImpl.hpp"
+#include "MediaFactory.hpp"
+#include "MediaSink.hpp"
 
 namespace kurento
 {
 
-class MediaSrc : public virtual MediaObjectImpl
+class MediaSrc : public MediaObjectImpl
 {
 public:
   MediaSrc (MediaFactory &mediaFactory);
@@ -42,4 +42,4 @@ public:
 
 } // kurento
 
-#endif /* MEDIA_SRC_H */
+#endif /* __MEDIA_SRC_HPP__ */

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "types/MediaObjectImpl.h"
+#include "MediaObjectImpl.hpp"
 
 #include <glibmm.h>
 #include <uuid/uuid.h>

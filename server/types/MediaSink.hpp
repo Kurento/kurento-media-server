@@ -1,5 +1,5 @@
 /*
- * version.h - Kurento Media Server
+ * MediaSink.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,9 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef __MEDIA_SINK_HPP__
+#define __MEDIA_SINK_HPP__
 
-const char *get_version ();
+#include "MediaObjectImpl.hpp"
+#include "MediaFactory.hpp"
 
-#endif /* __VERSION_H__ */
+namespace kurento
+{
+
+class MediaSrc;
+
+class MediaSink : public MediaObjectImpl
+{
+public:
+  MediaSink (MediaFactory &mediaFactory);
+  ~MediaSink() throw ();
+
+  MediaType::type getMediaType ();
+  void getConnectedSrc (const MediaSrc &mediaSrc);
+};
+
+} // kurento
+
+#endif /* __MEDIA_SINK_HPP__ */

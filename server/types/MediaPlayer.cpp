@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "types/MediaPlayer.h"
+#include "MediaPlayer.hpp"
 
 namespace kurento
 {

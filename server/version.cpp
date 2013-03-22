@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <version.h>
+#include <version.hpp>
 
 const char *
 get_version ()

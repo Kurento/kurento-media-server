@@ -1,5 +1,5 @@
 /*
- * MediaFactory.h - Kurento Media Server
+ * MediaFactory.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,16 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "types/MediaObjectImpl.h"
+#include "MediaObjectImpl.hpp"
 
-
-#ifndef MEDIAFACTORY_H
-#define MEDIAFACTORY_H
+#ifndef __MEDIAFACTORY_HPP__
+#define __MEDIAFACTORY_HPP__
 
 namespace kurento
 {
 
-class MediaFactory : public virtual MediaObjectImpl
+class MediaFactory : public MediaObjectImpl
 {
 
 public:
@@ -37,4 +36,4 @@ public:
 
 } // kurento
 
-#endif // MEDIAFACTORY_H
+#endif /* __MEDIAFACTORY_HPP__ */

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MediaServerServiceHandler.h"
+#include "MediaServerServiceHandler.hpp"
 #include <gst/gst.h>
 
 #define GST_CAT_DEFAULT media_server_service_handler

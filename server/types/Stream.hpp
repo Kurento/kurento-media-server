@@ -1,5 +1,5 @@
 /*
- * media_config_loader.h - Kurento Media Server
+ * Stream.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,14 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MEDIA_CONFIG_LOADER__
-#define __MEDIA_CONFIG_LOADER__
+#ifndef __STREAM_HPP__
+#define __STREAM_HPP__
 
-#include <gst/sdp/gstsdpmessage.h>
-#include <glibmm.h>
+#include "Joinable.hpp"
 
-#define SERVER_GROUP "Server"
+namespace kurento
+{
 
-GstSDPMessage *load_session_descriptor (Glib::KeyFile &configFile);
+class Stream : public Joinable
+{
+public:
+  Stream (MediaFactory &mediaFactory);
+  ~Stream() throw ();
 
-#endif /* __MEDIA_CONFIG_LOADER__ */
+  void generateOffer (std::string &_return);
+  void processAnswer (std::string &_return, const std::string &answer);
+  void processOffer (std::string &_return, const std::string &offer);
+  void getLocalDescriptor (std::string &_return);
+  void getRemoteDescriptor (std::string &_return);
+};
+
+} // kurento
+
+#endif /* __STREAM_HPP__ */

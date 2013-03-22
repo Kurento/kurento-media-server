@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MediaFactory.h"
+#include "MediaFactory.hpp"
 
 #include <glibmm.h>
 

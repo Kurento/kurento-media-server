@@ -1,5 +1,5 @@
 /*
- * Stream.h - Kurento Media Server
+ * MediaRecorder.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,27 +18,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STREAM_H
-#define STREAM_H
+#ifndef __MEDIA_RECORDER_HPP__
+#define __MEDIA_RECORDER_HPP__
 
-#include "types/Joinable.h"
+#include "Joinable.hpp"
 
 namespace kurento
 {
 
-class Stream : public virtual Joinable
+class MediaRecorder : public Joinable
 {
 public:
-  Stream (MediaFactory &mediaFactory);
-  ~Stream() throw ();
+  MediaRecorder (MediaFactory &mediaFactory);
+  ~MediaRecorder() throw ();
 
-  void generateOffer (std::string &_return);
-  void processAnswer (std::string &_return, const std::string &answer);
-  void processOffer (std::string &_return, const std::string &offer);
-  void getLocalDescriptor (std::string &_return);
-  void getRemoteDescriptor (std::string &_return);
+  void record ();
+  void pause ();
+  void stop ();
 };
 
 } // kurento
 
-#endif /* STREAM_H */
+#endif /* __MEDIA_RECORDER_HPP__ */

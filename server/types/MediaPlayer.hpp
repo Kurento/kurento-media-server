@@ -1,5 +1,5 @@
 /*
- * log.h - Kurento Media Server
+ * MediaPlayer.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,12 +18,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __KURENTO_LOG__
-#define __KURENTO_LOG__
+#ifndef __MEDIA_PLAYER_HPP__
+#define __MEDIA_PLAYER_HPP__
 
-#include <gst/gst.h>
+#include "Joinable.hpp"
 
-#define GST_CAT_DEFAULT media_server
-GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
+namespace kurento
+{
 
-#endif /* __KURENTO_LOG__ */
+class MediaPlayer : public Joinable
+{
+public:
+  MediaPlayer (MediaFactory &mediaFactory);
+  ~MediaPlayer() throw ();
+
+  void play ();
+  void pause ();
+  void stop ();
+};
+
+} // kurento
+
+#endif /* __MEDIA_PLAYER_HPP__ */

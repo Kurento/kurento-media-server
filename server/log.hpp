@@ -1,5 +1,5 @@
 /*
- * MediaSink.h - Kurento Media Server
+ * log.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,27 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIA_SINK_H
-#define MEDIA_SINK_H
+#ifndef __KURENTO_LOG__
+#define __KURENTO_LOG__
 
-#include "types/MediaObjectImpl.h"
-#include "types/MediaFactory.h"
+#include <gst/gst.h>
 
-namespace kurento
-{
+#define GST_CAT_DEFAULT media_server
+GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
-class MediaSrc;
-
-class MediaSink : public virtual MediaObjectImpl
-{
-public:
-  MediaSink (MediaFactory &mediaFactory);
-  ~MediaSink() throw ();
-
-  MediaType::type getMediaType ();
-  void getConnectedSrc (const MediaSrc &mediaSrc);
-};
-
-} // kurento
-
-#endif /* MEDIA_SINK_H */
+#endif /* __KURENTO_LOG__ */

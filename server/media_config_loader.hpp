@@ -1,5 +1,5 @@
 /*
- * MediaRecorder.h - Kurento Media Server
+ * media_config_loader.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,25 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIA_RECORDER_H
-#define MEDIA_RECORDER_H
+#ifndef __MEDIA_CONFIG_LOADER_HPP__
+#define __MEDIA_CONFIG_LOADER_HPP__
 
-#include "types/Joinable.h"
+#include <gst/sdp/gstsdpmessage.h>
+#include <glibmm.h>
 
-namespace kurento
-{
+#define SERVER_GROUP "Server"
 
-class MediaRecorder : public virtual Joinable
-{
-public:
-  MediaRecorder (MediaFactory &mediaFactory);
-  ~MediaRecorder() throw ();
+GstSDPMessage *load_session_descriptor (Glib::KeyFile &configFile);
 
-  void record ();
-  void pause ();
-  void stop ();
-};
-
-} // kurento
-
-#endif /* MEDIA_RECORDER_H */
+#endif /* __MEDIA_CONFIG_LOADER_HPP__ */

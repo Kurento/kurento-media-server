@@ -1,5 +1,5 @@
 /*
- * MediaObjectImpl.h - Kurento Media Server
+ * Joinable.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,24 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MEDIA_OBJECT_IMPL
-#define MEDIA_OBJECT_IMPL
+#ifndef __JOINABLE_HPP__
+#define __JOINABLE_HPP__
 
-#include "mediaServer_types.h"
-
-using ::kurento::MediaObject;
+#include "MediaObjectImpl.hpp"
+#include "MediaFactory.hpp"
+#include "MediaSrc.hpp"
+#include "MediaSink.hpp"
 
 namespace kurento
 {
 
-class MediaObjectImpl : public virtual MediaObject
+class Joinable : public MediaObjectImpl
 {
 public:
-  MediaObjectImpl();
-  MediaObjectImpl (std::string &token);
-  virtual ~MediaObjectImpl() throw () = 0;
+  Joinable (MediaFactory &mediaFactory);
+  virtual ~Joinable() throw () = 0;
+
+  void join (const Joinable &to);
+  void unjoin (Joinable &to);
+
+  void getMediaSrcs (std::vector < MediaSrc > &_return);
+  void getMediaSinks (std::vector < MediaSink > &_return);
+  void getMediaSrcsByMediaType (std::vector < MediaSrc > &_return, const MediaType::type mediaType);
+  void getMediaSinksByMediaType (std::vector < MediaSink > &_return, const MediaType::type mediaType);
 };
 
 } // kurento
 
-#endif /* MEDIA_OBJECT_IMPL */
+#endif /* __JOINABLE_HPP__ */
