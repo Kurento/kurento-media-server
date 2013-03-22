@@ -22,6 +22,7 @@
 #define __MEDIA_SERVER_SERVICE_HANDLER_HPP__
 
 #include "MediaServerService.h"
+#include "common/MediaSet.hpp"
 
 namespace kurento
 {
@@ -81,6 +82,9 @@ public:
 
   void getMixerPort (MediaObject &_return, const MediaObject &mixer);
   void getMixer (MediaObject &_return, const MediaObject &mixerPort);
+
+private:
+  MediaSet mediaSet;
 };
 
 } // kurento

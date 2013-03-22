@@ -21,6 +21,10 @@
 #include "MediaServerServiceHandler.hpp"
 #include <gst/gst.h>
 
+#include "types/MediaPlayer.hpp"
+#include "types/MediaRecorder.hpp"
+#include "types/Stream.hpp"
+
 #define GST_CAT_DEFAULT media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "media_server_service_handler"
@@ -54,28 +58,57 @@ MediaServerServiceHandler::release (const MediaObject &mediaObject)
 void
 MediaServerServiceHandler::createMediaFactory (MediaObject &_return)
 {
-  GST_INFO ("createMediaFactory");
+  MediaFactory *mediaFactory;
+
+  mediaFactory = new MediaFactory();
+  GST_DEBUG ("createMediaFactory id: %ld, token: %s", mediaFactory->id, mediaFactory->token.c_str() );
+  mediaSet.put (mediaFactory);
+
+  GST_INFO ("%d active media factories", mediaSet.size() );
+
+  _return = *mediaFactory;
 }
 
 void
 MediaServerServiceHandler::createMediaPlayer (MediaObject &_return,
     const MediaObject &mediaFactory)
 {
-  GST_INFO ("createMediaPlayer");
+  MediaFactory *mf;
+  MediaPlayer *mediaPlayer;
+
+  mf = mediaSet.getMediaFactory (mediaFactory);
+  mediaPlayer = mf->createMediaPlayer();
+  mediaSet.put (mediaPlayer);
+
+  _return = *mediaPlayer;
 }
 
 void
 MediaServerServiceHandler::createMediaRecorder (MediaObject &_return,
     const MediaObject &mediaFactory)
 {
-  GST_INFO ("createMediaRecorder");
+  MediaFactory *mf;
+  MediaRecorder *mediaRecorder;
+
+  mf = mediaSet.getMediaFactory (mediaFactory);
+  mediaRecorder = mf->createMediaRecorder();
+  mediaSet.put (mediaRecorder);
+
+  _return = *mediaRecorder;
 }
 
 void
 MediaServerServiceHandler::createStream (MediaObject &_return,
     const MediaObject &mediaFactory)
 {
-  GST_INFO ("createStream");
+  MediaFactory *mf;
+  Stream *stream;
+
+  mf = mediaSet.getMediaFactory (mediaFactory);
+  stream = mf->createStream();
+  mediaSet.put (stream);
+
+  _return = *stream;
 }
 
 void
