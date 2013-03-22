@@ -25,9 +25,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "media_server_service_handler"
 
-using::kurento::MediaServerServiceHandler;
-using::kurento::MediaObject;
-using::kurento::MediaType;
+namespace kurento
+{
 
 MediaServerServiceHandler::MediaServerServiceHandler ()
 {
@@ -250,3 +249,5 @@ MediaServerServiceHandler::getMixer (MediaObject &_return,
 {
   GST_INFO ("getMixer");
 }
+
+} // kurento
