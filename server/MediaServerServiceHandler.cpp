@@ -225,19 +225,28 @@ MediaServerServiceHandler::stopPlayer (const MediaObject &mediaPlayer)
 void
 MediaServerServiceHandler::record (const MediaObject &mediaRecorder)
 {
-  GST_INFO ("record");
+  MediaRecorder *mr;
+
+  mr = mediaSet.getMediaRecorder (mediaRecorder);
+  mr->record();
 }
 
 void
 MediaServerServiceHandler::pauseRecorder (const MediaObject &mediaRecorder)
 {
-  GST_INFO ("pauseRecorder");
+  MediaRecorder *mr;
+
+  mr = mediaSet.getMediaRecorder (mediaRecorder);
+  mr->pause();
 }
 
 void
 MediaServerServiceHandler::stopRecorder (const MediaObject &mediaRecorder)
 {
-  GST_INFO ("stopRecorder");
+  MediaRecorder *mr;
+
+  mr = mediaSet.getMediaRecorder (mediaRecorder);
+  mr->stop();
 }
 
 void
