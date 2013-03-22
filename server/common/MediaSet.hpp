@@ -34,15 +34,15 @@ class MediaSet
 public:
   MediaSet () {};
 
-  void put (MediaObject *mediaObject);
+  void put (std::shared_ptr<MediaObject> mediaObject);
   int size();
-  MediaFactory *getMediaFactory (const MediaObject &mediaObject);
-  Joinable *getJoinable (const MediaObject &mediaObject);
-  MediaPlayer *getMediaPlayer (const MediaObject &mediaObject);
-  MediaRecorder *getMediaRecorder (const MediaObject &mediaObject);
+  std::shared_ptr<MediaFactory> getMediaFactory (const MediaObject &mediaObject);
+  std::shared_ptr<Joinable> getJoinable (const MediaObject &mediaObject);
+  std::shared_ptr< MediaPlayer> getMediaPlayer (const MediaObject &mediaObject);
+  std::shared_ptr<MediaRecorder> getMediaRecorder (const MediaObject &mediaObject);
 
 private:
-  ConcurrentMap<ObjectId, MediaObject *> mediaObjectMap;
+  ConcurrentMap<ObjectId, std::shared_ptr<MediaObject> > mediaObjectMap;
 };
 
 } // kurento

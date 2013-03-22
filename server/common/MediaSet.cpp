@@ -24,9 +24,9 @@ namespace kurento
 {
 
 void
-MediaSet::put (MediaObject *mediaObject)
+MediaSet::put (std::shared_ptr<MediaObject> mediaObject)
 {
-  mediaObjectMap.put (mediaObject->id, mediaObject);
+  mediaObjectMap.put (mediaObject->id, mediaObject );
 }
 
 int
@@ -35,14 +35,14 @@ MediaSet::size ()
   return mediaObjectMap.size();
 }
 
-MediaFactory *
+std::shared_ptr<MediaFactory>
 MediaSet::getMediaFactory (const MediaObject &mediaObject)
 {
-  MediaObject *mo;
-  MediaFactory *mf;
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr<MediaFactory> mf;
 
   mo = mediaObjectMap.getValue (mediaObject.id);
-  mf = dynamic_cast<MediaFactory *> (mo);
+  mf = std::dynamic_pointer_cast< MediaFactory > (mo);
 
   if (mf == NULL )
     throw MediaObjectNotFoundException();
@@ -50,14 +50,14 @@ MediaSet::getMediaFactory (const MediaObject &mediaObject)
   return mf;
 }
 
-Joinable *
+std::shared_ptr<Joinable>
 MediaSet::getJoinable (const MediaObject &mediaObject)
 {
-  MediaObject *mo;
-  Joinable *j;
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr<Joinable> j;
 
   mo = mediaObjectMap.getValue (mediaObject.id);
-  j = dynamic_cast<Joinable *> (mo);
+  j = std::dynamic_pointer_cast< Joinable > (mo);
 
   if (j == NULL )
     throw MediaObjectNotFoundException();
@@ -65,14 +65,14 @@ MediaSet::getJoinable (const MediaObject &mediaObject)
   return j;
 }
 
-MediaPlayer *
+std::shared_ptr<MediaPlayer>
 MediaSet::getMediaPlayer (const MediaObject &mediaObject)
 {
-  MediaObject *mo;
-  MediaPlayer *mp;
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr< MediaPlayer> mp;
 
   mo = mediaObjectMap.getValue (mediaObject.id);
-  mp = dynamic_cast<MediaPlayer *> (mo);
+  mp = std::dynamic_pointer_cast< MediaPlayer > (mo);
 
   if (mp == NULL)
     throw MediaObjectNotFoundException();
@@ -80,14 +80,14 @@ MediaSet::getMediaPlayer (const MediaObject &mediaObject)
   return mp;
 }
 
-MediaRecorder *
+std::shared_ptr<MediaRecorder>
 MediaSet::getMediaRecorder (const MediaObject &mediaObject)
 {
-  MediaObject *mo;
-  MediaRecorder *mr;
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr<MediaRecorder> mr;
 
   mo = mediaObjectMap.getValue (mediaObject.id);
-  mr = dynamic_cast<MediaRecorder *> (mo);
+  mr = std::dynamic_pointer_cast<MediaRecorder> (mo);
 
   if (mr == NULL)
     throw MediaObjectNotFoundException();
