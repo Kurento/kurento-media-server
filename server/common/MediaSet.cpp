@@ -116,5 +116,20 @@ MediaSet::getStream (const MediaObject &mediaObject)
   return s;
 }
 
+std::shared_ptr<Mixer>
+MediaSet::getMixer (const MediaObject &mediaObject)
+{
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr<Mixer> m;
+
+  mo = mediaObjectMap.getValue (mediaObject.id);
+  m = std::dynamic_pointer_cast<Mixer> (mo);
+
+  if (m == NULL)
+    throw MediaObjectNotFoundException();
+
+  return m;
+}
+
 } // kurento
 

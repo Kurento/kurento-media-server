@@ -26,6 +26,7 @@
 #include "types/MediaPlayer.hpp"
 #include "types/MediaRecorder.hpp"
 #include "types/Stream.hpp"
+#include "types/Mixer.hpp"
 
 namespace kurento
 {
@@ -43,6 +44,7 @@ public:
   std::shared_ptr< MediaPlayer> getMediaPlayer (const MediaObject &mediaObject);
   std::shared_ptr<MediaRecorder> getMediaRecorder (const MediaObject &mediaObject);
   std::shared_ptr<Stream> getStream (const MediaObject &mediaObject);
+  std::shared_ptr<Mixer> getMixer (const MediaObject &mediaObject);
 
 private:
   ConcurrentMap<ObjectId, std::shared_ptr<MediaObject> > mediaObjectMap;
