@@ -52,50 +52,46 @@ Joinable::unjoin (Joinable &to)
   GST_INFO ("unjoin %ld to %ld", this->id, to.id);
 }
 
-std::vector < MediaSrc > *
+std::vector < std::shared_ptr<MediaSrc> > *
 Joinable::getMediaSrcs ()
 {
-  std::vector<MediaSrc> *mediaSrcs = new std::vector<MediaSrc>();
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  MediaSrc mediaSrc (*mediaFactory);
-  mediaSrcs->push_back (mediaSrc);
+  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (*mediaFactory) ) );
 
   return mediaSrcs;
 }
 
-std::vector < MediaSink > *
+std::vector < std::shared_ptr<MediaSink> > *
 Joinable::getMediaSinks()
 {
-  std::vector<MediaSink> *mediaSinks = new std::vector<MediaSink>();
+  std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  MediaSink mediaSink (*mediaFactory);
-  mediaSinks->push_back (mediaSink);
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (*mediaFactory) ) );
 
   return mediaSinks;
 }
 
-std::vector < MediaSrc > *
+std::vector < std::shared_ptr<MediaSrc> > *
 Joinable::getMediaSrcsByMediaType (const MediaType::type mediaType)
 {
-  std::vector<MediaSrc> *mediaSrcs = new std::vector<MediaSrc>();
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  MediaSrc mediaSrc (*mediaFactory);
-  mediaSrcs->push_back (mediaSrc);
+  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (*mediaFactory) ) );
 
   return mediaSrcs;
 }
 
-std::vector < MediaSink > *
+std::vector < std::shared_ptr<MediaSink> > *
 Joinable::getMediaSinksByMediaType (const MediaType::type mediaType)
 {
-  std::vector<MediaSink> *mediaSinks = new std::vector<MediaSink>();
+  std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  MediaSink mediaSink (*mediaFactory);
-  mediaSinks->push_back (mediaSink);
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (*mediaFactory) ) );
 
   return mediaSinks;
 }

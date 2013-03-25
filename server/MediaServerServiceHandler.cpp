@@ -64,7 +64,6 @@ MediaServerServiceHandler::createMediaFactory (MediaObject &_return)
   mediaFactory = std::shared_ptr<MediaFactory> (new MediaFactory() );
   GST_DEBUG ("createMediaFactory id: %ld, token: %s", mediaFactory->id, mediaFactory->token.c_str() );
   mediaSet.put (mediaFactory);
-
   GST_INFO ("%d active media factories", mediaSet.size() );
 
   _return = *mediaFactory;
@@ -78,7 +77,7 @@ MediaServerServiceHandler::createMediaPlayer (MediaObject &_return,
   std::shared_ptr<MediaPlayer> mediaPlayer;
 
   mf = mediaSet.getMediaFactory (mediaFactory);
-  mediaPlayer =  std::shared_ptr<MediaPlayer> (mf->createMediaPlayer() );
+  mediaPlayer =  mf->createMediaPlayer();
   mediaSet.put (mediaPlayer);
 
   _return = *mediaPlayer;
@@ -92,7 +91,7 @@ MediaServerServiceHandler::createMediaRecorder (MediaObject &_return,
   std::shared_ptr<MediaRecorder> mediaRecorder;
 
   mf = mediaSet.getMediaFactory (mediaFactory);
-  mediaRecorder = std::shared_ptr<MediaRecorder> (mf->createMediaRecorder() );
+  mediaRecorder = mf->createMediaRecorder();
   mediaSet.put (mediaRecorder);
 
   _return = *mediaRecorder;
@@ -106,7 +105,7 @@ MediaServerServiceHandler::createStream (MediaObject &_return,
   std::shared_ptr<Stream> stream;
 
   mf = mediaSet.getMediaFactory (mediaFactory);
-  stream = std::shared_ptr<Stream> (mf->createStream() );
+  stream = mf->createStream();
   mediaSet.put (stream);
 
   _return = *stream;
@@ -120,7 +119,7 @@ MediaServerServiceHandler::createMixer (MediaObject &_return,
   std::shared_ptr<Mixer> mixer;
 
   mf = mediaSet.getMediaFactory (mediaFactory);
-  mixer = std::shared_ptr<Mixer> (mf->createMixer (mixerId) );
+  mixer = mf->createMixer (mixerId);
   mediaSet.put (mixer);
 
   _return = *mixer;
@@ -188,11 +187,17 @@ MediaServerServiceHandler::getMediaSrcs (std::vector < MediaObject > &_return,
     const MediaObject &joinable)
 {
   std::shared_ptr<Joinable> j;
-  std::vector < MediaSrc > *mediaSrcs;
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
+  std::vector< std::shared_ptr<MediaSrc> >::iterator it;
 
   j = mediaSet.getJoinable (joinable);
   mediaSrcs = j->getMediaSrcs();
-  _return.insert (_return.begin(), mediaSrcs->begin(), mediaSrcs->end() );
+
+  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
   delete mediaSrcs;
 }
 
@@ -201,11 +206,17 @@ MediaServerServiceHandler::getMediaSinks (std::vector < MediaObject > &_return,
     const MediaObject &joinable)
 {
   std::shared_ptr<Joinable> j;
-  std::vector < MediaSink > *mediaSinks;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
   j = mediaSet.getJoinable (joinable);
   mediaSinks = j->getMediaSinks();
-  _return.insert (_return.begin(), mediaSinks->begin(), mediaSinks->end() );
+
+  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
   delete mediaSinks;
 }
 
@@ -214,11 +225,17 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector < MediaObject >
     &_return, const MediaObject &joinable, const MediaType::type mediaType)
 {
   std::shared_ptr<Joinable> j;
-  std::vector < MediaSrc > *mediaSrcs;
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
+  std::vector< std::shared_ptr<MediaSrc> >::iterator it;
 
   j = mediaSet.getJoinable (joinable);
-  mediaSrcs = j->getMediaSrcs();
-  _return.insert (_return.begin(), mediaSrcs->begin(), mediaSrcs->end() );
+  mediaSrcs = j->getMediaSrcsByMediaType (mediaType);
+
+  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
   delete mediaSrcs;
 }
 
@@ -227,11 +244,17 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector < MediaObject >
     &_return, const MediaObject &joinable, const MediaType::type mediaType)
 {
   std::shared_ptr<Joinable> j;
-  std::vector < MediaSink > *mediaSinks;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
   j = mediaSet.getJoinable (joinable);
-  mediaSinks = j->getMediaSinks();
-  _return.insert (_return.begin(), mediaSinks->begin(), mediaSinks->end() );
+  mediaSinks = j->getMediaSinksByMediaType (mediaType);
+
+  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
   delete mediaSinks;
 }
 

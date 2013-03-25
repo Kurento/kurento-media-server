@@ -38,10 +38,10 @@ public:
   MediaFactory();
   ~MediaFactory() throw();
 
-  MediaPlayer *createMediaPlayer();
-  MediaRecorder *createMediaRecorder();
-  Stream *createStream();
-  Mixer *createMixer (const int32_t mixerId);
+  std::shared_ptr<MediaPlayer> createMediaPlayer();
+  std::shared_ptr<MediaRecorder> createMediaRecorder();
+  std::shared_ptr<Stream> createStream();
+  std::shared_ptr<Mixer> createMixer (const int32_t mixerId);
 };
 
 } // kurento

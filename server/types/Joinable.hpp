@@ -38,10 +38,10 @@ public:
   void join (const Joinable &to);
   void unjoin (Joinable &to);
 
-  std::vector < MediaSrc > * getMediaSrcs ();
-  std::vector < MediaSink > * getMediaSinks();
-  std::vector < MediaSrc > * getMediaSrcsByMediaType (const MediaType::type mediaType);
-  std::vector < MediaSink > * getMediaSinksByMediaType (const MediaType::type mediaType);
+  std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcs ();
+  std::vector < std::shared_ptr<MediaSink> > * getMediaSinks();
+  std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcsByMediaType (const MediaType::type mediaType);
+  std::vector < std::shared_ptr<MediaSink> > * getMediaSinksByMediaType (const MediaType::type mediaType);
 
 private:
   MediaFactory *mediaFactory;

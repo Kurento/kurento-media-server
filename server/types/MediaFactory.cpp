@@ -47,36 +47,36 @@ MediaFactory::~MediaFactory() throw()
 
 }
 
-MediaPlayer *
+std::shared_ptr<MediaPlayer>
 MediaFactory::createMediaPlayer()
 {
 //TODO: complete
-  return new MediaPlayer (*this);
+  return std::shared_ptr<MediaPlayer> (new MediaPlayer (*this) );
 }
 
-MediaRecorder *
+std::shared_ptr<MediaRecorder>
 MediaFactory::createMediaRecorder()
 {
 //TODO: complete
-  return new MediaRecorder (*this);
+  return std::shared_ptr<MediaRecorder> (new MediaRecorder (*this) );
 }
 
-Stream *
+std::shared_ptr<Stream>
 MediaFactory::createStream()
 {
 //TODO: complete
-  return new Stream (*this);
+  return std::shared_ptr<Stream> (new Stream (*this) );
 }
 
-Mixer *
+std::shared_ptr<Mixer>
 MediaFactory::createMixer (const int32_t mixerId)
 {
   //TODO: complete
   switch (mixerId) {
   case DefaultMixerType:
-    return new Mixer (*this);
+    return std::shared_ptr<Mixer> (new Mixer (*this) );
   case DummyMixerType:
-    return new DummyMixer (*this);
+    return std::shared_ptr<Mixer> (new DummyMixer (*this) );
   default:
     MediaServerException  e = MediaServerException();
     e.__set_description (std::string ("Mixer type does not exist.") );
