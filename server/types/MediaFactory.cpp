@@ -23,7 +23,14 @@
 #include "MediaRecorder.hpp"
 #include "Stream.hpp"
 
+#include "DummyMixer.hpp"
+
 #include <glibmm.h>
+
+enum MixerType {
+  DefaultMixerType = 0,
+  DummyMixerType = 1
+};
 
 namespace kurento
 {
@@ -59,6 +66,22 @@ MediaFactory::createStream()
 {
 //TODO: complete
   return new Stream (*this);
+}
+
+Mixer *
+MediaFactory::createMixer (const int32_t mixerId)
+{
+  //TODO: complete
+  switch (mixerId) {
+  case DefaultMixerType:
+    return new Mixer (*this);
+  case DummyMixerType:
+    return new DummyMixer (*this);
+  default:
+    MediaServerException  e = MediaServerException();
+    e.__set_description (std::string ("Mixer type does not exist.") );
+    throw e;
+  }
 }
 
 } // kurento

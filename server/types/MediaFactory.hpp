@@ -29,6 +29,7 @@ namespace kurento
 class MediaPlayer;
 class MediaRecorder;
 class Stream;
+class Mixer;
 
 class MediaFactory : public MediaObjectImpl
 {
@@ -40,6 +41,7 @@ public:
   MediaPlayer *createMediaPlayer();
   MediaRecorder *createMediaRecorder();
   Stream *createStream();
+  Mixer *createMixer (const int32_t mixerId);
 };
 
 } // kurento
