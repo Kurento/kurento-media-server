@@ -45,6 +45,7 @@ public:
   std::shared_ptr<MediaRecorder> getMediaRecorder (const MediaObject &mediaObject);
   std::shared_ptr<Stream> getStream (const MediaObject &mediaObject);
   std::shared_ptr<Mixer> getMixer (const MediaObject &mediaObject);
+  std::shared_ptr<MixerPort> getMixerPort (const MediaObject &mediaObject);
 
 private:
   ConcurrentMap<ObjectId, std::shared_ptr<MediaObject> > mediaObjectMap;
