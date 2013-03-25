@@ -24,6 +24,7 @@
 #include "types/MediaPlayer.hpp"
 #include "types/MediaRecorder.hpp"
 #include "types/Stream.hpp"
+#include "types/Mixer.hpp"
 
 #define GST_CAT_DEFAULT media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -115,7 +116,14 @@ void
 MediaServerServiceHandler::createMixer (MediaObject &_return,
     const MediaObject &mediaFactory, const int32_t mixerId)
 {
-  GST_INFO ("createMixer: %d", mixerId);
+  std::shared_ptr<MediaFactory> mf;
+  std::shared_ptr<Mixer> mixer;
+
+  mf = mediaSet.getMediaFactory (mediaFactory);
+  mixer = std::shared_ptr<Mixer> (mf->createMixer (mixerId) );
+  mediaSet.put (mixer);
+
+  _return = *mixer;
 }
 
 MediaType::type
@@ -335,14 +343,24 @@ void
 MediaServerServiceHandler::getMixerPort (MediaObject &_return,
     const MediaObject &mixer)
 {
-  GST_INFO ("getMixerPort");
+  std::shared_ptr<Mixer> m;
+  std::shared_ptr<MixerPort> mixerPort;
+
+  m = mediaSet.getMixer (mixer);
+  mixerPort = std::shared_ptr<MixerPort> (m->getMixerPort() );
+  mediaSet.put (mixerPort);
+
+  _return = *mixerPort;
 }
 
 void
 MediaServerServiceHandler::getMixer (MediaObject &_return,
     const MediaObject &mixerPort)
 {
-  GST_INFO ("getMixer");
+  std::shared_ptr<MixerPort> mp;
+
+  mp = mediaSet.getMixerPort (mixerPort);
+  _return = * (mp->getMixer() );
 }
 
 } // kurento
