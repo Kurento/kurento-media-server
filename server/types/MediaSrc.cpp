@@ -19,13 +19,21 @@
  */
 
 #include "MediaSrc.hpp"
+#include "Joinable.hpp"
+#include <gst/gst.h>
+
+#define GST_CAT_DEFAULT media_joinable
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "media_joinable"
 
 namespace kurento
 {
 
-MediaSrc::MediaSrc (MediaFactory &mediaFactory) : MediaObjectImpl (mediaFactory.token)
+MediaSrc::MediaSrc (Joinable *joinable) : MediaObjectImpl (joinable->token)
 {
-
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
+  this->joinable = joinable;
 }
 
 MediaSrc::~MediaSrc() throw ()
@@ -42,19 +50,26 @@ MediaSrc::getMediaType ()
 void
 MediaSrc::connect (const MediaSink &mediaSink)
 {
-
+  //TODO: complete
+  GST_INFO ("connect %ld to %ld", this->id, mediaSink.id);
 }
 
 void
 MediaSrc::disconnect (const MediaSink &mediaSink)
 {
-
+  //TODO: complete
+  GST_INFO ("disconnect %ld from %ld", this->id, mediaSink.id);
 }
 
-void
-MediaSrc:: getConnectedSinks (std::vector<MediaSink> &_return)
+std::vector < std::shared_ptr<MediaSink> > *
+MediaSrc:: getConnectedSinks ()
 {
+  std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
+  //TODO: complete
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (joinable) ) );
+
+  return mediaSinks;
 }
 
 } // kurento

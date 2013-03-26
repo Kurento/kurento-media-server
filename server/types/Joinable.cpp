@@ -32,7 +32,6 @@ Joinable::Joinable (MediaFactory &mediaFactory) : MediaObjectImpl (mediaFactory.
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
       GST_DEFAULT_NAME);
-  this->mediaFactory = &mediaFactory;
 }
 
 Joinable::~Joinable () throw ()
@@ -58,7 +57,7 @@ Joinable::getMediaSrcs ()
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (*mediaFactory) ) );
+  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (this ) ) );
 
   return mediaSrcs;
 }
@@ -69,7 +68,7 @@ Joinable::getMediaSinks()
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (*mediaFactory) ) );
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (this) ) );
 
   return mediaSinks;
 }
@@ -80,7 +79,7 @@ Joinable::getMediaSrcsByMediaType (const MediaType::type mediaType)
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (*mediaFactory) ) );
+  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (this) ) );
 
   return mediaSrcs;
 }
@@ -91,7 +90,7 @@ Joinable::getMediaSinksByMediaType (const MediaType::type mediaType)
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (*mediaFactory) ) );
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (this) ) );
 
   return mediaSinks;
 }

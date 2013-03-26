@@ -22,22 +22,26 @@
 #define __MEDIA_SRC_HPP__
 
 #include "MediaObjectImpl.hpp"
-#include "MediaFactory.hpp"
 #include "MediaSink.hpp"
 
 namespace kurento
 {
 
+class Joinable;
+
 class MediaSrc : public MediaObjectImpl
 {
 public:
-  MediaSrc (MediaFactory &mediaFactory);
+  MediaSrc (Joinable *joinable);
   ~MediaSrc() throw ();
 
   MediaType::type getMediaType ();
   void connect (const MediaSink &mediaSink);
   void disconnect (const MediaSink &mediaSink);
-  void getConnectedSinks (std::vector<MediaSink> &_return);
+  std::vector < std::shared_ptr<MediaSink> > * getConnectedSinks ();
+
+private:
+  Joinable *joinable;
 };
 
 } // kurento

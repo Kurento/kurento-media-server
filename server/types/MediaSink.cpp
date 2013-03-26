@@ -19,13 +19,14 @@
  */
 
 #include "MediaSink.hpp"
+#include "Joinable.hpp"
 
 namespace kurento
 {
 
-MediaSink::MediaSink (MediaFactory &mediaFactory) : MediaObjectImpl (mediaFactory.token)
+MediaSink::MediaSink (Joinable *joinable) : MediaObjectImpl (joinable->token)
 {
-
+  this->joinable = joinable;
 }
 
 MediaSink::~MediaSink() throw ()
@@ -39,10 +40,11 @@ MediaSink::getMediaType ()
   return MediaType::AUDIO;
 }
 
-void
-MediaSink::getConnectedSrc (const MediaSrc &mediaSrc)
+std::shared_ptr<MediaSrc>
+MediaSink::getConnectedSrc ()
 {
-
+  //TODO: complete
+  return std::shared_ptr<MediaSrc> (new MediaSrc (joinable) );
 }
 
 } // kurento
