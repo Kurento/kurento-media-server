@@ -129,6 +129,7 @@ MediaType::type
 MediaServerServiceHandler::getMediaType (const MediaObject &mediaElement)
 {
   GST_INFO ("getMediaType");
+  //FIXME: use two calls, one for MediaSrc and other for MediaSink
   return MediaType::AUDIO;
 }
 
@@ -136,28 +137,53 @@ void
 MediaServerServiceHandler::connect (const MediaObject &mediaSrc,
     const MediaObject &mediaSink)
 {
-  GST_INFO ("connect");
+  std::shared_ptr<MediaSrc> src;
+  std::shared_ptr<MediaSink> sink;
+
+  src = mediaSet.getMediaSrc (mediaSrc);
+  sink = mediaSet.getMediaSink (mediaSink);
+  src->connect (*sink);
 }
 
 void
-MediaServerServiceHandler::disconnect (const MediaObject &src,
+MediaServerServiceHandler::disconnect (const MediaObject &mediaSrc,
     const MediaObject &mediaSink)
 {
-  GST_INFO ("disconnect");
+  std::shared_ptr<MediaSrc> src;
+  std::shared_ptr<MediaSink> sink;
+
+  src = mediaSet.getMediaSrc (mediaSrc);
+  sink = mediaSet.getMediaSink (mediaSink);
+  src->disconnect (*sink);
 }
 
 void
 MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObject >
     &_return, const MediaObject &mediaSrc)
 {
-  GST_INFO ("getConnectedSinks");
+  std::shared_ptr<MediaSrc> src;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector< std::shared_ptr<MediaSink> >::iterator it;
+
+  src = mediaSet.getMediaSrc (mediaSrc);
+  mediaSinks = src->getConnectedSinks();
+
+  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
+  delete mediaSinks;
 }
 
 void
 MediaServerServiceHandler::getConnectedSrc (MediaObject &_return,
     const MediaObject &mediaSink)
 {
-  GST_INFO ("getConnectedSrc");
+  std::shared_ptr<MediaSink> sink;
+
+  sink = mediaSet.getMediaSink (mediaSink);
+  _return = * (sink->getConnectedSrc() );
 }
 
 void
