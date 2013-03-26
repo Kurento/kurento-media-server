@@ -36,7 +36,7 @@ public:
   virtual ~Joinable() throw () = 0;
 
   void join (const Joinable &to);
-  void unjoin (Joinable &to);
+  void unjoin (const Joinable &to);
 
   std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcs ();
   std::vector < std::shared_ptr<MediaSink> > * getMediaSinks();

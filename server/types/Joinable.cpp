@@ -47,7 +47,7 @@ Joinable::join (const Joinable &to)
 }
 
 void
-Joinable::unjoin (Joinable &to)
+Joinable::unjoin (const Joinable &to)
 {
   GST_INFO ("unjoin %ld to %ld", this->id, to.id);
 }
