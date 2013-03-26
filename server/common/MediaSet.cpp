@@ -71,6 +71,36 @@ MediaSet::getJoinable (const MediaObject &mediaObject)
   return j;
 }
 
+std::shared_ptr<MediaSrc>
+MediaSet::getMediaSrc (const MediaObject &mediaObject)
+{
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr< MediaSrc> src;
+
+  mo = mediaObjectMap.getValue (mediaObject.id);
+  src = std::dynamic_pointer_cast< MediaSrc > (mo);
+
+  if (src == NULL)
+    throw MediaObjectNotFoundException();
+
+  return src;
+}
+
+std::shared_ptr<MediaSink>
+MediaSet::getMediaSink (const MediaObject &mediaObject)
+{
+  std::shared_ptr<MediaObject> mo;
+  std::shared_ptr< MediaSink> sink;
+
+  mo = mediaObjectMap.getValue (mediaObject.id);
+  sink = std::dynamic_pointer_cast< MediaSink > (mo);
+
+  if (sink == NULL)
+    throw MediaObjectNotFoundException();
+
+  return sink;
+}
+
 std::shared_ptr<MediaPlayer>
 MediaSet::getMediaPlayer (const MediaObject &mediaObject)
 {

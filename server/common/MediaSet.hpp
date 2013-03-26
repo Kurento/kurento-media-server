@@ -41,6 +41,8 @@ public:
   int size();
   std::shared_ptr<MediaFactory> getMediaFactory (const MediaObject &mediaObject);
   std::shared_ptr<Joinable> getJoinable (const MediaObject &mediaObject);
+  std::shared_ptr<MediaSrc> getMediaSrc (const MediaObject &mediaObject);
+  std::shared_ptr<MediaSink> getMediaSink (const MediaObject &mediaObject);
   std::shared_ptr< MediaPlayer> getMediaPlayer (const MediaObject &mediaObject);
   std::shared_ptr<MediaRecorder> getMediaRecorder (const MediaObject &mediaObject);
   std::shared_ptr<Stream> getStream (const MediaObject &mediaObject);
