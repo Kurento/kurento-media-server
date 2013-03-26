@@ -33,11 +33,11 @@ Mixer::~Mixer() throw ()
 
 }
 
-MixerPort *
+std::shared_ptr<MixerPort>
 Mixer::getMixerPort ()
 {
   //TODO: complete
-  return new MixerPort (*mediaFactory, this);
+  return std::shared_ptr<MixerPort> (new MixerPort (*mediaFactory, shared_from_this() ) );
 }
 
 } // kurento

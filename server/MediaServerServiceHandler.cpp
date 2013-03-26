@@ -370,7 +370,7 @@ MediaServerServiceHandler::getMixerPort (MediaObject &_return,
   std::shared_ptr<MixerPort> mixerPort;
 
   m = mediaSet.getMixer (mixer);
-  mixerPort = std::shared_ptr<MixerPort> (m->getMixerPort() );
+  mixerPort = m->getMixerPort();
   mediaSet.put (mixerPort);
 
   _return = *mixerPort;
@@ -383,7 +383,7 @@ MediaServerServiceHandler::getMixer (MediaObject &_return,
   std::shared_ptr<MixerPort> mp;
 
   mp = mediaSet.getMixerPort (mixerPort);
-  _return = * (mp->getMixer() );
+  _return = * ( mp->getMixer() );
 }
 
 } // kurento

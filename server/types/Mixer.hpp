@@ -27,13 +27,13 @@
 namespace kurento
 {
 
-class Mixer : public MediaObjectImpl
+class Mixer : public MediaObjectImpl, public std::enable_shared_from_this<Mixer>
 {
 public:
   Mixer (MediaFactory &mediaFactory);
   ~Mixer() throw ();
 
-  MixerPort *getMixerPort ();
+  std::shared_ptr<MixerPort> getMixerPort ();
 
 private:
   MediaFactory *mediaFactory;

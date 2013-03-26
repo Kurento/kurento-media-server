@@ -24,7 +24,7 @@
 namespace kurento
 {
 
-MixerPort::MixerPort (MediaFactory &mediaFactory, Mixer *mixer) : Joinable (mediaFactory)
+MixerPort::MixerPort (MediaFactory &mediaFactory, const std::shared_ptr<Mixer>& mixer) : Joinable (mediaFactory)
 {
   this->mixer = mixer;
 }
@@ -34,7 +34,7 @@ MixerPort::~MixerPort() throw ()
 
 }
 
-Mixer *
+std::shared_ptr<Mixer>
 MixerPort::getMixer ()
 {
   return mixer;
