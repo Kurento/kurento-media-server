@@ -20,7 +20,5 @@ include_directories(kurento ${THRIFT_INCLUDE_DIRS} ${GLIBMM_INCLUDE_DIRS})
 include_directories(kurento ${GSTREAMER_INCLUDE_DIRS})
 include_directories(kurento ${UUID_INCLUDE_DIRS})
 include_directories(kurento ${KMSIFACE_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/server)
-include_directories(kurento ${CMAKE_SOURCE_DIR}/src/core)
-include_directories(kurento ${CMAKE_SOURCE_DIR}/src)
 
 install(TARGETS kurento RUNTIME DESTINATION usr/bin)
