@@ -19,6 +19,11 @@
  */
 
 #include "MediaSet.hpp"
+#include "types/MediaFactory.hpp"
+#include "types/MediaPlayer.hpp"
+#include "types/MediaRecorder.hpp"
+#include "types/Stream.hpp"
+#include "types/Mixer.hpp"
 
 namespace kurento
 {
@@ -41,139 +46,46 @@ MediaSet::size ()
   return mediaObjectMap.size();
 }
 
-std::shared_ptr<MediaFactory>
-MediaSet::getMediaFactory (const MediaObject &mediaObject)
+template std::shared_ptr<MediaFactory>
+MediaSet::getMediaObject<MediaFactory> (const MediaObject &mediaObject);
+
+template std::shared_ptr<Joinable>
+MediaSet::getMediaObject<Joinable> (const MediaObject &mediaObject);
+
+template std::shared_ptr<MediaSrc>
+MediaSet::getMediaObject<MediaSrc> (const MediaObject &mediaObject);
+
+template std::shared_ptr<MediaSink>
+MediaSet::getMediaObject<MediaSink> (const MediaObject &mediaObject);
+
+template std::shared_ptr<MediaPlayer>
+MediaSet::getMediaObject<MediaPlayer> (const MediaObject &mediaObject);
+
+template std::shared_ptr<MediaRecorder>
+MediaSet::getMediaObject<MediaRecorder> (const MediaObject &mediaObject);
+
+template std::shared_ptr<Stream>
+MediaSet::getMediaObject<Stream> (const MediaObject &mediaObject);
+
+template std::shared_ptr<Mixer>
+MediaSet::getMediaObject<Mixer> (const MediaObject &mediaObject);
+
+template std::shared_ptr<MixerPort>
+MediaSet::getMediaObject<MixerPort> (const MediaObject &mediaObject);
+
+template <class T> std::shared_ptr<T>
+MediaSet::getMediaObject (const MediaObject &mediaObject)
 {
   std::shared_ptr<MediaObject> mo;
-  std::shared_ptr<MediaFactory> mf;
+  std::shared_ptr<T> typedMo;
 
   mo = mediaObjectMap.getValue (mediaObject.id);
-  mf = std::dynamic_pointer_cast< MediaFactory > (mo);
+  typedMo = std::dynamic_pointer_cast<T> (mo);
 
-  if (mf == NULL )
+  if (typedMo == NULL)
     throw MediaObjectNotFoundException();
 
-  return mf;
-}
-
-std::shared_ptr<Joinable>
-MediaSet::getJoinable (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr<Joinable> j;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  j = std::dynamic_pointer_cast< Joinable > (mo);
-
-  if (j == NULL )
-    throw MediaObjectNotFoundException();
-
-  return j;
-}
-
-std::shared_ptr<MediaSrc>
-MediaSet::getMediaSrc (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr< MediaSrc> src;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  src = std::dynamic_pointer_cast< MediaSrc > (mo);
-
-  if (src == NULL)
-    throw MediaObjectNotFoundException();
-
-  return src;
-}
-
-std::shared_ptr<MediaSink>
-MediaSet::getMediaSink (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr< MediaSink> sink;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  sink = std::dynamic_pointer_cast< MediaSink > (mo);
-
-  if (sink == NULL)
-    throw MediaObjectNotFoundException();
-
-  return sink;
-}
-
-std::shared_ptr<MediaPlayer>
-MediaSet::getMediaPlayer (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr< MediaPlayer> mp;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  mp = std::dynamic_pointer_cast< MediaPlayer > (mo);
-
-  if (mp == NULL)
-    throw MediaObjectNotFoundException();
-
-  return mp;
-}
-
-std::shared_ptr<MediaRecorder>
-MediaSet::getMediaRecorder (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr<MediaRecorder> mr;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  mr = std::dynamic_pointer_cast<MediaRecorder> (mo);
-
-  if (mr == NULL)
-    throw MediaObjectNotFoundException();
-
-  return mr;
-}
-
-std::shared_ptr<Stream>
-MediaSet::getStream (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr<Stream> s;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  s = std::dynamic_pointer_cast<Stream> (mo);
-
-  if (s == NULL)
-    throw MediaObjectNotFoundException();
-
-  return s;
-}
-
-std::shared_ptr<Mixer>
-MediaSet::getMixer (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr<Mixer> m;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  m = std::dynamic_pointer_cast<Mixer> (mo);
-
-  if (m == NULL)
-    throw MediaObjectNotFoundException();
-
-  return m;
-}
-
-std::shared_ptr<MixerPort>
-MediaSet::getMixerPort (const MediaObject &mediaObject)
-{
-  std::shared_ptr<MediaObject> mo;
-  std::shared_ptr<MixerPort> mp;
-
-  mo = mediaObjectMap.getValue (mediaObject.id);
-  mp = std::dynamic_pointer_cast<MixerPort> (mo);
-
-  if (mp == NULL)
-    throw MediaObjectNotFoundException();
-
-  return mp;
+  return typedMo;
 }
 
 } // kurento

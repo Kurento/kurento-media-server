@@ -21,6 +21,7 @@
 #include "MediaServerServiceHandler.hpp"
 #include <gst/gst.h>
 
+#include "types/MediaFactory.hpp"
 #include "types/MediaPlayer.hpp"
 #include "types/MediaRecorder.hpp"
 #include "types/Stream.hpp"
@@ -74,7 +75,7 @@ MediaServerServiceHandler::createMediaPlayer (MediaObject &_return,
   std::shared_ptr<MediaFactory> mf;
   std::shared_ptr<MediaPlayer> mediaPlayer;
 
-  mf = mediaSet.getMediaFactory (mediaFactory);
+  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
   mediaPlayer =  mf->createMediaPlayer();
   mediaSet.put (mediaPlayer);
 
@@ -88,7 +89,7 @@ MediaServerServiceHandler::createMediaRecorder (MediaObject &_return,
   std::shared_ptr<MediaFactory> mf;
   std::shared_ptr<MediaRecorder> mediaRecorder;
 
-  mf = mediaSet.getMediaFactory (mediaFactory);
+  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
   mediaRecorder = mf->createMediaRecorder();
   mediaSet.put (mediaRecorder);
 
@@ -102,7 +103,7 @@ MediaServerServiceHandler::createStream (MediaObject &_return,
   std::shared_ptr<MediaFactory> mf;
   std::shared_ptr<Stream> stream;
 
-  mf = mediaSet.getMediaFactory (mediaFactory);
+  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
   stream = mf->createStream();
   mediaSet.put (stream);
 
@@ -116,7 +117,7 @@ MediaServerServiceHandler::createMixer (MediaObject &_return,
   std::shared_ptr<MediaFactory> mf;
   std::shared_ptr<Mixer> mixer;
 
-  mf = mediaSet.getMediaFactory (mediaFactory);
+  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
   mixer = mf->createMixer (mixerId);
   mediaSet.put (mixer);
 
@@ -138,8 +139,8 @@ MediaServerServiceHandler::connect (const MediaObject &mediaSrc,
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
 
-  src = mediaSet.getMediaSrc (mediaSrc);
-  sink = mediaSet.getMediaSink (mediaSink);
+  src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
+  sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
   src->connect (*sink);
 }
 
@@ -150,8 +151,8 @@ MediaServerServiceHandler::disconnect (const MediaObject &mediaSrc,
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
 
-  src = mediaSet.getMediaSrc (mediaSrc);
-  sink = mediaSet.getMediaSink (mediaSink);
+  src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
+  sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
   src->disconnect (*sink);
 }
 
@@ -163,7 +164,7 @@ MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObject >
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
-  src = mediaSet.getMediaSrc (mediaSrc);
+  src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
   mediaSinks = src->getConnectedSinks();
 
   for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
@@ -180,7 +181,7 @@ MediaServerServiceHandler::getConnectedSrc (MediaObject &_return,
 {
   std::shared_ptr<MediaSink> sink;
 
-  sink = mediaSet.getMediaSink (mediaSink);
+  sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
   _return = * (sink->getConnectedSrc() );
 }
 
@@ -190,8 +191,8 @@ MediaServerServiceHandler::join (const MediaObject &joinableA,
 {
   std::shared_ptr<Joinable> jA, jB;
 
-  jA = mediaSet.getJoinable (joinableA);
-  jB = mediaSet.getJoinable (joinableB);
+  jA = mediaSet.getMediaObject<Joinable> (joinableA);
+  jB = mediaSet.getMediaObject<Joinable> (joinableB);
   jA->join (*jB);
 }
 
@@ -201,8 +202,8 @@ MediaServerServiceHandler::unjoin (const MediaObject &joinableA,
 {
   std::shared_ptr<Joinable> jA, jB;
 
-  jA = mediaSet.getJoinable (joinableA);
-  jB = mediaSet.getJoinable (joinableB);
+  jA = mediaSet.getMediaObject<Joinable> (joinableA);
+  jB = mediaSet.getMediaObject<Joinable> (joinableB);
   jA->unjoin (*jB);
 }
 
@@ -214,7 +215,7 @@ MediaServerServiceHandler::getMediaSrcs (std::vector < MediaObject > &_return,
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
   std::vector< std::shared_ptr<MediaSrc> >::iterator it;
 
-  j = mediaSet.getJoinable (joinable);
+  j = mediaSet.getMediaObject<Joinable> (joinable);
   mediaSrcs = j->getMediaSrcs();
 
   for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
@@ -233,7 +234,7 @@ MediaServerServiceHandler::getMediaSinks (std::vector < MediaObject > &_return,
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
-  j = mediaSet.getJoinable (joinable);
+  j = mediaSet.getMediaObject<Joinable> (joinable);
   mediaSinks = j->getMediaSinks();
 
   for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
@@ -252,7 +253,7 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector < MediaObject >
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
   std::vector< std::shared_ptr<MediaSrc> >::iterator it;
 
-  j = mediaSet.getJoinable (joinable);
+  j = mediaSet.getMediaObject<Joinable> (joinable);
   mediaSrcs = j->getMediaSrcsByMediaType (mediaType);
 
   for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
@@ -271,7 +272,7 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector < MediaObject >
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
-  j = mediaSet.getJoinable (joinable);
+  j = mediaSet.getMediaObject<Joinable> (joinable);
   mediaSinks = j->getMediaSinksByMediaType (mediaType);
 
   for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
@@ -287,7 +288,7 @@ MediaServerServiceHandler::play (const MediaObject &mediaPlayer)
 {
   std::shared_ptr<MediaPlayer> mp;
 
-  mp = mediaSet.getMediaPlayer (mediaPlayer);
+  mp = mediaSet.getMediaObject<MediaPlayer> (mediaPlayer);
   mp->play();
 }
 
@@ -296,7 +297,7 @@ MediaServerServiceHandler::pausePlayer (const MediaObject &mediaPlayer)
 {
   std::shared_ptr<MediaPlayer> mp;
 
-  mp = mediaSet.getMediaPlayer (mediaPlayer);
+  mp = mediaSet.getMediaObject<MediaPlayer> (mediaPlayer);
   mp->pause();
 }
 
@@ -305,7 +306,7 @@ MediaServerServiceHandler::stopPlayer (const MediaObject &mediaPlayer)
 {
   std::shared_ptr<MediaPlayer> mp;
 
-  mp = mediaSet.getMediaPlayer (mediaPlayer);
+  mp = mediaSet.getMediaObject<MediaPlayer> (mediaPlayer);
   mp->stop();
 }
 
@@ -314,7 +315,7 @@ MediaServerServiceHandler::record (const MediaObject &mediaRecorder)
 {
   std::shared_ptr<MediaRecorder> mr;
 
-  mr = mediaSet.getMediaRecorder (mediaRecorder);
+  mr = mediaSet.getMediaObject<MediaRecorder> (mediaRecorder);
   mr->record();
 }
 
@@ -323,7 +324,7 @@ MediaServerServiceHandler::pauseRecorder (const MediaObject &mediaRecorder)
 {
   std::shared_ptr<MediaRecorder> mr;
 
-  mr = mediaSet.getMediaRecorder (mediaRecorder);
+  mr = mediaSet.getMediaObject<MediaRecorder> (mediaRecorder);
   mr->pause();
 }
 
@@ -332,7 +333,7 @@ MediaServerServiceHandler::stopRecorder (const MediaObject &mediaRecorder)
 {
   std::shared_ptr<MediaRecorder> mr;
 
-  mr = mediaSet.getMediaRecorder (mediaRecorder);
+  mr = mediaSet.getMediaObject<MediaRecorder> (mediaRecorder);
   mr->stop();
 }
 
@@ -342,7 +343,7 @@ MediaServerServiceHandler::generateOffer (std::string &_return,
 {
   std::shared_ptr<Stream> s;
 
-  s = mediaSet.getStream (stream);
+  s = mediaSet.getMediaObject<Stream> (stream);
   s->generateOffer (_return);
 }
 
@@ -352,7 +353,7 @@ MediaServerServiceHandler::processAnswer (std::string &_return,
 {
   std::shared_ptr<Stream> s;
 
-  s = mediaSet.getStream (stream);
+  s = mediaSet.getMediaObject<Stream> (stream);
   s->processAnswer (_return, answer);
 }
 
@@ -362,7 +363,7 @@ MediaServerServiceHandler::processOffer (std::string &_return,
 {
   std::shared_ptr<Stream> s;
 
-  s = mediaSet.getStream (stream);
+  s = mediaSet.getMediaObject<Stream> (stream);
   s->processOffer (_return, offer);
 }
 
@@ -372,7 +373,7 @@ MediaServerServiceHandler::getLocalDescriptor (std::string &_return,
 {
   std::shared_ptr<Stream> s;
 
-  s = mediaSet.getStream (stream);
+  s = mediaSet.getMediaObject<Stream> (stream);
   s->getLocalDescriptor (_return);
 }
 
@@ -382,7 +383,7 @@ MediaServerServiceHandler::getRemoteDescriptor (std::string &_return,
 {
   std::shared_ptr<Stream> s;
 
-  s = mediaSet.getStream (stream);
+  s = mediaSet.getMediaObject<Stream> (stream);
   s->getRemoteDescriptor (_return);
 }
 
@@ -393,7 +394,7 @@ MediaServerServiceHandler::getMixerPort (MediaObject &_return,
   std::shared_ptr<Mixer> m;
   std::shared_ptr<MixerPort> mixerPort;
 
-  m = mediaSet.getMixer (mixer);
+  m = mediaSet.getMediaObject<Mixer> (mixer);
   mixerPort = m->getMixerPort();
   mediaSet.put (mixerPort);
 
@@ -406,7 +407,7 @@ MediaServerServiceHandler::getMixer (MediaObject &_return,
 {
   std::shared_ptr<MixerPort> mp;
 
-  mp = mediaSet.getMixerPort (mixerPort);
+  mp = mediaSet.getMediaObject<MixerPort> (mixerPort);
   _return = * ( mp->getMixer() );
 }
 

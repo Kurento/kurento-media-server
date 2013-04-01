@@ -22,6 +22,7 @@
 #define __MEDIAFACTORY_HPP__
 
 #include "MediaObjectImpl.hpp"
+#include <common/MediaSet.hpp>
 
 namespace kurento
 {
@@ -42,6 +43,9 @@ public:
   std::shared_ptr<MediaRecorder> createMediaRecorder();
   std::shared_ptr<Stream> createStream();
   std::shared_ptr<Mixer> createMixer (const int32_t mixerId);
+
+private:
+  MediaSet mediaSet;
 };
 
 } // kurento

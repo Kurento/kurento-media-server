@@ -22,11 +22,6 @@
 #define __MEDIA_SET_H__
 
 #include "ConcurrentMap.hpp"
-#include "types/MediaFactory.hpp"
-#include "types/MediaPlayer.hpp"
-#include "types/MediaRecorder.hpp"
-#include "types/Stream.hpp"
-#include "types/Mixer.hpp"
 
 namespace kurento
 {
@@ -39,15 +34,9 @@ public:
   void put (std::shared_ptr<MediaObject> mediaObject);
   void remove (const MediaObject &mediaObject);
   int size();
-  std::shared_ptr<MediaFactory> getMediaFactory (const MediaObject &mediaObject);
-  std::shared_ptr<Joinable> getJoinable (const MediaObject &mediaObject);
-  std::shared_ptr<MediaSrc> getMediaSrc (const MediaObject &mediaObject);
-  std::shared_ptr<MediaSink> getMediaSink (const MediaObject &mediaObject);
-  std::shared_ptr< MediaPlayer> getMediaPlayer (const MediaObject &mediaObject);
-  std::shared_ptr<MediaRecorder> getMediaRecorder (const MediaObject &mediaObject);
-  std::shared_ptr<Stream> getStream (const MediaObject &mediaObject);
-  std::shared_ptr<Mixer> getMixer (const MediaObject &mediaObject);
-  std::shared_ptr<MixerPort> getMixerPort (const MediaObject &mediaObject);
+
+  template <class T>
+  std::shared_ptr<T> getMediaObject (const MediaObject &mediaObject);
 
 private:
   ConcurrentMap<ObjectId, std::shared_ptr<MediaObject> > mediaObjectMap;
