@@ -18,10 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MediaObjectImpl.hpp"
-
 #ifndef __MEDIAFACTORY_HPP__
 #define __MEDIAFACTORY_HPP__
+
+#include "MediaObjectImpl.hpp"
 
 namespace kurento
 {
