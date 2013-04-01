@@ -42,6 +42,15 @@ public:
   std::vector < std::shared_ptr<MediaSink> > * getMediaSinks();
   std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcsByMediaType (const MediaType::type mediaType);
   std::vector < std::shared_ptr<MediaSink> > * getMediaSinksByMediaType (const MediaType::type mediaType);
+
+private:
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento

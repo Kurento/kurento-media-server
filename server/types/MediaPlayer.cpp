@@ -23,15 +23,13 @@
 
 #define GST_CAT_DEFAULT media_player
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "media_player"
+#define GST_DEFAULT_NAME "MediaPlayer"
 
 namespace kurento
 {
 
 MediaPlayer::MediaPlayer (MediaFactory &mediaFactory) : Joinable (mediaFactory)
 {
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
 }
 
 MediaPlayer::~MediaPlayer() throw ()
@@ -55,6 +53,14 @@ void
 MediaPlayer::stop ()
 {
   GST_INFO ("PLAYER STOP");
+}
+
+MediaPlayer::StaticConstructor MediaPlayer::staticConstructor;
+
+MediaPlayer::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento

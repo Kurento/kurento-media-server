@@ -35,6 +35,15 @@ public:
   void record ();
   void pause ();
   void stop ();
+
+private:
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento

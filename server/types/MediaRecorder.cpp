@@ -23,15 +23,13 @@
 
 #define GST_CAT_DEFAULT media_recorder
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "media_recorder"
+#define GST_DEFAULT_NAME "MediaRecorder"
 
 namespace kurento
 {
 
 MediaRecorder::MediaRecorder (MediaFactory &mediaFactory) : Joinable (mediaFactory)
 {
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
 }
 
 MediaRecorder::~MediaRecorder() throw ()
@@ -55,6 +53,14 @@ void
 MediaRecorder::stop ()
 {
   GST_INFO ("RECORDER STOP");
+}
+
+MediaRecorder::StaticConstructor MediaRecorder::staticConstructor;
+
+MediaRecorder::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento

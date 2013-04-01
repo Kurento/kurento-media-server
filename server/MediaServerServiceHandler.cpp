@@ -28,15 +28,13 @@
 
 #define GST_CAT_DEFAULT media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "media_server_service_handler"
+#define GST_DEFAULT_NAME "MediaServerServiceHandler"
 
 namespace kurento
 {
 
 MediaServerServiceHandler::MediaServerServiceHandler ()
 {
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
 }
 
 MediaServerServiceHandler::~MediaServerServiceHandler ()
@@ -410,6 +408,14 @@ MediaServerServiceHandler::getMixer (MediaObject &_return,
 
   mp = mediaSet.getMixerPort (mixerPort);
   _return = * ( mp->getMixer() );
+}
+
+MediaServerServiceHandler::StaticConstructor MediaServerServiceHandler::staticConstructor;
+
+MediaServerServiceHandler::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento

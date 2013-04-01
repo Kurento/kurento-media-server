@@ -42,6 +42,15 @@ public:
 
 private:
   Joinable *joinable;
+
+private:
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento

@@ -22,17 +22,15 @@
 #include "Joinable.hpp"
 #include <gst/gst.h>
 
-#define GST_CAT_DEFAULT media_joinable
+#define GST_CAT_DEFAULT media_src
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "media_joinable"
+#define GST_DEFAULT_NAME "MediaSrc"
 
 namespace kurento
 {
 
 MediaSrc::MediaSrc (Joinable *joinable) : MediaObjectImpl (joinable->token)
 {
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
   this->joinable = joinable;
 }
 
@@ -70,6 +68,14 @@ MediaSrc:: getConnectedSinks ()
   mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (joinable) ) );
 
   return mediaSinks;
+}
+
+MediaSrc::StaticConstructor MediaSrc::staticConstructor;
+
+MediaSrc::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento

@@ -85,6 +85,15 @@ public:
 
 private:
   MediaSet mediaSet;
+
+private:
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento
