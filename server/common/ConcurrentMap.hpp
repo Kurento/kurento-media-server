@@ -40,7 +40,7 @@ public:
   int size();
 
 private:
-  Glib::Mutex mutex; // Protects the map
+  Glib::Threads::RecMutex mutex; /* Protects the map */
   std::map<K, V> map;
 };
 
