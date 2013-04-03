@@ -63,7 +63,6 @@ MediaServerServiceHandler::createMediaFactory (MediaObject &_return)
   mediaFactory = std::shared_ptr<MediaFactory> (new MediaFactory() );
   GST_DEBUG ("createMediaFactory id: %ld, token: %s", mediaFactory->id, mediaFactory->token.c_str() );
   mediaSet.put (mediaFactory);
-  GST_INFO ("%d active media factories", mediaSet.size() );
 
   _return = *mediaFactory;
 }
