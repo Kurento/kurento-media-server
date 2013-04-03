@@ -148,4 +148,3 @@ MediaSet::getMediaObject (const MediaObject &mediaObject)
 }
 
 } // kurento
-
