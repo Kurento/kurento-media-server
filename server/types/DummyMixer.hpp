@@ -29,7 +29,7 @@ namespace kurento
 class DummyMixer : public Mixer
 {
 public:
-  DummyMixer (MediaFactory &mediaFactory);
+  DummyMixer (std::shared_ptr<MediaFactory> parent);
   ~DummyMixer() throw ();
 };
 

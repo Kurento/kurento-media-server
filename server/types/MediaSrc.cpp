@@ -29,9 +29,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaSrc::MediaSrc (Joinable *joinable) : MediaObjectImpl (joinable->token)
+MediaSrc::MediaSrc (std::shared_ptr<Joinable> parent) : MediaObjectImpl (parent)
 {
-  this->joinable = joinable;
+
 }
 
 MediaSrc::~MediaSrc() throw ()
@@ -65,7 +65,7 @@ MediaSrc:: getConnectedSinks ()
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (joinable) ) );
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (std::dynamic_pointer_cast<Joinable> (parent) ) ) );
 
   return mediaSinks;
 }

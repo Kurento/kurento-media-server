@@ -23,7 +23,7 @@
 namespace kurento
 {
 
-DummyMixer::DummyMixer (MediaFactory &mediaFactory) : Mixer (mediaFactory)
+DummyMixer::DummyMixer (std::shared_ptr<MediaFactory> parent) : Mixer (parent)
 {
 
 }

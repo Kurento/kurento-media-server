@@ -23,8 +23,6 @@
 
 #include "mediaServer_types.h"
 
-using ::kurento::MediaObject;
-
 namespace kurento
 {
 
@@ -32,8 +30,11 @@ class MediaObjectImpl : public MediaObject
 {
 public:
   MediaObjectImpl();
-  MediaObjectImpl (std::string &token);
+  MediaObjectImpl (std::shared_ptr<MediaObject> parent);
   virtual ~MediaObjectImpl() throw () = 0;
+
+protected:
+  std::shared_ptr<MediaObject> parent;
 };
 
 } // kurento

@@ -51,21 +51,21 @@ std::shared_ptr<MediaPlayer>
 MediaFactory::createMediaPlayer()
 {
 //TODO: complete
-  return std::shared_ptr<MediaPlayer> (new MediaPlayer (*this) );
+  return std::shared_ptr<MediaPlayer> (new MediaPlayer (shared_from_this() ) );
 }
 
 std::shared_ptr<MediaRecorder>
 MediaFactory::createMediaRecorder()
 {
 //TODO: complete
-  return std::shared_ptr<MediaRecorder> (new MediaRecorder (*this) );
+  return std::shared_ptr<MediaRecorder> (new MediaRecorder (shared_from_this() ) );
 }
 
 std::shared_ptr<Stream>
 MediaFactory::createStream()
 {
 //TODO: complete
-  return std::shared_ptr<Stream> (new Stream (*this) );
+  return std::shared_ptr<Stream> (new Stream (shared_from_this() ) );
 }
 
 std::shared_ptr<Mixer>
@@ -74,9 +74,9 @@ MediaFactory::createMixer (const int32_t mixerId)
   //TODO: complete
   switch (mixerId) {
   case DefaultMixerType:
-    return std::shared_ptr<Mixer> (new Mixer (*this) );
+    return std::shared_ptr<Mixer> (new Mixer (shared_from_this() ) );
   case DummyMixerType:
-    return std::shared_ptr<Mixer> (new DummyMixer (*this) );
+    return std::shared_ptr<Mixer> (new DummyMixer (shared_from_this() ) );
   default:
     MediaServerException  e = MediaServerException();
     e.__set_description (std::string ("Mixer type does not exist.") );

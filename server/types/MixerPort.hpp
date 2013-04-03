@@ -31,13 +31,10 @@ class Mixer;
 class MixerPort : public Joinable
 {
 public:
-  MixerPort (MediaFactory &mediaFactory, const std::shared_ptr<Mixer>& mixer);
+  MixerPort (std::shared_ptr<Mixer> parent);
   ~MixerPort() throw ();
 
   std::shared_ptr<Mixer> getMixer ();
-
-private:
-  std::shared_ptr<Mixer> mixer;
 };
 
 } // kurento

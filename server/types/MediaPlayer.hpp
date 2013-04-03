@@ -29,7 +29,7 @@ namespace kurento
 class MediaPlayer : public Joinable
 {
 public:
-  MediaPlayer (MediaFactory &mediaFactory);
+  MediaPlayer (std::shared_ptr<MediaFactory> parent);
   ~MediaPlayer() throw ();
 
   void play ();

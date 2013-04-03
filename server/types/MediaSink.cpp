@@ -24,9 +24,9 @@
 namespace kurento
 {
 
-MediaSink::MediaSink (Joinable *joinable) : MediaObjectImpl (joinable->token)
+MediaSink::MediaSink (std::shared_ptr<Joinable> parent) : MediaObjectImpl (parent)
 {
-  this->joinable = joinable;
+
 }
 
 MediaSink::~MediaSink() throw ()
@@ -44,7 +44,7 @@ std::shared_ptr<MediaSrc>
 MediaSink::getConnectedSrc ()
 {
   //TODO: complete
-  return std::shared_ptr<MediaSrc> (new MediaSrc (joinable) );
+  return std::shared_ptr<MediaSrc> (new MediaSrc (std::dynamic_pointer_cast<Joinable> (parent) ) );
 }
 
 } // kurento

@@ -28,8 +28,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaPlayer::MediaPlayer (MediaFactory &mediaFactory) : Joinable (mediaFactory)
+MediaPlayer::MediaPlayer (std::shared_ptr<MediaFactory> parent) : Joinable (parent)
 {
+
 }
 
 MediaPlayer::~MediaPlayer() throw ()

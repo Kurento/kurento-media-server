@@ -29,7 +29,7 @@ namespace kurento
 class MediaRecorder : public Joinable
 {
 public:
-  MediaRecorder (MediaFactory &mediaFactory);
+  MediaRecorder (std::shared_ptr<MediaFactory> parent);
   ~MediaRecorder() throw ();
 
   void record ();

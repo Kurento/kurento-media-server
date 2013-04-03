@@ -32,7 +32,7 @@ class MediaRecorder;
 class Stream;
 class Mixer;
 
-class MediaFactory : public MediaObjectImpl
+class MediaFactory : public MediaObjectImpl, public std::enable_shared_from_this<MediaFactory>
 {
 
 public:

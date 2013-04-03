@@ -29,10 +29,10 @@
 namespace kurento
 {
 
-class Joinable : public MediaObjectImpl
+class Joinable : public MediaObjectImpl, public std::enable_shared_from_this<Joinable>
 {
 public:
-  Joinable (MediaFactory &mediaFactory);
+  Joinable (std::shared_ptr<MediaObject> parent);
   virtual ~Joinable() throw () = 0;
 
   void join (const Joinable &to);

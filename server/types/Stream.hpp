@@ -29,7 +29,7 @@ namespace kurento
 class Stream : public Joinable
 {
 public:
-  Stream (MediaFactory &mediaFactory);
+  Stream (std::shared_ptr<MediaFactory> parent);
   ~Stream() throw ();
 
   void generateOffer (std::string &_return);

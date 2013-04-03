@@ -32,16 +32,13 @@ class Joinable;
 class MediaSrc : public MediaObjectImpl
 {
 public:
-  MediaSrc (Joinable *joinable);
+  MediaSrc (std::shared_ptr<Joinable> parent);
   ~MediaSrc() throw ();
 
   MediaType::type getMediaType ();
   void connect (const MediaSink &mediaSink);
   void disconnect (const MediaSink &mediaSink);
   std::vector < std::shared_ptr<MediaSink> > * getConnectedSinks ();
-
-private:
-  Joinable *joinable;
 
 private:
   class StaticConstructor

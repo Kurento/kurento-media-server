@@ -28,7 +28,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaRecorder::MediaRecorder (MediaFactory &mediaFactory) : Joinable (mediaFactory)
+MediaRecorder::MediaRecorder (std::shared_ptr<MediaFactory> parent) : Joinable (parent)
 {
 }
 

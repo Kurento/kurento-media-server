@@ -28,7 +28,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-Joinable::Joinable (MediaFactory &mediaFactory) : MediaObjectImpl (mediaFactory.token)
+Joinable::Joinable (std::shared_ptr<MediaObject> parent) : MediaObjectImpl (parent)
 {
 }
 
@@ -55,7 +55,7 @@ Joinable::getMediaSrcs ()
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (this ) ) );
+  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (shared_from_this() ) ) );
 
   return mediaSrcs;
 }
@@ -66,7 +66,7 @@ Joinable::getMediaSinks()
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (this) ) );
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (shared_from_this() ) ) );
 
   return mediaSinks;
 }
@@ -77,7 +77,7 @@ Joinable::getMediaSrcsByMediaType (const MediaType::type mediaType)
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (this) ) );
+  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (shared_from_this() ) ) );
 
   return mediaSrcs;
 }
@@ -88,7 +88,7 @@ Joinable::getMediaSinksByMediaType (const MediaType::type mediaType)
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (this) ) );
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (shared_from_this() ) ) );
 
   return mediaSinks;
 }

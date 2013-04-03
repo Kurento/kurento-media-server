@@ -62,10 +62,11 @@ MediaObjectImpl::MediaObjectImpl() : MediaObject()
   this->token = tk;
 }
 
-MediaObjectImpl::MediaObjectImpl (std::string &token) : MediaObject()
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObject> parent) : MediaObject()
 {
   id = getId();
-  this->token = token;
+  this->token = parent->token;
+  this->parent = parent;
 }
 
 MediaObjectImpl::~MediaObjectImpl() throw ()

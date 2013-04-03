@@ -32,14 +32,11 @@ class MediaSrc;
 class MediaSink : public MediaObjectImpl
 {
 public:
-  MediaSink (Joinable *joinable);
+  MediaSink (std::shared_ptr<Joinable> parent);
   ~MediaSink() throw ();
 
   MediaType::type getMediaType ();
   std::shared_ptr<MediaSrc> getConnectedSrc ();
-
-private:
-  Joinable *joinable;
 };
 
 } // kurento

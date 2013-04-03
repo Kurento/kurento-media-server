@@ -23,7 +23,7 @@
 namespace kurento
 {
 
-Stream::Stream (MediaFactory &mediaFactory) : Joinable (mediaFactory)
+Stream::Stream (std::shared_ptr<MediaFactory> parent) : Joinable (parent)
 {
 
 }

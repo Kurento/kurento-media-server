@@ -23,9 +23,9 @@
 namespace kurento
 {
 
-Mixer::Mixer (MediaFactory &mediaFactory) : MediaObjectImpl (mediaFactory.token)
+Mixer::Mixer (std::shared_ptr<MediaFactory> parent) : MediaObjectImpl (parent)
 {
-  this->mediaFactory = &mediaFactory;
+
 }
 
 Mixer::~Mixer() throw ()
@@ -37,7 +37,7 @@ std::shared_ptr<MixerPort>
 Mixer::getMixerPort ()
 {
   //TODO: complete
-  return std::shared_ptr<MixerPort> (new MixerPort (*mediaFactory, shared_from_this() ) );
+  return std::shared_ptr<MixerPort> (new MixerPort (shared_from_this() ) );
 }
 
 } // kurento
