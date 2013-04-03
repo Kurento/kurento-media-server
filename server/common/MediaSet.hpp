@@ -21,7 +21,9 @@
 #ifndef __MEDIA_SET_H__
 #define __MEDIA_SET_H__
 
-#include "ConcurrentMap.hpp"
+#include "types/MediaObjectImpl.hpp"
+
+#include <glibmm.h>
 
 namespace kurento
 {
@@ -31,15 +33,18 @@ class MediaSet
 public:
   MediaSet () {};
 
-  void put (std::shared_ptr<MediaObject> mediaObject);
+  void put (std::shared_ptr<MediaObjectImpl> mediaObject);
   void remove (const MediaObject &mediaObject);
+  void remove (const ObjectId &id);
   int size();
 
   template <class T>
   std::shared_ptr<T> getMediaObject (const MediaObject &mediaObject);
 
 private:
-  ConcurrentMap<ObjectId, std::shared_ptr<MediaObject> > mediaObjectMap;
+  Glib::Threads::RecMutex mutex;
+  std::map<ObjectId, std::shared_ptr<MediaObject> > mediaObjectsMap;
+  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> > childrenMap;
 };
 
 } // kurento

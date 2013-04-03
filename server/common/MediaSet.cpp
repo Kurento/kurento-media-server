@@ -29,21 +29,69 @@ namespace kurento
 {
 
 void
-MediaSet::put (std::shared_ptr<MediaObject> mediaObject)
+MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
 {
-  mediaObjectMap.put (mediaObject->id, mediaObject );
+  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> >::iterator it;
+  std::shared_ptr<std::set<ObjectId>> children;
+
+  mutex.lock();
+
+  if (mediaObject->parent != NULL) {
+    it = childrenMap.find (mediaObject->parent->id);
+
+    if (it != childrenMap.end() ) {
+      children = it->second;
+    } else {
+      children = std::shared_ptr<std::set<ObjectId>> (new std::set<ObjectId>() );
+      childrenMap[mediaObject->parent->id] = children;
+    }
+
+    children->insert (mediaObject->id);
+  }
+
+  mediaObjectsMap[mediaObject->id] = mediaObject;
+  mutex.unlock();
 }
 
 void
 MediaSet::remove (const MediaObject &mediaObject)
 {
-  mediaObjectMap.remove (mediaObject.id);
+  remove (mediaObject.id);
+}
+
+void
+MediaSet::remove (const ObjectId &id)
+{
+  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> >::iterator it;
+  std::shared_ptr<std::set<ObjectId>> children;
+  std::set<ObjectId>::iterator setIt;
+
+  mutex.lock();
+  it = childrenMap.find (id);
+
+  if (it != childrenMap.end() ) {
+    children = it->second;
+
+    for (setIt = children->begin(); setIt != children->end(); setIt++) {
+      remove (*setIt);
+    }
+  }
+
+  childrenMap.erase (id);
+  mediaObjectsMap.erase (id);
+  mutex.unlock();
 }
 
 int
 MediaSet::size ()
 {
-  return mediaObjectMap.size();
+  int size;
+
+  mutex.lock();
+  size = mediaObjectsMap.size();
+  mutex.unlock();
+
+  return size;
 }
 
 template std::shared_ptr<MediaFactory>
@@ -76,10 +124,21 @@ MediaSet::getMediaObject<MixerPort> (const MediaObject &mediaObject);
 template <class T> std::shared_ptr<T>
 MediaSet::getMediaObject (const MediaObject &mediaObject)
 {
-  std::shared_ptr<MediaObject> mo;
+  std::map<ObjectId, std::shared_ptr<MediaObject> >::iterator it;
+  std::shared_ptr<MediaObject> mo = NULL;
   std::shared_ptr<T> typedMo;
 
-  mo = mediaObjectMap.getValue (mediaObject.id);
+  mutex.lock();
+  it = mediaObjectsMap.find (mediaObject.id);
+
+  if (it != mediaObjectsMap.end() )
+    mo = it->second;
+
+  mutex.unlock();
+
+  if (mo == NULL)
+    throw MediaObjectNotFoundException();
+
   typedMo = std::dynamic_pointer_cast<T> (mo);
 
   if (typedMo == NULL)
