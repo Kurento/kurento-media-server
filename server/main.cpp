@@ -292,6 +292,8 @@ main (int argc, char **argv)
     exit (1);
   }
 
+  g_option_context_free (context);
+
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
       GST_DEFAULT_NAME);

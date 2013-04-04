@@ -68,10 +68,12 @@ load_codec_rtp (Glib::KeyFile &configFile, const std::string &codecgrp,
     GstSDPMedia *media)
 {
   Glib::ustring rtpmap, fmtp;
-  Glib::ustring id, codec_name, clock_rate, channels, extra_attrs,
+  Glib::ustring codec_name, clock_rate, channels, extra_attrs,
        new_extra_attr;
+  gchar *id;
+
   GST_DEBUG ("Loading config for: %s", codecgrp.c_str () );
-  id = gen_id ();
+
   codec_name = configFile.get_string (codecgrp, NAME_KEY).uppercase ();
   clock_rate = configFile.get_string (codecgrp, CLOCKRATE_KEY);
 
@@ -106,6 +108,8 @@ load_codec_rtp (Glib::KeyFile &configFile, const std::string &codecgrp,
   } catch (Glib::KeyFileError ex) {
   }
 
+  id = gen_id ();
+
   rtpmap = "";
   rtpmap.append (id).append (" ").append (codec_name).append ("/").
   append (clock_rate);
@@ -120,11 +124,13 @@ load_codec_rtp (Glib::KeyFile &configFile, const std::string &codecgrp,
     fmtp.append (" ").append (extra_attrs);
   }
 
-  gst_sdp_media_add_format (media, id.c_str () );
+  gst_sdp_media_add_format (media, id );
   gst_sdp_media_add_attribute (media, "rtpmap", rtpmap.c_str () );
 
   if (fmtp != "")
     gst_sdp_media_add_attribute (media, "fmtp", fmtp.c_str () );
+
+  g_free (id);
 }
 
 static void
@@ -182,6 +188,7 @@ load_session_descriptor (Glib::KeyFile &configFile)
   GstSDPResult result;
   GST_DEBUG ("Load Session Descriptor");
   sdp_message = NULL;
+  gchar *sdp_message_text = NULL;
   result = gst_sdp_message_new (&sdp_message);
 
   if (result != GST_SDP_OK) {
@@ -208,6 +215,9 @@ load_session_descriptor (Glib::KeyFile &configFile)
   gst_sdp_message_set_connection (sdp_message, "IN", "IP4", "localhost", 0, 0);
   gst_sdp_message_set_origin (sdp_message, "-", DEFAULT_ID, "0", "IN", "IP4",
       "localhost");
-  GST_DEBUG ("SDP: \n%s", gst_sdp_message_as_text (sdp_message) );
+
+  GST_DEBUG ("SDP: \n%s", sdp_message_text = gst_sdp_message_as_text (sdp_message) );
+  g_free (sdp_message_text);
+
   return sdp_message;
 }
