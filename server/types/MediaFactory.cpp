@@ -27,11 +27,6 @@
 
 #include <glibmm.h>
 
-enum MixerType {
-  DefaultMixerType = 0,
-  DummyMixerType = 1
-};
-
 namespace kurento
 {
 

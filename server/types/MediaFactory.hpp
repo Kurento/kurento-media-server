@@ -27,6 +27,11 @@
 namespace kurento
 {
 
+enum MixerType {
+  DefaultMixerType = 0,
+  DummyMixerType = 1
+};
+
 class MediaPlayer;
 class MediaRecorder;
 class Stream;
