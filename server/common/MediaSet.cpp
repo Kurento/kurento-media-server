@@ -62,22 +62,42 @@ MediaSet::remove (const MediaObject &mediaObject)
 void
 MediaSet::remove (const ObjectId &id)
 {
-  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> >::iterator it;
+  std::map<ObjectId, std::shared_ptr<MediaObjectImpl> >::iterator mediaObjectsMapIt;
+  std::shared_ptr<MediaObjectImpl> mo = NULL;
+  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> >::iterator childrenMapIt;
   std::shared_ptr<std::set<ObjectId>> children;
-  std::set<ObjectId>::iterator setIt;
+  std::set<ObjectId>::iterator childrenIt;
 
   mutex.lock();
-  it = childrenMap.find (id);
 
-  if (it != childrenMap.end() ) {
-    children = it->second;
+  mediaObjectsMapIt = mediaObjectsMap.find (id);
 
-    for (setIt = children->begin(); setIt != children->end(); setIt++) {
-      remove (*setIt);
+  if (mediaObjectsMapIt != mediaObjectsMap.end() )
+    mo = mediaObjectsMapIt->second;
+
+  if (mo != NULL) {
+    if (mo->parent != NULL) {
+      childrenMapIt = childrenMap.find (mo->parent->id);
+
+      if (childrenMapIt != childrenMap.end() ) {
+        children = childrenMapIt->second;
+        children->erase (mo->id);
+      }
     }
   }
 
-  childrenMap.erase (id);
+  childrenMapIt = childrenMap.find (id);
+
+  if (childrenMapIt != childrenMap.end() ) {
+    children = childrenMapIt->second;
+
+    for (childrenIt = children->begin(); childrenIt != children->end(); childrenIt++) {
+      remove (*childrenIt);
+    }
+
+    childrenMap.erase (id);
+  }
+
   mediaObjectsMap.erase (id);
   mutex.unlock();
 }
@@ -124,7 +144,7 @@ MediaSet::getMediaObject<MixerPort> (const MediaObject &mediaObject);
 template <class T> std::shared_ptr<T>
 MediaSet::getMediaObject (const MediaObject &mediaObject)
 {
-  std::map<ObjectId, std::shared_ptr<MediaObject> >::iterator it;
+  std::map<ObjectId, std::shared_ptr<MediaObjectImpl> >::iterator it;
   std::shared_ptr<MediaObject> mo = NULL;
   std::shared_ptr<T> typedMo;
 

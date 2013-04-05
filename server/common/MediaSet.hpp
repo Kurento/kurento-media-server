@@ -43,7 +43,7 @@ public:
 
 private:
   Glib::Threads::RecMutex mutex;
-  std::map<ObjectId, std::shared_ptr<MediaObject> > mediaObjectsMap;
+  std::map<ObjectId, std::shared_ptr<MediaObjectImpl> > mediaObjectsMap;
   std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> > childrenMap;
 };
 
