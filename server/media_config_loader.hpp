@@ -26,6 +26,9 @@
 
 #define SERVER_GROUP "Server"
 
+#define MEDIA_SERVER_ADDRESS "localhost"
+#define MEDIA_SERVER_SERVICE_PORT 9090
+
 GstSDPMessage *load_session_descriptor (Glib::KeyFile &configFile);
 
 #endif /* __MEDIA_CONFIG_LOADER_HPP__ */

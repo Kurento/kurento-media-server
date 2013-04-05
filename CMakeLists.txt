@@ -57,6 +57,14 @@ set_target_properties(kmsiface PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/
 
 add_subdirectory(server)
 
+add_subdirectory(test)
+
+enable_testing()
+
+add_test(server_test test/server_test)
+set_tests_properties(server_test PROPERTIES ENVIRONMENT "GST_DEBUG=*Media*:5,server_test:5")
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS test/server_test)
+
 set(CPACK_GENERATOR "DEB;TGZ;STGZ")
 set(CPACK_PACKAGE_CONTACT "kurento@googlegroups.com")
 

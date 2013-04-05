@@ -59,9 +59,6 @@ using ::Glib::KeyFileFlags;
 
 #define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"
 
-#define MEDIA_SERVER_ADDRESS "localhost"
-#define MEDIA_SERVER_SERVICE_PORT 9090
-
 #define MEDIA_SERVER_ADDRESS_KEY "serverAddress"
 #define MEDIA_SERVER_SERVICE_PORT_KEY "serverPort"
 
