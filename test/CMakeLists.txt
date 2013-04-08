@@ -1,4 +1,4 @@
-add_executable(server_test server_test.cpp)
+add_executable(server_test server_test_base.cpp server_test.cpp)
 add_dependencies(server_test kmsiface-project)
 add_dependencies(server_test kurento)
 
@@ -20,6 +20,6 @@ include_directories(server_test ${GLIBMM_INCLUDE_DIRS})
 include_directories(server_test ${KMSIFACE_INCLUDE_DIR})
 include_directories(server_test ${CMAKE_SOURCE_DIR}/server)
 
-add_definitions(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
+add_definitions(-DBOOST_TEST_DYN_LINK)
 
 install(TARGETS server_test RUNTIME DESTINATION usr/bin)

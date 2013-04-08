@@ -18,10 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/test/unit_test.hpp>
-#define BOOST_TEST_MODULE TestExample
+#include "server_test_base.hpp"
 
-#include <sys/wait.h>
+#define BOOST_TEST_MAIN
+
+#include <boost/test/unit_test.hpp>
+#define BOOST_TEST_MODULE ServerTest
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
@@ -91,29 +94,14 @@ client_side ()
 
 BOOST_AUTO_TEST_CASE ( server_test )
 {
-  pid_t childpid;
-  int status;
-
   gst_init (NULL, NULL);
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
       GST_DEFAULT_NAME);
 
-  childpid = fork();
-
-  if (childpid >= 0) {
-    if (childpid == 0) {
-      execl ("./server/kurento", "kurento", NULL);
-    } else {
-      // TODO: Look for a better system to detect that server has started
-      sleep (1);
-      client_side();
-      kill (childpid, SIGINT);
-      wait (&status);
-    }
-  } else {
-    BOOST_FAIL ("Error while forking");
-  }
+  START_SERVER_TEST();
+  client_side();
+  STOP_SERVER_TEST();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

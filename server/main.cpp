@@ -99,6 +99,7 @@ create_media_server_service ()
   TNonblockingServer server (processor, protocolFactory, port, threadManager);
   p_server = &server;
   GST_INFO ("Starting MediaServerService");
+  kill (getppid(), SIGCONT);
   server.serve ();
   GST_INFO ("MediaServerService stopped finishing thread");
   throw Glib::Thread::Exit ();
@@ -234,12 +235,6 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
         (gpointer) info->si_addr);
   } else if (sig == SIGKILL || sig == SIGINT) {
     loop->quit ();
-
-    if (p_server != NULL) {
-      p_server->stop ();
-      p_server = NULL;
-    }
-
     return;
   } else {
     printf ("Got signal %d\n", sig);
@@ -314,8 +309,9 @@ main (int argc, char **argv)
     load_config ( (std::string) conf_file);
 
   sigc::slot < void >ss = sigc::ptr_fun (&create_media_server_service);
-  Glib::Thread *serverServiceThread = Glib::Thread::create (ss, true);
+  Glib::Thread::create (ss, true); /* Created thread not used to join
+                                      because of a bug in thrift */
   loop->run ();
-  serverServiceThread->join ();
+
   return 0;
 }
