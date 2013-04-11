@@ -61,9 +61,19 @@ add_subdirectory(test)
 
 enable_testing()
 
-add_test(server_test test/server_test)
-set_tests_properties(server_test PROPERTIES ENVIRONMENT "GST_DEBUG=*Media*:5,server_test:5")
+if (DEFINED MEMORY_TEST)
+  message("Memory test actived")
+  add_test(server_memory_test test/server_memory_test)
+  set_tests_properties(server_memory_test PROPERTIES ENVIRONMENT "GST_DEBUG=*Media*:5,server_test:5")
+else()
+  add_test(server_test test/server_test)
+  set_tests_properties(server_test PROPERTIES ENVIRONMENT "GST_DEBUG=*Media*:5,server_test:5")
+endif()
+
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS test/server_test)
+
+
+
 
 set(CPACK_GENERATOR "DEB;TGZ;STGZ")
 set(CPACK_PACKAGE_CONTACT "kurento@googlegroups.com")

@@ -1,5 +1,5 @@
 /*
- * server_test.cpp - Kurento Media Server
+ * server_memory_test.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -19,6 +19,7 @@
  */
 
 #include "server_test_base.hpp"
+#include "memory.hpp"
 
 #define BOOST_TEST_MAIN
 
@@ -45,40 +46,73 @@ using namespace apache::thrift::transport;
 
 using namespace kurento;
 
-#define GST_CAT_DEFAULT _server_test_
+#define GST_CAT_DEFAULT _server_memory_test_
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "server_test"
+#define GST_DEFAULT_NAME "server_memory_test"
+
+#define MEMORY_TOLERANCE 1024
 
 BOOST_AUTO_TEST_SUITE ( server_test_suite )
 
 void
-check_same_token (kurento::MediaServerServiceClient client)
+check_release_media_factory (kurento::MediaServerServiceClient client, int serverPid)
 {
   MediaObject mediaFactory = MediaObject();
   MediaObject mo = MediaObject();
+  int i, maxMemorySize, currentMemorySize;
+
+  for (i = 0; i < 10000; i++) {
+    client.createMediaFactory (mediaFactory);
+    client.createMediaPlayer (mo, mediaFactory);
+    client.createMediaRecorder (mo, mediaFactory);
+    client.createStream (mo, mediaFactory);
+    client.createMixer (mo, mediaFactory, DefaultMixerType);
+    client.createMixer (mo, mediaFactory, DummyMixerType);
+    client.release (mediaFactory);
+
+    if (i == 0)
+      maxMemorySize = get_data_memory (serverPid) + MEMORY_TOLERANCE;
+
+    if (i % 100 == 0) {
+      currentMemorySize = get_data_memory (serverPid);
+      BOOST_CHECK (currentMemorySize <= maxMemorySize);
+
+      if (currentMemorySize > maxMemorySize)
+        break;
+    }
+  }
+}
+
+void
+check_release_media_player (kurento::MediaServerServiceClient client, int serverPid)
+{
+  MediaObject mediaFactory = MediaObject();
+  MediaObject mp = MediaObject();
+  int i, maxMemorySize, currentMemorySize;
 
   client.createMediaFactory (mediaFactory);
 
-  client.createMediaPlayer (mo, mediaFactory);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
+  for (i = 0; i < 10000; i++) {
+    client.createMediaPlayer (mp, mediaFactory);
+    client.release (mp);
 
-  client.createMediaRecorder (mo, mediaFactory);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
+    if (i == 0)
+      maxMemorySize = get_data_memory (serverPid) + MEMORY_TOLERANCE;
 
-  client.createStream (mo, mediaFactory);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
+    if (i % 100 == 0) {
+      currentMemorySize = get_data_memory (serverPid);
+      BOOST_CHECK (currentMemorySize <= maxMemorySize);
 
-  client.createMixer (mo, mediaFactory, DefaultMixerType);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
-
-  client.createMixer (mo, mediaFactory, DummyMixerType);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
+      if (currentMemorySize > maxMemorySize)
+        break;
+    }
+  }
 
   client.release (mediaFactory);
 }
 
 void
-client_side ()
+client_side (int serverPid)
 {
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
   boost::shared_ptr<TTransport> transport (new TFramedTransport (socket) );
@@ -87,12 +121,13 @@ client_side ()
 
   transport->open ();
 
-  check_same_token (client);
+  check_release_media_factory (client, serverPid);
+  check_release_media_player (client, serverPid);
 
   transport->close ();
 }
 
-BOOST_AUTO_TEST_CASE ( server_test )
+BOOST_AUTO_TEST_CASE ( server_memory_test )
 {
   gst_init (NULL, NULL);
 
@@ -100,7 +135,8 @@ BOOST_AUTO_TEST_CASE ( server_test )
       GST_DEFAULT_NAME);
 
   START_SERVER_TEST();
-  client_side();
+  GST_DEBUG ("client side...");
+  client_side (GET_SERVER_PID() );
   STOP_SERVER_TEST();
 }
 
