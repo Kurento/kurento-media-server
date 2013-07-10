@@ -220,6 +220,14 @@ getExecutableName ()
   return exe;
 }
 
+static bool
+quit_loop ()
+{
+  loop->quit ();
+
+  return FALSE;
+}
+
 static void
 bt_sighandler (int sig, siginfo_t *info, gpointer data)
 {
@@ -234,7 +242,12 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
     printf ("Got signal %d, faulty address is %p\n", sig,
         (gpointer) info->si_addr);
   } else if (sig == SIGKILL || sig == SIGINT) {
-    loop->quit ();
+    /* since we connect to a signal handler, asynchronous management might */
+    /* might happen so we need to set an idle handler to exit the main loop */
+    /* in the mainloop context. */
+    Glib::RefPtr<Glib::IdleSource> idle_source = Glib::IdleSource::create ();
+    idle_source->connect (sigc::ptr_fun (&quit_loop) );
+    idle_source->attach (loop->get_context() );
     return;
   } else {
     printf ("Got signal %d\n", sig);
