@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 project(kurento-media-server)
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+	execute_process(COMMAND git submodule init WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+	execute_process(COMMAND git submodule update WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 	execute_process(COMMAND git describe --abbrev=6 --tags --dirty --always
 			OUTPUT_VARIABLE KMSC_VERSION
 			OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -41,19 +43,9 @@ pkg_check_modules(UUID REQUIRED uuid>=2.20.0)
 
 include(ExternalProject)
 
-SET(KMSIFACE_INSTALL_DIR ${CMAKE_BINARY_DIR}/kmsiface)
-SET(KMSIFACE_INCLUDE_DIR ${KMSIFACE_INSTALL_DIR}/include)
-SET(KMSIFACE_LIB_DIR ${KMSIFACE_INSTALL_DIR}/lib)
+SET(KMSIFACE_INCLUDE_DIR ${CMAKE_BINARY_DIR}/gen-cpp)
 
-ExternalProject_Add(
-	kmsiface-project
-	GIT_REPOSITORY ssh://git@repository.kurento.com/kms/kms-interface.git
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${KMSIFACE_INSTALL_DIR}
-	UPDATE_COMMAND git checkout develop
-)
-
-add_library(kmsiface STATIC IMPORTED)
-set_target_properties(kmsiface PROPERTIES IMPORTED_LOCATION ${KMSIFACE_LIB_DIR}/libkmsiface.a)
+add_subdirectory(kms-interface)
 
 add_subdirectory(server)
 

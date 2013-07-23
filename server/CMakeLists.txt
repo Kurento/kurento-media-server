@@ -8,7 +8,7 @@ SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 		-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H)
 
 add_executable(kurento ${KMSC_SOURCE})
-add_dependencies(kurento kmsiface-project)
+add_dependencies(kurento kmsiface)
 
 target_link_libraries(kurento kmsiface ${THRIFT_LIBRARIES} ${EVENT_LIBRARIES})
 target_link_libraries(kurento ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES})
