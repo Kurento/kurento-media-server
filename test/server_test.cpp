@@ -82,6 +82,17 @@ check_same_token (kurento::MediaServerServiceClient client)
 }
 
 static void
+check_use_released_media_manager (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+  MediaObject mo = MediaObject();
+
+  client.createMediaManager (mediaManager, 0);
+  client.release (mediaManager);
+  BOOST_CHECK_THROW (client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER), MediaObjectNotFoundException);
+}
+
+static void
 check_parent (kurento::MediaServerServiceClient client)
 {
   MediaObject mediaManager = MediaObject();
@@ -121,6 +132,7 @@ client_side ()
   transport->open ();
 
   check_version (client);
+  check_use_released_media_manager (client);
   check_same_token (client);
   check_parent (client);
   check_media_manager_no_parent (client);
