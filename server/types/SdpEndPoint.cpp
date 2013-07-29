@@ -1,5 +1,5 @@
 /*
- * Stream.hpp - Kurento Media Server
+ * SdpEndPoint.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,27 +18,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __STREAM_HPP__
-#define __STREAM_HPP__
-
-#include "Joinable.hpp"
+#include "SdpEndPoint.hpp"
 
 namespace kurento
 {
 
-class Stream : public Joinable
+SdpEndPoint::SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent) : EndPoint (parent)
 {
-public:
-  Stream (std::shared_ptr<MediaFactory> parent);
-  ~Stream() throw ();
 
-  void generateOffer (std::string &_return);
-  void processAnswer (std::string &_return, const std::string &answer);
-  void processOffer (std::string &_return, const std::string &offer);
-  void getLocalDescriptor (std::string &_return);
-  void getRemoteDescriptor (std::string &_return);
-};
+}
+
+SdpEndPoint::~SdpEndPoint() throw ()
+{
+
+}
+
+std::string
+SdpEndPoint::generateOffer ()
+{
+  return "Session Description test from generateOffer";
+}
+
+std::string
+SdpEndPoint::processAnswer (const std::string &answer)
+{
+  return "Session Description test from processAnswer";
+}
+
+std::string
+SdpEndPoint::processOffer (const std::string &offer)
+{
+  return "Session Description test from processOffer";
+}
+
+std::string
+SdpEndPoint::getLocalSessionDescription ()
+{
+  return "Local Session Description";
+}
+
+std::string
+SdpEndPoint::getRemoteSessionDescription ()
+{
+  return "Remote Session Description";
+}
 
 } // kurento
-
-#endif /* __STREAM_HPP__ */

@@ -21,11 +21,11 @@
 #include "MediaServerServiceHandler.hpp"
 #include <gst/gst.h>
 
-#include "types/MediaFactory.hpp"
-#include "types/MediaPlayer.hpp"
-#include "types/MediaRecorder.hpp"
-#include "types/Stream.hpp"
+#include "types/MediaManager.hpp"
+#include "types/MediaElement.hpp"
+#include "types/UriEndPoint.hpp"
 #include "types/Mixer.hpp"
+#include "types/SdpEndPoint.hpp"
 
 #define GST_CAT_DEFAULT media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -42,12 +42,20 @@ MediaServerServiceHandler::~MediaServerServiceHandler ()
 {
 }
 
-void
-MediaServerServiceHandler::ping (const MediaObject &resource,
-    const int32_t timeout)
+int32_t
+MediaServerServiceHandler::getVersion ()
 {
-  GST_INFO ("ping");
+  // TODO: implement
+  return 0;
 }
+
+void
+MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std::string &address, const int32_t port)
+{
+  // TODO: implement
+}
+
+/* MediaObject */
 
 void
 MediaServerServiceHandler::release (const MediaObject &mediaObject)
@@ -56,80 +64,159 @@ MediaServerServiceHandler::release (const MediaObject &mediaObject)
 }
 
 void
-MediaServerServiceHandler::createMediaFactory (MediaObject &_return)
+MediaServerServiceHandler::getParent (MediaObject &_return, const MediaObject &mediaObject)
 {
-  std::shared_ptr<MediaFactory> mediaFactory;
+  // TODO: implement
+}
 
-  mediaFactory = std::shared_ptr<MediaFactory> (new MediaFactory() );
-  GST_DEBUG ("createMediaFactory id: %ld, token: %s", mediaFactory->id, mediaFactory->token.c_str() );
-  mediaSet.put (mediaFactory);
+/* MediaManager */
 
-  _return = *mediaFactory;
+void
+MediaServerServiceHandler::createMediaManager (MediaObject &_return, const int32_t handlerId)
+{
+  std::shared_ptr<MediaManager> mediaManager;
+
+  mediaManager = std::shared_ptr<MediaManager> (new MediaManager() );
+  GST_DEBUG ("createMediaManager id: %ld, token: %s", mediaManager->id, mediaManager->token.c_str() );
+  mediaSet.put (mediaManager);
+  // TODO: register handler
+
+  _return = *mediaManager;
 }
 
 void
-MediaServerServiceHandler::createMediaPlayer (MediaObject &_return,
-    const MediaObject &mediaFactory)
+MediaServerServiceHandler::createSdpEndPoint (MediaObject &_return, const MediaObject &mediaManager, const SdpEndPointType::type type)
 {
-  std::shared_ptr<MediaFactory> mf;
-  std::shared_ptr<MediaPlayer> mediaPlayer;
-
-  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
-  mediaPlayer =  mf->createMediaPlayer();
-  mediaSet.put (mediaPlayer);
-
-  _return = *mediaPlayer;
+  // TODO: implement
 }
 
 void
-MediaServerServiceHandler::createMediaRecorder (MediaObject &_return,
-    const MediaObject &mediaFactory)
+MediaServerServiceHandler::createSdpEndPointWithFixedSdp (MediaObject &_return, const MediaObject &mediaManager, const SdpEndPointType::type type, const std::string &sdp)
 {
-  std::shared_ptr<MediaFactory> mf;
-  std::shared_ptr<MediaRecorder> mediaRecorder;
-
-  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
-  mediaRecorder = mf->createMediaRecorder();
-  mediaSet.put (mediaRecorder);
-
-  _return = *mediaRecorder;
+  // TODO: implement
 }
 
 void
-MediaServerServiceHandler::createStream (MediaObject &_return,
-    const MediaObject &mediaFactory)
+MediaServerServiceHandler::createUriEndpoint (MediaObject &_return, const MediaObject &mediaManager, const UriEndPointType::type type, const std::string &uri)
 {
-  std::shared_ptr<MediaFactory> mf;
-  std::shared_ptr<Stream> stream;
-
-  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
-  stream = mf->createStream();
-  mediaSet.put (stream);
-
-  _return = *stream;
+  // TODO: implement
 }
 
 void
-MediaServerServiceHandler::createMixer (MediaObject &_return,
-    const MediaObject &mediaFactory, const int32_t mixerId)
+MediaServerServiceHandler::createHttpEndpoint (MediaObject &_return, const MediaObject &mediaManager)
 {
-  std::shared_ptr<MediaFactory> mf;
+  // TODO: implement
+}
+
+void
+MediaServerServiceHandler::createMixer (MediaObject &_return, const MediaObject &mediaManager, const MixerType::type type)
+{
+  std::shared_ptr<MediaManager> mm;
   std::shared_ptr<Mixer> mixer;
 
-  mf = mediaSet.getMediaObject<MediaFactory> (mediaFactory);
-  mixer = mf->createMixer (mixerId);
+  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  mixer = mm->createMixer (type);
   mediaSet.put (mixer);
 
   _return = *mixer;
 }
 
-MediaType::type
-MediaServerServiceHandler::getMediaType (const MediaObject &mediaElement)
+void
+MediaServerServiceHandler::createFilter (MediaObject &_return, const MediaObject &mediaManager, const FilterType::type type)
 {
-  GST_INFO ("getMediaType");
-  //FIXME: use two calls, one for MediaSrc and other for MediaSink
+  // TODO: implement
+}
+
+/* MediaElement */
+
+void
+MediaServerServiceHandler::sendCommand (CommandResult &_return, const MediaObject &mediaElement, const Command &command)
+{
+  // TODO: implement
+}
+
+void
+MediaServerServiceHandler::getMediaSrcs (std::vector<MediaObject> & _return, const MediaObject &mediaElement)
+{
+  std::shared_ptr<MediaElement> me;
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
+  std::vector< std::shared_ptr<MediaSrc> >::iterator it;
+
+  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+  mediaSrcs = me->getMediaSrcs();
+
+  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
+  delete mediaSrcs;
+}
+
+void
+MediaServerServiceHandler::getMediaSinks (std::vector<MediaObject> & _return, const MediaObject &mediaElement)
+{
+  std::shared_ptr<MediaElement> me;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector< std::shared_ptr<MediaSink> >::iterator it;
+
+  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+  mediaSinks = me->getMediaSinks();
+
+  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
+  delete mediaSinks;
+}
+
+void
+MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObject> & _return, const MediaObject &mediaElement, const MediaType::type mediaType)
+{
+  std::shared_ptr<MediaElement> me;
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
+  std::vector< std::shared_ptr<MediaSrc> >::iterator it;
+
+  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+  mediaSrcs = me->getMediaSrcsByMediaType (mediaType);
+
+  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
+  delete mediaSrcs;
+}
+
+void
+MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObject> & _return, const MediaObject &mediaElement, const MediaType::type mediaType)
+{
+  std::shared_ptr<MediaElement> me;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector< std::shared_ptr<MediaSink> >::iterator it;
+
+  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+  mediaSinks = me->getMediaSinksByMediaType (mediaType);
+
+  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+    mediaSet.put (*it);
+    _return.push_back (**it);
+  }
+
+  delete mediaSinks;
+}
+
+/* MediaPad */
+
+MediaType::type
+MediaServerServiceHandler::getMediaType (const MediaObject &mediaPad)
+{
+  // TODO: implement
   return MediaType::AUDIO;
 }
+
+/* MediaSrc */
 
 void
 MediaServerServiceHandler::connect (const MediaObject &mediaSrc,
@@ -174,6 +261,8 @@ MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObject >
   delete mediaSinks;
 }
 
+/* MediaSink */
+
 void
 MediaServerServiceHandler::getConnectedSrc (MediaObject &_return,
     const MediaObject &mediaSink)
@@ -184,230 +273,112 @@ MediaServerServiceHandler::getConnectedSrc (MediaObject &_return,
   _return = * (sink->getConnectedSrc() );
 }
 
-void
-MediaServerServiceHandler::join (const MediaObject &joinableA,
-    const MediaObject &joinableB)
-{
-  std::shared_ptr<Joinable> jA, jB;
-
-  jA = mediaSet.getMediaObject<Joinable> (joinableA);
-  jB = mediaSet.getMediaObject<Joinable> (joinableB);
-  jA->join (*jB);
-}
+/* Mixer */
 
 void
-MediaServerServiceHandler::unjoin (const MediaObject &joinableA,
-    const MediaObject &joinableB)
-{
-  std::shared_ptr<Joinable> jA, jB;
-
-  jA = mediaSet.getMediaObject<Joinable> (joinableA);
-  jB = mediaSet.getMediaObject<Joinable> (joinableB);
-  jA->unjoin (*jB);
-}
-
-void
-MediaServerServiceHandler::getMediaSrcs (std::vector < MediaObject > &_return,
-    const MediaObject &joinable)
-{
-  std::shared_ptr<Joinable> j;
-  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
-  std::vector< std::shared_ptr<MediaSrc> >::iterator it;
-
-  j = mediaSet.getMediaObject<Joinable> (joinable);
-  mediaSrcs = j->getMediaSrcs();
-
-  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
-  }
-
-  delete mediaSrcs;
-}
-
-void
-MediaServerServiceHandler::getMediaSinks (std::vector < MediaObject > &_return,
-    const MediaObject &joinable)
-{
-  std::shared_ptr<Joinable> j;
-  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
-  std::vector< std::shared_ptr<MediaSink> >::iterator it;
-
-  j = mediaSet.getMediaObject<Joinable> (joinable);
-  mediaSinks = j->getMediaSinks();
-
-  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
-  }
-
-  delete mediaSinks;
-}
-
-void
-MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector < MediaObject >
-    &_return, const MediaObject &joinable, const MediaType::type mediaType)
-{
-  std::shared_ptr<Joinable> j;
-  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
-  std::vector< std::shared_ptr<MediaSrc> >::iterator it;
-
-  j = mediaSet.getMediaObject<Joinable> (joinable);
-  mediaSrcs = j->getMediaSrcsByMediaType (mediaType);
-
-  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
-  }
-
-  delete mediaSrcs;
-}
-
-void
-MediaServerServiceHandler::getMediaSinksByMediaType (std::vector < MediaObject >
-    &_return, const MediaObject &joinable, const MediaType::type mediaType)
-{
-  std::shared_ptr<Joinable> j;
-  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
-  std::vector< std::shared_ptr<MediaSink> >::iterator it;
-
-  j = mediaSet.getMediaObject<Joinable> (joinable);
-  mediaSinks = j->getMediaSinksByMediaType (mediaType);
-
-  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
-  }
-
-  delete mediaSinks;
-}
-
-void
-MediaServerServiceHandler::play (const MediaObject &mediaPlayer)
-{
-  std::shared_ptr<MediaPlayer> mp;
-
-  mp = mediaSet.getMediaObject<MediaPlayer> (mediaPlayer);
-  mp->play();
-}
-
-void
-MediaServerServiceHandler::pausePlayer (const MediaObject &mediaPlayer)
-{
-  std::shared_ptr<MediaPlayer> mp;
-
-  mp = mediaSet.getMediaObject<MediaPlayer> (mediaPlayer);
-  mp->pause();
-}
-
-void
-MediaServerServiceHandler::stopPlayer (const MediaObject &mediaPlayer)
-{
-  std::shared_ptr<MediaPlayer> mp;
-
-  mp = mediaSet.getMediaObject<MediaPlayer> (mediaPlayer);
-  mp->stop();
-}
-
-void
-MediaServerServiceHandler::record (const MediaObject &mediaRecorder)
-{
-  std::shared_ptr<MediaRecorder> mr;
-
-  mr = mediaSet.getMediaObject<MediaRecorder> (mediaRecorder);
-  mr->record();
-}
-
-void
-MediaServerServiceHandler::pauseRecorder (const MediaObject &mediaRecorder)
-{
-  std::shared_ptr<MediaRecorder> mr;
-
-  mr = mediaSet.getMediaObject<MediaRecorder> (mediaRecorder);
-  mr->pause();
-}
-
-void
-MediaServerServiceHandler::stopRecorder (const MediaObject &mediaRecorder)
-{
-  std::shared_ptr<MediaRecorder> mr;
-
-  mr = mediaSet.getMediaObject<MediaRecorder> (mediaRecorder);
-  mr->stop();
-}
-
-void
-MediaServerServiceHandler::generateOffer (std::string &_return,
-    const MediaObject &stream)
-{
-  std::shared_ptr<Stream> s;
-
-  s = mediaSet.getMediaObject<Stream> (stream);
-  s->generateOffer (_return);
-}
-
-void
-MediaServerServiceHandler::processAnswer (std::string &_return,
-    const MediaObject &stream, const std::string &answer)
-{
-  std::shared_ptr<Stream> s;
-
-  s = mediaSet.getMediaObject<Stream> (stream);
-  s->processAnswer (_return, answer);
-}
-
-void
-MediaServerServiceHandler::processOffer (std::string &_return,
-    const MediaObject &stream, const std::string &offer)
-{
-  std::shared_ptr<Stream> s;
-
-  s = mediaSet.getMediaObject<Stream> (stream);
-  s->processOffer (_return, offer);
-}
-
-void
-MediaServerServiceHandler::getLocalDescriptor (std::string &_return,
-    const MediaObject &stream)
-{
-  std::shared_ptr<Stream> s;
-
-  s = mediaSet.getMediaObject<Stream> (stream);
-  s->getLocalDescriptor (_return);
-}
-
-void
-MediaServerServiceHandler::getRemoteDescriptor (std::string &_return,
-    const MediaObject &stream)
-{
-  std::shared_ptr<Stream> s;
-
-  s = mediaSet.getMediaObject<Stream> (stream);
-  s->getRemoteDescriptor (_return);
-}
-
-void
-MediaServerServiceHandler::getMixerPort (MediaObject &_return,
-    const MediaObject &mixer)
+MediaServerServiceHandler::createMixerEndPoint (MediaObject &_return, const MediaObject &mixer)
 {
   std::shared_ptr<Mixer> m;
-  std::shared_ptr<MixerPort> mixerPort;
+  std::shared_ptr<MixerEndPoint> mixerEndPoint;
 
   m = mediaSet.getMediaObject<Mixer> (mixer);
-  mixerPort = m->getMixerPort();
-  mediaSet.put (mixerPort);
+  mixerEndPoint = m->createMixerEndPoint();
+  mediaSet.put (mixerEndPoint);
 
-  _return = *mixerPort;
+  _return = *mixerEndPoint;
+}
+
+/* HttpEndPoint */
+
+void
+MediaServerServiceHandler::getUrl (std::string &_return, const MediaObject &httpEndPoint)
+{
+  // TODO: implement
+}
+
+/* UriEndPoint */
+
+void
+MediaServerServiceHandler::getUri (std::string &_return, const MediaObject &uriEndPoint)
+{
+  std::shared_ptr<UriEndPoint> uep;
+
+  uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
+  _return.assign (uep->getUri() );
 }
 
 void
-MediaServerServiceHandler::getMixer (MediaObject &_return,
-    const MediaObject &mixerPort)
+MediaServerServiceHandler::start (const MediaObject &uriEndPoint)
 {
-  std::shared_ptr<MixerPort> mp;
+  std::shared_ptr<UriEndPoint> uep;
 
-  mp = mediaSet.getMediaObject<MixerPort> (mixerPort);
-  _return = * ( mp->getMixer() );
+  uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
+  uep->start();
+}
+
+void
+MediaServerServiceHandler::pause (const MediaObject &uriEndPoint)
+{
+  std::shared_ptr<UriEndPoint> uep;
+
+  uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
+  uep->pause();
+}
+
+void
+MediaServerServiceHandler::stop (const MediaObject &uriEndPoint)
+{
+  std::shared_ptr<UriEndPoint> uep;
+
+  uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
+  uep->stop();
+}
+
+/* SdpEndPoint */
+
+void
+MediaServerServiceHandler::generateOffer (std::string &_return, const MediaObject &sdpEndPoint)
+{
+  std::shared_ptr<SdpEndPoint> s;
+
+  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+  _return.assign (s->generateOffer () );
+}
+
+void
+MediaServerServiceHandler::processAnswer (std::string &_return, const MediaObject &sdpEndPoint, const std::string &answer)
+{
+  std::shared_ptr<SdpEndPoint> s;
+
+  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+  _return.assign (s->processAnswer (answer) );
+}
+
+void
+MediaServerServiceHandler::processOffer (std::string &_return, const MediaObject &sdpEndPoint, const std::string &offer)
+{
+  std::shared_ptr<SdpEndPoint> s;
+
+  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+  _return.assign (s->processOffer (offer) );
+}
+
+void
+MediaServerServiceHandler::getLocalSessionDescription (std::string &_return, const MediaObject &sdpEndPoint)
+{
+  std::shared_ptr<SdpEndPoint> s;
+
+  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+  _return.assign (s->getLocalSessionDescription () );
+}
+
+void
+MediaServerServiceHandler::getRemoteSessionDescription (std::string &_return, const MediaObject &sdpEndPoint)
+{
+  std::shared_ptr<SdpEndPoint> s;
+
+  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+  _return.assign (s->getRemoteSessionDescription () );
 }
 
 MediaServerServiceHandler::StaticConstructor MediaServerServiceHandler::staticConstructor;

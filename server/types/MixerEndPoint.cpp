@@ -1,5 +1,5 @@
 /*
- * MixerPort.cpp - Kurento Media Server
+ * MixerEndPoint.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,26 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MixerPort.hpp"
+#include "MixerEndPoint.hpp"
 #include "Mixer.hpp"
 
 namespace kurento
 {
 
-MixerPort::MixerPort (std::shared_ptr<Mixer> parent) : Joinable (parent)
+MixerEndPoint::MixerEndPoint (std::shared_ptr<Mixer> parent) : EndPoint (parent)
 {
 
 }
 
-MixerPort::~MixerPort() throw ()
+MixerEndPoint::~MixerEndPoint() throw ()
 {
 
-}
-
-std::shared_ptr<Mixer>
-MixerPort::getMixer ()
-{
-  return std::dynamic_pointer_cast<Mixer> (parent);
 }
 
 } // kurento

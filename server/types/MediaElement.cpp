@@ -1,5 +1,5 @@
 /*
- * Joinable.cpp - Kurento Media Server
+ * MediaElement.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,39 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Joinable.hpp"
+#include "MediaElement.hpp"
 #include <gst/gst.h>
 
-#define GST_CAT_DEFAULT joinable
+#define GST_CAT_DEFAULT media_element
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "Joinable"
+#define GST_DEFAULT_NAME "MediaElement"
 
 namespace kurento
 {
 
-Joinable::Joinable (std::shared_ptr<MediaObject> parent) : MediaObjectImpl (parent)
+MediaElement::MediaElement (std::shared_ptr<MediaObjectImpl> parent) : MediaObjectImpl (parent)
 {
 }
 
-Joinable::~Joinable () throw ()
+MediaElement::~MediaElement () throw ()
 {
 
-}
-
-void
-Joinable::join (const Joinable &to)
-{
-  GST_INFO ("join %ld to %ld", this->id, to.id);
-}
-
-void
-Joinable::unjoin (const Joinable &to)
-{
-  GST_INFO ("unjoin %ld to %ld", this->id, to.id);
 }
 
 std::vector < std::shared_ptr<MediaSrc> > *
-Joinable::getMediaSrcs ()
+MediaElement::getMediaSrcs ()
 {
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
@@ -61,7 +49,7 @@ Joinable::getMediaSrcs ()
 }
 
 std::vector < std::shared_ptr<MediaSink> > *
-Joinable::getMediaSinks()
+MediaElement::getMediaSinks()
 {
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
@@ -72,7 +60,7 @@ Joinable::getMediaSinks()
 }
 
 std::vector < std::shared_ptr<MediaSrc> > *
-Joinable::getMediaSrcsByMediaType (const MediaType::type mediaType)
+MediaElement::getMediaSrcsByMediaType (const MediaType::type mediaType)
 {
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
@@ -83,7 +71,7 @@ Joinable::getMediaSrcsByMediaType (const MediaType::type mediaType)
 }
 
 std::vector < std::shared_ptr<MediaSink> > *
-Joinable::getMediaSinksByMediaType (const MediaType::type mediaType)
+MediaElement::getMediaSinksByMediaType (const MediaType::type mediaType)
 {
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
@@ -93,9 +81,9 @@ Joinable::getMediaSinksByMediaType (const MediaType::type mediaType)
   return mediaSinks;
 }
 
-Joinable::StaticConstructor Joinable::staticConstructor;
+MediaElement::StaticConstructor MediaElement::staticConstructor;
 
-Joinable::StaticConstructor::StaticConstructor()
+MediaElement::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
       GST_DEFAULT_NAME);

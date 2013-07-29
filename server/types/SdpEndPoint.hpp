@@ -1,5 +1,5 @@
 /*
- * MediaRecorder.hpp - Kurento Media Server
+ * SdpEndPoint.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,34 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MEDIA_RECORDER_HPP__
-#define __MEDIA_RECORDER_HPP__
+#ifndef __SDP_END_POINT_HPP__
+#define __SDP_END_POINT_HPP__
 
-#include "Joinable.hpp"
+#include "EndPoint.hpp"
 
 namespace kurento
 {
 
-class MediaRecorder : public Joinable
+class SdpEndPoint : public EndPoint
 {
 public:
-  MediaRecorder (std::shared_ptr<MediaFactory> parent);
-  ~MediaRecorder() throw ();
+  SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent);
+  ~SdpEndPoint() throw ();
 
-  void record ();
-  void pause ();
-  void stop ();
-
-private:
-  class StaticConstructor
-  {
-  public:
-    StaticConstructor();
-  };
-
-  static StaticConstructor staticConstructor;
+  std::string generateOffer ();
+  std::string processAnswer (const std::string &answer);
+  std::string processOffer (const std::string &offer);
+  std::string getLocalSessionDescription ();
+  std::string getRemoteSessionDescription ();
 };
 
 } // kurento
 
-#endif /* __MEDIA_RECORDER_HPP__ */
+#endif /* __SDP_END_POINT_HPP__ */

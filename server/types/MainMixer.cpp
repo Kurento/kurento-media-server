@@ -1,5 +1,5 @@
 /*
- * MediaPlayer.cpp - Kurento Media Server
+ * MainMixer.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,50 +18,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MediaPlayer.hpp"
-#include <gst/gst.h>
-
-#define GST_CAT_DEFAULT media_player
-GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "MediaPlayer"
+#include "MainMixer.hpp"
 
 namespace kurento
 {
 
-MediaPlayer::MediaPlayer (std::shared_ptr<MediaFactory> parent) : Joinable (parent)
+MainMixer::MainMixer (std::shared_ptr<MediaManager> parent) : Mixer (parent)
 {
 
 }
 
-MediaPlayer::~MediaPlayer() throw ()
+MainMixer::~MainMixer() throw ()
 {
 
-}
-
-void
-MediaPlayer::play ()
-{
-  GST_INFO ("PLAYER PLAY");
-}
-
-void
-MediaPlayer::pause ()
-{
-  GST_INFO ("PLAYER PAUSE");
-}
-
-void
-MediaPlayer::stop ()
-{
-  GST_INFO ("PLAYER STOP");
-}
-
-MediaPlayer::StaticConstructor MediaPlayer::staticConstructor;
-
-MediaPlayer::StaticConstructor::StaticConstructor()
-{
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
 }
 
 } // kurento

@@ -1,5 +1,5 @@
 /*
- * DummyMixer.cpp - Kurento Media Server
+ * EndPoint.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,17 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DummyMixer.hpp"
+#include "EndPoint.hpp"
 
 namespace kurento
 {
 
-DummyMixer::DummyMixer (std::shared_ptr<MediaFactory> parent) : Mixer (parent)
+EndPoint::EndPoint (std::shared_ptr<MediaObjectImpl> parent) : MediaElement (parent)
 {
 
 }
 
-DummyMixer::~DummyMixer() throw ()
+EndPoint::~EndPoint() throw ()
 {
 
 }

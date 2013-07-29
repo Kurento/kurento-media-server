@@ -1,5 +1,5 @@
 /*
- * MediaRecorder.cpp - Kurento Media Server
+ * MixerEndPoint.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,49 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MediaRecorder.hpp"
-#include <gst/gst.h>
+#ifndef __MIXER_END_POINT_HPP__
+#define __MIXER_END_POINT_HPP__
 
-#define GST_CAT_DEFAULT media_recorder
-GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "MediaRecorder"
+#include "EndPoint.hpp"
 
 namespace kurento
 {
 
-MediaRecorder::MediaRecorder (std::shared_ptr<MediaFactory> parent) : Joinable (parent)
+class Mixer;
+
+class MixerEndPoint : public EndPoint
 {
-}
-
-MediaRecorder::~MediaRecorder() throw ()
-{
-
-}
-
-void
-MediaRecorder::record ()
-{
-  GST_INFO ("RECORDER RECORD");
-}
-
-void
-MediaRecorder::pause ()
-{
-  GST_INFO ("RECORDER PAUSE");
-}
-
-void
-MediaRecorder::stop ()
-{
-  GST_INFO ("RECORDER STOP");
-}
-
-MediaRecorder::StaticConstructor MediaRecorder::staticConstructor;
-
-MediaRecorder::StaticConstructor::StaticConstructor()
-{
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
-}
+public:
+  MixerEndPoint (std::shared_ptr<Mixer> parent);
+  ~MixerEndPoint() throw ();
+};
 
 } // kurento
+
+#endif /* __MIXER_END_POINT_HPP__ */

@@ -1,5 +1,5 @@
 /*
- * MixerPort.hpp - Kurento Media Server
+ * MediaPad.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,25 +18,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MIXER_PORT_HPP__
-#define __MIXER_PORT_HPP__
+#include "MediaPad.hpp"
+#include <gst/gst.h>
 
-#include "Joinable.hpp"
+#include "MediaElement.hpp"
+
+#define GST_CAT_DEFAULT media_pad
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "MediaPad"
 
 namespace kurento
 {
 
-class Mixer;
+class MediaElement;
 
-class MixerPort : public Joinable
+MediaPad::MediaPad (std::shared_ptr<MediaElement> parent) : MediaObjectImpl (parent)
 {
-public:
-  MixerPort (std::shared_ptr<Mixer> parent);
-  ~MixerPort() throw ();
+}
 
-  std::shared_ptr<Mixer> getMixer ();
-};
+MediaPad::~MediaPad () throw ()
+{
+
+}
+
+MediaType::type
+MediaPad::getMediaType ()
+{
+  // TODO: implement
+  return MediaType::AUDIO;
+}
+
+MediaPad::StaticConstructor MediaPad::staticConstructor;
+
+MediaPad::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
+}
 
 } // kurento
-
-#endif /* __MIXER_PORT_HPP__ */

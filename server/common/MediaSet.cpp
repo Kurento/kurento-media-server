@@ -19,11 +19,12 @@
  */
 
 #include "MediaSet.hpp"
-#include "types/MediaFactory.hpp"
-#include "types/MediaPlayer.hpp"
-#include "types/MediaRecorder.hpp"
-#include "types/Stream.hpp"
+#include "types/MediaManager.hpp"
+#include "types/MediaElement.hpp"
+#include "types/MediaSrc.hpp"
 #include "types/Mixer.hpp"
+#include "types/UriEndPoint.hpp"
+#include "types/SdpEndPoint.hpp"
 
 namespace kurento
 {
@@ -114,11 +115,11 @@ MediaSet::size ()
   return size;
 }
 
-template std::shared_ptr<MediaFactory>
-MediaSet::getMediaObject<MediaFactory> (const MediaObject &mediaObject);
+template std::shared_ptr<MediaManager>
+MediaSet::getMediaObject<MediaManager> (const MediaObject &mediaObject);
 
-template std::shared_ptr<Joinable>
-MediaSet::getMediaObject<Joinable> (const MediaObject &mediaObject);
+template std::shared_ptr<MediaElement>
+MediaSet::getMediaObject<MediaElement> (const MediaObject &mediaObject);
 
 template std::shared_ptr<MediaSrc>
 MediaSet::getMediaObject<MediaSrc> (const MediaObject &mediaObject);
@@ -126,20 +127,14 @@ MediaSet::getMediaObject<MediaSrc> (const MediaObject &mediaObject);
 template std::shared_ptr<MediaSink>
 MediaSet::getMediaObject<MediaSink> (const MediaObject &mediaObject);
 
-template std::shared_ptr<MediaPlayer>
-MediaSet::getMediaObject<MediaPlayer> (const MediaObject &mediaObject);
-
-template std::shared_ptr<MediaRecorder>
-MediaSet::getMediaObject<MediaRecorder> (const MediaObject &mediaObject);
-
-template std::shared_ptr<Stream>
-MediaSet::getMediaObject<Stream> (const MediaObject &mediaObject);
-
 template std::shared_ptr<Mixer>
 MediaSet::getMediaObject<Mixer> (const MediaObject &mediaObject);
 
-template std::shared_ptr<MixerPort>
-MediaSet::getMediaObject<MixerPort> (const MediaObject &mediaObject);
+template std::shared_ptr<UriEndPoint>
+MediaSet::getMediaObject<UriEndPoint> (const MediaObject &mediaObject);
+
+template std::shared_ptr<SdpEndPoint>
+MediaSet::getMediaObject<SdpEndPoint> (const MediaObject &mediaObject);
 
 template <class T> std::shared_ptr<T>
 MediaSet::getMediaObject (const MediaObject &mediaObject)

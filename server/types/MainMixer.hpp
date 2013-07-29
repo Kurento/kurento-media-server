@@ -1,5 +1,5 @@
 /*
- * DummyMixer.hpp - Kurento Media Server
+ * MainMixer.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,21 +18,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DUMMY_MIXER_HPP__
-#define __DUMMY_MIXER_HPP__
+#ifndef __MAIN_MIXER_HPP__
+#define __MAIN_MIXER_HPP__
 
 #include "Mixer.hpp"
 
 namespace kurento
 {
 
-class DummyMixer : public Mixer
+class MainMixer : public Mixer
 {
 public:
-  DummyMixer (std::shared_ptr<MediaFactory> parent);
-  ~DummyMixer() throw ();
+  MainMixer (std::shared_ptr<MediaManager> parent);
+  ~MainMixer() throw ();
 };
 
 } // kurento
 
-#endif /* __DUMMY_MIXER_HPP__ */
+#endif /* __MAIN_MIXER_HPP__ */

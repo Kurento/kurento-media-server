@@ -1,5 +1,5 @@
 /*
- * MediaPlayer.hpp - Kurento Media Server
+ * MediaPad.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,23 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MEDIA_PLAYER_HPP__
-#define __MEDIA_PLAYER_HPP__
+#ifndef __MEDIA_PAD_HPP__
+#define __MEDIA_PAD_HPP__
 
-#include "Joinable.hpp"
+#include "MediaObjectImpl.hpp"
 
 namespace kurento
 {
 
-class MediaPlayer : public Joinable
+class MediaElement;
+
+class MediaPad : public MediaObjectImpl, public std::enable_shared_from_this<MediaPad>
 {
 public:
-  MediaPlayer (std::shared_ptr<MediaFactory> parent);
-  ~MediaPlayer() throw ();
+  MediaPad (std::shared_ptr<MediaElement> parent);
+  virtual ~MediaPad() throw () = 0;
 
-  void play ();
-  void pause ();
-  void stop ();
+  MediaType::type getMediaType ();
 
 private:
   class StaticConstructor
@@ -48,4 +48,4 @@ private:
 
 } // kurento
 
-#endif /* __MEDIA_PLAYER_HPP__ */
+#endif /* __MEDIA_PAD_HPP__ */

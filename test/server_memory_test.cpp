@@ -38,7 +38,6 @@
 #include <gst/gst.h>
 
 #include "media_config_loader.hpp"
-#include "types/MediaFactory.hpp"
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -54,21 +53,15 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 BOOST_AUTO_TEST_SUITE ( server_test_suite )
 
-void
-check_release_media_factory (kurento::MediaServerServiceClient client, int serverPid)
+static void
+check_release_media_manager (kurento::MediaServerServiceClient client, int serverPid)
 {
-  MediaObject mediaFactory = MediaObject();
-  MediaObject mo = MediaObject();
+  MediaObject mediaManager = MediaObject();
   int i, maxMemorySize, currentMemorySize;
 
   for (i = 0; i < 10000; i++) {
-    client.createMediaFactory (mediaFactory);
-    client.createMediaPlayer (mo, mediaFactory);
-    client.createMediaRecorder (mo, mediaFactory);
-    client.createStream (mo, mediaFactory);
-    client.createMixer (mo, mediaFactory, DefaultMixerType);
-    client.createMixer (mo, mediaFactory, DummyMixerType);
-    client.release (mediaFactory);
+    client.createMediaManager (mediaManager, 0);
+    client.release (mediaManager);
 
     if (i == 0)
       maxMemorySize = get_data_memory (serverPid) + MEMORY_TOLERANCE;
@@ -83,35 +76,7 @@ check_release_media_factory (kurento::MediaServerServiceClient client, int serve
   }
 }
 
-void
-check_release_media_player (kurento::MediaServerServiceClient client, int serverPid)
-{
-  MediaObject mediaFactory = MediaObject();
-  MediaObject mp = MediaObject();
-  int i, maxMemorySize, currentMemorySize;
-
-  client.createMediaFactory (mediaFactory);
-
-  for (i = 0; i < 10000; i++) {
-    client.createMediaPlayer (mp, mediaFactory);
-    client.release (mp);
-
-    if (i == 0)
-      maxMemorySize = get_data_memory (serverPid) + MEMORY_TOLERANCE;
-
-    if (i % 100 == 0) {
-      currentMemorySize = get_data_memory (serverPid);
-      BOOST_CHECK (currentMemorySize <= maxMemorySize);
-
-      if (currentMemorySize > maxMemorySize)
-        break;
-    }
-  }
-
-  client.release (mediaFactory);
-}
-
-void
+static void
 client_side (int serverPid)
 {
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
@@ -121,8 +86,7 @@ client_side (int serverPid)
 
   transport->open ();
 
-  check_release_media_factory (client, serverPid);
-  check_release_media_player (client, serverPid);
+  check_release_media_manager (client, serverPid);
 
   transport->close ();
 }

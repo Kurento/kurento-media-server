@@ -1,5 +1,5 @@
 /*
- * Mixer.cpp - Kurento Media Server
+ * UriEndPoint.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,26 +18,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Mixer.hpp"
+#include "UriEndPoint.hpp"
+#include <gst/gst.h>
+
+#define GST_CAT_DEFAULT uri_end_point
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "UriEndPoint"
 
 namespace kurento
 {
 
-Mixer::Mixer (std::shared_ptr<MediaManager> parent) : MediaObjectImpl (parent)
+UriEndPoint::UriEndPoint (std::shared_ptr<MediaManager> parent) : EndPoint (parent)
 {
 
 }
 
-Mixer::~Mixer() throw ()
+UriEndPoint::~UriEndPoint() throw ()
 {
 
 }
 
-std::shared_ptr<MixerEndPoint>
-Mixer::createMixerEndPoint ()
+std::string
+UriEndPoint::getUri ()
 {
-  //TODO: complete
-  return std::shared_ptr<MixerEndPoint> (new MixerEndPoint (shared_from_this() ) );
+  return "DUMMY URI";
+}
+
+void
+UriEndPoint::start ()
+{
+  GST_INFO ("URIENDPOINT START");
+}
+
+void
+UriEndPoint::pause ()
+{
+  GST_INFO ("URIENDPOINT PAUSE");
+}
+
+void
+UriEndPoint::stop ()
+{
+  GST_INFO ("URIENDPOINT STOP");
+}
+
+UriEndPoint::StaticConstructor UriEndPoint::staticConstructor;
+
+UriEndPoint::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento

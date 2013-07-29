@@ -33,55 +33,59 @@ public:
   MediaServerServiceHandler ();
   ~MediaServerServiceHandler ();
 
-  void ping (const MediaObject &resource, const int32_t timeout);
-  void release (const MediaObject &mediaObject);
+  int32_t getVersion ();
 
-  void createMediaFactory (MediaObject &_return);
-  void createMediaPlayer (MediaObject &_return,
-      const MediaObject &mediaFactory);
-  void createMediaRecorder (MediaObject &_return,
-      const MediaObject &mediaFactory);
-  void createStream (MediaObject &_return, const MediaObject &mediaFactory);
-  void createMixer (MediaObject &_return, const MediaObject &mediaFactory,
-      const int32_t mixerId);
+  void addHandlerAddress (const int32_t handlerId, const std::string& address, const int32_t port);
 
-  MediaType::type getMediaType (const MediaObject &mediaElement);
-  void connect (const MediaObject &mediaSrc, const MediaObject &mediaSink);
-  void disconnect (const MediaObject &src, const MediaObject &mediaSink);
-  void getConnectedSinks (std::vector < MediaObject > &_return,
-      const MediaObject &mediaSrc);
-  void getConnectedSrc (MediaObject &_return, const MediaObject &mediaSink);
+  /* MediaObject */
+  void release (const MediaObject& mediaObject);
+  void getParent (MediaObject& _return, const MediaObject& mediaObject);
 
-  void join (const MediaObject &joinableA, const MediaObject &joinableB);
-  void unjoin (const MediaObject &joinableA, const MediaObject &joinableB);
-  void getMediaSrcs (std::vector < MediaObject > &_return,
-      const MediaObject &joinable);
-  void getMediaSinks (std::vector < MediaObject > &_return,
-      const MediaObject &joinable);
-  void getMediaSrcsByMediaType (std::vector < MediaObject > &_return,
-      const MediaObject &joinable, const MediaType::type mediaType);
-  void getMediaSinksByMediaType (std::vector < MediaObject > &_return,
-      const MediaObject &joinable, const MediaType::type mediaType);
+  /* MediaManager */
+  void createMediaManager (MediaObject& _return, const int32_t handlerId);
+  void createSdpEndPoint (MediaObject& _return, const MediaObject& mediaManager, const SdpEndPointType::type type);
+  void createSdpEndPointWithFixedSdp (MediaObject& _return, const MediaObject& mediaManager, const SdpEndPointType::type type, const std::string& sdp);
+  void createUriEndpoint (MediaObject& _return, const MediaObject& mediaManager, const UriEndPointType::type type, const std::string& uri);
+  void createHttpEndpoint (MediaObject& _return, const MediaObject& mediaManager);
+  void createMixer (MediaObject& _return, const MediaObject& mediaManager, const MixerType::type type);
+  void createFilter (MediaObject& _return, const MediaObject& mediaManager, const FilterType::type type);
 
-  void play (const MediaObject &mediaPlayer);
-  void pausePlayer (const MediaObject &mediaPlayer);
-  void stopPlayer (const MediaObject &mediaPlayer);
+  /* MediaElement */
+  void sendCommand (CommandResult& _return, const MediaObject& mediaElement, const Command& command);
+  void getMediaSrcs (std::vector<MediaObject> & _return, const MediaObject& mediaElement);
+  void getMediaSinks (std::vector<MediaObject> & _return, const MediaObject& mediaElement);
+  void getMediaSrcsByMediaType (std::vector<MediaObject> & _return, const MediaObject& mediaElement, const MediaType::type mediaType);
+  void getMediaSinksByMediaType (std::vector<MediaObject> & _return, const MediaObject& mediaElement, const MediaType::type mediaType);
 
-  void record (const MediaObject &mediaRecorder);
-  void pauseRecorder (const MediaObject &mediaRecorder);
-  void stopRecorder (const MediaObject &mediaRecorder);
+  /* MediaPad */
+  MediaType::type getMediaType (const MediaObject& mediaPad);
 
-  void generateOffer (std::string &_return, const MediaObject &stream);
-  void processAnswer (std::string &_return, const MediaObject &stream,
-      const std::string &answer);
-  void processOffer (std::string &_return, const MediaObject &stream,
-      const std::string &offer);
-  void getLocalDescriptor (std::string &_return, const MediaObject &stream);
-  void getRemoteDescriptor (std::string &_return,
-      const MediaObject &stream);
+  /* MediaSrc */
+  void connect (const MediaObject& mediaSrc, const MediaObject& mediaSink);
+  void disconnect (const MediaObject& src, const MediaObject& mediaSink);
+  void getConnectedSinks (std::vector<MediaObject> & _return, const MediaObject& mediaSrc);
 
-  void getMixerPort (MediaObject &_return, const MediaObject &mixer);
-  void getMixer (MediaObject &_return, const MediaObject &mixerPort);
+  /* MediaSink */
+  void getConnectedSrc (MediaObject& _return, const MediaObject& mediaSink);
+
+  /* Mixer */
+  void createMixerEndPoint (MediaObject& _return, const MediaObject& mixer);
+
+  /* HttpEndPoint */
+  void getUrl (std::string& _return, const MediaObject& httpEndPoint);
+
+  /* UriEndPoint */
+  void getUri (std::string& _return, const MediaObject& uriEndPoint);
+  void start (const MediaObject& uriEndPoint);
+  void pause (const MediaObject& uriEndPoint);
+  void stop (const MediaObject& uriEndPoint);
+
+  /* SdpEndPoint */
+  void generateOffer (std::string& _return, const MediaObject& sdpEndPoint);
+  void processAnswer (std::string& _return, const MediaObject& sdpEndPoint, const std::string& answer);
+  void processOffer (std::string& _return, const MediaObject& sdpEndPoint, const std::string& offer);
+  void getLocalSessionDescription (std::string& _return, const MediaObject& sdpEndPoint);
+  void getRemoteSessionDescription (std::string& _return, const MediaObject& sdpEndPoint);
 
 private:
   MediaSet mediaSet;

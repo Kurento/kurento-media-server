@@ -1,5 +1,5 @@
 /*
- * MediaFactory.hpp - Kurento Media Server
+ * EndPoint.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,41 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MEDIAFACTORY_HPP__
-#define __MEDIAFACTORY_HPP__
+#ifndef __END_POINT_HPP__
+#define __END_POINT_HPP__
 
-#include "MediaObjectImpl.hpp"
-#include <common/MediaSet.hpp>
+#include "MediaElement.hpp"
 
 namespace kurento
 {
 
-enum MixerType {
-  DefaultMixerType = 0,
-  DummyMixerType = 1
-};
-
-class MediaPlayer;
-class MediaRecorder;
-class Stream;
-class Mixer;
-
-class MediaFactory : public MediaObjectImpl, public std::enable_shared_from_this<MediaFactory>
+class EndPoint : public MediaElement
 {
-
 public:
-  MediaFactory();
-  ~MediaFactory() throw();
-
-  std::shared_ptr<MediaPlayer> createMediaPlayer();
-  std::shared_ptr<MediaRecorder> createMediaRecorder();
-  std::shared_ptr<Stream> createStream();
-  std::shared_ptr<Mixer> createMixer (const int32_t mixerId);
+  EndPoint (std::shared_ptr<MediaObjectImpl> parent);
+  virtual ~EndPoint() throw ();
 
 private:
-  MediaSet mediaSet;
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento
 
-#endif /* __MEDIAFACTORY_HPP__ */
+#endif /* __END_POINT_HPP__ */

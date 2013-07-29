@@ -21,18 +21,15 @@
 #ifndef __MEDIA_SRC_HPP__
 #define __MEDIA_SRC_HPP__
 
-#include "MediaObjectImpl.hpp"
 #include "MediaSink.hpp"
 
 namespace kurento
 {
 
-class Joinable;
-
-class MediaSrc : public MediaObjectImpl
+class MediaSrc : public MediaPad
 {
 public:
-  MediaSrc (std::shared_ptr<Joinable> parent);
+  MediaSrc (std::shared_ptr<MediaElement> parent);
   ~MediaSrc() throw ();
 
   MediaType::type getMediaType ();

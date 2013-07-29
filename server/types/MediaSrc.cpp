@@ -19,8 +19,9 @@
  */
 
 #include "MediaSrc.hpp"
-#include "Joinable.hpp"
 #include <gst/gst.h>
+
+#include "MediaElement.hpp"
 
 #define GST_CAT_DEFAULT media_src
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -29,7 +30,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaSrc::MediaSrc (std::shared_ptr<Joinable> parent) : MediaObjectImpl (parent)
+MediaSrc::MediaSrc (std::shared_ptr<MediaElement> parent) : MediaPad (parent)
 {
 
 }
@@ -65,7 +66,7 @@ MediaSrc:: getConnectedSinks ()
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (std::dynamic_pointer_cast<Joinable> (parent) ) ) );
+  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (std::dynamic_pointer_cast<MediaElement> (parent) ) ) );
 
   return mediaSinks;
 }

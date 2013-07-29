@@ -37,7 +37,6 @@
 #include <gst/gst.h>
 
 #include "media_config_loader.hpp"
-#include "types/MediaFactory.hpp"
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -51,33 +50,21 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 BOOST_AUTO_TEST_SUITE ( server_test_suite )
 
-void
+static void
 check_same_token (kurento::MediaServerServiceClient client)
 {
-  MediaObject mediaFactory = MediaObject();
+  MediaObject mediaManager = MediaObject();
   MediaObject mo = MediaObject();
 
-  client.createMediaFactory (mediaFactory);
+  client.createMediaManager (mediaManager, 0);
 
-  client.createMediaPlayer (mo, mediaFactory);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
+  client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
 
-  client.createMediaRecorder (mo, mediaFactory);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
-
-  client.createStream (mo, mediaFactory);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
-
-  client.createMixer (mo, mediaFactory, DefaultMixerType);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
-
-  client.createMixer (mo, mediaFactory, DummyMixerType);
-  BOOST_CHECK_EQUAL (mediaFactory.token, mo.token);
-
-  client.release (mediaFactory);
+  client.release (mediaManager);
 }
 
-void
+static void
 client_side ()
 {
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );

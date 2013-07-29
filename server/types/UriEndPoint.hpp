@@ -1,5 +1,5 @@
 /*
- * Stream.cpp - Kurento Media Server
+ * UriEndPoint.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,49 +18,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Stream.hpp"
+#ifndef __URI_END_POINT_HPP__
+#define __URI_END_POINT_HPP__
+
+#include "EndPoint.hpp"
 
 namespace kurento
 {
 
-Stream::Stream (std::shared_ptr<MediaFactory> parent) : Joinable (parent)
+class UriEndPoint : public EndPoint
 {
+public:
+  UriEndPoint (std::shared_ptr<MediaManager> parent);
+  ~UriEndPoint() throw ();
 
-}
+  std::string getUri ();
+  void start ();
+  void pause ();
+  void stop ();
 
-Stream::~Stream() throw ()
-{
+private:
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
 
-}
-
-void
-Stream::generateOffer (std::string &_return)
-{
-  _return.assign ("SessionDescriptor test from generateOffer");
-}
-
-void
-Stream::processAnswer (std::string &_return, const std::string &answer)
-{
-  _return.assign ("SessionDescriptor test from processAnswer");
-}
-
-void
-Stream::processOffer (std::string &_return, const std::string &offer)
-{
-  _return.assign ("SessionDescriptor test from processOffer");
-}
-
-void
-Stream::getLocalDescriptor (std::string &_return)
-{
-  _return.assign ("Local SessionDescriptor");
-}
-
-void
-Stream::getRemoteDescriptor (std::string &_return)
-{
-  _return.assign ("Remote SessionDescriptor");
-}
+  static StaticConstructor staticConstructor;
+};
 
 } // kurento
+
+#endif /* __URI_END_POINT_HPP__ */
