@@ -19,6 +19,7 @@
  */
 
 #include "MediaServerServiceHandler.hpp"
+#include "mediaServer_constants.h"
 #include <gst/gst.h>
 
 #include "types/MediaManager.hpp"
@@ -45,8 +46,14 @@ MediaServerServiceHandler::~MediaServerServiceHandler ()
 int32_t
 MediaServerServiceHandler::getVersion ()
 {
-  // TODO: implement
-  return 0;
+  int32_t v;
+  mediaServerConstants *c;
+
+  c = new mediaServerConstants();
+  v = c->VERSION;
+  delete c;
+
+  return v;
 }
 
 void

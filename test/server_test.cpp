@@ -37,6 +37,7 @@
 #include <gst/gst.h>
 
 #include "media_config_loader.hpp"
+#include "mediaServer_constants.h"
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -49,6 +50,21 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "server_test"
 
 BOOST_AUTO_TEST_SUITE ( server_test_suite )
+
+static void
+check_version (kurento::MediaServerServiceClient client)
+{
+  int32_t v;
+  int32_t gotVersion;
+  mediaServerConstants *c;
+
+  c = new mediaServerConstants();
+  v = c->VERSION;
+  delete c;
+
+  gotVersion = client.getVersion();
+  BOOST_CHECK_EQUAL (gotVersion, v);
+}
 
 static void
 check_same_token (kurento::MediaServerServiceClient client)
@@ -74,6 +90,7 @@ client_side ()
 
   transport->open ();
 
+  check_version (client);
   check_same_token (client);
 
   transport->close ();
