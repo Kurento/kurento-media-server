@@ -50,7 +50,8 @@ MediaServerServiceHandler::getVersion ()
 }
 
 void
-MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std::string &address, const int32_t port)
+MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std::string &address,
+    const int32_t port) throw (MediaServerException)
 {
   // TODO: implement
 }
@@ -58,13 +59,13 @@ MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std
 /* MediaObject */
 
 void
-MediaServerServiceHandler::release (const MediaObject &mediaObject)
+MediaServerServiceHandler::release (const MediaObject &mediaObject) throw (MediaObjectNotFoundException, MediaServerException)
 {
   mediaSet.remove (mediaObject);
 }
 
 void
-MediaServerServiceHandler::getParent (MediaObject &_return, const MediaObject &mediaObject)
+MediaServerServiceHandler::getParent (MediaObject &_return, const MediaObject &mediaObject) throw (NoParentException)
 {
   // TODO: implement
 }
@@ -73,6 +74,7 @@ MediaServerServiceHandler::getParent (MediaObject &_return, const MediaObject &m
 
 void
 MediaServerServiceHandler::createMediaManager (MediaObject &_return, const int32_t handlerId)
+throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaManager> mediaManager;
 
@@ -85,31 +87,37 @@ MediaServerServiceHandler::createMediaManager (MediaObject &_return, const int32
 }
 
 void
-MediaServerServiceHandler::createSdpEndPoint (MediaObject &_return, const MediaObject &mediaManager, const SdpEndPointType::type type)
+MediaServerServiceHandler::createSdpEndPoint (MediaObject &_return, const MediaObject &mediaManager,
+    const SdpEndPointType::type type) throw (MediaObjectNotFoundException, MediaServerException)
 {
   // TODO: implement
 }
 
 void
-MediaServerServiceHandler::createSdpEndPointWithFixedSdp (MediaObject &_return, const MediaObject &mediaManager, const SdpEndPointType::type type, const std::string &sdp)
+MediaServerServiceHandler::createSdpEndPointWithFixedSdp (MediaObject &_return, const MediaObject &mediaManager,
+    const SdpEndPointType::type type, const std::string &sdp)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   // TODO: implement
 }
 
 void
-MediaServerServiceHandler::createUriEndpoint (MediaObject &_return, const MediaObject &mediaManager, const UriEndPointType::type type, const std::string &uri)
+MediaServerServiceHandler::createUriEndpoint (MediaObject &_return, const MediaObject &mediaManager, const UriEndPointType::type type,
+    const std::string &uri) throw (MediaObjectNotFoundException, MediaServerException)
 {
   // TODO: implement
 }
 
 void
 MediaServerServiceHandler::createHttpEndpoint (MediaObject &_return, const MediaObject &mediaManager)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   // TODO: implement
 }
 
 void
 MediaServerServiceHandler::createMixer (MediaObject &_return, const MediaObject &mediaManager, const MixerType::type type)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaManager> mm;
   std::shared_ptr<Mixer> mixer;
@@ -123,6 +131,7 @@ MediaServerServiceHandler::createMixer (MediaObject &_return, const MediaObject 
 
 void
 MediaServerServiceHandler::createFilter (MediaObject &_return, const MediaObject &mediaManager, const FilterType::type type)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   // TODO: implement
 }
@@ -130,13 +139,15 @@ MediaServerServiceHandler::createFilter (MediaObject &_return, const MediaObject
 /* MediaElement */
 
 void
-MediaServerServiceHandler::sendCommand (CommandResult &_return, const MediaObject &mediaElement, const Command &command)
+MediaServerServiceHandler::sendCommand (CommandResult &_return, const MediaObject &mediaElement,
+    const Command &command) throw (MediaObjectNotFoundException, EncodingException, MediaServerException)
 {
   // TODO: implement
 }
 
 void
 MediaServerServiceHandler::getMediaSrcs (std::vector<MediaObject> & _return, const MediaObject &mediaElement)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
@@ -155,6 +166,7 @@ MediaServerServiceHandler::getMediaSrcs (std::vector<MediaObject> & _return, con
 
 void
 MediaServerServiceHandler::getMediaSinks (std::vector<MediaObject> & _return, const MediaObject &mediaElement)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
@@ -172,7 +184,8 @@ MediaServerServiceHandler::getMediaSinks (std::vector<MediaObject> & _return, co
 }
 
 void
-MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObject> & _return, const MediaObject &mediaElement, const MediaType::type mediaType)
+MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObject> & _return, const MediaObject &mediaElement,
+    const MediaType::type mediaType) throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
@@ -190,7 +203,8 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObject> & _
 }
 
 void
-MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObject> & _return, const MediaObject &mediaElement, const MediaType::type mediaType)
+MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObject> & _return, const MediaObject &mediaElement,
+    const MediaType::type mediaType) throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
@@ -210,7 +224,7 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObject> & 
 /* MediaPad */
 
 MediaType::type
-MediaServerServiceHandler::getMediaType (const MediaObject &mediaPad)
+MediaServerServiceHandler::getMediaType (const MediaObject &mediaPad) throw (MediaObjectNotFoundException, MediaServerException)
 {
   // TODO: implement
   return MediaType::AUDIO;
@@ -219,8 +233,8 @@ MediaServerServiceHandler::getMediaType (const MediaObject &mediaPad)
 /* MediaSrc */
 
 void
-MediaServerServiceHandler::connect (const MediaObject &mediaSrc,
-    const MediaObject &mediaSink)
+MediaServerServiceHandler::connect (const MediaObject &mediaSrc, const MediaObject &mediaSink)
+throw (MediaObjectNotFoundException, ConnectionException, MediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
@@ -231,8 +245,8 @@ MediaServerServiceHandler::connect (const MediaObject &mediaSrc,
 }
 
 void
-MediaServerServiceHandler::disconnect (const MediaObject &mediaSrc,
-    const MediaObject &mediaSink)
+MediaServerServiceHandler::disconnect (const MediaObject &mediaSrc, const MediaObject &mediaSink)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
@@ -243,8 +257,8 @@ MediaServerServiceHandler::disconnect (const MediaObject &mediaSrc,
 }
 
 void
-MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObject >
-    &_return, const MediaObject &mediaSrc)
+MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObject >&_return, const MediaObject &mediaSrc)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
@@ -264,8 +278,8 @@ MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObject >
 /* MediaSink */
 
 void
-MediaServerServiceHandler::getConnectedSrc (MediaObject &_return,
-    const MediaObject &mediaSink)
+MediaServerServiceHandler::getConnectedSrc (MediaObject &_return, const MediaObject &mediaSink)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaSink> sink;
 
@@ -277,6 +291,7 @@ MediaServerServiceHandler::getConnectedSrc (MediaObject &_return,
 
 void
 MediaServerServiceHandler::createMixerEndPoint (MediaObject &_return, const MediaObject &mixer)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<Mixer> m;
   std::shared_ptr<MixerEndPoint> mixerEndPoint;
@@ -292,6 +307,7 @@ MediaServerServiceHandler::createMixerEndPoint (MediaObject &_return, const Medi
 
 void
 MediaServerServiceHandler::getUrl (std::string &_return, const MediaObject &httpEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   // TODO: implement
 }
@@ -300,6 +316,7 @@ MediaServerServiceHandler::getUrl (std::string &_return, const MediaObject &http
 
 void
 MediaServerServiceHandler::getUri (std::string &_return, const MediaObject &uriEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<UriEndPoint> uep;
 
@@ -309,6 +326,7 @@ MediaServerServiceHandler::getUri (std::string &_return, const MediaObject &uriE
 
 void
 MediaServerServiceHandler::start (const MediaObject &uriEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<UriEndPoint> uep;
 
@@ -318,6 +336,7 @@ MediaServerServiceHandler::start (const MediaObject &uriEndPoint)
 
 void
 MediaServerServiceHandler::pause (const MediaObject &uriEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<UriEndPoint> uep;
 
@@ -327,6 +346,7 @@ MediaServerServiceHandler::pause (const MediaObject &uriEndPoint)
 
 void
 MediaServerServiceHandler::stop (const MediaObject &uriEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<UriEndPoint> uep;
 
@@ -338,6 +358,7 @@ MediaServerServiceHandler::stop (const MediaObject &uriEndPoint)
 
 void
 MediaServerServiceHandler::generateOffer (std::string &_return, const MediaObject &sdpEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
@@ -347,6 +368,7 @@ MediaServerServiceHandler::generateOffer (std::string &_return, const MediaObjec
 
 void
 MediaServerServiceHandler::processAnswer (std::string &_return, const MediaObject &sdpEndPoint, const std::string &answer)
+throw (MediaObjectNotFoundException, NegotiationException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
@@ -356,6 +378,7 @@ MediaServerServiceHandler::processAnswer (std::string &_return, const MediaObjec
 
 void
 MediaServerServiceHandler::processOffer (std::string &_return, const MediaObject &sdpEndPoint, const std::string &offer)
+throw (MediaObjectNotFoundException, NegotiationException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
@@ -365,6 +388,7 @@ MediaServerServiceHandler::processOffer (std::string &_return, const MediaObject
 
 void
 MediaServerServiceHandler::getLocalSessionDescription (std::string &_return, const MediaObject &sdpEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
@@ -374,6 +398,7 @@ MediaServerServiceHandler::getLocalSessionDescription (std::string &_return, con
 
 void
 MediaServerServiceHandler::getRemoteSessionDescription (std::string &_return, const MediaObject &sdpEndPoint)
+throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
