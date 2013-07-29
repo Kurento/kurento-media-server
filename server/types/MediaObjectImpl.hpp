@@ -33,7 +33,7 @@ public:
   MediaObjectImpl (std::shared_ptr<MediaObject> parent);
   virtual ~MediaObjectImpl() throw () = 0;
 
-  std::shared_ptr<MediaObject> getParent ();
+  std::shared_ptr<MediaObject> getParent () throw (NoParentException);
 
 public:
   std::shared_ptr<MediaObject> parent;

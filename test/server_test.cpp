@@ -38,6 +38,7 @@
 
 #include "media_config_loader.hpp"
 #include "mediaServer_constants.h"
+#include "mediaServer_types.h"
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -81,6 +82,35 @@ check_same_token (kurento::MediaServerServiceClient client)
 }
 
 static void
+check_parent (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+  MediaObject mo = MediaObject();
+  MediaObject parent = MediaObject();
+
+  client.createMediaManager (mediaManager, 0);
+
+  client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  client.getParent (parent, mo);
+  BOOST_CHECK_EQUAL (mediaManager.id, parent.id);
+
+  client.release (mediaManager);
+}
+
+static void
+check_media_manager_no_parent (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+  MediaObject parent = MediaObject();
+
+  GST_DEBUG ("check_media_manager_no_parent test");
+  client.createMediaManager (mediaManager, 0);
+  BOOST_CHECK_THROW (client.getParent (parent, mediaManager), NoParentException);
+
+  client.release (mediaManager);
+}
+
+static void
 client_side ()
 {
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
@@ -92,6 +122,8 @@ client_side ()
 
   check_version (client);
   check_same_token (client);
+  check_parent (client);
+  check_media_manager_no_parent (client);
 
   transport->close ();
 }

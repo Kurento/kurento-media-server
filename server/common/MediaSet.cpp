@@ -115,6 +115,9 @@ MediaSet::size ()
   return size;
 }
 
+template std::shared_ptr<MediaObjectImpl>
+MediaSet::getMediaObject<MediaObjectImpl> (const MediaObject &mediaObject);
+
 template std::shared_ptr<MediaManager>
 MediaSet::getMediaObject<MediaManager> (const MediaObject &mediaObject);
 

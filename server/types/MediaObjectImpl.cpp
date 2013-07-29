@@ -73,4 +73,14 @@ MediaObjectImpl::~MediaObjectImpl() throw ()
 {
 }
 
+std::shared_ptr<MediaObject>
+MediaObjectImpl::getParent () throw (NoParentException)
+{
+  if (parent == NULL) {
+    throw NoParentException ();
+  }
+
+  return parent;
+}
+
 } // kurento

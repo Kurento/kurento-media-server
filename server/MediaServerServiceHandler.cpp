@@ -74,7 +74,12 @@ MediaServerServiceHandler::release (const MediaObject &mediaObject) throw (Media
 void
 MediaServerServiceHandler::getParent (MediaObject &_return, const MediaObject &mediaObject) throw (NoParentException)
 {
-  // TODO: implement
+  std::shared_ptr<MediaObjectImpl> mo;
+  std::shared_ptr<MediaObject> parent;
+
+  mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObject);
+  parent = mo->getParent ();
+  _return = *parent;
 }
 
 /* MediaManager */
