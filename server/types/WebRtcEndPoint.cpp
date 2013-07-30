@@ -23,12 +23,14 @@
 namespace kurento
 {
 
-WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaManager> parent) : SdpEndPoint (parent)
+WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaManager> parent)
+  : SdpEndPoint (parent, SdpEndPointType::type::WEBRTC_END_POINT)
 {
 
 }
 
-WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp) : SdpEndPoint (parent)
+WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp)
+  : SdpEndPoint (parent, SdpEndPointType::type::WEBRTC_END_POINT)
 {
 
 }

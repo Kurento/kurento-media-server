@@ -23,12 +23,14 @@
 namespace kurento
 {
 
-RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaManager> parent) : SdpEndPoint (parent)
+RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaManager> parent)
+  : SdpEndPoint (parent, SdpEndPointType::type::RTP_END_POINT)
 {
 
 }
 
-RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp) : SdpEndPoint (parent)
+RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp)
+  : SdpEndPoint (parent, SdpEndPointType::type::RTP_END_POINT)
 {
 
 }

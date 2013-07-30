@@ -23,9 +23,9 @@
 namespace kurento
 {
 
-SdpEndPoint::SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent) : EndPoint (parent)
+SdpEndPoint::SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, SdpEndPointType::type type) : EndPoint (parent)
 {
-
+  this->type.__set_sdpEndPoint (type);
 }
 
 SdpEndPoint::~SdpEndPoint() throw ()
