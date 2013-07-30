@@ -23,7 +23,8 @@
 namespace kurento
 {
 
-PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri) : UriEndPoint (parent, uri)
+PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri)
+  : UriEndPoint (parent, uri, UriEndPointType::type::PLAYER_END_POINT)
 {
 
 }

@@ -23,7 +23,8 @@
 namespace kurento
 {
 
-RecorderEndPoint::RecorderEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri) : UriEndPoint (parent, uri)
+RecorderEndPoint::RecorderEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri)
+  : UriEndPoint (parent, uri, UriEndPointType::type::RECORDER_END_POINT)
 {
 
 }
