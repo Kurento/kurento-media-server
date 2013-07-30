@@ -30,7 +30,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaSrc::MediaSrc (std::shared_ptr<MediaElement> parent) : MediaPad (parent)
+MediaSrc::MediaSrc (std::shared_ptr<MediaElement> parent) : MediaPad (parent, MediaPadType::type::MEDIA_SRC)
 {
 
 }

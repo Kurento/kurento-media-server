@@ -32,8 +32,9 @@ namespace kurento
 
 class MediaElement;
 
-MediaPad::MediaPad (std::shared_ptr<MediaElement> parent) : MediaObjectImpl (parent)
+MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, MediaPadType::type type) : MediaObjectImpl (parent)
 {
+  this->type.__set_mediaPad (type);
 }
 
 MediaPad::~MediaPad () throw ()

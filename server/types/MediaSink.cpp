@@ -24,7 +24,7 @@
 namespace kurento
 {
 
-MediaSink::MediaSink (std::shared_ptr<MediaElement> parent) : MediaPad (parent)
+MediaSink::MediaSink (std::shared_ptr<MediaElement> parent) : MediaPad (parent, MediaPadType::type::MEDIA_SINK)
 {
 
 }
