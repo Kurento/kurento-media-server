@@ -48,9 +48,9 @@ public:
                           throw(MediaObjectNotFoundException, MediaServerException);
   void createSdpEndPointWithFixedSdp (MediaObject& _return, const MediaObject& mediaManager, const SdpEndPointType::type type,
                                       const std::string& sdp) throw(MediaObjectNotFoundException, MediaServerException);
-  void createUriEndpoint (MediaObject& _return, const MediaObject& mediaManager, const UriEndPointType::type type,
+  void createUriEndPoint (MediaObject& _return, const MediaObject& mediaManager, const UriEndPointType::type type,
                           const std::string& uri) throw(MediaObjectNotFoundException, MediaServerException);
-  void createHttpEndpoint (MediaObject& _return, const MediaObject& mediaManager)
+  void createHttpEndPoint (MediaObject& _return, const MediaObject& mediaManager)
                           throw(MediaObjectNotFoundException, MediaServerException);
   void createMixer (MediaObject& _return, const MediaObject& mediaManager, const MixerType::type type)
                    throw(MediaObjectNotFoundException, MediaServerException);

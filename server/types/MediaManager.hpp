@@ -42,8 +42,8 @@ public:
 
   std::shared_ptr<SdpEndPoint> createSdpEndPoint(const SdpEndPointType::type type);
   std::shared_ptr<SdpEndPoint> createSdpEndPoint(const SdpEndPointType::type type, const std::string& sdp);
-  std::shared_ptr<UriEndPoint> createUriEndpoint (const UriEndPointType::type type, const std::string& uri);
-  std::shared_ptr<HttpEndPoint> createHttpEndpoint ();
+  std::shared_ptr<UriEndPoint> createUriEndPoint (const UriEndPointType::type type, const std::string& uri);
+  std::shared_ptr<HttpEndPoint> createHttpEndPoint ();
   std::shared_ptr<Mixer> createMixer (const MixerType::type type);
   std::shared_ptr<Filter> createFilter (const FilterType::type type);
 

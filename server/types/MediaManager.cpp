@@ -71,7 +71,7 @@ MediaManager::createSdpEndPoint (const SdpEndPointType::type type, const std::st
 }
 
 std::shared_ptr<UriEndPoint>
-MediaManager::createUriEndpoint (const UriEndPointType::type type, const std::string &uri)
+MediaManager::createUriEndPoint (const UriEndPointType::type type, const std::string &uri)
 {
   switch (type) {
   case UriEndPointType::type::PLAYER_END_POINT:
@@ -86,7 +86,7 @@ MediaManager::createUriEndpoint (const UriEndPointType::type type, const std::st
 }
 
 std::shared_ptr<HttpEndPoint>
-MediaManager::createHttpEndpoint ()
+MediaManager::createHttpEndPoint ()
 {
   return std::shared_ptr<HttpEndPoint> (new HttpEndPoint (shared_from_this() ) );
 }

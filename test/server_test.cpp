@@ -85,15 +85,15 @@ check_type (kurento::MediaServerServiceClient client)
   BOOST_CHECK (mediaManager.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::WEBRTC_END_POINT);
 
-  client.createUriEndpoint (mo, mediaManager, UriEndPointType::type::PLAYER_END_POINT, "");
+  client.createUriEndPoint (mo, mediaManager, UriEndPointType::type::PLAYER_END_POINT, "");
   BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::PLAYER_END_POINT);
 
-  client.createUriEndpoint (mo, mediaManager, UriEndPointType::type::RECORDER_END_POINT, "");
+  client.createUriEndPoint (mo, mediaManager, UriEndPointType::type::RECORDER_END_POINT, "");
   BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::RECORDER_END_POINT);
 
-  client.createHttpEndpoint (mo, mediaManager);
+  client.createHttpEndPoint (mo, mediaManager);
   BOOST_CHECK (mediaManager.type.__isset.endPoint);
   BOOST_CHECK_EQUAL (mo.type.endPoint, EndPointType::type::HTTP_END_POINT);
 
@@ -218,7 +218,7 @@ check_uri_end_point (kurento::MediaServerServiceClient client)
   client.createMediaManager (mediaManager, 0);
 
   uri = "/player_end_point/uri";
-  client.createUriEndpoint (uriEp, mediaManager, UriEndPointType::type::PLAYER_END_POINT, uri);
+  client.createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::PLAYER_END_POINT, uri);
   client.getUri (out, uriEp);
   BOOST_CHECK_EQUAL (uri, out);
   client.start (uriEp);
@@ -226,7 +226,7 @@ check_uri_end_point (kurento::MediaServerServiceClient client)
   client.stop (uriEp);
 
   uri = "/recorder_end_point/uri";
-  client.createUriEndpoint (uriEp, mediaManager, UriEndPointType::type::RECORDER_END_POINT, uri);
+  client.createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::RECORDER_END_POINT, uri);
   client.getUri (out, uriEp);
   BOOST_CHECK_EQUAL (uri, out);
   client.start (uriEp);
@@ -245,7 +245,7 @@ check_http_end_point (kurento::MediaServerServiceClient client)
 
   client.createMediaManager (mediaManager, 0);
 
-  client.createHttpEndpoint (httpEp, mediaManager);
+  client.createHttpEndPoint (httpEp, mediaManager);
   client.getUrl (out, httpEp);
 
   client.release (mediaManager);
