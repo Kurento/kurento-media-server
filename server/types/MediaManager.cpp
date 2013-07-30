@@ -23,6 +23,7 @@
 #include "WebRtcEndPoint.hpp"
 #include "PlayerEndPoint.hpp"
 #include "RecorderEndPoint.hpp"
+#include "HttpEndPoint.hpp"
 #include "MainMixer.hpp"
 
 #include <glibmm.h>
@@ -86,8 +87,7 @@ MediaManager::createUriEndpoint (const UriEndPointType::type type, const std::st
 std::shared_ptr<HttpEndPoint>
 MediaManager::createHttpEndpoint ()
 {
-  // TODO: implement
-  return NULL;
+  return std::shared_ptr<HttpEndPoint> (new HttpEndPoint (shared_from_this() ) );
 }
 
 std::shared_ptr<Mixer>

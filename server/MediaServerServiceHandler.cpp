@@ -24,9 +24,10 @@
 
 #include "types/MediaManager.hpp"
 #include "types/MediaElement.hpp"
-#include "types/UriEndPoint.hpp"
-#include "types/Mixer.hpp"
 #include "types/SdpEndPoint.hpp"
+#include "types/UriEndPoint.hpp"
+#include "types/HttpEndPoint.hpp"
+#include "types/Mixer.hpp"
 
 #define GST_CAT_DEFAULT media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -145,7 +146,14 @@ void
 MediaServerServiceHandler::createHttpEndpoint (MediaObject &_return, const MediaObject &mediaManager)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  // TODO: implement
+  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<HttpEndPoint> httpEp;
+
+  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  httpEp = mm->createHttpEndpoint ();
+  mediaSet.put (httpEp);
+
+  _return = *httpEp;
 }
 
 void

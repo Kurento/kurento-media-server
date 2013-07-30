@@ -24,6 +24,7 @@
 #include "types/MediaSrc.hpp"
 #include "types/Mixer.hpp"
 #include "types/UriEndPoint.hpp"
+#include "types/HttpEndPoint.hpp"
 #include "types/SdpEndPoint.hpp"
 
 namespace kurento
@@ -135,6 +136,9 @@ MediaSet::getMediaObject<Mixer> (const MediaObject &mediaObject);
 
 template std::shared_ptr<UriEndPoint>
 MediaSet::getMediaObject<UriEndPoint> (const MediaObject &mediaObject);
+
+template std::shared_ptr<HttpEndPoint>
+MediaSet::getMediaObject<HttpEndPoint> (const MediaObject &mediaObject);
 
 template std::shared_ptr<SdpEndPoint>
 MediaSet::getMediaObject<SdpEndPoint> (const MediaObject &mediaObject);

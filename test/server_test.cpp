@@ -200,6 +200,20 @@ check_uri_end_point (kurento::MediaServerServiceClient client)
 }
 
 static void
+check_http_end_point (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+  MediaObject httpEp = MediaObject();
+  std::string out;
+
+  client.createMediaManager (mediaManager, 0);
+
+  client.createHttpEndpoint (httpEp, mediaManager);
+
+  client.release (mediaManager);
+}
+
+static void
 client_side ()
 {
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
@@ -216,6 +230,7 @@ client_side ()
   check_media_manager_no_parent (client);
   check_sdp_end_point (client);
   check_uri_end_point (client);
+  check_http_end_point (client);
 
   transport->close ();
 }
