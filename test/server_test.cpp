@@ -209,6 +209,7 @@ check_http_end_point (kurento::MediaServerServiceClient client)
   client.createMediaManager (mediaManager, 0);
 
   client.createHttpEndpoint (httpEp, mediaManager);
+  client.getUrl (out, httpEp);
 
   client.release (mediaManager);
 }

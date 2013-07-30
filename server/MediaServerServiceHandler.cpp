@@ -350,7 +350,10 @@ void
 MediaServerServiceHandler::getUrl (std::string &_return, const MediaObject &httpEndPoint)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  // TODO: implement
+  std::shared_ptr<HttpEndPoint> httpEp;
+
+  httpEp = mediaSet.getMediaObject<HttpEndPoint> (httpEndPoint);
+  _return.assign (httpEp->getUrl () );
 }
 
 /* UriEndPoint */
