@@ -28,9 +28,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-UriEndPoint::UriEndPoint (std::shared_ptr<MediaManager> parent) : EndPoint (parent)
+UriEndPoint::UriEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri) : EndPoint (parent)
 {
-
+  this->uri = uri;
 }
 
 UriEndPoint::~UriEndPoint() throw ()
@@ -41,7 +41,7 @@ UriEndPoint::~UriEndPoint() throw ()
 std::string
 UriEndPoint::getUri ()
 {
-  return "DUMMY URI";
+  return uri;
 }
 
 void

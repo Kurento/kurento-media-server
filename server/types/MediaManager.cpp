@@ -21,6 +21,8 @@
 #include "MediaManager.hpp"
 #include "RtpEndPoint.hpp"
 #include "WebRtcEndPoint.hpp"
+#include "PlayerEndPoint.hpp"
+#include "RecorderEndPoint.hpp"
 #include "MainMixer.hpp"
 
 #include <glibmm.h>
@@ -69,8 +71,16 @@ MediaManager::createSdpEndPoint (const SdpEndPointType::type type, const std::st
 std::shared_ptr<UriEndPoint>
 MediaManager::createUriEndpoint (const UriEndPointType::type type, const std::string &uri)
 {
-  // TODO: implement
-  return NULL;
+  switch (type) {
+  case UriEndPointType::type::PLAYER_END_POINT:
+    return std::shared_ptr<UriEndPoint> (new PlayerEndPoint (shared_from_this(), uri) );
+  case UriEndPointType::type::RECORDER_END_POINT:
+    return std::shared_ptr<UriEndPoint> (new RecorderEndPoint (shared_from_this(), uri) );
+  default:
+    MediaServerException  e = MediaServerException();
+    e.__set_description (std::string ("UriEndPointType type does not exist.") );
+    throw e;
+  }
 }
 
 std::shared_ptr<HttpEndPoint>

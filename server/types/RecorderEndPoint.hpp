@@ -1,5 +1,5 @@
 /*
- * UriEndPoint.hpp - Kurento Media Server
+ * RecorderEndPoint.hpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,37 +18,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __URI_END_POINT_HPP__
-#define __URI_END_POINT_HPP__
+#ifndef __RECORDER_POINT_HPP__
+#define __RECORDER_POINT_HPP__
 
-#include "EndPoint.hpp"
+#include "UriEndPoint.hpp"
 
 namespace kurento
 {
 
-class UriEndPoint : public EndPoint
+class RecorderEndPoint : public UriEndPoint
 {
 public:
-  UriEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri);
-  ~UriEndPoint() throw ();
-
-  std::string getUri ();
-  void start ();
-  void pause ();
-  void stop ();
-
-private:
-  std::string uri;
-
-  class StaticConstructor
-  {
-  public:
-    StaticConstructor();
-  };
-
-  static StaticConstructor staticConstructor;
+  RecorderEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri);
+  ~RecorderEndPoint() throw ();
 };
 
 } // kurento
 
-#endif /* __URI_END_POINT_HPP__ */
+#endif /* __RECORDER_POINT_HPP__ */

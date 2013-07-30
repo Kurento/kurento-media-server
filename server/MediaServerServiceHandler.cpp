@@ -131,7 +131,14 @@ void
 MediaServerServiceHandler::createUriEndpoint (MediaObject &_return, const MediaObject &mediaManager, const UriEndPointType::type type,
     const std::string &uri) throw (MediaObjectNotFoundException, MediaServerException)
 {
-  // TODO: implement
+  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<UriEndPoint> uriEp;
+
+  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  uriEp = mm->createUriEndpoint (type, uri);
+  mediaSet.put (uriEp);
+
+  _return = *uriEp;
 }
 
 void

@@ -172,6 +172,34 @@ check_sdp_end_point (kurento::MediaServerServiceClient client)
 }
 
 static void
+check_uri_end_point (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+  MediaObject uriEp = MediaObject();
+  std::string uri, out;
+
+  client.createMediaManager (mediaManager, 0);
+
+  uri = "/player_end_point/uri";
+  client.createUriEndpoint (uriEp, mediaManager, UriEndPointType::type::PLAYER_END_POINT, uri);
+  client.getUri (out, uriEp);
+  BOOST_CHECK_EQUAL (uri, out);
+  client.start (uriEp);
+  client.pause (uriEp);
+  client.stop (uriEp);
+
+  uri = "/recorder_end_point/uri";
+  client.createUriEndpoint (uriEp, mediaManager, UriEndPointType::type::RECORDER_END_POINT, uri);
+  client.getUri (out, uriEp);
+  BOOST_CHECK_EQUAL (uri, out);
+  client.start (uriEp);
+  client.pause (uriEp);
+  client.stop (uriEp);
+
+  client.release (mediaManager);
+}
+
+static void
 client_side ()
 {
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
@@ -187,6 +215,7 @@ client_side ()
   check_parent (client);
   check_media_manager_no_parent (client);
   check_sdp_end_point (client);
+  check_uri_end_point (client);
 
   transport->close ();
 }
