@@ -23,9 +23,9 @@
 namespace kurento
 {
 
-Mixer::Mixer (std::shared_ptr<MediaManager> parent) : MediaObjectImpl (parent)
+Mixer::Mixer (std::shared_ptr<MediaManager> parent, MixerType::type type) : MediaObjectImpl (parent)
 {
-
+  this->type.__set_mixerType (type);
 }
 
 Mixer::~Mixer() throw ()

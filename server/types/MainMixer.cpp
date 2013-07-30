@@ -23,7 +23,7 @@
 namespace kurento
 {
 
-MainMixer::MainMixer (std::shared_ptr<MediaManager> parent) : Mixer (parent)
+MainMixer::MainMixer (std::shared_ptr<MediaManager> parent) : Mixer (parent, MixerType::type::MAIN_MIXER)
 {
 
 }
