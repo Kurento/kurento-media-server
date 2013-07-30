@@ -28,6 +28,11 @@ WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaManager> parent) : SdpEndPo
 
 }
 
+WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp) : SdpEndPoint (parent)
+{
+
+}
+
 WebRtcEndPoint::~WebRtcEndPoint() throw ()
 {
 

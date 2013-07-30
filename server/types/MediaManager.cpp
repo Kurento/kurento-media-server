@@ -54,8 +54,16 @@ MediaManager::createSdpEndPoint (const SdpEndPointType::type type)
 std::shared_ptr<SdpEndPoint>
 MediaManager::createSdpEndPoint (const SdpEndPointType::type type, const std::string &sdp)
 {
-  // TODO: implement
-  return NULL;
+  switch (type) {
+  case SdpEndPointType::type::RTP_END_POINT:
+    return std::shared_ptr<SdpEndPoint> (new RtpEndPoint (shared_from_this(), sdp) );
+  case SdpEndPointType::type::WEBRTC_END_POINT:
+    return std::shared_ptr<SdpEndPoint> (new WebRtcEndPoint (shared_from_this(), sdp) );
+  default:
+    MediaServerException  e = MediaServerException();
+    e.__set_description (std::string ("SdpEndPointType type does not exist.") );
+    throw e;
+  }
 }
 
 std::shared_ptr<UriEndPoint>

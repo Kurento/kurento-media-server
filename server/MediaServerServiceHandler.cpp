@@ -117,7 +117,14 @@ MediaServerServiceHandler::createSdpEndPointWithFixedSdp (MediaObject &_return, 
     const SdpEndPointType::type type, const std::string &sdp)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  // TODO: implement
+  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<SdpEndPoint> sdpEp;
+
+  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  sdpEp = mm->createSdpEndPoint (type, sdp);
+  mediaSet.put (sdpEp);
+
+  _return = *sdpEp;
 }
 
 void

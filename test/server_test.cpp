@@ -144,7 +144,23 @@ check_sdp_end_point (kurento::MediaServerServiceClient client)
   client.processAnswer (out, sdpEp, "");
   GST_INFO ("RTP EndPoint processAnswer: %s", out.c_str () );
 
+  client.createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT, "");
+  client.generateOffer (out, sdpEp);
+  GST_INFO ("RTP EndPoint generateOffer: %s", out.c_str () );
+  client.processOffer (out, sdpEp, "");
+  GST_INFO ("RTP EndPoint processOffer: %s", out.c_str () );
+  client.processAnswer (out, sdpEp, "");
+  GST_INFO ("RTP EndPoint processAnswer: %s", out.c_str () );
+
   client.createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  client.generateOffer (out, sdpEp);
+  GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
+  client.processOffer (out, sdpEp, "");
+  GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
+  client.processAnswer (out, sdpEp, "");
+  GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
+
+  client.createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT, "");
   client.generateOffer (out, sdpEp);
   GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
   client.processOffer (out, sdpEp, "");

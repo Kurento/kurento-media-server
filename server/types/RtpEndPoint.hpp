@@ -30,6 +30,7 @@ class RtpEndPoint : public SdpEndPoint
 {
 public:
   RtpEndPoint (std::shared_ptr<MediaManager> parent);
+  RtpEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp);
   ~RtpEndPoint() throw ();
 };
 

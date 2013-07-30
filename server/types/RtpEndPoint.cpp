@@ -28,6 +28,11 @@ RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaManager> parent) : SdpEndPoint (p
 
 }
 
+RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp) : SdpEndPoint (parent)
+{
+
+}
+
 RtpEndPoint::~RtpEndPoint() throw ()
 {
 
