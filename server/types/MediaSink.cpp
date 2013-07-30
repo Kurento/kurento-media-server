@@ -34,12 +34,6 @@ MediaSink::~MediaSink() throw ()
 
 }
 
-MediaType::type
-MediaSink::getMediaType ()
-{
-  return MediaType::AUDIO;
-}
-
 std::shared_ptr<MediaSrc>
 MediaSink::getConnectedSrc ()
 {

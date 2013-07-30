@@ -40,12 +40,6 @@ MediaSrc::~MediaSrc() throw ()
 
 }
 
-MediaType::type
-MediaSrc::getMediaType ()
-{
-  return MediaType::AUDIO;
-}
-
 void
 MediaSrc::connect (const MediaSink &mediaSink)
 {
