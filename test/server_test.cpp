@@ -68,6 +68,43 @@ check_version (kurento::MediaServerServiceClient client)
 }
 
 static void
+check_type (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+  MediaObject mo = MediaObject();
+
+  client.createMediaManager (mediaManager, 0);
+  BOOST_CHECK (mediaManager.type.__isset.mediaObject);
+  BOOST_CHECK_EQUAL (mediaManager.type.mediaObject, MediaObjectType::type::MEDIA_MANAGER);
+
+  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  BOOST_CHECK (mediaManager.type.__isset.sdpEndPoint);
+  BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::RTP_END_POINT);
+
+  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  BOOST_CHECK (mediaManager.type.__isset.sdpEndPoint);
+  BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::WEBRTC_END_POINT);
+
+  client.createUriEndpoint (mo, mediaManager, UriEndPointType::type::PLAYER_END_POINT, "");
+  BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
+  BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::PLAYER_END_POINT);
+
+  client.createUriEndpoint (mo, mediaManager, UriEndPointType::type::RECORDER_END_POINT, "");
+  BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
+  BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::RECORDER_END_POINT);
+
+  client.createHttpEndpoint (mo, mediaManager);
+  BOOST_CHECK (mediaManager.type.__isset.endPoint);
+  BOOST_CHECK_EQUAL (mo.type.endPoint, EndPointType::type::HTTP_END_POINT);
+
+  client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  BOOST_CHECK (mediaManager.type.__isset.mixerType);
+  BOOST_CHECK_EQUAL (mo.type.mixerType, MixerType::type::MAIN_MIXER);
+
+  client.release (mediaManager);
+}
+
+static void
 check_same_token (kurento::MediaServerServiceClient client)
 {
   MediaObject mediaManager = MediaObject();
@@ -226,6 +263,7 @@ client_side ()
 
   check_version (client);
   check_use_released_media_manager (client);
+  check_type (client);
   check_same_token (client);
   check_parent (client);
   check_media_manager_no_parent (client);
