@@ -51,7 +51,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define MEMORY_TOLERANCE 1024
 
-BOOST_AUTO_TEST_SUITE ( server_test_suite )
+BOOST_AUTO_TEST_SUITE ( server_memory_test_suite )
 
 static void
 check_release_media_manager (kurento::MediaServerServiceClient client, int serverPid)
