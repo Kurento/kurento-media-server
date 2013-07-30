@@ -57,10 +57,13 @@ static void
 check_release_media_manager (kurento::MediaServerServiceClient client, int serverPid)
 {
   MediaObject mediaManager = MediaObject();
+  MediaObject mo = MediaObject();
   int i, maxMemorySize, currentMemorySize;
 
   for (i = 0; i < 10000; i++) {
     client.createMediaManager (mediaManager, 0);
+    client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+    client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
     client.release (mediaManager);
 
     if (i == 0)

@@ -78,6 +78,12 @@ check_same_token (kurento::MediaServerServiceClient client)
   client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
   BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
 
+  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
+
+  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
+
   client.release (mediaManager);
 }
 
@@ -122,6 +128,34 @@ check_media_manager_no_parent (kurento::MediaServerServiceClient client)
 }
 
 static void
+check_sdp_end_point (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+  MediaObject sdpEp = MediaObject();
+  std::string out;
+
+  client.createMediaManager (mediaManager, 0);
+
+  client.createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  client.generateOffer (out, sdpEp);
+  GST_INFO ("RTP EndPoint generateOffer: %s", out.c_str () );
+  client.processOffer (out, sdpEp, "");
+  GST_INFO ("RTP EndPoint processOffer: %s", out.c_str () );
+  client.processAnswer (out, sdpEp, "");
+  GST_INFO ("RTP EndPoint processAnswer: %s", out.c_str () );
+
+  client.createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  client.generateOffer (out, sdpEp);
+  GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
+  client.processOffer (out, sdpEp, "");
+  GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
+  client.processAnswer (out, sdpEp, "");
+  GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
+
+  client.release (mediaManager);
+}
+
+static void
 client_side ()
 {
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
@@ -136,6 +170,7 @@ client_side ()
   check_same_token (client);
   check_parent (client);
   check_media_manager_no_parent (client);
+  check_sdp_end_point (client);
 
   transport->close ();
 }
