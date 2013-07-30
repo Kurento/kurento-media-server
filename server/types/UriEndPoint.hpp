@@ -30,7 +30,7 @@ class UriEndPoint : public EndPoint
 {
 public:
   UriEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri);
-  ~UriEndPoint() throw ();
+  virtual ~UriEndPoint() throw ();
 
   std::string getUri ();
   void start ();

@@ -30,7 +30,7 @@ class SdpEndPoint : public EndPoint
 {
 public:
   SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent);
-  ~SdpEndPoint() throw ();
+  virtual ~SdpEndPoint() throw ();
 
   std::string generateOffer ();
   std::string processAnswer (const std::string &answer);
