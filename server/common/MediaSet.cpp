@@ -125,6 +125,9 @@ MediaSet::getMediaObject<MediaManager> (const MediaObject &mediaObject);
 template std::shared_ptr<MediaElement>
 MediaSet::getMediaObject<MediaElement> (const MediaObject &mediaObject);
 
+template std::shared_ptr<MediaPad>
+MediaSet::getMediaObject<MediaPad> (const MediaObject &mediaObject);
+
 template std::shared_ptr<MediaSrc>
 MediaSet::getMediaObject<MediaSrc> (const MediaObject &mediaObject);
 

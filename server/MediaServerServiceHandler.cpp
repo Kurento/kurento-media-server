@@ -267,8 +267,10 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObject> & 
 MediaType::type
 MediaServerServiceHandler::getMediaType (const MediaObject &mediaPad) throw (MediaObjectNotFoundException, MediaServerException)
 {
-  // TODO: implement
-  return MediaType::AUDIO;
+  std::shared_ptr<MediaPad> pad;
+
+  pad = mediaSet.getMediaObject<MediaPad> (mediaPad);
+  return pad->getMediaType ();
 }
 
 /* MediaSrc */
