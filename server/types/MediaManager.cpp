@@ -33,6 +33,7 @@ namespace kurento
 
 MediaManager::MediaManager() : MediaObjectImpl()
 {
+  this->type.__set_mediaObject (MediaObjectType::type::MEDIA_MANAGER);
 }
 
 MediaManager::~MediaManager() throw()
