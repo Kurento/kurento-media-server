@@ -22,6 +22,7 @@
 #define __MEDIA_MANAGER_HPP__
 
 #include "MediaObjectImpl.hpp"
+#include "MediaHandler.hpp"
 #include <common/MediaSet.hpp>
 
 namespace kurento
@@ -37,7 +38,7 @@ class MediaManager : public MediaObjectImpl, public std::enable_shared_from_this
 {
 
 public:
-  MediaManager();
+  MediaManager(std::shared_ptr<MediaHandler> mediaHandler);
   ~MediaManager() throw();
 
   std::shared_ptr<SdpEndPoint> createSdpEndPoint(const SdpEndPointType::type type);
@@ -48,7 +49,7 @@ public:
   std::shared_ptr<Filter> createFilter (const FilterType::type type);
 
 private:
-  MediaSet mediaSet;
+  std::shared_ptr<MediaHandler> mediaHandler;
 };
 
 } // kurento

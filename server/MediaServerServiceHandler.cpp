@@ -104,12 +104,18 @@ void
 MediaServerServiceHandler::createMediaManager (MediaObject &_return, const int32_t handlerId)
 throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerException)
 {
+  std::shared_ptr<MediaHandler> mh;
   std::shared_ptr<MediaManager> mediaManager;
 
-  mediaManager = std::shared_ptr<MediaManager> (new MediaManager() );
+  mh = mediaHandlerMap.getValue (handlerId);
+
+  if (mh == NULL) {
+    throw HandlerNotFoundException();
+  }
+
+  mediaManager = std::shared_ptr<MediaManager> (new MediaManager (mh) );
   GST_DEBUG ("createMediaManager id: %ld, token: %s", mediaManager->id, mediaManager->token.c_str() );
   mediaSet.put (mediaManager);
-  // TODO: register handler
 
   _return = *mediaManager;
 }

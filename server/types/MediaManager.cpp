@@ -31,9 +31,10 @@
 namespace kurento
 {
 
-MediaManager::MediaManager() : MediaObjectImpl()
+MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaObjectImpl()
 {
   this->type.__set_mediaObject (MediaObjectType::type::MEDIA_MANAGER);
+  this->mediaHandler = mediaHandler;
 }
 
 MediaManager::~MediaManager() throw()
