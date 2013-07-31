@@ -157,7 +157,7 @@ load_config (const std::string &file_name)
     serverAddress = configFile.get_string (SERVER_GROUP,
         MEDIA_SERVER_ADDRESS_KEY);
   } catch (Glib::KeyFileError err) {
-    GST_INFO (err.what ().c_str () );
+    GST_INFO ("%s", err.what ().c_str () );
     GST_INFO ("Setting default address");
     configFile.set_string (SERVER_GROUP, MEDIA_SERVER_ADDRESS_KEY,
         MEDIA_SERVER_ADDRESS);
@@ -169,7 +169,7 @@ load_config (const std::string &file_name)
     check_port (port);
     serverServicePort = port;
   } catch (Glib::KeyFileError err) {
-    GST_INFO (err.what ().c_str () );
+    GST_INFO ("%s", err.what ().c_str () );
     GST_INFO ("Setting default server port");
     configFile.set_integer (SERVER_GROUP, MEDIA_SERVER_SERVICE_PORT_KEY,
         MEDIA_SERVER_SERVICE_PORT);
@@ -179,7 +179,7 @@ load_config (const std::string &file_name)
   try {
     sdp_message = load_session_descriptor (configFile);
   } catch (Glib::KeyFileError err) {
-    GST_WARNING (err.what ().c_str () );
+    GST_WARNING ("%s", err.what ().c_str () );
     GST_WARNING ("Wrong codec configuration, communication won't be possible");
   }
 
