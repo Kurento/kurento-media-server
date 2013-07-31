@@ -68,6 +68,21 @@ check_version (kurento::MediaServerServiceClient client)
 }
 
 static void
+check_no_handler (kurento::MediaServerServiceClient client)
+{
+  MediaObject mediaManager = MediaObject();
+
+  BOOST_CHECK_THROW (client.createMediaManager (mediaManager, 0), HandlerNotFoundException);
+}
+
+static void
+check_add_handler_address (kurento::MediaServerServiceClient client)
+{
+  client.addHandlerAddress (0, "localhost", 2323);
+  client.addHandlerAddress (0, "localhost", 3434);
+}
+
+static void
 check_type (kurento::MediaServerServiceClient client)
 {
   MediaObject mediaManager = MediaObject();
@@ -262,6 +277,8 @@ client_side ()
   transport->open ();
 
   check_version (client);
+  check_no_handler (client);
+  check_add_handler_address (client);
   check_use_released_media_manager (client);
   check_type (client);
   check_same_token (client);
