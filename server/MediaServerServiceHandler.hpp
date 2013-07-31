@@ -22,7 +22,9 @@
 #define __MEDIA_SERVER_SERVICE_HANDLER_HPP__
 
 #include "MediaServerService.h"
+#include "types/MediaHandler.hpp"
 #include "common/MediaSet.hpp"
+#include "common/ConcurrentMap.hpp"
 
 namespace kurento
 {
@@ -101,6 +103,8 @@ public:
 
 private:
   MediaSet mediaSet;
+  Glib::Threads::RecMutex mediaHandlerMutex;
+  ConcurrentMap<int32_t, std::shared_ptr<MediaHandler> > mediaHandlerMap;
 
 private:
   class StaticConstructor

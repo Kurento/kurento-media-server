@@ -28,6 +28,7 @@
 #include "types/UriEndPoint.hpp"
 #include "types/HttpEndPoint.hpp"
 #include "types/Mixer.hpp"
+#include "types/MediaHandler.hpp"
 
 #define GST_CAT_DEFAULT media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -61,7 +62,21 @@ void
 MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std::string &address,
     const int32_t port) throw (MediaServerException)
 {
-  // TODO: implement
+  std::shared_ptr<MediaHandler> mh;
+  std::shared_ptr<MediaHandlerAddress> mha;
+
+  mediaHandlerMutex.lock ();
+  mh = mediaHandlerMap.getValue (handlerId);
+
+  if (mh == NULL) {
+    mh = std::shared_ptr<MediaHandler> (new MediaHandler (handlerId) );
+    mediaHandlerMap.put (handlerId, mh);
+  }
+
+  mediaHandlerMutex.unlock ();
+
+  mha = std::shared_ptr<MediaHandlerAddress> (new MediaHandlerAddress (address, port) );
+  mh->addresses.push_back (mha);
 }
 
 /* MediaObject */
