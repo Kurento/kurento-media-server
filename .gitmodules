@@ -1,3 +1,6 @@
 [submodule "kms-interface"]
 	path = kms-interface
 	url = ../../kms/kms-interface
+[submodule "gst-kurento-plugins"]
+	path = gst-kurento-plugins
+	url = ../../kms/gst-kurento-plugins

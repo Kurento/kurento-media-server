@@ -21,6 +21,9 @@ else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 		${KMSC_MAJOR_VERSION}.${KMSC_MINOR_VERSION}.${KMSC_PATCH_VERSION})
 endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 
+execute_process(COMMAND bash autogen.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
+execute_process(COMMAND make WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
+
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 # TODO: Check if HAVE_INIT_TYPES_H has to be added (not in all systems)
