@@ -91,7 +91,7 @@ MediaSet::remove (const ObjectId &id)
   childrenMapIt = childrenMap.find (id);
 
   if (childrenMapIt != childrenMap.end() ) {
-    children = childrenMapIt->second;
+    children = std::shared_ptr<std::set<ObjectId>> (new std::set<ObjectId> (* (childrenMapIt->second) ) );
 
     for (childrenIt = children->begin(); childrenIt != children->end(); childrenIt++) {
       remove (*childrenIt);
