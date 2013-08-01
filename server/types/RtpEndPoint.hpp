@@ -32,6 +32,9 @@ public:
   RtpEndPoint (std::shared_ptr<MediaManager> parent);
   RtpEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp);
   ~RtpEndPoint() throw ();
+
+private:
+  void init (std::shared_ptr<MediaManager> parent);
 };
 
 } // kurento
