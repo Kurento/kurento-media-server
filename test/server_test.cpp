@@ -189,36 +189,42 @@ check_sdp_end_point (kurento::MediaServerServiceClient client)
   client.createMediaManager (mediaManager, 0);
 
   client.createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  BOOST_CHECK_THROW (client.getLocalSessionDescription (out, sdpEp), MediaServerException);
+  BOOST_CHECK_THROW (client.getRemoteSessionDescription (out, sdpEp), MediaServerException);
   client.generateOffer (out, sdpEp);
   GST_INFO ("RTP EndPoint generateOffer: %s", out.c_str () );
-  client.processOffer (out, sdpEp, "");
+  client.processOffer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processOffer: %s", out.c_str () );
-  client.processAnswer (out, sdpEp, "");
+  client.processAnswer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processAnswer: %s", out.c_str () );
 
   client.createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT, "");
+  BOOST_CHECK_THROW (client.getLocalSessionDescription (out, sdpEp), MediaServerException);
+  BOOST_CHECK_THROW (client.getRemoteSessionDescription (out, sdpEp), MediaServerException);
   client.generateOffer (out, sdpEp);
   GST_INFO ("RTP EndPoint generateOffer: %s", out.c_str () );
-  client.processOffer (out, sdpEp, "");
+  client.processOffer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processOffer: %s", out.c_str () );
-  client.processAnswer (out, sdpEp, "");
+  client.processAnswer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processAnswer: %s", out.c_str () );
 
   client.createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
-  client.generateOffer (out, sdpEp);
-  GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
-  client.processOffer (out, sdpEp, "");
-  GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
-  client.processAnswer (out, sdpEp, "");
-  GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
+  // TODO: restore when implemented
+//   client.generateOffer (out, sdpEp);
+//   GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
+//   client.processOffer (out, sdpEp, "");
+//   GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
+//   client.processAnswer (out, sdpEp, "");
+//   GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
 
   client.createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT, "");
-  client.generateOffer (out, sdpEp);
-  GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
-  client.processOffer (out, sdpEp, "");
-  GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
-  client.processAnswer (out, sdpEp, "");
-  GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
+  // TODO: restore when implemented
+//   client.generateOffer (out, sdpEp);
+//   GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
+//   client.processOffer (out, sdpEp, "");
+//   GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
+//   client.processAnswer (out, sdpEp, "");
+//   GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
 
   client.release (mediaManager);
 }
