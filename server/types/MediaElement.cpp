@@ -19,7 +19,6 @@
  */
 
 #include "MediaElement.hpp"
-#include <gst/gst.h>
 
 #define GST_CAT_DEFAULT media_element
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);

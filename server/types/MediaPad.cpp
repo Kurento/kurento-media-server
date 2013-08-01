@@ -19,8 +19,6 @@
  */
 
 #include "MediaPad.hpp"
-#include <gst/gst.h>
-
 #include "MediaElement.hpp"
 
 #define GST_CAT_DEFAULT media_pad

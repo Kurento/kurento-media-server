@@ -19,7 +19,6 @@
  */
 
 #include "MediaSrc.hpp"
-#include <gst/gst.h>
 
 #include "MediaElement.hpp"
 

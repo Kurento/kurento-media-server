@@ -19,7 +19,6 @@
  */
 
 #include "UriEndPoint.hpp"
-#include <gst/gst.h>
 
 #define GST_CAT_DEFAULT uri_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);

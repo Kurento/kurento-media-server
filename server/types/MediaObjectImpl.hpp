@@ -22,7 +22,7 @@
 #define __MEDIA_OBJECT_IMPL_HPP__
 
 #include "mediaServer_types.h"
-#include <gst/gstelement.h>
+#include <gst/gst.h>
 
 namespace kurento
 {

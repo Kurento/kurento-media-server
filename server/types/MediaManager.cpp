@@ -27,7 +27,6 @@
 #include "MainMixer.hpp"
 
 #include <glibmm.h>
-#include <gst/gst.h>
 
 namespace kurento
 {
