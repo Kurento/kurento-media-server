@@ -22,6 +22,7 @@
 #define __MEDIA_OBJECT_IMPL_HPP__
 
 #include "mediaServer_types.h"
+#include <gst/gstelement.h>
 
 namespace kurento
 {
@@ -37,6 +38,7 @@ public:
 
 public:
   std::shared_ptr<MediaObject> parent;
+  GstElement *element;
 };
 
 } // kurento

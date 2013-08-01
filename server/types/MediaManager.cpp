@@ -27,6 +27,7 @@
 #include "MainMixer.hpp"
 
 #include <glibmm.h>
+#include <gst/gst.h>
 
 namespace kurento
 {
@@ -35,10 +36,15 @@ MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaO
 {
   this->type.__set_mediaObject (MediaObjectType::type::MEDIA_MANAGER);
   this->mediaHandler = mediaHandler;
+  element = gst_pipeline_new (token.c_str () );
+  g_object_set (G_OBJECT (element), "async-handling", TRUE, NULL);
+  gst_element_set_state (element, GST_STATE_PLAYING);
 }
 
 MediaManager::~MediaManager() throw()
 {
+  gst_element_set_state (element, GST_STATE_NULL);
+  g_object_unref (element);
 }
 
 std::shared_ptr<SdpEndPoint>
