@@ -19,6 +19,7 @@
  */
 
 #include "RtpEndPoint.hpp"
+#include "media_config.hpp"
 
 namespace kurento
 {
@@ -32,6 +33,7 @@ RtpEndPoint::init (std::shared_ptr<MediaManager> parent)
   element = gst_element_factory_make ("rtpendpoint", name);
   g_free (name);
 
+  g_object_set (element, "pattern-sdp", sdpPattern, NULL);
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->element), element);
   gst_element_sync_state_with_parent (element);

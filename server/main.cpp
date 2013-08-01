@@ -35,8 +35,6 @@
 #include <glibmm.h>
 #include <fstream>
 
-#include <gst/sdp/gstsdpmessage.h>
-
 #include <version.hpp>
 #include "log.hpp"
 
@@ -59,8 +57,8 @@ using ::Glib::KeyFileFlags;
 
 static std::string serverAddress;
 static gint serverServicePort;
-static GstSDPMessage *sdpPattern;
 static KeyFile configFile;
+GstSDPMessage *sdpPattern;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create (true);
 static TNonblockingServer *p_server = NULL;

@@ -34,4 +34,6 @@
 #define MEDIA_SERVER_ADDRESS "localhost"
 #define MEDIA_SERVER_SERVICE_PORT 9090
 
+extern GstSDPMessage *sdpPattern;
+
 #endif /* __MEDIA_CONFIG_HPP__ */
