@@ -35,6 +35,7 @@ public:
   virtual ~MediaObjectImpl() throw () = 0;
 
   std::shared_ptr<MediaObject> getParent () throw (NoParentException);
+  gchar * getIdStr ();
 
 public:
   std::shared_ptr<MediaObject> parent;

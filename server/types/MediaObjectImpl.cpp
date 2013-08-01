@@ -83,4 +83,10 @@ MediaObjectImpl::getParent () throw (NoParentException)
   return parent;
 }
 
+gchar *
+MediaObjectImpl::getIdStr()
+{
+  return g_strdup_printf  ("%" G_GUINT64_FORMAT, id);
+}
+
 } // kurento
