@@ -36,7 +36,7 @@
 
 #include <gst/gst.h>
 
-#include "media_config_loader.hpp"
+#include "media_config.hpp"
 #include "mediaServer_constants.h"
 #include "mediaServer_types.h"
 

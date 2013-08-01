@@ -30,12 +30,12 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
-#include "media_config_loader.hpp"
+#include "media_config.hpp"
 
 #include <glibmm.h>
 #include <fstream>
 
-#include <gst/gst.h>
+#include <gst/sdp/gstsdpmessage.h>
 
 #include <version.hpp>
 #include "log.hpp"
@@ -57,14 +57,9 @@ using ::kurento::MediaServerServiceHandler;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
 
-#define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"
-
-#define MEDIA_SERVER_ADDRESS_KEY "serverAddress"
-#define MEDIA_SERVER_SERVICE_PORT_KEY "serverPort"
-
 static std::string serverAddress;
 static gint serverServicePort;
-static GstSDPMessage *sdp_message;
+static GstSDPMessage *sdpPattern;
 static KeyFile configFile;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create (true);
@@ -119,10 +114,61 @@ set_default_server_config ()
   serverServicePort = MEDIA_SERVER_SERVICE_PORT;
 }
 
+static gchar *
+read_entire_file (const gchar *file_name)
+{
+  gchar *data;
+  long f_size;
+  FILE *fp;
+
+  fp = fopen (file_name, "r");
+  fseek (fp, 0, SEEK_END);
+  f_size = ftell (fp);
+  fseek (fp, 0, SEEK_SET);
+  data = (gchar *) g_malloc0 (f_size);
+  fread (data, 1, f_size, fp);
+  fclose (fp);
+
+  return data;
+}
+
+static GstSDPMessage *
+load_sdp_pattern (Glib::KeyFile &configFile)
+{
+  GstSDPResult result;
+  GstSDPMessage *sdp_pattern = NULL;
+  gchar *sdp_pattern_text;
+  std::string sdp_pattern_file_name;
+
+  GST_DEBUG ("Load SDP Pattern");
+  result = gst_sdp_message_new (&sdp_pattern);
+
+  if (result != GST_SDP_OK) {
+    GST_ERROR ("Error creating sdp message");
+    return NULL;
+  }
+
+  sdp_pattern_file_name = configFile.get_string (SERVER_GROUP, SDP_PATTERN_KEY);
+  sdp_pattern_text = read_entire_file (sdp_pattern_file_name.c_str () );
+
+  result = gst_sdp_message_parse_buffer ( (const guint8 *) sdp_pattern_text, -1, sdp_pattern);
+  g_free (sdp_pattern_text);
+
+  if (result != GST_SDP_OK) {
+    GST_ERROR ("Error parsing SDP config pattern");
+    gst_sdp_message_free (sdp_pattern);
+    return NULL;
+  }
+
+  return sdp_pattern;
+}
+
 static void
 load_config (const std::string &file_name)
 {
   gint port;
+  gchar *sdpMessageText = NULL;
+
   GST_INFO ("Reading configuration from: %s", file_name.c_str () );
   /* Try to open de file */
   {
@@ -177,7 +223,9 @@ load_config (const std::string &file_name)
   }
 
   try {
-    sdp_message = load_session_descriptor (configFile);
+    sdpPattern = load_sdp_pattern (configFile);
+    GST_DEBUG ("SDP: \n%s", sdpMessageText = gst_sdp_message_as_text (sdpPattern) );
+    g_free (sdpMessageText);
   } catch (Glib::KeyFileError err) {
     GST_WARNING ("%s", err.what ().c_str () );
     GST_WARNING ("Wrong codec configuration, communication won't be possible");

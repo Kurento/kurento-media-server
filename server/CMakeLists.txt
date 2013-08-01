@@ -1,7 +1,7 @@
 aux_source_directory("common" COMMON)
 aux_source_directory("types" TYPES)
 
-SET(KMSC_SOURCE main.cpp media_config_loader.cpp version.cpp MediaServerServiceHandler.cpp
+SET(KMSC_SOURCE main.cpp version.cpp MediaServerServiceHandler.cpp
               ${COMMON} ${TYPES})
 SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 		PROPERTIES COMPILE_FLAGS

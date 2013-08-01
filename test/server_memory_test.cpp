@@ -37,7 +37,7 @@
 
 #include <gst/gst.h>
 
-#include "media_config_loader.hpp"
+#include "media_config.hpp"
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
