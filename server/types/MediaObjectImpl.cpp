@@ -62,7 +62,7 @@ MediaObjectImpl::MediaObjectImpl() : MediaObject()
   this->token = tk;
 }
 
-MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObject> parent) : MediaObject()
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent) : MediaObject()
 {
   id = getId();
   this->token = parent->token;
@@ -73,7 +73,7 @@ MediaObjectImpl::~MediaObjectImpl() throw ()
 {
 }
 
-std::shared_ptr<MediaObject>
+std::shared_ptr<MediaObjectImpl>
 MediaObjectImpl::getParent () throw (NoParentException)
 {
   if (parent == NULL) {

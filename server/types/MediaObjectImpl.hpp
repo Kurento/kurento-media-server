@@ -31,14 +31,14 @@ class MediaObjectImpl : public MediaObject
 {
 public:
   MediaObjectImpl();
-  MediaObjectImpl (std::shared_ptr<MediaObject> parent);
+  MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~MediaObjectImpl() throw () = 0;
 
-  std::shared_ptr<MediaObject> getParent () throw (NoParentException);
+  std::shared_ptr<MediaObjectImpl> getParent () throw (NoParentException);
   gchar * getIdStr ();
 
 public:
-  std::shared_ptr<MediaObject> parent;
+  std::shared_ptr<MediaObjectImpl> parent;
   GstElement *element;
 };
 
