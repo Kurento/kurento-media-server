@@ -28,6 +28,7 @@
 #include "types/UriEndPoint.hpp"
 #include "types/HttpEndPoint.hpp"
 #include "types/Mixer.hpp"
+#include "types/Filter.hpp"
 #include "types/MediaHandler.hpp"
 
 #define GST_CAT_DEFAULT media_server_service_handler
@@ -195,7 +196,14 @@ void
 MediaServerServiceHandler::createFilter (MediaObject &_return, const MediaObject &mediaManager, const FilterType::type type)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  // TODO: implement
+  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<Filter> filter;
+
+  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  filter = mm->createFilter (type);
+  mediaSet.put (filter);
+
+  _return = *filter;
 }
 
 /* MediaElement */

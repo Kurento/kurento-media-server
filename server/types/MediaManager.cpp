@@ -25,6 +25,7 @@
 #include "RecorderEndPoint.hpp"
 #include "HttpEndPoint.hpp"
 #include "MainMixer.hpp"
+#include "ZBarFilter.hpp"
 
 #include <glibmm.h>
 
@@ -38,6 +39,7 @@ MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaO
   element = gst_pipeline_new (token.c_str () );
   g_object_set (G_OBJECT (element), "async-handling", TRUE, NULL);
   gst_element_set_state (element, GST_STATE_PLAYING);
+  // TODO: attach MediaManger to the gst bus
 }
 
 MediaManager::~MediaManager() throw()
@@ -110,10 +112,17 @@ MediaManager::createMixer (const MixerType::type type)
   }
 }
 
-std::shared_ptr<Filter> createFilter (const FilterType::type type)
+std::shared_ptr<Filter>
+MediaManager::createFilter (const FilterType::type type)
 {
-  // TODO: implement
-  return NULL;
+  switch (type) {
+  case FilterType::type::ZBAR_FILTER:
+    return std::shared_ptr<Filter> (new ZBarFilter (shared_from_this() ) );
+  default:
+    MediaServerException  e = MediaServerException();
+    e.__set_description (std::string ("Filter type does not exist.") );
+    throw e;
+  }
 }
 
 } // kurento

@@ -26,6 +26,7 @@
 #include "types/UriEndPoint.hpp"
 #include "types/HttpEndPoint.hpp"
 #include "types/SdpEndPoint.hpp"
+#include "types/Filter.hpp"
 
 namespace kurento
 {
@@ -145,6 +146,9 @@ MediaSet::getMediaObject<HttpEndPoint> (const MediaObject &mediaObject);
 
 template std::shared_ptr<SdpEndPoint>
 MediaSet::getMediaObject<SdpEndPoint> (const MediaObject &mediaObject);
+
+template std::shared_ptr<Filter>
+MediaSet::getMediaObject<Filter> (const MediaObject &mediaObject);
 
 template <class T> std::shared_ptr<T>
 MediaSet::getMediaObject (const MediaObject &mediaObject)
