@@ -47,7 +47,7 @@ start_server_test ()
 
   if (childpid >= 0) {
     if (childpid == 0) {
-      execl ("./server/kurento", "kurento", NULL);
+      execl ("./server/kurento", "kurento", "--gst-plugin-path=../gst-kurento-plugins/src", NULL);
     } else {
       G_LOCK (mutex);
       G_UNLOCK (mutex);
