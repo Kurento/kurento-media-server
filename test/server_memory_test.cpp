@@ -34,53 +34,66 @@ using namespace kurento;
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "server_memory_test"
 
+#define ITERATIONS 10000
 #define MEMORY_TOLERANCE 1024
 
 BOOST_FIXTURE_TEST_SUITE ( server_memory_test_suite, F )
 
-static void
-check_release_media_manager (boost::shared_ptr<kurento::MediaServerServiceClient> client, int serverPid)
+BOOST_AUTO_TEST_CASE ( create_media_manager_memory_test )
 {
   MediaObject mediaManager = MediaObject();
   MediaObject mo = MediaObject();
   int i, maxMemorySize, currentMemorySize;
 
+  BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+
   client->addHandlerAddress (0, "localhost", 2323);
 
-  for (i = 0; i < 10000; i++) {
+  for (i = 0; i < ITERATIONS; i++) {
     client->createMediaManager (mediaManager, 0);
-    client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
-    client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
     client->release (mediaManager);
 
     if (i == 0) {
-      maxMemorySize = get_data_memory (serverPid) + MEMORY_TOLERANCE;
+      maxMemorySize = get_data_memory (pid) + MEMORY_TOLERANCE;
       GST_INFO ("MAX memory size: %d", maxMemorySize);
     }
 
     if (i % 100 == 0) {
-      currentMemorySize = get_data_memory (serverPid);
+      currentMemorySize = get_data_memory (pid);
       GST_INFO ("Memory size: %d", currentMemorySize);
-      BOOST_CHECK (currentMemorySize <= maxMemorySize);
-
-      if (currentMemorySize > maxMemorySize)
-        break;
+      BOOST_REQUIRE (currentMemorySize <= maxMemorySize);
     }
   }
 }
 
-static void
-client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client, int serverPid)
+BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
 {
-  check_release_media_manager (client, serverPid);
-}
+  MediaObject mediaManager = MediaObject();
+  MediaObject mo = MediaObject();
+  int i, maxMemorySize, currentMemorySize;
 
-
-BOOST_AUTO_TEST_CASE ( server_memory_test )
-{
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
-  client_side (client, pid);
+
+  client->addHandlerAddress (0, "localhost", 2323);
+
+  for (i = 0; i < ITERATIONS; i++) {
+    client->createMediaManager (mediaManager, 0);
+    client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+    client->release (mediaManager);
+
+    if (i == 0) {
+      maxMemorySize = get_data_memory (pid) + MEMORY_TOLERANCE;
+      GST_INFO ("MAX memory size: %d", maxMemorySize);
+    }
+
+    if (i % 100 == 0) {
+      currentMemorySize = get_data_memory (pid);
+      GST_INFO ("Memory size: %d", currentMemorySize);
+      BOOST_REQUIRE (currentMemorySize <= maxMemorySize);
+    }
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
