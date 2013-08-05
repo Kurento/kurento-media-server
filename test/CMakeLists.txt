@@ -1,6 +1,6 @@
 find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 
-add_executable(server_test server_test_base.cpp server_test.cpp)
+add_executable(server_test server_test_base.cpp server_test.cpp sdp_end_point_test.cpp)
 add_dependencies(server_test kmsiface-project)
 add_dependencies(server_test kurento)
 
