@@ -19,30 +19,11 @@
  */
 
 #include "server_test_base.hpp"
-
-#define BOOST_TEST_MAIN
-
 #include <boost/test/unit_test.hpp>
-#define BOOST_TEST_MODULE ServerTest
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
-#include "MediaServerService.h"
-
-#include <transport/TSocket.h>
-#include <transport/TBufferTransports.h>
-#include <protocol/TBinaryProtocol.h>
+#include "mediaServer_constants.h"
 
 #include <gst/gst.h>
-
-#include "media_config.hpp"
-#include "mediaServer_constants.h"
-#include "mediaServer_types.h"
-
-using namespace apache::thrift;
-using namespace apache::thrift::protocol;
-using namespace apache::thrift::transport;
 
 using namespace kurento;
 
@@ -50,10 +31,10 @@ using namespace kurento;
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "server_test"
 
-BOOST_AUTO_TEST_SUITE ( server_test_suite )
+BOOST_FIXTURE_TEST_SUITE ( server_test_suite,  F)
 
 static void
-check_version (kurento::MediaServerServiceClient client)
+check_version (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   int32_t v;
   int32_t gotVersion;
@@ -63,237 +44,230 @@ check_version (kurento::MediaServerServiceClient client)
   v = c->VERSION;
   delete c;
 
-  gotVersion = client.getVersion();
+  gotVersion = client->getVersion();
   BOOST_CHECK_EQUAL (gotVersion, v);
 }
 
 static void
-check_no_handler (kurento::MediaServerServiceClient client)
+check_no_handler (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
 
-  BOOST_CHECK_THROW (client.createMediaManager (mediaManager, 0), HandlerNotFoundException);
+  BOOST_CHECK_THROW (client->createMediaManager (mediaManager, 0), HandlerNotFoundException);
 }
 
 static void
-check_add_handler_address (kurento::MediaServerServiceClient client)
+check_add_handler_address (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  client.addHandlerAddress (0, "localhost", 2323);
-  client.addHandlerAddress (0, "localhost", 3434);
+  client->addHandlerAddress (0, "localhost", 2323);
+  client->addHandlerAddress (0, "localhost", 3434);
 }
 
 static void
-check_type (kurento::MediaServerServiceClient client)
+check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject mo = MediaObject();
 
-  client.createMediaManager (mediaManager, 0);
+  client->createMediaManager (mediaManager, 0);
   BOOST_CHECK (mediaManager.type.__isset.mediaObject);
   BOOST_CHECK_EQUAL (mediaManager.type.mediaObject, MediaObjectType::type::MEDIA_MANAGER);
 
-  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
   BOOST_CHECK (mediaManager.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::RTP_END_POINT);
 
-  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
   BOOST_CHECK (mediaManager.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::WEBRTC_END_POINT);
 
-  client.createUriEndPoint (mo, mediaManager, UriEndPointType::type::PLAYER_END_POINT, "");
+  client->createUriEndPoint (mo, mediaManager, UriEndPointType::type::PLAYER_END_POINT, "");
   BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::PLAYER_END_POINT);
 
-  client.createUriEndPoint (mo, mediaManager, UriEndPointType::type::RECORDER_END_POINT, "");
+  client->createUriEndPoint (mo, mediaManager, UriEndPointType::type::RECORDER_END_POINT, "");
   BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::RECORDER_END_POINT);
 
-  client.createHttpEndPoint (mo, mediaManager);
+  client->createHttpEndPoint (mo, mediaManager);
   BOOST_CHECK (mediaManager.type.__isset.endPoint);
   BOOST_CHECK_EQUAL (mo.type.endPoint, EndPointType::type::HTTP_END_POINT);
 
-  client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
   BOOST_CHECK (mediaManager.type.__isset.mixerType);
   BOOST_CHECK_EQUAL (mo.type.mixerType, MixerType::type::MAIN_MIXER);
 
-  client.release (mediaManager);
+  client->release (mediaManager);
 }
 
 static void
-check_same_token (kurento::MediaServerServiceClient client)
+check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject mo = MediaObject();
 
-  client.createMediaManager (mediaManager, 0);
+  client->createMediaManager (mediaManager, 0);
 
-  client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
   BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
 
-  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
   BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
 
-  client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
   BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
 
-  client.release (mediaManager);
+  client->release (mediaManager);
 }
 
 static void
-check_use_released_media_manager (kurento::MediaServerServiceClient client)
+check_use_released_media_manager (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject mo = MediaObject();
 
-  client.createMediaManager (mediaManager, 0);
-  client.release (mediaManager);
-  BOOST_CHECK_THROW (client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER), MediaObjectNotFoundException);
+  client->createMediaManager (mediaManager, 0);
+  client->release (mediaManager);
+  BOOST_CHECK_THROW (client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER), MediaObjectNotFoundException);
 }
 
 static void
-check_parent (kurento::MediaServerServiceClient client)
+check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject mo = MediaObject();
   MediaObject parent = MediaObject();
 
-  client.createMediaManager (mediaManager, 0);
+  client->createMediaManager (mediaManager, 0);
 
-  client.createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
-  client.getParent (parent, mo);
+  client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  client->getParent (parent, mo);
   BOOST_CHECK_EQUAL (mediaManager.id, parent.id);
 
-  client.release (mediaManager);
+  client->release (mediaManager);
 }
 
 static void
-check_media_manager_no_parent (kurento::MediaServerServiceClient client)
+check_media_manager_no_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject parent = MediaObject();
 
   GST_DEBUG ("check_media_manager_no_parent test");
-  client.createMediaManager (mediaManager, 0);
-  BOOST_CHECK_THROW (client.getParent (parent, mediaManager), NoParentException);
+  client->createMediaManager (mediaManager, 0);
+  BOOST_CHECK_THROW (client->getParent (parent, mediaManager), NoParentException);
 
-  client.release (mediaManager);
+  client->release (mediaManager);
 }
 
 static void
-check_sdp_end_point (kurento::MediaServerServiceClient client)
+check_sdp_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject sdpEp = MediaObject();
   std::string out;
 
-  client.createMediaManager (mediaManager, 0);
+  client->createMediaManager (mediaManager, 0);
 
-  client.createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT);
-  BOOST_CHECK_THROW (client.getLocalSessionDescription (out, sdpEp), MediaServerException);
-  BOOST_CHECK_THROW (client.getRemoteSessionDescription (out, sdpEp), MediaServerException);
-  client.generateOffer (out, sdpEp);
+  client->createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  BOOST_CHECK_THROW (client->getLocalSessionDescription (out, sdpEp), MediaServerException);
+  BOOST_CHECK_THROW (client->getRemoteSessionDescription (out, sdpEp), MediaServerException);
+  client->generateOffer (out, sdpEp);
   GST_INFO ("RTP EndPoint generateOffer: %s", out.c_str () );
-  client.processOffer (out, sdpEp, out);
+  client->processOffer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processOffer: %s", out.c_str () );
-  client.processAnswer (out, sdpEp, out);
+  client->processAnswer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processAnswer: %s", out.c_str () );
 
-  client.createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT, "");
-  BOOST_CHECK_THROW (client.getLocalSessionDescription (out, sdpEp), MediaServerException);
-  BOOST_CHECK_THROW (client.getRemoteSessionDescription (out, sdpEp), MediaServerException);
-  client.generateOffer (out, sdpEp);
+  client->createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::RTP_END_POINT, "");
+  BOOST_CHECK_THROW (client->getLocalSessionDescription (out, sdpEp), MediaServerException);
+  BOOST_CHECK_THROW (client->getRemoteSessionDescription (out, sdpEp), MediaServerException);
+  client->generateOffer (out, sdpEp);
   GST_INFO ("RTP EndPoint generateOffer: %s", out.c_str () );
-  client.processOffer (out, sdpEp, out);
+  client->processOffer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processOffer: %s", out.c_str () );
-  client.processAnswer (out, sdpEp, out);
+  client->processAnswer (out, sdpEp, out);
   GST_INFO ("RTP EndPoint processAnswer: %s", out.c_str () );
 
-  client.createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  client->createSdpEndPoint (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
   // TODO: restore when implemented
-//   client.generateOffer (out, sdpEp);
+//   client->generateOffer (out, sdpEp);
 //   GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
-//   client.processOffer (out, sdpEp, "");
+//   client->processOffer (out, sdpEp, "");
 //   GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
-//   client.processAnswer (out, sdpEp, "");
+//   client->processAnswer (out, sdpEp, "");
 //   GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
 
-  client.createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT, "");
+  client->createSdpEndPointWithFixedSdp (sdpEp, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT, "");
   // TODO: restore when implemented
-//   client.generateOffer (out, sdpEp);
+//   client->generateOffer (out, sdpEp);
 //   GST_INFO ("WebRTC EndPoint generateOffer: %s", out.c_str () );
-//   client.processOffer (out, sdpEp, "");
+//   client->processOffer (out, sdpEp, "");
 //   GST_INFO ("WebRTC EndPoint processOffer: %s", out.c_str () );
-//   client.processAnswer (out, sdpEp, "");
+//   client->processAnswer (out, sdpEp, "");
 //   GST_INFO ("WebRTC EndPoint processAnswer: %s", out.c_str () );
 
-  client.release (mediaManager);
+  client->release (mediaManager);
 }
 
 static void
-check_uri_end_point (kurento::MediaServerServiceClient client)
+check_uri_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject uriEp = MediaObject();
   std::string uri, out;
 
-  client.createMediaManager (mediaManager, 0);
+  client->createMediaManager (mediaManager, 0);
 
   uri = "/player_end_point/uri";
-  client.createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::PLAYER_END_POINT, uri);
-  client.getUri (out, uriEp);
+  client->createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::PLAYER_END_POINT, uri);
+  client->getUri (out, uriEp);
   BOOST_CHECK_EQUAL (uri, out);
-  client.start (uriEp);
-  client.pause (uriEp);
-  client.stop (uriEp);
+  client->start (uriEp);
+  client->pause (uriEp);
+  client->stop (uriEp);
 
   uri = "/recorder_end_point/uri";
-  client.createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::RECORDER_END_POINT, uri);
-  client.getUri (out, uriEp);
+  client->createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::RECORDER_END_POINT, uri);
+  client->getUri (out, uriEp);
   BOOST_CHECK_EQUAL (uri, out);
-  client.start (uriEp);
-  client.pause (uriEp);
-  client.stop (uriEp);
+  client->start (uriEp);
+  client->pause (uriEp);
+  client->stop (uriEp);
 
-  client.release (mediaManager);
+  client->release (mediaManager);
 }
 
 static void
-check_http_end_point (kurento::MediaServerServiceClient client)
+check_http_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject httpEp = MediaObject();
   std::string out;
 
-  client.createMediaManager (mediaManager, 0);
+  client->createMediaManager (mediaManager, 0);
 
-  client.createHttpEndPoint (httpEp, mediaManager);
-  client.getUrl (out, httpEp);
+  client->createHttpEndPoint (httpEp, mediaManager);
+  client->getUrl (out, httpEp);
 
-  client.release (mediaManager);
+  client->release (mediaManager);
 }
 
 static void
-check_zbar_filter (kurento::MediaServerServiceClient client)
+check_zbar_filter (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject zbarFilter = MediaObject();
   std::string out;
 
-  client.createMediaManager (mediaManager, 0);
-  client.createFilter (zbarFilter, mediaManager, FilterType::type::ZBAR_FILTER);
-  client.release (mediaManager);
+  client->createMediaManager (mediaManager, 0);
+  client->createFilter (zbarFilter, mediaManager, FilterType::type::ZBAR_FILTER);
+  client->release (mediaManager);
 }
 
 static void
-client_side ()
+client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
-  boost::shared_ptr<TTransport> transport (new TFramedTransport (socket) );
-  boost::shared_ptr<TProtocol> protocol (new TBinaryProtocol (transport) );
-  kurento::MediaServerServiceClient client (protocol);
-
-  transport->open ();
-
   check_version (client);
   check_no_handler (client);
   check_add_handler_address (client);
@@ -306,20 +280,13 @@ client_side ()
   check_uri_end_point (client);
   check_http_end_point (client);
   check_zbar_filter (client);
-
-  transport->close ();
 }
 
 BOOST_AUTO_TEST_CASE ( server_test )
 {
-  gst_init (NULL, NULL);
-
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
-
-  START_SERVER_TEST();
-  client_side();
-  STOP_SERVER_TEST();
+  BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  client_side (client);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

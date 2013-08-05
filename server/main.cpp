@@ -34,6 +34,8 @@
 
 #include <glibmm.h>
 #include <fstream>
+#include <iostream>
+#include <boost/filesystem.hpp>
 
 #include <version.hpp>
 #include "log.hpp"
@@ -51,6 +53,7 @@ using namespace ::apache::thrift::concurrency;
 using namespace ::kurento;
 
 using boost::shared_ptr;
+using namespace boost::filesystem;
 using ::kurento::MediaServerServiceHandler;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
@@ -120,6 +123,11 @@ read_entire_file (const gchar *file_name)
   FILE *fp;
 
   fp = fopen (file_name, "r");
+
+  if (fp == NULL) {
+    return NULL;
+  }
+
   fseek (fp, 0, SEEK_END);
   f_size = ftell (fp);
   fseek (fp, 0, SEEK_SET);
@@ -131,7 +139,7 @@ read_entire_file (const gchar *file_name)
 }
 
 static GstSDPMessage *
-load_sdp_pattern (Glib::KeyFile &configFile)
+load_sdp_pattern (Glib::KeyFile &configFile, const std::string &confFileName)
 {
   GstSDPResult result;
   GstSDPMessage *sdp_pattern = NULL;
@@ -147,7 +155,16 @@ load_sdp_pattern (Glib::KeyFile &configFile)
   }
 
   sdp_pattern_file_name = configFile.get_string (SERVER_GROUP, SDP_PATTERN_KEY);
+  boost::filesystem::path p (confFileName.c_str () );
+  sdp_pattern_file_name.insert (0, "/");
+  sdp_pattern_file_name.insert (0, p.parent_path ().c_str() );
   sdp_pattern_text = read_entire_file (sdp_pattern_file_name.c_str () );
+
+  if (sdp_pattern_text == NULL) {
+    GST_ERROR ("Error reading SDP pattern file");
+    gst_sdp_message_free (sdp_pattern);
+    return NULL;
+  }
 
   result = gst_sdp_message_parse_buffer ( (const guint8 *) sdp_pattern_text, -1, sdp_pattern);
   g_free (sdp_pattern_text);
@@ -221,7 +238,7 @@ load_config (const std::string &file_name)
   }
 
   try {
-    sdpPattern = load_sdp_pattern (configFile);
+    sdpPattern = load_sdp_pattern (configFile, file_name);
     GST_DEBUG ("SDP: \n%s", sdpMessageText = gst_sdp_message_as_text (sdpPattern) );
     g_free (sdpMessageText);
   } catch (Glib::KeyFileError err) {
@@ -338,8 +355,6 @@ main (int argc, char **argv)
   GOptionContext *context;
   struct sigaction sa;
 
-  gst_init (&argc, &argv);
-
   context = g_option_context_new ("");
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_add_group (context, gst_init_get_option_group () );
@@ -351,6 +366,7 @@ main (int argc, char **argv)
 
   g_option_context_free (context);
 
+  gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
       GST_DEFAULT_NAME);
 

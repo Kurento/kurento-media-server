@@ -1,3 +1,5 @@
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+
 aux_source_directory("common" COMMON)
 aux_source_directory("types" TYPES)
 
@@ -15,6 +17,7 @@ target_link_libraries(kurento ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES})
 target_link_libraries(kurento ${GSTREAMER_SDP_LIBRARIES} )
 target_link_libraries(kurento ${UUID_LIBRARIES})
 target_link_libraries(kurento ${GLIB2_LIBRARIES} -lpthread)
+target_link_libraries(kurento ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 include_directories(kurento ${CMAKE_BINARY_DIR})
 include_directories(kurento ${THRIFT_INCLUDE_DIRS} ${GLIBMM_INCLUDE_DIRS})
 include_directories(kurento ${GSTREAMER_INCLUDE_DIRS})

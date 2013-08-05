@@ -19,29 +19,14 @@
  */
 
 #include "server_test_base.hpp"
-#include "memory.hpp"
-
-#define BOOST_TEST_MAIN
-
 #include <boost/test/unit_test.hpp>
-#define BOOST_TEST_MODULE ServerTest
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
-#include "MediaServerService.h"
-
-#include <transport/TSocket.h>
-#include <transport/TBufferTransports.h>
-#include <protocol/TBinaryProtocol.h>
+#include "memory.hpp"
+#include "mediaServer_constants.h"
 
 #include <gst/gst.h>
 
-#include "media_config.hpp"
-
-using namespace apache::thrift;
-using namespace apache::thrift::protocol;
-using namespace apache::thrift::transport;
+using namespace kurento;
 
 using namespace kurento;
 
@@ -51,26 +36,31 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define MEMORY_TOLERANCE 1024
 
-BOOST_AUTO_TEST_SUITE ( server_memory_test_suite )
+BOOST_FIXTURE_TEST_SUITE ( server_memory_test_suite, F )
 
 static void
-check_release_media_manager (kurento::MediaServerServiceClient client, int serverPid)
+check_release_media_manager (boost::shared_ptr<kurento::MediaServerServiceClient> client, int serverPid)
 {
   MediaObject mediaManager = MediaObject();
   MediaObject mo = MediaObject();
   int i, maxMemorySize, currentMemorySize;
 
-  for (i = 0; i < 10000; i++) {
-    client.createMediaManager (mediaManager, 0);
-    client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
-    client.createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
-    client.release (mediaManager);
+  client->addHandlerAddress (0, "localhost", 2323);
 
-    if (i == 0)
+  for (i = 0; i < 10000; i++) {
+    client->createMediaManager (mediaManager, 0);
+    client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+    client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+    client->release (mediaManager);
+
+    if (i == 0) {
       maxMemorySize = get_data_memory (serverPid) + MEMORY_TOLERANCE;
+      GST_INFO ("MAX memory size: %d", maxMemorySize);
+    }
 
     if (i % 100 == 0) {
       currentMemorySize = get_data_memory (serverPid);
+      GST_INFO ("Memory size: %d", currentMemorySize);
       BOOST_CHECK (currentMemorySize <= maxMemorySize);
 
       if (currentMemorySize > maxMemorySize)
@@ -80,31 +70,17 @@ check_release_media_manager (kurento::MediaServerServiceClient client, int serve
 }
 
 static void
-client_side (int serverPid)
+client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client, int serverPid)
 {
-  boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
-  boost::shared_ptr<TTransport> transport (new TFramedTransport (socket) );
-  boost::shared_ptr<TProtocol> protocol (new TBinaryProtocol (transport) );
-  kurento::MediaServerServiceClient client (protocol);
-
-  transport->open ();
-
   check_release_media_manager (client, serverPid);
-
-  transport->close ();
 }
+
 
 BOOST_AUTO_TEST_CASE ( server_memory_test )
 {
-  gst_init (NULL, NULL);
-
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
-
-  START_SERVER_TEST();
-  GST_DEBUG ("client side...");
-  client_side (GET_SERVER_PID() );
-  STOP_SERVER_TEST();
+  BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  client_side (client, pid);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

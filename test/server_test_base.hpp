@@ -18,6 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MediaServerService.h"
+#include <transport/TBufferTransports.h>
+
+using namespace apache::thrift::transport;
+
 #define START_SERVER_TEST() { int pid = start_server_test();
 
 #define GET_SERVER_PID() pid
@@ -26,3 +31,17 @@
 
 int start_server_test ();
 void stop_server_test (int pid);
+
+
+struct F {
+private:
+  boost::shared_ptr<TTransport> transport;
+
+public:
+  int pid;
+  bool initialized = false;
+  boost::shared_ptr<kurento::MediaServerServiceClient> client;
+
+  F();
+  ~F();
+};

@@ -59,13 +59,13 @@ enable_testing()
 if (DEFINED MEMORY_TEST)
   message("Memory test actived")
   add_test(server_memory_test test/server_memory_test)
-  set_tests_properties(server_memory_test PROPERTIES ENVIRONMENT "GST_DEBUG=*Media*:5,server_memory_test:5")
+  set_tests_properties(server_memory_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf;GST_DEBUG=server_memory_test:5")
 else()
   add_test(server_test test/server_test)
-  set_tests_properties(server_test PROPERTIES ENVIRONMENT "GST_DEBUG=*Media*:5,server_test:5")
+  set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf;GST_DEBUG=*Media*:5,*media*:5,*test*:5")
 endif()
 
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS test/server_test)
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 
 
@@ -95,7 +95,7 @@ if(NOT DEFINED SYSCONFDIR)
 	set(SYSCONFDIR etc)
 endif(NOT DEFINED SYSCONFDIR)
 
-install(FILES kurento.conf DESTINATION ${SYSCONFDIR}/${CUSTOM_PREFIX})
+install(FILES kurento.conf pattern.sdp DESTINATION ${SYSCONFDIR}/${CUSTOM_PREFIX})
 install(FILES "scripts/init.d/kurento" DESTINATION ${SYSCONFDIR}/init.d)
 install(FILES "scripts/default/kurento" DESTINATION ${SYSCONFDIR}/default)
 
