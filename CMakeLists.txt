@@ -50,6 +50,8 @@ SET(KMSIFACE_INCLUDE_DIR ${CMAKE_BINARY_DIR}/gen-cpp)
 
 add_subdirectory(kms-interface)
 
+add_subdirectory(httpepserver)
+
 add_subdirectory(server)
 
 add_subdirectory(test)

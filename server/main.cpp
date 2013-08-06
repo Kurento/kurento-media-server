@@ -29,6 +29,7 @@
 #include <server/TNonblockingServer.h>
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
+#include <KmsHttpEPServer.h>
 
 #include "media_config.hpp"
 
@@ -36,7 +37,6 @@
 #include <fstream>
 #include <iostream>
 #include <boost/filesystem.hpp>
-
 #include <version.hpp>
 #include "log.hpp"
 
@@ -351,6 +351,7 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
 int
 main (int argc, char **argv)
 {
+  KmsHttpEPServer *httpepserver;
   GError *error = NULL;
   GOptionContext *context;
   struct sigaction sa;
@@ -389,7 +390,16 @@ main (int argc, char **argv)
   sigc::slot < void >ss = sigc::ptr_fun (&create_media_server_service);
   Glib::Thread::create (ss, true); /* Created thread not used to join
                                       because of a bug in thrift */
+
+  /* Start Http End Point Server */
+  httpepserver = KMS_HTTP_EP_SERVER (g_object_new (KMS_TYPE_HTTP_EP_SERVER, NULL) );
+  kms_http_ep_server_start (httpepserver);
+
   loop->run ();
+
+  /* Stop Http End Point Server and destroy it */
+  kms_http_ep_server_stop (httpepserver);
+  g_object_unref (G_OBJECT (httpepserver) );
 
   return 0;
 }
