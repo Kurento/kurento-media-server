@@ -58,9 +58,8 @@ using ::kurento::MediaServerServiceHandler;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
 
-static std::string serverAddress;
-static gint serverServicePort;
-static KeyFile configFile;
+static std::string serverAddress, httpEPServerAddress;
+static gint serverServicePort, httpEPServerServicePort;
 GstSDPMessage *sdpPattern;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create (true);
@@ -79,8 +78,6 @@ static GOptionEntry entries[] = {
 static void
 create_media_server_service ()
 {
-  int port;
-  port = MEDIA_SERVER_SERVICE_PORT;
   shared_ptr < MediaServerServiceHandler >
   handler (new MediaServerServiceHandler () );
   shared_ptr < TProcessor >
@@ -92,7 +89,7 @@ create_media_server_service ()
     ThreadManager::newSimpleThreadManager (15);
   threadManager->threadFactory (threadFactory);
   threadManager->start ();
-  TNonblockingServer server (processor, protocolFactory, port, threadManager);
+  TNonblockingServer server (processor, protocolFactory, serverServicePort, threadManager);
   p_server = &server;
   GST_INFO ("Starting MediaServerService");
   kill (getppid(), SIGCONT);
@@ -109,10 +106,33 @@ check_port (int port)
 }
 
 static void
-set_default_server_config ()
+set_default_media_server_config ()
 {
+  GST_WARNING ("Setting default configuration for media server. "
+      "Using IP address: %s, port: %d. "
+      "No codecs support will be available with default configuration.",
+      MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT);
+
   serverAddress = MEDIA_SERVER_ADDRESS;
   serverServicePort = MEDIA_SERVER_SERVICE_PORT;
+}
+
+static void
+set_default_http_ep_server_config ()
+{
+  GST_WARNING ("Setting default configuration for http end point server. "
+      "Using IP address: %s, port: %d. ",
+      HTTP_EP_SERVER_ADDRESS, HTTP_EP_SERVER_SERVICE_PORT);
+
+  httpEPServerAddress = HTTP_EP_SERVER_ADDRESS;
+  httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
+}
+
+static void
+set_default_config ()
+{
+  set_default_media_server_config ();
+  set_default_http_ep_server_config();
 }
 
 static gchar *
@@ -179,48 +199,17 @@ load_sdp_pattern (Glib::KeyFile &configFile, const std::string &confFileName)
 }
 
 static void
-load_config (const std::string &file_name)
+configure_kurento_media_server (KeyFile &configFile, const std::string &file_name)
 {
   gint port;
   gchar *sdpMessageText = NULL;
-
-  GST_INFO ("Reading configuration from: %s", file_name.c_str () );
-  /* Try to open de file */
-  {
-    std::ifstream file (file_name);
-
-    if (!file) {
-      GST_INFO ("Config file not found, creating a new one");
-      std::ofstream of (file_name);
-    }
-  }
-
-  try {
-    if (!configFile.load_from_file (file_name,
-        KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
-        KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS) ) {
-      GST_WARNING ("Error loading configuration from %s, loading "
-          "default server config, but no "
-          "codecs will be available", file_name.c_str () );
-      set_default_server_config ();
-      return;
-    }
-  } catch (Glib::Error ex) {
-    GST_WARNING ("Error loading configuration: %s", ex.what ().c_str () );
-    GST_WARNING ("Error loading configuration from %s, loading "
-        "default server config, but no "
-        "codecs will be available", file_name.c_str () );
-    set_default_server_config ();
-    return;
-  }
 
   try {
     serverAddress = configFile.get_string (SERVER_GROUP,
         MEDIA_SERVER_ADDRESS_KEY);
   } catch (Glib::KeyFileError err) {
-    GST_INFO ("%s", err.what ().c_str () );
-    GST_INFO ("Setting default address");
-    configFile.set_string (SERVER_GROUP, MEDIA_SERVER_ADDRESS_KEY,
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default address %s to media server",
         MEDIA_SERVER_ADDRESS);
     serverAddress = MEDIA_SERVER_ADDRESS;
   }
@@ -230,9 +219,8 @@ load_config (const std::string &file_name)
     check_port (port);
     serverServicePort = port;
   } catch (Glib::KeyFileError err) {
-    GST_INFO ("%s", err.what ().c_str () );
-    GST_INFO ("Setting default server port");
-    configFile.set_integer (SERVER_GROUP, MEDIA_SERVER_SERVICE_PORT_KEY,
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default port %d to media server",
         MEDIA_SERVER_SERVICE_PORT);
     serverServicePort = MEDIA_SERVER_SERVICE_PORT;
   }
@@ -242,15 +230,65 @@ load_config (const std::string &file_name)
     GST_DEBUG ("SDP: \n%s", sdpMessageText = gst_sdp_message_as_text (sdpPattern) );
     g_free (sdpMessageText);
   } catch (Glib::KeyFileError err) {
-    GST_WARNING ("%s", err.what ().c_str () );
+    GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Wrong codec configuration, communication won't be possible");
   }
+}
 
-  std::ofstream f (file_name, std::ios::out | std::ios::trunc);
-  f << configFile.to_data ();
-  f.close ();
+static void
+configure_http_ep_server (KeyFile &configFile)
+{
+  gint port;
+
+  try {
+    httpEPServerAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
+        HTTP_EP_SERVER_ADDRESS_KEY);
+  } catch (Glib::KeyFileError err) {
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default address %s to http end point server",
+        HTTP_EP_SERVER_ADDRESS);
+    httpEPServerAddress = HTTP_EP_SERVER_ADDRESS;
+  }
+
+  try {
+    port = configFile.get_integer (HTTP_EP_SERVER_GROUP, HTTP_EP_SERVER_SERVICE_PORT_KEY);
+    check_port (port);
+    httpEPServerServicePort = port;
+  } catch (Glib::KeyFileError err) {
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default port %d to http end point server",
+        HTTP_EP_SERVER_SERVICE_PORT);
+    httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
+  }
+}
+
+static void
+load_config (const std::string &file_name)
+{
+  KeyFile configFile;
+
+  GST_INFO ("Reading configuration from: %s", file_name.c_str () );
+
+  /* Try to load configuration file */
+  try {
+    if (!configFile.load_from_file (file_name,
+        KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
+        KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS) ) {
+      GST_WARNING ("Can not load configuration file %s", file_name.c_str () );
+      set_default_config ();
+      return;
+    }
+  } catch (Glib::Error ex) {
+    GST_ERROR ("Error loading configuration: %s", ex.what ().c_str () );
+    set_default_config ();
+    return;
+  }
+
+  /* parse options so as to configure servers */
+  configure_kurento_media_server (configFile, file_name);
+  configure_http_ep_server (configFile);
+
   GST_INFO ("Configuration loaded successfully");
-  GST_DEBUG ("Final config file:\n%s", configFile.to_data ().c_str () );
 }
 
 static void
