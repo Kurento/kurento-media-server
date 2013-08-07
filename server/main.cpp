@@ -430,7 +430,9 @@ main (int argc, char **argv)
                                       because of a bug in thrift */
 
   /* Start Http End Point Server */
-  httpepserver = KMS_HTTP_EP_SERVER (g_object_new (KMS_TYPE_HTTP_EP_SERVER, NULL) );
+  httpepserver = kms_http_ep_server_new (
+      KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
+      KMS_HTTP_EP_SERVER_INTERFACE, httpEPServerAddress.c_str(), NULL);
   kms_http_ep_server_start (httpepserver);
 
   loop->run ();

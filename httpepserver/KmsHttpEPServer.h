@@ -91,7 +91,11 @@ struct _KmsHttpEPServerClass
 GType kms_http_ep_server_get_type (void);
 
 /* Virtual public methods */
+KmsHttpEPServer *kms_http_ep_server_new (const char *optname1, ...);
 void kms_http_ep_server_start (KmsHttpEPServer * self);
 void kms_http_ep_server_stop (KmsHttpEPServer * self);
+
+#define KMS_HTTP_EP_SERVER_PORT "port"
+#define KMS_HTTP_EP_SERVER_INTERFACE "interface"
 
 #endif /* __KMS_HTTP_EP_SERVER_H__ */
