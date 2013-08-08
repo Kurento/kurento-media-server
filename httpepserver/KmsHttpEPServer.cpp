@@ -14,12 +14,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gst/gst.h>
 #include <libsoup/soup.h>
+#include <uuid/uuid.h>
 
 #include "KmsHttpEPServer.h"
 
 #define OBJECT_NAME "HttpEPServer"
+
+/* 36-byte string (plus tailing '\0') */
+#define UUID_STR_SIZE 37
 
 #define HTTP_EP_SERVER_ROOT_PATH "/"
 
@@ -29,6 +32,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define KMS_HTTP_EP_SERVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_EP_SERVER, KmsHttpEPServerPrivate))
 struct _KmsHttpEPServerPrivate {
   SoupServer *server;
+  GSList *handlers;
   gchar *iface;
   gint port;
 };
@@ -56,10 +60,21 @@ enum {
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
 static void
-kms_http_ep_server_remove_handlers (KmsHttpEPServer *self)
+kms_http_ep_server_remove_handler (gchar *url, KmsHttpEPServer *self)
 {
-  /* So far, we have just one handler */
-  soup_server_remove_handler (self->priv->server, HTTP_EP_SERVER_ROOT_PATH);
+  GST_DEBUG ("Remove url: %s", url);
+  soup_server_remove_handler (self->priv->server, url);
+}
+
+static void
+kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
+    const char *path, GHashTable *query, SoupClientContext *client,
+    gpointer user_data)
+{
+  GST_WARNING ("%s path: %s", msg->method, path);
+
+  soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
+      "HttpEPServer is not yet implemented");
 }
 
 static void
@@ -86,10 +101,34 @@ static void
 kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
 {
   /* Remove handlers */
-  kms_http_ep_server_remove_handlers (self);
+  g_slist_foreach (self->priv->handlers,
+      (GFunc) kms_http_ep_server_remove_handler, self);
 
   /* Stops processing for server */
   soup_server_quit (self->priv->server);
+}
+
+static const gchar *
+kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
+    GstElement *httpEP, GDestroyNotify destroy)
+{
+  gchar *url;
+  uuid_t uuid;
+  gchar *uuid_str;
+
+  uuid_str = (gchar *) g_malloc (UUID_STR_SIZE);
+  uuid_generate (uuid);
+  uuid_unparse (uuid, uuid_str);
+
+  /* Create URL from uuid string and add it to list of handlers */
+  url = g_strdup_printf ("/%s", uuid_str);
+  g_free (uuid_str);
+
+  self->priv->handlers = g_slist_prepend (self->priv->handlers, url);
+  soup_server_add_handler (self->priv->server, url,
+      kms_http_ep_server_req_handler, httpEP, destroy);
+
+  return url;
 }
 
 static void
@@ -114,6 +153,11 @@ kms_http_ep_server_finalize (GObject *obj)
   if (self->priv->iface) {
     g_free (self->priv->iface);
     self->priv->iface = NULL;
+  }
+
+  if (self->priv->handlers != NULL) {
+    g_slist_free_full (self->priv->handlers, g_free);
+    self->priv->handlers = NULL;
   }
 
   /* Chain up to the parent class */
@@ -177,6 +221,7 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
   /* Set public virtual methods */
   klass->start = kms_http_ep_server_start_impl;
   klass->stop = kms_http_ep_server_stop_impl;
+  klass->register_end_point = kms_http_ep_server_register_end_point_impl;
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_PORT] =
     g_param_spec_int ("port",
@@ -209,19 +254,9 @@ kms_http_ep_server_init (KmsHttpEPServer *self)
 
   /* Set default values */
   self->priv->server = NULL;
+  self->priv->handlers = NULL;
   self->priv->port = KMS_HTTP_EP_SERVER_DEFAULT_PORT;
   self->priv->iface = KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE;
-}
-
-static void
-kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
-    const char *path, GHashTable *query, SoupClientContext *client,
-    gpointer user_data)
-{
-  GST_WARNING ("%s path: %s", msg->method, path);
-
-  soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
-      "HttpEPServer is not yet implemented");
 }
 
 /* Virtual public methods */
@@ -230,6 +265,8 @@ kms_http_ep_server_new (const char *optname1, ...)
 {
   KmsHttpEPServer *self;
   SoupAddress *addr = NULL;
+  gchar *root_path;
+
   va_list ap;
 
   va_start (ap, optname1);
@@ -246,6 +283,10 @@ kms_http_ep_server_new (const char *optname1, ...)
 
   self->priv->server = soup_server_new (SOUP_SERVER_PORT, self->priv->port,
       SOUP_SERVER_INTERFACE, addr, NULL);
+
+  root_path = g_strdup_printf (HTTP_EP_SERVER_ROOT_PATH);
+  self->priv->handlers = g_slist_prepend (self->priv->handlers, root_path);
+
   soup_server_add_handler (self->priv->server, HTTP_EP_SERVER_ROOT_PATH,
       kms_http_ep_server_req_handler, g_object_ref (self), g_object_unref);
 
@@ -266,4 +307,13 @@ kms_http_ep_server_stop (KmsHttpEPServer *self)
   g_return_if_fail (KMS_IS_HTTP_EP_SERVER (self) );
 
   KMS_HTTP_EP_SERVER_GET_CLASS (self)->stop (self);
+}
+
+const gchar *
+kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
+    GstElement *httpEP, GDestroyNotify destroy)
+{
+  g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), NULL);
+
+  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self, httpEP, destroy);
 }

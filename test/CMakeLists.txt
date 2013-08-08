@@ -45,3 +45,27 @@ include_directories(server_memory_test ${KMSIFACE_INCLUDE_DIR})
 include_directories(server_memory_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
+
+
+add_executable(http_ep_server_test
+  http_ep_server_test.cpp
+)
+
+add_dependencies(http_ep_server_test kurento)
+
+target_link_libraries(http_ep_server_test
+                      ${Boost_FILESYSTEM_LIBRARY}
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      )
+
+target_link_libraries(http_ep_server_test kmshttpep)
+target_link_libraries(http_ep_server_test ${GSTREAMER_LIBRARIES})
+target_link_libraries(http_ep_server_test ${GLIBMM_LIBRARIES})
+
+include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/httpepserver)
+include_directories(http_ep_server_test ${GSTREAMER_INCLUDE_DIRS})
+include_directories(http_ep_server_test ${GLIBMM_INCLUDE_DIRS})
+include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/server)
+
+add_definitions(-DBOOST_TEST_DYN_LINK)

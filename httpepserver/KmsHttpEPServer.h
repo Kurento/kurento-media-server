@@ -18,6 +18,7 @@
 #ifndef __KMS_HTTP_EP_SERVER_H__
 #define __KMS_HTTP_EP_SERVER_H__
 
+#include <gst/gst.h>
 #include <glib-object.h>
 
 /*
@@ -85,6 +86,8 @@ struct _KmsHttpEPServerClass
   /* public virtual methods */
   void (*start) (KmsHttpEPServer * self);
   void (*stop) (KmsHttpEPServer * self);
+  const gchar *(*register_end_point) (KmsHttpEPServer * self,
+      GstElement * httpEP, GDestroyNotify destroy);
 };
 
 /* used by KMS_TYPE_HTTP_EP_SERVER */
@@ -94,6 +97,8 @@ GType kms_http_ep_server_get_type (void);
 KmsHttpEPServer *kms_http_ep_server_new (const char *optname1, ...);
 void kms_http_ep_server_start (KmsHttpEPServer * self);
 void kms_http_ep_server_stop (KmsHttpEPServer * self);
+const gchar *kms_http_ep_server_register_end_point (KmsHttpEPServer * self,
+    GstElement * httpEP, GDestroyNotify destroy);
 
 #define KMS_HTTP_EP_SERVER_PORT "port"
 #define KMS_HTTP_EP_SERVER_INTERFACE "interface"

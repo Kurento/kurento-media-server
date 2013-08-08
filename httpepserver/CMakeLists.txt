@@ -32,8 +32,19 @@ set_target_properties(kmshttpep PROPERTIES
   PUBLIC_HEADER "${HTTP_EP_HEADERS}"
 )
 
-include_directories(kmshttpep ${GLIB2_INCLUDE_DIRS} ${GSTREAMER_INCLUDE_DIRS} ${LIBSOUP_INCLUDE_DIRS})
-target_link_libraries(kmshttpep ${GLIB2_LIBRARIES} ${GSTREAMER_LIBRARIES} ${LIBSOUP_LIBRARIES})
+include_directories(kmshttpep
+  ${GLIB2_INCLUDE_DIRS}
+  ${GSTREAMER_INCLUDE_DIRS}
+  ${LIBSOUP_INCLUDE_DIRS}
+  ${UUID_INCLUDE_DIRS}
+)
+
+target_link_libraries(kmshttpep
+  ${GLIB2_LIBRARIES}
+  ${GSTREAMER_LIBRARIES}
+  ${LIBSOUP_LIBRARIES}
+  ${UUID_LIBRARIES}
+)
 
 INSTALL(TARGETS kmshttpep
   ARCHIVE DESTINATION lib

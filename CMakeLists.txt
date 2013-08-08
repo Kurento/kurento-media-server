@@ -67,6 +67,9 @@ else()
   set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf;GST_DEBUG=*Media*:5,*media*:5,*test*:5")
 endif()
 
+add_test(http_ep_server_test test/http_ep_server_test)
+set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf;GST_DEBUG=*http_ep_server*:5,*Media*:5,*media*:5,*test*:5")
+
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 
