@@ -62,10 +62,12 @@ target_link_libraries(http_ep_server_test
 target_link_libraries(http_ep_server_test kmshttpep)
 target_link_libraries(http_ep_server_test ${GSTREAMER_LIBRARIES})
 target_link_libraries(http_ep_server_test ${GLIBMM_LIBRARIES})
+target_link_libraries(http_ep_server_test ${LIBSOUP_LIBRARIES})
 
 include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/httpepserver)
 include_directories(http_ep_server_test ${GSTREAMER_INCLUDE_DIRS})
 include_directories(http_ep_server_test ${GLIBMM_INCLUDE_DIRS})
+include_directories(http_ep_server_test ${LIBSOUP_INCLUDE_DIRS})
 include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
