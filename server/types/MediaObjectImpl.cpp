@@ -23,6 +23,9 @@
 #include <glibmm.h>
 #include <uuid/uuid.h>
 
+/* 36-byte string (plus tailing '\0') */
+#define UUID_STR_SIZE 37
+
 namespace kurento
 {
 
@@ -52,7 +55,7 @@ MediaObjectImpl::MediaObjectImpl() : MediaObject()
   char *uuid_str;
   std::string tk;
 
-  uuid_str = (char *) g_malloc (sizeof (char) * 37);
+  uuid_str = (char *) g_malloc (UUID_STR_SIZE);
   uuid_generate (uuid);
   uuid_unparse (uuid, uuid_str);
   tk.append (uuid_str);
