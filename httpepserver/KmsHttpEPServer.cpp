@@ -121,28 +121,13 @@ kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
 }
 
 static void
-kms_http_ep_server_start_impl (KmsHttpEPServer *self)
+kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
 {
-  SoupSocket *listener;
-  SoupAddress *addr;
-
-  soup_server_run_async (self->priv->server);
-
-  listener = soup_server_get_listener (self->priv->server);
-
-  if (!soup_socket_is_connected (listener) ) {
-    GST_ERROR ("Server socket is not connected");
+  if (self->priv->server == NULL) {
+    GST_WARNING ("Server is not started");
     return;
   }
 
-  addr = soup_socket_get_local_address (listener);
-  GST_DEBUG ("Http end point server running in %s:%d",
-      soup_address_get_physical (addr), soup_address_get_port (addr) );
-}
-
-static void
-kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
-{
   /* Remove handlers */
   g_slist_foreach (self->priv->handlers,
       (GFunc) kms_http_ep_server_remove_handler, self);
@@ -189,6 +174,47 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
       (GDestroyNotify) destroy_handler_data);
 
   return TRUE;
+}
+
+static void
+kms_http_ep_server_start_impl (KmsHttpEPServer *self)
+{
+  SoupSocket *listener;
+  SoupAddress *addr = NULL;
+  gchar *root_path;
+
+  if (self->priv->server != NULL) {
+    GST_WARNING ("Server is already running");
+    return;
+  }
+
+  if (self->priv->iface != NULL) {
+    addr = soup_address_new (self->priv->iface, self->priv->port);
+    /* Synchronously resolves the missing half of addr */
+    /* FIXME: Change this to resolv the address asynchronously */
+    soup_address_resolve_sync (addr, NULL);
+  }
+
+  self->priv->server = soup_server_new (SOUP_SERVER_PORT, self->priv->port,
+      SOUP_SERVER_INTERFACE, addr, NULL);
+
+  root_path = g_strdup_printf (HTTP_EP_SERVER_ROOT_PATH);
+
+  kms_http_ep_server_register_handler (self, root_path, g_object_ref (self),
+      g_object_unref);
+
+  soup_server_run_async (self->priv->server);
+
+  listener = soup_server_get_listener (self->priv->server);
+
+  if (!soup_socket_is_connected (listener) ) {
+    GST_ERROR ("Server socket is not connected");
+    return;
+  }
+
+  addr = soup_socket_get_local_address (listener);
+  GST_DEBUG ("Http end point server running in %s:%d",
+      soup_address_get_physical (addr), soup_address_get_port (addr) );
 }
 
 static const gchar *
@@ -359,8 +385,6 @@ KmsHttpEPServer *
 kms_http_ep_server_new (const char *optname1, ...)
 {
   KmsHttpEPServer *self;
-  SoupAddress *addr = NULL;
-  gchar *root_path;
 
   va_list ap;
 
@@ -368,21 +392,6 @@ kms_http_ep_server_new (const char *optname1, ...)
   self = KMS_HTTP_EP_SERVER (g_object_new_valist (KMS_TYPE_HTTP_EP_SERVER,
       optname1, ap) );
   va_end (ap);
-
-  if (self->priv->iface != NULL) {
-    addr = soup_address_new (self->priv->iface, self->priv->port);
-    /* Synchronously resolves the missing half of addr */
-    /* FIXME: Change this to resolv the address asynchronously */
-    soup_address_resolve_sync (addr, NULL);
-  }
-
-  self->priv->server = soup_server_new (SOUP_SERVER_PORT, self->priv->port,
-      SOUP_SERVER_INTERFACE, addr, NULL);
-
-  root_path = g_strdup_printf (HTTP_EP_SERVER_ROOT_PATH);
-
-  kms_http_ep_server_register_handler (self, root_path, g_object_ref (self),
-      g_object_unref);
 
   return KMS_HTTP_EP_SERVER (self);
 }
