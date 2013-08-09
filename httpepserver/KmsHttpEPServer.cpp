@@ -59,6 +59,14 @@ enum {
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
+/* signals */
+enum {
+  URL_REMOVED,
+  LAST_SIGNAL
+};
+
+static guint obj_signals[LAST_SIGNAL] = { 0 };
+
 struct handler_data {
   gpointer data;
   GDestroyNotify destroy;
@@ -70,7 +78,8 @@ kms_http_ep_server_remove_handler (const gchar *url, KmsHttpEPServer *self)
 {
   GST_DEBUG ("Remove url: %s", url);
   soup_server_remove_handler (self->priv->server, url);
-  /* TODO: Emit removed-url signal */
+
+  g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, url);
 }
 
 static void
@@ -321,6 +330,13 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
   g_object_class_install_properties (gobject_class,
       N_PROPERTIES,
       obj_properties);
+
+  obj_signals[URL_REMOVED] =
+    g_signal_new ("url-removed",
+        G_TYPE_FROM_CLASS (klass),
+        G_SIGNAL_RUN_LAST,
+        G_STRUCT_OFFSET (KmsHttpEPServerClass, url_removed), NULL, NULL,
+        g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   /* Registers a private structure for an instantiatable type */
   g_type_class_add_private (klass, sizeof (KmsHttpEPServerPrivate) );

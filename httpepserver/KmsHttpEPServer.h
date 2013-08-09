@@ -88,6 +88,9 @@ struct _KmsHttpEPServerClass
   void (*stop) (KmsHttpEPServer * self);
   const gchar *(*register_end_point) (KmsHttpEPServer * self, gpointer data,
       GDestroyNotify destroy);
+
+  /* signal callbacks */
+  void (*url_removed) (KmsHttpEPServer * self, gchar * url);
 };
 
 /* used by KMS_TYPE_HTTP_EP_SERVER */
