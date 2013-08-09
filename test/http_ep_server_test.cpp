@@ -36,6 +36,7 @@ static KmsHttpEPServer *httpepserver;
 static GMainLoop *loop = NULL;
 static GSList *urls = NULL;
 static SoupSession *session;
+static guint urls_registered = 0;
 static guint signal_count = 0;
 static guint counted = 0;
 
@@ -46,7 +47,7 @@ BOOST_AUTO_TEST_SUITE (http_ep_server_test)
 
 static gboolean checking_registered_urls (gpointer);
 
-static gboolean
+static void
 register_http_end_points()
 {
   const gchar *url;
@@ -59,13 +60,13 @@ register_http_end_points()
     BOOST_CHECK (url != NULL);
 
     if (url == NULL)
-      return FALSE;
+      continue;
 
     GST_DEBUG ("Registered url: %s", url);
     urls = g_slist_prepend (urls, (gpointer *) g_strdup (url) );
   }
 
-  return TRUE;
+  urls_registered = g_slist_length (urls);
 }
 
 static void
@@ -84,7 +85,7 @@ http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 
-  if (*expected == expected_404 && ++counted == MAX_REGISTERED_HTTP_END_POINTS)
+  if (*expected == expected_404 && ++counted == urls_registered)
     g_main_loop_quit (loop);
 
   soup_uri_free (uri);
@@ -125,6 +126,19 @@ url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
   send_get_request (url, &expected_404);
 }
 
+static void
+http_server_start_cb (KmsHttpEPServer *self, GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    return;
+  }
+
+  register_http_end_points();
+
+  g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_200);
+}
+
 BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
 {
   gst_init (NULL, NULL);
@@ -140,18 +154,13 @@ BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
 
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (url_removed_cb),
       NULL);
-  kms_http_ep_server_start (httpepserver);
 
-  if (!register_http_end_points() )
-    goto end;
-
-  g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_200);
+  kms_http_ep_server_start (httpepserver, http_server_start_cb);
 
   g_main_loop_run (loop);
 
-  BOOST_CHECK_EQUAL (signal_count, MAX_REGISTERED_HTTP_END_POINTS);
+  BOOST_CHECK_EQUAL (signal_count, urls_registered);
 
-end:
   GST_DEBUG ("Test finished");
 
   /* Stop Http End Point Server and destroy it */

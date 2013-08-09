@@ -73,6 +73,11 @@ struct handler_data {
   KmsHttpEPServer *server;
 };
 
+struct resolv_data {
+  KmsHttpEPServerStartCallback cb;
+  KmsHttpEPServer *server;
+};
+
 static void
 kms_http_ep_server_remove_handler (const gchar *url, KmsHttpEPServer *self)
 {
@@ -177,23 +182,10 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
 }
 
 static void
-kms_http_ep_server_start_impl (KmsHttpEPServer *self)
+kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
 {
   SoupSocket *listener;
-  SoupAddress *addr = NULL;
   gchar *root_path;
-
-  if (self->priv->server != NULL) {
-    GST_WARNING ("Server is already running");
-    return;
-  }
-
-  if (self->priv->iface != NULL) {
-    addr = soup_address_new (self->priv->iface, self->priv->port);
-    /* Synchronously resolves the missing half of addr */
-    /* FIXME: Change this to resolv the address asynchronously */
-    soup_address_resolve_sync (addr, NULL);
-  }
 
   self->priv->server = soup_server_new (SOUP_SERVER_PORT, self->priv->port,
       SOUP_SERVER_INTERFACE, addr, NULL);
@@ -215,6 +207,69 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self)
   addr = soup_socket_get_local_address (listener);
   GST_DEBUG ("Http end point server running in %s:%d",
       soup_address_get_physical (addr), soup_address_get_port (addr) );
+}
+
+static void
+soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
+{
+  struct resolv_data *rdata = (struct resolv_data *) user_data;
+  GError *gerr = NULL;
+
+  switch (status) {
+  case SOUP_STATUS_OK:
+    GST_DEBUG ("Domain name resolved");
+    kms_http_ep_server_create_server (rdata->server, addr);
+    break;
+  case SOUP_STATUS_CANCELLED:
+    g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+        HTTPEPSERVER_RESOLVE_CANCELED_ERROR, "Domain name resolution canceled");
+    break;
+  case SOUP_STATUS_CANT_RESOLVE:
+    g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+        HTTPEPSERVER_CANT_RESOLVE_ERROR, "Domain name can not be resolved");
+    break;
+  default:
+    g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+        HTTPEPSERVER_UNEXPECTED_ERROR, "Domain name can not be resolved");
+    break;
+  }
+
+  rdata->cb (rdata->server, gerr);
+  g_object_unref (rdata->server);
+
+  if (gerr != NULL)
+    g_error_free (gerr);
+
+  g_slice_free (struct resolv_data, rdata);
+}
+
+static void
+kms_http_ep_server_start_impl (KmsHttpEPServer *self,
+    KmsHttpEPServerStartCallback start_cb)
+{
+  struct resolv_data *rdata;
+  SoupAddress *addr = NULL;
+
+  if (self->priv->server != NULL) {
+    GST_WARNING ("Server is already running");
+    return;
+  }
+
+  if (self->priv->iface == NULL) {
+    kms_http_ep_server_create_server (self, NULL);
+    start_cb (self, NULL);
+    return;
+  }
+
+  rdata = g_slice_new (struct resolv_data);
+  rdata->cb = start_cb;
+  rdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
+
+  addr = soup_address_new (self->priv->iface, self->priv->port);
+
+  soup_address_resolve_async (addr, NULL,
+      NULL /* FIXME: Add cancellable support */,
+      (SoupAddressCallback) soup_address_callback, rdata);
 }
 
 static const gchar *
@@ -397,11 +452,12 @@ kms_http_ep_server_new (const char *optname1, ...)
 }
 
 void
-kms_http_ep_server_start (KmsHttpEPServer *self)
+kms_http_ep_server_start (KmsHttpEPServer *self,
+    KmsHttpEPServerStartCallback start_cb)
 {
   g_return_if_fail (KMS_IS_HTTP_EP_SERVER (self) );
 
-  KMS_HTTP_EP_SERVER_GET_CLASS (self)->start (self);
+  KMS_HTTP_EP_SERVER_GET_CLASS (self)->start (self, start_cb);
 }
 
 void

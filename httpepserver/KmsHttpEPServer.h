@@ -65,9 +65,22 @@
     KmsHttpEPServerClass)                    \
 )
 
+#define KMS_HTTP_EP_SERVER_ERROR \
+  g_quark_from_static_string("kms-http-ep-server-error-quark")
+
+typedef enum
+{
+  HTTPEPSERVER_RESOLVE_CANCELED_ERROR,
+  HTTPEPSERVER_CANT_RESOLVE_ERROR,
+  HTTPEPSERVER_UNEXPECTED_ERROR
+} HttpEPServerError;
+
 typedef struct _KmsHttpEPServer KmsHttpEPServer;
 typedef struct _KmsHttpEPServerClass KmsHttpEPServerClass;
 typedef struct _KmsHttpEPServerPrivate KmsHttpEPServerPrivate;
+
+typedef void (*KmsHttpEPServerStartCallback) (KmsHttpEPServer * self,
+    GError * err);
 
 struct _KmsHttpEPServer
 {
@@ -84,7 +97,7 @@ struct _KmsHttpEPServerClass
   GObjectClass parent_class;
 
   /* public virtual methods */
-  void (*start) (KmsHttpEPServer * self);
+  void (*start) (KmsHttpEPServer * self, KmsHttpEPServerStartCallback);
   void (*stop) (KmsHttpEPServer * self);
   const gchar *(*register_end_point) (KmsHttpEPServer * self, gpointer data,
       GDestroyNotify destroy);
@@ -98,7 +111,8 @@ GType kms_http_ep_server_get_type (void);
 
 /* Virtual public methods */
 KmsHttpEPServer *kms_http_ep_server_new (const char *optname1, ...);
-void kms_http_ep_server_start (KmsHttpEPServer * self);
+void kms_http_ep_server_start (KmsHttpEPServer * self,
+    KmsHttpEPServerStartCallback start_cb);
 void kms_http_ep_server_stop (KmsHttpEPServer * self);
 const gchar *kms_http_ep_server_register_end_point (KmsHttpEPServer * self,
     gpointer data, GDestroyNotify destroy);

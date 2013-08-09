@@ -386,6 +386,12 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
   }
 }
 
+static void
+http_server_start_cb (KmsHttpEPServer *self, GError *err)
+{
+  GST_DEBUG ("HttpEPServer started");
+}
+
 int
 main (int argc, char **argv)
 {
@@ -433,7 +439,7 @@ main (int argc, char **argv)
   httpepserver = kms_http_ep_server_new (
       KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
       KMS_HTTP_EP_SERVER_INTERFACE, httpEPServerAddress.c_str(), NULL);
-  kms_http_ep_server_start (httpepserver);
+  kms_http_ep_server_start (httpepserver, http_server_start_cb);
 
   loop->run ();
 
