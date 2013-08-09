@@ -136,6 +136,8 @@ kms_http_ep_server_dispose (GObject *obj)
 {
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (obj);
 
+  GST_DEBUG_OBJECT (self, "dispose");
+
   if (self->priv->server) {
     soup_server_disconnect (self->priv->server);
     g_clear_object (&self->priv->server);
@@ -149,6 +151,8 @@ static void
 kms_http_ep_server_finalize (GObject *obj)
 {
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (obj);
+
+  GST_DEBUG_OBJECT (self, "finalize");
 
   if (self->priv->iface) {
     g_free (self->priv->iface);
