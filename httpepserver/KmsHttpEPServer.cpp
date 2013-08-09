@@ -59,11 +59,18 @@ enum {
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
+struct handler_data {
+  gpointer data;
+  GDestroyNotify destroy;
+  KmsHttpEPServer *server;
+};
+
 static void
-kms_http_ep_server_remove_handler (gchar *url, KmsHttpEPServer *self)
+kms_http_ep_server_remove_handler (const gchar *url, KmsHttpEPServer *self)
 {
   GST_DEBUG ("Remove url: %s", url);
   soup_server_remove_handler (self->priv->server, url);
+  /* TODO: Emit removed-url signal */
 }
 
 static void
@@ -71,10 +78,37 @@ kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
     const char *path, GHashTable *query, SoupClientContext *client,
     gpointer user_data)
 {
+  struct handler_data *hdata = (struct handler_data *) user_data;
+  gchar *url;
+  GSList *l;
+
   GST_WARNING ("%s path: %s", msg->method, path);
 
-  soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
-      "HttpEPServer is not yet implemented");
+  if (g_strcmp0 (path, HTTP_EP_SERVER_ROOT_PATH) == 0) {
+    soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
+        "Not implemented");
+    return;
+  }
+
+  l = g_slist_find_custom (hdata->server->priv->handlers, path,
+      (GCompareFunc) g_strcmp0);
+
+  if (l == NULL) {
+    /* URL is not registered */
+    soup_message_set_status_full (msg, SOUP_STATUS_NOT_FOUND,
+        "Http end point not found");
+    return;
+  }
+
+  /* TODO: Send request to the object */
+  soup_message_set_status_full (msg, SOUP_STATUS_OK, "Transfer media");
+
+  url = (gchar *) l->data;
+  hdata->server->priv->handlers = g_slist_remove (hdata->server->priv->handlers,
+      l->data);
+
+  kms_http_ep_server_remove_handler (path, hdata->server);
+  g_free (url);
 }
 
 static void
@@ -108,9 +142,49 @@ kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
   soup_server_quit (self->priv->server);
 }
 
+static void
+destroy_handler_data (struct handler_data *hdata)
+{
+  if (hdata->destroy != NULL) {
+    GST_DEBUG ("Destroying handler data: %P", hdata->data);
+    hdata->destroy (hdata->data);
+  }
+
+  g_object_unref (hdata->server);
+  g_slice_free (struct handler_data, hdata);
+}
+
+static gboolean
+kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
+    gpointer data, GDestroyNotify destroy)
+{
+  struct handler_data *hdata;
+  GSList *l;
+
+  l = g_slist_find_custom (self->priv->handlers, url, (GCompareFunc) g_strcmp0);
+
+  if (l != NULL) {
+    /* URL is already registered */
+    return FALSE;
+  }
+
+  self->priv->handlers = g_slist_prepend (self->priv->handlers, url);
+
+  hdata = g_slice_new (struct handler_data);
+  hdata->data = data;
+  hdata->destroy = destroy;
+  hdata->server = KMS_HTTP_EP_SERVER (g_object_ref (self) );
+
+  soup_server_add_handler (self->priv->server, url,
+      kms_http_ep_server_req_handler, hdata,
+      (GDestroyNotify) destroy_handler_data);
+
+  return TRUE;
+}
+
 static const gchar *
 kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
-    GstElement *httpEP, GDestroyNotify destroy)
+    gpointer data, GDestroyNotify destroy)
 {
   gchar *url;
   uuid_t uuid;
@@ -124,9 +198,10 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
   url = g_strdup_printf ("/%s", uuid_str);
   g_free (uuid_str);
 
-  self->priv->handlers = g_slist_prepend (self->priv->handlers, url);
-  soup_server_add_handler (self->priv->server, url,
-      kms_http_ep_server_req_handler, httpEP, destroy);
+  if (!kms_http_ep_server_register_handler (self, url, data, destroy) ) {
+    g_free (url);
+    return NULL;
+  }
 
   return url;
 }
@@ -289,10 +364,9 @@ kms_http_ep_server_new (const char *optname1, ...)
       SOUP_SERVER_INTERFACE, addr, NULL);
 
   root_path = g_strdup_printf (HTTP_EP_SERVER_ROOT_PATH);
-  self->priv->handlers = g_slist_prepend (self->priv->handlers, root_path);
 
-  soup_server_add_handler (self->priv->server, HTTP_EP_SERVER_ROOT_PATH,
-      kms_http_ep_server_req_handler, g_object_ref (self), g_object_unref);
+  kms_http_ep_server_register_handler (self, root_path, g_object_ref (self),
+      g_object_unref);
 
   return KMS_HTTP_EP_SERVER (self);
 }
@@ -315,9 +389,10 @@ kms_http_ep_server_stop (KmsHttpEPServer *self)
 
 const gchar *
 kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
-    GstElement *httpEP, GDestroyNotify destroy)
+    gpointer data, GDestroyNotify destroy)
 {
   g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), NULL);
 
-  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self, httpEP, destroy);
+  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self, data,
+      destroy);
 }

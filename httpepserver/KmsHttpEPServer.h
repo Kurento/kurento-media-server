@@ -86,8 +86,8 @@ struct _KmsHttpEPServerClass
   /* public virtual methods */
   void (*start) (KmsHttpEPServer * self);
   void (*stop) (KmsHttpEPServer * self);
-  const gchar *(*register_end_point) (KmsHttpEPServer * self,
-      GstElement * httpEP, GDestroyNotify destroy);
+  const gchar *(*register_end_point) (KmsHttpEPServer * self, gpointer data,
+      GDestroyNotify destroy);
 };
 
 /* used by KMS_TYPE_HTTP_EP_SERVER */
@@ -98,7 +98,7 @@ KmsHttpEPServer *kms_http_ep_server_new (const char *optname1, ...);
 void kms_http_ep_server_start (KmsHttpEPServer * self);
 void kms_http_ep_server_stop (KmsHttpEPServer * self);
 const gchar *kms_http_ep_server_register_end_point (KmsHttpEPServer * self,
-    GstElement * httpEP, GDestroyNotify destroy);
+    gpointer data, GDestroyNotify destroy);
 
 #define KMS_HTTP_EP_SERVER_PORT "port"
 #define KMS_HTTP_EP_SERVER_INTERFACE "interface"

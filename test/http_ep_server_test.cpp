@@ -38,9 +38,14 @@ static GSList *urls = NULL;
 static SoupSession *session;
 static guint req_done = 0;
 
+static gboolean finish = FALSE;
+static guint expected_status_code;
+
 BOOST_AUTO_TEST_SUITE (http_ep_server_test)
 
-static void
+static gboolean checking_registered_urls (gpointer);
+
+static gboolean
 register_http_end_points()
 {
   const gchar *url;
@@ -49,8 +54,29 @@ register_http_end_points()
   for (i = 0; i < MAX_REGISTERED_HTTP_END_POINTS; i++) {
     /* TODO: Create a real HttpEndPoint element here */
     url = kms_http_ep_server_register_end_point (httpepserver, NULL, NULL);
+
+    BOOST_CHECK (url != NULL);
+
+    if (url == NULL)
+      return FALSE;
+
     GST_DEBUG ("Registered url: %s", url);
-    urls = g_slist_prepend (urls, (gpointer *) url);
+    urls = g_slist_prepend (urls, (gpointer *) g_strdup (url) );
+  }
+
+  return TRUE;
+}
+
+static void
+next_iteration (void)
+{
+  if (finish)
+    g_main_loop_quit (loop);
+  else {
+    req_done = 0;
+    finish = TRUE;
+    expected_status_code = SOUP_STATUS_NOT_FOUND;
+    g_idle_add ( (GSourceFunc) checking_registered_urls, NULL);
   }
 }
 
@@ -64,10 +90,13 @@ http_req_callback (SoupSession *session, SoupMessage *msg, gpointer user_data)
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
       &status_code, "uri", &uri, NULL);
 
-  GST_DEBUG ("%s %s status code: %d", method, soup_uri_get_path (uri), status_code);
+  GST_DEBUG ("%s %s status code: %d", method, soup_uri_get_path (uri),
+      status_code);
+
+  BOOST_CHECK_EQUAL (status_code, expected_status_code);
 
   if (++req_done == MAX_REGISTERED_HTTP_END_POINTS)
-    g_main_loop_quit (loop);
+    next_iteration();
 
   soup_uri_free (uri);
   g_free (method);
@@ -83,12 +112,13 @@ send_get_request (gchar *url, gpointer user_data)
 
   GST_DEBUG ("Send " HTTP_GET " %s", uri);
   msg = soup_message_new (HTTP_GET, uri);
-  soup_session_queue_message (session, msg, (SoupSessionCallback) http_req_callback, NULL);
+  soup_session_queue_message (session, msg,
+      (SoupSessionCallback) http_req_callback, NULL);
 
   g_free (uri);
 }
 
-static gboolean
+gboolean
 checking_registered_urls (gpointer data)
 {
   GST_DEBUG ("Sending GET request to all urls registered");
@@ -112,17 +142,22 @@ BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
       KMS_HTTP_EP_SERVER_INTERFACE, DEFAULT_HOST, NULL);
   kms_http_ep_server_start (httpepserver);
 
-  register_http_end_points();
+  if (!register_http_end_points() )
+    goto end;
 
+  expected_status_code = SOUP_STATUS_OK;
   g_idle_add ( (GSourceFunc) checking_registered_urls, NULL);
 
   g_main_loop_run (loop);
+
+end:
+  GST_DEBUG ("Test finished");
 
   /* Stop Http End Point Server and destroy it */
   kms_http_ep_server_stop (httpepserver);
   g_object_unref (G_OBJECT (httpepserver) );
   g_object_unref (G_OBJECT (session) );
-  g_slist_free (urls);
+  g_slist_free_full (urls, g_free);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
