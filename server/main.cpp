@@ -389,7 +389,17 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
 static void
 http_server_start_cb (KmsHttpEPServer *self, GError *err)
 {
-  GST_DEBUG ("HttpEPServer started");
+  if (err != NULL) {
+    GST_ERROR ("Http server could not start. Reason: %s", err->message);
+    loop->quit ();
+    return;
+  }
+
+  GST_DEBUG ("HttpEPServer started. Setting up thrift server service.");
+
+  /* Created thread not used for joining because of a bug in thrift */
+  sigc::slot < void >ss = sigc::ptr_fun (&create_media_server_service);
+  Glib::Thread::create (ss, true);
 }
 
 int
@@ -431,11 +441,8 @@ main (int argc, char **argv)
   else
     load_config ( (std::string) conf_file);
 
-  sigc::slot < void >ss = sigc::ptr_fun (&create_media_server_service);
-  Glib::Thread::create (ss, true); /* Created thread not used to join
-                                      because of a bug in thrift */
-
   /* Start Http End Point Server */
+  GST_DEBUG ("Starting Http ens point server.");
   httpepserver = kms_http_ep_server_new (
       KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
       KMS_HTTP_EP_SERVER_INTERFACE, httpEPServerAddress.c_str(), NULL);
