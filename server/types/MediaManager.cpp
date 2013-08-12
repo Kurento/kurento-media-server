@@ -36,6 +36,19 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+static void
+receive_message (GstBus *bus, GstMessage *message, gpointer pipeline)
+{
+  switch (message->type) {
+  case GST_MESSAGE_ERROR:
+    GST_ERROR ("Error on bus: %P", message);
+    // TODO: Check if further notification is needed
+    break;
+  default:
+    break;
+  }
+}
+
 MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaObjectImpl()
 {
   this->type.__set_mediaObject (MediaObjectType::type::MEDIA_MANAGER);
@@ -43,11 +56,19 @@ MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaO
   element = gst_pipeline_new (token.c_str () );
   g_object_set (G_OBJECT (element), "async-handling", TRUE, NULL);
   gst_element_set_state (element, GST_STATE_PLAYING);
-  // TODO: attach MediaManger to the gst bus
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (element) );
+  gst_bus_add_signal_watch (bus);
+
+  g_signal_connect (bus, "message", G_CALLBACK (receive_message), element);
+
+  g_object_unref (bus);
 }
 
 MediaManager::~MediaManager() throw()
 {
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (element) );
+  gst_bus_remove_signal_watch (bus);
+  g_object_unref (bus);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }
