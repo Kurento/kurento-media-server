@@ -20,6 +20,10 @@
 
 #include "ZBarFilter.hpp"
 
+#define GST_CAT_DEFAULT kurento_zbar_filter
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoZBarFilter"
+
 namespace kurento
 {
 
@@ -44,6 +48,14 @@ ZBarFilter::~ZBarFilter() throw ()
   gst_bin_remove (GST_BIN (parent->element), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
+}
+
+ZBarFilter::StaticConstructor ZBarFilter::staticConstructor;
+
+ZBarFilter::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento

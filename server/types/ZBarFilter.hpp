@@ -31,6 +31,16 @@ class ZBarFilter : public Filter
 public:
   ZBarFilter (std::shared_ptr<MediaManager> parent);
   ~ZBarFilter() throw ();
+
+private:
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento
