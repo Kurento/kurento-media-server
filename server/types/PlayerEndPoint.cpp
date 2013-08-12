@@ -26,12 +26,22 @@ namespace kurento
 PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri)
   : UriEndPoint (parent, uri, UriEndPointType::type::PLAYER_END_POINT)
 {
+  gchar *name;
 
+  name = getIdStr ();
+  element = gst_element_factory_make ("playerendpoint", name);
+  g_free (name);
+
+  g_object_ref (element);
+  gst_bin_add (GST_BIN (parent->element), element);
+  gst_element_sync_state_with_parent (element);
 }
 
 PlayerEndPoint::~PlayerEndPoint() throw ()
 {
-
+  gst_bin_remove (GST_BIN (parent->element), element);
+  gst_element_set_state (element, GST_STATE_NULL);
+  g_object_unref (element);
 }
 
 } // kurento
