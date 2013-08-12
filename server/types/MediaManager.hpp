@@ -50,6 +50,14 @@ public:
 
 private:
   std::shared_ptr<MediaHandler> mediaHandler;
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento

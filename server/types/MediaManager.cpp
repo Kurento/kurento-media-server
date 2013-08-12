@@ -29,6 +29,10 @@
 
 #include <glibmm.h>
 
+#define GST_CAT_DEFAULT kurento_media_manager
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoMediaManager"
+
 namespace kurento
 {
 
@@ -123,6 +127,14 @@ MediaManager::createFilter (const FilterType::type type)
     e.__set_description (std::string ("Filter type does not exist.") );
     throw e;
   }
+}
+
+MediaManager::StaticConstructor MediaManager::staticConstructor;
+
+MediaManager::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento
