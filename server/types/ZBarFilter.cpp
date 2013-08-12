@@ -27,6 +27,14 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+static void
+receive_message (GstBus *bus, GstMessage *message, gpointer element)
+{
+  if (GST_MESSAGE_SRC (message) == element) {
+    GST_DEBUG ("Message on bus: %P", message);
+  }
+}
+
 ZBarFilter::ZBarFilter (std::shared_ptr<MediaManager> parent) : Filter (parent, FilterType::type::ZBAR_FILTER)
 {
   gchar *name;
@@ -40,11 +48,15 @@ ZBarFilter::ZBarFilter (std::shared_ptr<MediaManager> parent) : Filter (parent, 
   gst_bin_add (GST_BIN (parent->element), element);
   gst_element_sync_state_with_parent (element);
 
-  // TODO: receive zbar messages in the bus and launch a MediaEvent
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (parent->element) );
+  bus_handler_id = g_signal_connect (bus, "message", G_CALLBACK (receive_message), element);
+  g_object_unref (bus);
 }
 
 ZBarFilter::~ZBarFilter() throw ()
 {
+  g_source_remove (bus_handler_id);
+
   gst_bin_remove (GST_BIN (parent->element), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);

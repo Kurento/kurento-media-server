@@ -34,6 +34,8 @@ public:
 
 private:
 
+  gulong bus_handler_id;
+
   class StaticConstructor
   {
   public:
