@@ -20,9 +20,9 @@
 
 #include "UriEndPoint.hpp"
 
-#define GST_CAT_DEFAULT uri_end_point
+#define GST_CAT_DEFAULT kurento_uri_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "UriEndPoint"
+#define GST_DEFAULT_NAME "KurentoUriEndPoint"
 
 namespace kurento
 {
