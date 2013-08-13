@@ -52,19 +52,19 @@ UriEndPoint::getUri ()
 void
 UriEndPoint::start ()
 {
-  GST_INFO ("URIENDPOINT START");
+  g_object_set (G_OBJECT (element), "state", 1 /* start */, NULL);
 }
 
 void
 UriEndPoint::pause ()
 {
-  GST_INFO ("URIENDPOINT PAUSE");
+  g_object_set (G_OBJECT (element), "state", 2 /* pause */, NULL);
 }
 
 void
 UriEndPoint::stop ()
 {
-  GST_INFO ("URIENDPOINT STOP");
+  g_object_set (G_OBJECT (element), "state", 0 /* stop */, NULL);
 }
 
 UriEndPoint::StaticConstructor UriEndPoint::staticConstructor;
