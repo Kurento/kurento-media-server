@@ -20,13 +20,42 @@
 
 #include "MediaHandler.hpp"
 
+#include "thrift/transport/TSocket.h"
+#include "thrift/transport/TBufferTransports.h"
+#include "thrift/protocol/TBinaryProtocol.h"
+
+#include "MediaHandlerService.h"
+
+using namespace ::apache::thrift::transport;
+using namespace ::apache::thrift::protocol;
+
 namespace kurento
 {
 
 void
 MediaHandler::sendEvent (MediaEvent &event)
 {
-  // TODO: Implement this trying to send the event to the possible addresses
+  mutex.lock();
+  std::list<std::shared_ptr<MediaHandlerAddress>>::iterator randIt = addresses.begin();
+  std::advance (randIt, std::rand() % addresses.size() );
+  std::shared_ptr<MediaHandlerAddress> addr = *randIt;
+  mutex.unlock();
+
+  boost::shared_ptr<TSocket> socket (new TSocket (addr->address, addr->port) );
+  boost::shared_ptr<TTransport> transport (new TFramedTransport (socket) );
+  boost::shared_ptr<TBinaryProtocol> protocol (new TBinaryProtocol (transport) );
+
+  try {
+    transport->open();
+
+    MediaHandlerServiceClient client (protocol);
+
+    client.onEvent (event);
+    //TODO: Move the reply wating to a different thread to avoid locking main loop
+    transport->close();
+  } catch (...) {
+    // TODO: Try to send event again or raise error;
+  }
 }
 
 }
