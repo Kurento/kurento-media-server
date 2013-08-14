@@ -20,9 +20,17 @@
 
 #include "PlayerEndPoint.hpp"
 
+#include "mediaEvents_types.h"
+#include "protocol/TBinaryProtocol.h"
+#include "transport/TBufferTransports.h"
+
 #define GST_CAT_DEFAULT kurento_player_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPlayerEndPoint"
+
+
+using apache::thrift::transport::TMemoryBuffer;
+using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {
@@ -30,6 +38,21 @@ namespace kurento
 static void
 player_eos (GstElement *player, PlayerEndPoint *self)
 {
+  MediaEvent event;
+  EndOfStreamEvent eosEvent;
+  PlayerEndPointEvent playerEvent;
+
+  boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
+  TBinaryProtocol protocol (transport);
+
+  playerEvent.__set_eos (eosEvent);
+  playerEvent.write (&protocol);
+  std::string event_str;
+  transport->appendBufferToString (event_str);
+  event.__set_event (event_str);
+  event.__set_source (*self);
+
+  std::dynamic_pointer_cast<MediaManager> (self->parent)->sendEvent (event);
   GST_DEBUG ("Player finished");
 }
 
@@ -41,7 +64,6 @@ PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std:
   name = getIdStr ();
   element = gst_element_factory_make ("playerendpoint", name);
   g_free (name);
-
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 
   g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);
