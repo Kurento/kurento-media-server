@@ -22,6 +22,7 @@
 #define __MEDIA_HANDLER_H__
 
 #include "mediaHandler_types.h"
+#include <glibmm.h>
 
 namespace kurento
 {
@@ -42,15 +43,23 @@ public:
 class MediaHandler
 {
 public:
-  int32_t id;
-  std::list<std::shared_ptr<MediaHandlerAddress>> addresses;
-
   MediaHandler (int32_t id)
   {
     this->id= id;
   };
 
+  void addAddress (std::shared_ptr<MediaHandlerAddress> &address) {
+    mutex.lock();
+    addresses.push_back (address);
+    mutex.unlock();
+  }
+
   void sendEvent (MediaEvent &event);
+
+private:
+  Glib::Threads::RecMutex mutex;
+  int32_t id;
+  std::list<std::shared_ptr<MediaHandlerAddress>> addresses;
 
 };
 

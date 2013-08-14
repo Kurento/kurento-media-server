@@ -77,7 +77,7 @@ MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std
   mediaHandlerMutex.unlock ();
 
   mha = std::shared_ptr<MediaHandlerAddress> (new MediaHandlerAddress (address, port) );
-  mh->addresses.push_back (mha);
+  mh->addAddress (mha);
 }
 
 /* MediaObject */
