@@ -1,5 +1,5 @@
 /*
- * MediaHandler.hpp - Kurento Media Server
+ * MediaManager.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,42 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MEDIA_HANDLER_H__
-#define __MEDIA_HANDLER_H__
-
-#include "mediaHandler_types.h"
+#include "MediaHandler.hpp"
 
 namespace kurento
 {
 
-class MediaHandlerAddress
+void
+MediaHandler::sendEvent (MediaEvent &event)
 {
-public:
-  MediaHandlerAddress (const std::string &address, const int32_t port)
-  {
-    this->address = address;
-    this->port= port;
-  };
+  // TODO: Implement this trying to send the event to the possible addresses
+}
 
-  std::string address;
-  int32_t port;
-};
-
-class MediaHandler
-{
-public:
-  int32_t id;
-  std::list<std::shared_ptr<MediaHandlerAddress>> addresses;
-
-  MediaHandler (int32_t id)
-  {
-    this->id= id;
-  };
-
-  void sendEvent (MediaEvent &event);
-
-};
-
-} // kurento
-
-#endif /* __MEDIA_HANDLER_H__ */
+}

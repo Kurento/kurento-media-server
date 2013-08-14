@@ -73,6 +73,12 @@ MediaManager::~MediaManager() throw()
   g_object_unref (element);
 }
 
+void
+MediaManager::sendEvent (MediaEvent &event)
+{
+  this->mediaHandler->sendEvent (event);
+}
+
 std::shared_ptr<SdpEndPoint>
 MediaManager::createSdpEndPoint (const SdpEndPointType::type type)
 {

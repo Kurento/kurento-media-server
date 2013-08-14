@@ -48,6 +48,8 @@ public:
   std::shared_ptr<Mixer> createMixer (const MixerType::type type);
   std::shared_ptr<Filter> createFilter (const FilterType::type type);
 
+  void sendEvent (MediaEvent &event);
+
 private:
   std::shared_ptr<MediaHandler> mediaHandler;
 
