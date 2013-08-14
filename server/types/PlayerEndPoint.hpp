@@ -31,6 +31,15 @@ class PlayerEndPoint : public UriEndPoint
 public:
   PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri);
   ~PlayerEndPoint() throw ();
+
+private:
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento

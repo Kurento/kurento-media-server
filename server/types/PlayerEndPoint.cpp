@@ -20,6 +20,10 @@
 
 #include "PlayerEndPoint.hpp"
 
+#define GST_CAT_DEFAULT kurento_player_end_point
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoPlayerEndPoint"
+
 namespace kurento
 {
 
@@ -44,6 +48,14 @@ PlayerEndPoint::~PlayerEndPoint() throw ()
   gst_bin_remove (GST_BIN (parent->element), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
+}
+
+PlayerEndPoint::StaticConstructor PlayerEndPoint::staticConstructor;
+
+PlayerEndPoint::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento
