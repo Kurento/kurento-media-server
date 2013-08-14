@@ -27,6 +27,12 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+static void
+player_eos (GstElement *player, PlayerEndPoint *self)
+{
+  GST_DEBUG ("Player finished");
+}
+
 PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri)
   : UriEndPoint (parent, UriEndPointType::type::PLAYER_END_POINT)
 {
@@ -37,6 +43,8 @@ PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std:
   g_free (name);
 
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
+
+  g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);
 
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->element), element);
