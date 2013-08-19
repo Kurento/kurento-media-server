@@ -31,12 +31,14 @@ class MediaElement;
 class MediaPad : public MediaObjectImpl, public std::enable_shared_from_this<MediaPad>
 {
 public:
-  MediaPad (std::shared_ptr<MediaElement> parent, MediaPadType::type);
+  MediaPad (std::shared_ptr<MediaElement> parent, MediaType::type, MediaPadType::type);
   virtual ~MediaPad() throw () = 0;
 
   MediaType::type getMediaType ();
 
 private:
+  MediaType::type mediaType;
+
   class StaticConstructor
   {
   public:

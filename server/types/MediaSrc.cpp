@@ -29,7 +29,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaSrc::MediaSrc (std::shared_ptr<MediaElement> parent) : MediaPad (parent, MediaPadType::type::MEDIA_SRC)
+MediaSrc::MediaSrc (std::shared_ptr< kurento::MediaElement > parent, kurento::MediaType::type mediaType) : MediaPad (parent, mediaType, MediaPadType::type::MEDIA_SRC)
 {
 
 }
@@ -59,7 +59,6 @@ MediaSrc:: getConnectedSinks ()
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (std::dynamic_pointer_cast<MediaElement> (parent) ) ) );
 
   return mediaSinks;
 }

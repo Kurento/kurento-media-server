@@ -24,7 +24,7 @@
 namespace kurento
 {
 
-MediaSink::MediaSink (std::shared_ptr<MediaElement> parent) : MediaPad (parent, MediaPadType::type::MEDIA_SINK)
+MediaSink::MediaSink (std::shared_ptr<MediaElement> parent, MediaType::type mediaType) : MediaPad (parent, mediaType, MediaPadType::type::MEDIA_SINK)
 {
 
 }
@@ -38,7 +38,7 @@ std::shared_ptr<MediaSrc>
 MediaSink::getConnectedSrc ()
 {
   //TODO: complete
-  return std::shared_ptr<MediaSrc> (new MediaSrc (std::dynamic_pointer_cast<MediaElement> (parent) ) );
+  return std::shared_ptr<MediaSrc> (new MediaSrc (std::dynamic_pointer_cast<MediaElement> (parent) , MediaType::type::AUDIO) );
 }
 
 } // kurento

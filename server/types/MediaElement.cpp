@@ -42,7 +42,6 @@ MediaElement::getMediaSrcs ()
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (shared_from_this() ) ) );
 
   return mediaSrcs;
 }
@@ -53,7 +52,6 @@ MediaElement::getMediaSinks()
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (shared_from_this() ) ) );
 
   return mediaSinks;
 }
@@ -64,7 +62,6 @@ MediaElement::getMediaSrcsByMediaType (const MediaType::type mediaType)
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
   //TODO: complete
-  mediaSrcs->push_back (std::shared_ptr<MediaSrc> (new MediaSrc (shared_from_this() ) ) );
 
   return mediaSrcs;
 }
@@ -75,7 +72,6 @@ MediaElement::getMediaSinksByMediaType (const MediaType::type mediaType)
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   //TODO: complete
-  mediaSinks->push_back (std::shared_ptr<MediaSink> (new MediaSink (shared_from_this() ) ) );
 
   return mediaSinks;
 }

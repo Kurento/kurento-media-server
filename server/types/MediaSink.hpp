@@ -32,10 +32,9 @@ class MediaSrc;
 class MediaSink : public MediaPad
 {
 public:
-  MediaSink (std::shared_ptr<MediaElement> parent);
+  MediaSink (std::shared_ptr<MediaElement> parent, MediaType::type mediaType);
   ~MediaSink() throw ();
 
-  MediaType::type getMediaType ();
   std::shared_ptr<MediaSrc> getConnectedSrc ();
 };
 

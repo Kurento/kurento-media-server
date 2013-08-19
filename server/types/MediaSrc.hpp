@@ -29,10 +29,9 @@ namespace kurento
 class MediaSrc : public MediaPad
 {
 public:
-  MediaSrc (std::shared_ptr<MediaElement> parent);
+  MediaSrc (std::shared_ptr<MediaElement> parent, MediaType::type mediaType);
   ~MediaSrc() throw ();
 
-  MediaType::type getMediaType ();
   void connect (const MediaSink &mediaSink);
   void disconnect (const MediaSink &mediaSink);
   std::vector < std::shared_ptr<MediaSink> > * getConnectedSinks ();
