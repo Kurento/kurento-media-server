@@ -22,9 +22,9 @@
 
 #include "MediaElement.hpp"
 
-#define GST_CAT_DEFAULT media_src
+#define GST_CAT_DEFAULT kurento_media_src
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "MediaSrc"
+#define GST_DEFAULT_NAME "KurentoMediaSrc"
 
 namespace kurento
 {
