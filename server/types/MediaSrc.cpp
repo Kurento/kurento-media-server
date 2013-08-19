@@ -40,25 +40,43 @@ MediaSrc::~MediaSrc() throw ()
 }
 
 void
-MediaSrc::connect (const MediaSink &mediaSink)
+MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 {
-  //TODO: complete
-  GST_INFO ("connect %ld to %ld", this->id, mediaSink.id);
+  mediaSink->setConnectedSrc (shared_from_this() );
+  //TODO: complete linking element pads
+  GST_INFO ("connect %ld to %ld", this->id, mediaSink->id);
 }
 
 void
-MediaSrc::disconnect (const MediaSink &mediaSink)
+MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
 {
-  //TODO: complete
-  GST_INFO ("disconnect %ld from %ld", this->id, mediaSink.id);
+  std::shared_ptr<MediaSrc> emptySrc;
+
+  mutex.lock();
+
+  // TODO: Connect gstreamer pad and if all goes correct do the following
+  mediaSink->setConnectedSrc (emptySrc);
+  connectedSinks.insert (mediaSink);
+
+  mutex.unlock();
+  //TODO: complete unlinking elements
+  GST_INFO ("disconnect %ld from %ld", this->id, mediaSink->id);
 }
 
 std::vector < std::shared_ptr<MediaSink> > *
 MediaSrc:: getConnectedSinks ()
 {
+  std::set< std::shared_ptr<MediaSink> >::iterator it;
+
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
-  //TODO: complete
+  mutex.lock();
+
+  for ( it = connectedSinks.begin() ; it != connectedSinks.end(); ++it) {
+    mediaSinks->push_back (*it);
+  }
+
+  mutex.unlock();
 
   return mediaSinks;
 }

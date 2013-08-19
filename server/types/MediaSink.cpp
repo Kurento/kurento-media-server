@@ -34,11 +34,18 @@ MediaSink::~MediaSink() throw ()
 
 }
 
+void
+MediaSink::setConnectedSrc (std::shared_ptr<MediaSrc> mediaSrc)
+{
+  mutex.lock();
+  connectedSrc = mediaSrc;
+  mutex.unlock();
+}
+
 std::shared_ptr<MediaSrc>
 MediaSink::getConnectedSrc ()
 {
-  //TODO: complete
-  return std::shared_ptr<MediaSrc> (new MediaSrc (std::dynamic_pointer_cast<MediaElement> (parent) , MediaType::type::AUDIO) );
+  return connectedSrc;
 }
 
 } // kurento

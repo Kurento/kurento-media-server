@@ -21,22 +21,29 @@
 #ifndef __MEDIA_SRC_HPP__
 #define __MEDIA_SRC_HPP__
 
-#include "MediaSink.hpp"
+#include "MediaPad.hpp"
+#include <glibmm.h>
 
 namespace kurento
 {
 
-class MediaSrc : public MediaPad
+class MediaSink;
+
+class MediaSrc : public MediaPad, public std::enable_shared_from_this<MediaSrc>
 {
 public:
   MediaSrc (std::shared_ptr<MediaElement> parent, MediaType::type mediaType);
   ~MediaSrc() throw ();
 
-  void connect (const MediaSink &mediaSink);
-  void disconnect (const MediaSink &mediaSink);
+  void connect (std::shared_ptr<MediaSink> mediaSink);
+  void disconnect (std::shared_ptr<MediaSink> mediaSink);
   std::vector < std::shared_ptr<MediaSink> > * getConnectedSinks ();
 
 private:
+  std::set < std::shared_ptr<MediaSink> > connectedSinks;
+
+  Glib::RecMutex mutex;
+
   class StaticConstructor
   {
   public:

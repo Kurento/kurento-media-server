@@ -28,7 +28,7 @@ namespace kurento
 
 class MediaElement;
 
-class MediaPad : public MediaObjectImpl, public std::enable_shared_from_this<MediaPad>
+class MediaPad : public MediaObjectImpl
 {
 public:
   MediaPad (std::shared_ptr<MediaElement> parent, MediaType::type, MediaPadType::type);

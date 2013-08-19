@@ -22,12 +22,14 @@
 #define __MEDIA_SINK_HPP__
 
 #include "MediaPad.hpp"
+#include "MediaSrc.hpp"
+
+#include <glibmm.h>
 
 namespace kurento
 {
 
 class MediaElement;
-class MediaSrc;
 
 class MediaSink : public MediaPad
 {
@@ -36,6 +38,16 @@ public:
   ~MediaSink() throw ();
 
   std::shared_ptr<MediaSrc> getConnectedSrc ();
+
+private:
+  void setConnectedSrc(std::shared_ptr<MediaSrc> mediaSrc);
+
+  std::shared_ptr <MediaSrc> connectedSrc;
+
+  Glib::RecMutex mutex;
+
+  friend void MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink);
+  friend void MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink);
 };
 
 } // kurento

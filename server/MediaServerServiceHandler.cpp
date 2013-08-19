@@ -313,7 +313,7 @@ throw (MediaObjectNotFoundException, ConnectionException, MediaServerException)
 
   src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
   sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
-  src->connect (*sink);
+  src->connect (sink);
 }
 
 void
@@ -325,7 +325,7 @@ throw (MediaObjectNotFoundException, MediaServerException)
 
   src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
   sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
-  src->disconnect (*sink);
+  src->disconnect (sink);
 }
 
 void
