@@ -74,27 +74,27 @@ check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
   BOOST_CHECK_EQUAL (mediaManager.type.mediaObject, MediaObjectType::type::MEDIA_MANAGER);
 
   client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
-  BOOST_CHECK (mediaManager.type.__isset.sdpEndPoint);
+  BOOST_CHECK (mo.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::RTP_END_POINT);
 
   client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
-  BOOST_CHECK (mediaManager.type.__isset.sdpEndPoint);
+  BOOST_CHECK (mo.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::WEBRTC_END_POINT);
 
   client->createUriEndPoint (mo, mediaManager, UriEndPointType::type::PLAYER_END_POINT, "");
-  BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
+  BOOST_CHECK (mo.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::PLAYER_END_POINT);
 
   client->createUriEndPoint (mo, mediaManager, UriEndPointType::type::RECORDER_END_POINT, "");
-  BOOST_CHECK (mediaManager.type.__isset.uriEndPoint);
+  BOOST_CHECK (mo.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::RECORDER_END_POINT);
 
   client->createHttpEndPoint (mo, mediaManager);
-  BOOST_CHECK (mediaManager.type.__isset.endPoint);
+  BOOST_CHECK (mo.type.__isset.endPoint);
   BOOST_CHECK_EQUAL (mo.type.endPoint, EndPointType::type::HTTP_END_POINT);
 
   client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
-  BOOST_CHECK (mediaManager.type.__isset.mixerType);
+  BOOST_CHECK (mo.type.__isset.mixerType);
   BOOST_CHECK_EQUAL (mo.type.mixerType, MixerType::type::MAIN_MIXER);
 
   client->release (mediaManager);
