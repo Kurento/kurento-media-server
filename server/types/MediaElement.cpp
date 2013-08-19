@@ -36,12 +36,81 @@ MediaElement::~MediaElement () throw ()
 
 }
 
+std::shared_ptr<MediaSrc>
+MediaElement::getOrCreateAudioMediaSrc()
+{
+  mutex.lock();
+
+  std::shared_ptr<MediaSrc> locked = audioMediaSrc.lock();
+
+  if (locked.get() == NULL) {
+    locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), MediaType::type::AUDIO) );
+    audioMediaSrc = std::weak_ptr<MediaSrc> (locked);
+  }
+
+  mutex.unlock();
+
+  return locked;
+}
+
+std::shared_ptr<MediaSrc>
+MediaElement::getOrCreateVideoMediaSrc()
+{
+  mutex.lock();
+
+  std::shared_ptr<MediaSrc> locked = videoMediaSrc.lock();
+
+  if (locked.get() == NULL) {
+    locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), MediaType::type::VIDEO) );
+    videoMediaSrc = std::weak_ptr<MediaSrc> (locked);
+  }
+
+  mutex.unlock();
+
+  return locked;
+}
+
+std::shared_ptr<MediaSink>
+MediaElement::getOrCreateAudioMediaSink()
+{
+  mutex.lock();
+
+  std::shared_ptr<MediaSink> locked = audioMediaSink.lock();
+
+  if (locked.get() == NULL) {
+    locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), MediaType::type::AUDIO) );
+    audioMediaSink = std::weak_ptr<MediaSink> (locked);
+  }
+
+  mutex.unlock();
+
+  return locked;
+}
+
+std::shared_ptr<MediaSink>
+MediaElement::getOrCreateVideoMediaSink()
+{
+  mutex.lock();
+
+  std::shared_ptr<MediaSink> locked = videoMediaSink.lock();
+
+  if (locked.get() == NULL) {
+    locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), MediaType::type::VIDEO) );
+    videoMediaSink = std::weak_ptr<MediaSink> (locked);
+  }
+
+  mutex.unlock();
+
+  return locked;
+}
+
 std::vector < std::shared_ptr<MediaSrc> > *
 MediaElement::getMediaSrcs ()
 {
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
-  //TODO: complete
+  mediaSrcs->push_back (getOrCreateAudioMediaSrc() );
+  mediaSrcs->push_back (getOrCreateVideoMediaSrc() );
 
   return mediaSrcs;
 }
@@ -51,7 +120,8 @@ MediaElement::getMediaSinks()
 {
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
-  //TODO: complete
+  mediaSinks->push_back (getOrCreateAudioMediaSink() );
+  mediaSinks->push_back (getOrCreateVideoMediaSink() );
 
   return mediaSinks;
 }
@@ -61,7 +131,10 @@ MediaElement::getMediaSrcsByMediaType (const MediaType::type mediaType)
 {
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
 
-  //TODO: complete
+  if (mediaType == MediaType::type::AUDIO)
+    mediaSrcs->push_back (getOrCreateAudioMediaSrc() );
+  else if (mediaType == MediaType::type::VIDEO)
+    mediaSrcs->push_back (getOrCreateVideoMediaSrc() );
 
   return mediaSrcs;
 }
@@ -71,7 +144,10 @@ MediaElement::getMediaSinksByMediaType (const MediaType::type mediaType)
 {
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
-  //TODO: complete
+  if (mediaType == MediaType::type::AUDIO)
+    mediaSinks->push_back (getOrCreateAudioMediaSink() );
+  else if (mediaType == MediaType::type::VIDEO)
+    mediaSinks->push_back (getOrCreateVideoMediaSink() );
 
   return mediaSinks;
 }

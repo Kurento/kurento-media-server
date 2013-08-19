@@ -25,6 +25,8 @@
 #include "MediaSrc.hpp"
 #include "MediaSink.hpp"
 
+#include <glibmm.h>
+
 namespace kurento
 {
 
@@ -40,6 +42,18 @@ public:
   std::vector < std::shared_ptr<MediaSink> > * getMediaSinksByMediaType (const MediaType::type mediaType);
 
 private:
+  std::weak_ptr<MediaSrc> audioMediaSrc;
+  std::weak_ptr<MediaSrc> videoMediaSrc;
+  std::weak_ptr<MediaSink> audioMediaSink;
+  std::weak_ptr<MediaSink> videoMediaSink;
+
+  std::shared_ptr<MediaSrc> getOrCreateAudioMediaSrc();
+  std::shared_ptr<MediaSrc> getOrCreateVideoMediaSrc();
+  std::shared_ptr<MediaSink> getOrCreateAudioMediaSink();
+  std::shared_ptr<MediaSink> getOrCreateVideoMediaSink();
+
+  Glib::RecMutex mutex;
+
   class StaticConstructor
   {
   public:
