@@ -27,7 +27,7 @@
 namespace kurento
 {
 
-class MediaObjectImpl : public MediaObject
+class MediaObjectImpl : public MediaObjectId
 {
 public:
   MediaObjectImpl();

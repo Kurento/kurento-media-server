@@ -49,7 +49,7 @@ getId()
   return ret;
 }
 
-MediaObjectImpl::MediaObjectImpl() : MediaObject()
+MediaObjectImpl::MediaObjectImpl() : MediaObjectId()
 {
   uuid_t uuid;
   char *uuid_str;
@@ -65,7 +65,7 @@ MediaObjectImpl::MediaObjectImpl() : MediaObject()
   this->token = tk;
 }
 
-MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent) : MediaObject()
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent) : MediaObjectId()
 {
   id = getId();
   this->token = parent->token;

@@ -41,8 +41,8 @@ BOOST_FIXTURE_TEST_SUITE ( server_memory_test_suite, F )
 
 BOOST_AUTO_TEST_CASE ( create_media_manager_memory_test )
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject mo = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE ( create_media_manager_memory_test )
 
 BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject mo = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
 
 BOOST_AUTO_TEST_CASE ( create_zbar_filter_test )
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject mo = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");

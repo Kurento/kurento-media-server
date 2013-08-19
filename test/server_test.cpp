@@ -51,7 +51,7 @@ check_version (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 static void
 check_no_handler (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
 
   BOOST_CHECK_THROW (client->createMediaManager (mediaManager, 0), HandlerNotFoundException);
 }
@@ -66,8 +66,8 @@ check_add_handler_address (boost::shared_ptr<kurento::MediaServerServiceClient> 
 static void
 check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject mo = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
 
   client->createMediaManager (mediaManager, 0);
   BOOST_CHECK (mediaManager.type.__isset.mediaObject);
@@ -103,8 +103,8 @@ check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 static void
 check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject mo = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
 
   client->createMediaManager (mediaManager, 0);
 
@@ -123,8 +123,8 @@ check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 static void
 check_use_released_media_manager (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject mo = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
 
   client->createMediaManager (mediaManager, 0);
   client->release (mediaManager);
@@ -134,9 +134,9 @@ check_use_released_media_manager (boost::shared_ptr<kurento::MediaServerServiceC
 static void
 check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject mo = MediaObject();
-  MediaObject parent = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
+  MediaObjectId parent = MediaObjectId();
 
   client->createMediaManager (mediaManager, 0);
 
@@ -150,8 +150,8 @@ check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 static void
 check_media_manager_no_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject parent = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId parent = MediaObjectId();
 
   GST_DEBUG ("check_media_manager_no_parent test");
   client->createMediaManager (mediaManager, 0);
@@ -163,8 +163,8 @@ check_media_manager_no_parent (boost::shared_ptr<kurento::MediaServerServiceClie
 static void
 check_uri_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject uriEp = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId uriEp = MediaObjectId();
   std::string uri, out;
 
   client->createMediaManager (mediaManager, 0);
@@ -191,8 +191,8 @@ check_uri_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client
 static void
 check_http_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject httpEp = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId httpEp = MediaObjectId();
   std::string out;
 
   client->createMediaManager (mediaManager, 0);
@@ -206,8 +206,8 @@ check_http_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> clien
 static void
 check_zbar_filter (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject zbarFilter = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId zbarFilter = MediaObjectId();
   std::string out;
 
   client->createMediaManager (mediaManager, 0);

@@ -35,9 +35,9 @@ BOOST_FIXTURE_TEST_SUITE ( sdp_end_point_test_suite,  F)
 
 BOOST_AUTO_TEST_CASE ( rtp_end_point_test )
 {
-  MediaObject mediaManager = MediaObject();
-  MediaObject sdpEpA = MediaObject();
-  MediaObject sdpEpB = MediaObject();
+  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId sdpEpA = MediaObjectId();
+  MediaObjectId sdpEpB = MediaObjectId();
   std::string out, localSdpA, remoteSdpA, localSdpB, remoteSdpB;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");

@@ -40,66 +40,66 @@ public:
   void addHandlerAddress (const int32_t handlerId, const std::string& address, const int32_t port) throw(MediaServerException);
 
   /* MediaObject */
-  void release (const MediaObject& mediaObject) throw(MediaObjectNotFoundException, MediaServerException);
-  void getParent (MediaObject& _return, const MediaObject& mediaObject) throw(NoParentException);
+  void release (const MediaObjectId& mediaObject) throw(MediaObjectNotFoundException, MediaServerException);
+  void getParent (MediaObjectId& _return, const MediaObjectId& mediaObject) throw(NoParentException);
 
   /* MediaManager */
-  void createMediaManager (MediaObject& _return, const int32_t handlerId)
+  void createMediaManager (MediaObjectId& _return, const int32_t handlerId)
                           throw(MediaObjectNotFoundException, HandlerNotFoundException, MediaServerException);
-  void createSdpEndPoint (MediaObject& _return, const MediaObject& mediaManager, const SdpEndPointType::type type)
+  void createSdpEndPoint (MediaObjectId& _return, const MediaObjectId& mediaManager, const SdpEndPointType::type type)
                           throw(MediaObjectNotFoundException, MediaServerException);
-  void createSdpEndPointWithFixedSdp (MediaObject& _return, const MediaObject& mediaManager, const SdpEndPointType::type type,
+  void createSdpEndPointWithFixedSdp (MediaObjectId& _return, const MediaObjectId& mediaManager, const SdpEndPointType::type type,
                                       const std::string& sdp) throw(MediaObjectNotFoundException, MediaServerException);
-  void createUriEndPoint (MediaObject& _return, const MediaObject& mediaManager, const UriEndPointType::type type,
+  void createUriEndPoint (MediaObjectId& _return, const MediaObjectId& mediaManager, const UriEndPointType::type type,
                           const std::string& uri) throw(MediaObjectNotFoundException, MediaServerException);
-  void createHttpEndPoint (MediaObject& _return, const MediaObject& mediaManager)
+  void createHttpEndPoint (MediaObjectId& _return, const MediaObjectId& mediaManager)
                           throw(MediaObjectNotFoundException, MediaServerException);
-  void createMixer (MediaObject& _return, const MediaObject& mediaManager, const MixerType::type type)
+  void createMixer (MediaObjectId& _return, const MediaObjectId& mediaManager, const MixerType::type type)
                    throw(MediaObjectNotFoundException, MediaServerException);
-  void createFilter (MediaObject& _return, const MediaObject& mediaManager, const FilterType::type type)
+  void createFilter (MediaObjectId& _return, const MediaObjectId& mediaManager, const FilterType::type type)
                     throw(MediaObjectNotFoundException, MediaServerException);
 
   /* MediaElement */
-  void sendCommand (CommandResult& _return, const MediaObject& mediaElement, const Command& command)
+  void sendCommand (CommandResult& _return, const MediaObjectId& mediaElement, const Command& command)
                     throw(MediaObjectNotFoundException, EncodingException, MediaServerException);
-  void getMediaSrcs (std::vector<MediaObject> & _return, const MediaObject& mediaElement) throw(MediaObjectNotFoundException, MediaServerException);
-  void getMediaSinks (std::vector<MediaObject> & _return, const MediaObject& mediaElement) throw(MediaObjectNotFoundException, MediaServerException);
-  void getMediaSrcsByMediaType (std::vector<MediaObject> & _return, const MediaObject& mediaElement,
+  void getMediaSrcs (std::vector<MediaObjectId> & _return, const MediaObjectId& mediaElement) throw(MediaObjectNotFoundException, MediaServerException);
+  void getMediaSinks (std::vector<MediaObjectId> & _return, const MediaObjectId& mediaElement) throw(MediaObjectNotFoundException, MediaServerException);
+  void getMediaSrcsByMediaType (std::vector<MediaObjectId> & _return, const MediaObjectId& mediaElement,
                                 const MediaType::type mediaType) throw(MediaObjectNotFoundException, MediaServerException);
-  void getMediaSinksByMediaType (std::vector<MediaObject> & _return, const MediaObject& mediaElement,
+  void getMediaSinksByMediaType (std::vector<MediaObjectId> & _return, const MediaObjectId& mediaElement,
                                  const MediaType::type mediaType) throw(MediaObjectNotFoundException, MediaServerException);
 
   /* MediaPad */
-  MediaType::type getMediaType (const MediaObject& mediaPad) throw(MediaObjectNotFoundException, MediaServerException);
+  MediaType::type getMediaType (const MediaObjectId& mediaPad) throw(MediaObjectNotFoundException, MediaServerException);
 
   /* MediaSrc */
-  void connect (const MediaObject& mediaSrc, const MediaObject& mediaSink) throw(MediaObjectNotFoundException, ConnectionException, MediaServerException);
-  void disconnect (const MediaObject& src, const MediaObject& mediaSink) throw(MediaObjectNotFoundException, MediaServerException);
-  void getConnectedSinks (std::vector<MediaObject> & _return, const MediaObject& mediaSrc) throw(MediaObjectNotFoundException, MediaServerException);
+  void connect (const MediaObjectId& mediaSrc, const MediaObjectId& mediaSink) throw(MediaObjectNotFoundException, ConnectionException, MediaServerException);
+  void disconnect (const MediaObjectId& src, const MediaObjectId& mediaSink) throw(MediaObjectNotFoundException, MediaServerException);
+  void getConnectedSinks (std::vector<MediaObjectId> & _return, const MediaObjectId& mediaSrc) throw(MediaObjectNotFoundException, MediaServerException);
 
   /* MediaSink */
-  void getConnectedSrc (MediaObject& _return, const MediaObject& mediaSink) throw(MediaObjectNotFoundException, MediaServerException);
+  void getConnectedSrc (MediaObjectId& _return, const MediaObjectId& mediaSink) throw(MediaObjectNotFoundException, MediaServerException);
 
   /* Mixer */
-  void createMixerEndPoint (MediaObject& _return, const MediaObject& mixer) throw(MediaObjectNotFoundException, MediaServerException);
+  void createMixerEndPoint (MediaObjectId& _return, const MediaObjectId& mixer) throw(MediaObjectNotFoundException, MediaServerException);
 
   /* HttpEndPoint */
-  void getUrl (std::string& _return, const MediaObject& httpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void getUrl (std::string& _return, const MediaObjectId& httpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
 
   /* UriEndPoint */
-  void getUri (std::string& _return, const MediaObject& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
-  void start (const MediaObject& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
-  void pause (const MediaObject& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
-  void stop (const MediaObject& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void getUri (std::string& _return, const MediaObjectId& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void start (const MediaObjectId& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void pause (const MediaObjectId& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void stop (const MediaObjectId& uriEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
 
   /* SdpEndPoint */
-  void generateOffer (std::string& _return, const MediaObject& sdpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
-  void processAnswer (std::string& _return, const MediaObject& sdpEndPoint, const std::string& answer)
+  void generateOffer (std::string& _return, const MediaObjectId& sdpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void processAnswer (std::string& _return, const MediaObjectId& sdpEndPoint, const std::string& answer)
                       throw(MediaObjectNotFoundException, NegotiationException, MediaServerException);
-  void processOffer (std::string& _return, const MediaObject& sdpEndPoint, const std::string& offer)
+  void processOffer (std::string& _return, const MediaObjectId& sdpEndPoint, const std::string& offer)
                     throw(MediaObjectNotFoundException, NegotiationException, MediaServerException);
-  void getLocalSessionDescription (std::string& _return, const MediaObject& sdpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
-  void getRemoteSessionDescription (std::string& _return, const MediaObject& sdpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void getLocalSessionDescription (std::string& _return, const MediaObjectId& sdpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
+  void getRemoteSessionDescription (std::string& _return, const MediaObjectId& sdpEndPoint) throw(MediaObjectNotFoundException, MediaServerException);
 
 private:
   MediaSet mediaSet;

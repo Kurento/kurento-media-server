@@ -57,7 +57,7 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
 }
 
 void
-MediaSet::remove (const MediaObject &mediaObject)
+MediaSet::remove (const MediaObjectId &mediaObject)
 {
   remove (mediaObject.id);
 }
@@ -118,43 +118,43 @@ MediaSet::size ()
 }
 
 template std::shared_ptr<MediaObjectImpl>
-MediaSet::getMediaObject<MediaObjectImpl> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<MediaObjectImpl> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<MediaManager>
-MediaSet::getMediaObject<MediaManager> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<MediaManager> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<MediaElement>
-MediaSet::getMediaObject<MediaElement> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<MediaElement> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<MediaPad>
-MediaSet::getMediaObject<MediaPad> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<MediaPad> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<MediaSrc>
-MediaSet::getMediaObject<MediaSrc> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<MediaSrc> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<MediaSink>
-MediaSet::getMediaObject<MediaSink> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<MediaSink> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<Mixer>
-MediaSet::getMediaObject<Mixer> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<Mixer> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<UriEndPoint>
-MediaSet::getMediaObject<UriEndPoint> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<UriEndPoint> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<HttpEndPoint>
-MediaSet::getMediaObject<HttpEndPoint> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<HttpEndPoint> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<SdpEndPoint>
-MediaSet::getMediaObject<SdpEndPoint> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<SdpEndPoint> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<Filter>
-MediaSet::getMediaObject<Filter> (const MediaObject &mediaObject);
+MediaSet::getMediaObject<Filter> (const MediaObjectId &mediaObject);
 
 template <class T> std::shared_ptr<T>
-MediaSet::getMediaObject (const MediaObject &mediaObject)
+MediaSet::getMediaObject (const MediaObjectId &mediaObject)
 {
   std::map<ObjectId, std::shared_ptr<MediaObjectImpl> >::iterator it;
-  std::shared_ptr<MediaObject> mo = NULL;
+  std::shared_ptr<MediaObjectId> mo = NULL;
   std::shared_ptr<T> typedMo;
 
   mutex.lock();
