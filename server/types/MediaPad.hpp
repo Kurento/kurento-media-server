@@ -36,6 +36,9 @@ public:
 
   MediaType::type getMediaType ();
 
+protected:
+  GstElement * getElement();
+
 private:
   MediaType::type mediaType;
 

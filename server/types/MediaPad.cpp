@@ -41,6 +41,12 @@ MediaPad::~MediaPad () throw ()
 
 }
 
+GstElement *
+MediaPad::getElement ()
+{
+  return ( (std::shared_ptr<MediaElement> &) parent)->element;
+}
+
 MediaType::type
 MediaPad::getMediaType ()
 {

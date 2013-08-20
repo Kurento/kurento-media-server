@@ -64,6 +64,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend class MediaPad;
 };
 
 } // kurento
