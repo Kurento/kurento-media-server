@@ -23,7 +23,7 @@
 namespace kurento
 {
 
-HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaManager> parent) : EndPoint (parent)
+HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) : EndPoint (parent)
 {
   this->type.__set_endPoint (EndPointType::type::HTTP_END_POINT);
 }

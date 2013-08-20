@@ -52,11 +52,11 @@ player_eos (GstElement *player, PlayerEndPoint *self)
   event.__set_event (event_str);
   event.__set_source (*self);
 
-  std::dynamic_pointer_cast<MediaManager> (self->parent)->sendEvent (event);
+  std::dynamic_pointer_cast<MediaPipeline> (self->parent)->sendEvent (event);
   GST_DEBUG ("Player finished");
 }
 
-PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri)
+PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
   : UriEndPoint (parent, UriEndPointType::type::PLAYER_END_POINT)
 {
   gchar *name;
@@ -75,7 +75,7 @@ PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std:
 
 PlayerEndPoint::~PlayerEndPoint() throw ()
 {
-  gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaManager> &) parent)->pipeline), element);
+  gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }

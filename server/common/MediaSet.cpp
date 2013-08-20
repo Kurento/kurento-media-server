@@ -19,7 +19,7 @@
  */
 
 #include "MediaSet.hpp"
-#include "types/MediaManager.hpp"
+#include "types/MediaPipeline.hpp"
 #include "types/MediaElement.hpp"
 #include "types/MediaSrc.hpp"
 #include "types/Mixer.hpp"
@@ -120,8 +120,8 @@ MediaSet::size ()
 template std::shared_ptr<MediaObjectImpl>
 MediaSet::getMediaObject<MediaObjectImpl> (const MediaObjectId &mediaObject);
 
-template std::shared_ptr<MediaManager>
-MediaSet::getMediaObject<MediaManager> (const MediaObjectId &mediaObject);
+template std::shared_ptr<MediaPipeline>
+MediaSet::getMediaObject<MediaPipeline> (const MediaObjectId &mediaObject);
 
 template std::shared_ptr<MediaElement>
 MediaSet::getMediaObject<MediaElement> (const MediaObjectId &mediaObject);

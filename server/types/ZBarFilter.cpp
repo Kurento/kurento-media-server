@@ -35,7 +35,7 @@ receive_message (GstBus *bus, GstMessage *message, gpointer element)
   }
 }
 
-ZBarFilter::ZBarFilter (std::shared_ptr<MediaManager> parent) : Filter (parent, FilterType::type::ZBAR_FILTER)
+ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent) : Filter (parent, FilterType::type::ZBAR_FILTER)
 {
   gchar *name;
 
@@ -57,7 +57,7 @@ ZBarFilter::~ZBarFilter() throw ()
 {
   g_source_remove (bus_handler_id);
 
-  gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaManager> &) parent)->pipeline), element);
+  gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }

@@ -43,20 +43,20 @@ public:
   void release (const MediaObjectId& mediaObject) throw(MediaObjectNotFoundException, MediaServerException);
   void getParent (MediaObjectId& _return, const MediaObjectId& mediaObject) throw(NoParentException);
 
-  /* MediaManager */
-  void createMediaManager (MediaObjectId& _return, const int32_t handlerId)
+  /* MediaPileline */
+  void createMediaPipeline (MediaObjectId& _return, const int32_t handlerId)
                           throw(MediaObjectNotFoundException, HandlerNotFoundException, MediaServerException);
-  void createSdpEndPoint (MediaObjectId& _return, const MediaObjectId& mediaManager, const SdpEndPointType::type type)
+  void createSdpEndPoint (MediaObjectId& _return, const MediaObjectId& mediaPipeline, const SdpEndPointType::type type)
                           throw(MediaObjectNotFoundException, MediaServerException);
-  void createSdpEndPointWithFixedSdp (MediaObjectId& _return, const MediaObjectId& mediaManager, const SdpEndPointType::type type,
+  void createSdpEndPointWithFixedSdp (MediaObjectId& _return, const MediaObjectId& mediaPipeline, const SdpEndPointType::type type,
                                       const std::string& sdp) throw(MediaObjectNotFoundException, MediaServerException);
-  void createUriEndPoint (MediaObjectId& _return, const MediaObjectId& mediaManager, const UriEndPointType::type type,
+  void createUriEndPoint (MediaObjectId& _return, const MediaObjectId& mediaPipeline, const UriEndPointType::type type,
                           const std::string& uri) throw(MediaObjectNotFoundException, MediaServerException);
-  void createHttpEndPoint (MediaObjectId& _return, const MediaObjectId& mediaManager)
+  void createHttpEndPoint (MediaObjectId& _return, const MediaObjectId& mediaPipeline)
                           throw(MediaObjectNotFoundException, MediaServerException);
-  void createMixer (MediaObjectId& _return, const MediaObjectId& mediaManager, const MixerType::type type)
+  void createMixer (MediaObjectId& _return, const MediaObjectId& mediaPipeline, const MixerType::type type)
                    throw(MediaObjectNotFoundException, MediaServerException);
-  void createFilter (MediaObjectId& _return, const MediaObjectId& mediaManager, const FilterType::type type)
+  void createFilter (MediaObjectId& _return, const MediaObjectId& mediaPipeline, const FilterType::type type)
                     throw(MediaObjectNotFoundException, MediaServerException);
 
   /* MediaElement */

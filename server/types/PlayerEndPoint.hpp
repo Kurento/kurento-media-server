@@ -29,7 +29,7 @@ namespace kurento
 class PlayerEndPoint : public UriEndPoint
 {
 public:
-  PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri);
+  PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
   ~PlayerEndPoint() throw ();
 
 private:

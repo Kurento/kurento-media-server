@@ -29,12 +29,12 @@ namespace kurento
 class RtpEndPoint : public SdpEndPoint
 {
 public:
-  RtpEndPoint (std::shared_ptr<MediaManager> parent);
-  RtpEndPoint (std::shared_ptr<MediaManager> parent, const std::string &sdp);
+  RtpEndPoint (std::shared_ptr<MediaPipeline> parent);
+  RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &sdp);
   ~RtpEndPoint() throw ();
 
 private:
-  void init (std::shared_ptr<MediaManager> parent);
+  void init (std::shared_ptr<MediaPipeline> parent);
 };
 
 } // kurento

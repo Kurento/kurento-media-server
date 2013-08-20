@@ -29,7 +29,7 @@ namespace kurento
 class ZBarFilter : public Filter
 {
 public:
-  ZBarFilter (std::shared_ptr<MediaManager> parent);
+  ZBarFilter (std::shared_ptr<MediaPipeline> parent);
   ~ZBarFilter() throw ();
 
 private:

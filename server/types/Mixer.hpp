@@ -21,7 +21,7 @@
 #ifndef __MIXER_HPP__
 #define __MIXER_HPP__
 
-#include "MediaManager.hpp"
+#include "MediaPipeline.hpp"
 #include "MixerEndPoint.hpp"
 
 namespace kurento
@@ -30,7 +30,7 @@ namespace kurento
 class Mixer : public MediaObjectImpl, public std::enable_shared_from_this<Mixer>
 {
 public:
-  Mixer (std::shared_ptr<MediaManager> parent, MixerType::type type);
+  Mixer (std::shared_ptr<MediaPipeline> parent, MixerType::type type);
   ~Mixer() throw ();
 
   std::shared_ptr<MixerEndPoint> createMixerEndPoint ();

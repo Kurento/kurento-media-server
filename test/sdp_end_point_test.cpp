@@ -35,7 +35,7 @@ BOOST_FIXTURE_TEST_SUITE ( sdp_end_point_test_suite,  F)
 
 BOOST_AUTO_TEST_CASE ( rtp_end_point_test )
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId sdpEpA = MediaObjectId();
   MediaObjectId sdpEpB = MediaObjectId();
   std::string out, localSdpA, remoteSdpA, localSdpB, remoteSdpB;
@@ -46,13 +46,13 @@ BOOST_AUTO_TEST_CASE ( rtp_end_point_test )
   GST_INFO ( "--------- rtp_end_point_test start ---------");
 
   BOOST_REQUIRE_NO_THROW (client->addHandlerAddress (0, "localhost", 2323) );
-  BOOST_REQUIRE_NO_THROW (client->createMediaManager (mediaManager, 0) );
+  BOOST_REQUIRE_NO_THROW (client->createMediaPipeline (mediaPipeline, 0) );
 
-  BOOST_REQUIRE_NO_THROW (client->createSdpEndPoint (sdpEpA, mediaManager, SdpEndPointType::type::RTP_END_POINT) );
+  BOOST_REQUIRE_NO_THROW (client->createSdpEndPoint (sdpEpA, mediaPipeline, SdpEndPointType::type::RTP_END_POINT) );
   BOOST_CHECK_THROW (client->getLocalSessionDescription (out, sdpEpA), MediaServerException);
   BOOST_CHECK_THROW (client->getRemoteSessionDescription (out, sdpEpA), MediaServerException);
 
-  BOOST_REQUIRE_NO_THROW (client->createSdpEndPoint (sdpEpB, mediaManager, SdpEndPointType::type::RTP_END_POINT) );
+  BOOST_REQUIRE_NO_THROW (client->createSdpEndPoint (sdpEpB, mediaPipeline, SdpEndPointType::type::RTP_END_POINT) );
   BOOST_CHECK_THROW (client->getLocalSessionDescription (out, sdpEpB), MediaServerException);
   BOOST_CHECK_THROW (client->getRemoteSessionDescription (out, sdpEpB), MediaServerException);
 

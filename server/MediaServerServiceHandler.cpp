@@ -22,7 +22,7 @@
 #include "mediaServer_constants.h"
 #include <gst/gst.h>
 
-#include "types/MediaManager.hpp"
+#include "types/MediaPipeline.hpp"
 #include "types/MediaElement.hpp"
 #include "types/SdpEndPoint.hpp"
 #include "types/UriEndPoint.hpp"
@@ -99,14 +99,14 @@ MediaServerServiceHandler::getParent (MediaObjectId &_return, const MediaObjectI
   _return = *parent;
 }
 
-/* MediaManager */
+/* MediaPipeline */
 
 void
-MediaServerServiceHandler::createMediaManager (MediaObjectId &_return, const int32_t handlerId)
+MediaServerServiceHandler::createMediaPipeline (MediaObjectId &_return, const int32_t handlerId)
 throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaHandler> mh;
-  std::shared_ptr<MediaManager> mediaManager;
+  std::shared_ptr<MediaPipeline> mediaPipeline;
 
   mh = mediaHandlerMap.getValue (handlerId);
 
@@ -114,21 +114,21 @@ throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerExcept
     throw HandlerNotFoundException();
   }
 
-  mediaManager = std::shared_ptr<MediaManager> (new MediaManager (mh) );
-  GST_DEBUG ("createMediaManager id: %ld, token: %s", mediaManager->id, mediaManager->token.c_str() );
-  mediaSet.put (mediaManager);
+  mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mh) );
+  GST_DEBUG ("createMediaPipeline id: %ld, token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
+  mediaSet.put (mediaPipeline);
 
-  _return = *mediaManager;
+  _return = *mediaPipeline;
 }
 
 void
-MediaServerServiceHandler::createSdpEndPoint (MediaObjectId &_return, const MediaObjectId &mediaManager,
+MediaServerServiceHandler::createSdpEndPoint (MediaObjectId &_return, const MediaObjectId &mediaPipeline,
     const SdpEndPointType::type type) throw (MediaObjectNotFoundException, MediaServerException)
 {
-  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<SdpEndPoint> sdpEp;
 
-  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
   sdpEp = mm->createSdpEndPoint (type);
   mediaSet.put (sdpEp);
 
@@ -136,14 +136,14 @@ MediaServerServiceHandler::createSdpEndPoint (MediaObjectId &_return, const Medi
 }
 
 void
-MediaServerServiceHandler::createSdpEndPointWithFixedSdp (MediaObjectId &_return, const MediaObjectId &mediaManager,
+MediaServerServiceHandler::createSdpEndPointWithFixedSdp (MediaObjectId &_return, const MediaObjectId &mediaPipeline,
     const SdpEndPointType::type type, const std::string &sdp)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<SdpEndPoint> sdpEp;
 
-  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
   sdpEp = mm->createSdpEndPoint (type, sdp);
   mediaSet.put (sdpEp);
 
@@ -151,13 +151,13 @@ throw (MediaObjectNotFoundException, MediaServerException)
 }
 
 void
-MediaServerServiceHandler::createUriEndPoint (MediaObjectId &_return, const MediaObjectId &mediaManager, const UriEndPointType::type type,
+MediaServerServiceHandler::createUriEndPoint (MediaObjectId &_return, const MediaObjectId &mediaPipeline, const UriEndPointType::type type,
     const std::string &uri) throw (MediaObjectNotFoundException, MediaServerException)
 {
-  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<UriEndPoint> uriEp;
 
-  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
   uriEp = mm->createUriEndPoint (type, uri);
   mediaSet.put (uriEp);
 
@@ -165,13 +165,13 @@ MediaServerServiceHandler::createUriEndPoint (MediaObjectId &_return, const Medi
 }
 
 void
-MediaServerServiceHandler::createHttpEndPoint (MediaObjectId &_return, const MediaObjectId &mediaManager)
+MediaServerServiceHandler::createHttpEndPoint (MediaObjectId &_return, const MediaObjectId &mediaPipeline)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<HttpEndPoint> httpEp;
 
-  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
   httpEp = mm->createHttpEndPoint ();
   mediaSet.put (httpEp);
 
@@ -179,13 +179,13 @@ throw (MediaObjectNotFoundException, MediaServerException)
 }
 
 void
-MediaServerServiceHandler::createMixer (MediaObjectId &_return, const MediaObjectId &mediaManager, const MixerType::type type)
+MediaServerServiceHandler::createMixer (MediaObjectId &_return, const MediaObjectId &mediaPipeline, const MixerType::type type)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<Mixer> mixer;
 
-  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
   mixer = mm->createMixer (type);
   mediaSet.put (mixer);
 
@@ -193,13 +193,13 @@ throw (MediaObjectNotFoundException, MediaServerException)
 }
 
 void
-MediaServerServiceHandler::createFilter (MediaObjectId &_return, const MediaObjectId &mediaManager, const FilterType::type type)
+MediaServerServiceHandler::createFilter (MediaObjectId &_return, const MediaObjectId &mediaPipeline, const FilterType::type type)
 throw (MediaObjectNotFoundException, MediaServerException)
 {
-  std::shared_ptr<MediaManager> mm;
+  std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<Filter> filter;
 
-  mm = mediaSet.getMediaObject<MediaManager> (mediaManager);
+  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
   filter = mm->createFilter (type);
   mediaSet.put (filter);
 

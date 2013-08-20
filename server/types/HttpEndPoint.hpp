@@ -29,7 +29,7 @@ namespace kurento
 class HttpEndPoint : public EndPoint
 {
 public:
-  HttpEndPoint (std::shared_ptr<MediaManager> parent);
+  HttpEndPoint (std::shared_ptr<MediaPipeline> parent);
   ~HttpEndPoint() throw ();
 
   std::string getUrl ();

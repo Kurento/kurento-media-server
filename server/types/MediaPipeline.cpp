@@ -1,5 +1,5 @@
 /*
- * MediaManager.cpp - Kurento Media Server
+ * MediaPipeline.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MediaManager.hpp"
+#include "MediaPipeline.hpp"
 #include "RtpEndPoint.hpp"
 #include "WebRtcEndPoint.hpp"
 #include "PlayerEndPoint.hpp"
@@ -29,9 +29,9 @@
 
 #include <glibmm.h>
 
-#define GST_CAT_DEFAULT kurento_media_manager
+#define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoMediaManager"
+#define GST_DEFAULT_NAME "KurentoMediaPipeline"
 
 namespace kurento
 {
@@ -49,9 +49,9 @@ receive_message (GstBus *bus, GstMessage *message, gpointer pipeline)
   }
 }
 
-MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaObjectImpl()
+MediaPipeline::MediaPipeline (std::shared_ptr<MediaHandler> mediaHandler) : MediaObjectImpl()
 {
-  this->type.__set_mediaObject (MediaObjectType::type::MEDIA_MANAGER);
+  this->type.__set_mediaObject (MediaObjectType::type::MEDIA_PIPELINE);
   this->mediaHandler = mediaHandler;
   pipeline = gst_pipeline_new (token.c_str () );
   g_object_set (G_OBJECT (pipeline), "async-handling", TRUE, NULL);
@@ -64,7 +64,7 @@ MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaO
   g_object_unref (bus);
 }
 
-MediaManager::~MediaManager() throw()
+MediaPipeline::~MediaPipeline() throw()
 {
   GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
   gst_bus_remove_signal_watch (bus);
@@ -74,13 +74,13 @@ MediaManager::~MediaManager() throw()
 }
 
 void
-MediaManager::sendEvent (MediaEvent &event)
+MediaPipeline::sendEvent (MediaEvent &event)
 {
   this->mediaHandler->sendEvent (event);
 }
 
 std::shared_ptr<SdpEndPoint>
-MediaManager::createSdpEndPoint (const SdpEndPointType::type type)
+MediaPipeline::createSdpEndPoint (const SdpEndPointType::type type)
 {
   switch (type) {
   case SdpEndPointType::type::RTP_END_POINT:
@@ -95,7 +95,7 @@ MediaManager::createSdpEndPoint (const SdpEndPointType::type type)
 }
 
 std::shared_ptr<SdpEndPoint>
-MediaManager::createSdpEndPoint (const SdpEndPointType::type type, const std::string &sdp)
+MediaPipeline::createSdpEndPoint (const SdpEndPointType::type type, const std::string &sdp)
 {
   switch (type) {
   case SdpEndPointType::type::RTP_END_POINT:
@@ -110,7 +110,7 @@ MediaManager::createSdpEndPoint (const SdpEndPointType::type type, const std::st
 }
 
 std::shared_ptr<UriEndPoint>
-MediaManager::createUriEndPoint (const UriEndPointType::type type, const std::string &uri)
+MediaPipeline::createUriEndPoint (const UriEndPointType::type type, const std::string &uri)
 {
   switch (type) {
   case UriEndPointType::type::PLAYER_END_POINT:
@@ -125,13 +125,13 @@ MediaManager::createUriEndPoint (const UriEndPointType::type type, const std::st
 }
 
 std::shared_ptr<HttpEndPoint>
-MediaManager::createHttpEndPoint ()
+MediaPipeline::createHttpEndPoint ()
 {
   return std::shared_ptr<HttpEndPoint> (new HttpEndPoint (shared_from_this() ) );
 }
 
 std::shared_ptr<Mixer>
-MediaManager::createMixer (const MixerType::type type)
+MediaPipeline::createMixer (const MixerType::type type)
 {
   switch (type) {
   case MixerType::type::MAIN_MIXER:
@@ -144,7 +144,7 @@ MediaManager::createMixer (const MixerType::type type)
 }
 
 std::shared_ptr<Filter>
-MediaManager::createFilter (const FilterType::type type)
+MediaPipeline::createFilter (const FilterType::type type)
 {
   switch (type) {
   case FilterType::type::ZBAR_FILTER:
@@ -156,9 +156,9 @@ MediaManager::createFilter (const FilterType::type type)
   }
 }
 
-MediaManager::StaticConstructor MediaManager::staticConstructor;
+MediaPipeline::StaticConstructor MediaPipeline::staticConstructor;
 
-MediaManager::StaticConstructor::StaticConstructor()
+MediaPipeline::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
       GST_DEFAULT_NAME);

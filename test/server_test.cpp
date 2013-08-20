@@ -51,9 +51,9 @@ check_version (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 static void
 check_no_handler (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
 
-  BOOST_CHECK_THROW (client->createMediaManager (mediaManager, 0), HandlerNotFoundException);
+  BOOST_CHECK_THROW (client->createMediaPipeline (mediaPipeline, 0), HandlerNotFoundException);
 }
 
 static void
@@ -66,111 +66,111 @@ check_add_handler_address (boost::shared_ptr<kurento::MediaServerServiceClient> 
 static void
 check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
 
-  client->createMediaManager (mediaManager, 0);
-  BOOST_CHECK (mediaManager.type.__isset.mediaObject);
-  BOOST_CHECK_EQUAL (mediaManager.type.mediaObject, MediaObjectType::type::MEDIA_MANAGER);
+  client->createMediaPipeline (mediaPipeline, 0);
+  BOOST_CHECK (mediaPipeline.type.__isset.mediaObject);
+  BOOST_CHECK_EQUAL (mediaPipeline.type.mediaObject, MediaObjectType::type::MEDIA_PIPELINE);
 
-  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
+  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::RTP_END_POINT);
   BOOST_CHECK (mo.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::RTP_END_POINT);
 
-  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
+  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::WEBRTC_END_POINT);
   BOOST_CHECK (mo.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::WEBRTC_END_POINT);
 
-  client->createUriEndPoint (mo, mediaManager, UriEndPointType::type::PLAYER_END_POINT, "");
+  client->createUriEndPoint (mo, mediaPipeline, UriEndPointType::type::PLAYER_END_POINT, "");
   BOOST_CHECK (mo.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::PLAYER_END_POINT);
 
-  client->createUriEndPoint (mo, mediaManager, UriEndPointType::type::RECORDER_END_POINT, "");
+  client->createUriEndPoint (mo, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, "");
   BOOST_CHECK (mo.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::RECORDER_END_POINT);
 
-  client->createHttpEndPoint (mo, mediaManager);
+  client->createHttpEndPoint (mo, mediaPipeline);
   BOOST_CHECK (mo.type.__isset.endPoint);
   BOOST_CHECK_EQUAL (mo.type.endPoint, EndPointType::type::HTTP_END_POINT);
 
-  client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER);
   BOOST_CHECK (mo.type.__isset.mixerType);
   BOOST_CHECK_EQUAL (mo.type.mixerType, MixerType::type::MAIN_MIXER);
 
-  client->release (mediaManager);
+  client->release (mediaPipeline);
 }
 
 static void
 check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
 
-  client->createMediaManager (mediaManager, 0);
+  client->createMediaPipeline (mediaPipeline, 0);
 
-  client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
-  BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
+  client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER);
+  BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
 
-  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
-  BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
+  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::RTP_END_POINT);
+  BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
 
-  client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::WEBRTC_END_POINT);
-  BOOST_CHECK_EQUAL (mediaManager.token, mo.token);
+  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::WEBRTC_END_POINT);
+  BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
 
-  client->release (mediaManager);
+  client->release (mediaPipeline);
 }
 
 static void
 check_use_released_media_manager (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
 
-  client->createMediaManager (mediaManager, 0);
-  client->release (mediaManager);
-  BOOST_CHECK_THROW (client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER), MediaObjectNotFoundException);
+  client->createMediaPipeline (mediaPipeline, 0);
+  client->release (mediaPipeline);
+  BOOST_CHECK_THROW (client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER), MediaObjectNotFoundException);
 }
 
 static void
 check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
   MediaObjectId parent = MediaObjectId();
 
-  client->createMediaManager (mediaManager, 0);
+  client->createMediaPipeline (mediaPipeline, 0);
 
-  client->createMixer (mo, mediaManager, MixerType::type::MAIN_MIXER);
+  client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER);
   client->getParent (parent, mo);
-  BOOST_CHECK_EQUAL (mediaManager.id, parent.id);
+  BOOST_CHECK_EQUAL (mediaPipeline.id, parent.id);
 
-  client->release (mediaManager);
+  client->release (mediaPipeline);
 }
 
 static void
 check_media_manager_no_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId parent = MediaObjectId();
 
   GST_DEBUG ("check_media_manager_no_parent test");
-  client->createMediaManager (mediaManager, 0);
-  BOOST_CHECK_THROW (client->getParent (parent, mediaManager), NoParentException);
+  client->createMediaPipeline (mediaPipeline, 0);
+  BOOST_CHECK_THROW (client->getParent (parent, mediaPipeline), NoParentException);
 
-  client->release (mediaManager);
+  client->release (mediaPipeline);
 }
 
 static void
 check_uri_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId uriEp = MediaObjectId();
   std::string uri, out;
 
-  client->createMediaManager (mediaManager, 0);
+  client->createMediaPipeline (mediaPipeline, 0);
 
   uri = "/player_end_point/uri";
-  client->createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::PLAYER_END_POINT, uri);
+  client->createUriEndPoint (uriEp, mediaPipeline, UriEndPointType::type::PLAYER_END_POINT, uri);
   client->getUri (out, uriEp);
   BOOST_CHECK_EQUAL (uri, out);
   client->start (uriEp);
@@ -178,41 +178,41 @@ check_uri_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client
   client->stop (uriEp);
 
   uri = "/recorder_end_point/uri";
-  client->createUriEndPoint (uriEp, mediaManager, UriEndPointType::type::RECORDER_END_POINT, uri);
+  client->createUriEndPoint (uriEp, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, uri);
   client->getUri (out, uriEp);
   BOOST_CHECK_EQUAL (uri, out);
   client->start (uriEp);
   client->pause (uriEp);
   client->stop (uriEp);
 
-  client->release (mediaManager);
+  client->release (mediaPipeline);
 }
 
 static void
 check_http_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId httpEp = MediaObjectId();
   std::string out;
 
-  client->createMediaManager (mediaManager, 0);
+  client->createMediaPipeline (mediaPipeline, 0);
 
-  client->createHttpEndPoint (httpEp, mediaManager);
+  client->createHttpEndPoint (httpEp, mediaPipeline);
   client->getUrl (out, httpEp);
 
-  client->release (mediaManager);
+  client->release (mediaPipeline);
 }
 
 static void
 check_zbar_filter (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId zbarFilter = MediaObjectId();
   std::string out;
 
-  client->createMediaManager (mediaManager, 0);
-  client->createFilter (zbarFilter, mediaManager, FilterType::type::ZBAR_FILTER);
-  client->release (mediaManager);
+  client->createMediaPipeline (mediaPipeline, 0);
+  client->createFilter (zbarFilter, mediaPipeline, FilterType::type::ZBAR_FILTER);
+  client->release (mediaPipeline);
 }
 
 static void

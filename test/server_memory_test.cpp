@@ -41,7 +41,7 @@ BOOST_FIXTURE_TEST_SUITE ( server_memory_test_suite, F )
 
 BOOST_AUTO_TEST_CASE ( create_media_manager_memory_test )
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
   int i, maxMemorySize, currentMemorySize;
 
@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE ( create_media_manager_memory_test )
   client->addHandlerAddress (0, "localhost", 2323);
 
   for (i = 0; i < ITERATIONS; i++) {
-    client->createMediaManager (mediaManager, 0);
-    client->release (mediaManager);
+    client->createMediaPipeline (mediaPipeline, 0);
+    client->release (mediaPipeline);
 
     if (i == 0) {
       maxMemorySize = get_data_memory (pid) + MEMORY_TOLERANCE;
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE ( create_media_manager_memory_test )
 
 BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
   int i, maxMemorySize, currentMemorySize;
 
@@ -79,9 +79,9 @@ BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
   client->addHandlerAddress (0, "localhost", 2323);
 
   for (i = 0; i < ITERATIONS; i++) {
-    client->createMediaManager (mediaManager, 0);
-    client->createSdpEndPoint (mo, mediaManager, SdpEndPointType::type::RTP_END_POINT);
-    client->release (mediaManager);
+    client->createMediaPipeline (mediaPipeline, 0);
+    client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::RTP_END_POINT);
+    client->release (mediaPipeline);
 
     if (i == 0) {
       maxMemorySize = get_data_memory (pid) + MEMORY_TOLERANCE;
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
 
 BOOST_AUTO_TEST_CASE ( create_zbar_filter_test )
 {
-  MediaObjectId mediaManager = MediaObjectId();
+  MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
   int i, maxMemorySize, currentMemorySize;
 
@@ -108,9 +108,9 @@ BOOST_AUTO_TEST_CASE ( create_zbar_filter_test )
   client->addHandlerAddress (0, "localhost", 2323);
 
   for (i = 0; i < ITERATIONS; i++) {
-    client->createMediaManager (mediaManager, 0);
-    client->createFilter (mo, mediaManager, FilterType::type::ZBAR_FILTER);
-    client->release (mediaManager);
+    client->createMediaPipeline (mediaPipeline, 0);
+    client->createFilter (mo, mediaPipeline, FilterType::type::ZBAR_FILTER);
+    client->release (mediaPipeline);
 
     if (i == 0) {
       maxMemorySize = get_data_memory (pid) + MEMORY_TOLERANCE;

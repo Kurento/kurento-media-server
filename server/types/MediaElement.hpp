@@ -21,7 +21,7 @@
 #ifndef __MEDIA_ELEMENT_HPP__
 #define __MEDIA_ELEMENT_HPP__
 
-#include "MediaManager.hpp"
+#include "MediaPipeline.hpp"
 #include "MediaSrc.hpp"
 #include "MediaSink.hpp"
 

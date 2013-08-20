@@ -29,7 +29,7 @@ namespace kurento
 class RecorderEndPoint : public UriEndPoint
 {
 public:
-  RecorderEndPoint (std::shared_ptr<MediaManager> parent, const std::string &uri);
+  RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
   ~RecorderEndPoint() throw ();
 };
 

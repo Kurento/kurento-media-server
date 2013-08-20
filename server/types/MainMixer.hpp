@@ -29,7 +29,7 @@ namespace kurento
 class MainMixer : public Mixer
 {
 public:
-  MainMixer (std::shared_ptr<MediaManager> parent);
+  MainMixer (std::shared_ptr<MediaPipeline> parent);
   ~MainMixer() throw ();
 };
 
