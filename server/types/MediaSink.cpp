@@ -34,11 +34,90 @@ MediaSink::~MediaSink() throw ()
 
 }
 
+std::string
+MediaSink::getPadName ()
+{
+  if (getMediaType() == MediaType::type::AUDIO)
+    return "audio_sink";
+  else
+    return "video_sink";
+}
+
+bool
+MediaSink::linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad *src)
+{
+  GstPad *sink;
+  bool ret;
+
+  mutex.lock();
+
+  if ( (sink = gst_element_get_static_pad (getElement(), getPadName().c_str() ) ) == NULL)
+    sink = gst_element_get_request_pad (getElement(), getPadName().c_str() );
+
+  if (gst_pad_is_linked (sink) ) {
+    unlink (connectedSrc, sink);
+  }
+
+  if (gst_pad_link (src, sink) == GST_PAD_LINK_OK) {
+    ret = true;
+    connectedSrc = mediaSrc;
+  } else {
+    gst_element_release_request_pad (getElement(), sink);
+    ret = false;
+  }
+
+  g_object_unref (sink);
+
+  mutex.unlock();
+
+  return ret;
+}
+
 void
-MediaSink::setConnectedSrc (std::shared_ptr<MediaSrc> mediaSrc)
+MediaSink::unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink)
 {
   mutex.lock();
-  connectedSrc = mediaSrc;
+
+  if (connectedSrc != NULL && mediaSrc == connectedSrc) {
+    GstPad *peer;
+    GstPad *sinkPad;
+
+    if (sink == NULL)
+      sinkPad = gst_element_get_static_pad (getElement(), getPadName().c_str() );
+    else
+      sinkPad = sink;
+
+    if (sinkPad == NULL)
+      goto end;
+
+    peer = gst_pad_get_peer (sinkPad);
+
+    if (peer != NULL) {
+      GstElement *elem;
+
+      gst_pad_unlink (peer, sinkPad);
+      elem = gst_pad_get_parent_element (peer);
+      gst_element_release_request_pad (elem, peer);
+
+      g_object_unref (elem);
+      g_object_unref (peer);
+    }
+
+    if (sink == NULL) {
+      GstElement *elem;
+
+      elem = gst_pad_get_parent_element (sinkPad);
+      gst_element_release_request_pad (elem, sinkPad);
+      g_object_unref (elem);
+      g_object_unref (sinkPad);
+    }
+
+end:
+
+    connectedSrc->removeSink (shared_from_this() );
+    connectedSrc = std::shared_ptr<MediaSrc>();
+  }
+
   mutex.unlock();
 }
 

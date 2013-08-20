@@ -31,7 +31,7 @@ namespace kurento
 
 class MediaElement;
 
-class MediaSink : public MediaPad
+class MediaSink : public MediaPad, public std::enable_shared_from_this<MediaSink>
 {
 public:
   MediaSink (std::shared_ptr<MediaElement> parent, MediaType::type mediaType);
@@ -40,7 +40,10 @@ public:
   std::shared_ptr<MediaSrc> getConnectedSrc ();
 
 private:
-  void setConnectedSrc(std::shared_ptr<MediaSrc> mediaSrc);
+  std::string getPadName ();
+
+  bool linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad * pad);
+  void unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad * sink);
 
   std::shared_ptr <MediaSrc> connectedSrc;
 

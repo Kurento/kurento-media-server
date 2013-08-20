@@ -39,13 +39,28 @@ MediaSrc::~MediaSrc() throw ()
 
 }
 
+std::string
+MediaSrc::getPadName ()
+{
+  if (getMediaType() == MediaType::type::AUDIO)
+    return "audio_src_%u";
+  else
+    return "video_src_%u";
+}
+
 void
 MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 {
+  GstPad *pad;
+
   mutex.lock();
-  // TODO: Connect gstreamer pad and if all goes correct do the following
-  mediaSink->setConnectedSrc (shared_from_this() );
-  connectedSinks.insert (mediaSink);
+
+  pad = gst_element_get_request_pad (getElement(), getPadName().c_str() );
+  gst_element_release_request_pad (getElement(), pad);
+
+  if (mediaSink->linkPad (shared_from_this(), pad) ) {
+    connectedSinks.insert (mediaSink);
+  }
 
   mutex.unlock();
 
@@ -53,15 +68,21 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 }
 
 void
-MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
+MediaSrc::removeSink (std::shared_ptr<MediaSink> mediaSink)
 {
-  std::shared_ptr<MediaSrc> emptySrc;
-
   mutex.lock();
 
-  // TODO: Disconnect gstreamer pads
-  mediaSink->setConnectedSrc (emptySrc);
   connectedSinks.erase (mediaSink);
+
+  mutex.unlock();
+}
+
+void
+MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
+{
+  mutex.lock();
+
+  mediaSink->unlink (shared_from_this(), NULL);
 
   mutex.unlock();
 

@@ -41,8 +41,11 @@ public:
 
 private:
   std::set < std::shared_ptr<MediaSink> > connectedSinks;
+  void removeSink (std::shared_ptr<MediaSink> mediaSink);
 
   Glib::RecMutex mutex;
+
+  std::string getPadName ();
 
   class StaticConstructor
   {
@@ -51,6 +54,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend class MediaSink;
 };
 
 } // kurento
