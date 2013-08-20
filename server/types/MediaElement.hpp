@@ -41,6 +41,9 @@ public:
   std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcsByMediaType (const MediaType::type mediaType);
   std::vector < std::shared_ptr<MediaSink> > * getMediaSinksByMediaType (const MediaType::type mediaType);
 
+protected:
+  GstElement *element;
+
 private:
   std::weak_ptr<MediaSrc> audioMediaSrc;
   std::weak_ptr<MediaSrc> videoMediaSrc;

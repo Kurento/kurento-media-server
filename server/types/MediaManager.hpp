@@ -50,6 +50,8 @@ public:
 
   void sendEvent (MediaEvent &event);
 
+  GstElement *pipeline;
+
 private:
   std::shared_ptr<MediaHandler> mediaHandler;
 

@@ -39,7 +39,6 @@ public:
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;
-  GstElement *element;
 };
 
 } // kurento

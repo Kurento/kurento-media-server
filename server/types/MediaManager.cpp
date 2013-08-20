@@ -53,24 +53,24 @@ MediaManager::MediaManager (std::shared_ptr<MediaHandler> mediaHandler) : MediaO
 {
   this->type.__set_mediaObject (MediaObjectType::type::MEDIA_MANAGER);
   this->mediaHandler = mediaHandler;
-  element = gst_pipeline_new (token.c_str () );
-  g_object_set (G_OBJECT (element), "async-handling", TRUE, NULL);
-  gst_element_set_state (element, GST_STATE_PLAYING);
-  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (element) );
+  pipeline = gst_pipeline_new (token.c_str () );
+  g_object_set (G_OBJECT (pipeline), "async-handling", TRUE, NULL);
+  gst_element_set_state (pipeline, GST_STATE_PLAYING);
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
   gst_bus_add_signal_watch (bus);
 
-  g_signal_connect (bus, "message", G_CALLBACK (receive_message), element);
+  g_signal_connect (bus, "message", G_CALLBACK (receive_message), pipeline);
 
   g_object_unref (bus);
 }
 
 MediaManager::~MediaManager() throw()
 {
-  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (element) );
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
   gst_bus_remove_signal_watch (bus);
   g_object_unref (bus);
-  gst_element_set_state (element, GST_STATE_NULL);
-  g_object_unref (element);
+  gst_element_set_state (pipeline, GST_STATE_NULL);
+  g_object_unref (pipeline);
 }
 
 void

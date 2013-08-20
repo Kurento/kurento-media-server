@@ -69,13 +69,13 @@ PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaManager> parent, const std:
   g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);
 
   g_object_ref (element);
-  gst_bin_add (GST_BIN (parent->element), element);
+  gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
 }
 
 PlayerEndPoint::~PlayerEndPoint() throw ()
 {
-  gst_bin_remove (GST_BIN (parent->element), element);
+  gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaManager> &) parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }
