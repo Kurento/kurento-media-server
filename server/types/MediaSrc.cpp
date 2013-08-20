@@ -42,8 +42,13 @@ MediaSrc::~MediaSrc() throw ()
 void
 MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 {
+  mutex.lock();
+  // TODO: Connect gstreamer pad and if all goes correct do the following
   mediaSink->setConnectedSrc (shared_from_this() );
-  //TODO: complete linking element pads
+  connectedSinks.insert (mediaSink);
+
+  mutex.unlock();
+
   GST_INFO ("connect %ld to %ld", this->id, mediaSink->id);
 }
 
@@ -54,12 +59,12 @@ MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
 
   mutex.lock();
 
-  // TODO: Connect gstreamer pad and if all goes correct do the following
+  // TODO: Disconnect gstreamer pads
   mediaSink->setConnectedSrc (emptySrc);
-  connectedSinks.insert (mediaSink);
+  connectedSinks.erase (mediaSink);
 
   mutex.unlock();
-  //TODO: complete unlinking elements
+
   GST_INFO ("disconnect %ld from %ld", this->id, mediaSink->id);
 }
 
