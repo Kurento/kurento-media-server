@@ -36,6 +36,14 @@ private:
 
   gulong bus_handler_id;
 
+  GstElement *zbar;
+
+  guint64 lastTs = G_GUINT64_CONSTANT (0);
+  std::string lastType;
+  std::string lastSymbol;
+
+  void barcodeDetected(guint64 ts, std::string& type, std::string& symbol);
+
   class StaticConstructor
   {
   public:
@@ -43,6 +51,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend void zbar_receive_message (GstBus *bus, GstMessage *message, gpointer element);
 };
 
 } // kurento
