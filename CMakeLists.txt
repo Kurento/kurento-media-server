@@ -235,7 +235,9 @@ SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} libopencv-stit
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} libopencv-stitching-dev (>= 2.4.2+dfsg-0exp2ubuntu1),")
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} libopencv-dev (>= 2.4.2+dfsg-0exp2ubuntu1), libraw1394-tools (>= 2.0.9-1),")
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} libsoup2.4-dev (>= 2.40.3-0ubuntu1), libx11-doc,")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} openmpi-checkpoint (>= 1.4.5-1ubuntu1), uuid-dev (>= 2.20.1-5.1ubuntu8)")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} openmpi-checkpoint (>= 1.4.5-1ubuntu1), uuid-dev (>= 2.20.1-5.1ubuntu8),")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} libtesseract-dev (>= 3.02.02-1), libtesseract3 (>= 3.02.02-1),")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} tesseract-ocr-dev (>= 3.02.02-1), tesseract-ocr-eng (>= 3.02-2)")
 # Is also possible to set DEBIAN_PACKAGE_BUILDS_DEPENDS
 
 if(NOT DEFINED SYSCONFDIR)
