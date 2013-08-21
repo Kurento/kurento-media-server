@@ -46,6 +46,7 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+  gulong urlRemovedHandlerId;
 
   friend gboolean register_http_end_point (gpointer data);
 };
