@@ -23,14 +23,27 @@
 namespace kurento
 {
 
-HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) : EndPoint (parent)
+HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
+  EndPoint (parent)
 {
+  gchar *name;
   this->type.__set_endPoint (EndPointType::type::HTTP_END_POINT);
+
+  name = getIdStr ();
+  element = gst_element_factory_make ("httpendpoint", name);
+  g_free (name);
+
+  g_object_ref (element);
+  gst_bin_add (GST_BIN (parent->pipeline), element);
+  gst_element_sync_state_with_parent (element);
 }
 
 HttpEndPoint::~HttpEndPoint() throw ()
 {
-  this->url = "DUMMY URL";
+  gst_bin_remove (GST_BIN ( (
+      (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);
+  gst_element_set_state (element, GST_STATE_NULL);
+  g_object_unref (element);
 }
 
 std::string
