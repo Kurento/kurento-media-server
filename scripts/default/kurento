@@ -14,6 +14,10 @@ DAEMON_OPTS=""
 
 export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:/usr/lib/gstreamer-1.0
 
+# Next line enables debug for some kurento classes it can be modified to change
+# log level and logged tags
+export GST_DEBUG=2,*media_server*:5,*Kurento*:5,$GST_DEBUG
+
 # whom the daemons should run as
 DAEMON_USER=nobody
 
