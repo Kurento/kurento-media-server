@@ -31,9 +31,9 @@
 #include "types/Filter.hpp"
 #include "types/MediaHandler.hpp"
 
-#define GST_CAT_DEFAULT media_server_service_handler
+#define GST_CAT_DEFAULT kurento_media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "MediaServerServiceHandler"
+#define GST_DEFAULT_NAME "KurentoMediaServerServiceHandler"
 
 namespace kurento
 {
