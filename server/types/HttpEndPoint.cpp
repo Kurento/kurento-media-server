@@ -52,4 +52,10 @@ HttpEndPoint::getUrl ()
   return url;
 }
 
+void
+HttpEndPoint::setUrl (std::string newUrl)
+{
+  url = newUrl;
+}
+
 } // kurento

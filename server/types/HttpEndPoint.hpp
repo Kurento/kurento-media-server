@@ -33,6 +33,7 @@ public:
   ~HttpEndPoint() throw ();
 
   std::string getUrl ();
+  void setUrl (std::string);
 
 private:
   std::string url;
