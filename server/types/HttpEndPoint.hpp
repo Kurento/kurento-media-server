@@ -46,6 +46,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend gboolean register_http_end_point (gpointer data);
 };
 
 } // kurento

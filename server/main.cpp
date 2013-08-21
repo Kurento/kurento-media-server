@@ -29,7 +29,6 @@
 #include <server/TNonblockingServer.h>
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
-#include <KmsHttpEPServer.h>
 
 #include "media_config.hpp"
 
@@ -39,6 +38,7 @@
 #include <boost/filesystem.hpp>
 #include <version.hpp>
 #include "log.hpp"
+#include "httpendpointserver.hpp"
 
 #define GST_DEFAULT_NAME "media_server"
 
@@ -61,6 +61,7 @@ using ::Glib::KeyFileFlags;
 static std::string serverAddress, httpEPServerAddress;
 static gint serverServicePort, httpEPServerServicePort;
 GstSDPMessage *sdpPattern;
+KmsHttpEPServer *httpepserver;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create (true);
 static TNonblockingServer *p_server = NULL;
@@ -405,7 +406,6 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
 int
 main (int argc, char **argv)
 {
-  KmsHttpEPServer *httpepserver;
   GError *error = NULL;
   GOptionContext *context;
   struct sigaction sa;

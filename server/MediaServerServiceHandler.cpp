@@ -35,6 +35,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaServerServiceHandler"
 
+#include "httpendpointserver.hpp"
+
 namespace kurento
 {
 
@@ -213,10 +215,27 @@ operate_in_main_loop_context (GSourceFunc func, gpointer data,
   mutex.lock();
 }
 
-static gboolean
+gboolean
 register_http_end_point (gpointer data)
 {
-  GST_WARNING ("TODO: Register HttpEndpoint");
+  HttpEndPoint *httpEp = (HttpEndPoint *) data;
+  std::string uri;
+  const gchar *url;
+  gchar *c_uri;
+  gchar *interface;
+  guint port;
+
+  url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element, NULL);
+
+  g_object_get (G_OBJECT (httpepserver), "interface", &interface, "port", &port,
+      NULL);
+  c_uri = g_strdup_printf ("http://%s:%d%s", interface, port, url);
+  uri = c_uri;
+
+  g_free (interface);
+  g_free (c_uri);
+
+  httpEp->setUrl (uri);
   return FALSE;
 }
 
