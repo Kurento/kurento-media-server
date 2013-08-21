@@ -43,6 +43,7 @@ private:
   std::string lastSymbol;
 
   void barcodeDetected(guint64 ts, std::string& type, std::string& symbol);
+  void raiseEvent(guint64 ts, std::string& type, std::string& symbol);
 
   class StaticConstructor
   {
