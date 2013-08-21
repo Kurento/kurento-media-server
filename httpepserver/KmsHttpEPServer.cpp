@@ -87,6 +87,32 @@ kms_http_ep_server_remove_handler (const gchar *url, KmsHttpEPServer *self)
   g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, url);
 }
 
+static GstFlowReturn
+get_recv_sample (GstElement *httpep, gpointer user_data)
+{
+  GST_WARNING ("TODO: pull-sample");
+  return GST_FLOW_OK;
+}
+
+static void
+get_recv_eos (GstElement *httep, gpointer user_data)
+{
+  GST_WARNING ("TODO: eos");
+}
+
+static void
+kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
+    GstElement *httpep)
+{
+  soup_message_set_status_full (msg, SOUP_STATUS_OK, "Transfer media");
+  /* TODO: Pause message and configure it to reponse in chunks */
+  /* to client whenever a new-sample is received */
+  //soup_server_pause_message(server, msg);
+
+  g_signal_connect (httpep, "new-sample", G_CALLBACK (get_recv_sample), NULL);
+  g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), NULL);
+}
+
 static void
 kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
     const char *path, GHashTable *query, SoupClientContext *client,
@@ -95,8 +121,6 @@ kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
   struct handler_data *hdata = (struct handler_data *) user_data;
   gchar *url;
   GSList *l;
-
-  GST_WARNING ("%s path: %s", msg->method, path);
 
   if (g_strcmp0 (path, HTTP_EP_SERVER_ROOT_PATH) == 0) {
     soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
@@ -114,8 +138,19 @@ kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
     return;
   }
 
-  /* TODO: Send request to the object */
-  soup_message_set_status_full (msg, SOUP_STATUS_OK, "Transfer media");
+  if (msg->method == SOUP_METHOD_GET) {
+    kms_http_ep_server_get_handler (hdata->server, msg,
+        GST_ELEMENT (hdata->data) );
+  } else if (msg->method == SOUP_METHOD_POST) {
+    /* TODO: Set HttpEndPoint to work in POST mode */
+    GST_DEBUG ("Configure to work to attend POST requests");
+    soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
+        "Not implemented");
+  } else {
+    GST_WARNING ("HTTP operation %s is not allowed", msg->method);
+    soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
+        "Not allowed");
+  }
 
   url = (gchar *) l->data;
   hdata->server->priv->handlers = g_slist_remove (hdata->server->priv->handlers,
