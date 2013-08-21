@@ -163,7 +163,7 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
   l = g_slist_find_custom (self->priv->handlers, url, (GCompareFunc) g_strcmp0);
 
   if (l != NULL) {
-    /* URL is already registered */
+    GST_ERROR ("URL %s already registered.", url);
     return FALSE;
   }
 
