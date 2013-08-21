@@ -164,6 +164,62 @@ MediaServerServiceHandler::createUriEndPoint (MediaObjectId &_return, const Medi
   _return = *uriEp;
 }
 
+struct MainLoopData {
+  gpointer data;
+  GSourceFunc func;
+  GDestroyNotify destroy;
+  Glib::Mutex *mutex;
+};
+
+static gboolean
+main_loop_wrapper_func (gpointer data)
+{
+  struct MainLoopData *mdata = (struct MainLoopData *) data;
+
+  return mdata->func (mdata->data);
+}
+
+static void
+main_loop_data_destroy (gpointer data)
+{
+  struct MainLoopData *mdata = (struct MainLoopData *) data;
+
+  if (mdata->destroy != NULL)
+    mdata->destroy (mdata->data);
+
+  mdata->mutex->unlock();
+
+  g_slice_free (struct MainLoopData, mdata);
+}
+
+static void
+operate_in_main_loop_context (GSourceFunc func, gpointer data,
+    GDestroyNotify destroy)
+{
+  struct MainLoopData *mdata;
+  Glib::Mutex mutex;
+
+  mdata = g_slice_new (struct MainLoopData);
+  mdata->data = data;
+  mdata->func = func;
+  mdata->destroy = destroy;
+  mdata->mutex = &mutex;
+
+  mdata->mutex->lock();
+
+  g_idle_add_full (G_PRIORITY_HIGH_IDLE, main_loop_wrapper_func, mdata,
+      main_loop_data_destroy);
+
+  mutex.lock();
+}
+
+static gboolean
+register_http_end_point (gpointer data)
+{
+  GST_WARNING ("TODO: Register HttpEndpoint");
+  return FALSE;
+}
+
 void
 MediaServerServiceHandler::createHttpEndPoint (MediaObjectId &_return, const MediaObjectId &mediaPipeline)
 throw (MediaObjectNotFoundException, MediaServerException)
@@ -174,6 +230,8 @@ throw (MediaObjectNotFoundException, MediaServerException)
   mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
   httpEp = mm->createHttpEndPoint ();
   mediaSet.put (httpEp);
+
+  operate_in_main_loop_context (register_http_end_point, &*httpEp, NULL);
 
   _return = *httpEp;
 }
