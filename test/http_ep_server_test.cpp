@@ -22,11 +22,11 @@
 #include <libsoup/soup.h>
 #include <KmsHttpEPServer.h>
 
-#define GST_CAT_DEFAULT _http_ep_server_test_
+#define GST_CAT_DEFAULT _http_endpoint_server_test_
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "http_ep_server_test"
+#define GST_DEFAULT_NAME "http_endpoint_server_test"
 
-#define MAX_REGISTERED_HTTP_END_POINTS 10
+#define MAX_REGISTERED_HTTP_END_POINTS 1
 
 #define HTTP_GET "GET"
 #define DEFAULT_PORT 9091
@@ -54,8 +54,11 @@ register_http_end_points()
   gint i;
 
   for (i = 0; i < MAX_REGISTERED_HTTP_END_POINTS; i++) {
-    /* TODO: Create a real HttpEndPoint element here */
-    url = kms_http_ep_server_register_end_point (httpepserver, NULL, NULL);
+    GstElement *httpep = gst_element_factory_make ("httpendpoint", NULL);
+    BOOST_CHECK ( httpep != NULL );
+
+    GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
+    url = kms_http_ep_server_register_end_point (httpepserver, httpep, g_object_unref);
 
     BOOST_CHECK (url != NULL);
 
@@ -80,8 +83,8 @@ http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
       &status_code, "uri", &uri, NULL);
 
-  GST_DEBUG ("%s %s status code: %d", method, soup_uri_get_path (uri),
-      status_code);
+  GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
+      status_code, *expected);
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 

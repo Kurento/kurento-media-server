@@ -26,6 +26,12 @@
 
 #define HTTP_EP_SERVER_ROOT_PATH "/"
 
+#define KEY_HTTP_EP_SERVER "kms-http-ep-server"
+#define KEY_HTTP_EP "kms-http-ep"
+#define KEY_NEW_SAMPLE "kms-new-sample-signal"
+#define KEY_EOS "kms-eos-signal"
+#define KEY_FINISHED "kms-finish-signal"
+
 #define GST_CAT_DEFAULT kms_http_ep_server_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
@@ -87,30 +93,180 @@ kms_http_ep_server_remove_handler (const gchar *url, KmsHttpEPServer *self)
   g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, url);
 }
 
-static GstFlowReturn
-get_recv_sample (GstElement *httpep, gpointer user_data)
+struct sample_data {
+  KmsHttpEPServer *httpepserver;
+  GstSample *sample;
+  SoupMessage *msg;
+};
+
+static gboolean
+msg_has_finished (SoupMessage *msg)
 {
-  GST_WARNING ("TODO: pull-sample");
+  gboolean *finished;
+
+  finished = (gboolean *) g_object_get_data (G_OBJECT (msg), KEY_FINISHED);
+
+  return *finished;
+}
+
+static gboolean
+send_buffer_cb (gpointer data)
+{
+  struct sample_data *sdata = (struct sample_data *) data;
+  GstBuffer *buffer;
+  GstMapInfo info;
+
+  if (msg_has_finished (sdata->msg) ) {
+    GST_WARNING ("Client has closed underlaying HTTP connection. "
+        "Buffer won't be sent");
+    return FALSE;
+  }
+
+  buffer = gst_sample_get_buffer (sdata->sample);
+
+  if (buffer == NULL)
+    return FALSE;
+
+  if (!gst_buffer_map (buffer, &info, GST_MAP_READ) ) {
+    GST_WARNING ("Could not get buffer map");
+    return FALSE;
+  }
+
+  soup_message_body_append (sdata->msg->response_body, SOUP_MEMORY_COPY,
+      info.data, info.size);
+  soup_server_unpause_message (sdata->httpepserver->priv->server, sdata->msg);
+
+  gst_buffer_unmap (buffer, &info);
+  return FALSE;
+}
+
+static void
+destroy_sample_data (gpointer data)
+{
+  struct sample_data *sdata = (struct sample_data *) data;
+
+  if (sdata->sample != NULL)
+    gst_sample_unref (sdata->sample);
+
+  if (sdata->httpepserver != NULL)
+    g_object_unref (sdata->httpepserver);
+
+  if (sdata->msg != NULL)
+    g_object_unref (sdata->msg);
+
+  g_slice_free (struct sample_data, sdata);
+}
+
+static GstFlowReturn
+new_sample_handler (GstElement *httpep, gpointer data)
+{
+  SoupMessage *msg = (SoupMessage *) data;
+  GstSample *sample = NULL;
+  struct sample_data *sdata;
+
+  GST_DEBUG ("New-sample");
+
+  g_signal_emit_by_name (httpep, "pull-sample", &sample);
+
+  if (sample == NULL)
+    return GST_FLOW_ERROR;
+
+  sdata = g_slice_new (struct sample_data);
+  sdata->sample = gst_sample_ref (sample);
+  sdata->msg = (SoupMessage *) g_object_ref (G_OBJECT (msg) );
+  sdata->httpepserver = KMS_HTTP_EP_SERVER (g_object_ref (
+      g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) ) );
+
+  /* Write buffer in the main context thread */
+  g_idle_add_full (G_PRIORITY_HIGH_IDLE, send_buffer_cb, sdata,
+      destroy_sample_data);
+
+  gst_sample_unref (sample);
   return GST_FLOW_OK;
 }
 
 static void
-get_recv_eos (GstElement *httep, gpointer user_data)
+get_recv_eos (GstElement *httep, gpointer data)
 {
-  GST_WARNING ("TODO: eos");
+  SoupMessage *msg = (SoupMessage *) data;
+
+  GST_DEBUG ("EOS received on HttpEndPoint %s", GST_ELEMENT_NAME (httep) );
+  soup_message_body_complete (msg->response_body);
+}
+
+static void
+finished_processing (SoupMessage *msg, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (g_object_get_data (G_OBJECT (msg),
+      KEY_HTTP_EP) );
+  gboolean *finished;
+  gulong *h1, *h2;
+
+  GST_DEBUG ("MSG finished");
+  finished = (gboolean *) g_object_get_data (G_OBJECT (msg), KEY_FINISHED);
+  *finished = TRUE;
+
+  /* Disconnect signals */
+  h1 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_NEW_SAMPLE);
+  h2 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS);
+  g_signal_handler_disconnect (httpep, *h1);
+  g_signal_handler_disconnect (httpep, *h2);
+}
+
+static void
+destroy_gboolean (gboolean *finished)
+{
+  g_slice_free (gboolean, finished);
+}
+
+static void
+destroy_ulong (gulong *handlerid)
+{
+  g_slice_free (gulong, handlerid);
 }
 
 static void
 kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
     GstElement *httpep)
 {
-  soup_message_set_status_full (msg, SOUP_STATUS_OK, "Transfer media");
-  /* TODO: Pause message and configure it to reponse in chunks */
-  /* to client whenever a new-sample is received */
-  //soup_server_pause_message(server, msg);
+  gboolean *finished;
+  gulong *handlerid;
 
-  g_signal_connect (httpep, "new-sample", G_CALLBACK (get_recv_sample), NULL);
-  g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), NULL);
+  /* TODO: Check wether we support client's capabilities before sending */
+  /* back a response code 200 OK. Furthermore, we only provide support  */
+  /* for webm in content type response */
+  soup_message_set_status (msg, SOUP_STATUS_OK);
+  soup_message_headers_set_content_type (msg->response_headers, "video/webm",
+      NULL);
+  soup_message_headers_set_encoding (msg->response_headers,
+      SOUP_ENCODING_CHUNKED);
+
+  finished = g_slice_new (gboolean);
+  *finished = FALSE;
+
+  g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER,
+      g_object_ref (self), g_object_unref);
+  g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP,
+      g_object_ref (httpep), g_object_unref);
+  g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED, finished,
+      (GDestroyNotify) destroy_gboolean);
+
+  g_signal_connect (G_OBJECT (msg), "finished",
+      G_CALLBACK (finished_processing), NULL);
+
+  handlerid = g_slice_new (gulong);
+  *handlerid = g_signal_connect (httpep, "new-sample",
+      G_CALLBACK (new_sample_handler), msg);
+  g_object_set_data_full (G_OBJECT (msg), KEY_NEW_SAMPLE, handlerid,
+      (GDestroyNotify) destroy_ulong);
+
+  handlerid = g_slice_new (gulong);
+  *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), msg);
+  g_object_set_data_full (G_OBJECT (msg), KEY_EOS, handlerid,
+      (GDestroyNotify) destroy_ulong);
+
+  /* allow media stream to flow in HttpEndPoint pipeline */
+  g_object_set (G_OBJECT (httpep), "start", TRUE, NULL);
 }
 
 static void
