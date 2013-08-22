@@ -22,6 +22,10 @@
 
 #include "httpendpointserver.hpp"
 
+#define GST_CAT_DEFAULT kurento_http_end_point
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoHttpEndPoint"
+
 namespace kurento
 {
 
@@ -84,6 +88,14 @@ void
 HttpEndPoint::setUrl (std::string newUrl)
 {
   url = newUrl;
+}
+
+HttpEndPoint::StaticConstructor HttpEndPoint::staticConstructor;
+
+HttpEndPoint::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento
