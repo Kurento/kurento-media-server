@@ -22,12 +22,50 @@
 
 #include "httpendpointserver.hpp"
 
+#include "mediaEvents_types.h"
+#include "protocol/TBinaryProtocol.h"
+#include "transport/TBufferTransports.h"
+
 #define GST_CAT_DEFAULT kurento_http_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoHttpEndPoint"
 
+using apache::thrift::transport::TMemoryBuffer;
+using apache::thrift::protocol::TBinaryProtocol;
+
 namespace kurento
 {
+
+void
+http_end_point_raise_petition_event (HttpEndPoint *httpEp)
+{
+  MediaEvent event;
+  HttpEndPointEvent httpEndPointEvent;
+  int method;
+
+  boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
+  TBinaryProtocol protocol (transport);
+
+  g_object_get (G_OBJECT (httpEp->element), "http-method", &method, NULL);
+
+  GST_DEBUG ("method: %d", method);
+
+  if (method == 0)
+    httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::GET_REQUEST_EVENT);
+  else if (method == 1)
+    httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::POST_REQUEST_EVENT);
+  else
+    httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::UNEXPECTED_REQUEST_EVENT);
+
+  httpEndPointEvent.write (&protocol);
+  std::string event_str;
+  transport->appendBufferToString (event_str);
+  event.__set_event (event_str);
+  event.__set_source (*httpEp);
+
+  std::dynamic_pointer_cast<MediaPipeline> (httpEp->parent)->sendEvent (event);
+  GST_INFO ("Signal raised");
+}
 
 static void
 url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
@@ -47,7 +85,7 @@ url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
   if (substr.compare (uriStr) != 0)
     return;
 
-  GST_INFO ("Launch signal to java application");
+  http_end_point_raise_petition_event (httpEp);
 }
 
 HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
