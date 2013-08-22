@@ -59,11 +59,8 @@ player_eos (GstElement *player, PlayerEndPoint *self)
 PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
   : UriEndPoint (parent, UriEndPointType::type::PLAYER_END_POINT)
 {
-  gchar *name;
+  element = gst_element_factory_make ("playerendpoint", NULL);
 
-  name = getIdStr ();
-  element = gst_element_factory_make ("playerendpoint", name);
-  g_free (name);
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 
   g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);

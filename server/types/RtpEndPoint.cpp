@@ -27,11 +27,7 @@ namespace kurento
 void
 RtpEndPoint::init (std::shared_ptr<MediaPipeline> parent)
 {
-  gchar *name;
-
-  name = getIdStr ();
-  element = gst_element_factory_make ("rtpendpoint", name);
-  g_free (name);
+  element = gst_element_factory_make ("rtpendpoint", NULL);
 
   g_object_set (element, "pattern-sdp", sdpPattern, NULL);
   g_object_ref (element);

@@ -53,7 +53,7 @@ MediaPipeline::MediaPipeline (std::shared_ptr<MediaHandler> mediaHandler) : Medi
 {
   this->type.__set_mediaObject (MediaObjectType::type::MEDIA_PIPELINE);
   this->mediaHandler = mediaHandler;
-  pipeline = gst_pipeline_new (token.c_str () );
+  pipeline = gst_pipeline_new (NULL);
   g_object_set (G_OBJECT (pipeline), "async-handling", TRUE, NULL);
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
   GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );

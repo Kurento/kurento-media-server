@@ -26,11 +26,7 @@ namespace kurento
 RecorderEndPoint::RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
   : UriEndPoint (parent, UriEndPointType::type::RECORDER_END_POINT)
 {
-  gchar *name;
-
-  name = getIdStr ();
-  element = gst_element_factory_make ("recorderendpoint", name);
-  g_free (name);
+  element = gst_element_factory_make ("recorderendpoint", NULL);
 
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 

@@ -91,12 +91,9 @@ url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
 HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
   EndPoint (parent)
 {
-  gchar *name;
   this->type.__set_endPoint (EndPointType::type::HTTP_END_POINT);
 
-  name = getIdStr ();
-  element = gst_element_factory_make ("httpendpoint", name);
-  g_free (name);
+  element = gst_element_factory_make ("httpendpoint", NULL);
 
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);

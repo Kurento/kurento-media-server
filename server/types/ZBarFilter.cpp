@@ -67,11 +67,7 @@ zbar_receive_message (GstBus *bus, GstMessage *message, gpointer zbar)
 
 ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent) : Filter (parent, FilterType::type::ZBAR_FILTER)
 {
-  gchar *name;
-
-  name = getIdStr ();
-  element = gst_element_factory_make ("filterelement", name);
-  g_free (name);
+  element = gst_element_factory_make ("filterelement", NULL);
 
   g_object_set (element, "filter-factory", "zbar", NULL);
   g_object_ref (element);
