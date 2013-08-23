@@ -41,7 +41,12 @@ MediaElement::getOrCreateAudioMediaSrc()
 {
   mutex.lock();
 
-  std::shared_ptr<MediaSrc> locked = audioMediaSrc.lock();
+  std::shared_ptr<MediaSrc> locked;
+
+  try {
+    locked = audioMediaSrc.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
 
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), MediaType::type::AUDIO) );
@@ -58,7 +63,12 @@ MediaElement::getOrCreateVideoMediaSrc()
 {
   mutex.lock();
 
-  std::shared_ptr<MediaSrc> locked = videoMediaSrc.lock();
+  std::shared_ptr<MediaSrc> locked;
+
+  try {
+    locked = videoMediaSrc.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
 
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), MediaType::type::VIDEO) );
@@ -75,7 +85,12 @@ MediaElement::getOrCreateAudioMediaSink()
 {
   mutex.lock();
 
-  std::shared_ptr<MediaSink> locked = audioMediaSink.lock();
+  std::shared_ptr<MediaSink> locked;
+
+  try {
+    locked = audioMediaSink.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
 
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), MediaType::type::AUDIO) );
@@ -92,7 +107,12 @@ MediaElement::getOrCreateVideoMediaSink()
 {
   mutex.lock();
 
-  std::shared_ptr<MediaSink> locked = videoMediaSink.lock();
+  std::shared_ptr<MediaSink> locked;
+
+  try {
+    locked = videoMediaSink.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
 
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), MediaType::type::VIDEO) );
