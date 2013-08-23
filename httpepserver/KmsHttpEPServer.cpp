@@ -37,8 +37,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define KMS_HTTP_EP_SERVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_EP_SERVER, KmsHttpEPServerPrivate))
 struct _KmsHttpEPServerPrivate {
+  GHashTable *handlers;
   SoupServer *server;
-  GSList *handlers;
   gchar *iface;
   gint port;
 };
@@ -76,7 +76,6 @@ static guint obj_signals[LAST_SIGNAL] = { 0 };
 struct handler_data {
   gpointer data;
   GDestroyNotify destroy;
-  KmsHttpEPServer *server;
 };
 
 struct resolv_data {
@@ -88,7 +87,8 @@ static void
 kms_http_ep_server_remove_handler (const gchar *url, KmsHttpEPServer *self)
 {
   GST_DEBUG ("Remove url: %s", url);
-  soup_server_remove_handler (self->priv->server, url);
+
+  g_hash_table_remove (self->priv->handlers, url);
 
   g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, url);
 }
@@ -270,34 +270,28 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
 }
 
 static void
-kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
-    const char *path, GHashTable *query, SoupClientContext *client,
-    gpointer user_data)
+emit_removed_url_signal (gpointer data, gpointer user_data)
 {
-  struct handler_data *hdata = (struct handler_data *) user_data;
-  GSList *l;
+  KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (user_data);
+  gchar *uri = (gchar *) data;
 
-  if (msg->method == SOUP_METHOD_GET) {
-    kms_http_ep_server_get_handler (hdata->server, msg,
-        GST_ELEMENT (hdata->data) );
-  } else if (msg->method == SOUP_METHOD_POST) {
-    /* TODO: Set HttpEndPoint to work in POST mode */
-    GST_DEBUG ("Configure to work to attend POST requests");
-    soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
-        "Not implemented");
-  } else {
-    GST_WARNING ("HTTP operation %s is not allowed", msg->method);
-    soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
-        "Not allowed");
-  }
+  GST_DEBUG ("Emit signal for uri %s", uri);
+  g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, uri);
+}
 
-  /* Remove handler */
-  l = g_slist_find_custom (hdata->server->priv->handlers, path,
-      (GCompareFunc) g_strcmp0);
-  hdata->server->priv->handlers = g_slist_remove (hdata->server->priv->handlers,
-      l->data);
+static void
+kms_http_ep_server_destroy_handlers (KmsHttpEPServer *self)
+{
+  GList *keys;
 
-  kms_http_ep_server_remove_handler (path, hdata->server);
+  /* Emit removed url signal for each key */
+  keys = g_hash_table_get_keys (self->priv->handlers);
+  g_list_foreach (keys, (GFunc) emit_removed_url_signal, self);
+  g_list_free (keys);
+
+  /* Remove handlers */
+  g_hash_table_remove_all (self->priv->handlers);
+  self->priv->handlers = NULL;
 }
 
 static void
@@ -308,9 +302,7 @@ kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
     return;
   }
 
-  /* Remove handlers */
-  g_slist_foreach (self->priv->handlers,
-      (GFunc) kms_http_ep_server_remove_handler, self);
+  kms_http_ep_server_destroy_handlers (self);
 
   /* Stops processing for server */
   soup_server_quit (self->priv->server);
@@ -324,7 +316,6 @@ destroy_handler_data (struct handler_data *hdata)
     hdata->destroy (hdata->data);
   }
 
-  g_object_unref (hdata->server);
   g_slice_free (struct handler_data, hdata);
 }
 
@@ -333,25 +324,20 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
     gpointer data, GDestroyNotify destroy)
 {
   struct handler_data *hdata;
-  GSList *l;
 
-  l = g_slist_find_custom (self->priv->handlers, url, (GCompareFunc) g_strcmp0);
+  hdata = (struct handler_data *) g_hash_table_lookup (self->priv->handlers,
+      url);
 
-  if (l != NULL) {
+  if (hdata != NULL) {
     GST_ERROR ("URL %s already registered.", url);
     return FALSE;
   }
 
-  self->priv->handlers = g_slist_prepend (self->priv->handlers, url);
-
   hdata = g_slice_new (struct handler_data);
   hdata->data = data;
   hdata->destroy = destroy;
-  hdata->server = KMS_HTTP_EP_SERVER (g_object_ref (self) );
 
-  soup_server_add_handler (self->priv->server, url,
-      kms_http_ep_server_req_handler, hdata,
-      (GDestroyNotify) destroy_handler_data);
+  g_hash_table_insert (self->priv->handlers, url, hdata);
 
   return TRUE;
 }
@@ -368,7 +354,7 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (data);
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
-  GSList *l;
+  struct handler_data *hdata;
 
   if (g_strcmp0 (path, HTTP_EP_SERVER_ROOT_PATH) == 0) {
     soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
@@ -376,24 +362,30 @@ got_headers_handler (SoupMessage *msg, gpointer data)
     return;
   }
 
-  l = g_slist_find_custom (self->priv->handlers, path,
-      (GCompareFunc) g_strcmp0);
+  hdata = (struct handler_data *) g_hash_table_lookup (self->priv->handlers,
+      path);
 
-  if (l == NULL) {
+  if (hdata == NULL) {
     /* URL is not registered */
     soup_message_set_status_full (msg, SOUP_STATUS_NOT_FOUND,
         "Http end point not found");
     return;
   }
 
-  /* Request allowed */
-
-  if (msg->method == SOUP_METHOD_POST) {
+  if (msg->method == SOUP_METHOD_GET)
+    kms_http_ep_server_get_handler (self, msg, GST_ELEMENT (hdata->data) );
+  else if (msg->method == SOUP_METHOD_POST) {
     /* Get chunks without filling in body's data field after */
     /* the body is fully sent/received */
     soup_message_body_set_accumulate (msg->request_body, FALSE);
     g_signal_connect (msg, "got-chunk", G_CALLBACK (got_chunk_handler), data);
+  } else {
+    GST_WARNING ("HTTP operation %s is not allowed", msg->method);
+    soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
+        "Not allowed");
   }
+
+  kms_http_ep_server_remove_handler (path, self);
 }
 
 static void
@@ -461,6 +453,7 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
   }
 
   rdata->cb (rdata->server, gerr);
+
   g_object_unref (rdata->server);
 
   if (gerr != NULL)
@@ -550,10 +543,8 @@ kms_http_ep_server_finalize (GObject *obj)
     self->priv->iface = NULL;
   }
 
-  if (self->priv->handlers != NULL) {
-    g_slist_free_full (self->priv->handlers, g_free);
-    self->priv->handlers = NULL;
-  }
+  if (self->priv->handlers != NULL)
+    kms_http_ep_server_destroy_handlers (self);
 
   /* Chain up to the parent class */
   G_OBJECT_CLASS (kms_http_ep_server_parent_class)->finalize (obj);
@@ -649,6 +640,15 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
   g_type_class_add_private (klass, sizeof (KmsHttpEPServerPrivate) );
 }
 
+static gboolean
+equal_str_key (gconstpointer a, gconstpointer b)
+{
+  const char *str1 = (const char *) a;
+  const char *str2 = (const char *) b;
+
+  return (g_strcmp0 (str1, str2) == 0);
+}
+
 static void
 kms_http_ep_server_init (KmsHttpEPServer *self)
 {
@@ -656,9 +656,10 @@ kms_http_ep_server_init (KmsHttpEPServer *self)
 
   /* Set default values */
   self->priv->server = NULL;
-  self->priv->handlers = NULL;
   self->priv->port = KMS_HTTP_EP_SERVER_DEFAULT_PORT;
   self->priv->iface = KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE;
+  self->priv->handlers = g_hash_table_new_full (g_str_hash, equal_str_key,
+      g_free, (GDestroyNotify) destroy_handler_data);
 }
 
 /* Virtual public methods */
