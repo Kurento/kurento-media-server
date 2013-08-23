@@ -275,24 +275,7 @@ kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
     gpointer user_data)
 {
   struct handler_data *hdata = (struct handler_data *) user_data;
-  gchar *url;
   GSList *l;
-
-  if (g_strcmp0 (path, HTTP_EP_SERVER_ROOT_PATH) == 0) {
-    soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
-        "Not implemented");
-    return;
-  }
-
-  l = g_slist_find_custom (hdata->server->priv->handlers, path,
-      (GCompareFunc) g_strcmp0);
-
-  if (l == NULL) {
-    /* URL is not registered */
-    soup_message_set_status_full (msg, SOUP_STATUS_NOT_FOUND,
-        "Http end point not found");
-    return;
-  }
 
   if (msg->method == SOUP_METHOD_GET) {
     kms_http_ep_server_get_handler (hdata->server, msg,
@@ -308,12 +291,13 @@ kms_http_ep_server_req_handler (SoupServer *server, SoupMessage *msg,
         "Not allowed");
   }
 
-  url = (gchar *) l->data;
+  /* Remove handler */
+  l = g_slist_find_custom (hdata->server->priv->handlers, path,
+      (GCompareFunc) g_strcmp0);
   hdata->server->priv->handlers = g_slist_remove (hdata->server->priv->handlers,
       l->data);
 
   kms_http_ep_server_remove_handler (path, hdata->server);
-  g_free (url);
 }
 
 static void
@@ -373,6 +357,53 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
 }
 
 static void
+got_chunk_handler (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
+{
+  GST_INFO ("Chunk callback %s", msg->method);
+}
+
+static void
+got_headers_handler (SoupMessage *msg, gpointer data)
+{
+  KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (data);
+  SoupURI *uri = soup_message_get_uri (msg);
+  const char *path = soup_uri_get_path (uri);
+  GSList *l;
+
+  if (g_strcmp0 (path, HTTP_EP_SERVER_ROOT_PATH) == 0) {
+    soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
+        "Not implemented");
+    return;
+  }
+
+  l = g_slist_find_custom (self->priv->handlers, path,
+      (GCompareFunc) g_strcmp0);
+
+  if (l == NULL) {
+    /* URL is not registered */
+    soup_message_set_status_full (msg, SOUP_STATUS_NOT_FOUND,
+        "Http end point not found");
+    return;
+  }
+
+  /* Request allowed */
+
+  if (msg->method == SOUP_METHOD_POST) {
+    /* Get chunks without filling in body's data field after */
+    /* the body is fully sent/received */
+    soup_message_body_set_accumulate (msg->request_body, FALSE);
+    g_signal_connect (msg, "got-chunk", G_CALLBACK (got_chunk_handler), data);
+  }
+}
+
+static void
+request_started_handler (SoupServer *server, SoupMessage *msg,
+    SoupClientContext *client, gpointer data)
+{
+  g_signal_connect (msg, "got-headers", G_CALLBACK (got_headers_handler), data);
+}
+
+static void
 kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
 {
   SoupSocket *listener;
@@ -385,6 +416,10 @@ kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
 
   kms_http_ep_server_register_handler (self, root_path, g_object_ref (self),
       g_object_unref);
+
+  /* Connect server signals handlers */
+  g_signal_connect (self->priv->server, "request-started",
+      G_CALLBACK (request_started_handler), self);
 
   soup_server_run_async (self->priv->server);
 
