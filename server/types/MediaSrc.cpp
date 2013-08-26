@@ -53,6 +53,8 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 {
   GstPad *pad;
 
+  GST_INFO ("connect %ld to %ld", this->id, mediaSink->id);
+
   mutex.lock();
 
   pad = gst_element_get_request_pad (getElement(), getPadName().c_str() );
@@ -60,11 +62,11 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 
   if (mediaSink->linkPad (shared_from_this(), pad) ) {
     connectedSinks.insert (mediaSink);
+  } else {
+    GST_WARNING ("Cannot connect %ld to %ld", this->id, mediaSink->id);
   }
 
   mutex.unlock();
-
-  GST_INFO ("connect %ld to %ld", this->id, mediaSink->id);
 }
 
 void
@@ -80,13 +82,13 @@ MediaSrc::removeSink (std::shared_ptr<MediaSink> mediaSink)
 void
 MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
 {
+  GST_INFO ("disconnect %ld from %ld", this->id, mediaSink->id);
+
   mutex.lock();
 
   mediaSink->unlink (shared_from_this(), NULL);
 
   mutex.unlock();
-
-  GST_INFO ("disconnect %ld from %ld", this->id, mediaSink->id);
 }
 
 std::vector < std::shared_ptr<MediaSink> > *
