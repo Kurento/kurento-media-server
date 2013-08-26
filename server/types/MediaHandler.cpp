@@ -1,5 +1,5 @@
 /*
- * MediaManager.cpp - Kurento Media Server
+ * MediaHandler.cpp - Kurento Media Server
  *
  * Copyright (C) 2013 Kurento
  * Contact: Miguel París Díaz <mparisdiaz@gmail.com>
