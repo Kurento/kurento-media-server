@@ -96,6 +96,35 @@ BOOST_AUTO_TEST_CASE ( create_player_memory_test )
   }
 }
 
+BOOST_AUTO_TEST_CASE ( create_recorder_memory_test )
+{
+  MediaObjectId mediaPipeline = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
+  int i, maxMemorySize, currentMemorySize;
+
+  BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+
+  client->addHandlerAddress (0, "localhost", 2323);
+
+  for (i = 0; i < ITERATIONS; i++) {
+    client->createMediaPipeline (mediaPipeline, 0);
+    client->createUriEndPoint (mo, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/a");
+    client->release (mediaPipeline);
+
+    if (i == 0) {
+      maxMemorySize = get_data_memory (pid) + MEMORY_TOLERANCE;
+      GST_INFO ("MAX memory size: %d", maxMemorySize);
+    }
+
+    if (i % 100 == 0) {
+      currentMemorySize = get_data_memory (pid);
+      GST_INFO ("Memory size: %d", currentMemorySize);
+      BOOST_REQUIRE (currentMemorySize <= maxMemorySize);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
 {
   MediaObjectId mediaPipeline = MediaObjectId();
