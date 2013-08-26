@@ -16,6 +16,7 @@
 
 #include <libsoup/soup.h>
 #include <uuid/uuid.h>
+#include <string.h>
 
 #include "KmsHttpEPServer.h"
 
@@ -31,6 +32,7 @@
 #define KEY_NEW_SAMPLE "kms-new-sample-signal"
 #define KEY_EOS "kms-eos-signal"
 #define KEY_FINISHED "kms-finish-signal"
+#define KEY_BOUNDARY "kms-boundary"
 
 #define GST_CAT_DEFAULT kms_http_ep_server_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -195,7 +197,7 @@ get_recv_eos (GstElement *httep, gpointer data)
 }
 
 static void
-finished_processing (SoupMessage *msg, gpointer data)
+finished_get_processing (SoupMessage *msg, gpointer data)
 {
   GstElement *httpep = GST_ELEMENT (g_object_get_data (G_OBJECT (msg),
       KEY_HTTP_EP) );
@@ -252,7 +254,7 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
       (GDestroyNotify) destroy_gboolean);
 
   g_signal_connect (G_OBJECT (msg), "finished",
-      G_CALLBACK (finished_processing), NULL);
+      G_CALLBACK (finished_get_processing), NULL);
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (httpep, "new-sample",
@@ -267,6 +269,165 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
 
   /* allow media stream to flow in HttpEndPoint pipeline */
   g_object_set (G_OBJECT (httpep), "start", TRUE, NULL);
+}
+
+static void
+find_content_part (const gchar *start, const gchar *end,
+    const gchar **content_start, const gchar **content_end,
+    const gchar *boundary)
+{
+  const char *b, *c;
+  int boundary_len;
+
+  boundary_len = g_utf8_strlen (boundary, -1);
+  *content_start = NULL;
+  *content_end = NULL;
+
+  for (b = (const char *) memchr (start, '-', end - start);
+      b && b + boundary_len + 4 < end; b = (const char *) memchr (b + 2, '-', end - (b + 2) ) ) {
+    /* Check for "--boundary" */
+    if (b[1] != '-' || g_str_has_prefix (boundary, b + 2) != 0)
+      continue;
+
+    /* Check that it's at start of line */
+    if (! (b == start || (b[-1] == '\n' && b[-2] == '\r') ) )
+      continue;
+
+    /* Check for "--" or "\r\n" after boundary */
+    if (b[boundary_len + 2] == '-' && b[boundary_len + 3] == '-') {
+      *content_end = b - 2;
+    } else if (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') {
+      *content_start = b + boundary_len + 3;
+    }
+  }
+
+  if (*content_start != NULL) {
+    for (c = (const char *) memchr (*content_start, '\r', end - *content_start);
+        c < end; c = (const char *) memchr (c + 4, '\r', end - (c + 2) ) ) {
+      if (c[1] == '\n' && c[2] == '\r' && c[3] == '\n') {
+        *content_start = c + 4;
+        break;
+      }
+    }
+  }
+}
+
+static void
+got_chunk_handler (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
+{
+  const gchar *content_start = NULL, *content_end = NULL;
+  gchar *boundary = (gchar *) g_object_get_data (G_OBJECT (msg), KEY_BOUNDARY);
+  GstElement *httpep = GST_ELEMENT (data);
+  gconstpointer copy_from;
+  GstFlowReturn ret;
+  GstBuffer *buffer;
+  GstMemory *memory;
+  GstMapInfo info;
+  gint len = 0;
+
+  guint method;
+
+  GST_INFO ("Chunk callback.");
+
+  find_content_part (chunk->data, chunk->data + chunk->length, &content_start,
+      &content_end, boundary);
+
+  if (content_start != NULL) {
+    if (content_end != NULL)
+      len = content_end - content_start;
+    else
+      len = chunk->length - (content_start - chunk->data);
+
+    copy_from = content_start;
+  } else if (content_end != NULL) {
+    len = content_end - chunk->data;
+    copy_from = chunk->data;
+  } else {
+    len = chunk->length;
+    copy_from = chunk->data;
+  }
+
+  buffer = gst_buffer_new ();
+  memory = gst_allocator_alloc (NULL, len, NULL);
+  gst_buffer_append_memory (buffer, memory);
+
+  gst_buffer_map (buffer, &info, GST_MAP_WRITE);
+
+  memcpy (info.data, copy_from, info.size);
+  gst_buffer_unmap (buffer, &info);
+
+  g_object_get (G_OBJECT (httpep), "http-method", &method, NULL);
+
+  g_signal_emit_by_name (httpep, "push-buffer", buffer, &ret);
+
+  if (ret != GST_FLOW_OK) {
+    /* something wrong */
+    GST_ERROR ("Could not send buffer to httpep %s. Ret code %d",
+        GST_ELEMENT_NAME (httpep), ret);
+  }
+
+  gst_buffer_unref (buffer);
+}
+
+static void
+finished_post_processing (SoupMessage *msg, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+  GstFlowReturn ret;
+
+  GST_DEBUG ("POST finished");
+
+  g_signal_emit_by_name (httpep, "end-of-stream", &ret);
+
+  if (ret != GST_FLOW_OK) {
+    // something wrong
+    GST_ERROR ("Could not send EOS to %s. Ret code %d",
+        GST_ELEMENT_NAME (httpep), ret);
+  }
+}
+
+static void
+kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
+    GstElement *httpep)
+{
+  const gchar *content_type;
+  GHashTable *params;
+  gchar *boundary;
+
+  content_type =
+    soup_message_headers_get_content_type (msg->request_headers, &params);
+
+  if (content_type == NULL) {
+    GST_WARNING ("Content-type header is not present in request");
+    soup_message_set_status (msg, SOUP_STATUS_NOT_ACCEPTABLE);
+    goto end;
+  }
+
+  boundary = g_strdup ( (gchar *) g_hash_table_lookup (params, "boundary") );
+
+  if (g_str_has_prefix ("multipart/", content_type) != 0 || boundary == NULL) {
+    GST_WARNING ("Malformed multipart POST request");
+    soup_message_set_status (msg, SOUP_STATUS_NOT_ACCEPTABLE);
+
+    if (boundary != NULL)
+      g_free (boundary);
+
+    goto end;
+  }
+
+  /* Get chunks without filling-in body's data field after */
+  /* the body is fully sent/received */
+  soup_message_body_set_accumulate (msg->request_body, FALSE);
+  g_signal_connect (msg, "got-chunk", G_CALLBACK (got_chunk_handler), httpep);
+  g_object_set_data_full (G_OBJECT (msg), KEY_BOUNDARY, boundary, g_free);
+
+  g_signal_connect (msg, "finished", G_CALLBACK (finished_post_processing),
+      httpep);
+
+end:
+
+  if (params != NULL)
+    g_hash_table_destroy (params);
 }
 
 static void
@@ -343,12 +504,6 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
 }
 
 static void
-got_chunk_handler (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
-{
-  GST_INFO ("Chunk callback %s", msg->method);
-}
-
-static void
 got_headers_handler (SoupMessage *msg, gpointer data)
 {
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (data);
@@ -374,12 +529,9 @@ got_headers_handler (SoupMessage *msg, gpointer data)
 
   if (msg->method == SOUP_METHOD_GET)
     kms_http_ep_server_get_handler (self, msg, GST_ELEMENT (hdata->data) );
-  else if (msg->method == SOUP_METHOD_POST) {
-    /* Get chunks without filling in body's data field after */
-    /* the body is fully sent/received */
-    soup_message_body_set_accumulate (msg->request_body, FALSE);
-    g_signal_connect (msg, "got-chunk", G_CALLBACK (got_chunk_handler), data);
-  } else {
+  else if (msg->method == SOUP_METHOD_POST)
+    kms_http_ep_server_post_handler (self, msg, GST_ELEMENT (hdata->data) );
+  else {
     GST_WARNING ("HTTP operation %s is not allowed", msg->method);
     soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
         "Not allowed");
