@@ -121,7 +121,7 @@ check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 }
 
 static void
-check_use_released_media_manager (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_use_released_media_pipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
@@ -148,12 +148,12 @@ check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 }
 
 static void
-check_media_manager_no_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_media_pipeline_no_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId parent = MediaObjectId();
 
-  GST_DEBUG ("check_media_manager_no_parent test");
+  GST_DEBUG ("check_media_pipeline_no_parent test");
   client->createMediaPipeline (mediaPipeline, 0);
   BOOST_CHECK_THROW (client->getParent (parent, mediaPipeline), NoParentException);
 
@@ -221,11 +221,11 @@ client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
   check_version (client);
   check_no_handler (client);
   check_add_handler_address (client);
-  check_use_released_media_manager (client);
+  check_use_released_media_pipeline (client);
   check_type (client);
   check_same_token (client);
   check_parent (client);
-  check_media_manager_no_parent (client);
+  check_media_pipeline_no_parent (client);
   check_uri_end_point (client);
   check_http_end_point (client);
   check_zbar_filter (client);

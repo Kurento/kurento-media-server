@@ -39,7 +39,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 BOOST_FIXTURE_TEST_SUITE ( server_memory_test_suite, F )
 
-BOOST_AUTO_TEST_CASE ( create_media_manager_memory_test )
+BOOST_AUTO_TEST_CASE ( create_media_pipeline_memory_test )
 {
   MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
