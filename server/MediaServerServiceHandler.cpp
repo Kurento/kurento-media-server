@@ -97,9 +97,17 @@ throw (MediaObjectNotFoundException, NoParentException, MediaServerException)
   std::shared_ptr<MediaObjectImpl> mo;
   std::shared_ptr<MediaObjectId> parent;
 
-  mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObject);
-  parent = mo->getParent ();
-  _return = *parent;
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObject);
+    parent = mo->getParent ();
+    _return = *parent;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (const NoParentException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 /* MediaPipeline */
@@ -111,17 +119,25 @@ throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerExcept
   std::shared_ptr<MediaHandler> mh;
   std::shared_ptr<MediaPipeline> mediaPipeline;
 
-  mh = mediaHandlerMap.getValue (handlerId);
+  try {
+    mh = mediaHandlerMap.getValue (handlerId);
 
-  if (mh == NULL) {
-    throw HandlerNotFoundException();
+    if (mh == NULL) {
+      throw HandlerNotFoundException();
+    }
+
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mh) );
+    GST_DEBUG ("createMediaPipeline id: %ld, token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
+    mediaSet.put (mediaPipeline);
+
+    _return = *mediaPipeline;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (const HandlerNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
   }
-
-  mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mh) );
-  GST_DEBUG ("createMediaPipeline id: %ld, token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
-  mediaSet.put (mediaPipeline);
-
-  _return = *mediaPipeline;
 }
 
 void
@@ -131,11 +147,17 @@ MediaServerServiceHandler::createSdpEndPoint (MediaObjectId &_return, const Medi
   std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<SdpEndPoint> sdpEp;
 
-  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-  sdpEp = mm->createSdpEndPoint (type);
-  mediaSet.put (sdpEp);
+  try {
+    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    sdpEp = mm->createSdpEndPoint (type);
+    mediaSet.put (sdpEp);
 
-  _return = *sdpEp;
+    _return = *sdpEp;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -146,11 +168,17 @@ throw (MediaObjectNotFoundException, MediaServerException)
   std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<SdpEndPoint> sdpEp;
 
-  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-  sdpEp = mm->createSdpEndPoint (type, sdp);
-  mediaSet.put (sdpEp);
+  try {
+    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    sdpEp = mm->createSdpEndPoint (type, sdp);
+    mediaSet.put (sdpEp);
 
-  _return = *sdpEp;
+    _return = *sdpEp;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -160,11 +188,17 @@ MediaServerServiceHandler::createUriEndPoint (MediaObjectId &_return, const Medi
   std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<UriEndPoint> uriEp;
 
-  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-  uriEp = mm->createUriEndPoint (type, uri);
-  mediaSet.put (uriEp);
+  try {
+    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    uriEp = mm->createUriEndPoint (type, uri);
+    mediaSet.put (uriEp);
 
-  _return = *uriEp;
+    _return = *uriEp;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 struct MainLoopData {
@@ -247,13 +281,19 @@ throw (MediaObjectNotFoundException, MediaServerException)
   std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<HttpEndPoint> httpEp;
 
-  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-  httpEp = mm->createHttpEndPoint ();
-  mediaSet.put (httpEp);
+  try {
+    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    httpEp = mm->createHttpEndPoint ();
+    mediaSet.put (httpEp);
 
-  operate_in_main_loop_context (register_http_end_point, &*httpEp, NULL);
+    operate_in_main_loop_context (register_http_end_point, &*httpEp, NULL);
 
-  _return = *httpEp;
+    _return = *httpEp;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -263,11 +303,17 @@ throw (MediaObjectNotFoundException, MediaServerException)
   std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<Mixer> mixer;
 
-  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-  mixer = mm->createMixer (type);
-  mediaSet.put (mixer);
+  try {
+    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    mixer = mm->createMixer (type);
+    mediaSet.put (mixer);
 
-  _return = *mixer;
+    _return = *mixer;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -277,11 +323,17 @@ throw (MediaObjectNotFoundException, MediaServerException)
   std::shared_ptr<MediaPipeline> mm;
   std::shared_ptr<Filter> filter;
 
-  mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-  filter = mm->createFilter (type);
-  mediaSet.put (filter);
+  try {
+    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    filter = mm->createFilter (type);
+    mediaSet.put (filter);
 
-  _return = *filter;
+    _return = *filter;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 /* MediaElement */
@@ -298,18 +350,26 @@ MediaServerServiceHandler::getMediaSrcs (std::vector<MediaObjectId> & _return, c
 throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
-  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = NULL;
   std::vector< std::shared_ptr<MediaSrc> >::iterator it;
 
-  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
-  mediaSrcs = me->getMediaSrcs();
+  try {
+    me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+    mediaSrcs = me->getMediaSrcs();
 
-  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
+    for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
+      mediaSet.put (*it);
+      _return.push_back (**it);
+    }
+
+    delete mediaSrcs;
+  } catch (const MediaObjectNotFoundException &e) {
+    delete mediaSrcs;
+    throw e;
+  } catch (...) {
+    delete mediaSrcs;
+    throw MediaServerException();
   }
-
-  delete mediaSrcs;
 }
 
 void
@@ -317,18 +377,26 @@ MediaServerServiceHandler::getMediaSinks (std::vector<MediaObjectId> & _return, 
 throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
-  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks = NULL;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
-  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
-  mediaSinks = me->getMediaSinks();
+  try {
+    me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+    mediaSinks = me->getMediaSinks();
 
-  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
+    for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+      mediaSet.put (*it);
+      _return.push_back (**it);
+    }
+
+    delete mediaSinks;
+  } catch (const MediaObjectNotFoundException &e) {
+    delete mediaSinks;
+    throw e;
+  } catch (...) {
+    delete mediaSinks;
+    throw MediaServerException();
   }
-
-  delete mediaSinks;
 }
 
 void
@@ -336,18 +404,26 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObjectId> &
     const MediaType::type mediaType) throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
-  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs;
+  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = NULL;
   std::vector< std::shared_ptr<MediaSrc> >::iterator it;
 
-  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
-  mediaSrcs = me->getMediaSrcsByMediaType (mediaType);
+  try {
+    me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+    mediaSrcs = me->getMediaSrcsByMediaType (mediaType);
 
-  for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
+    for ( it = mediaSrcs->begin() ; it != mediaSrcs->end(); ++it) {
+      mediaSet.put (*it);
+      _return.push_back (**it);
+    }
+
+    delete mediaSrcs;
+  } catch (const MediaObjectNotFoundException &e) {
+    delete mediaSrcs;
+    throw e;
+  } catch (...) {
+    delete mediaSrcs;
+    throw MediaServerException();
   }
-
-  delete mediaSrcs;
 }
 
 void
@@ -355,18 +431,26 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObjectId> 
     const MediaType::type mediaType) throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
-  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks = NULL;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
-  me = mediaSet.getMediaObject<MediaElement> (mediaElement);
-  mediaSinks = me->getMediaSinksByMediaType (mediaType);
+  try {
+    me = mediaSet.getMediaObject<MediaElement> (mediaElement);
+    mediaSinks = me->getMediaSinksByMediaType (mediaType);
 
-  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
+    for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+      mediaSet.put (*it);
+      _return.push_back (**it);
+    }
+
+    delete mediaSinks;
+  } catch (const MediaObjectNotFoundException &e) {
+    delete mediaSinks;
+    throw e;
+  } catch (...) {
+    delete mediaSinks;
+    throw MediaServerException();
   }
-
-  delete mediaSinks;
 }
 
 /* MediaPad */
@@ -389,9 +473,17 @@ throw (MediaObjectNotFoundException, ConnectionException, MediaServerException)
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
 
-  src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
-  sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
-  src->connect (sink);
+  try {
+    src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
+    sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
+    src->connect (sink);
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (const ConnectionException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -401,9 +493,15 @@ throw (MediaObjectNotFoundException, MediaServerException)
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
 
-  src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
-  sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
-  src->disconnect (sink);
+  try {
+    src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
+    sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
+    src->disconnect (sink);
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -411,18 +509,26 @@ MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObjectId >&_ret
 throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
-  std::vector < std::shared_ptr<MediaSink> > *mediaSinks;
+  std::vector < std::shared_ptr<MediaSink> > *mediaSinks = NULL;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
-  src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
-  mediaSinks = src->getConnectedSinks();
+  try {
+    src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
+    mediaSinks = src->getConnectedSinks();
 
-  for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
-    mediaSet.put (*it);
-    _return.push_back (**it);
+    for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+      mediaSet.put (*it);
+      _return.push_back (**it);
+    }
+
+    delete mediaSinks;
+  } catch (const MediaObjectNotFoundException &e) {
+    delete mediaSinks;
+    throw e;
+  } catch (...) {
+    delete mediaSinks;
+    throw MediaServerException();
   }
-
-  delete mediaSinks;
 }
 
 /* MediaSink */
@@ -433,8 +539,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<MediaSink> sink;
 
-  sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
-  _return = * (sink->getConnectedSrc() );
+  try {
+    sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
+    _return = * (sink->getConnectedSrc() );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 /* Mixer */
@@ -446,11 +558,17 @@ throw (MediaObjectNotFoundException, MediaServerException)
   std::shared_ptr<Mixer> m;
   std::shared_ptr<MixerEndPoint> mixerEndPoint;
 
-  m = mediaSet.getMediaObject<Mixer> (mixer);
-  mixerEndPoint = m->createMixerEndPoint();
-  mediaSet.put (mixerEndPoint);
+  try {
+    m = mediaSet.getMediaObject<Mixer> (mixer);
+    mixerEndPoint = m->createMixerEndPoint();
+    mediaSet.put (mixerEndPoint);
 
-  _return = *mixerEndPoint;
+    _return = *mixerEndPoint;
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 /* HttpEndPoint */
@@ -461,8 +579,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<HttpEndPoint> httpEp;
 
-  httpEp = mediaSet.getMediaObject<HttpEndPoint> (httpEndPoint);
-  _return.assign (httpEp->getUrl () );
+  try {
+    httpEp = mediaSet.getMediaObject<HttpEndPoint> (httpEndPoint);
+    _return.assign (httpEp->getUrl () );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 /* UriEndPoint */
@@ -473,8 +597,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<UriEndPoint> uep;
 
-  uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
-  _return.assign (uep->getUri() );
+  try {
+    uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
+    _return.assign (uep->getUri() );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -483,8 +613,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<UriEndPoint> uep;
 
-  uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
-  uep->start();
+  try {
+    uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
+    uep->start();
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -493,8 +629,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<UriEndPoint> uep;
 
-  uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
-  uep->pause();
+  try {
+    uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
+    uep->pause();
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -515,8 +657,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
-  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-  _return.assign (s->generateOffer () );
+  try {
+    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+    _return.assign (s->generateOffer () );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -525,8 +673,16 @@ throw (MediaObjectNotFoundException, NegotiationException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
-  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-  _return.assign (s->processAnswer (answer) );
+  try {
+    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+    _return.assign (s->processAnswer (answer) );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (const NegotiationException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -535,8 +691,16 @@ throw (MediaObjectNotFoundException, NegotiationException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
-  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-  _return.assign (s->processOffer (offer) );
+  try {
+    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+    _return.assign (s->processOffer (offer) );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (const NegotiationException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -545,8 +709,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
-  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-  _return.assign (s->getLocalSessionDescription () );
+  try {
+    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+    _return.assign (s->getLocalSessionDescription () );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
@@ -555,8 +725,14 @@ throw (MediaObjectNotFoundException, MediaServerException)
 {
   std::shared_ptr<SdpEndPoint> s;
 
-  s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-  _return.assign (s->getRemoteSessionDescription () );
+  try {
+    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
+    _return.assign (s->getRemoteSessionDescription () );
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 MediaServerServiceHandler::StaticConstructor MediaServerServiceHandler::staticConstructor;
