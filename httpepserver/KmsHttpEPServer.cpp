@@ -86,7 +86,7 @@ struct resolv_data {
 };
 
 static void
-kms_http_ep_server_remove_handler (const gchar *url, KmsHttpEPServer *self)
+kms_http_ep_server_remove_handler (KmsHttpEPServer *self, const gchar *url)
 {
   GST_DEBUG ("Remove url: %s", url);
 
@@ -537,7 +537,7 @@ got_headers_handler (SoupMessage *msg, gpointer data)
         "Not allowed");
   }
 
-  kms_http_ep_server_remove_handler (path, self);
+  kms_http_ep_server_remove_handler (self, path);
 }
 
 static void
