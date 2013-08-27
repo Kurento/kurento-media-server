@@ -51,7 +51,7 @@ MediaSrc::getPadName ()
 static void
 pad_unlinked (GstPad *pad, GstPad *peer, GstElement *parent)
 {
-  gst_element_release_request_pad (parent, peer);
+  gst_element_release_request_pad (parent, pad);
 }
 
 void
