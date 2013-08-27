@@ -101,6 +101,7 @@ struct _KmsHttpEPServerClass
   void (*stop) (KmsHttpEPServer * self);
   const gchar *(*register_end_point) (KmsHttpEPServer * self, gpointer data,
       GDestroyNotify destroy);
+    gboolean (*unregister_end_point) (KmsHttpEPServer * self, const gchar *);
 
   /* signal callbacks */
   void (*url_removed) (KmsHttpEPServer * self, gchar * url);
@@ -116,6 +117,8 @@ void kms_http_ep_server_start (KmsHttpEPServer * self,
 void kms_http_ep_server_stop (KmsHttpEPServer * self);
 const gchar *kms_http_ep_server_register_end_point (KmsHttpEPServer * self,
     gpointer data, GDestroyNotify destroy);
+gboolean kms_http_ep_server_unregister_end_point (KmsHttpEPServer * self,
+    const gchar * uri);
 
 #define KMS_HTTP_EP_SERVER_PORT "port"
 #define KMS_HTTP_EP_SERVER_INTERFACE "interface"

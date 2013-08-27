@@ -103,9 +103,52 @@ HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
       G_CALLBACK (url_removed_cb), this);
 }
 
+static std::string
+getUriFromUrl (std::string url)
+{
+  std::string uri;
+  gboolean host_read = FALSE;
+
+  /* skip first 7 characters in the url regarding the protocol "http://" */
+  if (url.size() < 7) {
+    GST_ERROR ("Invalid URL %s", url.c_str() );
+    return NULL;
+  }
+
+  for ( guint i = 7; i < url.size(); i++) {
+    gchar c = url.at (i);
+
+    if (!host_read) {
+      if (c == '/') {
+        /* URL has no port */
+        uri = url.substr (i, std::string::npos);
+        break;
+      } else if (c == ':') {
+        /* skip port number */
+        host_read = TRUE;
+        continue;
+      } else
+        continue;
+    }
+
+    if (c != '/')
+      continue;
+
+    uri = url.substr (i, std::string::npos);
+    break;
+  }
+
+  return uri;
+}
+
 HttpEndPoint::~HttpEndPoint() throw ()
 {
   g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+
+  std::string uri = getUriFromUrl (url);
+
+  if (!uri.empty() )
+    kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str() );
 
   gst_bin_remove (GST_BIN ( (
       (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);

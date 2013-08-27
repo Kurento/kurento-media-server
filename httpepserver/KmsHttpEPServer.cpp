@@ -667,6 +667,14 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
   return url;
 }
 
+static gboolean
+kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
+    const gchar *uri)
+{
+  GST_DEBUG ("TODO: Unregister uri");
+  return FALSE;
+}
+
 static void
 kms_http_ep_server_dispose (GObject *obj)
 {
@@ -760,6 +768,7 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
   klass->start = kms_http_ep_server_start_impl;
   klass->stop = kms_http_ep_server_stop_impl;
   klass->register_end_point = kms_http_ep_server_register_end_point_impl;
+  klass->unregister_end_point = kms_http_ep_server_unregister_end_point_impl;
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_PORT] =
     g_param_spec_int ("port",
@@ -855,4 +864,12 @@ kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
 
   return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self, data,
       destroy);
+}
+
+gboolean kms_http_ep_server_unregister_end_point (KmsHttpEPServer *self,
+    const gchar *uri)
+{
+  g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), FALSE);
+
+  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->unregister_end_point (self, uri);
 }
