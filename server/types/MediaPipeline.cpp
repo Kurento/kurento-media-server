@@ -42,6 +42,7 @@ receive_message (GstBus *bus, GstMessage *message, gpointer pipeline)
   switch (message->type) {
   case GST_MESSAGE_ERROR:
     GST_ERROR ("Error on bus: %P", message);
+    gst_debug_bin_to_dot_file_with_ts (GST_BIN (pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "error");
     // TODO: Check if further notification is needed
     break;
   default:
