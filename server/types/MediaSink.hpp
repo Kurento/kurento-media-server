@@ -49,6 +49,14 @@ private:
 
   Glib::RecMutex mutex;
 
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
+
   friend void MediaSrc::disconnect (MediaSink *mediaSink);
   friend void MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink);
 };
