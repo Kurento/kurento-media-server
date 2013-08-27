@@ -31,7 +31,16 @@ MediaSink::MediaSink (std::shared_ptr<MediaElement> parent, MediaType::type medi
 
 MediaSink::~MediaSink() throw ()
 {
+  std::shared_ptr<MediaSrc> connectedSrcLocked;
 
+  try {
+    connectedSrcLocked = connectedSrc.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
+
+  if (connectedSrcLocked != NULL) {
+    connectedSrcLocked->disconnect (this);
+  }
 }
 
 std::string
@@ -46,21 +55,27 @@ MediaSink::getPadName ()
 bool
 MediaSink::linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad *src)
 {
+  std::shared_ptr<MediaSrc> connectedSrcLocked;
   GstPad *sink;
   bool ret;
 
   mutex.lock();
 
+  try {
+    connectedSrcLocked = connectedSrc.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
+
   if ( (sink = gst_element_get_static_pad (getElement(), getPadName().c_str() ) ) == NULL)
     sink = gst_element_get_request_pad (getElement(), getPadName().c_str() );
 
   if (gst_pad_is_linked (sink) ) {
-    unlink (connectedSrc, sink);
+    unlink (connectedSrcLocked, sink);
   }
 
   if (gst_pad_link (src, sink) == GST_PAD_LINK_OK) {
     ret = true;
-    connectedSrc = mediaSrc;
+    connectedSrc = std::weak_ptr<MediaSrc> (mediaSrc);
   } else {
     gst_element_release_request_pad (getElement(), sink);
     ret = false;
@@ -76,9 +91,16 @@ MediaSink::linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad *src)
 void
 MediaSink::unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink)
 {
+  std::shared_ptr<MediaSrc> connectedSrcLocked;
+
   mutex.lock();
 
-  if (connectedSrc != NULL && mediaSrc == connectedSrc) {
+  try {
+    connectedSrcLocked = connectedSrc.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
+
+  if (connectedSrcLocked != NULL && mediaSrc == connectedSrcLocked) {
     GstPad *peer;
     GstPad *sinkPad;
 
@@ -114,8 +136,7 @@ MediaSink::unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink)
 
 end:
 
-    connectedSrc->removeSink (shared_from_this() );
-    connectedSrc = std::shared_ptr<MediaSrc>();
+    connectedSrcLocked->removeSink (this);
   }
 
   mutex.unlock();
@@ -124,7 +145,14 @@ end:
 std::shared_ptr<MediaSrc>
 MediaSink::getConnectedSrc ()
 {
-  return connectedSrc;
+  std::shared_ptr<MediaSrc> connectedSrcLocked;
+
+  try {
+    connectedSrcLocked = connectedSrc.lock();
+  } catch (std::bad_weak_ptr e) {
+  }
+
+  return connectedSrcLocked;
 }
 
 } // kurento

@@ -40,8 +40,9 @@ public:
   std::vector < std::shared_ptr<MediaSink> > * getConnectedSinks ();
 
 private:
-  std::set < std::shared_ptr<MediaSink> > connectedSinks;
-  void removeSink (std::shared_ptr<MediaSink> mediaSink);
+  std::vector < std::weak_ptr<MediaSink> > connectedSinks;
+  void removeSink (MediaSink *mediaSink);
+  void disconnect (MediaSink *mediaSink);
 
   Glib::RecMutex mutex;
 

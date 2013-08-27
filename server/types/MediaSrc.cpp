@@ -58,29 +58,53 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
   mutex.lock();
 
   pad = gst_element_get_request_pad (getElement(), getPadName().c_str() );
-  gst_element_release_request_pad (getElement(), pad);
 
   if (mediaSink->linkPad (shared_from_this(), pad) ) {
-    connectedSinks.insert (mediaSink);
+    connectedSinks.push_back (std::weak_ptr<MediaSink> (mediaSink) );
   } else {
+    gst_element_release_request_pad (getElement(), pad);
     GST_WARNING ("Cannot connect %ld to %ld", this->id, mediaSink->id);
+  }
+
+  g_object_unref (pad);
+
+  mutex.unlock();
+}
+
+void
+MediaSrc::removeSink (MediaSink *mediaSink)
+{
+  std::shared_ptr<MediaSink> sinkLocked;
+  std::vector< std::weak_ptr<MediaSink> >::iterator it;
+
+  mutex.lock();
+
+  it = connectedSinks.begin();
+
+  while (it != connectedSinks.end() ) {
+    try {
+      sinkLocked = (*it).lock();
+    } catch (std::bad_weak_ptr e) {
+    }
+
+    if (sinkLocked == NULL || sinkLocked->id == mediaSink->id) {
+      it = connectedSinks.erase (it);
+    } else {
+      it++;
+    }
   }
 
   mutex.unlock();
 }
 
 void
-MediaSrc::removeSink (std::shared_ptr<MediaSink> mediaSink)
+MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
 {
-  mutex.lock();
-
-  connectedSinks.erase (mediaSink);
-
-  mutex.unlock();
+  MediaSrc::disconnect (mediaSink.get () );
 }
 
 void
-MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
+MediaSrc::disconnect (MediaSink *mediaSink)
 {
   GST_INFO ("disconnect %ld from %ld", this->id, mediaSink->id);
 
@@ -94,14 +118,22 @@ MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
 std::vector < std::shared_ptr<MediaSink> > *
 MediaSrc:: getConnectedSinks ()
 {
-  std::set< std::shared_ptr<MediaSink> >::iterator it;
+  std::shared_ptr<MediaSink> sinkLocked;
+  std::vector< std::weak_ptr<MediaSink> >::iterator it;
 
   std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
 
   mutex.lock();
 
   for ( it = connectedSinks.begin() ; it != connectedSinks.end(); ++it) {
-    mediaSinks->push_back (*it);
+    try {
+      sinkLocked = (*it).lock();
+    } catch (std::bad_weak_ptr e) {
+    }
+
+    if (sinkLocked != NULL) {
+      mediaSinks->push_back (sinkLocked);
+    }
   }
 
   mutex.unlock();

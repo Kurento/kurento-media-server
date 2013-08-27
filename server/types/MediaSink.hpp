@@ -45,11 +45,11 @@ private:
   bool linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad * pad);
   void unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad * sink);
 
-  std::shared_ptr <MediaSrc> connectedSrc;
+  std::weak_ptr <MediaSrc> connectedSrc;
 
   Glib::RecMutex mutex;
 
-  friend void MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink);
+  friend void MediaSrc::disconnect (MediaSink *mediaSink);
   friend void MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink);
 };
 
