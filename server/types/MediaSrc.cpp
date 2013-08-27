@@ -48,6 +48,12 @@ MediaSrc::getPadName ()
     return "video_src_%u";
 }
 
+static void
+pad_unlinked (GstPad *pad, GstPad *peer, GstElement *parent)
+{
+  gst_element_release_request_pad (parent, peer);
+}
+
 void
 MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 {
@@ -58,6 +64,8 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
   mutex.lock();
 
   pad = gst_element_get_request_pad (getElement(), getPadName().c_str() );
+
+  g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked), getElement() );
 
   if (mediaSink->linkPad (shared_from_this(), pad) ) {
     connectedSinks.push_back (std::weak_ptr<MediaSink> (mediaSink) );

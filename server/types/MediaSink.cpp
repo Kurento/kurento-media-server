@@ -115,13 +115,8 @@ MediaSink::unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink)
     peer = gst_pad_get_peer (sinkPad);
 
     if (peer != NULL) {
-      GstElement *elem;
-
       gst_pad_unlink (peer, sinkPad);
-      elem = gst_pad_get_parent_element (peer);
-      gst_element_release_request_pad (elem, peer);
 
-      g_object_unref (elem);
       g_object_unref (peer);
     }
 
