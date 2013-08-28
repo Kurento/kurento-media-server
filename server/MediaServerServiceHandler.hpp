@@ -41,7 +41,7 @@ public:
 
   /* MediaObject */
   void release (const MediaObjectId& mediaObject) throw(MediaObjectNotFoundException, MediaServerException);
-  void getParent (MediaObjectId& _return, const MediaObjectId& mediaObject) throw(NoParentException);
+  void getParent (MediaObjectId& _return, const MediaObjectId& mediaObject) throw(MediaObjectNotFoundException, NoParentException);
 
   /* MediaPileline */
   void createMediaPipeline (MediaObjectId& _return, const int32_t handlerId)

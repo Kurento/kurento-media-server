@@ -148,6 +148,20 @@ check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 }
 
 static void
+check_get_parent_in_released_media_pipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+{
+  MediaObjectId mediaPipeline = MediaObjectId();
+  MediaObjectId mo = MediaObjectId();
+  MediaObjectId parent = MediaObjectId();
+
+  client->createMediaPipeline (mediaPipeline, 0);
+  client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER);
+  client->release (mediaPipeline);
+
+  BOOST_CHECK_THROW (client->getParent (parent, mo), MediaObjectNotFoundException);
+}
+
+static void
 check_media_pipeline_no_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObjectId mediaPipeline = MediaObjectId();
@@ -225,6 +239,7 @@ client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
   check_type (client);
   check_same_token (client);
   check_parent (client);
+  check_get_parent_in_released_media_pipeline (client);
   check_media_pipeline_no_parent (client);
   check_uri_end_point (client);
   check_http_end_point (client);
