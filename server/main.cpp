@@ -40,6 +40,9 @@
 #include "log.hpp"
 #include "httpendpointserver.hpp"
 
+#include <gio/gio.h>
+#include <nice/interfaces.h>
+
 #define GST_DEFAULT_NAME "media_server"
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
@@ -106,6 +109,42 @@ check_port (int port)
     throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid value");
 }
 
+static std::string
+get_address ()
+{
+  std::string addressStr;
+  GList *ips, *l;
+  gboolean done = FALSE;
+
+  ips = nice_interfaces_get_local_ips (FALSE);
+
+  for (l = ips; l != NULL && !done; l = l->next) {
+    GInetAddress *addr;
+
+    addr = g_inet_address_new_from_string ( (const gchar *) l->data);
+
+    switch (g_inet_address_get_family (addr) ) {
+    case G_SOCKET_FAMILY_INVALID:
+    case G_SOCKET_FAMILY_UNIX:
+      /* Ignore this addresses */
+      break;
+    case G_SOCKET_FAMILY_IPV6:
+      /* Ignore this addresses */
+      break;
+    case G_SOCKET_FAMILY_IPV4:
+      addressStr = std::string ( (const gchar *) l->data);
+      done = TRUE;
+      break;
+    }
+
+    g_object_unref (addr);
+  }
+
+  g_list_free_full (ips, g_free);
+
+  return addressStr;
+}
+
 static void
 set_default_media_server_config ()
 {
@@ -121,12 +160,12 @@ set_default_media_server_config ()
 static void
 set_default_http_ep_server_config ()
 {
+  httpEPServerAddress = get_address ();
+  httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
+
   GST_WARNING ("Setting default configuration for http end point server. "
       "Using IP address: %s, port: %d. ",
-      HTTP_EP_SERVER_ADDRESS, HTTP_EP_SERVER_SERVICE_PORT);
-
-  httpEPServerAddress = HTTP_EP_SERVER_ADDRESS;
-  httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
+      httpEPServerAddress.c_str (), httpEPServerServicePort);
 }
 
 static void
@@ -246,9 +285,9 @@ configure_http_ep_server (KeyFile &configFile)
         HTTP_EP_SERVER_ADDRESS_KEY);
   } catch (Glib::KeyFileError err) {
     GST_ERROR ("%s", err.what ().c_str () );
+    httpEPServerAddress = get_address();
     GST_WARNING ("Setting default address %s to http end point server",
-        HTTP_EP_SERVER_ADDRESS);
-    httpEPServerAddress = HTTP_EP_SERVER_ADDRESS;
+        httpEPServerAddress.c_str () );
   }
 
   try {

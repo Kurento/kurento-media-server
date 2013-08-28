@@ -46,6 +46,8 @@ pkg_check_modules(THRIFT REQUIRED thrift-nb>=0.9.0)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.30)
 pkg_check_modules(UUID REQUIRED uuid>=2.20.0)
+pkg_check_modules(GIO REQUIRED gio-2.0>=2.36.0)
+pkg_check_modules(NICE REQUIRED nice>=0.1.3)
 
 include(ExternalProject)
 
