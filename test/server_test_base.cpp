@@ -121,7 +121,7 @@ F::F()
       break;
     } catch (std::exception e) {
       GST_WARNING ("Error connecting to the server (retry %d/%d): %s", i + 1, MAX_RETRIES, e.what () );
-      sleep (1);
+      usleep (100000);
     }
   }
 }
