@@ -95,20 +95,41 @@ http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_free (method);
 }
 
+static gboolean unregister_element (gpointer);
+
 static void
-send_get_request (const gchar *url, gpointer data)
+send_get_request (const gchar *uri, gpointer data)
 {
   SoupMessage *msg;
-  gchar *uri;
+  gchar *url;
 
-  uri = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, url);
+  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
 
-  GST_INFO ("Send " HTTP_GET " %s", uri);
-  msg = soup_message_new (HTTP_GET, uri);
+  GST_INFO ("Send " HTTP_GET " %s", url);
+  msg = soup_message_new (HTTP_GET, url);
   soup_session_queue_message (session, msg,
       (SoupSessionCallback) http_req_callback, data);
 
-  g_free (uri);
+  g_timeout_add_full (G_PRIORITY_DEFAULT, 2000, unregister_element,
+      g_strdup (uri), g_free);
+
+  g_free (url);
+}
+
+gboolean
+unregister_element (gpointer data)
+{
+  gchar *uri = (gchar *) data;
+
+  if (kms_http_ep_server_unregister_end_point (httpepserver, uri) )
+    GST_DEBUG ("Unregistered uri %s", uri);
+  else
+    GST_ERROR ("Could not unregister uri %s", uri);
+
+  signal_count++;
+  send_get_request (uri, &expected_404);
+
+  return FALSE;
 }
 
 gboolean
@@ -125,8 +146,6 @@ static void
 url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 {
   GST_DEBUG ("URL %s removed", url);
-  signal_count++;
-  send_get_request (url, &expected_404);
 }
 
 static void

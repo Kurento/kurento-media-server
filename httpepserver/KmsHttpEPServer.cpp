@@ -28,11 +28,12 @@
 #define HTTP_EP_SERVER_ROOT_PATH "/"
 
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
-#define KEY_HTTP_EP "kms-http-ep"
-#define KEY_NEW_SAMPLE "kms-new-sample-signal"
-#define KEY_EOS "kms-eos-signal"
-#define KEY_FINISHED "kms-finish-signal"
+#define KEY_NEW_SAMPLE_HANDLER_ID "kms-new-sample-handler-id"
+#define KEY_FINISHED_HANDLER_ID "kms-finish-handler-id"
+#define KEY_EOS_HANDLER_ID "kms-eos-handler-id"
+#define KEY_FINISHED "kms-finish"
 #define KEY_BOUNDARY "kms-boundary"
+#define KEY_MESSAGE "kms-message"
 
 #define GST_CAT_DEFAULT kms_http_ep_server_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -84,16 +85,6 @@ struct resolv_data {
   KmsHttpEPServerStartCallback cb;
   KmsHttpEPServer *server;
 };
-
-static void
-kms_http_ep_server_remove_handler (KmsHttpEPServer *self, const gchar *url)
-{
-  GST_DEBUG ("Remove url: %s", url);
-
-  g_hash_table_remove (self->priv->handlers, url);
-
-  g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, url);
-}
 
 struct sample_data {
   KmsHttpEPServer *httpepserver;
@@ -197,22 +188,34 @@ get_recv_eos (GstElement *httep, gpointer data)
 }
 
 static void
-finished_get_processing (SoupMessage *msg, gpointer data)
+msg_finished (SoupMessage *msg)
 {
-  GstElement *httpep = GST_ELEMENT (g_object_get_data (G_OBJECT (msg),
-      KEY_HTTP_EP) );
   gboolean *finished;
-  gulong *h1, *h2;
 
-  GST_DEBUG ("MSG finished");
   finished = (gboolean *) g_object_get_data (G_OBJECT (msg), KEY_FINISHED);
   *finished = TRUE;
+}
+
+static void
+finished_get_processing (SoupMessage *msg, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+  gulong *h1, *h2;
+  gpointer param;
+
+  GST_DEBUG ("Message finished");
+  msg_finished (msg);
 
   /* Disconnect signals */
-  h1 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_NEW_SAMPLE);
-  h2 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS);
+  h1 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_NEW_SAMPLE_HANDLER_ID);
+  h2 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS_HANDLER_ID);
   g_signal_handler_disconnect (httpep, *h1);
   g_signal_handler_disconnect (httpep, *h2);
+
+  param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
+
+  if (param != NULL)
+    g_object_unref (G_OBJECT (param) );
 }
 
 static void
@@ -228,10 +231,21 @@ destroy_ulong (gulong *handlerid)
 }
 
 static void
+msg_add_finished_property (SoupMessage *msg)
+{
+  gboolean *finished;
+
+  finished = g_slice_new (gboolean);
+  *finished = FALSE;
+
+  g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED, finished,
+      (GDestroyNotify) destroy_gboolean);
+}
+
+static void
 kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
     GstElement *httpep)
 {
-  gboolean *finished;
   gulong *handlerid;
 
   /* TODO: Check wether we support client's capabilities before sending */
@@ -243,28 +257,26 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   soup_message_headers_set_encoding (msg->response_headers,
       SOUP_ENCODING_CHUNKED);
 
-  finished = g_slice_new (gboolean);
-  *finished = FALSE;
-
   g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER,
       g_object_ref (self), g_object_unref);
-  g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP,
-      g_object_ref (httpep), g_object_unref);
-  g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED, finished,
-      (GDestroyNotify) destroy_gboolean);
 
-  g_signal_connect (G_OBJECT (msg), "finished",
-      G_CALLBACK (finished_get_processing), NULL);
+  msg_add_finished_property (msg);
+
+  handlerid = g_slice_new (gulong);
+  *handlerid = g_signal_connect (G_OBJECT (msg), "finished",
+      G_CALLBACK (finished_get_processing), httpep);
+  g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED_HANDLER_ID, handlerid,
+      (GDestroyNotify) destroy_ulong);
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (httpep, "new-sample",
       G_CALLBACK (new_sample_handler), msg);
-  g_object_set_data_full (G_OBJECT (msg), KEY_NEW_SAMPLE, handlerid,
+  g_object_set_data_full (G_OBJECT (msg), KEY_NEW_SAMPLE_HANDLER_ID, handlerid,
       (GDestroyNotify) destroy_ulong);
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), msg);
-  g_object_set_data_full (G_OBJECT (msg), KEY_EOS, handlerid,
+  g_object_set_data_full (G_OBJECT (msg), KEY_EOS_HANDLER_ID, handlerid,
       (GDestroyNotify) destroy_ulong);
 
   /* allow media stream to flow in HttpEndPoint pipeline */
@@ -376,6 +388,7 @@ finished_post_processing (SoupMessage *msg, gpointer data)
   GstFlowReturn ret;
 
   GST_DEBUG ("POST finished");
+  msg_finished (msg);
 
   g_signal_emit_by_name (httpep, "end-of-stream", &ret);
 
@@ -420,6 +433,8 @@ kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
   soup_message_body_set_accumulate (msg->request_body, FALSE);
   g_signal_connect (msg, "got-chunk", G_CALLBACK (got_chunk_handler), httpep);
   g_object_set_data_full (G_OBJECT (msg), KEY_BOUNDARY, boundary, g_free);
+
+  msg_add_finished_property (msg);
 
   g_signal_connect (msg, "finished", G_CALLBACK (finished_post_processing),
       httpep);
@@ -470,6 +485,33 @@ kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
 }
 
 static void
+destroy_pending_message (SoupMessage *msg)
+{
+  gulong *handlerid;
+
+  GST_DEBUG ("Destroy pending message");
+
+  if (msg->method == SOUP_METHOD_GET) {
+    /* Client is locked waiting for chunked data */
+    KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
+        g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
+    soup_server_unpause_message (serv->priv->server, msg);
+    soup_message_body_complete (msg->response_body);
+  } else if (msg->method == SOUP_METHOD_POST) {
+    /* TODO: Cancel chunk data transmission */
+    GST_DEBUG ("TODO: Cancel transmission");
+  }
+
+  /* Do not call to finished callback */
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
+      KEY_FINISHED_HANDLER_ID);
+  g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
+
+  /* Remove internal msg reference */
+  g_object_unref (G_OBJECT (msg) );
+}
+
+static void
 destroy_handler_data (struct handler_data *hdata)
 {
   if (hdata->destroy != NULL) {
@@ -504,12 +546,30 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
 }
 
 static void
+attach_message (GstElement *httpep, SoupMessage *msg)
+{
+  gpointer data;
+
+  data = g_object_get_data (G_OBJECT (httpep), KEY_MESSAGE);
+
+  if (data == NULL) {
+    g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
+        g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
+  } else {
+    /* TODO: Close active connection */
+    GST_WARNING ("Element %s has already got an active request",
+        GST_ELEMENT_NAME (httpep) );
+  }
+}
+
+static void
 got_headers_handler (SoupMessage *msg, gpointer data)
 {
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (data);
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   struct handler_data *hdata;
+  GstElement *httpep;
 
   if (g_strcmp0 (path, HTTP_EP_SERVER_ROOT_PATH) == 0) {
     soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
@@ -527,17 +587,27 @@ got_headers_handler (SoupMessage *msg, gpointer data)
     return;
   }
 
+  httpep = GST_ELEMENT (hdata->data);
+
+  /* Bind message life cicle to this httpendpoint */
+  attach_message (httpep, msg);
+
   if (msg->method == SOUP_METHOD_GET)
-    kms_http_ep_server_get_handler (self, msg, GST_ELEMENT (hdata->data) );
+    kms_http_ep_server_get_handler (self, msg, httpep);
   else if (msg->method == SOUP_METHOD_POST)
-    kms_http_ep_server_post_handler (self, msg, GST_ELEMENT (hdata->data) );
+    kms_http_ep_server_post_handler (self, msg, httpep);
   else {
     GST_WARNING ("HTTP operation %s is not allowed", msg->method);
     soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
         "Not allowed");
   }
 
-  kms_http_ep_server_remove_handler (self, path);
+  /* Do not remove handler here. This stuff will be done when unregister */
+  /* function is called. We emit this signal so that other elements can set */
+  /* the HttpEndPoint parameter start to TRUE so that the media stream starts */
+  /* TODO: Change URL_REMOVED signal to CLIENT_CONNECTED or something along */
+  /* these lines */
+  g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, path);
 }
 
 static void
@@ -673,7 +743,13 @@ static gboolean
 kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
     const gchar *uri)
 {
-  GST_DEBUG ("TODO: Unregister uri");
+  GST_DEBUG ("Unregister uri: %s", uri);
+
+  if (g_hash_table_remove (self->priv->handlers, uri) ) {
+    g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, uri);
+    return TRUE;
+  }
+
   return FALSE;
 }
 
