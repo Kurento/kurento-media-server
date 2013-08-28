@@ -11,6 +11,7 @@ SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
 
 add_executable(kurento ${KMSC_SOURCE})
 add_dependencies(kurento kmsiface)
+add_dependencies(kurento plugins)
 
 target_link_libraries(kurento kmshttpep)
 target_link_libraries(kurento kmsiface ${THRIFT_LIBRARIES} ${EVENT_LIBRARIES})
