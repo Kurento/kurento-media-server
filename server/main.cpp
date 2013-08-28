@@ -442,7 +442,7 @@ main (int argc, char **argv)
     load_config ( (std::string) conf_file);
 
   /* Start Http End Point Server */
-  GST_DEBUG ("Starting Http ens point server.");
+  GST_DEBUG ("Starting Http end point server.");
   httpepserver = kms_http_ep_server_new (
       KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
       KMS_HTTP_EP_SERVER_INTERFACE, httpEPServerAddress.c_str(), NULL);
