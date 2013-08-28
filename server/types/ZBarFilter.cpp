@@ -89,7 +89,10 @@ ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent) : Filter (parent,
 
 ZBarFilter::~ZBarFilter() throw ()
 {
-  g_source_remove (bus_handler_id);
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline) );
+
+  g_signal_handler_disconnect (bus, bus_handler_id);
+  g_object_unref (bus);
 
   gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
