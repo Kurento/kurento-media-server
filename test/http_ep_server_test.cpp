@@ -144,6 +144,11 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
 
 BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
 {
+  gchar *env;
+
+  env = g_strdup ("GST_PLUGIN_PATH=./plugins");
+  putenv (env);
+
   gst_init (NULL, NULL);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
       GST_DEFAULT_NAME);
@@ -171,6 +176,8 @@ BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
   g_object_unref (G_OBJECT (httpepserver) );
   g_object_unref (G_OBJECT (session) );
   g_slist_free_full (urls, g_free);
+
+  g_free (env);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
