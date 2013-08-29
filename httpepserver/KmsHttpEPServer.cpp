@@ -45,6 +45,10 @@ struct _KmsHttpEPServerPrivate {
   gint port;
 };
 
+static GType http_t = G_TYPE_INVALID;
+
+#define KMS_IS_EXPECTED_TYPE(obj, objtype) (G_TYPE_CHECK_INSTANCE_TYPE((obj),(objtype)))
+
 /* class initialization */
 
 G_DEFINE_TYPE_WITH_CODE (KmsHttpEPServer, kms_http_ep_server,
@@ -74,11 +78,6 @@ enum {
 };
 
 static guint obj_signals[LAST_SIGNAL] = { 0 };
-
-struct handler_data {
-  gpointer data;
-  GDestroyNotify destroy;
-};
 
 struct resolv_data {
   KmsHttpEPServerStartCallback cb;
@@ -529,36 +528,21 @@ destroy_pending_message (SoupMessage *msg)
   g_object_unref (G_OBJECT (msg) );
 }
 
-static void
-destroy_handler_data (struct handler_data *hdata)
-{
-  if (hdata->destroy != NULL) {
-    GST_DEBUG ("Destroying handler data: %P", hdata->data);
-    hdata->destroy (hdata->data);
-  }
-
-  g_slice_free (struct handler_data, hdata);
-}
-
 static gboolean
-kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *url,
-    gpointer data, GDestroyNotify destroy)
+kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
+    GstElement *endpoint)
 {
-  struct handler_data *hdata;
+  GstElement *element;
 
-  hdata = (struct handler_data *) g_hash_table_lookup (self->priv->handlers,
-      url);
+  element = (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
 
-  if (hdata != NULL) {
-    GST_ERROR ("URL %s already registered.", url);
+  if (element != NULL) {
+    GST_ERROR ("URI %s is already registered for element %s.", uri,
+        GST_ELEMENT_NAME (element) );
     return FALSE;
   }
 
-  hdata = g_slice_new (struct handler_data);
-  hdata->data = data;
-  hdata->destroy = destroy;
-
-  g_hash_table_insert (self->priv->handlers, url, hdata);
+  g_hash_table_insert (self->priv->handlers, uri, g_object_ref (endpoint) );
 
   return TRUE;
 }
@@ -586,20 +570,16 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (data);
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
-  struct handler_data *hdata;
   GstElement *httpep;
 
-  hdata = (struct handler_data *) g_hash_table_lookup (self->priv->handlers,
-      path);
+  httpep = (GstElement *) g_hash_table_lookup (self->priv->handlers, path);
 
-  if (hdata == NULL) {
-    /* URL is not registered */
+  if (httpep == NULL) {
+    /* URI is not registered */
     soup_message_set_status_full (msg, SOUP_STATUS_NOT_FOUND,
         "Http end point not found");
     return;
   }
-
-  httpep = GST_ELEMENT (hdata->data);
 
   /* Bind message life cicle to this httpendpoint */
   attach_message (httpep, msg);
@@ -723,11 +703,30 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
 
 static const gchar *
 kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
-    gpointer data, GDestroyNotify destroy)
+    GstElement *endpoint)
 {
   gchar *url;
   uuid_t uuid;
   gchar *uuid_str;
+
+  /* Check whether this is really an httpendpoint element */
+  if (http_t == G_TYPE_INVALID) {
+    GstElementFactory *http_f;
+
+    http_f = gst_element_factory_find ("httpendpoint");
+
+    if (http_f == NULL) {
+      GST_ERROR ("No httpendpoint factory found");
+      return NULL;
+    }
+
+    http_t = gst_element_factory_get_element_type (http_f);
+  }
+
+  if (!KMS_IS_EXPECTED_TYPE (endpoint, http_t) ) {
+    GST_ERROR ("Element %s is not an httpendpoint", GST_ELEMENT_NAME (endpoint) );
+    return NULL;
+  }
 
   uuid_str = (gchar *) g_malloc (UUID_STR_SIZE);
   uuid_generate (uuid);
@@ -737,7 +736,7 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
   url = g_strdup_printf ("/%s", uuid_str);
   g_free (uuid_str);
 
-  if (!kms_http_ep_server_register_handler (self, url, data, destroy) ) {
+  if (!kms_http_ep_server_register_handler (self, url, endpoint) ) {
     g_free (url);
     return NULL;
   }
@@ -904,7 +903,7 @@ kms_http_ep_server_init (KmsHttpEPServer *self)
   self->priv->port = KMS_HTTP_EP_SERVER_DEFAULT_PORT;
   self->priv->iface = KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE;
   self->priv->handlers = g_hash_table_new_full (g_str_hash, equal_str_key,
-      g_free, (GDestroyNotify) destroy_handler_data);
+      g_free, g_object_unref);
 }
 
 /* Virtual public methods */
@@ -942,12 +941,12 @@ kms_http_ep_server_stop (KmsHttpEPServer *self)
 
 const gchar *
 kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
-    gpointer data, GDestroyNotify destroy)
+    GstElement *endpoint)
 {
   g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), NULL);
 
-  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self, data,
-      destroy);
+  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self,
+      endpoint);
 }
 
 gboolean

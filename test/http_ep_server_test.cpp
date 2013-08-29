@@ -58,12 +58,15 @@ register_http_end_points()
     BOOST_CHECK ( httpep != NULL );
 
     GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
-    url = kms_http_ep_server_register_end_point (httpepserver, httpep, g_object_unref);
+    url = kms_http_ep_server_register_end_point (httpepserver, httpep);
 
     BOOST_CHECK (url != NULL);
 
     if (url == NULL)
       continue;
+
+    /* Leave the last reference to http end point server */
+    g_object_unref (G_OBJECT (httpep) );
 
     GST_DEBUG ("Registered url: %s", url);
     urls = g_slist_prepend (urls, (gpointer *) g_strdup (url) );
@@ -192,6 +195,10 @@ BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
 
   /* Stop Http End Point Server and destroy it */
   kms_http_ep_server_stop (httpepserver);
+
+  /* check for missed unrefs before exiting */
+  BOOST_CHECK ( G_OBJECT (httpepserver)->ref_count == 1 );
+
   g_object_unref (G_OBJECT (httpepserver) );
   g_object_unref (G_OBJECT (session) );
   g_slist_free_full (urls, g_free);

@@ -270,7 +270,10 @@ register_http_end_point (gpointer data)
   gchar *interface;
   guint port;
 
-  url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element, NULL);
+  url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element);
+
+  if (url == NULL)
+    return FALSE;
 
   g_object_get (G_OBJECT (httpepserver), "interface", &interface, "port", &port,
       NULL);
