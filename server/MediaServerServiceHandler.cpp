@@ -68,18 +68,22 @@ MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std
   std::shared_ptr<MediaHandler> mh;
   std::shared_ptr<MediaHandlerAddress> mha;
 
-  mediaHandlerMutex.lock ();
-  mh = mediaHandlerMap.getValue (handlerId);
+  try {
+    mediaHandlerMutex.lock ();
+    mh = mediaHandlerMap.getValue (handlerId);
 
-  if (mh == NULL) {
-    mh = std::shared_ptr<MediaHandler> (new MediaHandler (handlerId) );
-    mediaHandlerMap.put (handlerId, mh);
+    if (mh == NULL) {
+      mh = std::shared_ptr<MediaHandler> (new MediaHandler (handlerId) );
+      mediaHandlerMap.put (handlerId, mh);
+    }
+
+    mediaHandlerMutex.unlock ();
+
+    mha = std::shared_ptr<MediaHandlerAddress> (new MediaHandlerAddress (address, port) );
+    mh->addAddress (mha);
+  } catch (...) {
+    throw MediaServerException();
   }
-
-  mediaHandlerMutex.unlock ();
-
-  mha = std::shared_ptr<MediaHandlerAddress> (new MediaHandlerAddress (address, port) );
-  mh->addAddress (mha);
 }
 
 /* MediaObject */
@@ -87,7 +91,13 @@ MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std
 void
 MediaServerServiceHandler::release (const MediaObjectId &mediaObject) throw (MediaObjectNotFoundException, MediaServerException)
 {
-  mediaSet.remove (mediaObject);
+  try {
+    mediaSet.remove (mediaObject);
+  } catch (const MediaObjectNotFoundException &e) {
+    throw e;
+  } catch (...) {
+    throw MediaServerException();
+  }
 }
 
 void
