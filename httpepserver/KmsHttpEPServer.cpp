@@ -29,6 +29,7 @@
 
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
 #define KEY_NEW_SAMPLE_HANDLER_ID "kms-new-sample-handler-id"
+#define KEY_GOT_CHUNK_HANDLER_ID "kms-got-chunk-handler-id"
 #define KEY_FINISHED_HANDLER_ID "kms-finish-handler-id"
 #define KEY_EOS_HANDLER_ID "kms-eos-handler-id"
 #define KEY_FINISHED "kms-finish"
@@ -386,6 +387,7 @@ finished_post_processing (SoupMessage *msg, gpointer data)
 {
   GstElement *httpep = GST_ELEMENT (data);
   GstFlowReturn ret;
+  gpointer param;
 
   GST_DEBUG ("POST finished");
   msg_finished (msg);
@@ -397,6 +399,11 @@ finished_post_processing (SoupMessage *msg, gpointer data)
     GST_ERROR ("Could not send EOS to %s. Ret code %d",
         GST_ELEMENT_NAME (httpep), ret);
   }
+
+  param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
+
+  if (param != NULL)
+    g_object_unref (G_OBJECT (param) );
 }
 
 static void
@@ -405,6 +412,7 @@ kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
 {
   const gchar *content_type;
   GHashTable *params;
+  gulong *handlerid;
   gchar *boundary;
 
   content_type =
@@ -428,16 +436,27 @@ kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
     goto end;
   }
 
+  soup_message_set_status (msg, SOUP_STATUS_OK);
+
   /* Get chunks without filling-in body's data field after */
   /* the body is fully sent/received */
   soup_message_body_set_accumulate (msg->request_body, FALSE);
-  g_signal_connect (msg, "got-chunk", G_CALLBACK (got_chunk_handler), httpep);
+
   g_object_set_data_full (G_OBJECT (msg), KEY_BOUNDARY, boundary, g_free);
 
   msg_add_finished_property (msg);
 
-  g_signal_connect (msg, "finished", G_CALLBACK (finished_post_processing),
-      httpep);
+  handlerid = g_slice_new (gulong);
+  *handlerid = g_signal_connect (msg, "got-chunk",
+      G_CALLBACK (got_chunk_handler), httpep);
+  g_object_set_data_full (G_OBJECT (msg), KEY_GOT_CHUNK_HANDLER_ID, handlerid,
+      (GDestroyNotify) destroy_ulong);
+
+  handlerid = g_slice_new (gulong);
+  *handlerid = g_signal_connect (msg, "finished",
+      G_CALLBACK (finished_post_processing), httpep);
+  g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED_HANDLER_ID, handlerid,
+      (GDestroyNotify) destroy_ulong);
 
 end:
 
@@ -498,8 +517,9 @@ destroy_pending_message (SoupMessage *msg)
     soup_server_unpause_message (serv->priv->server, msg);
     soup_message_body_complete (msg->response_body);
   } else if (msg->method == SOUP_METHOD_POST) {
-    /* TODO: Cancel chunk data transmission */
-    GST_DEBUG ("TODO: Cancel transmission");
+    handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
+        KEY_GOT_CHUNK_HANDLER_ID);
+    g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
   }
 
   /* Do not call to finished callback */
