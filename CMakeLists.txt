@@ -23,7 +23,7 @@ endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 
 set (GSTREAMER_PLUGINS_DIR ${CMAKE_BINARY_DIR}/plugins)
 
-execute_process(COMMAND bash autogen.sh --prefix=${GSTREAMER_PLUGINS_DIR} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
+execute_process(COMMAND bash -c "export FINAL_INSTALL_DIR=/usr;./autogen.sh --prefix=${GSTREAMER_PLUGINS_DIR}" WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
 
 add_custom_target(plugins COMMAND make install WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
 
