@@ -25,8 +25,6 @@
 /* 36-byte string (plus tailing '\0') */
 #define UUID_STR_SIZE 37
 
-#define HTTP_EP_SERVER_ROOT_PATH "/"
-
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
 #define KEY_NEW_SAMPLE_HANDLER_ID "kms-new-sample-handler-id"
 #define KEY_GOT_CHUNK_HANDLER_ID "kms-got-chunk-handler-id"
@@ -591,12 +589,6 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   struct handler_data *hdata;
   GstElement *httpep;
 
-  if (g_strcmp0 (path, HTTP_EP_SERVER_ROOT_PATH) == 0) {
-    soup_message_set_status_full (msg, SOUP_STATUS_NOT_IMPLEMENTED,
-        "Not implemented");
-    return;
-  }
-
   hdata = (struct handler_data *) g_hash_table_lookup (self->priv->handlers,
       path);
 
@@ -641,15 +633,9 @@ static void
 kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
 {
   SoupSocket *listener;
-  gchar *root_path;
 
   self->priv->server = soup_server_new (SOUP_SERVER_PORT, self->priv->port,
       SOUP_SERVER_INTERFACE, addr, NULL);
-
-  root_path = g_strdup_printf (HTTP_EP_SERVER_ROOT_PATH);
-
-  kms_http_ep_server_register_handler (self, root_path, g_object_ref (self),
-      g_object_unref);
 
   /* Connect server signals handlers */
   g_signal_connect (self->priv->server, "request-started",
