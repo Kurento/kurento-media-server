@@ -22,7 +22,6 @@
 #define __POINTER_DETECTOR_FILTER_HPP__
 
 #include "Filter.hpp"
-#include "mediaEvents_types.h"
 
 namespace kurento
 {
