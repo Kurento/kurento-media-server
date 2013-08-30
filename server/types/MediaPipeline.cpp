@@ -26,6 +26,7 @@
 #include "HttpEndPoint.hpp"
 #include "MainMixer.hpp"
 #include "ZBarFilter.hpp"
+#include "JackVaderFilter.hpp"
 
 #include <glibmm.h>
 
@@ -150,6 +151,8 @@ MediaPipeline::createFilter (const FilterType::type type)
   switch (type) {
   case FilterType::type::ZBAR_FILTER:
     return std::shared_ptr<Filter> (new ZBarFilter (shared_from_this() ) );
+  case FilterType::type::JACK_VADER_FILTER:
+    return std::shared_ptr<Filter> (new JackVaderFilter (shared_from_this() ) );
   default:
     MediaServerException  e = MediaServerException();
     e.__set_description (std::string ("Filter type does not exist.") );
