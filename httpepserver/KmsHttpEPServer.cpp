@@ -151,7 +151,7 @@ destroy_sample_data (gpointer data)
 static GstFlowReturn
 new_sample_handler (GstElement *httpep, gpointer data)
 {
-  SoupMessage *msg = (SoupMessage *) data;
+  SoupMessage *msg = (SoupMessage *) g_object_get_data (G_OBJECT (httpep), KEY_MESSAGE);
   GstSample *sample = NULL;
   struct sample_data *sdata;
 
@@ -268,7 +268,7 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (httpep, "new-sample",
-      G_CALLBACK (new_sample_handler), msg);
+      G_CALLBACK (new_sample_handler), NULL);
   g_object_set_data_full (G_OBJECT (msg), KEY_NEW_SAMPLE_HANDLER_ID, handlerid,
       (GDestroyNotify) destroy_ulong);
 
@@ -548,23 +548,6 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
 }
 
 static void
-attach_message (GstElement *httpep, SoupMessage *msg)
-{
-  gpointer data;
-
-  data = g_object_get_data (G_OBJECT (httpep), KEY_MESSAGE);
-
-  if (data == NULL) {
-    g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
-        g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
-  } else {
-    /* TODO: Close active connection */
-    GST_WARNING ("Element %s has already got an active request",
-        GST_ELEMENT_NAME (httpep) );
-  }
-}
-
-static void
 got_headers_handler (SoupMessage *msg, gpointer data)
 {
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (data);
@@ -582,7 +565,8 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   }
 
   /* Bind message life cicle to this httpendpoint */
-  attach_message (httpep, msg);
+  g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
+      g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
 
   if (msg->method == SOUP_METHOD_GET)
     kms_http_ep_server_get_handler (self, msg, httpep);
