@@ -735,7 +735,7 @@ kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
   GST_DEBUG ("Unregister uri: %s", uri);
 
   if (g_hash_table_remove (self->priv->handlers, uri) ) {
-    g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, uri);
+    emit_removed_url_signal ( (gpointer) uri, self);
     return TRUE;
   }
 
