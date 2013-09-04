@@ -636,7 +636,9 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
   rdata->cb = start_cb;
   rdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
 
-  addr = soup_address_new (self->priv->iface, self->priv->port);
+  // TODO: This is a quick fix for the case you are in a private network with
+  // a public ip redirection
+  addr = soup_address_new ("0.0.0.0", self->priv->port);
 
   soup_address_resolve_async (addr, NULL,
       NULL /* FIXME: Add cancellable support */,
