@@ -866,7 +866,8 @@ kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
       destroy);
 }
 
-gboolean kms_http_ep_server_unregister_end_point (KmsHttpEPServer *self,
+gboolean
+kms_http_ep_server_unregister_end_point (KmsHttpEPServer *self,
     const gchar *uri)
 {
   g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), FALSE);
