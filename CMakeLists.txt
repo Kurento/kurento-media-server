@@ -5,7 +5,7 @@ project(kurento-media-server)
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 	execute_process(COMMAND git submodule init WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 	execute_process(COMMAND git submodule update WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-	execute_process(COMMAND git describe --abbrev=6 --tags --dirty --always
+	execute_process(COMMAND git describe --abbrev=6 --tags --dirty --always --match "kmsc-*"
 			OUTPUT_VARIABLE KMSC_VERSION
 			OUTPUT_STRIP_TRAILING_WHITESPACE)
 	string(REGEX REPLACE "^kmsc-(.*)" "\\1" KMSC_VERSION ${KMSC_VERSION})
