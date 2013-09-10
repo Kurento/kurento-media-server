@@ -79,12 +79,12 @@ if [ $(version $VERSION) -ge $(version "2.02") ]; then
 fi
 
 echo "--Checking style--"
-for file in `git diff-index --cached --name-only HEAD --diff-filter=ACMR| grep "\.\(c\(pp\)\?\|h\)$"` ; do
+for file in `git diff-index --cached --name-only HEAD --diff-filter=ACMR| grep "\.\(c\(pp\)\?\)$"` ; do
     # nf is the temporary checkout. This makes sure we check against the
     # revision in the index (and not the checked out version).
     nf=`git checkout-index --temp ${file} | cut -f 1`
     newfile=`mktemp /tmp/${nf}.XXXXXX` || exit 1
-    if [ "$(echo "$file" | grep -e "\.\(\(cpp\)\|\(hpp\)\)$")" ]; then
+    if [ "$(echo "$file" | grep -e "\.\(\(cpp\)\)$")" ]; then
       astyle ${ASTYLE_PARAMS} < ${nf} > ${newfile} 2>> /dev/null
       FIX_COMMAND="astyle ${ASTYLE_PARAMS} $file; git add $file; git commit"
     else
