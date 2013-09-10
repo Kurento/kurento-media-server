@@ -19,6 +19,8 @@
 #include <string.h>
 
 #include "KmsHttpEPServer.h"
+#include "kms-enumtypes.h"
+#include "kms-marshal.h"
 
 #define OBJECT_NAME "HttpEPServer"
 
@@ -73,6 +75,7 @@ static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
 /* signals */
 enum {
+  ACTION_REQUESTED,
   URL_REMOVED,
   LAST_SIGNAL
 };
@@ -550,6 +553,7 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
 static void
 got_headers_handler (SoupMessage *msg, gpointer data)
 {
+  KmsHttpEndPointAction action = KMS_HTTP_END_POINT_ACTION_UNDEFINED;
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (data);
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
@@ -568,22 +572,20 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
       g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
 
-  if (msg->method == SOUP_METHOD_GET)
+  if (msg->method == SOUP_METHOD_GET) {
     kms_http_ep_server_get_handler (self, msg, httpep);
-  else if (msg->method == SOUP_METHOD_POST)
+    action = KMS_HTTP_END_POINT_ACTION_GET;
+  } else if (msg->method == SOUP_METHOD_POST) {
     kms_http_ep_server_post_handler (self, msg, httpep);
-  else {
+    action = KMS_HTTP_END_POINT_ACTION_POST;
+  } else {
     GST_WARNING ("HTTP operation %s is not allowed", msg->method);
     soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
         "Not allowed");
   }
 
-  /* Do not remove handler here. This stuff will be done when unregister */
-  /* function is called. We emit this signal so that other elements can set */
-  /* the HttpEndPoint parameter start to TRUE so that the media stream starts */
-  /* TODO: Change URL_REMOVED signal to CLIENT_CONNECTED or something along */
-  /* these lines */
-  g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, path);
+  g_signal_emit (G_OBJECT (self), obj_signals[ACTION_REQUESTED], 0, path,
+      action);
 }
 
 static void
@@ -856,6 +858,14 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
   g_object_class_install_properties (gobject_class,
       N_PROPERTIES,
       obj_properties);
+
+  obj_signals[ACTION_REQUESTED] =
+    g_signal_new ("action-requested",
+        G_TYPE_FROM_CLASS (klass),
+        G_SIGNAL_RUN_LAST,
+        G_STRUCT_OFFSET (KmsHttpEPServerClass, action_requested), NULL, NULL,
+        kms_marshal_VOID__STRING_ENUM, G_TYPE_NONE, 2, G_TYPE_STRING,
+        GST_TYPE_HTTP_END_POINT_ACTION);
 
   obj_signals[URL_REMOVED] =
     g_signal_new ("url-removed",

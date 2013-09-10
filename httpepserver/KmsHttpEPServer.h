@@ -21,6 +21,8 @@
 #include <gst/gst.h>
 #include <glib-object.h>
 
+#include "kmshttpendpointaction.h"
+
 /*
  * Type macros.
  */
@@ -104,6 +106,8 @@ struct _KmsHttpEPServerClass
     gboolean (*unregister_end_point) (KmsHttpEPServer * self, const gchar *);
 
   /* signal callbacks */
+  void (*action_requested) (KmsHttpEPServer * self, gchar * url,
+      KmsHttpEndPointAction action);
   void (*url_removed) (KmsHttpEPServer * self, gchar * url);
 };
 

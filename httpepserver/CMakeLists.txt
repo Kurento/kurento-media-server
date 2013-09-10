@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -DHAVE_INTTYPES_H -std=c++0x")
 
 find_package(PkgConfig)
+
+# Helpers
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+include(GLibHelpers)
+include(GstMacros)
 
 pkg_check_modules(PC_LIBSOUP REQUIRED libsoup-2.4)
 find_path(LIBSOUP_INCLUDE_DIRS
@@ -25,6 +33,17 @@ SET(HTTP_EP_SOURCES
 SET(HTTP_EP_HEADERS
   KmsHttpEPServer.h
 )
+
+set(ENUM_HEADERS
+  kmshttpendpointaction.h
+)
+
+set(GEN_HEADERS
+  kms-enumtypes.h
+)
+
+add_glib_marshal(HTTP_EP_SOURCES kms-marshal kms_marshal)
+add_glib_enumtypes(HTTP_EP_SOURCES kms-enumtypes KMS ${ENUM_HEADERS})
 
 add_library(kmshttpep ${HTTP_EP_SOURCES})
 

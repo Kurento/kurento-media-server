@@ -21,12 +21,13 @@
 #include <gst/gst.h>
 #include <libsoup/soup.h>
 #include <KmsHttpEPServer.h>
+#include <kmshttpendpointaction.h>
 
 #define GST_CAT_DEFAULT _http_endpoint_server_test_
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "http_endpoint_server_test"
 
-#define MAX_REGISTERED_HTTP_END_POINTS 1
+#define MAX_REGISTERED_HTTP_END_POINTS 10
 
 #define HTTP_GET "GET"
 #define DEFAULT_PORT 9091
@@ -44,8 +45,6 @@ static SoupKnownStatusCode expected_200 = SOUP_STATUS_OK;
 static SoupKnownStatusCode expected_404 = SOUP_STATUS_NOT_FOUND;
 
 BOOST_AUTO_TEST_SUITE (http_ep_server_test)
-
-static gboolean checking_registered_urls (gpointer);
 
 static void
 register_http_end_points()
@@ -98,8 +97,6 @@ http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_free (method);
 }
 
-static gboolean unregister_element (gpointer);
-
 static void
 send_get_request (const gchar *uri, gpointer data)
 {
@@ -113,29 +110,10 @@ send_get_request (const gchar *uri, gpointer data)
   soup_session_queue_message (session, msg,
       (SoupSessionCallback) http_req_callback, data);
 
-  g_timeout_add_full (G_PRIORITY_DEFAULT, 2000, unregister_element,
-      g_strdup (uri), g_free);
-
   g_free (url);
 }
 
-gboolean
-unregister_element (gpointer data)
-{
-  gchar *uri = (gchar *) data;
-
-  if (kms_http_ep_server_unregister_end_point (httpepserver, uri) )
-    GST_DEBUG ("Unregistered uri %s", uri);
-  else
-    GST_ERROR ("Could not unregister uri %s", uri);
-
-  signal_count++;
-  send_get_request (uri, &expected_404);
-
-  return FALSE;
-}
-
-gboolean
+static gboolean
 checking_registered_urls (gpointer data)
 {
   GST_DEBUG ("Sending GET request to all urls registered");
@@ -149,6 +127,21 @@ static void
 url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 {
   GST_DEBUG ("URL %s removed", url);
+
+  if (++signal_count == urls_registered) {
+    /* Testing removed URLs */
+    g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_404);
+  }
+}
+
+static void
+action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
+    KmsHttpEndPointAction action, gpointer data)
+{
+  GST_DEBUG ("Action %d requested on %s", action, uri);
+  BOOST_CHECK ( action == KMS_HTTP_END_POINT_ACTION_GET );
+
+  BOOST_CHECK (kms_http_ep_server_unregister_end_point (httpepserver, uri) );
 }
 
 static void
@@ -183,6 +176,8 @@ BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
       KMS_HTTP_EP_SERVER_INTERFACE, DEFAULT_HOST, NULL);
 
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (url_removed_cb),
+      NULL);
+  g_signal_connect (httpepserver, "action-requested", G_CALLBACK (action_requested_cb),
       NULL);
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb);
