@@ -12,19 +12,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 include(GLibHelpers)
 include(GstMacros)
 
-pkg_check_modules(PC_LIBSOUP REQUIRED libsoup-2.4)
-find_path(LIBSOUP_INCLUDE_DIRS
-    NAMES libsoup/soup.h
-    HINTS ${PC_LIBSOUP_INCLUDEDIR}
-          ${PC_LIBSOUP_INCLUDE_DIRS}
-    PATH_SUFFIXES libsoup-2.4
-)
-
-find_library(LIBSOUP_LIBRARIES
-    NAMES soup-2.4
-    HINTS ${PC_LIBSOUP_LIBDIR}
-          ${PC_LIBSOUP_LIBRARY_DIRS}
-)
+find_package(LibSoup REQUIRED)
 
 SET(HTTP_EP_SOURCES
   KmsHttpEPServer.cpp
