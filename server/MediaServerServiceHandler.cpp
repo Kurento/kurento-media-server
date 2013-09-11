@@ -156,7 +156,7 @@ throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerExcept
     }
 
     mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mh) );
-    GST_DEBUG ("createMediaPipeline id: %ld, token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
+    GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.put (mediaPipeline);
 
     _return = *mediaPipeline;
@@ -171,7 +171,7 @@ throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerExcept
     throw MediaServerException();
   }
 
-  GST_TRACE ("createMediaPipeline id: %ld done", mediaPipeline->id );
+  GST_TRACE ("createMediaPipeline done");
 }
 
 void

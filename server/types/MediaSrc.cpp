@@ -59,7 +59,7 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 {
   GstPad *pad;
 
-  GST_INFO ("connect %ld to %ld", this->id, mediaSink->id);
+  GST_INFO ("connect %" G_GINT64_FORMAT " to %" G_GINT64_FORMAT, this->id, mediaSink->id);
 
   mutex.lock();
 
@@ -71,7 +71,7 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
     connectedSinks.push_back (std::weak_ptr<MediaSink> (mediaSink) );
   } else {
     gst_element_release_request_pad (getElement(), pad);
-    GST_WARNING ("Cannot connect %ld to %ld", this->id, mediaSink->id);
+    GST_WARNING ("Cannot connect %" G_GINT64_FORMAT " to %" G_GINT64_FORMAT, this->id, mediaSink->id);
   }
 
   g_object_unref (pad);
@@ -114,7 +114,7 @@ MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
 void
 MediaSrc::disconnect (MediaSink *mediaSink)
 {
-  GST_INFO ("disconnect %ld from %ld", this->id, mediaSink->id);
+  GST_INFO ("disconnect %" G_GINT64_FORMAT " from %" G_GINT64_FORMAT, this->id, mediaSink->id);
 
   mutex.lock();
 
