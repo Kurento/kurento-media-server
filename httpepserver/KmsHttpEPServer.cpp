@@ -342,8 +342,9 @@ got_chunk_handler (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
 
   GST_INFO ("Chunk callback.");
 
-  find_content_part (chunk->data, chunk->data + chunk->length, &content_start,
-      &content_end, boundary);
+  if (boundary != NULL)
+    find_content_part (chunk->data, chunk->data + chunk->length, &content_start,
+        &content_end, boundary);
 
   if (content_start != NULL) {
     if (content_end != NULL)
@@ -424,25 +425,26 @@ kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
     goto end;
   }
 
+  if (!g_str_has_prefix ("multipart/", content_type) )
+    goto get_chunks;
+
   boundary = g_strdup ( (gchar *) g_hash_table_lookup (params, "boundary") );
 
-  if (g_str_has_prefix ("multipart/", content_type) != 0 || boundary == NULL) {
+  if (boundary == NULL) {
     GST_WARNING ("Malformed multipart POST request");
     soup_message_set_status (msg, SOUP_STATUS_NOT_ACCEPTABLE);
-
-    if (boundary != NULL)
-      g_free (boundary);
-
     goto end;
   }
+
+  g_object_set_data_full (G_OBJECT (msg), KEY_BOUNDARY, boundary, g_free);
+
+get_chunks:
 
   soup_message_set_status (msg, SOUP_STATUS_OK);
 
   /* Get chunks without filling-in body's data field after */
   /* the body is fully sent/received */
   soup_message_body_set_accumulate (msg->request_body, FALSE);
-
-  g_object_set_data_full (G_OBJECT (msg), KEY_BOUNDARY, boundary, g_free);
 
   msg_add_finished_property (msg);
 
