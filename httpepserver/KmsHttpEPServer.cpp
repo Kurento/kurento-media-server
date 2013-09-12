@@ -205,7 +205,7 @@ disconnect_eos_new_sample_signals (SoupMessage *msg)
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   GstElement *httpep;
-  gulong *h1, *h2;
+  gulong *handler;
 
   if (!g_hash_table_contains (serv->priv->handlers, path) ) {
     GST_WARNING ("Message %P was bounded to an unregistered HttpEndPoint", msg);
@@ -216,10 +216,12 @@ disconnect_eos_new_sample_signals (SoupMessage *msg)
   GST_DEBUG ("Message %P is bounded to %s", msg, GST_ELEMENT_NAME (httpep) );
 
   /* Disconnect signals */
-  h1 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_NEW_SAMPLE_HANDLER_ID);
-  h2 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS_HANDLER_ID);
-  g_signal_handler_disconnect (httpep, *h1);
-  g_signal_handler_disconnect (httpep, *h2);
+  handler = (gulong *) g_object_get_data (G_OBJECT (msg),
+      KEY_NEW_SAMPLE_HANDLER_ID);
+  g_signal_handler_disconnect (httpep, *handler);
+
+  handler = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS_HANDLER_ID);
+  g_signal_handler_disconnect (httpep, *handler);
 }
 
 static void
