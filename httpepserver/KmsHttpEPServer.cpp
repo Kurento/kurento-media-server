@@ -758,14 +758,23 @@ static gboolean
 kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
     const gchar *uri)
 {
+  GstElement *httpep;
+
   GST_DEBUG ("Unregister uri: %s", uri);
 
-  if (g_hash_table_remove (self->priv->handlers, uri) ) {
-    emit_removed_url_signal ( (gpointer) uri, self);
-    return TRUE;
+  if (!g_hash_table_contains (self->priv->handlers, uri) ) {
+    GST_DEBUG ("Uri %s is not registered", uri);
+    return FALSE;
   }
 
-  return FALSE;
+  httpep = (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
+
+  /* Cancel current transtacion */
+  g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE, NULL, NULL);
+
+  g_hash_table_remove (self->priv->handlers, uri);
+  emit_removed_url_signal ( (gpointer) uri, self);
+  return TRUE;
 }
 
 static void
