@@ -158,7 +158,7 @@ new_sample_handler (GstElement *httpep, gpointer data)
   GstSample *sample = NULL;
   struct sample_data *sdata;
 
-  GST_DEBUG ("New-sample");
+  GST_DEBUG ("New-sample for message %P", msg);
 
   g_signal_emit_by_name (httpep, "pull-sample", &sample);
 
@@ -198,20 +198,40 @@ msg_finished (SoupMessage *msg)
 }
 
 static void
-finished_get_processing (SoupMessage *msg, gpointer data)
+disconnect_eos_new_sample_signals (SoupMessage *msg)
 {
-  GstElement *httpep = GST_ELEMENT (data);
+  KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
+      g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
+  SoupURI *uri = soup_message_get_uri (msg);
+  const char *path = soup_uri_get_path (uri);
+  GstElement *httpep;
   gulong *h1, *h2;
-  gpointer param;
 
-  GST_DEBUG ("Message finished");
-  msg_finished (msg);
+  if (!g_hash_table_contains (serv->priv->handlers, path) ) {
+    GST_WARNING ("Message %P was bounded to an unregistered HttpEndPoint", msg);
+    return;
+  }
+
+  httpep = (GstElement *) g_hash_table_lookup (serv->priv->handlers, path);
+  GST_DEBUG ("Message %P is bounded to %s", msg, GST_ELEMENT_NAME (httpep) );
 
   /* Disconnect signals */
   h1 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_NEW_SAMPLE_HANDLER_ID);
   h2 = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS_HANDLER_ID);
   g_signal_handler_disconnect (httpep, *h1);
   g_signal_handler_disconnect (httpep, *h2);
+}
+
+static void
+finished_get_processing (SoupMessage *msg, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+  gpointer param;
+
+  GST_DEBUG ("Message finished %P", msg);
+  msg_finished (msg);
+
+  disconnect_eos_new_sample_signals (msg);
 
   param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
 
@@ -510,14 +530,14 @@ destroy_pending_message (SoupMessage *msg)
 {
   gulong *handlerid;
 
-  GST_DEBUG ("Destroy pending message");
+  GST_DEBUG ("Destroy pending message %P", msg);
 
   if (msg->method == SOUP_METHOD_GET) {
-    /* Client is locked waiting for chunked data */
     KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
         g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
     soup_server_unpause_message (serv->priv->server, msg);
     soup_message_body_complete (msg->response_body);
+    disconnect_eos_new_sample_signals (msg);
   } else if (msg->method == SOUP_METHOD_POST) {
     handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
         KEY_GOT_CHUNK_HANDLER_ID);
