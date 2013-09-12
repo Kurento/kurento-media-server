@@ -37,25 +37,25 @@ namespace kurento
 {
 
 void
-http_end_point_raise_petition_event (HttpEndPoint *httpEp)
+http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action)
 {
   MediaEvent event;
   HttpEndPointEvent httpEndPointEvent;
-  int method;
 
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
 
-  g_object_get (G_OBJECT (httpEp->element), "http-method", &method, NULL);
-
-  GST_DEBUG ("method: %d", method);
-
-  if (method == 0)
+  switch (action) {
+  case KMS_HTTP_END_POINT_ACTION_GET:
     httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::GET_REQUEST_EVENT);
-  else if (method == 1)
+    break;
+  case KMS_HTTP_END_POINT_ACTION_POST:
     httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::POST_REQUEST_EVENT);
-  else
+    break;
+  default:
     httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::UNEXPECTED_REQUEST_EVENT);
+    break;
+  }
 
   httpEndPointEvent.write (&protocol);
   std::string event_str;
@@ -68,12 +68,13 @@ http_end_point_raise_petition_event (HttpEndPoint *httpEp)
 }
 
 static void
-url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
+action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
+    KmsHttpEndPointAction action, gpointer data)
 {
   HttpEndPoint *httpEp = (HttpEndPoint *) data;
   std::string uriStr = uri;
 
-  GST_DEBUG ("Remove URI %s", uriStr.c_str() );
+  GST_DEBUG ("Action requested URI %s", uriStr.c_str() );
 
   if (httpEp->getUrl().size() <= uriStr.size() )
     return;
@@ -85,7 +86,7 @@ url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
   if (substr.compare (uriStr) != 0)
     return;
 
-  http_end_point_raise_petition_event (httpEp);
+  http_end_point_raise_petition_event (httpEp, action);
 }
 
 HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
@@ -99,8 +100,8 @@ HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
 
-  urlRemovedHandlerId = g_signal_connect (httpepserver, "url-removed",
-      G_CALLBACK (url_removed_cb), this);
+  urlRemovedHandlerId = g_signal_connect (httpepserver, "action-requested",
+      G_CALLBACK (action_requested_cb), this);
 }
 
 static std::string
