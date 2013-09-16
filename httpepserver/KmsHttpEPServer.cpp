@@ -270,6 +270,7 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
     GstElement *httpep)
 {
   gulong *handlerid;
+  gboolean started;
 
   /* TODO: Check wether we support client's capabilities before sending */
   /* back a response code 200 OK. Furthermore, we only provide support  */
@@ -301,6 +302,14 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), msg);
   g_object_set_data_full (G_OBJECT (msg), KEY_EOS_HANDLER_ID, handlerid,
       (GDestroyNotify) destroy_ulong);
+
+  g_object_get (G_OBJECT (httpep), "start", &started, NULL);
+
+  if (started) {
+    /* Http end point was playing data. We have to restart it so as to */
+    /* send key-frame buffer so that the browser can reproduce the media */
+    g_object_set (G_OBJECT (httpep), "start", FALSE, NULL);
+  }
 
   /* allow media stream to flow in HttpEndPoint pipeline */
   g_object_set (G_OBJECT (httpep), "start", TRUE, NULL);
