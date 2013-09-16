@@ -103,6 +103,18 @@ msg_has_finished (SoupMessage *msg)
   return *finished;
 }
 
+static GstElement *
+kms_http_ep_server_get_ep_from_msg (KmsHttpEPServer *self, SoupMessage *msg)
+{
+  SoupURI *suri = soup_message_get_uri (msg);
+  const char *uri = soup_uri_get_path (suri);
+
+  if (uri == NULL)
+    return NULL;
+
+  return (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
+}
+
 static gboolean
 send_buffer_cb (gpointer data)
 {
@@ -235,6 +247,9 @@ finished_get_processing (SoupMessage *msg, gpointer data)
 
   disconnect_eos_new_sample_signals (msg);
 
+  /* Drop internal media flowing in the piepline */
+  g_object_set (G_OBJECT (httpep), "start", FALSE, NULL);
+
   param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
 
   if (param != NULL)
@@ -270,7 +285,6 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
     GstElement *httpep)
 {
   gulong *handlerid;
-  gboolean started;
 
   /* TODO: Check wether we support client's capabilities before sending */
   /* back a response code 200 OK. Furthermore, we only provide support  */
@@ -302,14 +316,6 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), msg);
   g_object_set_data_full (G_OBJECT (msg), KEY_EOS_HANDLER_ID, handlerid,
       (GDestroyNotify) destroy_ulong);
-
-  g_object_get (G_OBJECT (httpep), "start", &started, NULL);
-
-  if (started) {
-    /* Http end point was playing data. We have to restart it so as to */
-    /* send key-frame buffer so that the browser can reproduce the media */
-    g_object_set (G_OBJECT (httpep), "start", FALSE, NULL);
-  }
 
   /* allow media stream to flow in HttpEndPoint pipeline */
   g_object_set (G_OBJECT (httpep), "start", TRUE, NULL);
@@ -546,9 +552,17 @@ destroy_pending_message (SoupMessage *msg)
   if (msg->method == SOUP_METHOD_GET) {
     KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
         g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
+    GstElement *httpep = kms_http_ep_server_get_ep_from_msg (serv, msg);
+
+    disconnect_eos_new_sample_signals (msg);
+
+    if (httpep != NULL) {
+      /* Drop internal media flowing in the piepline */
+      g_object_set (G_OBJECT (httpep), "start", FALSE, NULL);
+    }
+
     soup_server_unpause_message (serv->priv->server, msg);
     soup_message_body_complete (msg->response_body);
-    disconnect_eos_new_sample_signals (msg);
   } else if (msg->method == SOUP_METHOD_POST) {
     handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
         KEY_GOT_CHUNK_HANDLER_ID);
