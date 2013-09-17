@@ -307,7 +307,7 @@ register_http_end_point (gpointer data)
   std::string uri;
   const gchar *url;
   gchar *c_uri;
-  gchar *interface;
+  gchar *addr;
   guint port;
 
   url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element);
@@ -315,12 +315,12 @@ register_http_end_point (gpointer data)
   if (url == NULL)
     return FALSE;
 
-  g_object_get (G_OBJECT (httpepserver), "interface", &interface, "port", &port,
+  g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port", &port,
       NULL);
-  c_uri = g_strdup_printf ("http://%s:%d%s", interface, port, url);
+  c_uri = g_strdup_printf ("http://%s:%d%s", addr, port, url);
   uri = c_uri;
 
-  g_free (interface);
+  g_free (addr);
   g_free (c_uri);
 
   httpEp->setUrl (uri);
