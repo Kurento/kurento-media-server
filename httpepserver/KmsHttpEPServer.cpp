@@ -931,7 +931,7 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
   klass->unregister_end_point = kms_http_ep_server_unregister_end_point_impl;
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_PORT] =
-    g_param_spec_int ("port",
+    g_param_spec_int (KMS_HTTP_EP_SERVER_PORT,
         "port number",
         "The TCP port to listen on",
         0,
@@ -940,14 +940,14 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
         (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_INTERFACE] =
-    g_param_spec_string ("interface",
+    g_param_spec_string (KMS_HTTP_EP_SERVER_INTERFACE,
         "IP address",
         "IP address of the network interface to run the server on",
         KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
         (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS] =
-    g_param_spec_string ("announced-address",
+    g_param_spec_string (KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
         "Announced IP address",
         "IP address that will be used to compose URLs",
         KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
