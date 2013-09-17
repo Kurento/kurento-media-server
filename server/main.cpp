@@ -61,7 +61,8 @@ using ::kurento::MediaServerServiceHandler;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
 
-static std::string serverAddress, httpEPServerAddress;
+static std::string serverAddress, httpEPServerAddress,
+       httpEPServerAnnouncedAddress;
 static gint serverServicePort, httpEPServerServicePort;
 GstSDPMessage *sdpPattern;
 KmsHttpEPServer *httpepserver;
@@ -161,7 +162,6 @@ static void
 set_default_http_ep_server_config ()
 {
   httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
-
   GST_WARNING ("Setting default configuration for http end point server. "
       "Using IP address: %s, port: %d. ",
       httpEPServerAddress.c_str (), httpEPServerServicePort);
@@ -296,6 +296,15 @@ configure_http_ep_server (KeyFile &configFile)
     GST_WARNING ("Setting default port %d to http end point server",
         HTTP_EP_SERVER_SERVICE_PORT);
     httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
+  }
+
+  try {
+    httpEPServerAnnouncedAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
+        HTTP_EP_SERVER_ANNOUNCED_ADDRESS_KEY);
+  } catch (Glib::KeyFileError err) {
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Http end point server will choose any available "
+        "IP address to compose URLs");
   }
 }
 
@@ -483,6 +492,9 @@ main (int argc, char **argv)
       KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
       KMS_HTTP_EP_SERVER_INTERFACE,
       (httpEPServerAddress.size() > 0) ? httpEPServerAddress.c_str () : NULL,
+      KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
+      (httpEPServerAnnouncedAddress.empty() ) ? NULL :
+      httpEPServerAnnouncedAddress.c_str (),
       NULL);
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb);

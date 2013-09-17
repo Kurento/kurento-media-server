@@ -126,5 +126,6 @@ gboolean kms_http_ep_server_unregister_end_point (KmsHttpEPServer * self,
 
 #define KMS_HTTP_EP_SERVER_PORT "port"
 #define KMS_HTTP_EP_SERVER_INTERFACE "interface"
+#define KMS_HTTP_EP_SERVER_ANNOUNCED_IP "announced-address"
 
 #endif /* __KMS_HTTP_EP_SERVER_H__ */

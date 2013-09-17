@@ -43,6 +43,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 struct _KmsHttpEPServerPrivate {
   GHashTable *handlers;
   SoupServer *server;
+  gchar *announcedAddr;
   gchar *iface;
   gint port;
 };
@@ -64,12 +65,14 @@ enum {
 
   PROP_KMS_HTTP_EP_SERVER_PORT,
   PROP_KMS_HTTP_EP_SERVER_INTERFACE,
+  PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS,
 
   N_PROPERTIES
 };
 
 #define KMS_HTTP_EP_SERVER_DEFAULT_PORT 0
 #define KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE NULL
+#define KMS_HTTP_EP_SERVER_DEFAULT_ANNOUNCED_ADDRESS KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
@@ -839,6 +842,11 @@ kms_http_ep_server_finalize (GObject *obj)
     self->priv->iface = NULL;
   }
 
+  if (self->priv->announcedAddr) {
+    g_free (self->priv->announcedAddr);
+    self->priv->announcedAddr = NULL;
+  }
+
   if (self->priv->handlers != NULL)
     kms_http_ep_server_destroy_handlers (self);
 
@@ -863,6 +871,19 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
 
     self->priv->iface = g_value_dup_string (value);
     break;
+  case PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS: {
+    gchar *val = g_value_dup_string (value);
+
+    if (self->priv->announcedAddr != NULL)
+      g_free (self->priv->announcedAddr);
+
+    if (val == NULL)
+      GST_DEBUG ("TODO: Get random IP address");
+    else
+      self->priv->announcedAddr = val;
+
+    break;
+  }
   default:
     /* We don't have any other property... */
     G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -882,6 +903,9 @@ kms_http_ep_server_get_property (GObject *obj, guint prop_id, GValue *value,
     break;
   case PROP_KMS_HTTP_EP_SERVER_INTERFACE:
     g_value_set_string (value, self->priv->iface);
+    break;
+  case PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS:
+    g_value_set_string (value, self->priv->announcedAddr);
     break;
   default:
     /* We don't have any other property... */
@@ -919,6 +943,13 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
     g_param_spec_string ("interface",
         "IP address",
         "IP address of the network interface to run the server on",
+        KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
+        (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
+
+  obj_properties[PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS] =
+    g_param_spec_string ("announced-address",
+        "Announced IP address",
+        "IP address that will be used to compose URLs",
         KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
         (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
 
@@ -963,6 +994,7 @@ kms_http_ep_server_init (KmsHttpEPServer *self)
   self->priv->server = NULL;
   self->priv->port = KMS_HTTP_EP_SERVER_DEFAULT_PORT;
   self->priv->iface = KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE;
+  self->priv->announcedAddr = KMS_HTTP_EP_SERVER_DEFAULT_ANNOUNCED_ADDRESS;
   self->priv->handlers = g_hash_table_new_full (g_str_hash, equal_str_key,
       g_free, g_object_unref);
 }
