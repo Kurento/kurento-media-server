@@ -664,8 +664,21 @@ kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
   }
 
   addr = soup_socket_get_local_address (listener);
-  GST_DEBUG ("Http end point server running in %s:%d",
-      soup_address_get_physical (addr), soup_address_get_port (addr) );
+
+  if (self->priv->iface == NULL) {
+    /* Update the recently id adrress */
+    self->priv->iface = g_strdup (soup_address_get_physical (addr) );
+    /* TODO: Emit property change signal */
+  }
+
+  if (self->priv->port == 0) {
+    /* Update the recently id adrress */
+    self->priv->port = soup_address_get_port (addr);
+    /* TODO: Emit property change signal */
+  }
+
+  GST_DEBUG ("Http end point server running in %s:%d", self->priv->iface,
+      self->priv->port );
 }
 
 static void
@@ -725,9 +738,7 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
   rdata->cb = start_cb;
   rdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
 
-  // TODO: This is a quick fix for the case you are in a private network with
-  // a public ip redirection
-  addr = soup_address_new ("0.0.0.0", self->priv->port);
+  addr = soup_address_new (self->priv->iface, self->priv->port);
 
   soup_address_resolve_async (addr, NULL,
       NULL /* FIXME: Add cancellable support */,

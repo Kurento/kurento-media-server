@@ -108,7 +108,7 @@ check_port (int port)
   if (port <= 0 || port > G_MAXUSHORT)
     throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid value");
 }
-
+#if 0
 static std::string
 get_address ()
 {
@@ -144,7 +144,7 @@ get_address ()
 
   return addressStr;
 }
-
+#endif
 static void
 set_default_media_server_config ()
 {
@@ -160,7 +160,6 @@ set_default_media_server_config ()
 static void
 set_default_http_ep_server_config ()
 {
-  httpEPServerAddress = get_address ();
   httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
 
   GST_WARNING ("Setting default configuration for http end point server. "
@@ -285,9 +284,7 @@ configure_http_ep_server (KeyFile &configFile)
         HTTP_EP_SERVER_ADDRESS_KEY);
   } catch (Glib::KeyFileError err) {
     GST_ERROR ("%s", err.what ().c_str () );
-    httpEPServerAddress = get_address();
-    GST_WARNING ("Setting default address %s to http end point server",
-        httpEPServerAddress.c_str () );
+    GST_WARNING ("Http end point server will be listening to all interfaces");
   }
 
   try {
@@ -484,7 +481,9 @@ main (int argc, char **argv)
   GST_DEBUG ("Starting Http end point server.");
   httpepserver = kms_http_ep_server_new (
       KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
-      KMS_HTTP_EP_SERVER_INTERFACE, httpEPServerAddress.c_str(), NULL);
+      KMS_HTTP_EP_SERVER_INTERFACE,
+      (httpEPServerAddress.size() > 0) ? httpEPServerAddress.c_str () : NULL,
+      NULL);
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb);
 
