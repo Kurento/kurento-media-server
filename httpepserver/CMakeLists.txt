@@ -6,6 +6,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -DHAVE_INTTYPES_H -std=c++0x")
 
 find_package(PkgConfig)
+pkg_check_modules(GIO REQUIRED gio-2.0>=2.36.0)
+pkg_check_modules(NICE REQUIRED nice>=0.1.3)
+
 
 # Helpers
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
@@ -44,6 +47,8 @@ include_directories(kmshttpep
   ${GSTREAMER_INCLUDE_DIRS}
   ${LIBSOUP_INCLUDE_DIRS}
   ${UUID_INCLUDE_DIRS}
+  ${GIO_INCLUDE_DIRS}
+  ${NICE_INCLUDE_DIRS}
 )
 
 target_link_libraries(kmshttpep
@@ -51,6 +56,8 @@ target_link_libraries(kmshttpep
   ${GSTREAMER_LIBRARIES}
   ${LIBSOUP_LIBRARIES}
   ${UUID_LIBRARIES}
+  ${GIO_LIBRARIES}
+  ${NICE_LIBRARIES}
 )
 
 INSTALL(TARGETS kmshttpep

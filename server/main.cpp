@@ -40,9 +40,6 @@
 #include "log.hpp"
 #include "httpendpointserver.hpp"
 
-#include <gio/gio.h>
-#include <nice/interfaces.h>
-
 #define GST_DEFAULT_NAME "media_server"
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
@@ -109,43 +106,7 @@ check_port (int port)
   if (port <= 0 || port > G_MAXUSHORT)
     throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid value");
 }
-#if 0
-static std::string
-get_address ()
-{
-  std::string addressStr;
-  GList *ips, *l;
-  gboolean done = FALSE;
 
-  ips = nice_interfaces_get_local_ips (FALSE);
-
-  for (l = ips; l != NULL && !done; l = l->next) {
-    GInetAddress *addr;
-
-    addr = g_inet_address_new_from_string ( (const gchar *) l->data);
-
-    switch (g_inet_address_get_family (addr) ) {
-    case G_SOCKET_FAMILY_INVALID:
-    case G_SOCKET_FAMILY_UNIX:
-      /* Ignore this addresses */
-      break;
-    case G_SOCKET_FAMILY_IPV6:
-      /* Ignore this addresses */
-      break;
-    case G_SOCKET_FAMILY_IPV4:
-      addressStr = std::string ( (const gchar *) l->data);
-      done = TRUE;
-      break;
-    }
-
-    g_object_unref (addr);
-  }
-
-  g_list_free_full (ips, g_free);
-
-  return addressStr;
-}
-#endif
 static void
 set_default_media_server_config ()
 {

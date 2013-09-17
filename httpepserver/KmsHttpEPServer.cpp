@@ -17,6 +17,8 @@
 #include <libsoup/soup.h>
 #include <uuid/uuid.h>
 #include <string.h>
+#include <gio/gio.h>
+#include <nice/interfaces.h>
 
 #include "KmsHttpEPServer.h"
 #include "kms-enumtypes.h"
@@ -95,6 +97,47 @@ struct sample_data {
   GstSample *sample;
   SoupMessage *msg;
 };
+
+static gchar *
+get_address ()
+{
+  gchar *addressStr;
+  GList *ips, *l;
+  gboolean done = FALSE;
+
+  ips = nice_interfaces_get_local_ips (FALSE);
+
+  for (l = ips; l != NULL && !done; l = l->next) {
+    GInetAddress *addr;
+
+    addr = g_inet_address_new_from_string ( (const gchar *) l->data);
+
+    if (addr == NULL) {
+      GST_WARNING ("Can not parse address %s", (const gchar *) l->data);
+      continue;
+    }
+
+    switch (g_inet_address_get_family (addr) ) {
+    case G_SOCKET_FAMILY_INVALID:
+    case G_SOCKET_FAMILY_UNIX:
+      /* Ignore this addresses */
+      break;
+    case G_SOCKET_FAMILY_IPV6:
+      /* Ignore this addresses */
+      break;
+    case G_SOCKET_FAMILY_IPV4:
+      addressStr = g_strdup ( (const gchar *) l->data);
+      done = TRUE;
+      break;
+    }
+
+    g_object_unref (addr);
+  }
+
+  g_list_free_full (ips, g_free);
+
+  return addressStr;
+}
 
 static gboolean
 msg_has_finished (SoupMessage *msg)
@@ -877,10 +920,12 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
     if (self->priv->announcedAddr != NULL)
       g_free (self->priv->announcedAddr);
 
-    if (val == NULL)
-      GST_DEBUG ("TODO: Get random IP address");
-    else
+    if (val == NULL) {
+      self->priv->announcedAddr = get_address ();
+      GST_DEBUG ("Announced address is %s", self->priv->announcedAddr);
+    } else {
       self->priv->announcedAddr = val;
+    }
 
     break;
   }
