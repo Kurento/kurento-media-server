@@ -157,7 +157,7 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
   g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_200);
 }
 
-BOOST_AUTO_TEST_CASE ( register_http_end_pooint_test )
+BOOST_AUTO_TEST_CASE ( register_http_end_point_test )
 {
   gchar *env;
 
