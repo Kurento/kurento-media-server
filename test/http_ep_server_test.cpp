@@ -214,6 +214,7 @@ BOOST_AUTO_TEST_CASE ( register_http_end_point_test )
   g_object_unref (G_OBJECT (httpepserver) );
   g_object_unref (G_OBJECT (session) );
   g_slist_free_full (urls, g_free);
+  g_main_loop_unref (loop);
   g_free (env);
 }
 
@@ -316,7 +317,7 @@ BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
   g_object_unref (G_OBJECT (httpepserver) );
   g_object_unref (G_OBJECT (session) );
   g_slist_free_full (urls, g_free);
-
+  g_main_loop_unref (loop);
   g_free (env);
 }
 
