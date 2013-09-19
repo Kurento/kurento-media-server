@@ -452,7 +452,7 @@ main (int argc, char **argv)
   httpepserver = kms_http_ep_server_new (
       KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
       KMS_HTTP_EP_SERVER_INTERFACE,
-      (httpEPServerAddress.size() > 0) ? httpEPServerAddress.c_str () : NULL,
+      (httpEPServerAddress.empty() ) ? NULL : httpEPServerAddress.c_str (),
       KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
       (httpEPServerAnnouncedAddress.empty() ) ? NULL :
       httpEPServerAnnouncedAddress.c_str (),
