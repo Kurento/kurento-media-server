@@ -61,12 +61,12 @@ init_global_variables()
 }
 
 static void
-register_http_end_points()
+register_http_end_points (gint n)
 {
   const gchar *url;
   gint i;
 
-  for (i = 0; i < MAX_REGISTERED_HTTP_END_POINTS; i++) {
+  for (i = 0; i < n; i++) {
     GstElement *httpep = gst_element_factory_make ("httpendpoint", NULL);
     BOOST_CHECK ( httpep != NULL );
 
@@ -165,7 +165,7 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
     return;
   }
 
-  register_http_end_points();
+  register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS);
 
   session_cb = http_req_callback;
 
@@ -270,7 +270,7 @@ t2_http_server_start_cb (KmsHttpEPServer *self, GError *err)
     return;
   }
 
-  register_http_end_points();
+  register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS);
 
   session_cb = t2_http_req_callback;
 
@@ -321,4 +321,106 @@ BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
   g_free (env);
 }
 
+/********************************************/
+/* Functions and variables used for tests 3 */
+/********************************************/
+
+static guint QUEUED = 2;
+
+static void
+t3_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
+{
+  SoupKnownStatusCode *expected = (SoupKnownStatusCode *) data;
+  guint status_code;
+  gchar *method;
+  SoupURI *uri;
+
+  g_object_get (G_OBJECT (msg), "method", &method, "status-code",
+      &status_code, "uri", &uri, NULL);
+
+  GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
+      status_code, *expected);
+
+  BOOST_CHECK_EQUAL (*expected, status_code);
+
+  if (++counted == urls_registered)
+    g_main_loop_quit (loop);
+
+  soup_uri_free (uri);
+  g_free (method);
+}
+
+static void
+t3_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    return;
+  }
+
+  register_http_end_points (QUEUED);
+
+  session_cb = t3_http_req_callback;
+
+  g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_200);
+}
+
+static void
+t3_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
+    KmsHttpEndPointAction action, gpointer data)
+{
+  GST_DEBUG ("Action %d requested on %s", action, uri);
+
+  if (++signal_count == QUEUED) {
+    /* Stop Http End Point Server and destroy it */
+    kms_http_ep_server_stop (httpepserver);
+  }
+}
+
+static void
+t3_url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
+{
+  GST_DEBUG ("URL %s removed", url);
+}
+
+BOOST_AUTO_TEST_CASE ( shutdown_http_end_point_test )
+{
+  gchar *env;
+
+  env = g_strdup ("GST_PLUGIN_PATH=./plugins");
+  putenv (env);
+
+  gst_init (NULL, NULL);
+  init_global_variables();
+
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
+
+  loop = g_main_loop_new (NULL, FALSE);
+  session = soup_session_async_new();
+
+  /* Start Http End Point Server */
+  httpepserver = kms_http_ep_server_new (KMS_HTTP_EP_SERVER_PORT, DEFAULT_PORT,
+      KMS_HTTP_EP_SERVER_INTERFACE, DEFAULT_HOST, NULL);
+
+  g_signal_connect (httpepserver, "url-removed", G_CALLBACK (t3_url_removed_cb),
+      NULL);
+  g_signal_connect (httpepserver, "action-requested",
+      G_CALLBACK (t3_action_requested_cb), NULL);
+
+  kms_http_ep_server_start (httpepserver, t3_http_server_start_cb);
+
+  g_main_loop_run (loop);
+
+  GST_DEBUG ("Test finished");
+
+  /* check for missed unrefs before exiting */
+  BOOST_CHECK ( G_OBJECT (httpepserver)->ref_count == 1 );
+
+  g_object_unref (G_OBJECT (httpepserver) );
+  g_object_unref (G_OBJECT (session) );
+  g_slist_free_full (urls, g_free);
+  g_main_loop_unref (loop);
+  g_free (env);
+}
 BOOST_AUTO_TEST_SUITE_END()
