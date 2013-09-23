@@ -675,6 +675,7 @@ got_headers_handler (SoupMessage *msg, gpointer data)
     GST_WARNING ("HTTP operation %s is not allowed", msg->method);
     soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
         "Not allowed");
+    return;
   }
 
   g_signal_emit (G_OBJECT (self), obj_signals[ACTION_REQUESTED], 0, path,
