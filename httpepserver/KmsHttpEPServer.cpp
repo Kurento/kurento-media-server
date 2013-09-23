@@ -28,6 +28,7 @@
 
 /* 36-byte string (plus tailing '\0') */
 #define UUID_STR_SIZE 37
+#define COOKIE_LIFETIME 5 /* seconds */
 
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
 #define KEY_NEW_SAMPLE_HANDLER_ID "kms-new-sample-handler-id"
@@ -37,6 +38,7 @@
 #define KEY_FINISHED "kms-finish"
 #define KEY_BOUNDARY "kms-boundary"
 #define KEY_MESSAGE "kms-message"
+#define KEY_COOKIE "kms-cookie"
 
 #define GST_CAT_DEFAULT kms_http_ep_server_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -48,6 +50,7 @@ struct _KmsHttpEPServerPrivate {
   gchar *announcedAddr;
   gchar *iface;
   gint port;
+  GRand *rand;
 };
 
 static GType http_t = G_TYPE_INVALID;
@@ -643,6 +646,39 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
   return TRUE;
 }
 
+static gboolean
+kms_http_ep_server_manage_cookie_session (KmsHttpEPServer *self,
+    GstElement *httpep, SoupMessage *msg, const char *path)
+{
+  SoupCookie *cookie;
+
+  cookie = (SoupCookie *) g_object_get_data (G_OBJECT (httpep), KEY_COOKIE);
+
+  if (cookie == NULL) {
+    gchar *id_str, *header;
+    gint64 id;
+
+    /* No cookie has been set for this httpep */
+    id = g_rand_double_range (self->priv->rand, G_MININT64, G_MAXINT64);
+    id_str = g_strdup_printf ("%" G_GINT64_FORMAT, id);
+    cookie = soup_cookie_new ("id", id_str, self->priv->announcedAddr, path,
+        COOKIE_LIFETIME);
+    g_free (id_str);
+
+    header = soup_cookie_to_set_cookie_header (cookie);
+    soup_message_headers_append (msg->response_headers, "Set-Cookie", header);
+    g_free (header);
+
+    g_object_set_data_full (G_OBJECT (httpep), KEY_COOKIE, cookie,
+        (GDestroyNotify) soup_cookie_free);
+  } else {
+    /* Check cookie */
+    GST_DEBUG ("Check cookie! %p", cookie);
+  }
+
+  return TRUE;
+}
+
 static void
 got_headers_handler (SoupMessage *msg, gpointer data)
 {
@@ -660,6 +696,9 @@ got_headers_handler (SoupMessage *msg, gpointer data)
         "Http end point not found");
     return;
   }
+
+  if (!kms_http_ep_server_manage_cookie_session (self, httpep, msg, path) )
+    return;
 
   /* Bind message life cicle to this httpendpoint */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
@@ -894,6 +933,11 @@ kms_http_ep_server_finalize (GObject *obj)
   if (self->priv->handlers != NULL)
     kms_http_ep_server_destroy_handlers (self);
 
+  if (self->priv->rand != NULL) {
+    g_rand_free (self->priv->rand);
+    self->priv->rand = NULL;
+  }
+
   /* Chain up to the parent class */
   G_OBJECT_CLASS (kms_http_ep_server_parent_class)->finalize (obj);
 }
@@ -1043,6 +1087,8 @@ kms_http_ep_server_init (KmsHttpEPServer *self)
   self->priv->announcedAddr = KMS_HTTP_EP_SERVER_DEFAULT_ANNOUNCED_ADDRESS;
   self->priv->handlers = g_hash_table_new_full (g_str_hash, equal_str_key,
       g_free, g_object_unref);
+
+  self->priv->rand = g_rand_new();
 }
 
 /* Virtual public methods */
