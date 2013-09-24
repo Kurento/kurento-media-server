@@ -227,7 +227,7 @@ new_sample_handler (GstElement *httpep, gpointer data)
   GstSample *sample = NULL;
   struct sample_data *sdata;
 
-  GST_DEBUG ("New-sample for message %P", msg);
+  GST_TRACE ("New-sample for message %P", msg);
 
   g_signal_emit_by_name (httpep, "pull-sample", &sample);
 
