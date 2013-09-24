@@ -143,6 +143,14 @@ get_address ()
 }
 
 static gboolean
+cookie_has_expired (SoupCookie *cookie)
+{
+  SoupDate *date = soup_cookie_get_expires (cookie);
+
+  return soup_date_is_past (date);
+}
+
+static gboolean
 msg_has_finished (SoupMessage *msg)
 {
   gboolean *finished;
@@ -646,6 +654,66 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
   return TRUE;
 }
 
+static void
+kms_http_ep_server_set_cookie (KmsHttpEPServer *self, GstElement *httpep,
+    SoupMessage *msg, const char *path)
+{
+  gchar *id_str, *header;
+  SoupCookie *cookie;
+  gint64 id;
+
+  /* No cookie has been set for this httpep */
+  id = g_rand_double_range (self->priv->rand, G_MININT64, G_MAXINT64);
+  id_str = g_strdup_printf ("%" G_GINT64_FORMAT, id);
+  cookie = soup_cookie_new ("id", id_str, self->priv->announcedAddr, path,
+      COOKIE_LIFETIME);
+  g_free (id_str);
+
+  header = soup_cookie_to_set_cookie_header (cookie);
+  soup_message_headers_append (msg->response_headers, "Set-Cookie", header);
+  g_free (header);
+
+  g_object_set_data_full (G_OBJECT (httpep), KEY_COOKIE, cookie,
+      (GDestroyNotify) soup_cookie_free);
+}
+
+static gboolean
+kms_http_ep_server_check_cookie (SoupCookie *cookie, SoupMessage *msg)
+{
+  GSList *cookies, *e;
+  gboolean ret = FALSE;
+
+  if (cookie_has_expired (cookie) ) {
+    GST_WARNING ("Cookie has expired");
+    return FALSE;
+  }
+
+  /* Check cookie */
+  cookies = soup_cookies_from_request (msg);
+
+  if (cookies == NULL) {
+    GST_WARNING ("No cookie present in request");
+    return FALSE;
+  }
+
+  for (e = cookies; e != NULL; e = e->next) {
+    SoupCookie *c = (SoupCookie *) e->data;
+
+    if (g_strcmp0 (soup_cookie_get_name (cookie),
+        soup_cookie_get_name (c) ) != 0)
+      continue;
+
+    if (g_strcmp0 (soup_cookie_get_value (cookie),
+        soup_cookie_get_value (c) ) == 0) {
+      ret = TRUE;
+      break;
+    }
+  }
+
+  soup_cookies_free (cookies);
+  return ret;
+}
+
 static gboolean
 kms_http_ep_server_manage_cookie_session (KmsHttpEPServer *self,
     GstElement *httpep, SoupMessage *msg, const char *path)
@@ -654,27 +722,10 @@ kms_http_ep_server_manage_cookie_session (KmsHttpEPServer *self,
 
   cookie = (SoupCookie *) g_object_get_data (G_OBJECT (httpep), KEY_COOKIE);
 
-  if (cookie == NULL) {
-    gchar *id_str, *header;
-    gint64 id;
+  if (cookie != NULL)
+    return kms_http_ep_server_check_cookie (cookie, msg);
 
-    /* No cookie has been set for this httpep */
-    id = g_rand_double_range (self->priv->rand, G_MININT64, G_MAXINT64);
-    id_str = g_strdup_printf ("%" G_GINT64_FORMAT, id);
-    cookie = soup_cookie_new ("id", id_str, self->priv->announcedAddr, path,
-        COOKIE_LIFETIME);
-    g_free (id_str);
-
-    header = soup_cookie_to_set_cookie_header (cookie);
-    soup_message_headers_append (msg->response_headers, "Set-Cookie", header);
-    g_free (header);
-
-    g_object_set_data_full (G_OBJECT (httpep), KEY_COOKIE, cookie,
-        (GDestroyNotify) soup_cookie_free);
-  } else {
-    /* Check cookie */
-    GST_DEBUG ("Check cookie! %p", cookie);
-  }
+  kms_http_ep_server_set_cookie (self, httpep, msg, path);
 
   return TRUE;
 }
@@ -697,8 +748,12 @@ got_headers_handler (SoupMessage *msg, gpointer data)
     return;
   }
 
-  if (!kms_http_ep_server_manage_cookie_session (self, httpep, msg, path) )
+  if (!kms_http_ep_server_manage_cookie_session (self, httpep, msg, path) ) {
+    GST_TRACE ("Request declined because of a cookie error");
+    soup_message_set_status_full (msg, SOUP_STATUS_BAD_REQUEST,
+        "Invalid cookie");
     return;
+  }
 
   /* Bind message life cicle to this httpendpoint */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
