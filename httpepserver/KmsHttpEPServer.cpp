@@ -29,6 +29,7 @@
 /* 36-byte string (plus tailing '\0') */
 #define UUID_STR_SIZE 37
 #define COOKIE_LIFETIME 5 /* seconds */
+#define COOKIE_NAME "HttpEPCookie"
 
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
 #define KEY_NEW_SAMPLE_HANDLER_ID "kms-new-sample-handler-id"
@@ -667,7 +668,7 @@ kms_http_ep_server_set_cookie (KmsHttpEPServer *self, GstElement *httpep,
   /* No cookie has been set for this httpep */
   id = g_rand_double_range (self->priv->rand, G_MININT64, G_MAXINT64);
   id_str = g_strdup_printf ("%" G_GINT64_FORMAT, id);
-  cookie = soup_cookie_new ("id", id_str, self->priv->announcedAddr, path,
+  cookie = soup_cookie_new (COOKIE_NAME, id_str, self->priv->announcedAddr, path,
       COOKIE_LIFETIME);
   g_free (id_str);
 
