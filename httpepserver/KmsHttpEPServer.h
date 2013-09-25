@@ -109,6 +109,7 @@ struct _KmsHttpEPServerClass
   void (*action_requested) (KmsHttpEPServer * self, gchar * url,
       KmsHttpEndPointAction action);
   void (*url_removed) (KmsHttpEPServer * self, gchar * url);
+  void (*url_expired) (KmsHttpEPServer * self, gchar * url);
 };
 
 /* used by KMS_TYPE_HTTP_EP_SERVER */

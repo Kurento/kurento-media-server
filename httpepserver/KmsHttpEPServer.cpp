@@ -86,6 +86,7 @@ static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 enum {
   ACTION_REQUESTED,
   URL_REMOVED,
+  URL_EXPIRED,
   LAST_SIGNAL
 };
 
@@ -1118,6 +1119,13 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
         G_TYPE_FROM_CLASS (klass),
         G_SIGNAL_RUN_LAST,
         G_STRUCT_OFFSET (KmsHttpEPServerClass, url_removed), NULL, NULL,
+        g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
+
+  obj_signals[URL_EXPIRED] =
+    g_signal_new ("url-expired",
+        G_TYPE_FROM_CLASS (klass),
+        G_SIGNAL_RUN_LAST,
+        G_STRUCT_OFFSET (KmsHttpEPServerClass, url_expired), NULL, NULL,
         g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   /* Registers a private structure for an instantiatable type */
