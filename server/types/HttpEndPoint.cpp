@@ -100,7 +100,7 @@ HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
 
-  urlRemovedHandlerId = g_signal_connect (httpepserver, "action-requested",
+  actionRequestedHandlerId = g_signal_connect (httpepserver, "action-requested",
       G_CALLBACK (action_requested_cb), this);
 }
 
@@ -144,7 +144,7 @@ getUriFromUrl (std::string url)
 
 HttpEndPoint::~HttpEndPoint() throw ()
 {
-  g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+  g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
 
   std::string uri = getUriFromUrl (url);
 
