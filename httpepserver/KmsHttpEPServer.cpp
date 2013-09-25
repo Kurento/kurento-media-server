@@ -443,9 +443,6 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   soup_message_headers_set_encoding (msg->response_headers,
       SOUP_ENCODING_CHUNKED);
 
-  g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER,
-      g_object_ref (self), g_object_unref);
-
   msg_add_finished_property (msg);
 
   handlerid = g_slice_new (gulong);
@@ -851,6 +848,10 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   /* Bind message life cicle to this httpendpoint */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
       g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
+
+  /* Common parameters used for both, get and post operations */
+  g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER,
+      g_object_ref (self), g_object_unref);
 
   if (msg->method == SOUP_METHOD_GET) {
     kms_http_ep_server_get_handler (self, msg, httpep);
