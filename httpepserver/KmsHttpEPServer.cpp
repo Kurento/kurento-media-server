@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <time.h>
 #include <libsoup/soup.h>
 #include <uuid/uuid.h>
 #include <string.h>
@@ -36,6 +37,7 @@
 #define KEY_GOT_CHUNK_HANDLER_ID "kms-got-chunk-handler-id"
 #define KEY_FINISHED_HANDLER_ID "kms-finish-handler-id"
 #define KEY_EOS_HANDLER_ID "kms-eos-handler-id"
+#define KEY_TIMEOUT_ID "kms-timeout-id"
 #define KEY_FINISHED "kms-finish"
 #define KEY_BOUNDARY "kms-boundary"
 #define KEY_MESSAGE "kms-message"
@@ -150,6 +152,22 @@ cookie_has_expired (SoupCookie *cookie)
   SoupDate *date = soup_cookie_get_expires (cookie);
 
   return soup_date_is_past (date);
+}
+
+static void
+remove_cookie_timeout (GstElement *httpep)
+{
+  guint *timeout_id;
+
+  /* Remove timeout cookie if there is any */
+  timeout_id = (guint *) g_object_get_data (G_OBJECT (httpep), KEY_TIMEOUT_ID);
+
+  if (timeout_id == NULL)
+    return;
+
+  GST_DEBUG ("Remove timeout for cookie %d", *timeout_id);
+  g_source_remove (*timeout_id);
+  g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, NULL, NULL);
 }
 
 static gboolean
@@ -297,6 +315,33 @@ disconnect_eos_new_sample_signals (SoupMessage *msg)
   g_signal_handler_disconnect (httpep, *handler);
 }
 
+static gboolean
+emit_expiration_signal_cb (gpointer user_data)
+{
+  SoupMessage *msg = (SoupMessage *) user_data;
+  KmsHttpEPServer *serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
+      KEY_HTTP_EP_SERVER);
+  SoupURI *uri = soup_message_get_uri (msg);
+  const char *path = soup_uri_get_path (uri);
+  GstElement *httpep;
+
+  GST_DEBUG ("Cookie expired for %s", path);
+  g_signal_emit (G_OBJECT (serv), obj_signals[URL_EXPIRED], 0, path);
+
+  httpep = (GstElement *) g_hash_table_lookup (serv->priv->handlers, path);
+
+  if (httpep != NULL)
+    remove_cookie_timeout (httpep);
+
+  return FALSE;
+}
+
+static void
+destroy_guint (guint *id)
+{
+  g_slice_free (guint, id);
+}
+
 static void
 emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
 {
@@ -305,6 +350,9 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   SoupCookie *cookie;
+  double time_diff;
+  SoupDate *date, *now;
+  guint timeout, *id;
 
   cookie = (SoupCookie *) g_object_get_data (G_OBJECT (httpep), KEY_COOKIE);
 
@@ -321,6 +369,17 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
 
   /* Set a timeout if no more connection are done over this httpendpoint */
   /* and the cookie expires */
+  now = soup_date_new_from_now (0);
+  date = soup_cookie_get_expires (cookie);
+
+  time_diff = difftime (soup_date_to_time_t (date), soup_date_to_time_t (now) );
+  timeout = (guint) time_diff;
+
+  id = g_slice_new (guint);
+  *id = g_timeout_add_full (G_PRIORITY_DEFAULT, timeout * 1000,
+      emit_expiration_signal_cb, g_object_ref (G_OBJECT (msg) ), g_object_unref);
+  g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, id,
+      (GDestroyNotify) destroy_guint);
 }
 
 static void
@@ -787,6 +846,8 @@ got_headers_handler (SoupMessage *msg, gpointer data)
     return;
   }
 
+  remove_cookie_timeout (httpep);
+
   /* Bind message life cicle to this httpendpoint */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
       g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
@@ -975,6 +1036,8 @@ kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
   }
 
   httpep = (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
+
+  remove_cookie_timeout (httpep);
 
   /* Cancel current transtacion */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE, NULL, NULL);
