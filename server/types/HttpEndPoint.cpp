@@ -89,6 +89,18 @@ action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
   http_end_point_raise_petition_event (httpEp, action);
 }
 
+static void
+url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
+{
+  GST_DEBUG ("TODO: Implement url_removed_cb");
+}
+
+static void
+url_expired_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
+{
+  GST_DEBUG ("TODO: Implement url_expired_cb");
+}
+
 HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
   EndPoint (parent)
 {
@@ -102,6 +114,10 @@ HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
 
   actionRequestedHandlerId = g_signal_connect (httpepserver, "action-requested",
       G_CALLBACK (action_requested_cb), this);
+  urlRemovedHandlerId = g_signal_connect (httpepserver, "url-removed",
+      G_CALLBACK (url_removed_cb), this);
+  urlExpiredHandlerId = g_signal_connect (httpepserver, "url-expired",
+      G_CALLBACK (url_expired_cb), this);
 }
 
 static std::string
@@ -145,6 +161,8 @@ getUriFromUrl (std::string url)
 HttpEndPoint::~HttpEndPoint() throw ()
 {
   g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
+  g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
+  g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
 
   std::string uri = getUriFromUrl (url);
 

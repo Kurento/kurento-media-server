@@ -47,6 +47,8 @@ private:
 
   static StaticConstructor staticConstructor;
   gulong actionRequestedHandlerId;
+  gulong urlRemovedHandlerId;
+  gulong urlExpiredHandlerId;
 
   friend gboolean register_http_end_point (gpointer data);
   friend void http_end_point_raise_petition_event (HttpEndPoint *httpEp);
