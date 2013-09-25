@@ -525,4 +525,289 @@ BOOST_AUTO_TEST_CASE ( cookie_http_end_point_test )
   g_main_loop_unref (loop);
   g_free (env);
 }
+
+/********************************************/
+/* Functions and variables used for test 5  */
+/********************************************/
+
+static GstElement *pipeline, *httpep;
+static const gchar *t5_uri;
+static SoupCookie *cookie;
+
+static void
+bus_msg_cb (GstBus *bus, GstMessage *msg, gpointer pipeline)
+{
+  switch (msg->type) {
+  case GST_MESSAGE_ERROR: {
+    GST_ERROR ("%s bus error: %" GST_PTR_FORMAT, GST_ELEMENT_NAME (pipeline),
+        msg);
+    BOOST_FAIL ("Error received on the bus");
+    break;
+  }
+  case GST_MESSAGE_WARNING: {
+    GST_WARNING ("%s bus: %" GST_PTR_FORMAT, GST_ELEMENT_NAME (pipeline),
+        msg);
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+static void
+t5_request_no_cookie_cb (SoupSession *session, SoupMessage *msg,
+    gpointer user_data)
+{
+  GST_DEBUG ("status code: %d", msg->status_code);
+
+  /* Request should not be attended without the proper cookie */
+  if (msg->status_code != SOUP_STATUS_BAD_REQUEST)
+    BOOST_FAIL ("Get request without cookie failed");
+
+  g_main_loop_quit (loop);
+}
+
+static void
+t5_make_request_without_cookie()
+{
+  SoupMessage *msg;
+  gchar *url;
+
+  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, t5_uri);
+
+  GST_INFO ("Send " HTTP_GET " %s", url);
+
+  msg = soup_message_new (HTTP_GET, url);
+  soup_session_queue_message (session, msg, t5_request_no_cookie_cb, NULL);
+
+  g_free (url);
+}
+
+static gboolean
+t5_cancel_cb (gpointer data)
+{
+  SoupMessage *msg = (SoupMessage *) data;
+  GST_DEBUG ("Cancel Message.");
+  soup_session_cancel_message (session, msg, SOUP_STATUS_CANCELLED);
+
+  return FALSE;
+}
+
+static void
+t5_request_with_cookie_cb (SoupSession *session, SoupMessage *msg,
+    gpointer user_data)
+{
+  guint status_code;
+  gchar *method;
+  SoupURI *uri;
+
+  GST_DEBUG ("Request with cookie");
+
+  g_object_get (G_OBJECT (msg), "method", &method, "status-code",
+      &status_code, "uri", &uri, NULL);
+
+  GST_WARNING ("%s %s status code: %d, expected %d", method,
+      soup_uri_get_path (uri), status_code, SOUP_STATUS_CANCELLED);
+
+  BOOST_CHECK (status_code == SOUP_STATUS_CANCELLED);
+
+  t5_make_request_without_cookie();
+}
+
+static void
+t5_send_get_request_2 ()
+{
+  SoupMessage *msg;
+  gchar *url, *header;
+
+  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, t5_uri);
+
+  GST_INFO ("Send " HTTP_GET " %s", url);
+  msg = soup_message_new (HTTP_GET, url);
+
+  header = soup_cookie_to_cookie_header (cookie);
+  soup_message_headers_append (msg->request_headers, "Cookie", header);
+  g_free (header);
+
+  soup_session_queue_message (session, msg, t5_request_with_cookie_cb, NULL);
+
+  g_timeout_add_full (G_PRIORITY_DEFAULT, 1000, t5_cancel_cb,
+      g_object_ref (G_OBJECT (msg) ), g_object_unref);
+  g_free (url);
+}
+
+static void
+t5_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
+{
+  guint status_code;
+  gchar *method;
+  SoupURI *uri;
+  const gchar *header;
+
+  g_object_get (G_OBJECT (msg), "method", &method, "status-code",
+      &status_code, "uri", &uri, NULL);
+
+  GST_WARNING ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
+      status_code, SOUP_STATUS_CANCELLED);
+  BOOST_CHECK (status_code == SOUP_STATUS_CANCELLED);
+
+  /* TODO: Check why soup_cookies_from_response does not work */
+  header = soup_message_headers_get_list (msg->response_headers, "Set-Cookie");
+
+  BOOST_CHECK (header != NULL);
+
+  cookie = soup_cookie_parse (header, NULL);
+  BOOST_CHECK (cookie != NULL);
+
+  t5_send_get_request_2();
+
+  soup_uri_free (uri);
+  g_free (method);
+}
+
+static void
+t5_send_get_request_1 ()
+{
+  SoupMessage *msg;
+  gchar *url;
+
+  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, t5_uri);
+
+  GST_INFO ("Send " HTTP_GET " %s", url);
+  msg = soup_message_new (HTTP_GET, url);
+  soup_session_queue_message (session, msg, t5_http_req_callback, NULL);
+
+  g_timeout_add_full (G_PRIORITY_DEFAULT, 1000, t5_cancel_cb,
+      g_object_ref (G_OBJECT (msg) ), g_object_unref);
+  g_free (url);
+}
+
+static void
+t5_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    g_main_loop_quit (loop);
+    return;
+  }
+
+  GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
+  t5_uri = kms_http_ep_server_register_end_point (httpepserver, httpep,
+      COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
+  BOOST_CHECK (t5_uri != NULL);
+
+  if (t5_uri == NULL) {
+    g_main_loop_quit (loop);
+    return;
+  }
+
+  GST_DEBUG ("Registered url: %s", t5_uri);
+  urls = g_slist_prepend (urls, (gpointer *) g_strdup (t5_uri) );
+
+  t5_send_get_request_1 ();
+}
+
+static void
+t5_url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
+{
+  GST_DEBUG ("URL %s removed", url);
+}
+
+static void
+t5_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
+    KmsHttpEndPointAction action, gpointer data)
+{
+  GST_DEBUG ("Action %d requested on %s", action, uri);
+  BOOST_CHECK ( action == KMS_HTTP_END_POINT_ACTION_GET );
+
+  if (++counted == 1) {
+    /* First time */
+    GST_DEBUG ("Starting pipeline");
+    gst_element_set_state (pipeline, GST_STATE_PLAYING);
+  }
+}
+
+BOOST_AUTO_TEST_CASE ( expired_cookie_http_end_point_test )
+{
+  GstElement *videotestsrc, *timeoverlay, *encoder, *agnosticbin;
+  guint bus_watch_id1;
+  GstBus *srcbus;
+  gchar *env;
+
+  env = g_strdup ("GST_PLUGIN_PATH=./plugins");
+  putenv (env);
+
+  gst_init (NULL, NULL);
+  init_global_variables();
+
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
+
+  loop = g_main_loop_new (NULL, FALSE);
+  session = soup_session_async_new();
+
+  GST_DEBUG ("Preparing pipeline");
+
+  /* Create gstreamer elements */
+  pipeline = gst_pipeline_new ("src-pipeline");
+  videotestsrc = gst_element_factory_make ("videotestsrc", NULL);
+  encoder = gst_element_factory_make ("vp8enc", NULL);
+  agnosticbin = gst_element_factory_make ("agnosticbin", NULL);
+  timeoverlay = gst_element_factory_make ("timeoverlay", NULL);
+  httpep = gst_element_factory_make ("httpendpoint", NULL);
+
+  GST_DEBUG ("Adding watcher to the pipeline");
+  srcbus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
+
+  bus_watch_id1 = gst_bus_add_watch (srcbus, gst_bus_async_signal_func, NULL);
+  g_signal_connect (srcbus, "message", G_CALLBACK (bus_msg_cb), pipeline);
+  g_object_unref (srcbus);
+
+  GST_DEBUG ("Configuring source pipeline");
+  gst_bin_add_many (GST_BIN (pipeline), videotestsrc, timeoverlay,
+      encoder, agnosticbin, httpep, NULL);
+  gst_element_link (videotestsrc, timeoverlay);
+  gst_element_link (timeoverlay, encoder);
+  gst_element_link (encoder, agnosticbin);
+  gst_element_link_pads (agnosticbin, NULL, httpep, "video_sink");
+
+  GST_DEBUG ("Configuring elements");
+  g_object_set (G_OBJECT (videotestsrc), "is-live", TRUE, "do-timestamp", TRUE,
+      "pattern", 18, NULL);
+  g_object_set (G_OBJECT (timeoverlay), "font-desc", "Sans 28", NULL);
+
+  /* Start Http End Point Server */
+  httpepserver = kms_http_ep_server_new (KMS_HTTP_EP_SERVER_PORT, DEFAULT_PORT,
+      KMS_HTTP_EP_SERVER_INTERFACE, DEFAULT_HOST, NULL);
+
+  g_signal_connect (httpepserver, "url-removed", G_CALLBACK (t5_url_removed_cb),
+      NULL);
+  g_signal_connect (httpepserver, "action-requested",
+      G_CALLBACK (t5_action_requested_cb), NULL);
+
+  kms_http_ep_server_start (httpepserver, t5_http_server_start_cb);
+
+  g_main_loop_run (loop);
+
+  BOOST_CHECK_EQUAL (signal_count, urls_registered);
+
+  GST_DEBUG ("Test finished");
+
+  /* Stop Http End Point Server and destroy it */
+  kms_http_ep_server_stop (httpepserver);
+
+  gst_element_set_state (pipeline, GST_STATE_NULL);
+  gst_object_unref (GST_OBJECT (pipeline) );
+  g_source_remove (bus_watch_id1);
+
+  /* check for missed unrefs before exiting */
+  BOOST_CHECK ( G_OBJECT (httpepserver)->ref_count == 1 );
+  g_object_unref (G_OBJECT (httpepserver) );
+
+  g_object_unref (G_OBJECT (session) );
+  g_slist_free_full (urls, g_free);
+  g_main_loop_unref (loop);
+  g_free (env);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
