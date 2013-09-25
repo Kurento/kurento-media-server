@@ -298,6 +298,32 @@ disconnect_eos_new_sample_signals (SoupMessage *msg)
 }
 
 static void
+emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
+{
+  KmsHttpEPServer *self = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
+      KEY_HTTP_EP_SERVER);
+  SoupURI *uri = soup_message_get_uri (msg);
+  const char *path = soup_uri_get_path (uri);
+  SoupCookie *cookie;
+
+  cookie = (SoupCookie *) g_object_get_data (G_OBJECT (httpep), KEY_COOKIE);
+
+  if (cookie == NULL) {
+    GST_WARNING ("No cookie set for element %s", GST_ELEMENT_NAME (httpep) );
+    return;
+  }
+
+  if (cookie_has_expired (cookie) ) {
+    GST_DEBUG ("Emit expiration signal");
+    g_signal_emit (G_OBJECT (self), obj_signals[URL_EXPIRED], 0, path);
+    return;
+  }
+
+  /* Set a timeout if no more connection are done over this httpendpoint */
+  /* and the cookie expires */
+}
+
+static void
 finished_get_processing (SoupMessage *msg, gpointer data)
 {
   GstElement *httpep = GST_ELEMENT (data);
@@ -315,6 +341,8 @@ finished_get_processing (SoupMessage *msg, gpointer data)
 
   if (param != NULL)
     g_object_unref (G_OBJECT (param) );
+
+  emit_expiration_signal (msg, httpep);
 }
 
 static void
