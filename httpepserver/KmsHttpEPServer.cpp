@@ -587,6 +587,8 @@ finished_post_processing (SoupMessage *msg, gpointer data)
 
   if (param != NULL)
     g_object_unref (G_OBJECT (param) );
+
+  emit_expiration_signal (msg, httpep);
 }
 
 static void
