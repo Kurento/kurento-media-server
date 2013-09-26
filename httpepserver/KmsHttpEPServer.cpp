@@ -29,8 +29,7 @@
 
 /* 36-byte string (plus tailing '\0') */
 #define UUID_STR_SIZE 37
-#define COOKIE_LIFETIME 5 /* seconds */
-#define HTTP_DISCONNECTION_TIMEOUT 2 /* seconds */
+
 #define COOKIE_NAME "HttpEPCookie"
 
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
@@ -43,6 +42,9 @@
 #define KEY_BOUNDARY "kms-boundary"
 #define KEY_MESSAGE "kms-message"
 #define KEY_COOKIE "kms-cookie"
+
+#define KEY_PARAM_TIMEOUT "kms-param-timeout"
+#define KEY_PARAM_LIFETIME "kms-param-lifetime"
 
 #define GST_CAT_DEFAULT kms_http_ep_server_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -353,7 +355,7 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
   SoupCookie *cookie;
   double t_cookie, t_timeout;
   SoupDate *date, *now;
-  guint timeout, *id;
+  guint interval, *timeout, *id;
 
   cookie = (SoupCookie *) g_object_get_data (G_OBJECT (httpep), KEY_COOKIE);
 
@@ -372,15 +374,16 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
   /* and the cookie expires */
   now = soup_date_new_from_now (0);
   date = soup_cookie_get_expires (cookie);
+  timeout = (guint *) g_object_get_data (G_OBJECT (httpep), KEY_PARAM_TIMEOUT);
 
   t_cookie = difftime (soup_date_to_time_t (date), soup_date_to_time_t (now) );
-  t_timeout = difftime (soup_date_to_time_t (now) + HTTP_DISCONNECTION_TIMEOUT,
+  t_timeout = difftime (soup_date_to_time_t (now) + *timeout,
       soup_date_to_time_t (now) );
 
-  timeout = (guint) ( (t_cookie < t_timeout) ? t_cookie : t_timeout);
+  interval = (guint) ( (t_cookie < t_timeout) ? t_cookie : t_timeout);
 
   id = g_slice_new (guint);
-  *id = g_timeout_add_full (G_PRIORITY_DEFAULT, timeout * 1000,
+  *id = g_timeout_add_full (G_PRIORITY_DEFAULT, interval * 1000,
       emit_expiration_signal_cb, g_object_ref (G_OBJECT (msg) ), g_object_unref);
   g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, id,
       (GDestroyNotify) destroy_guint);
@@ -754,13 +757,16 @@ kms_http_ep_server_set_cookie (KmsHttpEPServer *self, GstElement *httpep,
 {
   gchar *id_str, *header;
   SoupCookie *cookie;
+  guint *lifetime;
   gint64 id;
 
   /* No cookie has been set for this httpep */
+  lifetime = (guint *) g_object_get_data (G_OBJECT (httpep),
+      KEY_PARAM_LIFETIME);
   id = g_rand_double_range (self->priv->rand, G_MININT64, G_MAXINT64);
   id_str = g_strdup_printf ("%" G_GINT64_FORMAT, id);
-  cookie = soup_cookie_new (COOKIE_NAME, id_str, self->priv->announcedAddr, path,
-      COOKIE_LIFETIME);
+  cookie = soup_cookie_new (COOKIE_NAME, id_str, self->priv->announcedAddr,
+      path, *lifetime);
   g_free (id_str);
 
   header = soup_cookie_to_set_cookie_header (cookie);
@@ -986,6 +992,17 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
       (SoupAddressCallback) soup_address_callback, rdata);
 }
 
+static void
+add_guint_param (GstElement *httpep, const gchar *name, guint val)
+{
+  guint *param;
+
+  param = g_slice_new (guint);
+  *param = val;
+  g_object_set_data_full (G_OBJECT (httpep), name, param,
+      (GDestroyNotify) destroy_guint);
+}
+
 static const gchar *
 kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
     GstElement *endpoint, guint lifetime, guint timeout)
@@ -1025,6 +1042,9 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
     g_free (url);
     return NULL;
   }
+
+  add_guint_param (endpoint, KEY_PARAM_LIFETIME, lifetime);
+  add_guint_param (endpoint, KEY_PARAM_TIMEOUT, timeout);
 
   return url;
 }
