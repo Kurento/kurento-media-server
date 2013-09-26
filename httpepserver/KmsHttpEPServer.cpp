@@ -988,7 +988,7 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
 
 static const gchar *
 kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
-    GstElement *endpoint)
+    GstElement *endpoint, guint lifetime, guint timeout)
 {
   gchar *url;
   uuid_t uuid;
@@ -1290,12 +1290,12 @@ kms_http_ep_server_stop (KmsHttpEPServer *self)
 
 const gchar *
 kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
-    GstElement *endpoint)
+    GstElement *endpoint, guint lifetime, guint timeout)
 {
   g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), NULL);
 
   return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self,
-      endpoint);
+      endpoint, lifetime, timeout);
 }
 
 gboolean

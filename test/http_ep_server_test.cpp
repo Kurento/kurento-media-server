@@ -28,6 +28,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "http_endpoint_server_test"
 
 #define MAX_REGISTERED_HTTP_END_POINTS 10
+#define COOKIE_LIFETIME 5 /* seconds */
+#define DISCONNECTION_TIMEOUT 2 /* seconds */
 
 #define HTTP_GET "GET"
 #define DEFAULT_PORT 9091
@@ -71,7 +73,8 @@ register_http_end_points (gint n)
     BOOST_CHECK ( httpep != NULL );
 
     GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
-    url = kms_http_ep_server_register_end_point (httpepserver, httpep);
+    url = kms_http_ep_server_register_end_point (httpepserver, httpep,
+        COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
 
     BOOST_CHECK (url != NULL);
 

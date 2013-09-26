@@ -37,6 +37,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #include "httpendpointserver.hpp"
 
+#define COOKIE_LIFETIME 5 /* seconds */
+#define DISCONNECTION_TIMEOUT 2 /* seconds */
+
 namespace kurento
 {
 
@@ -310,7 +313,9 @@ register_http_end_point (gpointer data)
   gchar *addr;
   guint port;
 
-  url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element);
+  /* TODO: Set proper values for cookie life time and disconnection timeout */
+  url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element,
+      COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
 
   if (url == NULL)
     return FALSE;
