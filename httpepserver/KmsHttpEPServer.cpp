@@ -30,6 +30,7 @@
 /* 36-byte string (plus tailing '\0') */
 #define UUID_STR_SIZE 37
 #define COOKIE_LIFETIME 5 /* seconds */
+#define HTTP_DISCONNECTION_TIMEOUT 2 /* seconds */
 #define COOKIE_NAME "HttpEPCookie"
 
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
@@ -350,7 +351,7 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   SoupCookie *cookie;
-  double time_diff;
+  double t_cookie, t_timeout;
   SoupDate *date, *now;
   guint timeout, *id;
 
@@ -372,8 +373,11 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
   now = soup_date_new_from_now (0);
   date = soup_cookie_get_expires (cookie);
 
-  time_diff = difftime (soup_date_to_time_t (date), soup_date_to_time_t (now) );
-  timeout = (guint) time_diff;
+  t_cookie = difftime (soup_date_to_time_t (date), soup_date_to_time_t (now) );
+  t_timeout = difftime (soup_date_to_time_t (now) + HTTP_DISCONNECTION_TIMEOUT,
+      soup_date_to_time_t (now) );
+
+  timeout = (guint) ( (t_cookie < t_timeout) ? t_cookie : t_timeout);
 
   id = g_slice_new (guint);
   *id = g_timeout_add_full (G_PRIORITY_DEFAULT, timeout * 1000,
