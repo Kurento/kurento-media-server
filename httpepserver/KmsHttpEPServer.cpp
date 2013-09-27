@@ -726,6 +726,9 @@ destroy_pending_message (SoupMessage *msg)
     g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
   }
 
+  /* Force to remove http server reference */
+  g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER, NULL, NULL);
+
   /* Do not call to finished callback */
   handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
       KEY_FINISHED_HANDLER_ID);
