@@ -661,6 +661,9 @@ t5_request_with_cookie_cb (SoupSession *session, SoupMessage *msg,
   BOOST_CHECK (status_code == SOUP_STATUS_CANCELLED);
 
   t5_make_request_without_cookie();
+
+  g_free (method);
+  soup_uri_free (uri);
 }
 
 static void
