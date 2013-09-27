@@ -189,7 +189,7 @@ kms_http_ep_server_get_ep_from_msg (KmsHttpEPServer *self, SoupMessage *msg)
   SoupURI *suri = soup_message_get_uri (msg);
   const char *uri = soup_uri_get_path (suri);
 
-  if (uri == NULL)
+  if (uri == NULL || self->priv->handlers == NULL)
     return NULL;
 
   return (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
@@ -298,6 +298,9 @@ disconnect_eos_new_sample_signals (SoupMessage *msg)
   const char *path = soup_uri_get_path (uri);
   GstElement *httpep;
   gulong *handler;
+
+  if (serv->priv->handlers == NULL)
+    return;
 
   if (!g_hash_table_contains (serv->priv->handlers, path) ) {
     GST_WARNING ("Message %" GST_PTR_FORMAT
@@ -1056,6 +1059,9 @@ kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
   GstElement *httpep;
 
   GST_DEBUG ("Unregister uri: %s", uri);
+
+  if (self->priv->handlers == NULL)
+    return FALSE;
 
   if (!g_hash_table_contains (self->priv->handlers, uri) ) {
     GST_DEBUG ("Uri %s is not registered", uri);
