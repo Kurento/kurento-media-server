@@ -32,6 +32,8 @@ public:
   void pause ();
   void stop ();
 
+  CommandResult sendCommand (const Command &command) throw (MediaServerException);
+
 private:
   class StaticConstructor
   {

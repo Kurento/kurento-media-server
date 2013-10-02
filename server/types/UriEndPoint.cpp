@@ -15,6 +15,10 @@
 
 #include "UriEndPoint.hpp"
 
+#include "UriEndPointType_constants.h"
+#include "dataTypes_constants.h"
+#include "utils/marshalling.hpp"
+
 #define GST_CAT_DEFAULT kurento_uri_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoUriEndPoint"
@@ -60,6 +64,22 @@ void
 UriEndPoint::stop ()
 {
   g_object_set (G_OBJECT (element), "state", 0 /* stop */, NULL);
+}
+
+CommandResult
+UriEndPoint::sendCommand (const Command &command) throw (MediaServerException)
+{
+  CommandResult result;
+
+  if (g_UriEndPointType_constants.GET_URI.compare (command.name) == 0) {
+    std::string uri = this->getUri ();
+    result.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+    result.__set_data (marshalString (uri) );
+
+    return result;
+  }
+
+  return EndPoint::sendCommand (command);
 }
 
 UriEndPoint::StaticConstructor UriEndPoint::staticConstructor;
