@@ -61,6 +61,8 @@ add_subdirectory(test)
 
 enable_testing()
 
+add_test(utils_test test/utils_test)
+
 add_test(server_test test/server_test)
 set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 

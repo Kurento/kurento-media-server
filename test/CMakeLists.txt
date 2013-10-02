@@ -1,7 +1,31 @@
-
-if (0)
 find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 
+aux_source_directory("${CMAKE_SOURCE_DIR}/server/utils" UTILS)
+
+SET(UTILS_TEST_SOURCE utils_test.cpp ${UTILS})
+SET_SOURCE_FILES_PROPERTIES(${UTILS_TEST_SOURCE}
+                PROPERTIES COMPILE_FLAGS
+                -DHAVE_NETINET_IN_H)
+
+add_executable(utils_test ${UTILS_TEST_SOURCE})
+add_dependencies(utils_test kmsiface-project)
+add_dependencies(utils_test kurento)
+
+target_link_libraries(utils_test
+                      ${Boost_FILESYSTEM_LIBRARY}
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      )
+
+target_link_libraries(utils_test kmsiface ${THRIFT_LIBRARIES})
+
+include_directories(utils_test ${THRIFT_INCLUDE_DIRS})
+include_directories(utils_test ${KMSIFACE_INCLUDE_DIR})
+include_directories(utils_test ${CMAKE_SOURCE_DIR}/server)
+
+add_definitions(-DBOOST_TEST_DYN_LINK)
+
+if (0)
 add_executable(server_test server_test_base.cpp server_test.cpp sdp_end_point_test.cpp)
 add_dependencies(server_test kmsiface-project)
 add_dependencies(server_test kurento)
