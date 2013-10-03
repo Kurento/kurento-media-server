@@ -66,6 +66,9 @@ add_test(utils_test test/utils_test)
 add_test(server_test test/server_test)
 set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 
+# Temporally disabled
+if (0)
+
 add_test(http_ep_server_test test/http_ep_server_test)
 set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 
@@ -75,6 +78,7 @@ if (DEFINED MEMORY_TEST)
   set_tests_properties(server_memory_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 endif()
 
+endif ()
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 

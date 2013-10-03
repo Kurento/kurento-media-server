@@ -25,8 +25,13 @@ include_directories(utils_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
+
+# Temporally disabled
 if (0)
 add_executable(server_test server_test_base.cpp server_test.cpp sdp_end_point_test.cpp)
+endif ()
+
+add_executable(server_test server_test_base.cpp server_test.cpp ${UTILS})
 add_dependencies(server_test kmsiface-project)
 add_dependencies(server_test kurento)
 
@@ -48,7 +53,8 @@ include_directories(server_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
-
+# Temporally disabled
+if (0)
 add_executable(server_memory_test server_test_base.cpp server_memory_test.cpp
                 memory.cpp)
 add_dependencies(server_memory_test kmsiface-project)
