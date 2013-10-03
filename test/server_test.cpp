@@ -16,9 +16,11 @@
 #include "server_test_base.hpp"
 #include <boost/test/unit_test.hpp>
 
+#include "dataTypes_constants.h"
+
 #include "UriEndPointType_constants.h"
 #include "PlayerEndPointType_constants.h"
-#include "dataTypes_constants.h"
+#include "RecorderEndPointType_constants.h"
 
 #include "utils/marshalling.hpp"
 
@@ -203,6 +205,34 @@ check_player_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> cli
   client->release (mediaPipeline);
 }
 
+static void
+check_recorder_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+{
+  MediaObjectRef mediaPipeline = MediaObjectRef();
+  MediaObjectRef recorderEndPoint = MediaObjectRef();
+  Params params = Params ();
+  Command command;
+  CommandResult result;
+  std::string originalUri = "file:///tmp/player_end_point_test.webm";
+  std::string resultUri;
+
+  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_data (marshalString (originalUri) );
+
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElementWithParams (recorderEndPoint, mediaPipeline, g_RecorderEndPointType_constants.TYPE_NAME, params);
+
+  command.__set_name (g_UriEndPointType_constants.GET_URI);
+  client->sendCommand (result, recorderEndPoint, command);
+
+  BOOST_CHECK_EQUAL (g_dataTypes_constants.STRING_DATA_TYPE, result.dataType);
+
+  BOOST_REQUIRE_NO_THROW (resultUri = unmarshalString (result.data) );
+  BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
+
+  client->release (mediaPipeline);
+}
+
 #if 0 /* Temporally disabled */
 static void
 check_http_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
@@ -248,6 +278,7 @@ client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 #endif
 
   check_player_end_point (client);
+  check_recorder_end_point (client);
 
 #if 0 /* Temporally disabled */
   check_http_end_point (client);
