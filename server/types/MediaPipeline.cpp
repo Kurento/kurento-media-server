@@ -21,6 +21,8 @@
 
 #include "PlayerEndPointType_constants.h"
 #include "PlayerEndPoint.hpp"
+#include "RecorderEndPointType_constants.h"
+#include "RecorderEndPoint.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -90,6 +92,8 @@ throw (MediaServerException)
 
   if (g_PlayerEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
     return std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (shared_from_this (), params) );
+  } else if (g_RecorderEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+    return std::shared_ptr<RecorderEndPoint> (new RecorderEndPoint (shared_from_this (), params) );
   }
 
   throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,

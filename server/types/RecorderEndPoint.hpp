@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef __RECORDER_POINT_HPP__
-#define __RECORDER_POINT_HPP__
+#ifndef __RECORDER_END_POINT_HPP__
+#define __RECORDER_END_POINT_HPP__
 
 #include "UriEndPoint.hpp"
 
@@ -24,10 +24,22 @@ namespace kurento
 class RecorderEndPoint : public UriEndPoint
 {
 public:
-  RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
+  RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const Params &params)
+                   throw (MediaServerException);
   ~RecorderEndPoint() throw ();
+
+private:
+  void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento
 
-#endif /* __RECORDER_POINT_HPP__ */
+#endif /* __RECORDER_END_POINT_HPP__ */
