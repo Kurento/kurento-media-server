@@ -18,6 +18,7 @@
 
 #include "mediaServer_constants.h"
 #include "dataTypes_constants.h"
+#include "errorCodes_constants.h"
 
 #include "UriEndPointType_constants.h"
 #include "PlayerEndPointType_constants.h"
@@ -116,18 +117,30 @@ check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 
   client->release (mediaPipeline);
 }
+#endif
 
 static void
 check_use_released_media_pipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaPipeline = MediaObjectId();
-  MediaObjectId mo = MediaObjectId();
+  MediaObjectRef mediaPipeline = MediaObjectRef();
+  MediaObjectRef mo = MediaObjectRef();
+  Params params = Params ();
 
-  client->createMediaPipeline (mediaPipeline, 0);
+  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_data (marshalString ("file:///tmp/f.webm") );
+
+  client->createMediaPipeline (mediaPipeline);
   client->release (mediaPipeline);
-  BOOST_CHECK_THROW (client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER), MediaObjectNotFoundException);
+
+  try {
+    client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
+    BOOST_FAIL ("Use a released MediaPipeline must throw a MediaServerException");
+  } catch (const MediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_errorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+  }
 }
 
+#if 0 /* Temporally disabled */
 static void
 check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
@@ -265,7 +278,11 @@ client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 #if 0 /* Temporally disabled */
   check_no_handler (client);
   check_add_handler_address (client);
+#endif
+
   check_use_released_media_pipeline (client);
+
+#if 0 /* Temporally disabled */
   check_type (client);
   check_same_token (client);
   check_parent (client);
