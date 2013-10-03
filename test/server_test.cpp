@@ -16,6 +16,7 @@
 #include "server_test_base.hpp"
 #include <boost/test/unit_test.hpp>
 
+#include "mediaServer_constants.h"
 #include "dataTypes_constants.h"
 
 #include "UriEndPointType_constants.h"
@@ -34,22 +35,16 @@ using namespace kurento;
 
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite,  F)
 
-#if 0 /* Temporally disabled */
 static void
 check_version (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  int32_t v;
   int32_t gotVersion;
-  mediaServerConstants *c;
-
-  c = new mediaServerConstants();
-  v = c->VERSION;
-  delete c;
 
   gotVersion = client->getVersion();
-  BOOST_CHECK_EQUAL (gotVersion, v);
+  BOOST_CHECK_EQUAL (gotVersion, g_mediaServer_constants.VERSION);
 }
 
+#if 0 /* Temporally disabled */
 static void
 check_no_handler (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
@@ -265,8 +260,9 @@ check_zbar_filter (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 static void
 client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-#if 0 /* Temporally disabled */
   check_version (client);
+
+#if 0 /* Temporally disabled */
   check_no_handler (client);
   check_add_handler_address (client);
   check_use_released_media_pipeline (client);
