@@ -140,6 +140,24 @@ check_parent (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 }
 
 static void
+check_get_parent_of_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef parent = KmsMediaObjectRef();
+
+  client->createMediaPipeline (mediaPipeline);
+
+  try {
+    client->getParent (parent, mediaPipeline);
+    BOOST_FAIL ("Get parent of a MediaPipeline must throw a KmsMediaServerException");
+  } catch (const KmsMediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, e.errorCode);
+  }
+
+  client->release (mediaPipeline);
+}
+
+static void
 check_getMediaPipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
@@ -304,12 +322,12 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 
   check_use_released_media_pipeline (client);
   check_parent (client);
+  check_get_parent_of_media_pipeline (client);
   check_getMediaPipeline (client);
   check_same_token (client);
 
 #if 0 /* Temporally disabled */
   check_type (client);
-  check_get_parent_in_released_media_pipeline (client);
   check_media_pipeline_no_parent (client);
 #endif
 
