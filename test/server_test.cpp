@@ -97,26 +97,6 @@ check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 
   client->release (mediaPipeline);
 }
-
-static void
-check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
-{
-  MediaObjectId mediaPipeline = MediaObjectId();
-  MediaObjectId mo = MediaObjectId();
-
-  client->createMediaPipeline (mediaPipeline, 0);
-
-  client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER);
-  BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
-
-  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::RTP_END_POINT);
-  BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
-
-  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::WEBRTC_END_POINT);
-  BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
-
-  client->release (mediaPipeline);
-}
 #endif
 
 static void
@@ -177,6 +157,23 @@ check_getMediaPipeline (boost::shared_ptr<kurento::MediaServerServiceClient> cli
   client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
   client->getMediaPipeline (mediaPipelineGot, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
+
+  client->release (mediaPipeline);
+}
+
+static void
+check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+{
+  MediaObjectRef mediaPipeline = MediaObjectRef();
+  MediaObjectRef mo = MediaObjectRef();
+  Params params = Params ();
+
+  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_data (marshalString ("file:///tmp/f.webm") );
+
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
+  BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
 
   client->release (mediaPipeline);
 }
@@ -308,10 +305,10 @@ client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
   check_use_released_media_pipeline (client);
   check_parent (client);
   check_getMediaPipeline (client);
+  check_same_token (client);
 
 #if 0 /* Temporally disabled */
   check_type (client);
-  check_same_token (client);
   check_get_parent_in_released_media_pipeline (client);
   check_media_pipeline_no_parent (client);
 #endif
