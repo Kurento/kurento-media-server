@@ -159,6 +159,28 @@ check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
   client->release (mediaPipeline);
 }
 
+static void
+check_getMediaPipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+{
+  MediaObjectRef mediaPipeline = MediaObjectRef();
+  MediaObjectRef mo = MediaObjectRef();
+  MediaObjectRef mediaPipelineGot = MediaObjectRef();
+  Params params = Params ();
+
+  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_data (marshalString ("file:///tmp/f.webm") );
+
+  client->createMediaPipeline (mediaPipeline);
+  client->getMediaPipeline (mediaPipelineGot, mediaPipeline);
+  BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
+
+  client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
+  client->getMediaPipeline (mediaPipelineGot, mo);
+  BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
+
+  client->release (mediaPipeline);
+}
+
 #if 0 /* Temporally disabled */
 static void
 check_get_parent_in_released_media_pipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
@@ -285,6 +307,7 @@ client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 
   check_use_released_media_pipeline (client);
   check_parent (client);
+  check_getMediaPipeline (client);
 
 #if 0 /* Temporally disabled */
   check_type (client);

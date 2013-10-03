@@ -176,7 +176,27 @@ void
 MediaServerServiceHandler::getMediaPipeline (MediaObjectRef &_return, const MediaObjectRef &mediaObjectRef)
 throw (MediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaObjectImpl> mo;
+
+  GST_TRACE ("getMediaPipeline %" G_GUINT64_FORMAT, mediaObjectRef.id);
+
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
+
+    if (std::dynamic_pointer_cast<MediaPipeline> (mo) ) {
+      _return = *mo;
+    } else {
+      _return = * (mo->getParent () );
+    }
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("getMediaPipeline %" G_GUINT64_FORMAT " throws MediaServerException (%s)", mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("release %" G_GUINT64_FORMAT " throws MediaServerException", mediaObjectRef.id);
+    throw MediaServerException();
+  }
+
+  GST_TRACE ("getMediaPipeline %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
 }
 
 /* MediaPipeline */
