@@ -16,6 +16,11 @@
 #include "PlayerEndPoint.hpp"
 
 #include "PlayerEndPointType_constants.h"
+#include "dataTypes_constants.h"
+#include "errorCodes_constants.h"
+
+#include "utils/utils.hpp"
+#include "utils/marshalling.hpp"
 
 #if 0
 #include "protocol/TBinaryProtocol.h"
@@ -58,8 +63,8 @@ player_eos (GstElement *player, PlayerEndPoint *self)
 #endif
 }
 
-PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
-  : UriEndPoint (parent, g_PlayerEndPointType_constants.TYPE_NAME)
+void
+PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
 {
   element = gst_element_factory_make ("playerendpoint", NULL);
 
@@ -70,6 +75,20 @@ PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
+}
+
+PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const Params &params)
+throw (MediaServerException)
+  : UriEndPoint (parent, g_PlayerEndPointType_constants.TYPE_NAME)
+{
+  if (g_dataTypes_constants.STRING_DATA_TYPE.compare (params.dataType) == 0) {
+    std::string uri;
+    uri = unmarshalString (params.data);
+    init (parent, uri);
+  } else {
+    throw createMediaServerException  (g_errorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+        "PlayerEndPoint has not any constructor with params of type " + params.dataType);
+  }
 }
 
 PlayerEndPoint::~PlayerEndPoint() throw ()

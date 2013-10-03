@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef __PLAYER_POINT_HPP__
-#define __PLAYER_POINT_HPP__
+#ifndef __PLAYER_END_POINT_HPP__
+#define __PLAYER_END_POINT_HPP__
 
 #include "UriEndPoint.hpp"
 
@@ -24,10 +24,13 @@ namespace kurento
 class PlayerEndPoint : public UriEndPoint
 {
 public:
-  PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
+  PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const Params &params)
+                 throw (MediaServerException);
   ~PlayerEndPoint() throw ();
 
 private:
+  void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
+
   class StaticConstructor
   {
   public:
@@ -39,4 +42,4 @@ private:
 
 } // kurento
 
-#endif /* __PLAYER_POINT_HPP__ */
+#endif /* __PLAYER_END_POINT_HPP__ */
