@@ -140,23 +140,26 @@ check_use_released_media_pipeline (boost::shared_ptr<kurento::MediaServerService
   }
 }
 
-#if 0 /* Temporally disabled */
 static void
 check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
-  MediaObjectId mediaPipeline = MediaObjectId();
-  MediaObjectId mo = MediaObjectId();
-  MediaObjectId parent = MediaObjectId();
+  MediaObjectRef mediaPipeline = MediaObjectRef();
+  MediaObjectRef mo = MediaObjectRef();
+  MediaObjectRef parent = MediaObjectRef();
+  Params params = Params ();
 
-  client->createMediaPipeline (mediaPipeline, 0);
+  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_data (marshalString ("file:///tmp/f.webm") );
 
-  client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER);
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
   client->getParent (parent, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, parent.id);
 
   client->release (mediaPipeline);
 }
 
+#if 0 /* Temporally disabled */
 static void
 check_get_parent_in_released_media_pipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
@@ -281,11 +284,11 @@ client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 #endif
 
   check_use_released_media_pipeline (client);
+  check_parent (client);
 
 #if 0 /* Temporally disabled */
   check_type (client);
   check_same_token (client);
-  check_parent (client);
   check_get_parent_in_released_media_pipeline (client);
   check_media_pipeline_no_parent (client);
 #endif
