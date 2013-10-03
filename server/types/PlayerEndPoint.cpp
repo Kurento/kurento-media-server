@@ -15,17 +15,21 @@
 
 #include "PlayerEndPoint.hpp"
 
-#include "mediaEvents_types.h"
+#include "PlayerEndPointType_constants.h"
+
+#if 0
 #include "protocol/TBinaryProtocol.h"
 #include "transport/TBufferTransports.h"
+#endif
 
 #define GST_CAT_DEFAULT kurento_player_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPlayerEndPoint"
 
-
+#if 0
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
+#endif
 
 namespace kurento
 {
@@ -33,6 +37,8 @@ namespace kurento
 static void
 player_eos (GstElement *player, PlayerEndPoint *self)
 {
+// TODO: reuse when needed
+#if 0
   MediaEvent event;
   EndOfStreamEvent eosEvent;
   PlayerEndPointEvent playerEvent;
@@ -49,10 +55,11 @@ player_eos (GstElement *player, PlayerEndPoint *self)
 
   std::dynamic_pointer_cast<MediaPipeline> (self->parent)->sendEvent (event);
   GST_DEBUG ("Player finished");
+#endif
 }
 
 PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
-  : UriEndPoint (parent, UriEndPointType::type::PLAYER_END_POINT)
+  : UriEndPoint (parent, g_PlayerEndPointType_constants.TYPE_NAME)
 {
   element = gst_element_factory_make ("playerendpoint", NULL);
 

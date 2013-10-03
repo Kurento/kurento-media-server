@@ -19,9 +19,9 @@
 namespace kurento
 {
 
-MixerEndPoint::MixerEndPoint (std::shared_ptr<Mixer> parent) : EndPoint (parent)
+MixerEndPoint::MixerEndPoint (std::shared_ptr<Mixer> parent, const std::string type)
+  : EndPoint (parent, type)
 {
-  this->type.__set_endPoint (EndPointType::type::MIXER_END_POINT);
 }
 
 MixerEndPoint::~MixerEndPoint() throw ()

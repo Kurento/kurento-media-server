@@ -24,7 +24,7 @@ namespace kurento
 class Filter : public MediaElement
 {
 public:
-  Filter (std::shared_ptr<MediaObjectImpl> parent, FilterType::type type);
+  Filter (std::shared_ptr<MediaObjectImpl> parent, const std::string filterType);
   virtual ~Filter() throw ();
 
 private:

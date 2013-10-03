@@ -13,19 +13,17 @@
  *
  */
 
-#include "MainMixer.hpp"
+#ifndef __UTILS_HPP__
+#define __UTILS_HPP__
+
+#include "mediaServer_types.h"
 
 namespace kurento
 {
 
-MainMixer::MainMixer (std::shared_ptr<MediaPipeline> parent) : Mixer (parent, MixerType::type::MAIN_MIXER)
-{
-
-}
-
-MainMixer::~MainMixer() throw ()
-{
-
-}
+// MediaServerException createMediaServerException (std::string description);
+MediaServerException createMediaServerException (int errorCode, std::string description);
 
 } // kurento
+
+#endif /* __UTILS_HPP__ */

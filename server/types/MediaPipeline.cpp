@@ -14,16 +14,10 @@
  */
 
 #include "MediaPipeline.hpp"
-#include "RtpEndPoint.hpp"
-#include "WebRtcEndPoint.hpp"
-#include "PlayerEndPoint.hpp"
-#include "RecorderEndPoint.hpp"
-#include "HttpEndPoint.hpp"
-#include "MainMixer.hpp"
-#include "ZBarFilter.hpp"
-#include "JackVaderFilter.hpp"
 
-#include <glibmm.h>
+#include "utils/utils.hpp"
+#include "dataTypes_constants.h"
+#include "errorCodes_constants.h"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -46,19 +40,34 @@ receive_message (GstBus *bus, GstMessage *message, gpointer pipeline)
   }
 }
 
-MediaPipeline::MediaPipeline (std::shared_ptr<MediaHandler> mediaHandler) : MediaObjectImpl()
+void
+MediaPipeline::init ()
 {
-  this->type.__set_mediaObject (MediaObjectType::type::MEDIA_PIPELINE);
-  this->mediaHandler = mediaHandler;
+  GstBus *bus;
+
   pipeline = gst_pipeline_new (NULL);
   g_object_set (G_OBJECT (pipeline), "async-handling", TRUE, NULL);
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
-  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
+
+  bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
   gst_bus_add_signal_watch (bus);
-
   g_signal_connect (bus, "message", G_CALLBACK (receive_message), pipeline);
-
   g_object_unref (bus);
+
+  this->type.__set_pipelineType (*this);
+}
+
+MediaPipeline::MediaPipeline (const Params &params) throw (MediaServerException)
+  : MediaObjectImpl (),
+    MediaPipelineType ()
+{
+  if (params == defaultParams ||
+      g_dataTypes_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
+    init ();
+  } else {
+    throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+        "MediaPipeline has not any constructor with params of type " + params.dataType);
+  }
 }
 
 MediaPipeline::~MediaPipeline() throw()
@@ -70,90 +79,24 @@ MediaPipeline::~MediaPipeline() throw()
   g_object_unref (pipeline);
 }
 
-void
-MediaPipeline::sendEvent (MediaEvent &event)
+std::shared_ptr<MediaElement>
+MediaPipeline::createMediaElement (const std::string &elementType, const Params &params)
+throw (MediaServerException)
 {
-  this->mediaHandler->sendEvent (event);
-}
+  GST_WARNING ("TODO: complete");
 
-std::shared_ptr<SdpEndPoint>
-MediaPipeline::createSdpEndPoint (const SdpEndPointType::type type)
-{
-  switch (type) {
-  case SdpEndPointType::type::RTP_END_POINT:
-    return std::shared_ptr<SdpEndPoint> (new RtpEndPoint (shared_from_this() ) );
-  case SdpEndPointType::type::WEBRTC_END_POINT:
-    return std::shared_ptr<SdpEndPoint> (new WebRtcEndPoint (shared_from_this() ) );
-  default:
-    MediaServerException  e = MediaServerException();
-    e.__set_description (std::string ("SdpEndPointType type does not exist.") );
-    throw e;
-  }
-}
 
-std::shared_ptr<SdpEndPoint>
-MediaPipeline::createSdpEndPoint (const SdpEndPointType::type type, const std::string &sdp)
-{
-  switch (type) {
-  case SdpEndPointType::type::RTP_END_POINT:
-    return std::shared_ptr<SdpEndPoint> (new RtpEndPoint (shared_from_this(), sdp) );
-  case SdpEndPointType::type::WEBRTC_END_POINT:
-    return std::shared_ptr<SdpEndPoint> (new WebRtcEndPoint (shared_from_this(), sdp) );
-  default:
-    MediaServerException  e = MediaServerException();
-    e.__set_description (std::string ("SdpEndPointType type does not exist.") );
-    throw e;
-  }
-}
-
-std::shared_ptr<UriEndPoint>
-MediaPipeline::createUriEndPoint (const UriEndPointType::type type, const std::string &uri)
-{
-  switch (type) {
-  case UriEndPointType::type::PLAYER_END_POINT:
-    return std::shared_ptr<UriEndPoint> (new PlayerEndPoint (shared_from_this(), uri) );
-  case UriEndPointType::type::RECORDER_END_POINT:
-    return std::shared_ptr<UriEndPoint> (new RecorderEndPoint (shared_from_this(), uri) );
-  default:
-    MediaServerException  e = MediaServerException();
-    e.__set_description (std::string ("UriEndPointType type does not exist.") );
-    throw e;
-  }
-}
-
-std::shared_ptr<HttpEndPoint>
-MediaPipeline::createHttpEndPoint ()
-{
-  return std::shared_ptr<HttpEndPoint> (new HttpEndPoint (shared_from_this() ) );
+  return NULL;
 }
 
 std::shared_ptr<Mixer>
-MediaPipeline::createMixer (const MixerType::type type)
+MediaPipeline::createMediaMixer (const std::string &mixerType, const Params &params)
+throw (MediaServerException)
 {
-  switch (type) {
-  case MixerType::type::MAIN_MIXER:
-    return std::shared_ptr<Mixer> (new MainMixer (shared_from_this() ) );
-  default:
-    MediaServerException  e = MediaServerException();
-    e.__set_description (std::string ("Mixer type does not exist.") );
-    throw e;
-  }
+  GST_WARNING ("TODO: complete");
+  return NULL;
 }
 
-std::shared_ptr<Filter>
-MediaPipeline::createFilter (const FilterType::type type)
-{
-  switch (type) {
-  case FilterType::type::ZBAR_FILTER:
-    return std::shared_ptr<Filter> (new ZBarFilter (shared_from_this() ) );
-  case FilterType::type::JACK_VADER_FILTER:
-    return std::shared_ptr<Filter> (new JackVaderFilter (shared_from_this() ) );
-  default:
-    MediaServerException  e = MediaServerException();
-    e.__set_description (std::string ("Filter type does not exist.") );
-    throw e;
-  }
-}
 
 MediaPipeline::StaticConstructor MediaPipeline::staticConstructor;
 

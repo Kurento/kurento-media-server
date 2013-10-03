@@ -15,11 +15,13 @@
 
 #include "RecorderEndPoint.hpp"
 
+#include "RecorderEndPointType_constants.h"
+
 namespace kurento
 {
 
 RecorderEndPoint::RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
-  : UriEndPoint (parent, UriEndPointType::type::RECORDER_END_POINT)
+  : UriEndPoint (parent, g_RecorderEndPointType_constants.TYPE_NAME)
 {
   element = gst_element_factory_make ("recorderendpoint", NULL);
 

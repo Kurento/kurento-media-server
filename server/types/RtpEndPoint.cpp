@@ -14,6 +14,8 @@
  */
 
 #include "RtpEndPoint.hpp"
+
+#include "RtpEndPointType_constants.h"
 #include "media_config.hpp"
 
 namespace kurento
@@ -31,13 +33,13 @@ RtpEndPoint::init (std::shared_ptr<MediaPipeline> parent)
 }
 
 RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent)
-  : SdpEndPoint (parent, SdpEndPointType::type::RTP_END_POINT)
+  : SdpEndPoint (parent, g_RtpEndPointType_constants.TYPE_NAME)
 {
   init (parent);
 }
 
 RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &sdp)
-  : SdpEndPoint (parent, SdpEndPointType::type::RTP_END_POINT)
+  : SdpEndPoint (parent, g_RtpEndPointType_constants.TYPE_NAME)
 {
   init (parent);
   // TODO: use sdp

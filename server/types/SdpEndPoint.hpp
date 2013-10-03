@@ -24,8 +24,8 @@ namespace kurento
 class SdpEndPoint : public EndPoint
 {
 public:
-  SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, SdpEndPointType::type);
-  virtual ~SdpEndPoint() throw ();
+  SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string type);
+  virtual ~SdpEndPoint() throw () = 0;
 
   std::string generateOffer ();
   std::string processAnswer (const std::string &answer);

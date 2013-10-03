@@ -48,8 +48,10 @@ public:
     addresses.push_back (address);
     mutex.unlock();
   }
-
+// TODO: reuse when needed
+#if 0
   void sendEvent (MediaEvent &event);
+#endif
 
 private:
   Glib::Threads::RecMutex mutex;

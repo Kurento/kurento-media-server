@@ -18,9 +18,12 @@
 namespace kurento
 {
 
-Mixer::Mixer (std::shared_ptr<MediaPipeline> parent, MixerType::type type) : MediaObjectImpl (parent)
+Mixer::Mixer (std::shared_ptr<MediaPipeline> parent, const std::string mixerType)
+  : MediaObjectImpl (parent),
+    MediaMixerType()
 {
-  this->type.__set_mixerType (type);
+  this->mixerType = mixerType;
+  this->type.__set_mixerType (*this);
 }
 
 Mixer::~Mixer() throw ()
@@ -31,8 +34,8 @@ Mixer::~Mixer() throw ()
 std::shared_ptr<MixerEndPoint>
 Mixer::createMixerEndPoint ()
 {
-  //TODO: complete
-  return std::shared_ptr<MixerEndPoint> (new MixerEndPoint (shared_from_this() ) );
+  GST_WARNING ("TODO: implement");
+  return NULL;
 }
 
 } // kurento

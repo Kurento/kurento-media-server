@@ -26,7 +26,8 @@ using namespace ::apache::thrift::protocol;
 
 namespace kurento
 {
-
+// TODO: reuse when needed
+#if 0
 void
 MediaHandler::sendEvent (MediaEvent &event)
 {
@@ -52,5 +53,5 @@ MediaHandler::sendEvent (MediaEvent &event)
     // TODO: Try to send event again or raise error;
   }
 }
-
+#endif
 }

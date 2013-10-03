@@ -22,17 +22,21 @@
 namespace kurento
 {
 
-class MediaObjectImpl : public MediaObjectId
+class MediaObjectImpl : public MediaObjectRef
 {
 public:
   MediaObjectImpl();
   MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~MediaObjectImpl() throw () = 0;
 
-  std::shared_ptr<MediaObjectImpl> getParent () throw (NoParentException);
+  std::shared_ptr<MediaObjectImpl> getParent () throw (MediaServerException);
+  virtual CommandResult sendCommand (const Command &command) throw (MediaServerException);
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;
+
+protected:
+  static Params defaultParams;
 };
 
 } // kurento

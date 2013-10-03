@@ -49,16 +49,11 @@ MediaServerServiceHandler::~MediaServerServiceHandler ()
 int32_t
 MediaServerServiceHandler::getVersion ()
 {
-  int32_t v;
-  mediaServerConstants *c;
-
-  c = new mediaServerConstants();
-  v = c->VERSION;
-  delete c;
-
-  return v;
+  return g_mediaServer_constants.VERSION;
 }
 
+// TODO: reuse when needed
+#if 0
 void
 MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std::string &address,
     const int32_t port) throw (MediaServerException)
@@ -88,82 +83,117 @@ MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std
 
   GST_TRACE ("addHandlerAddress %d, %s, %d done", handlerId, address.c_str(), port);
 }
+#endif
 
 /* MediaObject */
 
 void
-MediaServerServiceHandler::release (const MediaObjectId &mediaObject) throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::keepAlive (const MediaObjectRef &mediaObjectRef) throw (MediaServerException)
 {
-  GST_TRACE ("release %" G_GUINT64_FORMAT, mediaObject.id);
-
-  try {
-    mediaSet.remove (mediaObject);
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("release %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaObject.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("release %" G_GUINT64_FORMAT " throws MediaServerException", mediaObject.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("release %" G_GUINT64_FORMAT " done", mediaObject.id);
+  GST_WARNING ("TODO: implement");
 }
 
 void
-MediaServerServiceHandler::getParent (MediaObjectId &_return, const MediaObjectId &mediaObject)
-throw (MediaObjectNotFoundException, NoParentException, MediaServerException)
+MediaServerServiceHandler::release (const MediaObjectRef &mediaObjectRef) throw (MediaServerException)
 {
-  std::shared_ptr<MediaObjectImpl> mo;
-  std::shared_ptr<MediaObjectId> parent;
-
-  GST_TRACE ("getParent %" G_GUINT64_FORMAT, mediaObject.id);
+  GST_TRACE ("release %" G_GUINT64_FORMAT, mediaObjectRef.id);
 
   try {
-    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObject);
-    parent = mo->getParent ();
-    _return = *parent;
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("getParent %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaObject.id);
-    throw e;
-  } catch (const NoParentException &e) {
-    GST_TRACE ("getParent %" G_GUINT64_FORMAT " throws NoParentException", mediaObject.id);
+    mediaSet.remove (mediaObjectRef);
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("release %" G_GUINT64_FORMAT " throws MediaServerException (%s)", mediaObjectRef.id, e.what () );
     throw e;
   } catch (...) {
+    GST_TRACE ("release %" G_GUINT64_FORMAT " throws MediaServerException", mediaObjectRef.id);
     throw MediaServerException();
   }
 
-  GST_TRACE ("getParent %" G_GUINT64_FORMAT " done", mediaObject.id);
+  GST_TRACE ("release %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
+}
+
+void
+MediaServerServiceHandler::subscribe (std::string &_return, const MediaObjectRef &mediaObjectRef,
+    const std::string &eventType, const std::string &handlerAddress,
+    const int32_t handlerPort) throw (MediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
+void
+MediaServerServiceHandler::unsubscribe (const MediaObjectRef &mediaObjectRef, const std::string &callbackToken)
+throw (MediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
+void
+MediaServerServiceHandler::sendCommand (CommandResult &_return, const MediaObjectRef &mediaObjectRef, const Command &command)
+throw (MediaServerException)
+{
+  std::shared_ptr<MediaObjectImpl> mo;
+
+  GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT, mediaObjectRef.id);
+
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
+    _return = mo->sendCommand (command);
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT " throws MediaServerException (%s)", mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT " throws MediaServerException", mediaObjectRef.id);
+    throw MediaServerException();
+  }
+
+  GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
+}
+
+void
+MediaServerServiceHandler::getParent (MediaObjectRef &_return, const MediaObjectRef &mediaObjectRef)
+throw (MediaServerException)
+{
+  std::shared_ptr<MediaObjectImpl> mo;
+  std::shared_ptr<MediaObjectRef> parent;
+
+  GST_TRACE ("getParent %" G_GUINT64_FORMAT, mediaObjectRef.id);
+
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
+    parent = mo->getParent ();
+    _return = *parent;
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("getParent %" G_GUINT64_FORMAT " throws MediaServerException (%s)", mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("release %" G_GUINT64_FORMAT " throws MediaServerException", mediaObjectRef.id);
+    throw MediaServerException();
+  }
+
+  GST_TRACE ("getParent %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
+}
+
+void
+MediaServerServiceHandler::getMediaPipeline (MediaObjectRef &_return, const MediaObjectRef &mediaObjectRef)
+throw (MediaServerException)
+{
+  GST_WARNING ("TODO: implement");
 }
 
 /* MediaPipeline */
 
 void
-MediaServerServiceHandler::createMediaPipeline (MediaObjectId &_return, const int32_t handlerId)
-throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerException)
+MediaServerServiceHandler::createMediaPipeline (MediaObjectRef &_return) throw (MediaServerException)
 {
-  std::shared_ptr<MediaHandler> mh;
   std::shared_ptr<MediaPipeline> mediaPipeline;
 
   GST_TRACE ("createMediaPipeline");
 
   try {
-    mh = mediaHandlerMap.getValue (handlerId);
-
-    if (mh == NULL) {
-      throw HandlerNotFoundException();
-    }
-
-    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mh) );
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline () );
     GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.put (mediaPipeline);
 
     _return = *mediaPipeline;
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createMediaPipeline throws MediaObjectNotFoundException");
-    throw e;
-  } catch (const HandlerNotFoundException &e) {
-    GST_TRACE ("createMediaPipeline throws HandlerNotFoundException");
-    throw e;
   } catch (...) {
     GST_TRACE ("createMediaPipeline throws MediaServerException");
     throw MediaServerException();
@@ -173,82 +203,136 @@ throw (MediaObjectNotFoundException, HandlerNotFoundException, MediaServerExcept
 }
 
 void
-MediaServerServiceHandler::createSdpEndPoint (MediaObjectId &_return, const MediaObjectId &mediaPipeline,
-    const SdpEndPointType::type type) throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::createMediaPipelineWithParams (MediaObjectRef &_return, const Params &params)
+throw (MediaServerException)
 {
-  std::shared_ptr<MediaPipeline> mm;
-  std::shared_ptr<SdpEndPoint> sdpEp;
+  std::shared_ptr<MediaHandler> mh;
+  std::shared_ptr<MediaPipeline> mediaPipeline;
 
-  GST_TRACE ("createSdpEndPoint pipeline: %" G_GUINT64_FORMAT ", type: %s", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type) );
+  GST_TRACE ("createMediaPipeline");
 
   try {
-    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-    sdpEp = mm->createSdpEndPoint (type);
-    mediaSet.put (sdpEp);
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (params) );
+    GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
+    mediaSet.put (mediaPipeline);
 
-    _return = *sdpEp;
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createSdpEndPoint pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaObjectNotFoundException", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type) );
-    throw e;
+    _return = *mediaPipeline;
   } catch (...) {
-    GST_TRACE ("createSdpEndPoint pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type) );
+    GST_TRACE ("createMediaPipeline throws MediaServerException");
     throw MediaServerException();
   }
 
-  GST_TRACE ("createSdpEndPoint pipeline: %" G_GUINT64_FORMAT ", type: %s done", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type) );
+  GST_TRACE ("createMediaPipeline done");
 }
 
 void
-MediaServerServiceHandler::createSdpEndPointWithFixedSdp (MediaObjectId &_return, const MediaObjectId &mediaPipeline,
-    const SdpEndPointType::type type, const std::string &sdp)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::createMediaElement (MediaObjectRef &_return, const MediaObjectRef &mediaPipeline,
+    const std::string &elementType) throw (MediaServerException)
 {
-  std::shared_ptr<MediaPipeline> mm;
-  std::shared_ptr<SdpEndPoint> sdpEp;
+  std::shared_ptr<MediaPipeline> mp;
+  std::shared_ptr<MediaElement> me;
 
-  GST_TRACE ("createSdpEndPointWithFixedSdp pipeline: %" G_GUINT64_FORMAT ", type: %s, sdp: %s", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type), sdp.c_str() );
+  GST_TRACE ("createMediaElement pipeline: %" G_GUINT64_FORMAT ", type: %s", mediaPipeline.id, elementType.c_str () );
 
   try {
-    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-    sdpEp = mm->createSdpEndPoint (type, sdp);
-    mediaSet.put (sdpEp);
+    mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    me = mp->createMediaElement (elementType);
+    mediaSet.put (me);
 
-    _return = *sdpEp;
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createSdpEndPointWithFixedSdp pipeline: %" G_GUINT64_FORMAT ", type: %s, sdp: %s throws MediaObjectNotFoundException", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type), sdp.c_str() );
+    _return = *me;
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("createSdpEndPoint pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.what () );
     throw e;
   } catch (...) {
-    GST_TRACE ("createSdpEndPointWithFixedSdp pipeline: %" G_GUINT64_FORMAT ", type: %s, sdp: %s throws MediaServerException", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type), sdp.c_str() );
+    GST_TRACE ("createSdpEndPoint pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException", mediaPipeline.id, elementType.c_str () );
     throw MediaServerException();
   }
 
-  GST_TRACE ("createSdpEndPointWithFixedSdp pipeline: %" G_GUINT64_FORMAT ", type: %s, sdp: %s done", mediaPipeline.id, _SdpEndPointType_VALUES_TO_NAMES.at (type), sdp.c_str() );
+  GST_TRACE ("createMediaElement pipeline: %" G_GUINT64_FORMAT ", type: %s done", mediaPipeline.id, elementType.c_str () );
 }
 
 void
-MediaServerServiceHandler::createUriEndPoint (MediaObjectId &_return, const MediaObjectId &mediaPipeline, const UriEndPointType::type type,
-    const std::string &uri) throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::createMediaElementWithParams (MediaObjectRef &_return, const MediaObjectRef &mediaPipeline,
+    const std::string &elementType, const Params &params)
+throw (MediaServerException)
 {
-  std::shared_ptr<MediaPipeline> mm;
-  std::shared_ptr<UriEndPoint> uriEp;
+  std::shared_ptr<MediaPipeline> mp;
+  std::shared_ptr<MediaElement> me;
+
+  GST_TRACE ("createMediaElementWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s", mediaPipeline.id, elementType.c_str () );
 
   try {
-    GST_TRACE ("createUriEndPoint pipeline: %" G_GUINT64_FORMAT " type %s", mediaPipeline.id, _UriEndPointType_VALUES_TO_NAMES.at (type) );
-    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-    uriEp = mm->createUriEndPoint (type, uri);
-    mediaSet.put (uriEp);
+    mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    me = mp->createMediaElement (elementType, params);
+    mediaSet.put (me);
 
-    _return = *uriEp;
-    GST_TRACE ("createUriEndPoint pipeline: %" G_GUINT64_FORMAT " type %s done", mediaPipeline.id, _UriEndPointType_VALUES_TO_NAMES.at (type) );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createUriEndPoint pipeline: %" G_GUINT64_FORMAT " type %s throws MediaObjectNotFoundException", mediaPipeline.id, _UriEndPointType_VALUES_TO_NAMES.at (type) );
+    _return = *me;
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.what () );
     throw e;
   } catch (...) {
-    GST_TRACE ("createUriEndPoint pipeline: %" G_GUINT64_FORMAT " type %s throws MediaServerException", mediaPipeline.id, _UriEndPointType_VALUES_TO_NAMES.at (type) );
+    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException", mediaPipeline.id, elementType.c_str () );
     throw MediaServerException();
   }
+
+  GST_TRACE ("createMediaElementWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s done", mediaPipeline.id, elementType.c_str () );
 }
 
+void
+MediaServerServiceHandler::createMediaMixer (MediaObjectRef &_return, const MediaObjectRef &mediaPipeline,
+    const std::string &mixerType) throw (MediaServerException)
+{
+  std::shared_ptr<MediaPipeline> mp;
+  std::shared_ptr<Mixer> mixer;
+
+  GST_TRACE ("createMediaMixer pipeline: %" G_GUINT64_FORMAT ", type: %s", mediaPipeline.id, mixerType.c_str () );
+
+  try {
+    mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    mixer = mp->createMediaMixer (mixerType);
+    mediaSet.put (mixer);
+
+    _return = *mixer;
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("createMediaMixer pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("createMediaMixer pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException", mediaPipeline.id, mixerType.c_str () );
+    throw MediaServerException();
+  }
+
+  GST_TRACE ("createMediaMixer pipeline: %" G_GUINT64_FORMAT ", type: %s done", mediaPipeline.id, mixerType.c_str () );
+}
+
+void
+MediaServerServiceHandler::createMediaMixerWithParams (MediaObjectRef &_return, const MediaObjectRef &mediaPipeline,
+    const std::string &mixerType, const Params &params)
+throw (MediaServerException)
+{
+  std::shared_ptr<MediaPipeline> mp;
+  std::shared_ptr<Mixer> mixer;
+
+  GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s", mediaPipeline.id, mixerType.c_str () );
+
+  try {
+    mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
+    mixer = mp->createMediaMixer (mixerType, params);
+    mediaSet.put (mixer);
+
+    _return = *mixer;
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s throws MediaServerException", mediaPipeline.id, mixerType.c_str () );
+    throw MediaServerException();
+  }
+
+  GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s done", mediaPipeline.id, mixerType.c_str () );
+}
+
+// TODO: reuse when needed
+#if 0
 struct MainLoopData {
   gpointer data;
   GSourceFunc func;
@@ -352,68 +436,13 @@ throw (MediaObjectNotFoundException, MediaServerException)
     throw MediaServerException();
   }
 }
-
-void
-MediaServerServiceHandler::createMixer (MediaObjectId &_return, const MediaObjectId &mediaPipeline, const MixerType::type type)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<MediaPipeline> mm;
-  std::shared_ptr<Mixer> mixer;
-
-  try {
-    GST_TRACE ("createMixer pipeline: %" G_GUINT64_FORMAT " type %s", mediaPipeline.id, _MixerType_VALUES_TO_NAMES.at (type) );
-    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-    mixer = mm->createMixer (type);
-    mediaSet.put (mixer);
-
-    _return = *mixer;
-    GST_TRACE ("createMixer pipeline: %" G_GUINT64_FORMAT " type %s done", mediaPipeline.id, _MixerType_VALUES_TO_NAMES.at (type) );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createMixer pipeline: %" G_GUINT64_FORMAT " type %s throws MediaObjectNotFoundException", mediaPipeline.id, _MixerType_VALUES_TO_NAMES.at (type) );
-    throw e;
-  } catch (...) {
-    GST_TRACE ("createMixer pipeline: %" G_GUINT64_FORMAT " type %s throws MediaServerException", mediaPipeline.id, _MixerType_VALUES_TO_NAMES.at (type) );
-    throw MediaServerException();
-  }
-}
-
-void
-MediaServerServiceHandler::createFilter (MediaObjectId &_return, const MediaObjectId &mediaPipeline, const FilterType::type type)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<MediaPipeline> mm;
-  std::shared_ptr<Filter> filter;
-
-  try {
-    GST_TRACE ("createFilter pipeline: %" G_GUINT64_FORMAT " type %s", mediaPipeline.id, _FilterType_VALUES_TO_NAMES.at (type) );
-
-    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-    filter = mm->createFilter (type);
-    mediaSet.put (filter);
-
-    _return = *filter;
-    GST_TRACE ("createFilter pipeline: %" G_GUINT64_FORMAT " type %s done", mediaPipeline.id, _FilterType_VALUES_TO_NAMES.at (type) );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createFilter pipeline: %" G_GUINT64_FORMAT " type %s throws MediaObjectNotFoundException", mediaPipeline.id, _FilterType_VALUES_TO_NAMES.at (type) );
-    throw e;
-  } catch (...) {
-    GST_TRACE ("createFilter pipeline: %" G_GUINT64_FORMAT " type %s throws MediaServerException", mediaPipeline.id, _FilterType_VALUES_TO_NAMES.at (type) );
-    throw MediaServerException();
-  }
-}
+#endif
 
 /* MediaElement */
 
 void
-MediaServerServiceHandler::sendCommand (CommandResult &_return, const MediaObjectId &mediaElement,
-    const Command &command) throw (MediaObjectNotFoundException, EncodingException, MediaServerException)
-{
-  // TODO: implement
-}
-
-void
-MediaServerServiceHandler::getMediaSrcs (std::vector<MediaObjectId> & _return, const MediaObjectId &mediaElement)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::getMediaSrcs (std::vector<MediaObjectRef> & _return, const MediaObjectRef &mediaElement)
+throw (MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = NULL;
@@ -431,9 +460,9 @@ throw (MediaObjectNotFoundException, MediaServerException)
 
     delete mediaSrcs;
     GST_TRACE ("getMediaSrcs element: %" G_GUINT64_FORMAT " done", mediaElement.id);
-  } catch (const MediaObjectNotFoundException &e) {
+  } catch (const MediaServerException &e) {
     delete mediaSrcs;
-    GST_TRACE ("getMediaSrcs element: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaElement.id);
+    GST_TRACE ("getMediaSrcs element: %" G_GUINT64_FORMAT " throws MediaServerException (%s)", mediaElement.id, e.what () );
     throw e;
   } catch (...) {
     delete mediaSrcs;
@@ -443,8 +472,8 @@ throw (MediaObjectNotFoundException, MediaServerException)
 }
 
 void
-MediaServerServiceHandler::getMediaSinks (std::vector<MediaObjectId> & _return, const MediaObjectId &mediaElement)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::getMediaSinks (std::vector<MediaObjectRef> & _return, const MediaObjectRef &mediaElement)
+throw (MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks = NULL;
@@ -462,9 +491,9 @@ throw (MediaObjectNotFoundException, MediaServerException)
 
     delete mediaSinks;
     GST_TRACE ("getMediaSinks element: %" G_GUINT64_FORMAT " done", mediaElement.id);
-  } catch (const MediaObjectNotFoundException &e) {
+  } catch (const MediaServerException &e) {
     delete mediaSinks;
-    GST_TRACE ("getMediaSinks element: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaElement.id);
+    GST_TRACE ("getMediaSinks element: %" G_GUINT64_FORMAT " throws MediaServerException (%s)", mediaElement.id, e.what () );
     throw e;
   } catch (...) {
     delete mediaSinks;
@@ -474,8 +503,8 @@ throw (MediaObjectNotFoundException, MediaServerException)
 }
 
 void
-MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObjectId> & _return, const MediaObjectId &mediaElement,
-    const MediaType::type mediaType) throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObjectRef> & _return, const MediaObjectRef &mediaElement,
+    const MediaType::type mediaType) throw (MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = NULL;
@@ -493,9 +522,9 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObjectId> &
 
     delete mediaSrcs;
     GST_TRACE ("getMediaSrcsByType element: %" G_GUINT64_FORMAT " mediaType: %s done", mediaElement.id, _MediaType_VALUES_TO_NAMES.at (mediaType) );
-  } catch (const MediaObjectNotFoundException &e) {
+  } catch (const MediaServerException &e) {
     delete mediaSrcs;
-    GST_TRACE ("getMediaSrcsByType element: %" G_GUINT64_FORMAT " mediaType: %s throws MediaObjectNotFoundException", mediaElement.id, _MediaType_VALUES_TO_NAMES.at (mediaType) );
+    GST_TRACE ("getMediaSrcsByType element: %" G_GUINT64_FORMAT " mediaType: %s throws MediaServerException (%s)", mediaElement.id, _MediaType_VALUES_TO_NAMES.at (mediaType), e.what () );
     throw e;
   } catch (...) {
     delete mediaSrcs;
@@ -505,8 +534,8 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<MediaObjectId> &
 }
 
 void
-MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObjectId> & _return, const MediaObjectId &mediaElement,
-    const MediaType::type mediaType) throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObjectRef> & _return, const MediaObjectRef &mediaElement,
+    const MediaType::type mediaType) throw (MediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks = NULL;
@@ -524,9 +553,9 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObjectId> 
 
     delete mediaSinks;
     GST_TRACE ("getMediaSinksByType element: %" G_GUINT64_FORMAT " mediaType: %s done", mediaElement.id, _MediaType_VALUES_TO_NAMES.at (mediaType) );
-  } catch (const MediaObjectNotFoundException &e) {
+  } catch (const MediaServerException &e) {
     delete mediaSinks;
-    GST_TRACE ("getMediaSinksByType element: %" G_GUINT64_FORMAT " mediaType: %s throws MediaObjectNotFoundException", mediaElement.id, _MediaType_VALUES_TO_NAMES.at (mediaType) );
+    GST_TRACE ("getMediaSinksByType element: %" G_GUINT64_FORMAT " mediaType: %s throws MediaServerException (%s)", mediaElement.id, _MediaType_VALUES_TO_NAMES.at (mediaType), e.what () );
     throw e;
   } catch (...) {
     delete mediaSinks;
@@ -535,32 +564,34 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<MediaObjectId> 
   }
 }
 
+void
+MediaServerServiceHandler::getMediaSrcsByFullDescription (std::vector<MediaObjectRef> & _return, const MediaObjectRef &mediaElement,
+    const MediaType::type mediaType, const std::string &description)
+throw (MediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
+void
+MediaServerServiceHandler::getMediaSinksByFullDescription (std::vector<MediaObjectRef> & _return, const MediaObjectRef &mediaElement,
+    const MediaType::type mediaType, const std::string &description)
+throw (MediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
 /* MediaPad */
 
-MediaType::type
-MediaServerServiceHandler::getMediaType (const MediaObjectId &mediaPad) throw (MediaObjectNotFoundException, MediaServerException)
+void
+MediaServerServiceHandler::getMediaElement (MediaObjectRef &_return, const MediaObjectRef &mediaPadRef) throw (MediaServerException)
 {
-  std::shared_ptr<MediaPad> pad;
-
-  try {
-    GST_TRACE ("getMediaType pad: %" G_GUINT64_FORMAT, mediaPad.id);
-    pad = mediaSet.getMediaObject<MediaPad> (mediaPad);
-    GST_TRACE ("getMediaType pad: %" G_GUINT64_FORMAT " done", mediaPad.id);
-    return pad->getMediaType ();
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("getMediaType pad: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaPad.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("getMediaType pad: %" G_GUINT64_FORMAT " throws MediaServerException", mediaPad.id);
-    throw MediaServerException();
-  }
+  GST_WARNING ("TODO: implement");
 }
 
 /* MediaSrc */
 
 void
-MediaServerServiceHandler::connect (const MediaObjectId &mediaSrc, const MediaObjectId &mediaSink)
-throw (MediaObjectNotFoundException, ConnectionException, MediaServerException)
+MediaServerServiceHandler::connect (const MediaObjectRef &mediaSrc, const MediaObjectRef &mediaSink) throw (MediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
@@ -571,11 +602,8 @@ throw (MediaObjectNotFoundException, ConnectionException, MediaServerException)
     sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
     src->connect (sink);
     GST_TRACE ("connect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " done", mediaSrc.id, mediaSink.id);
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("connect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaSrc.id, mediaSink.id);
-    throw e;
-  } catch (const ConnectionException &e) {
-    GST_TRACE ("connect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " throws ConnectionException", mediaSrc.id, mediaSink.id);
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("connect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " throws MediaServerException(%s)", mediaSrc.id, mediaSink.id, e.what () );
     throw e;
   } catch (...) {
     GST_TRACE ("connect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " throws MediaServerException", mediaSrc.id, mediaSink.id);
@@ -584,8 +612,7 @@ throw (MediaObjectNotFoundException, ConnectionException, MediaServerException)
 }
 
 void
-MediaServerServiceHandler::disconnect (const MediaObjectId &mediaSrc, const MediaObjectId &mediaSink)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::disconnect (const MediaObjectRef &mediaSrc, const MediaObjectRef &mediaSink) throw (MediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
@@ -596,8 +623,8 @@ throw (MediaObjectNotFoundException, MediaServerException)
     sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
     src->disconnect (sink);
     GST_TRACE ("disconnect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " done", mediaSrc.id, mediaSink.id);
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("disconnect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaSrc.id, mediaSink.id);
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("disconnect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " throws MediaServerException(%s)", mediaSrc.id, mediaSink.id, e.what () );
     throw e;
   } catch (...) {
     GST_TRACE ("disconnect src: %" G_GUINT64_FORMAT " sink: %" G_GUINT64_FORMAT " throws MediaServerException", mediaSrc.id, mediaSink.id);
@@ -606,8 +633,7 @@ throw (MediaObjectNotFoundException, MediaServerException)
 }
 
 void
-MediaServerServiceHandler::getConnectedSinks (std::vector < MediaObjectId >&_return, const MediaObjectId &mediaSrc)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::getConnectedSinks (std::vector<MediaObjectRef> & _return, const MediaObjectRef &mediaSrc) throw (MediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks = NULL;
@@ -625,9 +651,9 @@ throw (MediaObjectNotFoundException, MediaServerException)
 
     delete mediaSinks;
     GST_TRACE ("getConnectedSinks src: %" G_GUINT64_FORMAT " done", mediaSrc.id);
-  } catch (const MediaObjectNotFoundException &e) {
+  } catch (const MediaServerException &e) {
     delete mediaSinks;
-    GST_TRACE ("getConnectedSinks src: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaSrc.id);
+    GST_TRACE ("getConnectedSinks src: %" G_GUINT64_FORMAT " throws MediaServerException(%s)", mediaSrc.id, e.what () );
     throw e;
   } catch (...) {
     delete mediaSinks;
@@ -639,21 +665,20 @@ throw (MediaObjectNotFoundException, MediaServerException)
 /* MediaSink */
 
 void
-MediaServerServiceHandler::getConnectedSrc (MediaObjectId &_return, const MediaObjectId &mediaSink)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::getConnectedSrc (MediaObjectRef &_return, const MediaObjectRef &mediaSinkRef) throw (MediaServerException)
 {
   std::shared_ptr<MediaSink> sink;
 
   try {
-    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT, mediaSink.id);
-    sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
+    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT, mediaSinkRef.id);
+    sink = mediaSet.getMediaObject<MediaSink> (mediaSinkRef);
     _return = * (sink->getConnectedSrc() );
-    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT " done", mediaSink.id);
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaSink.id);
+    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT " done", mediaSinkRef.id);
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT " throws MediaServerException(%s)", mediaSinkRef.id, e.what () );
     throw e;
   } catch (...) {
-    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT " throws MediaServerException", mediaSink.id);
+    GST_TRACE ("getConnectedSrc sink: %" G_GUINT64_FORMAT " throws MediaServerException", mediaSinkRef.id);
     throw MediaServerException();
   }
 }
@@ -661,8 +686,7 @@ throw (MediaObjectNotFoundException, MediaServerException)
 /* Mixer */
 
 void
-MediaServerServiceHandler::createMixerEndPoint (MediaObjectId &_return, const MediaObjectId &mixer)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::createMixerEndPoint (MediaObjectRef &_return, const MediaObjectRef &mixer) throw (MediaServerException)
 {
   std::shared_ptr<Mixer> m;
   std::shared_ptr<MixerEndPoint> mixerEndPoint;
@@ -675,8 +699,8 @@ throw (MediaObjectNotFoundException, MediaServerException)
     mediaSet.put (mixerEndPoint);
 
     _return = *mixerEndPoint;
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createMixerEndPoint mixer: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mixer.id);
+  } catch (const MediaServerException &e) {
+    GST_TRACE ("createMixerEndPoint mixer: %" G_GUINT64_FORMAT " throws MediaServerException(%s)", mixer.id, e.what () );
     throw e;
   } catch (...) {
     GST_TRACE ("createMixerEndPoint mixer: %" G_GUINT64_FORMAT " throws MediaServerException", mixer.id);
@@ -686,236 +710,11 @@ throw (MediaObjectNotFoundException, MediaServerException)
   GST_TRACE ("createMixerEndPoint mixer: %" G_GUINT64_FORMAT " done", mixer.id);
 }
 
-/* HttpEndPoint */
-
 void
-MediaServerServiceHandler::getUrl (std::string &_return, const MediaObjectId &httpEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
+MediaServerServiceHandler::createMixerEndPointWithParams (MediaObjectRef &_return, const MediaObjectRef &mixer, const Params &params)
+throw (MediaServerException)
 {
-  std::shared_ptr<HttpEndPoint> httpEp;
-
-  GST_TRACE ("getUrl httpEndPoint: %" G_GUINT64_FORMAT, httpEndPoint.id);
-
-  try {
-    httpEp = mediaSet.getMediaObject<HttpEndPoint> (httpEndPoint);
-    _return.assign (httpEp->getUrl () );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("getUrl httpEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", httpEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("getUrl httpEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", httpEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("getUrl httpEndPoint: %" G_GUINT64_FORMAT " done", httpEndPoint.id);
-}
-
-/* UriEndPoint */
-
-void
-MediaServerServiceHandler::getUri (std::string &_return, const MediaObjectId &uriEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<UriEndPoint> uep;
-
-  GST_TRACE ("getUri uriEndPoint: %" G_GUINT64_FORMAT, uriEndPoint.id);
-
-  try {
-    uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
-    _return.assign (uep->getUri() );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("getUri uriEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", uriEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("getUri uriEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", uriEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("getUri uriEndPoint: %" G_GUINT64_FORMAT " done", uriEndPoint.id);
-}
-
-void
-MediaServerServiceHandler::start (const MediaObjectId &uriEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<UriEndPoint> uep;
-
-  GST_TRACE ("start uriEndPoint: %" G_GUINT64_FORMAT, uriEndPoint.id);
-
-  try {
-    uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
-    uep->start();
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("start uriEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", uriEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("start uriEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", uriEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("start uriEndPoint: %" G_GUINT64_FORMAT " done", uriEndPoint.id);
-}
-
-void
-MediaServerServiceHandler::pause (const MediaObjectId &uriEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<UriEndPoint> uep;
-
-  GST_TRACE ("pause uriEndPoint: %" G_GUINT64_FORMAT, uriEndPoint.id);
-
-  try {
-    uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
-    uep->pause();
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("pause uriEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", uriEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("pause uriEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", uriEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("pause uriEndPoint: %" G_GUINT64_FORMAT " done", uriEndPoint.id);
-}
-
-void
-MediaServerServiceHandler::stop (const MediaObjectId &uriEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<UriEndPoint> uep;
-
-  GST_TRACE ("stop uriEndPoint: %" G_GUINT64_FORMAT, uriEndPoint.id);
-
-  try {
-    uep = mediaSet.getMediaObject<UriEndPoint> (uriEndPoint);
-    uep->stop();
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("stop uriEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", uriEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("stop uriEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", uriEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("stop uriEndPoint: %" G_GUINT64_FORMAT " done", uriEndPoint.id);
-}
-
-/* SdpEndPoint */
-
-void
-MediaServerServiceHandler::generateOffer (std::string &_return, const MediaObjectId &sdpEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<SdpEndPoint> s;
-
-  GST_TRACE ("generateOffer sdpEndPoint: %" G_GUINT64_FORMAT, sdpEndPoint.id);
-
-  try {
-    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-    _return.assign (s->generateOffer () );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("generateOffer sdpEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", sdpEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("generateOffer sdpEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", sdpEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("generateOffer sdpEndPoint: %" G_GUINT64_FORMAT " done", sdpEndPoint.id);
-}
-
-void
-MediaServerServiceHandler::processAnswer (std::string &_return, const MediaObjectId &sdpEndPoint, const std::string &answer)
-throw (MediaObjectNotFoundException, NegotiationException, MediaServerException)
-{
-  std::shared_ptr<SdpEndPoint> s;
-
-  GST_TRACE ("processAnswer sdpEndPoint: %" G_GUINT64_FORMAT ", answer: %s", sdpEndPoint.id, answer.c_str() );
-
-  try {
-    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-    _return.assign (s->processAnswer (answer) );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("processAnswer sdpEndPoint: %" G_GUINT64_FORMAT ", answer: %s throws MediaObjectNotFoundException", sdpEndPoint.id, answer.c_str() );
-    throw e;
-  } catch (const NegotiationException &e) {
-    GST_TRACE ("processAnswer sdpEndPoint: %" G_GUINT64_FORMAT ", answer: %s throws NegotiationException", sdpEndPoint.id, answer.c_str() );
-    throw e;
-  } catch (...) {
-    GST_TRACE ("processAnswer sdpEndPoint: %" G_GUINT64_FORMAT ", answer: %s throws MediaServerException", sdpEndPoint.id, answer.c_str() );
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("processAnswer sdpEndPoint: %" G_GUINT64_FORMAT ", answer: %s done", sdpEndPoint.id, answer.c_str() );
-}
-
-void
-MediaServerServiceHandler::processOffer (std::string &_return, const MediaObjectId &sdpEndPoint, const std::string &offer)
-throw (MediaObjectNotFoundException, NegotiationException, MediaServerException)
-{
-  std::shared_ptr<SdpEndPoint> s;
-
-  GST_TRACE ("processOffer sdpEndPoint: %" G_GUINT64_FORMAT ", offer: %s", sdpEndPoint.id, offer.c_str() );
-
-  try {
-    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-    _return.assign (s->processOffer (offer) );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("processOffer sdpEndPoint: %" G_GUINT64_FORMAT ", offer: %s throws MediaObjectNotFoundException", sdpEndPoint.id, offer.c_str() );
-    throw e;
-  } catch (const NegotiationException &e) {
-    GST_TRACE ("processOffer sdpEndPoint: %" G_GUINT64_FORMAT ", offer: %s throws NegotiationException", sdpEndPoint.id, offer.c_str() );
-    throw e;
-  } catch (...) {
-    GST_TRACE ("processOffer sdpEndPoint: %" G_GUINT64_FORMAT ", offer: %s throws MediaServerException", sdpEndPoint.id, offer.c_str() );
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("processOffer sdpEndPoint: %" G_GUINT64_FORMAT ", offer: %s done", sdpEndPoint.id, offer.c_str() );
-}
-
-void
-MediaServerServiceHandler::getLocalSessionDescription (std::string &_return, const MediaObjectId &sdpEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<SdpEndPoint> s;
-
-  GST_TRACE ("getLocalSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT, sdpEndPoint.id);
-
-  try {
-    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-    _return.assign (s->getLocalSessionDescription () );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("getLocalSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", sdpEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("getLocalSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", sdpEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("getLocalSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT " done", sdpEndPoint.id);
-}
-
-void
-MediaServerServiceHandler::getRemoteSessionDescription (std::string &_return, const MediaObjectId &sdpEndPoint)
-throw (MediaObjectNotFoundException, MediaServerException)
-{
-  std::shared_ptr<SdpEndPoint> s;
-
-  GST_TRACE ("getRemoteSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT, sdpEndPoint.id);
-
-  try {
-    s = mediaSet.getMediaObject<SdpEndPoint> (sdpEndPoint);
-    _return.assign (s->getRemoteSessionDescription () );
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("getRemoteSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", sdpEndPoint.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("getRemoteSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT " throws MediaServerException", sdpEndPoint.id);
-    throw MediaServerException();
-  }
-
-  GST_TRACE ("getRemoteSessionDescription sdpEndPoint: %" G_GUINT64_FORMAT " done", sdpEndPoint.id);
+  GST_WARNING ("TODO: implement");
 }
 
 MediaServerServiceHandler::StaticConstructor MediaServerServiceHandler::staticConstructor;

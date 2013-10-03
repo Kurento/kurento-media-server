@@ -23,20 +23,19 @@ namespace kurento
 
 class MediaElement;
 
-class MediaPad : public MediaObjectImpl
+class MediaPad : public MediaObjectImpl,
+		 public MediaPadType
 {
 public:
-  MediaPad (std::shared_ptr<MediaElement> parent, MediaType::type, MediaPadType::type);
+  MediaPad (std::shared_ptr<MediaElement> parent, PadDirection::type direction, MediaType::type mediaType);
+  MediaPad (std::shared_ptr<MediaElement> parent, PadDirection::type direction, MediaType::type mediaType,
+	    const std::string mediaDescription);
   virtual ~MediaPad() throw () = 0;
-
-  MediaType::type getMediaType ();
 
 protected:
   GstElement * getElement();
 
 private:
-  MediaType::type mediaType;
-
   class StaticConstructor
   {
   public:

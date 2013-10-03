@@ -25,10 +25,12 @@
 namespace kurento
 {
 
-class MediaElement : public MediaObjectImpl, public std::enable_shared_from_this<MediaElement>
+class MediaElement : public MediaObjectImpl,
+		     public MediaElementType,
+		     public std::enable_shared_from_this<MediaElement>
 {
 public:
-  MediaElement (std::shared_ptr<MediaObjectImpl> parent);
+  MediaElement (std::shared_ptr<MediaObjectImpl> parent, const std::string elementType);
   virtual ~MediaElement() throw () = 0;
 
   std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcs ();

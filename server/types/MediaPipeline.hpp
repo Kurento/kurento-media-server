@@ -23,32 +23,27 @@
 namespace kurento
 {
 
-class SdpEndPoint;
-class UriEndPoint;
-class HttpEndPoint;
+class MediaElement;
 class Mixer;
-class Filter;
 
-class MediaPipeline : public MediaObjectImpl, public std::enable_shared_from_this<MediaPipeline>
+class MediaPipeline : public MediaObjectImpl,
+		      public MediaPipelineType,
+		      public std::enable_shared_from_this<MediaPipeline>
 {
 
 public:
-  MediaPipeline(std::shared_ptr<MediaHandler> mediaHandler);
+  MediaPipeline (const Params &params = defaultParams) throw (MediaServerException);
   ~MediaPipeline() throw();
 
-  std::shared_ptr<SdpEndPoint> createSdpEndPoint(const SdpEndPointType::type type);
-  std::shared_ptr<SdpEndPoint> createSdpEndPoint(const SdpEndPointType::type type, const std::string& sdp);
-  std::shared_ptr<UriEndPoint> createUriEndPoint (const UriEndPointType::type type, const std::string& uri);
-  std::shared_ptr<HttpEndPoint> createHttpEndPoint ();
-  std::shared_ptr<Mixer> createMixer (const MixerType::type type);
-  std::shared_ptr<Filter> createFilter (const FilterType::type type);
-
-  void sendEvent (MediaEvent &event);
+  std::shared_ptr<MediaElement> createMediaElement(const std::string& elementType, const Params& params = defaultParams)
+                                                  throw (MediaServerException);
+  std::shared_ptr<Mixer> createMediaMixer(const std::string& mixerType, const Params& params = defaultParams)
+                                          throw (MediaServerException);
 
   GstElement *pipeline;
 
 private:
-  std::shared_ptr<MediaHandler> mediaHandler;
+  void init ();
 
   class StaticConstructor
   {

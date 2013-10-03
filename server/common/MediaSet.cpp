@@ -23,6 +23,9 @@
 #include "types/SdpEndPoint.hpp"
 #include "types/Filter.hpp"
 
+#include "errorCodes_constants.h"
+#include "utils/utils.hpp"
+
 namespace kurento
 {
 
@@ -52,7 +55,7 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
 }
 
 void
-MediaSet::remove (const MediaObjectId &mediaObject)
+MediaSet::remove (const MediaObjectRef &mediaObject)
 {
   remove (mediaObject.id);
 }
@@ -113,43 +116,43 @@ MediaSet::size ()
 }
 
 template std::shared_ptr<MediaObjectImpl>
-MediaSet::getMediaObject<MediaObjectImpl> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<MediaObjectImpl> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaPipeline>
-MediaSet::getMediaObject<MediaPipeline> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<MediaPipeline> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaElement>
-MediaSet::getMediaObject<MediaElement> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<MediaElement> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaPad>
-MediaSet::getMediaObject<MediaPad> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<MediaPad> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaSrc>
-MediaSet::getMediaObject<MediaSrc> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<MediaSrc> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaSink>
-MediaSet::getMediaObject<MediaSink> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<MediaSink> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<Mixer>
-MediaSet::getMediaObject<Mixer> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<Mixer> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<UriEndPoint>
-MediaSet::getMediaObject<UriEndPoint> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<UriEndPoint> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<HttpEndPoint>
-MediaSet::getMediaObject<HttpEndPoint> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<HttpEndPoint> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<SdpEndPoint>
-MediaSet::getMediaObject<SdpEndPoint> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<SdpEndPoint> (const MediaObjectRef &mediaObject);
 
 template std::shared_ptr<Filter>
-MediaSet::getMediaObject<Filter> (const MediaObjectId &mediaObject);
+MediaSet::getMediaObject<Filter> (const MediaObjectRef &mediaObject);
 
 template <class T> std::shared_ptr<T>
-MediaSet::getMediaObject (const MediaObjectId &mediaObject)
+MediaSet::getMediaObject (const MediaObjectRef &mediaObject)
 {
   std::map<ObjectId, std::shared_ptr<MediaObjectImpl> >::iterator it;
-  std::shared_ptr<MediaObjectId> mo = NULL;
+  std::shared_ptr<MediaObjectRef> mo = NULL;
   std::shared_ptr<T> typedMo;
 
   mutex.lock();
@@ -160,13 +163,15 @@ MediaSet::getMediaObject (const MediaObjectId &mediaObject)
 
   mutex.unlock();
 
-  if (mo == NULL)
-    throw MediaObjectNotFoundException();
+  if (mo == NULL) {
+    throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_NOT_FOUND, "Media object not found");
+  }
 
   typedMo = std::dynamic_pointer_cast<T> (mo);
 
-  if (typedMo == NULL)
-    throw MediaObjectNotFoundException();
+  if (typedMo == NULL) {
+    throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_CAST_ERROR, "Media Object found is not of requested type");
+  }
 
   return typedMo;
 }

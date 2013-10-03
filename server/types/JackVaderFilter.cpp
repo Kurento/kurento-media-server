@@ -15,6 +15,8 @@
 
 #include "JackVaderFilter.hpp"
 
+#include "JackVaderFilterType_constants.h"
+
 #define GST_CAT_DEFAULT kurento_jack_vader_filter
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoJackVaderFilter"
@@ -23,7 +25,7 @@ namespace kurento
 {
 
 JackVaderFilter::JackVaderFilter (std::shared_ptr<MediaPipeline> parent)
-  : Filter (parent, FilterType::type::JACK_VADER_FILTER)
+  : Filter (parent, g_JackVaderFilterType_constants.TYPE_NAME)
 {
   element = gst_element_factory_make ("filterelement", NULL);
   g_object_set (element, "filter-factory", "jackvader", NULL);

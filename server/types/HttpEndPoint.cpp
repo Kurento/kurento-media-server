@@ -17,16 +17,23 @@
 
 #include "httpendpointserver.hpp"
 
-#include "mediaEvents_types.h"
+#include "HttpEndPointType_constants.h"
+
+// TODO: reuse when needed
+#if 0
 #include "protocol/TBinaryProtocol.h"
 #include "transport/TBufferTransports.h"
+#endif
 
 #define GST_CAT_DEFAULT kurento_http_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoHttpEndPoint"
 
+// TODO: reuse when needed
+#if 0
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
+#endif
 
 namespace kurento
 {
@@ -34,6 +41,8 @@ namespace kurento
 void
 http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action)
 {
+// TODO: reuse when needed
+#if 0
   MediaEvent event;
   HttpEndPointEvent httpEndPointEvent;
 
@@ -60,6 +69,7 @@ http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction
 
   std::dynamic_pointer_cast<MediaPipeline> (httpEp->parent)->sendEvent (event);
   GST_INFO ("Signal raised");
+#endif
 }
 
 static void
@@ -96,11 +106,9 @@ url_expired_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
   GST_DEBUG ("TODO: Implement url_expired_cb");
 }
 
-HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent) :
-  EndPoint (parent)
+HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent)
+  : EndPoint (parent, g_HttpEndPointType_constants.TYPE_NAME)
 {
-  this->type.__set_endPoint (EndPointType::type::HTTP_END_POINT);
-
   element = gst_element_factory_make ("httpendpoint", NULL);
 
   g_object_ref (element);

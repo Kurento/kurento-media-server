@@ -18,9 +18,9 @@
 namespace kurento
 {
 
-Filter::Filter (std::shared_ptr<MediaObjectImpl> parent, FilterType::type type) : MediaElement (parent)
+Filter::Filter (std::shared_ptr<MediaObjectImpl> parent, const std::string filterType)
+  : MediaElement (parent, filterType)
 {
-  this->type.__set_filterType (type);
 }
 
 Filter::~Filter() throw ()

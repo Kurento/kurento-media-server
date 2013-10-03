@@ -15,17 +15,9 @@
 
 #include "PointerDetectorFilter.hpp"
 
-#include "mediaEvents_types.h"
-
-#include "protocol/TBinaryProtocol.h"
-#include "transport/TBufferTransports.h"
-
 #define GST_CAT_DEFAULT kurento_pointer_detector_filter
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPointerDetectorFilter"
-
-using apache::thrift::transport::TMemoryBuffer;
-using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {
@@ -36,7 +28,9 @@ pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer poin
   //TODO: Implement
 }
 
-PointerDetectorFilter::PointerDetectorFilter (std::shared_ptr<MediaPipeline> parent) : Filter (parent, FilterType::type::POINTER_DETECTOR_FILTER)
+// FIXME: use thrift constant
+PointerDetectorFilter::PointerDetectorFilter (std::shared_ptr<MediaPipeline> parent)
+  : Filter (parent, "POINTER_DETECTOR_FILTER_TYPE")
 {
   element = gst_element_factory_make ("filterelement", NULL);
 

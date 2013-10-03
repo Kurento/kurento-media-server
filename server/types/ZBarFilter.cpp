@@ -15,17 +15,23 @@
 
 #include "ZBarFilter.hpp"
 
-#include "mediaEvents_types.h"
+#include "ZBarFilterType_constants.h"
 
+// TODO: reuse when needed
+#if 0
 #include "protocol/TBinaryProtocol.h"
 #include "transport/TBufferTransports.h"
+#endif
 
 #define GST_CAT_DEFAULT kurento_zbar_filter
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoZBarFilter"
 
+// TODO: reuse when needed
+#if 0
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
+#endif
 
 namespace kurento
 {
@@ -60,7 +66,8 @@ zbar_receive_message (GstBus *bus, GstMessage *message, gpointer zbar)
   }
 }
 
-ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent) : Filter (parent, FilterType::type::ZBAR_FILTER)
+ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent)
+  : Filter (parent, g_ZBarFilterType_constants.TYPE_NAME)
 {
   element = gst_element_factory_make ("filterelement", NULL);
 
@@ -97,6 +104,8 @@ ZBarFilter::~ZBarFilter() throw ()
 void
 ZBarFilter::raiseEvent (guint64 ts, std::string &type, std::string &symbol)
 {
+// TODO: reuse when needed
+#if 0
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
   MediaEvent event;
@@ -116,6 +125,7 @@ ZBarFilter::raiseEvent (guint64 ts, std::string &type, std::string &symbol)
   GST_DEBUG ("Symbol: %s", symbol.c_str() );
 
   std::dynamic_pointer_cast<MediaPipeline> (parent)->sendEvent (event);
+#endif
 }
 
 void

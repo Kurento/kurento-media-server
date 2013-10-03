@@ -15,17 +15,19 @@
 
 #include "WebRtcEndPoint.hpp"
 
+#include "WebRtcEndPointType_constants.h"
+
 namespace kurento
 {
 
 WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaPipeline> parent)
-  : SdpEndPoint (parent, SdpEndPointType::type::WEBRTC_END_POINT)
+  : SdpEndPoint (parent, g_WebRtcEndPointType_constants.TYPE_NAME)
 {
 
 }
 
 WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &sdp)
-  : SdpEndPoint (parent, SdpEndPointType::type::WEBRTC_END_POINT)
+  : SdpEndPoint (parent, g_WebRtcEndPointType_constants.TYPE_NAME)
 {
 
 }

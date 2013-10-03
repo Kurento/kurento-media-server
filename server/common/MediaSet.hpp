@@ -29,12 +29,12 @@ public:
   MediaSet () {};
 
   void put (std::shared_ptr<MediaObjectImpl> mediaObject);
-  void remove (const MediaObjectId &mediaObject);
+  void remove (const MediaObjectRef &mediaObject);
   void remove (const ObjectId &id);
   int size();
 
   template <class T>
-  std::shared_ptr<T> getMediaObject (const MediaObjectId &mediaObject);
+  std::shared_ptr<T> getMediaObject (const MediaObjectRef &mediaObject);
 
 private:
   Glib::Threads::RecMutex mutex;

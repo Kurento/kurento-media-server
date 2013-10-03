@@ -25,10 +25,22 @@ namespace kurento
 
 class MediaElement;
 
-MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, MediaType::type mediaType, MediaPadType::type type) : MediaObjectImpl (parent)
+MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, PadDirection::type direction, MediaType::type mediaType)
+  : MediaObjectImpl (parent), MediaPadType ()
 {
-  this->mediaType = mediaType;
-  this->type.__set_mediaPad (type);
+  this-> __set_direction (direction);
+  this->__set_mediaType (mediaType);
+  this->type.__set_padType (*this);
+}
+
+MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, PadDirection::type direction, MediaType::type mediaType,
+    const std::string mediaDescription)
+  : MediaObjectImpl (parent), MediaPadType ()
+{
+  this-> __set_direction (direction);
+  this->__set_mediaType (mediaType);
+  this->__set_mediaDescription (mediaDescription);
+  this->type.__set_padType (*this);
 }
 
 MediaPad::~MediaPad () throw ()
@@ -40,12 +52,6 @@ GstElement *
 MediaPad::getElement ()
 {
   return ( (std::shared_ptr<MediaElement> &) parent)->element;
-}
-
-MediaType::type
-MediaPad::getMediaType ()
-{
-  return mediaType;
 }
 
 MediaPad::StaticConstructor MediaPad::staticConstructor;

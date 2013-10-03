@@ -1,3 +1,5 @@
+
+if (0)
 find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 
 add_executable(server_test server_test_base.cpp server_test.cpp sdp_end_point_test.cpp)
@@ -71,3 +73,4 @@ include_directories(http_ep_server_test ${LIBSOUP_INCLUDE_DIRS})
 include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
+endif ()

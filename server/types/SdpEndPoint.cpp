@@ -14,14 +14,17 @@
  */
 
 #include "SdpEndPoint.hpp"
+
+#include "utils/utils.hpp"
+#include "errorCodes_constants.h"
 #include <gst/sdp/gstsdpmessage.h>
 
 namespace kurento
 {
 
-SdpEndPoint::SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, SdpEndPointType::type type) : EndPoint (parent)
+SdpEndPoint::SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string type)
+  : EndPoint (parent, type)
 {
-  this->type.__set_sdpEndPoint (type);
 }
 
 SdpEndPoint::~SdpEndPoint() throw ()
@@ -38,18 +41,16 @@ str_to_sdp (const std::string &sdpStr)
   result = gst_sdp_message_new (&sdp);
 
   if (result != GST_SDP_OK) {
-    MediaServerException e = MediaServerException ();
-    e.__set_description ("Error creating SDP message");
-    throw e;
+    throw createMediaServerException (g_errorCodes_constants.SDP_CREATE_ERROR,
+        "Error creating SDP message");
   }
 
   result = gst_sdp_message_parse_buffer ( (const guint8 *) sdpStr.c_str (), -1, sdp);
 
   if (result != GST_SDP_OK) {
     gst_sdp_message_free (sdp);
-    MediaServerException e = MediaServerException ();
-    e.__set_description ("Error parsing SDP");
-    throw e;
+    throw createMediaServerException (g_errorCodes_constants.SDP_PARSE_ERROR,
+        "Error parsing SDP");
   }
 
   return sdp;
@@ -75,17 +76,13 @@ SdpEndPoint::generateOffer ()
   std::string offerStr;
 
   if (element == NULL) {
-    MediaServerException e = MediaServerException ();
-    e.__set_description ("No gst sdpendpoint element");
-    throw e;
   }
 
   g_signal_emit_by_name (element, "generate-offer", &offer);
 
   if (offer == NULL) {
-    MediaServerException e = MediaServerException ();
-    e.__set_description ("Error generating offer");
-    throw e;
+    throw createMediaServerException (g_errorCodes_constants.SDP_END_POINT_GENERATE_OFFER_ERROR,
+        "Error generating offer");
   }
 
   offerStr = sdp_to_str (offer);
@@ -118,9 +115,8 @@ SdpEndPoint::processOffer (const std::string &offer)
   gst_sdp_message_free (offerSdp);
 
   if (result == NULL) {
-    MediaServerException e = MediaServerException ();
-    e.__set_description ("Error processing offer");
-    throw e;
+    throw createMediaServerException (g_errorCodes_constants.SDP_END_POINT_PROCESS_OFFER_ERROR,
+        "Error processing offer");
   }
 
   resultStr = sdp_to_str (result);
@@ -142,9 +138,8 @@ SdpEndPoint::getLocalSessionDescription () throw (MediaServerException)
   }
 
   if (localSdp == NULL) {
-    MediaServerException e = MediaServerException ();
-    e.__set_description ("No local SDP");
-    throw e;
+    throw createMediaServerException  (g_errorCodes_constants.SDP_END_POINT_NO_LOCAL_SDP_ERROR,
+        "No local SDP");
   }
 
   localSdpStr = sdp_to_str (localSdp);
@@ -166,9 +161,8 @@ SdpEndPoint::getRemoteSessionDescription () throw (MediaServerException)
   }
 
   if (remoteSdp == NULL) {
-    MediaServerException e = MediaServerException ();
-    e.__set_description ("No remote SDP");
-    throw e;
+    throw createMediaServerException (g_errorCodes_constants.SDP_END_POINT_NO_REMOTE_SDP_ERROR,
+        "No remote SDP");
   }
 
   remoteSdpStr = sdp_to_str (remoteSdp);;

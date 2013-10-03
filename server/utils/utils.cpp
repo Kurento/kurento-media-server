@@ -13,21 +13,32 @@
  *
  */
 
-#ifndef __MAIN_MIXER_HPP__
-#define __MAIN_MIXER_HPP__
+#include "utils.hpp"
 
-#include "Mixer.hpp"
+#include "errorCodes_constants.h"
 
 namespace kurento
 {
 
-class MainMixer : public Mixer
+
+MediaServerException
+createMediaServerException (std::string description)
 {
-public:
-  MainMixer (std::shared_ptr<MediaPipeline> parent);
-  ~MainMixer() throw ();
-};
+  MediaServerException mse = MediaServerException ();
+  mse.__set_errorCode (g_errorCodes_constants.MEDIA_ERROR);
+  mse.__set_description (description);
+
+  return mse;
+}
+
+MediaServerException
+createMediaServerException (int errorCode, std::string description)
+{
+  MediaServerException mse = MediaServerException ();
+  mse.__set_errorCode (errorCode);
+  mse.__set_description (description);
+
+  return mse;
+}
 
 } // kurento
-
-#endif /* __MAIN_MIXER_HPP__ */
