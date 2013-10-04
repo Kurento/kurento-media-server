@@ -15,9 +15,9 @@
 
 #include "PlayerEndPoint.hpp"
 
-#include "PlayerEndPointType_constants.h"
-#include "dataTypes_constants.h"
-#include "errorCodes_constants.h"
+#include "KmsMediaPlayerEndPointType_constants.h"
+#include "KmsMediaDataType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
@@ -77,16 +77,16 @@ PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string &
   gst_element_sync_state_with_parent (element);
 }
 
-PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const Params &params)
-throw (MediaServerException)
-  : UriEndPoint (parent, g_PlayerEndPointType_constants.TYPE_NAME)
+PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+throw (KmsMediaServerException)
+  : UriEndPoint (parent, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME)
 {
-  if (g_dataTypes_constants.STRING_DATA_TYPE.compare (params.dataType) == 0) {
+  if (g_KmsMediaDataType_constants.STRING_DATA_TYPE.compare (params.dataType) == 0) {
     std::string uri;
     uri = unmarshalString (params.data);
     init (parent, uri);
   } else {
-    throw createMediaServerException  (g_errorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
         "PlayerEndPoint has not any constructor with params of type " + params.dataType);
   }
 }

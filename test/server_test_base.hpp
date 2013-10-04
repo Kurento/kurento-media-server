@@ -13,7 +13,7 @@
  *
  */
 
-#include "MediaServerService.h"
+#include "KmsMediaServerService.h"
 #include <transport/TBufferTransports.h>
 
 using namespace apache::thrift::transport;
@@ -35,7 +35,7 @@ private:
 public:
   int pid;
   bool initialized = false;
-  boost::shared_ptr<kurento::MediaServerServiceClient> client;
+  boost::shared_ptr<kurento::KmsMediaServerServiceClient> client;
 
   F();
   ~F();

@@ -30,8 +30,8 @@ public:
   std::string generateOffer ();
   std::string processAnswer (const std::string &answer);
   std::string processOffer (const std::string &offer);
-  std::string getLocalSessionDescription () throw (MediaServerException);
-  std::string getRemoteSessionDescription () throw (MediaServerException);
+  std::string getLocalSessionDescription () throw (KmsMediaServerException);
+  std::string getRemoteSessionDescription () throw (KmsMediaServerException);
 };
 
 } // kurento

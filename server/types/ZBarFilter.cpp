@@ -15,7 +15,7 @@
 
 #include "ZBarFilter.hpp"
 
-#include "ZBarFilterType_constants.h"
+#include "KmsMediaZBarFilterType_constants.h"
 
 // TODO: reuse when needed
 #if 0
@@ -67,7 +67,7 @@ zbar_receive_message (GstBus *bus, GstMessage *message, gpointer zbar)
 }
 
 ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent)
-  : Filter (parent, g_ZBarFilterType_constants.TYPE_NAME)
+  : Filter (parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME)
 {
   element = gst_element_factory_make ("filterelement", NULL);
 

@@ -27,18 +27,18 @@ class MediaElement;
 class Mixer;
 
 class MediaPipeline : public MediaObjectImpl,
-		      public MediaPipelineType,
+		      public KmsMediaPipeline,
 		      public std::enable_shared_from_this<MediaPipeline>
 {
 
 public:
-  MediaPipeline (const Params &params = defaultParams) throw (MediaServerException);
+  MediaPipeline (const KmsMediaParams &params = defaultKmsMediaParams) throw (KmsMediaServerException);
   ~MediaPipeline() throw();
 
-  std::shared_ptr<MediaElement> createMediaElement(const std::string& elementType, const Params& params = defaultParams)
-                                                  throw (MediaServerException);
-  std::shared_ptr<Mixer> createMediaMixer(const std::string& mixerType, const Params& params = defaultParams)
-                                          throw (MediaServerException);
+  std::shared_ptr<MediaElement> createMediaElement(const std::string& elementType, const KmsMediaParams& params = defaultKmsMediaParams)
+                                                  throw (KmsMediaServerException);
+  std::shared_ptr<Mixer> createMediaMixer(const std::string& mixerType, const KmsMediaParams& params = defaultKmsMediaParams)
+                                          throw (KmsMediaServerException);
 
   GstElement *pipeline;
 

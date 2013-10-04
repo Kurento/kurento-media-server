@@ -23,8 +23,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaSink::MediaSink (std::shared_ptr<MediaElement> parent, MediaType::type mediaType)
-  : MediaPad (parent, PadDirection::SINK, mediaType)
+MediaSink::MediaSink (std::shared_ptr<MediaElement> parent, KmsMediaType::type mediaType)
+  : MediaPad (parent, KmsMediaPadDirection::SINK, mediaType)
 {
 
 }
@@ -46,7 +46,7 @@ MediaSink::~MediaSink() throw ()
 std::string
 MediaSink::getPadName ()
 {
-  if (mediaType == MediaType::type::AUDIO)
+  if (mediaType == KmsMediaType::type::AUDIO)
     return "audio_sink";
   else
     return "video_sink";

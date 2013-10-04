@@ -16,13 +16,13 @@
 #ifndef __UTILS_HPP__
 #define __UTILS_HPP__
 
-#include "mediaServer_types.h"
+#include "KmsMediaServer_types.h"
 
 namespace kurento
 {
 
-// MediaServerException createMediaServerException (std::string description);
-MediaServerException createMediaServerException (int errorCode, std::string description);
+// KmsMediaServerException createKmsMediaServerException (std::string description);
+KmsMediaServerException createKmsMediaServerException (int errorCode, std::string description);
 
 } // kurento
 

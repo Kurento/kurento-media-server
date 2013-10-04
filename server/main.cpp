@@ -78,7 +78,7 @@ create_media_server_service ()
   shared_ptr < MediaServerServiceHandler >
   handler (new MediaServerServiceHandler () );
   shared_ptr < TProcessor >
-  processor (new MediaServerServiceProcessor (handler) );
+  processor (new KmsMediaServerServiceProcessor (handler) );
   shared_ptr < TProtocolFactory >
   protocolFactory (new TBinaryProtocolFactory () );
   shared_ptr < PosixThreadFactory > threadFactory (new PosixThreadFactory () );

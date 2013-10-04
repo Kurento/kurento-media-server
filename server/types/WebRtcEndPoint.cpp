@@ -15,19 +15,19 @@
 
 #include "WebRtcEndPoint.hpp"
 
-#include "WebRtcEndPointType_constants.h"
+#include "KmsMediaWebRtcEndPointType_constants.h"
 
 namespace kurento
 {
 
 WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaPipeline> parent)
-  : SdpEndPoint (parent, g_WebRtcEndPointType_constants.TYPE_NAME)
+  : SdpEndPoint (parent, g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME)
 {
 
 }
 
 WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &sdp)
-  : SdpEndPoint (parent, g_WebRtcEndPointType_constants.TYPE_NAME)
+  : SdpEndPoint (parent, g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME)
 {
 
 }

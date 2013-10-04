@@ -16,13 +16,13 @@
 #ifndef __MARSHALLING_HPP__
 #define __MARSHALLING_HPP__
 
-#include "mediaServer_types.h"
+#include "KmsMediaServer_types.h"
 
 namespace kurento
 {
 
-std::string marshalString (std::string str) throw (MediaServerException);
-std::string unmarshalString (std::string data) throw (MediaServerException);
+std::string marshalString (std::string str) throw (KmsMediaServerException);
+std::string unmarshalString (std::string data) throw (KmsMediaServerException);
 
 } // kurento
 

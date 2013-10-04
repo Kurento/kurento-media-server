@@ -23,7 +23,7 @@
 #include "types/SdpEndPoint.hpp"
 #include "types/Filter.hpp"
 
-#include "errorCodes_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 #include "utils/utils.hpp"
 
 namespace kurento
@@ -32,8 +32,8 @@ namespace kurento
 void
 MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
 {
-  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> >::iterator it;
-  std::shared_ptr<std::set<ObjectId>> children;
+  std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >::iterator it;
+  std::shared_ptr<std::set<KmsMediaObjectId>> children;
 
   mutex.lock();
 
@@ -43,7 +43,7 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
     if (it != childrenMap.end() ) {
       children = it->second;
     } else {
-      children = std::shared_ptr<std::set<ObjectId>> (new std::set<ObjectId>() );
+      children = std::shared_ptr<std::set<KmsMediaObjectId>> (new std::set<KmsMediaObjectId>() );
       childrenMap[mediaObject->parent->id] = children;
     }
 
@@ -55,19 +55,19 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
 }
 
 void
-MediaSet::remove (const MediaObjectRef &mediaObject)
+MediaSet::remove (const KmsMediaObjectRef &mediaObject)
 {
   remove (mediaObject.id);
 }
 
 void
-MediaSet::remove (const ObjectId &id)
+MediaSet::remove (const KmsMediaObjectId &id)
 {
-  std::map<ObjectId, std::shared_ptr<MediaObjectImpl> >::iterator mediaObjectsMapIt;
+  std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> >::iterator mediaObjectsMapIt;
   std::shared_ptr<MediaObjectImpl> mo = NULL;
-  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> >::iterator childrenMapIt;
-  std::shared_ptr<std::set<ObjectId>> children;
-  std::set<ObjectId>::iterator childrenIt;
+  std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >::iterator childrenMapIt;
+  std::shared_ptr<std::set<KmsMediaObjectId>> children;
+  std::set<KmsMediaObjectId>::iterator childrenIt;
 
   mutex.lock();
 
@@ -90,7 +90,7 @@ MediaSet::remove (const ObjectId &id)
   childrenMapIt = childrenMap.find (id);
 
   if (childrenMapIt != childrenMap.end() ) {
-    children = std::shared_ptr<std::set<ObjectId>> (new std::set<ObjectId> (* (childrenMapIt->second) ) );
+    children = std::shared_ptr<std::set<KmsMediaObjectId>> (new std::set<KmsMediaObjectId> (* (childrenMapIt->second) ) );
 
     for (childrenIt = children->begin(); childrenIt != children->end(); childrenIt++) {
       remove (*childrenIt);
@@ -116,43 +116,43 @@ MediaSet::size ()
 }
 
 template std::shared_ptr<MediaObjectImpl>
-MediaSet::getMediaObject<MediaObjectImpl> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<MediaObjectImpl> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaPipeline>
-MediaSet::getMediaObject<MediaPipeline> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<MediaPipeline> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaElement>
-MediaSet::getMediaObject<MediaElement> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<MediaElement> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaPad>
-MediaSet::getMediaObject<MediaPad> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<MediaPad> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaSrc>
-MediaSet::getMediaObject<MediaSrc> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<MediaSrc> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<MediaSink>
-MediaSet::getMediaObject<MediaSink> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<MediaSink> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<Mixer>
-MediaSet::getMediaObject<Mixer> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<Mixer> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<UriEndPoint>
-MediaSet::getMediaObject<UriEndPoint> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<UriEndPoint> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<HttpEndPoint>
-MediaSet::getMediaObject<HttpEndPoint> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<HttpEndPoint> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<SdpEndPoint>
-MediaSet::getMediaObject<SdpEndPoint> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<SdpEndPoint> (const KmsMediaObjectRef &mediaObject);
 
 template std::shared_ptr<Filter>
-MediaSet::getMediaObject<Filter> (const MediaObjectRef &mediaObject);
+MediaSet::getMediaObject<Filter> (const KmsMediaObjectRef &mediaObject);
 
 template <class T> std::shared_ptr<T>
-MediaSet::getMediaObject (const MediaObjectRef &mediaObject)
+MediaSet::getMediaObject (const KmsMediaObjectRef &mediaObject)
 {
-  std::map<ObjectId, std::shared_ptr<MediaObjectImpl> >::iterator it;
-  std::shared_ptr<MediaObjectRef> mo = NULL;
+  std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> >::iterator it;
+  std::shared_ptr<KmsMediaObjectRef> mo = NULL;
   std::shared_ptr<T> typedMo;
 
   mutex.lock();
@@ -164,13 +164,13 @@ MediaSet::getMediaObject (const MediaObjectRef &mediaObject)
   mutex.unlock();
 
   if (mo == NULL) {
-    throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_NOT_FOUND, "Media object not found");
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, "Media object not found");
   }
 
   typedMo = std::dynamic_pointer_cast<T> (mo);
 
   if (typedMo == NULL) {
-    throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_CAST_ERROR, "Media Object found is not of requested type");
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CAST_ERROR, "Media Object found is not of requested type");
   }
 
   return typedMo;

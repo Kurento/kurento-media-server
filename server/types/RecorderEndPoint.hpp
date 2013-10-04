@@ -24,8 +24,8 @@ namespace kurento
 class RecorderEndPoint : public UriEndPoint
 {
 public:
-  RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const Params &params)
-                   throw (MediaServerException);
+  RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+                   throw (KmsMediaServerException);
   ~RecorderEndPoint() throw ();
 
 private:

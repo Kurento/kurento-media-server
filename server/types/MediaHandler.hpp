@@ -16,7 +16,7 @@
 #ifndef __MEDIA_HANDLER_H__
 #define __MEDIA_HANDLER_H__
 
-#include "mediaHandler_types.h"
+#include "KmsMediaHandler_types.h"
 #include <glibmm.h>
 
 namespace kurento

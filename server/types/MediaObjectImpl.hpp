@@ -16,27 +16,27 @@
 #ifndef __MEDIA_OBJECT_IMPL_HPP__
 #define __MEDIA_OBJECT_IMPL_HPP__
 
-#include "mediaServer_types.h"
+#include "KmsMediaServer_types.h"
 #include <gst/gst.h>
 
 namespace kurento
 {
 
-class MediaObjectImpl : public MediaObjectRef
+class MediaObjectImpl : public KmsMediaObjectRef
 {
 public:
   MediaObjectImpl();
   MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~MediaObjectImpl() throw () = 0;
 
-  std::shared_ptr<MediaObjectImpl> getParent () throw (MediaServerException);
-  virtual CommandResult sendCommand (const Command &command) throw (MediaServerException);
+  std::shared_ptr<MediaObjectImpl> getParent () throw (KmsMediaServerException);
+  virtual KmsMediaCommandResult sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;
 
 protected:
-  static Params defaultParams;
+  static KmsMediaParams defaultKmsMediaParams;
 };
 
 } // kurento

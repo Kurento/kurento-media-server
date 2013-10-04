@@ -17,7 +17,7 @@
 
 #include "httpendpointserver.hpp"
 
-#include "HttpEndPointType_constants.h"
+#include "KmsMediaHttpEndPointType_constants.h"
 
 // TODO: reuse when needed
 #if 0
@@ -107,7 +107,7 @@ url_expired_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
 }
 
 HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent)
-  : EndPoint (parent, g_HttpEndPointType_constants.TYPE_NAME)
+  : EndPoint (parent, g_KmsMediaHttpEndPointType_constants.TYPE_NAME)
 {
   element = gst_element_factory_make ("httpendpoint", NULL);
 

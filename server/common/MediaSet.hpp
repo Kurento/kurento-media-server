@@ -29,17 +29,17 @@ public:
   MediaSet () {};
 
   void put (std::shared_ptr<MediaObjectImpl> mediaObject);
-  void remove (const MediaObjectRef &mediaObject);
-  void remove (const ObjectId &id);
+  void remove (const KmsMediaObjectRef &mediaObject);
+  void remove (const KmsMediaObjectId &id);
   int size();
 
   template <class T>
-  std::shared_ptr<T> getMediaObject (const MediaObjectRef &mediaObject);
+  std::shared_ptr<T> getMediaObject (const KmsMediaObjectRef &mediaObject);
 
 private:
   Glib::Threads::RecMutex mutex;
-  std::map<ObjectId, std::shared_ptr<MediaObjectImpl> > mediaObjectsMap;
-  std::map<ObjectId, std::shared_ptr<std::set<ObjectId>> > childrenMap;
+  std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> > mediaObjectsMap;
+  std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> > childrenMap;
 };
 
 } // kurento

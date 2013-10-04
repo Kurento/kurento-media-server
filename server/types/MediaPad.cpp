@@ -25,22 +25,24 @@ namespace kurento
 
 class MediaElement;
 
-MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, PadDirection::type direction, MediaType::type mediaType)
-  : MediaObjectImpl (parent), MediaPadType ()
+MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, KmsMediaPadDirection::type direction, KmsMediaType::type mediaType)
+  : MediaObjectImpl (parent),
+    KmsMediaPad ()
 {
   this-> __set_direction (direction);
   this->__set_mediaType (mediaType);
-  this->type.__set_padType (*this);
+  this->objectType.__set_pad (*this);
 }
 
-MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, PadDirection::type direction, MediaType::type mediaType,
+MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, KmsMediaPadDirection::type direction, KmsMediaType::type mediaType,
     const std::string mediaDescription)
-  : MediaObjectImpl (parent), MediaPadType ()
+  : MediaObjectImpl (parent),
+    KmsMediaPad ()
 {
   this-> __set_direction (direction);
   this->__set_mediaType (mediaType);
   this->__set_mediaDescription (mediaDescription);
-  this->type.__set_padType (*this);
+  this->objectType.__set_pad (*this);
 }
 
 MediaPad::~MediaPad () throw ()

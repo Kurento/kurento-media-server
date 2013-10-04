@@ -16,7 +16,7 @@
 #ifndef __CONCURRENT_MAP_H__
 #define __CONCURRENT_MAP_H__
 
-#include "mediaServer_types.h"
+#include "KmsMediaServer_types.h"
 
 #include <glibmm.h>
 

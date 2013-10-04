@@ -16,12 +16,12 @@
 #include "MediaPipeline.hpp"
 
 #include "utils/utils.hpp"
-#include "dataTypes_constants.h"
-#include "errorCodes_constants.h"
+#include "KmsMediaDataType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 
-#include "PlayerEndPointType_constants.h"
+#include "KmsMediaPlayerEndPointType_constants.h"
 #include "PlayerEndPoint.hpp"
-#include "RecorderEndPointType_constants.h"
+#include "KmsMediaRecorderEndPointType_constants.h"
 #include "RecorderEndPoint.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
@@ -59,18 +59,18 @@ MediaPipeline::init ()
   g_signal_connect (bus, "message", G_CALLBACK (receive_message), pipeline);
   g_object_unref (bus);
 
-  this->type.__set_pipelineType (*this);
+  this->objectType.__set_pipeline (*this);
 }
 
-MediaPipeline::MediaPipeline (const Params &params) throw (MediaServerException)
+MediaPipeline::MediaPipeline (const KmsMediaParams &params) throw (KmsMediaServerException)
   : MediaObjectImpl (),
-    MediaPipelineType ()
+    KmsMediaPipeline ()
 {
-  if (params == defaultParams ||
-      g_dataTypes_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
+  if (params == defaultKmsMediaParams ||
+      g_KmsMediaDataType_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
     init ();
   } else {
-    throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
         "MediaPipeline has not any constructor with params of type " + params.dataType);
   }
 }
@@ -85,24 +85,24 @@ MediaPipeline::~MediaPipeline() throw()
 }
 
 std::shared_ptr<MediaElement>
-MediaPipeline::createMediaElement (const std::string &elementType, const Params &params)
-throw (MediaServerException)
+MediaPipeline::createMediaElement (const std::string &elementType, const KmsMediaParams &params)
+throw (KmsMediaServerException)
 {
   GST_WARNING ("TODO: complete");
 
-  if (g_PlayerEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+  if (g_KmsMediaPlayerEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
     return std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (shared_from_this (), params) );
-  } else if (g_RecorderEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaRecorderEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
     return std::shared_ptr<RecorderEndPoint> (new RecorderEndPoint (shared_from_this (), params) );
   }
 
-  throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,
+  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,
       "There is not any media object type " + elementType);
 }
 
 std::shared_ptr<Mixer>
-MediaPipeline::createMediaMixer (const std::string &mixerType, const Params &params)
-throw (MediaServerException)
+MediaPipeline::createMediaMixer (const std::string &mixerType, const KmsMediaParams &params)
+throw (KmsMediaServerException)
 {
   GST_WARNING ("TODO: complete");
   return NULL;

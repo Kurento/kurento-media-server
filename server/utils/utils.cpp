@@ -15,26 +15,26 @@
 
 #include "utils.hpp"
 
-#include "errorCodes_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 
 namespace kurento
 {
 
 
-MediaServerException
-createMediaServerException (std::string description)
+KmsMediaServerException
+createKmsMediaServerException (std::string description)
 {
-  MediaServerException mse = MediaServerException ();
-  mse.__set_errorCode (g_errorCodes_constants.MEDIA_ERROR);
+  KmsMediaServerException mse = KmsMediaServerException ();
+  mse.__set_errorCode (g_KmsMediaErrorCodes_constants.MEDIA_ERROR);
   mse.__set_description (description);
 
   return mse;
 }
 
-MediaServerException
-createMediaServerException (int errorCode, std::string description)
+KmsMediaServerException
+createKmsMediaServerException (int errorCode, std::string description)
 {
-  MediaServerException mse = MediaServerException ();
+  KmsMediaServerException mse = KmsMediaServerException ();
   mse.__set_errorCode (errorCode);
   mse.__set_description (description);
 

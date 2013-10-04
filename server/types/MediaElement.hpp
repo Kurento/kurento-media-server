@@ -26,7 +26,7 @@ namespace kurento
 {
 
 class MediaElement : public MediaObjectImpl,
-		     public MediaElementType,
+		     public KmsMediaElement,
 		     public std::enable_shared_from_this<MediaElement>
 {
 public:
@@ -35,8 +35,8 @@ public:
 
   std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcs ();
   std::vector < std::shared_ptr<MediaSink> > * getMediaSinks();
-  std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcsByMediaType (const MediaType::type mediaType);
-  std::vector < std::shared_ptr<MediaSink> > * getMediaSinksByMediaType (const MediaType::type mediaType);
+  std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcsByMediaType (const KmsMediaType::type mediaType);
+  std::vector < std::shared_ptr<MediaSink> > * getMediaSinksByMediaType (const KmsMediaType::type mediaType);
 
 protected:
   GstElement *element;

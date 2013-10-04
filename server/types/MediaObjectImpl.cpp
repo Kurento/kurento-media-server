@@ -16,7 +16,7 @@
 #include "MediaObjectImpl.hpp"
 
 #include "utils/utils.hpp"
-#include "errorCodes_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 
 #include <glibmm.h>
 #include <uuid/uuid.h>
@@ -27,9 +27,9 @@
 namespace kurento
 {
 
-Params MediaObjectImpl::defaultParams = Params ();
+KmsMediaParams MediaObjectImpl::defaultKmsMediaParams = KmsMediaParams ();
 
-static ObjectId
+static KmsMediaObjectId
 getId()
 {
   static Glib::Mutex mutex;
@@ -49,7 +49,7 @@ getId()
   return ret;
 }
 
-MediaObjectImpl::MediaObjectImpl() : MediaObjectRef()
+MediaObjectImpl::MediaObjectImpl() : KmsMediaObjectRef()
 {
   uuid_t uuid;
   char *uuid_str;
@@ -65,7 +65,7 @@ MediaObjectImpl::MediaObjectImpl() : MediaObjectRef()
   this->token = tk;
 }
 
-MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent) : MediaObjectRef()
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent) : KmsMediaObjectRef()
 {
   id = getId();
   this->token = parent->token;
@@ -77,19 +77,19 @@ MediaObjectImpl::~MediaObjectImpl() throw ()
 }
 
 std::shared_ptr<MediaObjectImpl>
-MediaObjectImpl::getParent () throw (MediaServerException)
+MediaObjectImpl::getParent () throw (KmsMediaServerException)
 {
   if (parent == NULL) {
-    throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, "No parent");
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, "No parent");
   }
 
   return parent;
 }
 
-CommandResult
-MediaObjectImpl::sendCommand (const Command &command) throw (MediaServerException)
+KmsMediaCommandResult
+MediaObjectImpl::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
 {
-  throw createMediaServerException (g_errorCodes_constants.MEDIA_OBJECT_COMMAND_NOT_FOUND,
+  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_COMMAND_NOT_FOUND,
       "This media object has not any command named " + command.name);
 }
 

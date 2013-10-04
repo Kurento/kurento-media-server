@@ -15,8 +15,8 @@
 
 #include "UriEndPoint.hpp"
 
-#include "UriEndPointType_constants.h"
-#include "dataTypes_constants.h"
+#include "KmsMediaUriEndPointType_constants.h"
+#include "KmsMediaDataType_constants.h"
 #include "utils/marshalling.hpp"
 
 #define GST_CAT_DEFAULT kurento_uri_end_point
@@ -66,14 +66,14 @@ UriEndPoint::stop ()
   g_object_set (G_OBJECT (element), "state", 0 /* stop */, NULL);
 }
 
-CommandResult
-UriEndPoint::sendCommand (const Command &command) throw (MediaServerException)
+KmsMediaCommandResult
+UriEndPoint::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
 {
-  CommandResult result;
+  KmsMediaCommandResult result;
 
-  if (g_UriEndPointType_constants.GET_URI.compare (command.name) == 0) {
+  if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command.name) == 0) {
     std::string uri = this->getUri ();
-    result.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+    result.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
     result.__set_data (marshalString (uri) );
 
     return result;

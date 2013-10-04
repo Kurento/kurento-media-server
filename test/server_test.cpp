@@ -16,13 +16,13 @@
 #include "server_test_base.hpp"
 #include <boost/test/unit_test.hpp>
 
-#include "mediaServer_constants.h"
-#include "dataTypes_constants.h"
-#include "errorCodes_constants.h"
+#include "KmsMediaServer_constants.h"
+#include "KmsMediaDataType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 
-#include "UriEndPointType_constants.h"
-#include "PlayerEndPointType_constants.h"
-#include "RecorderEndPointType_constants.h"
+#include "KmsMediaUriEndPointType_constants.h"
+#include "KmsMediaPlayerEndPointType_constants.h"
+#include "KmsMediaRecorderEndPointType_constants.h"
 
 #include "utils/marshalling.hpp"
 
@@ -37,12 +37,12 @@ using namespace kurento;
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite,  F)
 
 static void
-check_version (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_version (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   int32_t gotVersion;
 
   gotVersion = client->getVersion();
-  BOOST_CHECK_EQUAL (gotVersion, g_mediaServer_constants.VERSION);
+  BOOST_CHECK_EQUAL (gotVersion, g_KmsMediaServer_constants.VERSION);
 }
 
 #if 0 /* Temporally disabled */
@@ -100,39 +100,39 @@ check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 #endif
 
 static void
-check_use_released_media_pipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_use_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectRef mediaPipeline = MediaObjectRef();
-  MediaObjectRef mo = MediaObjectRef();
-  Params params = Params ();
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef mo = KmsMediaObjectRef();
+  KmsMediaParams params = KmsMediaParams ();
 
-  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   params.__set_data (marshalString ("file:///tmp/f.webm") );
 
   client->createMediaPipeline (mediaPipeline);
   client->release (mediaPipeline);
 
   try {
-    client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
-    BOOST_FAIL ("Use a released MediaPipeline must throw a MediaServerException");
-  } catch (const MediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_errorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+    client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+    BOOST_FAIL ("Use a released MediaPipeline must throw a KmsMediaServerException");
+  } catch (const KmsMediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
   }
 }
 
 static void
-check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_parent (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectRef mediaPipeline = MediaObjectRef();
-  MediaObjectRef mo = MediaObjectRef();
-  MediaObjectRef parent = MediaObjectRef();
-  Params params = Params ();
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef mo = KmsMediaObjectRef();
+  KmsMediaObjectRef parent = KmsMediaObjectRef();
+  KmsMediaParams params = KmsMediaParams ();
 
-  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   params.__set_data (marshalString ("file:///tmp/f.webm") );
 
   client->createMediaPipeline (mediaPipeline);
-  client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   client->getParent (parent, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, parent.id);
 
@@ -140,21 +140,21 @@ check_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 }
 
 static void
-check_getMediaPipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_getMediaPipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectRef mediaPipeline = MediaObjectRef();
-  MediaObjectRef mo = MediaObjectRef();
-  MediaObjectRef mediaPipelineGot = MediaObjectRef();
-  Params params = Params ();
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef mo = KmsMediaObjectRef();
+  KmsMediaObjectRef mediaPipelineGot = KmsMediaObjectRef();
+  KmsMediaParams params = KmsMediaParams ();
 
-  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   params.__set_data (marshalString ("file:///tmp/f.webm") );
 
   client->createMediaPipeline (mediaPipeline);
   client->getMediaPipeline (mediaPipelineGot, mediaPipeline);
   BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
 
-  client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   client->getMediaPipeline (mediaPipelineGot, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
 
@@ -162,17 +162,17 @@ check_getMediaPipeline (boost::shared_ptr<kurento::MediaServerServiceClient> cli
 }
 
 static void
-check_same_token (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_same_token (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectRef mediaPipeline = MediaObjectRef();
-  MediaObjectRef mo = MediaObjectRef();
-  Params params = Params ();
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef mo = KmsMediaObjectRef();
+  KmsMediaParams params = KmsMediaParams ();
 
-  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   params.__set_data (marshalString ("file:///tmp/f.webm") );
 
   client->createMediaPipeline (mediaPipeline);
-  client->createMediaElementWithParams (mo, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
 
   client->release (mediaPipeline);
@@ -208,26 +208,26 @@ check_media_pipeline_no_parent (boost::shared_ptr<kurento::MediaServerServiceCli
 #endif
 
 static void
-check_player_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectRef mediaPipeline = MediaObjectRef();
-  MediaObjectRef playerEndPoint = MediaObjectRef();
-  Params params = Params ();
-  Command command;
-  CommandResult result;
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
+  KmsMediaParams params = KmsMediaParams ();
+  KmsMediaCommand command;
+  KmsMediaCommandResult result;
   std::string originalUri = "file:///tmp/player_end_point_test.webm";
   std::string resultUri;
 
-  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   params.__set_data (marshalString (originalUri) );
 
   client->createMediaPipeline (mediaPipeline);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_PlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
-  command.__set_name (g_UriEndPointType_constants.GET_URI);
+  command.__set_name (g_KmsMediaUriEndPointType_constants.GET_URI);
   client->sendCommand (result, playerEndPoint, command);
 
-  BOOST_CHECK_EQUAL (g_dataTypes_constants.STRING_DATA_TYPE, result.dataType);
+  BOOST_CHECK_EQUAL (g_KmsMediaDataType_constants.STRING_DATA_TYPE, result.dataType);
 
   BOOST_REQUIRE_NO_THROW (resultUri = unmarshalString (result.data) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
@@ -236,26 +236,26 @@ check_player_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> cli
 }
 
 static void
-check_recorder_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_recorder_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectRef mediaPipeline = MediaObjectRef();
-  MediaObjectRef recorderEndPoint = MediaObjectRef();
-  Params params = Params ();
-  Command command;
-  CommandResult result;
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef recorderEndPoint = KmsMediaObjectRef();
+  KmsMediaParams params = KmsMediaParams ();
+  KmsMediaCommand command;
+  KmsMediaCommandResult result;
   std::string originalUri = "file:///tmp/player_end_point_test.webm";
   std::string resultUri;
 
-  params.__set_dataType (g_dataTypes_constants.STRING_DATA_TYPE);
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   params.__set_data (marshalString (originalUri) );
 
   client->createMediaPipeline (mediaPipeline);
-  client->createMediaElementWithParams (recorderEndPoint, mediaPipeline, g_RecorderEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (recorderEndPoint, mediaPipeline, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params);
 
-  command.__set_name (g_UriEndPointType_constants.GET_URI);
+  command.__set_name (g_KmsMediaUriEndPointType_constants.GET_URI);
   client->sendCommand (result, recorderEndPoint, command);
 
-  BOOST_CHECK_EQUAL (g_dataTypes_constants.STRING_DATA_TYPE, result.dataType);
+  BOOST_CHECK_EQUAL (g_KmsMediaDataType_constants.STRING_DATA_TYPE, result.dataType);
 
   BOOST_REQUIRE_NO_THROW (resultUri = unmarshalString (result.data) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
@@ -293,7 +293,7 @@ check_zbar_filter (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 #endif
 
 static void
-client_side (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   check_version (client);
 

@@ -16,7 +16,7 @@
 #include "marshalling.hpp"
 
 #include "utils.hpp"
-#include "errorCodes_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 
 #include "protocol/TBinaryProtocol.h"
 #include "transport/TBufferTransports.h"
@@ -28,7 +28,7 @@ namespace kurento
 {
 
 std::string
-marshalString (std::string str) throw (MediaServerException)
+marshalString (std::string str) throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
@@ -38,7 +38,7 @@ marshalString (std::string str) throw (MediaServerException)
     protocol.writeString (str);
     transport->appendBufferToString (data);
   } catch (...) {
-    throw createMediaServerException (g_errorCodes_constants.MARSHALL_ERROR,
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
         "Cannot marshal string");
   }
 
@@ -46,7 +46,7 @@ marshalString (std::string str) throw (MediaServerException)
 }
 
 std::string
-unmarshalString (std::string data) throw (MediaServerException)
+unmarshalString (std::string data) throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport;
   std::string str;
@@ -56,7 +56,7 @@ unmarshalString (std::string data) throw (MediaServerException)
     TBinaryProtocol protocol = TBinaryProtocol (transport);
     protocol.readString (str);
   } catch (...) {
-    throw createMediaServerException (g_errorCodes_constants.UNMARSHALL_ERROR,
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
         "Cannot unmarshal string");
   }
 

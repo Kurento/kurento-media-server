@@ -31,7 +31,7 @@
 #include <gst/gst.h>
 
 #include "media_config.hpp"
-#include "mediaServer_types.h"
+#include "KmsMediaServer_types.h"
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -107,7 +107,7 @@ F::F()
   boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
   transport = boost::shared_ptr<TTransport> (new TFramedTransport (socket) );
   boost::shared_ptr<TProtocol> protocol (new TBinaryProtocol (transport) );
-  client = boost::shared_ptr<kurento::MediaServerServiceClient> (new kurento::MediaServerServiceClient (protocol) );
+  client = boost::shared_ptr<kurento::KmsMediaServerServiceClient> (new kurento::KmsMediaServerServiceClient (protocol) );
 
   for (i = 0; i < MAX_RETRIES; i++) {
     try {

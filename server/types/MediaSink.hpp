@@ -29,7 +29,7 @@ class MediaElement;
 class MediaSink : public MediaPad, public std::enable_shared_from_this<MediaSink>
 {
 public:
-  MediaSink (std::shared_ptr<MediaElement> parent, MediaType::type mediaType);
+  MediaSink (std::shared_ptr<MediaElement> parent, KmsMediaType::type mediaType);
   ~MediaSink() throw ();
 
   std::shared_ptr<MediaSrc> getConnectedSrc ();

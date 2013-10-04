@@ -32,7 +32,7 @@ public:
   void pause ();
   void stop ();
 
-  CommandResult sendCommand (const Command &command) throw (MediaServerException);
+  KmsMediaCommandResult sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
 
 private:
   class StaticConstructor

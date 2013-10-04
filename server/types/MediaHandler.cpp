@@ -19,7 +19,7 @@
 #include "thrift/transport/TBufferTransports.h"
 #include "thrift/protocol/TBinaryProtocol.h"
 
-#include "MediaHandlerService.h"
+#include "KmsMediaHandlerService.h"
 
 using namespace ::apache::thrift::transport;
 using namespace ::apache::thrift::protocol;
