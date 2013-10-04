@@ -26,6 +26,10 @@
 #include "KmsMediaErrorCodes_constants.h"
 #include "utils/utils.hpp"
 
+#define GST_CAT_DEFAULT kurento_media_set
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoMediaSet"
+
 namespace kurento
 {
 
@@ -174,6 +178,14 @@ MediaSet::getMediaObject (const KmsMediaObjectRef &mediaObject)
   }
 
   return typedMo;
+}
+
+MediaSet::StaticConstructor MediaSet::staticConstructor;
+
+MediaSet::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento
