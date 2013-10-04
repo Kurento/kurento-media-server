@@ -47,21 +47,6 @@ check_version (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 
 #if 0 /* Temporally disabled */
 static void
-check_no_handler (boost::shared_ptr<kurento::MediaServerServiceClient> client)
-{
-  MediaObjectId mediaPipeline = MediaObjectId();
-
-  BOOST_CHECK_THROW (client->createMediaPipeline (mediaPipeline, 0), HandlerNotFoundException);
-}
-
-static void
-check_add_handler_address (boost::shared_ptr<kurento::MediaServerServiceClient> client)
-{
-  client->addHandlerAddress (0, "localhost", 2323);
-  client->addHandlerAddress (0, "localhost", 3434);
-}
-
-static void
 check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 {
   MediaObjectId mediaPipeline = MediaObjectId();
@@ -196,35 +181,6 @@ check_same_token (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client
   client->release (mediaPipeline);
 }
 
-#if 0 /* Temporally disabled */
-static void
-check_get_parent_in_released_media_pipeline (boost::shared_ptr<kurento::MediaServerServiceClient> client)
-{
-  MediaObjectId mediaPipeline = MediaObjectId();
-  MediaObjectId mo = MediaObjectId();
-  MediaObjectId parent = MediaObjectId();
-
-  client->createMediaPipeline (mediaPipeline, 0);
-  client->createMixer (mo, mediaPipeline, MixerType::type::MAIN_MIXER);
-  client->release (mediaPipeline);
-
-  BOOST_CHECK_THROW (client->getParent (parent, mo), MediaObjectNotFoundException);
-}
-
-static void
-check_media_pipeline_no_parent (boost::shared_ptr<kurento::MediaServerServiceClient> client)
-{
-  MediaObjectId mediaPipeline = MediaObjectId();
-  MediaObjectId parent = MediaObjectId();
-
-  GST_DEBUG ("check_media_pipeline_no_parent test");
-  client->createMediaPipeline (mediaPipeline, 0);
-  BOOST_CHECK_THROW (client->getParent (parent, mediaPipeline), NoParentException);
-
-  client->release (mediaPipeline);
-}
-#endif
-
 static void
 check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
@@ -314,12 +270,6 @@ static void
 client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   check_version (client);
-
-#if 0 /* Temporally disabled */
-  check_no_handler (client);
-  check_add_handler_address (client);
-#endif
-
   check_use_released_media_pipeline (client);
   check_parent (client);
   check_get_parent_of_media_pipeline (client);
@@ -328,7 +278,6 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 
 #if 0 /* Temporally disabled */
   check_type (client);
-  check_media_pipeline_no_parent (client);
 #endif
 
   check_player_end_point (client);
