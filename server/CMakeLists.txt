@@ -6,9 +6,15 @@ aux_source_directory("utils" UTILS)
 
 SET(KMSC_SOURCE main.cpp version.cpp MediaServerServiceHandler.cpp
               ${COMMON} ${TYPES} ${UTILS})
-SET_SOURCE_FILES_PROPERTIES(${KMSC_SOURCE}
-		PROPERTIES COMPILE_FLAGS
-		-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H)
+
+set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
+if (DEFINED KMS_TEST)
+  message("KMS_TEST set")
+  set(CFLAGS ${CFLAGS}"-DKMS_TEST ")
+endif ()
+
+set_source_files_properties(${KMSC_SOURCE}
+		PROPERTIES COMPILE_FLAGS ${CFLAGS})
 
 add_executable(kurento ${KMSC_SOURCE})
 add_dependencies(kurento kmsiface)

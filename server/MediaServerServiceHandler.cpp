@@ -90,7 +90,19 @@ MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std
 void
 MediaServerServiceHandler::keepAlive (const KmsMediaObjectRef &mediaObjectRef) throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  GST_TRACE ("keepAlive %" G_GUINT64_FORMAT, mediaObjectRef.id);
+
+  try {
+    mediaSet.keepAlive (mediaObjectRef);
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("keepAlive %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("keepAlive %" G_GUINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
+    throw KmsMediaServerException();
+  }
+
+  GST_TRACE ("keepAlive %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
 }
 
 void

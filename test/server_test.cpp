@@ -28,6 +28,8 @@
 
 #include <gst/gst.h>
 
+#include "common/MediaSet.hpp"
+
 #define GST_CAT_DEFAULT _server_test_
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "server_test"
@@ -103,6 +105,38 @@ check_use_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServ
   } catch (const KmsMediaServerException &e) {
     BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
   }
+}
+
+static void
+check_auto_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+
+  client->createMediaPipeline (mediaPipeline);
+  g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);
+
+  try {
+    client->keepAlive (mediaPipeline);
+    BOOST_FAIL ("Use an auto released MediaPipeline must throw a KmsMediaServerException");
+  } catch (const KmsMediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+  }
+}
+
+static void
+check_keep_alive_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+{
+  int i;
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+
+  client->createMediaPipeline (mediaPipeline);
+
+  for (i = 0; i < 5; i++) {
+    g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
+    client->keepAlive (mediaPipeline);
+  }
+
+  client->release (mediaPipeline);
 }
 
 static void
@@ -271,6 +305,8 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   check_version (client);
   check_use_released_media_pipeline (client);
+  check_auto_released_media_pipeline (client);
+  check_keep_alive_media_pipeline (client);
   check_parent (client);
   check_get_parent_of_media_pipeline (client);
   check_getMediaPipeline (client);

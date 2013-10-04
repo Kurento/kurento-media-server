@@ -20,6 +20,12 @@
 
 #include <glibmm.h>
 
+#ifdef KMS_TEST
+#define AUTO_RELEASE_INTERVAL 1
+#else
+#define AUTO_RELEASE_INTERVAL g_KmsMediaServer_constants.GARBAGE_PERIOD
+#endif
+
 namespace kurento
 {
 
@@ -29,17 +35,21 @@ public:
   MediaSet () {};
 
   void put (std::shared_ptr<MediaObjectImpl> mediaObject);
+  void keepAlive (const KmsMediaObjectRef &mediaObject) throw (KmsMediaServerException);
   void remove (const KmsMediaObjectRef &mediaObject);
   void remove (const KmsMediaObjectId &id);
   int size();
 
   template <class T>
-  std::shared_ptr<T> getMediaObject (const KmsMediaObjectRef &mediaObject);
+  std::shared_ptr<T> getMediaObject (const KmsMediaObjectRef &mediaObject) throw (KmsMediaServerException);
 
 private:
   Glib::Threads::RecMutex mutex;
   std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> > mediaObjectsMap;
   std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> > childrenMap;
+  std::map<KmsMediaObjectId, guint> mediaObjectsAlive;
+
+  void removeAutoRelease (const KmsMediaObjectId &id);
 
   class StaticConstructor
   {
