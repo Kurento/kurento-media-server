@@ -131,7 +131,22 @@ MediaServerServiceHandler::subscribe (std::string &_return, const KmsMediaObject
     const std::string &eventType, const std::string &handlerAddress,
     const int32_t handlerPort) throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaObjectImpl> mo;
+
+  GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GUINT64_FORMAT, eventType.c_str (), mediaObjectRef.id);
+
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
+    _return = mo->subscribe (eventType, handlerAddress, handlerPort);
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", eventType.c_str (), mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException", eventType.c_str (), mediaObjectRef.id);
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in subscribe");
+  }
+
+  GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GUINT64_FORMAT " done", eventType.c_str (), mediaObjectRef.id);
 }
 
 void

@@ -93,4 +93,12 @@ MediaObjectImpl::sendCommand (const KmsMediaCommand &command) throw (KmsMediaSer
       "This media object has not any command named " + command.name);
 }
 
+std::string
+MediaObjectImpl::subscribe (const std::string &eventType, const std::string &handlerAddress, const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
+      "This media object has not any event named " + eventType);
+}
+
 } // kurento
