@@ -153,7 +153,22 @@ void
 MediaServerServiceHandler::unsubscribe (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
 throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaObjectImpl> mo;
+
+  GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GUINT64_FORMAT, callbackToken.c_str (), mediaObjectRef.id);
+
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
+    mo->unsubscribe (callbackToken);
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", callbackToken.c_str (), mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException", callbackToken.c_str (), mediaObjectRef.id);
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in subscribe");
+  }
+
+  GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GUINT64_FORMAT " done", callbackToken.c_str (), mediaObjectRef.id);
 }
 
 void

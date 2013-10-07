@@ -35,6 +35,7 @@ public:
   virtual KmsMediaCommandResult sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
   virtual std::string subscribe (const std::string &eventType, const std::string &handlerAddress,
                                             const int32_t handlerPort) throw (KmsMediaServerException);
+  virtual void unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException);
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;

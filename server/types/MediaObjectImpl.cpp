@@ -87,4 +87,10 @@ throw (KmsMediaServerException)
       "This media object has not any event named " + eventType);
 }
 
+void
+MediaObjectImpl::unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException)
+{
+  mediaHandlerManager.removeMediaHandler (callbackToken);
+}
+
 } // kurento

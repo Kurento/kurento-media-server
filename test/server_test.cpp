@@ -243,6 +243,7 @@ check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
 
   client->subscribe (callbackToken, playerEndPoint, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS, "", 0);
   GST_DEBUG ("callbackToken: %s", callbackToken.c_str () );
+  client->unsubscribe (playerEndPoint, callbackToken);
 
   try {
     client->subscribe (callbackToken, playerEndPoint, "BAD_EVENT_TYPE", "", 0);
