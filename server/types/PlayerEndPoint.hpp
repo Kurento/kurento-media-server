@@ -28,6 +28,9 @@ public:
                  throw (KmsMediaServerException);
   ~PlayerEndPoint() throw ();
 
+  std::string subscribe (const std::string &eventType, const std::string &handlerAddress,
+                                            const int32_t handlerPort) throw (KmsMediaServerException);
+
 private:
   void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
 

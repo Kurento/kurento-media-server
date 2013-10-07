@@ -98,6 +98,17 @@ PlayerEndPoint::~PlayerEndPoint() throw ()
   g_object_unref (element);
 }
 
+std::string
+PlayerEndPoint::subscribe (const std::string &eventType, const std::string &handlerAddress, const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  if (g_KmsMediaPlayerEndPointType_constants.EVENT_EOS.compare (eventType) == 0) {
+    return mediaHandlerManager.addMediaHandler (eventType, handlerAddress, handlerPort);
+  }
+
+  return UriEndPoint::subscribe (eventType, handlerAddress, handlerPort);
+}
+
 PlayerEndPoint::StaticConstructor PlayerEndPoint::staticConstructor;
 
 PlayerEndPoint::StaticConstructor::StaticConstructor()

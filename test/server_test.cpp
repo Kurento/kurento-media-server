@@ -225,6 +225,7 @@ check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
   KmsMediaCommandResult result;
   std::string originalUri = "file:///tmp/player_end_point_test.webm";
   std::string resultUri;
+  std::string callbackToken;
 
   params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   params.__set_data (marshalString (originalUri) );
@@ -239,6 +240,16 @@ check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
 
   BOOST_REQUIRE_NO_THROW (resultUri = unmarshalString (result.data) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
+
+  client->subscribe (callbackToken, playerEndPoint, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS, "", 0);
+  GST_DEBUG ("callbackToken: %s", callbackToken.c_str () );
+
+  try {
+    client->subscribe (callbackToken, playerEndPoint, "BAD_EVENT_TYPE", "", 0);
+    BOOST_FAIL ("Subscribe for an event not supported by PlayerEndPoint must throw a KmsMediaServerException");
+  } catch (const KmsMediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED, e.errorCode);
+  }
 
   client->release (mediaPipeline);
 }
