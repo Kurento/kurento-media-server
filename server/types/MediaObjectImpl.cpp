@@ -19,10 +19,6 @@
 #include "KmsMediaErrorCodes_constants.h"
 
 #include <glibmm.h>
-#include <uuid/uuid.h>
-
-/* 36-byte string (plus tailing '\0') */
-#define UUID_STR_SIZE 37
 
 namespace kurento
 {
@@ -51,18 +47,8 @@ getId()
 
 MediaObjectImpl::MediaObjectImpl() : KmsMediaObjectRef()
 {
-  uuid_t uuid;
-  char *uuid_str;
-  std::string tk;
-
-  uuid_str = (char *) g_malloc (UUID_STR_SIZE);
-  uuid_generate (uuid);
-  uuid_unparse (uuid, uuid_str);
-  tk.append (uuid_str);
-  g_free (uuid_str);
-
   id = getId();
-  this->token = tk;
+  this->token = generateUUID ();
 }
 
 MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent) : KmsMediaObjectRef()

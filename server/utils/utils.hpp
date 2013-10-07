@@ -21,7 +21,9 @@
 namespace kurento
 {
 
-// KmsMediaServerException createKmsMediaServerException (std::string description);
+std::string generateUUID ();
+
+KmsMediaServerException createKmsMediaServerException (std::string description);
 KmsMediaServerException createKmsMediaServerException (int errorCode, std::string description);
 
 } // kurento

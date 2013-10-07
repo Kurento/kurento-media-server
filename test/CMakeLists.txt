@@ -18,9 +18,13 @@ target_link_libraries(utils_test
                       )
 
 target_link_libraries(utils_test kmsiface ${THRIFT_LIBRARIES})
+target_link_libraries(utils_test ${GLIBMM_LIBRARIES})
+target_link_libraries(utils_test ${UUID_LIBRARIES})
 
 include_directories(utils_test ${THRIFT_INCLUDE_DIRS})
 include_directories(utils_test ${KMSIFACE_INCLUDE_DIR})
+include_directories(utils_test ${GLIBMM_INCLUDE_DIRS})
+include_directories(utils_test ${UUID_INCLUDE_DIRS})
 include_directories(utils_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
@@ -54,10 +58,12 @@ target_link_libraries(server_test ${EVENT_LIBRARIES})
 target_link_libraries(server_test kmsiface ${THRIFT_LIBRARIES})
 target_link_libraries(server_test ${GSTREAMER_LIBRARIES})
 target_link_libraries(server_test ${GLIBMM_LIBRARIES})
+target_link_libraries(server_test ${UUID_LIBRARIES})
 
 include_directories(server_test ${THRIFT_INCLUDE_DIRS})
 include_directories(server_test ${GSTREAMER_INCLUDE_DIRS})
 include_directories(server_test ${GLIBMM_INCLUDE_DIRS})
+include_directories(server_test ${UUID_INCLUDE_DIRS})
 include_directories(server_test ${KMSIFACE_INCLUDE_DIR})
 include_directories(server_test ${CMAKE_SOURCE_DIR}/server)
 
