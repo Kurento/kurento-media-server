@@ -23,6 +23,8 @@
 #include "PlayerEndPoint.hpp"
 #include "KmsMediaRecorderEndPointType_constants.h"
 #include "RecorderEndPoint.hpp"
+#include "KmsMediaRtpEndPointType_constants.h"
+#include "RtpEndPoint.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -94,6 +96,8 @@ throw (KmsMediaServerException)
     return std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (shared_from_this (), params) );
   } else if (g_KmsMediaRecorderEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
     return std::shared_ptr<RecorderEndPoint> (new RecorderEndPoint (shared_from_this (), params) );
+  } else if (g_KmsMediaRtpEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+    return std::shared_ptr<RtpEndPoint> (new RtpEndPoint (shared_from_this (), params) );
   }
 
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,

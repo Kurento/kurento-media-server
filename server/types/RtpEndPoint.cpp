@@ -18,6 +18,10 @@
 #include "KmsMediaRtpEndPointType_constants.h"
 #include "media_config.hpp"
 
+#include "utils/utils.hpp"
+#include "KmsMediaDataType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
+
 namespace kurento
 {
 
@@ -32,18 +36,19 @@ RtpEndPoint::init (std::shared_ptr<MediaPipeline> parent)
   gst_element_sync_state_with_parent (element);
 }
 
-RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent)
+RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+throw (KmsMediaServerException)
   : SdpEndPoint (parent, g_KmsMediaRtpEndPointType_constants.TYPE_NAME)
 {
-  init (parent);
+  if (params == defaultKmsMediaParams ||
+      g_KmsMediaDataType_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
+    init (parent);
+  } else {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+        "RtpEndPoint has not any constructor with params of type " + params.dataType);
+  }
 }
 
-RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &sdp)
-  : SdpEndPoint (parent, g_KmsMediaRtpEndPointType_constants.TYPE_NAME)
-{
-  init (parent);
-  // TODO: use sdp
-}
 
 RtpEndPoint::~RtpEndPoint() throw ()
 {
