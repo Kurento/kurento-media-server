@@ -15,9 +15,11 @@
 
 #include "SdpEndPoint.hpp"
 
-#include "utils/utils.hpp"
 #include "KmsMediaErrorCodes_constants.h"
+#include "KmsMediaSdpEndPointType_constants.h"
 #include <gst/sdp/gstsdpmessage.h>
+#include "utils/utils.hpp"
+#include "utils/marshalling.hpp"
 
 namespace kurento
 {
@@ -169,6 +171,26 @@ SdpEndPoint::getRemoteSessionDescription () throw (KmsMediaServerException)
   gst_sdp_message_free (remoteSdp);
 
   return remoteSdpStr;
+}
+
+std::shared_ptr<KmsMediaCommandResult>
+SdpEndPoint::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
+{
+  if (g_KmsMediaSdpEndPointType_constants.GET_LOCAL_SDP.compare (command.name) == 0) {
+    return createStirngCommandResult (getLocalSessionDescription () );
+  } else if (g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP.compare (command.name) == 0) {
+    return createStirngCommandResult (getRemoteSessionDescription () );
+  } else if (g_KmsMediaSdpEndPointType_constants.GENERATE_SDP_OFFER.compare (command.name) == 0) {
+    return createStirngCommandResult (generateOffer () );
+  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER.compare (command.name) == 0) {
+    std::string offer = unmarshalStringParams (command.params);
+    return createStirngCommandResult (processOffer (offer) );
+  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER.compare (command.name) == 0) {
+    std::string answer = unmarshalStringParams (command.params);
+    return createStirngCommandResult (processAnswer (answer) );
+  }
+
+  return EndPoint::sendCommand (command);
 }
 
 } // kurento
