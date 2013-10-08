@@ -55,39 +55,6 @@ MediaServerServiceHandler::getVersion ()
   return g_KmsMediaServer_constants.VERSION;
 }
 
-// TODO: reuse when needed
-#if 0
-void
-MediaServerServiceHandler::addHandlerAddress (const int32_t handlerId, const std::string &address,
-    const int32_t port) throw (KmsMediaServerException)
-{
-  std::shared_ptr<MediaHandler> mh;
-  std::shared_ptr<MediaHandlerAddress> mha;
-
-  GST_TRACE ("addHandlerAddress %d, %s, %d", handlerId, address.c_str(), port);
-
-  try {
-    mediaHandlerMutex.lock ();
-    mh = mediaHandlerMap.getValue (handlerId);
-
-    if (mh == NULL) {
-      mh = std::shared_ptr<MediaHandler> (new MediaHandler (handlerId) );
-      mediaHandlerMap.put (handlerId, mh);
-    }
-
-    mediaHandlerMutex.unlock ();
-
-    mha = std::shared_ptr<MediaHandlerAddress> (new MediaHandlerAddress (address, port) );
-    mh->addAddress (mha);
-  } catch (...) {
-    GST_TRACE ("addHandlerAddress %d, %s, %d throws KmsMediaServerException", handlerId, address.c_str(), port);
-    throw KmsMediaServerException();
-  }
-
-  GST_TRACE ("addHandlerAddress %d, %s, %d done", handlerId, address.c_str(), port);
-}
-#endif
-
 /* MediaObject */
 
 void
