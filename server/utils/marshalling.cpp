@@ -16,6 +16,7 @@
 #include "marshalling.hpp"
 
 #include "utils.hpp"
+#include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
 #include "protocol/TBinaryProtocol.h"
@@ -28,7 +29,7 @@ namespace kurento
 {
 
 std::string
-marshalString (std::string str) throw (KmsMediaServerException)
+marshalString (const std::string &str) throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
@@ -46,7 +47,7 @@ marshalString (std::string str) throw (KmsMediaServerException)
 }
 
 std::string
-unmarshalString (std::string data) throw (KmsMediaServerException)
+unmarshalString (const std::string &data) throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport;
   std::string str;
@@ -58,6 +59,32 @@ unmarshalString (std::string data) throw (KmsMediaServerException)
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
         "Cannot unmarshal string");
+  }
+
+  return str;
+}
+
+std::shared_ptr<KmsMediaParams>
+createStringParams (const std::string &data) throw (KmsMediaServerException)
+{
+  std::shared_ptr<KmsMediaParams> result (new KmsMediaParams () );
+
+  result->__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
+  result->__set_data (marshalString (data) );
+
+  return result;
+}
+
+std::string
+unmarshalStringParams (const KmsMediaParams &params) throw (KmsMediaServerException)
+{
+  std::string str;
+
+  if (g_KmsMediaDataType_constants.STRING_DATA_TYPE.compare (params.dataType) == 0) {
+    str = unmarshalString (params.data);
+  } else {
+    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+        "Params is not of 'String' data type");
   }
 
   return str;

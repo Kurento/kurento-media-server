@@ -17,12 +17,39 @@
 #define __MARSHALLING_HPP__
 
 #include "KmsMediaServer_types.h"
+#include "KmsMediaHandler_types.h"
 
 namespace kurento
 {
 
-std::string marshalString (std::string str) throw (KmsMediaServerException);
-std::string unmarshalString (std::string data) throw (KmsMediaServerException);
+std::string marshalString (const std::string &str) throw (KmsMediaServerException);
+std::string unmarshalString (const std::string &data) throw (KmsMediaServerException);
+
+std::shared_ptr<KmsMediaParams> createStringParams (const std::string &data) throw (KmsMediaServerException);
+std::string unmarshalStringParams (const KmsMediaParams &params) throw (KmsMediaServerException);
+
+inline std::shared_ptr<KmsMediaCommandResult> createStirngCommandResult (const std::string &data)
+throw (KmsMediaServerException)
+{
+  return (std::shared_ptr<KmsMediaCommandResult>) createStringParams (data);
+}
+
+inline std::string unmarshalStringCommandResult (const KmsMediaCommandResult &commandResult)
+throw (KmsMediaServerException)
+{
+  return unmarshalStringParams ((KmsMediaParams) commandResult);
+}
+
+inline std::shared_ptr<KmsMediaEventData> createStringEventData (const std::string &data) throw (KmsMediaServerException)
+{
+  return (std::shared_ptr<KmsMediaEventData>) createStringParams (data);
+}
+
+inline std::string unmarshalStringEventData (const KmsMediaEventData &eventData)
+throw (KmsMediaServerException)
+{
+  return unmarshalStringParams ((KmsMediaEventData) eventData);
+}
 
 } // kurento
 
