@@ -24,10 +24,12 @@ namespace kurento
 class ZBarFilter : public Filter
 {
 public:
-  ZBarFilter (std::shared_ptr<MediaPipeline> parent);
+  ZBarFilter (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+                 throw (KmsMediaServerException);
   ~ZBarFilter() throw ();
 
 private:
+  void init (std::shared_ptr<MediaPipeline> parent);
 
   gulong bus_handler_id;
 

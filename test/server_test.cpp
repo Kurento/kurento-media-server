@@ -23,6 +23,7 @@
 #include "KmsMediaUriEndPointType_constants.h"
 #include "KmsMediaPlayerEndPointType_constants.h"
 #include "KmsMediaRecorderEndPointType_constants.h"
+#include "KmsMediaZBarFilterType_constants.h"
 
 #include "utils/marshalling.hpp"
 
@@ -327,19 +328,18 @@ check_http_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> clien
 
   client->release (mediaPipeline);
 }
+#endif
 
 static void
-check_zbar_filter (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_zbar_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectId mediaPipeline = MediaObjectId();
-  MediaObjectId zbarFilter = MediaObjectId();
-  std::string out;
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef zbarFilter = KmsMediaObjectRef();
 
-  client->createMediaPipeline (mediaPipeline, 0);
-  client->createFilter (zbarFilter, mediaPipeline, FilterType::type::ZBAR_FILTER);
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElement (zbarFilter, mediaPipeline, g_KmsMediaZBarFilterType_constants.TYPE_NAME);
   client->release (mediaPipeline);
 }
-#endif
 
 static void
 client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
@@ -363,8 +363,9 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 
 #if 0 /* Temporally disabled */
   check_http_end_point (client);
-  check_zbar_filter (client);
 #endif
+
+  check_zbar_filter (client);
 }
 
 BOOST_AUTO_TEST_CASE ( server_test )

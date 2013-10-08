@@ -17,6 +17,10 @@
 
 #include "KmsMediaZBarFilterType_constants.h"
 
+#include "utils/utils.hpp"
+#include "KmsMediaDataType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
+
 // TODO: reuse when needed
 #if 0
 #include "protocol/TBinaryProtocol.h"
@@ -66,8 +70,8 @@ zbar_receive_message (GstBus *bus, GstMessage *message, gpointer zbar)
   }
 }
 
-ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent)
-  : Filter (parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME)
+void
+ZBarFilter::init (std::shared_ptr<MediaPipeline> parent)
 {
   element = gst_element_factory_make ("filterelement", NULL);
 
@@ -87,6 +91,19 @@ ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent)
   g_object_unref (bus);
   // There is no need to reference zbar becase its live cycle is the same as the filter live cycle
   g_object_unref (zbar);
+}
+
+ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+throw (KmsMediaServerException)
+  : Filter (parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME)
+{
+  if (params == defaultKmsMediaParams ||
+      g_KmsMediaDataType_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
+    init (parent);
+  } else {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+        "ZBarFilter has not any constructor with params of type " + params.dataType);
+  }
 }
 
 ZBarFilter::~ZBarFilter() throw ()
