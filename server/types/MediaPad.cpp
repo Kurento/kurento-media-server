@@ -50,6 +50,12 @@ MediaPad::~MediaPad () throw ()
 
 }
 
+std::shared_ptr<MediaElement>
+MediaPad::getMediaElement ()
+{
+  return (std::shared_ptr<MediaElement> &) parent;
+}
+
 GstElement *
 MediaPad::getElement ()
 {

@@ -216,6 +216,39 @@ check_same_token (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client
 }
 
 static void
+check_get_media_element_from_pad (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
+  KmsMediaObjectRef me = KmsMediaObjectRef();
+  KmsMediaParams params = KmsMediaParams ();
+  std::vector<KmsMediaObjectRef> pads;
+  std::vector<KmsMediaObjectRef>::iterator it;
+
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
+  params.__set_data (marshalString ("file:///tmp/a.webm") );
+
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+
+  client->getMediaSrcs (pads, playerEndPoint);
+
+  for (it = pads.begin(); it != pads.end(); ++it) {
+    client->getMediaElement (me, *it);
+    BOOST_CHECK_EQUAL (playerEndPoint.id, me.id);
+  }
+
+  client->getMediaSinks (pads, playerEndPoint);
+
+  for (it = pads.begin(); it != pads.end(); ++it) {
+    client->getMediaElement (me, *it);
+    BOOST_CHECK_EQUAL (playerEndPoint.id, me.id);
+  }
+
+  client->release (mediaPipeline);
+}
+
+static void
 check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
@@ -323,6 +356,7 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
   check_get_parent_of_media_pipeline (client);
   check_getMediaPipeline (client);
   check_same_token (client);
+  check_get_media_element_from_pad (client);
 
 #if 0 /* Temporally disabled */
   check_type (client);

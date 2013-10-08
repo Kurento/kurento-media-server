@@ -30,10 +30,12 @@ public:
   MediaPad (std::shared_ptr<MediaElement> parent, KmsMediaPadDirection::type direction, KmsMediaType::type mediaType);
   MediaPad (std::shared_ptr<MediaElement> parent, KmsMediaPadDirection::type direction, KmsMediaType::type mediaType,
 	    const std::string mediaDescription);
-  virtual ~MediaPad() throw () = 0;
+  virtual ~MediaPad () throw () = 0;
+
+  std::shared_ptr<MediaElement> getMediaElement ();
 
 protected:
-  GstElement * getElement();
+  GstElement * getElement ();
 
 private:
   class StaticConstructor

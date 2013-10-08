@@ -617,7 +617,21 @@ throw (KmsMediaServerException)
 void
 MediaServerServiceHandler::getMediaElement (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPadRef) throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaPad> pad;
+
+  try {
+    GST_TRACE ("getMediaElement of pad: %" G_GUINT64_FORMAT, mediaPadRef.id);
+    pad = mediaSet.getMediaObject<MediaPad> (mediaPadRef);
+    _return = * (pad->getMediaElement () );
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("getMediaElement of pad: %" G_GUINT64_FORMAT " throws KmsMediaServerException(%s)", mediaPadRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    GST_TRACE ("getMediaElement of pad: %" G_GUINT64_FORMAT " throws KmsMediaServerException", mediaPadRef.id);
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getMediaElement");
+  }
+
+  GST_TRACE ("getMediaElement of pad: %" G_GUINT64_FORMAT " done", mediaPadRef.id);
 }
 
 /* MediaSrc */
