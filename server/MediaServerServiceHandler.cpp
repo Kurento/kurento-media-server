@@ -19,12 +19,7 @@
 
 #include "types/MediaPipeline.hpp"
 #include "types/MediaElement.hpp"
-#include "types/SdpEndPoint.hpp"
-#include "types/UriEndPoint.hpp"
-#include "types/HttpEndPoint.hpp"
 #include "types/Mixer.hpp"
-#include "types/Filter.hpp"
-#include "types/MediaHandler.hpp"
 
 #include "KmsMediaErrorCodes_constants.h"
 #include "utils/utils.hpp"
