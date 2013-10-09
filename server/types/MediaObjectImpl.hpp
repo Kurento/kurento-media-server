@@ -19,6 +19,8 @@
 #include "KmsMediaServer_types.h"
 #include <gst/gst.h>
 
+#include "MediaHandler.hpp"
+
 namespace kurento
 {
 
@@ -39,6 +41,8 @@ public:
 
 protected:
   static KmsMediaParams defaultKmsMediaParams;
+  MediaHandlerManager mediaHandlerManager;
+
 };
 
 } // kurento

@@ -30,6 +30,30 @@ include_directories(utils_test ${CMAKE_SOURCE_DIR}/server)
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 
+set(MEDIA_HANDLER_TEST_SOURCE media_handler_test.cpp ${UTILS}
+                              "${CMAKE_SOURCE_DIR}/server/types/MediaHandler.cpp")
+SET_SOURCE_FILES_PROPERTIES(${MEDIA_HANDLER_TEST_SOURCE}
+                PROPERTIES COMPILE_FLAGS
+                -DHAVE_NETINET_IN_H)
+
+add_executable(media_handler_test ${MEDIA_HANDLER_TEST_SOURCE})
+
+target_link_libraries(media_handler_test
+                      ${Boost_FILESYSTEM_LIBRARY}
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      )
+target_link_libraries(media_handler_test kmsiface ${THRIFT_LIBRARIES})
+target_link_libraries(media_handler_test ${GSTREAMER_LIBRARIES} ${GLIBMM_LIBRARIES})
+target_link_libraries(media_handler_test ${UUID_LIBRARIES})
+
+include_directories(media_handler_test ${GLIBMM_INCLUDE_DIRS})
+include_directories(media_handler_test ${UUID_INCLUDE_DIRS})
+include_directories(media_handler_test ${CMAKE_SOURCE_DIR}/server)
+
+add_definitions(-DBOOST_TEST_DYN_LINK)
+
+
 # Temporally disabled
 if (0)
 add_executable(server_test server_test_base.cpp server_test.cpp sdp_end_point_test.cpp)

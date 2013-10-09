@@ -17,47 +17,40 @@
 #define __MEDIA_HANDLER_H__
 
 #include "KmsMediaHandler_types.h"
+
 #include <glibmm.h>
 
 namespace kurento
 {
 
-class MediaHandlerAddress
+class MediaHandler;
+
+class MediaHandlerManager
 {
 public:
-  MediaHandlerAddress (const std::string &address, const int32_t port)
-  {
-    this->address = address;
-    this->port= port;
-  };
+  MediaHandlerManager ();
+  ~MediaHandlerManager ();
 
-  std::string address;
-  int32_t port;
-};
+  std::string addMediaHandler (const std::string eventType, const std::string &handlerAddress, const int32_t handlerPort);
+  void removeMediaHandler (const std::string callbackToken);
+  void sendEvent (KmsMediaEvent &event);
 
-class MediaHandler
-{
-public:
-  MediaHandler (int32_t id)
-  {
-    this->id= id;
-  };
-
-  void addAddress (std::shared_ptr<MediaHandlerAddress> &address) {
-    mutex.lock();
-    addresses.push_back (address);
-    mutex.unlock();
-  }
-// TODO: reuse when needed
-#if 0
-  void sendEvent (MediaEvent &event);
-#endif
+  int getHandlersMapSize ();
+  int getEventTypesMapSize ();
+  int getMediaHandlersSetSize (std::string eventType);
 
 private:
   Glib::Threads::RecMutex mutex;
-  int32_t id;
-  std::list<std::shared_ptr<MediaHandlerAddress>> addresses;
+  std::map<std::string /*callbackToken*/, std::shared_ptr<MediaHandler>> handlersMap;
+  std::map<std::string /*eventType*/, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> >> eventTypesMap;
 
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento
