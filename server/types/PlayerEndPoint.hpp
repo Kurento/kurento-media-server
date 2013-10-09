@@ -41,6 +41,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend void player_eos (GstElement *player, PlayerEndPoint *self);
 };
 
 } // kurento

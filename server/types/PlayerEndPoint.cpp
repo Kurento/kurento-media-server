@@ -22,45 +22,17 @@
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
 
-#if 0
-#include "protocol/TBinaryProtocol.h"
-#include "transport/TBufferTransports.h"
-#endif
-
 #define GST_CAT_DEFAULT kurento_player_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPlayerEndPoint"
 
-#if 0
-using apache::thrift::transport::TMemoryBuffer;
-using apache::thrift::protocol::TBinaryProtocol;
-#endif
-
 namespace kurento
 {
 
-static void
+void
 player_eos (GstElement *player, PlayerEndPoint *self)
 {
-// TODO: reuse when needed
-#if 0
-  MediaEvent event;
-  EndOfStreamEvent eosEvent;
-  PlayerEndPointEvent playerEvent;
-
-  boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
-  TBinaryProtocol protocol (transport);
-
-  playerEvent.__set_eos (eosEvent);
-  playerEvent.write (&protocol);
-  std::string event_str;
-  transport->appendBufferToString (event_str);
-  event.__set_event (event_str);
-  event.__set_source (*self);
-
-  std::dynamic_pointer_cast<MediaPipeline> (self->parent)->sendEvent (event);
-  GST_DEBUG ("Player finished");
-#endif
+  self->sendVoidEvent (g_KmsMediaPlayerEndPointType_constants.EVENT_EOS);
 }
 
 void
