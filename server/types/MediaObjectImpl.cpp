@@ -93,4 +93,14 @@ MediaObjectImpl::unsubscribe (const std::string &callbackToken) throw (KmsMediaS
   mediaHandlerManager.removeMediaHandler (callbackToken);
 }
 
+void
+MediaObjectImpl::sendVoidEvent (const std::string &eventType)
+{
+  std::shared_ptr<KmsMediaEvent> event (new KmsMediaEvent () );
+
+  event->__set_type (eventType);
+  event->__set_source (*this);
+  mediaHandlerManager.sendEvent (event);
+}
+
 } // kurento

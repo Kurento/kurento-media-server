@@ -44,6 +44,7 @@ protected:
   static KmsMediaParams defaultKmsMediaParams;
   MediaHandlerManager mediaHandlerManager;
 
+  void sendVoidEvent (const std::string &eventType);
 };
 
 } // kurento
