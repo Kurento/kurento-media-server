@@ -47,6 +47,7 @@ private:
   std::string callbackToken;
 
   friend class MediaHandlerManager;
+  friend void send_event (gpointer p, gpointer data);
 };
 
 /* MediaHandler */
@@ -63,12 +64,43 @@ MediaHandler::~MediaHandler ()
 }
 
 /* MediaHandlerManager */
+
+typedef struct _SendEventData {
+  std::shared_ptr<MediaHandler> mediaHandler;
+  std::shared_ptr<KmsMediaEvent> event;
+} SendEventData;
+
+void
+send_event (gpointer data, gpointer user_data)
+{
+  SendEventData *d = (SendEventData *) data;
+  std::shared_ptr<MediaHandler> mh = d->mediaHandler;
+
+  boost::shared_ptr<TSocket> socket (new TSocket (mh->address, mh->port) );
+  boost::shared_ptr<TTransport> transport (new TFramedTransport (socket) );
+  boost::shared_ptr<TBinaryProtocol> protocol (new TBinaryProtocol (transport) );
+  KmsMediaHandlerServiceClient client (protocol);
+
+  try {
+    transport->open();
+    client.onEvent (mh->callbackToken, * (d->event) );
+    transport->close();
+  } catch (...) {
+    GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
+        mh->callbackToken.c_str (), mh->address.c_str (), mh->port);
+  }
+
+  g_slice_free (SendEventData, data);
+}
+
 MediaHandlerManager::MediaHandlerManager ()
 {
+  threadPool = g_thread_pool_new (send_event, NULL, -1, FALSE, NULL);
 }
 
 MediaHandlerManager::~MediaHandlerManager ()
 {
+  g_thread_pool_free (threadPool, TRUE, FALSE);
 }
 
 std::string
@@ -126,6 +158,36 @@ MediaHandlerManager::removeMediaHandler (std::string callbackToken)
 
 end:
   mutex.unlock ();
+}
+
+void
+MediaHandlerManager::sendEvent (std::shared_ptr<KmsMediaEvent> event)
+{
+  std::map < std::string /*eventType*/, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> >>::iterator eventTypesMapIt;
+  std::set<std::shared_ptr<MediaHandler>>::iterator mediaHandlerIt;
+  std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > handlersCopy;
+  sigc::slot<void, std::shared_ptr<MediaHandler>, KmsMediaEvent> s;
+
+  mutex.lock();
+  eventTypesMapIt = eventTypesMap.find (event->type);
+
+  if (eventTypesMapIt == eventTypesMap.end () ) {
+    mutex.unlock();
+    return;
+  }
+
+  handlersCopy = eventTypesMapIt->second;
+  mutex.unlock();
+
+  mediaHandlerIt = handlersCopy->begin ();
+
+  for (; mediaHandlerIt != handlersCopy->end(); ++mediaHandlerIt) {
+    SendEventData *data = g_slice_new0 (SendEventData);
+
+    data->mediaHandler = *mediaHandlerIt;
+    data->event = event;
+    g_thread_pool_push (threadPool, data, NULL);
+  }
 }
 
 int
