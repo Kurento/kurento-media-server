@@ -21,21 +21,15 @@
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
-// TODO: reuse when needed
-#if 0
 #include "protocol/TBinaryProtocol.h"
 #include "transport/TBufferTransports.h"
-#endif
 
 #define GST_CAT_DEFAULT kurento_zbar_filter
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoZBarFilter"
 
-// TODO: reuse when needed
-#if 0
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
-#endif
 
 namespace kurento
 {
@@ -121,28 +115,27 @@ ZBarFilter::~ZBarFilter() throw ()
 void
 ZBarFilter::raiseEvent (guint64 ts, std::string &type, std::string &symbol)
 {
-// TODO: reuse when needed
-#if 0
+  KmsMediaEventData eventData;
+  KmsMediaEventCodeFoundData codeFoundData;
+  std::string codeFoundDataStr;
+
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
-  MediaEvent event;
-  ZBarEvent zbarEvent;
 
-  zbarEvent.__set_type (type);
-  zbarEvent.__set_value (symbol);
-  zbarEvent.write (&protocol);
-  std::string event_str;
-  transport->appendBufferToString (event_str);
-  event.__set_event (event_str);
-  event.__set_source (*this);
+  codeFoundData.__set_type (type);
+  codeFoundData.__set_value (symbol);
+  codeFoundData.write (&protocol);
+  transport->appendBufferToString (codeFoundDataStr);
+
+  eventData.__set_dataType (g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND_DATA_TYPE);
+  eventData.__set_data (codeFoundDataStr);
 
   GST_DEBUG ("Raise event");
   GST_DEBUG ("Time stamp: %" G_GUINT64_FORMAT, ts);
   GST_DEBUG ("Type: %s", type.c_str() );
   GST_DEBUG ("Symbol: %s", symbol.c_str() );
 
-  std::dynamic_pointer_cast<MediaPipeline> (parent)->sendEvent (event);
-#endif
+  sendEvent (g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND, eventData);
 }
 
 void
@@ -156,7 +149,6 @@ ZBarFilter::barcodeDetected (guint64 ts, std::string &type, std::string &symbol)
     raiseEvent (ts, type, symbol);
   }
 }
-
 
 ZBarFilter::StaticConstructor ZBarFilter::staticConstructor;
 
