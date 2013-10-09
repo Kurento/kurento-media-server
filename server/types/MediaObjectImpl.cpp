@@ -24,6 +24,7 @@ namespace kurento
 {
 
 KmsMediaParams MediaObjectImpl::defaultKmsMediaParams = KmsMediaParams ();
+KmsMediaEventData MediaObjectImpl::defaultKmsMediaEventData = KmsMediaEventData ();
 
 static KmsMediaObjectId
 getId()
@@ -93,14 +94,26 @@ MediaObjectImpl::unsubscribe (const std::string &callbackToken) throw (KmsMediaS
   mediaHandlerManager.removeMediaHandler (callbackToken);
 }
 
+
 void
-MediaObjectImpl::sendVoidEvent (const std::string &eventType)
+MediaObjectImpl::sendEvent (const std::string &eventType, const KmsMediaEventData &eventData)
 {
   std::shared_ptr<KmsMediaEvent> event (new KmsMediaEvent () );
 
   event->__set_type (eventType);
   event->__set_source (*this);
+
+  if (eventData != defaultKmsMediaEventData) {
+    event->__set_eventData (eventData);
+  }
+
   mediaHandlerManager.sendEvent (event);
+}
+
+void
+MediaObjectImpl::sendVoidEvent (const std::string &eventType)
+{
+  sendEvent (eventType);
 }
 
 } // kurento
