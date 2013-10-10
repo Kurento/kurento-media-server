@@ -51,6 +51,9 @@ throw (KmsMediaServerException)
   return unmarshalStringParams ((KmsMediaEventData) eventData);
 }
 
+std::shared_ptr<KmsMediaCommand> createVoidCommand (std::string commandName);
+std::shared_ptr<KmsMediaCommand> createStringCommand (std::string commandName, std::string str) throw (KmsMediaServerException);
+
 } // kurento
 
 #endif /* __MARSHALLING_HPP__ */

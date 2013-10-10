@@ -266,12 +266,10 @@ check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
   client->createMediaPipeline (mediaPipeline);
   client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
-  command.__set_name (g_KmsMediaUriEndPointType_constants.GET_URI);
+  command = * createVoidCommand (g_KmsMediaUriEndPointType_constants.GET_URI);
   client->sendCommand (result, playerEndPoint, command);
 
-  BOOST_CHECK_EQUAL (g_KmsMediaDataType_constants.STRING_DATA_TYPE, result.dataType);
-
-  BOOST_REQUIRE_NO_THROW (resultUri = unmarshalString (result.data) );
+  BOOST_REQUIRE_NO_THROW (resultUri = unmarshalStringCommandResult (result) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
 
   client->subscribe (callbackToken, playerEndPoint, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS, "", 0);
@@ -305,12 +303,10 @@ check_recorder_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient
   client->createMediaPipeline (mediaPipeline);
   client->createMediaElementWithParams (recorderEndPoint, mediaPipeline, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params);
 
-  command.__set_name (g_KmsMediaUriEndPointType_constants.GET_URI);
+  command = * createVoidCommand (g_KmsMediaUriEndPointType_constants.GET_URI);
   client->sendCommand (result, recorderEndPoint, command);
 
-  BOOST_CHECK_EQUAL (g_KmsMediaDataType_constants.STRING_DATA_TYPE, result.dataType);
-
-  BOOST_REQUIRE_NO_THROW (resultUri = unmarshalString (result.data) );
+  BOOST_REQUIRE_NO_THROW (resultUri = unmarshalStringCommandResult (result) );;
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
 
   client->release (mediaPipeline);

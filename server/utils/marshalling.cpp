@@ -90,4 +90,32 @@ unmarshalStringParams (const KmsMediaParams &params) throw (KmsMediaServerExcept
   return str;
 }
 
+std::shared_ptr<KmsMediaCommand>
+createVoidCommand (std::string commandName)
+{
+  std::shared_ptr<KmsMediaCommand> command (new KmsMediaCommand () );
+  KmsMediaParams params;
+
+  params.__set_dataType (g_KmsMediaDataType_constants.VOID_DATA_TYPE);
+  command->__set_name (commandName);
+  command->__set_params (params);
+
+  return command;
+}
+
+std::shared_ptr<KmsMediaCommand>
+createStringCommand (std::string commandName, std::string str)
+throw (KmsMediaServerException)
+{
+  std::shared_ptr<KmsMediaCommand> command (new KmsMediaCommand () );
+  KmsMediaParams params;
+
+  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
+  params.__set_data (marshalString (str) );
+  command->__set_name (commandName);
+  command->__set_params (params);
+
+  return command;
+}
+
 } // kurento
