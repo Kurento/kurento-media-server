@@ -66,15 +66,15 @@ UriEndPoint::stop ()
   g_object_set (G_OBJECT (element), "state", 0 /* stop */, NULL);
 }
 
-KmsMediaCommandResult
+std::shared_ptr<KmsMediaCommandResult>
 UriEndPoint::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
 {
-  KmsMediaCommandResult result;
+  std::shared_ptr<KmsMediaCommandResult> result (new KmsMediaCommandResult() );
 
   if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command.name) == 0) {
     std::string uri = this->getUri ();
-    result.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
-    result.__set_data (marshalString (uri) );
+    result->__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
+    result->__set_data (marshalString (uri) );
 
     return result;
   }

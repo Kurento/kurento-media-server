@@ -148,7 +148,7 @@ throw (KmsMediaServerException)
 
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
-    _return = mo->sendCommand (command);
+    _return = * (mo->sendCommand (command) );
   } catch (const KmsMediaServerException &e) {
     GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
     throw e;

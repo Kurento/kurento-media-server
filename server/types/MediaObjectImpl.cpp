@@ -72,7 +72,7 @@ MediaObjectImpl::getParent () throw (KmsMediaServerException)
   return parent;
 }
 
-KmsMediaCommandResult
+std::shared_ptr<KmsMediaCommandResult>
 MediaObjectImpl::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
 {
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_COMMAND_NOT_FOUND,

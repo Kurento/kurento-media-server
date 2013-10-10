@@ -32,7 +32,7 @@ public:
   void pause ();
   void stop ();
 
-  KmsMediaCommandResult sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
+  std::shared_ptr<KmsMediaCommandResult> sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
 
 private:
   class StaticConstructor
