@@ -54,22 +54,17 @@ include_directories(media_handler_test ${CMAKE_SOURCE_DIR}/server)
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 
-# Temporally disabled
-if (0)
-add_executable(server_test server_test_base.cpp server_test.cpp sdp_end_point_test.cpp)
-endif ()
-
 set(CFLAGS "-DHAVE_NETINET_IN_H ")
 if (DEFINED KMS_TEST)
   message("KMS_TEST set")
   set(CFLAGS ${CFLAGS}"-DKMS_TEST ")
 endif ()
 
-set(SERVER_TEST_SOURCE server_test server_test_base.cpp server_test.cpp ${UTILS})
+set(SERVER_TEST_SOURCE server_test_base.cpp server_test.cpp sdp_end_point_test.cpp ${UTILS})
 set_source_files_properties(${SERVER_TEST_SOURCE}
                 PROPERTIES COMPILE_FLAGS ${CFLAGS})
 
-add_executable(${SERVER_TEST_SOURCE})
+add_executable(server_test ${SERVER_TEST_SOURCE})
 add_dependencies(server_test kmsiface-project)
 add_dependencies(server_test kurento)
 
