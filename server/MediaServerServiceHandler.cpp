@@ -510,6 +510,13 @@ throw (KmsMediaServerException)
   GST_WARNING ("TODO: implement");
 }
 
+void
+MediaServerServiceHandler::connectElements (const KmsMediaObjectRef &srcMediaElement, const KmsMediaObjectRef &sinkMediaElement)
+throw (KmsMediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
 /* MediaPad */
 
 void

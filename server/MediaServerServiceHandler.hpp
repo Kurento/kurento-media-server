@@ -82,7 +82,8 @@ public:
   void getMediaSinksByFullDescription(std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef& mediaElement,
 				      const KmsMediaType::type mediaType, const std::string& description)
 				      throw (KmsMediaServerException);
-
+  void connectElements(const KmsMediaObjectRef& srcMediaElement, const KmsMediaObjectRef& sinkMediaElement)
+                        throw (KmsMediaServerException);
   /* MediaPad */
   void getMediaElement(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaPadRef) throw (KmsMediaServerException);
 
