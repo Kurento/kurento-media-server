@@ -18,22 +18,26 @@
 #include "httpendpointserver.hpp"
 
 #include "KmsMediaHttpEndPointType_constants.h"
+#include "KmsMediaHttpEndPointType_types.h"
+#include "KmsMediaDataType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
 
-// TODO: reuse when needed
-#if 0
+#include "utils/utils.hpp"
+#include "utils/marshalling.hpp"
+
 #include "protocol/TBinaryProtocol.h"
 #include "transport/TBufferTransports.h"
-#endif
 
 #define GST_CAT_DEFAULT kurento_http_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoHttpEndPoint"
 
-// TODO: reuse when needed
-#if 0
+#define COOKIE_LIFETIME 5 /* seconds */
+#define DISCONNECTION_TIMEOUT 2 /* seconds */
+#define REGISTER_TIMEOUT 3 /* seconds */
+
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
-#endif
 
 namespace kurento
 {
@@ -106,8 +110,86 @@ url_expired_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
   GST_DEBUG ("TODO: Implement url_expired_cb");
 }
 
-HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent)
-  : EndPoint (parent, g_KmsMediaHttpEndPointType_constants.TYPE_NAME)
+struct MainLoopData {
+  gpointer data;
+  GSourceFunc func;
+  GDestroyNotify destroy;
+  Glib::Mutex *mutex;
+};
+
+static gboolean
+main_loop_wrapper_func (gpointer data)
+{
+  struct MainLoopData *mdata = (struct MainLoopData *) data;
+
+  return mdata->func (mdata->data);
+}
+
+static void
+main_loop_data_destroy (gpointer data)
+{
+  struct MainLoopData *mdata = (struct MainLoopData *) data;
+
+  if (mdata->destroy != NULL)
+    mdata->destroy (mdata->data);
+
+  mdata->mutex->unlock();
+  g_slice_free (struct MainLoopData, mdata);
+}
+
+static void
+operate_in_main_loop_context (GSourceFunc func, gpointer data,
+    GDestroyNotify destroy)
+{
+  struct MainLoopData *mdata;
+  Glib::Mutex mutex;
+
+  mdata = g_slice_new (struct MainLoopData);
+  mdata->data = data;
+  mdata->func = func;
+  mdata->destroy = destroy;
+  mdata->mutex = &mutex;
+
+  mutex.lock ();
+  g_idle_add_full (G_PRIORITY_HIGH_IDLE, main_loop_wrapper_func, mdata,
+      main_loop_data_destroy);
+  mutex.lock ();
+}
+
+gboolean
+register_http_end_point (gpointer data)
+{
+  HttpEndPoint *httpEp = (HttpEndPoint *) data;
+  std::string uri;
+  const gchar *url;
+  gchar *c_uri;
+  gchar *addr;
+  guint port;
+
+  /* TODO: Set proper values for cookie life time and disconnection timeout */
+  url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element,
+      httpEp->cookieLifetime, httpEp->disconnectionTimeout);
+
+  if (url == NULL)
+    return FALSE;
+
+  g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port", &port,
+      NULL);
+  c_uri = g_strdup_printf ("http://%s:%d%s", addr, port, url);
+  uri = c_uri;
+
+  g_free (addr);
+  g_free (c_uri);
+
+  httpEp->setUrl (uri);
+  httpEp->urlSet = true;
+
+  return FALSE;
+}
+
+void
+HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent, guint cookieLifetime, guint disconnectionTimeout)
+throw (KmsMediaServerException)
 {
   element = gst_element_factory_make ("httpendpoint", NULL);
 
@@ -121,6 +203,64 @@ HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent)
       G_CALLBACK (url_removed_cb), this);
   urlExpiredHandlerId = g_signal_connect (httpepserver, "url-expired",
       G_CALLBACK (url_expired_cb), this);
+
+  this->cookieLifetime = cookieLifetime;
+  this->disconnectionTimeout = disconnectionTimeout;
+
+  operate_in_main_loop_context (register_http_end_point, this, NULL);
+
+  if (!urlSet) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
+        "Cannot register HttpEndPoint");
+  }
+}
+
+KmsMediaHttpEndPointConstructorParams
+unmarshalKmsMediaHttpEndPointConstructorParams (std::string data)
+throw (KmsMediaServerException)
+{
+  KmsMediaHttpEndPointConstructorParams params;
+  boost::shared_ptr<TMemoryBuffer> transport;
+
+  try {
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
+    TBinaryProtocol protocol = TBinaryProtocol (transport);
+    params.read (&protocol);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+        "Cannot unmarshal KmsMediaHttpEndPointConstructorParams");
+  }
+
+  return params;
+}
+
+HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+throw (KmsMediaServerException)
+  : EndPoint (parent, g_KmsMediaHttpEndPointType_constants.TYPE_NAME)
+{
+  if (params == defaultKmsMediaParams ||
+      g_KmsMediaDataType_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
+    init (parent, COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
+  } else if (g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE.compare (params.dataType) == 0) {
+    guint cookieLifetime = COOKIE_LIFETIME;
+    guint disconnectionTimeout = DISCONNECTION_TIMEOUT;
+    KmsMediaHttpEndPointConstructorParams p;
+
+    p = unmarshalKmsMediaHttpEndPointConstructorParams (params.data);
+
+    if (p.__isset.cookieLifetime) {
+      cookieLifetime = p.cookieLifetime;
+    }
+
+    if (p.__isset.disconnectionTimeout) {
+      disconnectionTimeout = p.disconnectionTimeout;
+    }
+
+    init (parent, cookieLifetime, disconnectionTimeout);
+  } else {
+    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+        "PlayerEndPoint has not any constructor with params of type " + params.dataType);
+  }
 }
 
 static std::string

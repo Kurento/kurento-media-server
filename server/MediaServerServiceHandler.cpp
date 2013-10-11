@@ -28,11 +28,6 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaServerServiceHandler"
 
-#include "httpendpointserver.hpp"
-
-#define COOKIE_LIFETIME 5 /* seconds */
-#define DISCONNECTION_TIMEOUT 2 /* seconds */
-
 namespace kurento
 {
 
@@ -357,113 +352,6 @@ throw (KmsMediaServerException)
 
   GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GUINT64_FORMAT ", type: %s done", mediaPipeline.id, mixerType.c_str () );
 }
-
-// TODO: reuse when needed
-#if 0
-struct MainLoopData {
-  gpointer data;
-  GSourceFunc func;
-  GDestroyNotify destroy;
-  Glib::Mutex *mutex;
-};
-
-static gboolean
-main_loop_wrapper_func (gpointer data)
-{
-  struct MainLoopData *mdata = (struct MainLoopData *) data;
-
-  return mdata->func (mdata->data);
-}
-
-static void
-main_loop_data_destroy (gpointer data)
-{
-  struct MainLoopData *mdata = (struct MainLoopData *) data;
-
-  if (mdata->destroy != NULL)
-    mdata->destroy (mdata->data);
-
-  mdata->mutex->unlock();
-
-  g_slice_free (struct MainLoopData, mdata);
-}
-
-static void
-operate_in_main_loop_context (GSourceFunc func, gpointer data,
-    GDestroyNotify destroy)
-{
-  struct MainLoopData *mdata;
-  Glib::Mutex mutex;
-
-  mdata = g_slice_new (struct MainLoopData);
-  mdata->data = data;
-  mdata->func = func;
-  mdata->destroy = destroy;
-  mdata->mutex = &mutex;
-
-  mdata->mutex->lock();
-
-  g_idle_add_full (G_PRIORITY_HIGH_IDLE, main_loop_wrapper_func, mdata,
-      main_loop_data_destroy);
-
-  mutex.lock();
-}
-
-gboolean
-register_http_end_point (gpointer data)
-{
-  HttpEndPoint *httpEp = (HttpEndPoint *) data;
-  std::string uri;
-  const gchar *url;
-  gchar *c_uri;
-  gchar *addr;
-  guint port;
-
-  /* TODO: Set proper values for cookie life time and disconnection timeout */
-  url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element,
-      COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
-
-  if (url == NULL)
-    return FALSE;
-
-  g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port", &port,
-      NULL);
-  c_uri = g_strdup_printf ("http://%s:%d%s", addr, port, url);
-  uri = c_uri;
-
-  g_free (addr);
-  g_free (c_uri);
-
-  httpEp->setUrl (uri);
-  return FALSE;
-}
-
-void
-MediaServerServiceHandler::createHttpEndPoint (MediaKmsMediaObjectId &_return, const MediaKmsMediaObjectId &mediaPipeline)
-throw (MediaObjectNotFoundException, KmsMediaServerException)
-{
-  std::shared_ptr<MediaPipeline> mm;
-  std::shared_ptr<HttpEndPoint> httpEp;
-
-  try {
-    GST_TRACE ("createHttpEndPoint pipeline: %" G_GUINT64_FORMAT, mediaPipeline.id);
-    mm = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
-    httpEp = mm->createHttpEndPoint ();
-    mediaSet.put (httpEp);
-
-    operate_in_main_loop_context (register_http_end_point, &*httpEp, NULL);
-
-    _return = *httpEp;
-    GST_TRACE ("createHttpEndPoint pipeline: %" G_GUINT64_FORMAT " done", mediaPipeline.id);
-  } catch (const MediaObjectNotFoundException &e) {
-    GST_TRACE ("createHttpEndPoint pipeline: %" G_GUINT64_FORMAT " throws MediaObjectNotFoundException", mediaPipeline.id);
-    throw e;
-  } catch (...) {
-    GST_TRACE ("createHttpEndPoint pipeline: %" G_GUINT64_FORMAT " throws KmsMediaServerException", mediaPipeline.id);
-    throw KmsMediaServerException();
-  }
-}
-#endif
 
 /* MediaElement */
 

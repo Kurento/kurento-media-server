@@ -24,16 +24,24 @@ namespace kurento
 class HttpEndPoint : public EndPoint
 {
 public:
-  HttpEndPoint (std::shared_ptr<MediaPipeline> parent);
+  HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params = defaultKmsMediaParams)
+                throw (KmsMediaServerException);
   ~HttpEndPoint() throw ();
 
   std::string getUrl ();
-  void setUrl (std::string);
 
 private:
   std::string url;
+  bool urlSet = false;
+  guint cookieLifetime;
+  guint disconnectionTimeout;
+
+  void setUrl (std::string);
 
 private:
+  void init (std::shared_ptr<MediaPipeline> parent, guint cookieLifetime, guint disconnectionTimeout)
+              throw (KmsMediaServerException);
+
   class StaticConstructor
   {
   public:

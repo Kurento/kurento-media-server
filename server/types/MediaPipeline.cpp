@@ -27,6 +27,8 @@
 #include "RtpEndPoint.hpp"
 #include "KmsMediaZBarFilterType_constants.h"
 #include "ZBarFilter.hpp"
+#include "KmsMediaHttpEndPointType_constants.h"
+#include "HttpEndPoint.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -102,6 +104,8 @@ throw (KmsMediaServerException)
     return std::shared_ptr<RtpEndPoint> (new RtpEndPoint (shared_from_this (), params) );
   } else if (g_KmsMediaZBarFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
     return std::shared_ptr<ZBarFilter> (new ZBarFilter (shared_from_this (), params) );
+  } else if (g_KmsMediaHttpEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+    return std::shared_ptr<HttpEndPoint> (new HttpEndPoint (shared_from_this (), params) );
   }
 
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,
