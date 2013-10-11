@@ -35,11 +35,16 @@ public:
   /* MediaObject */
   void keepAlive(const KmsMediaObjectRef& mediaObjectRef) throw (KmsMediaServerException);
   void release(const KmsMediaObjectRef& mediaObjectRef) throw (KmsMediaServerException);
-  void subscribe(std::string& _return, const KmsMediaObjectRef& mediaObjectRef,
+  void subscribeEvent(std::string& _return, const KmsMediaObjectRef& mediaObjectRef,
 		 const std::string& eventType, const std::string& handlerAddress,
-		 const int32_t handlerPort)throw (KmsMediaServerException);
-  void unsubscribe(const KmsMediaObjectRef& mediaObjectRef, const std::string& callbackToken)
+		 const int32_t handlerPort) throw (KmsMediaServerException);
+  void unsubscribeEvent(const KmsMediaObjectRef& mediaObjectRef, const std::string& callbackToken)
 		   throw (KmsMediaServerException);
+  void subscribeError(std::string& _return, const KmsMediaObjectRef& mediaObjectRef,
+                      const std::string& handlerAddress, const int32_t handlerPort)
+                      throw (KmsMediaServerException);
+  void unsubscribeError(const KmsMediaObjectRef& mediaObjectRef, const std::string& callbackToken)
+                        throw (KmsMediaServerException);
   void sendCommand(KmsMediaCommandResult& _return, const KmsMediaObjectRef& mediaObjectRef, const KmsMediaCommand& command)
 		   throw (KmsMediaServerException);
   void getParent(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaObjectRef)

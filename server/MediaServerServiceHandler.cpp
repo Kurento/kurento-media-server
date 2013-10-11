@@ -84,7 +84,7 @@ MediaServerServiceHandler::release (const KmsMediaObjectRef &mediaObjectRef) thr
 }
 
 void
-MediaServerServiceHandler::subscribe (std::string &_return, const KmsMediaObjectRef &mediaObjectRef,
+MediaServerServiceHandler::subscribeEvent (std::string &_return, const KmsMediaObjectRef &mediaObjectRef,
     const std::string &eventType, const std::string &handlerAddress,
     const int32_t handlerPort) throw (KmsMediaServerException)
 {
@@ -107,7 +107,7 @@ MediaServerServiceHandler::subscribe (std::string &_return, const KmsMediaObject
 }
 
 void
-MediaServerServiceHandler::unsubscribe (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
+MediaServerServiceHandler::unsubscribeEvent (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
@@ -126,6 +126,21 @@ throw (KmsMediaServerException)
   }
 
   GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GUINT64_FORMAT " done", callbackToken.c_str (), mediaObjectRef.id);
+}
+
+void
+MediaServerServiceHandler::subscribeError (std::string &_return, const KmsMediaObjectRef &mediaObjectRef,
+    const std::string &handlerAddress, const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
+void
+MediaServerServiceHandler::unsubscribeError (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
+throw (KmsMediaServerException)
+{
+  GST_WARNING ("TODO: implement");
 }
 
 void
