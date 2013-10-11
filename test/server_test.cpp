@@ -24,6 +24,7 @@
 #include "KmsMediaPlayerEndPointType_constants.h"
 #include "KmsMediaRecorderEndPointType_constants.h"
 #include "KmsMediaZBarFilterType_constants.h"
+#include "KmsMediaHttpEndPointType_constants.h"
 
 #include "utils/marshalling.hpp"
 
@@ -313,22 +314,25 @@ check_recorder_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient
   client->release (mediaPipeline);
 }
 
-#if 0 /* Temporally disabled */
 static void
-check_http_end_point (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+check_http_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
-  MediaObjectId mediaPipeline = MediaObjectId();
-  MediaObjectId httpEp = MediaObjectId();
-  std::string out;
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef httpEp = KmsMediaObjectRef();
+  KmsMediaCommand command;
+  KmsMediaCommandResult result;
+  std::string resultUrl;
 
-  client->createMediaPipeline (mediaPipeline, 0);
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElement (httpEp, mediaPipeline, g_KmsMediaHttpEndPointType_constants.TYPE_NAME);
 
-  client->createHttpEndPoint (httpEp, mediaPipeline);
-  client->getUrl (out, httpEp);
+  command = * createVoidCommand (g_KmsMediaHttpEndPointType_constants.GET_URL);
+  client->sendCommand (result, httpEp, command);
+
+  GST_INFO ("HttpEndPoint URL: %s", unmarshalString (result.data).c_str () );
 
   client->release (mediaPipeline);
 }
-#endif
 
 static void
 check_zbar_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
@@ -360,11 +364,7 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 
   check_player_end_point (client);
   check_recorder_end_point (client);
-
-#if 0 /* Temporally disabled */
   check_http_end_point (client);
-#endif
-
   check_zbar_filter (client);
 }
 
