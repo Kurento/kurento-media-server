@@ -30,6 +30,8 @@ public:
 
   std::string getUrl ();
 
+  std::shared_ptr<KmsMediaCommandResult> sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
+
 private:
   std::string url;
   bool urlSet = false;

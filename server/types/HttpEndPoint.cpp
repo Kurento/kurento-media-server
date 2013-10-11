@@ -330,6 +330,18 @@ HttpEndPoint::setUrl (std::string newUrl)
   url = newUrl;
 }
 
+std::shared_ptr<KmsMediaCommandResult>
+HttpEndPoint::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
+{
+  KmsMediaCommandResult result;
+
+  if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command.name) == 0) {
+    return createStirngCommandResult (getUrl () );
+  }
+
+  return EndPoint::sendCommand (command);
+}
+
 HttpEndPoint::StaticConstructor HttpEndPoint::staticConstructor;
 
 HttpEndPoint::StaticConstructor::StaticConstructor()
