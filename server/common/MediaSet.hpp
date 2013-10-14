@@ -26,6 +26,8 @@
 #define AUTO_RELEASE_INTERVAL g_KmsMediaServer_constants.GARBAGE_PERIOD
 #endif
 
+typedef struct _AutoReleaseData AutoReleaseData;
+
 namespace kurento
 {
 
@@ -36,8 +38,8 @@ public:
 
   void put (std::shared_ptr<MediaObjectImpl> mediaObject);
   void keepAlive (const KmsMediaObjectRef &mediaObject) throw (KmsMediaServerException);
-  void remove (const KmsMediaObjectRef &mediaObject);
-  void remove (const KmsMediaObjectId &id);
+  void remove (const KmsMediaObjectRef &mediaObject, bool force);
+  void remove (const KmsMediaObjectId &id, bool force);
   int size();
 
   template <class T>
@@ -47,8 +49,9 @@ private:
   Glib::Threads::RecMutex mutex;
   std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> > mediaObjectsMap;
   std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> > childrenMap;
-  std::map<KmsMediaObjectId, guint> mediaObjectsAlive;
+  std::map<KmsMediaObjectId, std::shared_ptr<AutoReleaseData>> mediaObjectsAlive;
 
+  bool canBeAutoreleased (const KmsMediaObjectRef &mediaObject);
   void removeAutoRelease (const KmsMediaObjectId &id);
 
   class StaticConstructor

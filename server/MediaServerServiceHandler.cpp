@@ -71,7 +71,7 @@ MediaServerServiceHandler::release (const KmsMediaObjectRef &mediaObjectRef) thr
   GST_TRACE ("release %" G_GUINT64_FORMAT, mediaObjectRef.id);
 
   try {
-    mediaSet.remove (mediaObjectRef);
+    mediaSet.remove (mediaObjectRef, true);
   } catch (const KmsMediaServerException &e) {
     GST_TRACE ("release %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
     throw e;

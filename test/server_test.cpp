@@ -114,9 +114,55 @@ static void
 check_auto_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef moA = KmsMediaObjectRef();
+  KmsMediaObjectRef moB = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+
+  params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
 
   client->createMediaPipeline (mediaPipeline);
   g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);
+
+  try {
+    client->keepAlive (mediaPipeline);
+    BOOST_FAIL ("Use an auto released MediaPipeline must throw a KmsMediaServerException");
+  } catch (const KmsMediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+  }
+
+  client->createMediaPipeline (mediaPipeline);
+  g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
+  BOOST_REQUIRE_NO_THROW (client->createMediaElementWithParams (moA, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params););
+
+  g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
+  BOOST_REQUIRE_NO_THROW (client->keepAlive (mediaPipeline) );
+  BOOST_REQUIRE_NO_THROW (client->keepAlive (moA) );
+
+  g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
+  BOOST_REQUIRE_NO_THROW (client->createMediaElementWithParams (moB, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params););
+
+  g_usleep ( AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
+  BOOST_REQUIRE_NO_THROW (client->keepAlive (moB) );
+  g_usleep ( AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
+
+  try {
+    client->keepAlive (moA);
+    BOOST_FAIL ("Use an auto released MediaObject must throw a KmsMediaServerException");
+  } catch (const KmsMediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+  }
+
+  BOOST_REQUIRE_NO_THROW (client->keepAlive (moB) );
+  BOOST_REQUIRE_NO_THROW (client->keepAlive (mediaPipeline) );
+
+  g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);
+
+  try {
+    client->keepAlive (moB);
+    BOOST_FAIL ("Use an auto released MediaObject must throw a KmsMediaServerException");
+  } catch (const KmsMediaServerException &e) {
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+  }
 
   try {
     client->keepAlive (mediaPipeline);
