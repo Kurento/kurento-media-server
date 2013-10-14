@@ -112,6 +112,7 @@ include_directories(server_memory_test ${KMSIFACE_INCLUDE_DIR})
 include_directories(server_memory_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
+endif ()
 
 
 add_executable(http_ep_server_test
@@ -138,4 +139,3 @@ include_directories(http_ep_server_test ${LIBSOUP_INCLUDE_DIRS})
 include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
-endif ()

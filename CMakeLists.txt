@@ -67,12 +67,11 @@ add_test(media_handler_test test/media_handler_test)
 add_test(server_test test/server_test)
 set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 
-# Temporally disabled
-if (0)
-
 add_test(http_ep_server_test test/http_ep_server_test)
 set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 
+# Temporally disabled
+if (0)
 if (DEFINED MEMORY_TEST)
   message("Memory test active")
   add_test(server_memory_test test/server_memory_test)
