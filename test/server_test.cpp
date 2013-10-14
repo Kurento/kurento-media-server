@@ -23,8 +23,9 @@
 #include "KmsMediaUriEndPointType_constants.h"
 #include "KmsMediaPlayerEndPointType_constants.h"
 #include "KmsMediaRecorderEndPointType_constants.h"
-#include "KmsMediaZBarFilterType_constants.h"
 #include "KmsMediaHttpEndPointType_constants.h"
+#include "KmsMediaZBarFilterType_constants.h"
+#include "KmsMediaJackVaderFilterType_constants.h"
 
 #include "utils/marshalling.hpp"
 
@@ -326,6 +327,17 @@ check_zbar_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> clien
 }
 
 static void
+check_jackvader_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef jackVaderFilter = KmsMediaObjectRef();
+
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElement (jackVaderFilter, mediaPipeline, g_KmsMediaJackVaderFilterType_constants.TYPE_NAME);
+  client->release (mediaPipeline);
+}
+
+static void
 client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   check_version (client);
@@ -346,6 +358,7 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
   check_recorder_end_point (client);
   check_http_end_point (client);
   check_zbar_filter (client);
+  check_jackvader_filter (client);
 }
 
 BOOST_AUTO_TEST_CASE ( server_test )

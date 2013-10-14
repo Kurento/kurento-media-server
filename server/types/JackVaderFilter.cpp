@@ -17,6 +17,9 @@
 
 #include "KmsMediaJackVaderFilterType_constants.h"
 
+#include "utils/utils.hpp"
+#include "KmsMediaErrorCodes_constants.h"
+
 #define GST_CAT_DEFAULT kurento_jack_vader_filter
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoJackVaderFilter"
@@ -24,14 +27,25 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-JackVaderFilter::JackVaderFilter (std::shared_ptr<MediaPipeline> parent)
-  : Filter (parent, g_KmsMediaJackVaderFilterType_constants.TYPE_NAME)
+void
+JackVaderFilter::init (std::shared_ptr<MediaPipeline> parent)
 {
   element = gst_element_factory_make ("filterelement", NULL);
   g_object_set (element, "filter-factory", "jackvader", NULL);
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
+}
+
+JackVaderFilter::JackVaderFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
+  : Filter (parent, g_KmsMediaJackVaderFilterType_constants.TYPE_NAME)
+{
+  if (params.empty () ) {
+    init (parent);
+  } else {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
+        "JackVaderFilter only has the default constructor");
+  }
 }
 
 JackVaderFilter::~JackVaderFilter() throw ()
