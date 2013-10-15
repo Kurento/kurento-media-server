@@ -26,7 +26,7 @@ namespace kurento
 class UriEndPoint : public EndPoint
 {
 public:
-  UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string type);
+  UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string type, const std::map<std::string, KmsMediaParam>& params);
   virtual ~UriEndPoint() throw ();
 
   std::string getUri ();

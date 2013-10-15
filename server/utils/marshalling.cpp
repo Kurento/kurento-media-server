@@ -19,6 +19,7 @@
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
+#include "KmsMediaObject_constants.h"
 #include "KmsMediaUriEndPointType_constants.h"
 
 #include "protocol/TBinaryProtocol.h"
@@ -152,6 +153,78 @@ unmarshalStringParam (const KmsMediaParam &param) throw (KmsMediaServerException
   }
 
   return str;
+}
+
+std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (bool excludeFromGC)
+throw (KmsMediaServerException)
+{
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaParam param;
+  KmsMediaObjectConstructorParams moParams;
+
+  moParams.__set_excludeFromGC (excludeFromGC);
+  param.__set_dataType (g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  param.__set_data (marshalKmsMediaObjectConstructorParams (moParams) );
+  params[g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+
+  return params;
+}
+
+std::shared_ptr<KmsMediaUriEndPointConstructorParams>
+marshalKmsMediaObjectConstructorParams (std::string data)
+throw (KmsMediaServerException)
+{
+  std::shared_ptr<KmsMediaUriEndPointConstructorParams> params (new KmsMediaUriEndPointConstructorParams () );
+  boost::shared_ptr<TMemoryBuffer> transport;
+
+  try {
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
+    TBinaryProtocol protocol = TBinaryProtocol (transport);
+    params->read (&protocol);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+        "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
+  }
+
+  return params;
+}
+
+std::string
+marshalKmsMediaObjectConstructorParams (KmsMediaObjectConstructorParams &moParams)
+throw (KmsMediaServerException)
+{
+  boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
+  TBinaryProtocol protocol (transport);
+  std::string data;
+
+  try {
+    moParams.write (&protocol);
+    transport->appendBufferToString (data);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
+        "Cannot marshal KmsMediaObjectConstructorParams");
+  }
+
+  return data;
+}
+
+std::shared_ptr<KmsMediaObjectConstructorParams>
+unmarshalKmsMediaObjectConstructorParams (std::string data)
+throw (KmsMediaServerException)
+{
+  std::shared_ptr<KmsMediaObjectConstructorParams> params (new KmsMediaObjectConstructorParams () );
+  boost::shared_ptr<TMemoryBuffer> transport;
+
+  try {
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
+    TBinaryProtocol protocol = TBinaryProtocol (transport);
+    params->read (&protocol);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+        "Cannot unmarshal KmsMediaObjectConstructorParams");
+  }
+
+  return params;
 }
 
 std::map<std::string, KmsMediaParam>

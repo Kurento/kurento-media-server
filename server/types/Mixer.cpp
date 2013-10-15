@@ -18,8 +18,9 @@
 namespace kurento
 {
 
-Mixer::Mixer (std::shared_ptr<MediaPipeline> parent, const std::string mixerType)
-  : MediaObjectImpl (parent),
+Mixer::Mixer (std::shared_ptr<MediaPipeline> parent, const std::string mixerType,
+    const std::map<std::string, KmsMediaParam>& params)
+  : MediaObjectImpl (parent, params),
     KmsMediaMixer()
 {
   this->mixerType = mixerType;

@@ -71,15 +71,10 @@ MediaPipeline::init ()
 }
 
 MediaPipeline::MediaPipeline (const std::map<std::string, KmsMediaParam> &params) throw (KmsMediaServerException)
-  : MediaObjectImpl (),
+  : MediaObjectImpl (params),
     KmsMediaPipeline ()
 {
-  if (params.empty () ) {
-    init ();
-  } else {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "MediaPipeline  only has the default constructor");
-  }
+  init ();
 }
 
 MediaPipeline::~MediaPipeline() throw()
@@ -122,7 +117,6 @@ throw (KmsMediaServerException)
   GST_WARNING ("TODO: complete");
   return NULL;
 }
-
 
 MediaPipeline::StaticConstructor MediaPipeline::staticConstructor;
 

@@ -38,14 +38,9 @@ RtpEndPoint::init (std::shared_ptr<MediaPipeline> parent)
 
 RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> & params)
 throw (KmsMediaServerException)
-  : SdpEndPoint (parent, g_KmsMediaRtpEndPointType_constants.TYPE_NAME)
+  : SdpEndPoint (parent, g_KmsMediaRtpEndPointType_constants.TYPE_NAME, params)
 {
-  if (params.empty () ) {
-    init (parent);
-  } else {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "RtpEndPoint only has the default constructor");
-  }
+  init (parent);
 }
 
 RtpEndPoint::~RtpEndPoint() throw ()

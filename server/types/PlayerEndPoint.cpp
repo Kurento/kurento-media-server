@@ -52,7 +52,7 @@ PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string &
 
 PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
 throw (KmsMediaServerException)
-  : UriEndPoint (parent, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME)
+  : UriEndPoint (parent, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params)
 {
   const KmsMediaParam *p;
   std::shared_ptr<KmsMediaUriEndPointConstructorParams> uriEpParams;

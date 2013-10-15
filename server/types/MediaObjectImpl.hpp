@@ -27,9 +27,11 @@ namespace kurento
 class MediaObjectImpl : public KmsMediaObjectRef
 {
 public:
-  MediaObjectImpl();
-  MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent);
+  MediaObjectImpl(const std::map<std::string, KmsMediaParam>& params = emptyParams);
+  MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, const std::map<std::string, KmsMediaParam>& params = emptyParams);
   virtual ~MediaObjectImpl() throw () = 0;
+
+  bool getExcludeFromGC ();
 
   std::shared_ptr<MediaObjectImpl> getParent () throw (KmsMediaServerException);
   virtual std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string& command,
@@ -49,7 +51,19 @@ protected:
   void sendVoidEvent (const std::string &eventType);
 
 private:
+  bool excludeFromGC = false;
+
+  void init (const std::map<std::string, KmsMediaParam>& params);
+
   static KmsMediaEventData defaultKmsMediaEventData;
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento

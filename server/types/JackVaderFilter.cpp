@@ -38,14 +38,9 @@ JackVaderFilter::init (std::shared_ptr<MediaPipeline> parent)
 }
 
 JackVaderFilter::JackVaderFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
-  : Filter (parent, g_KmsMediaJackVaderFilterType_constants.TYPE_NAME)
+  : Filter (parent, g_KmsMediaJackVaderFilterType_constants.TYPE_NAME, params)
 {
-  if (params.empty () ) {
-    init (parent);
-  } else {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "JackVaderFilter only has the default constructor");
-  }
+  init (parent);
 }
 
 JackVaderFilter::~JackVaderFilter() throw ()

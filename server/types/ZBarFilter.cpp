@@ -90,14 +90,9 @@ ZBarFilter::init (std::shared_ptr<MediaPipeline> parent)
 ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent,
     const std::map<std::string, KmsMediaParam> & params)
 throw (KmsMediaServerException)
-  : Filter (parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME)
+  : Filter (parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME, params)
 {
-  if (params.empty () ) {
-    init (parent);
-  } else {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "ZBarFilter only has the default constructor");
-  }
+  init (parent);
 }
 
 ZBarFilter::~ZBarFilter() throw ()

@@ -189,6 +189,20 @@ check_keep_alive_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServic
 }
 
 static void
+check_exclude_from_gc (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+
+  params = createKmsMediaObjectConstructorParams (true);
+
+  client->createMediaPipelineWithParams (mediaPipeline, params);
+  g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);
+  BOOST_REQUIRE_NO_THROW (client->keepAlive (mediaPipeline) );
+  BOOST_REQUIRE_NO_THROW (client->release (mediaPipeline) );
+}
+
+static void
 check_parent (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
@@ -390,6 +404,7 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
   check_use_released_media_pipeline (client);
   check_auto_released_media_pipeline (client);
   check_keep_alive_media_pipeline (client);
+  check_exclude_from_gc (client);
   check_parent (client);
   check_get_parent_of_media_pipeline (client);
   check_getMediaPipeline (client);

@@ -15,10 +15,17 @@
 
 #include "MediaObjectImpl.hpp"
 
-#include "utils/utils.hpp"
+#include "KmsMediaObject_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
+#include "utils/utils.hpp"
+#include "utils/marshalling.hpp"
+
 #include <glibmm.h>
+
+#define GST_CAT_DEFAULT kurento_media_object
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoMediaObject"
 
 namespace kurento
 {
@@ -46,17 +53,39 @@ getId()
   return ret;
 }
 
-MediaObjectImpl::MediaObjectImpl() : KmsMediaObjectRef()
+void
+MediaObjectImpl::init (const std::map<std::string, KmsMediaParam>& params)
+{
+  const KmsMediaParam *p;
+  std::shared_ptr<KmsMediaObjectConstructorParams> mediaObjectParams;
+
+  p = getParam (params, g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+
+  if (p != NULL) {
+    mediaObjectParams = unmarshalKmsMediaObjectConstructorParams (p->data);
+
+    if (mediaObjectParams->__isset.excludeFromGC)
+      this->excludeFromGC = mediaObjectParams->excludeFromGC;
+  }
+
+  GST_TRACE ("MediaObject %d excludeFromGC: %d", this->id, this->excludeFromGC);
+}
+
+MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam>& params)
+  : KmsMediaObjectRef()
 {
   id = getId();
   this->token = generateUUID ();
+  init (params);
 }
 
-MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent) : KmsMediaObjectRef()
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, const std::map<std::string, KmsMediaParam>& params)
+  : KmsMediaObjectRef()
 {
   id = getId();
   this->token = parent->token;
   this->parent = parent;
+  init (params);
 }
 
 MediaObjectImpl::~MediaObjectImpl() throw ()
@@ -73,6 +102,11 @@ MediaObjectImpl::getParent () throw (KmsMediaServerException)
   return parent;
 }
 
+bool
+MediaObjectImpl::getExcludeFromGC ()
+{
+  return excludeFromGC;
+}
 
 std::shared_ptr<KmsMediaInvocationReturn>
 MediaObjectImpl::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> & params)
@@ -116,6 +150,14 @@ void
 MediaObjectImpl::sendVoidEvent (const std::string &eventType)
 {
   sendEvent (eventType);
+}
+
+MediaObjectImpl::StaticConstructor MediaObjectImpl::staticConstructor;
+
+MediaObjectImpl::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+      GST_DEFAULT_NAME);
 }
 
 } // kurento

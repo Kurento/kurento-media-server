@@ -22,8 +22,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaElement::MediaElement (std::shared_ptr<MediaObjectImpl> parent, const std::string elementType)
-  : MediaObjectImpl (parent),
+MediaElement::MediaElement (std::shared_ptr<MediaObjectImpl> parent, const std::string elementType,
+    const std::map<std::string, KmsMediaParam>& params)
+  : MediaObjectImpl (parent, params),
     KmsMediaElement()
 {
   this->elementType = elementType;

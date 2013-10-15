@@ -68,6 +68,7 @@ void
 MediaSet::keepAlive (const KmsMediaObjectRef &mediaObject)
 throw (KmsMediaServerException)
 {
+  std::shared_ptr<MediaObjectImpl> mo;
   std::shared_ptr<AutoReleaseData> data;
   std::map<KmsMediaObjectId, std::shared_ptr<AutoReleaseData>>::iterator it;
 
@@ -76,8 +77,13 @@ throw (KmsMediaServerException)
     return;
   }
 
-  /* Check that object exists */
-  getMediaObject<MediaObjectImpl> (mediaObject);
+  /* Check that object exists and it is not exluded from GC */
+  mo = getMediaObject<MediaObjectImpl> (mediaObject);
+
+  if (mo->getExcludeFromGC () ) {
+    GST_DEBUG ("MediaObject %d is excluded from GC", mediaObject.id);
+    return;
+  }
 
   mutex.lock();
   it = mediaObjectsAlive.find (mediaObject.id);
@@ -103,13 +109,16 @@ isForceRemoving (std::shared_ptr<MediaObjectImpl> mediaObject)
 void
 MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
 {
-  std::shared_ptr<AutoReleaseData> data (new AutoReleaseData() );
+  std::shared_ptr<AutoReleaseData> data;
   std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >::iterator it;
   std::shared_ptr<std::set<KmsMediaObjectId>> children;
 
-  data->mediaSet = this;
-  data->objectId = mediaObject->id;
-  data->forceRemoving = isForceRemoving (mediaObject);
+  if (!mediaObject->getExcludeFromGC () ) {
+    data = std::shared_ptr<AutoReleaseData> (new AutoReleaseData() );
+    data->mediaSet = this;
+    data->objectId = mediaObject->id;
+    data->forceRemoving = isForceRemoving (mediaObject);
+  }
 
   mutex.lock();
 
@@ -127,8 +136,12 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
   }
 
   mediaObjectsMap[mediaObject->id] = mediaObject;
-  mediaObjectsAlive[mediaObject->id] = data;
-  keepAlive (*mediaObject);
+
+  if (!mediaObject->getExcludeFromGC () ) {
+    mediaObjectsAlive[mediaObject->id] = data;
+    keepAlive (*mediaObject);
+  }
+
   mutex.unlock();
 }
 

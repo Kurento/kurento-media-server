@@ -19,6 +19,7 @@
 #include "KmsMediaServer_types.h"
 #include "KmsMediaHandler_types.h"
 
+#include "KmsMediaObject_types.h"
 #include "KmsMediaUriEndPointType_types.h"
 
 namespace kurento
@@ -56,6 +57,13 @@ throw (KmsMediaServerException)
 {
   return unmarshalStringParam ((KmsMediaEventData) eventData);
 }
+
+std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (bool excludeFromGC)
+                                      throw (KmsMediaServerException);
+std::string marshalKmsMediaObjectConstructorParams (KmsMediaObjectConstructorParams &moParams)
+                                      throw (KmsMediaServerException);
+std::shared_ptr<KmsMediaObjectConstructorParams> unmarshalKmsMediaObjectConstructorParams (std::string data)
+                                      throw (KmsMediaServerException);
 
 std::map<std::string, KmsMediaParam> createKmsMediaUriEndPointConstructorParams (std::string uri)
                                       throw (KmsMediaServerException);
