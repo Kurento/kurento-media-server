@@ -19,6 +19,8 @@
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
+#include "KmsMediaUriEndPointType_constants.h"
+
 #include "protocol/TBinaryProtocol.h"
 #include "transport/TBufferTransports.h"
 
@@ -27,6 +29,42 @@ using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {
+
+std::string
+marshalI32 (const int32_t i) throw (KmsMediaServerException)
+{
+  boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
+  TBinaryProtocol protocol (transport);
+  std::string data;
+
+  try {
+    protocol.writeI32 (i);
+    transport->appendBufferToString (data);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
+        "Cannot marshal I32");
+  }
+
+  return data;
+}
+
+int32_t
+unmarshalI32 (const std::string &data) throw (KmsMediaServerException)
+{
+  boost::shared_ptr<TMemoryBuffer> transport;
+  int32_t i;
+
+  try {
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
+    TBinaryProtocol protocol = TBinaryProtocol (transport);
+    protocol.readI32 (i);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+        "Cannot unmarshal I32");
+  }
+
+  return i;
+}
 
 std::string
 marshalString (const std::string &str) throw (KmsMediaServerException)
@@ -64,10 +102,36 @@ unmarshalString (const std::string &data) throw (KmsMediaServerException)
   return str;
 }
 
-std::shared_ptr<KmsMediaParams>
-createStringParams (const std::string &data) throw (KmsMediaServerException)
+std::shared_ptr<KmsMediaParam>
+createI32Param (const int32_t i) throw (KmsMediaServerException)
 {
-  std::shared_ptr<KmsMediaParams> result (new KmsMediaParams () );
+  std::shared_ptr<KmsMediaParam> result (new KmsMediaParam () );
+
+  result->__set_dataType (g_KmsMediaDataType_constants.I32_DATA_TYPE);
+  result->__set_data (marshalI32 (i) );
+
+  return result;
+}
+
+int32_t
+unmarshalI32Param (const KmsMediaParam &param) throw (KmsMediaServerException)
+{
+  int32_t i;
+
+  if (g_KmsMediaDataType_constants.I32_DATA_TYPE.compare (param.dataType) == 0) {
+    i = unmarshalI32 (param.data);
+  } else {
+    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+        "Param is not of 'I32' data type");
+  }
+
+  return i;
+}
+
+std::shared_ptr<KmsMediaParam>
+createStringParam (const std::string &data) throw (KmsMediaServerException)
+{
+  std::shared_ptr<KmsMediaParam> result (new KmsMediaParam () );
 
   result->__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
   result->__set_data (marshalString (data) );
@@ -76,46 +140,72 @@ createStringParams (const std::string &data) throw (KmsMediaServerException)
 }
 
 std::string
-unmarshalStringParams (const KmsMediaParams &params) throw (KmsMediaServerException)
+unmarshalStringParam (const KmsMediaParam &param) throw (KmsMediaServerException)
 {
   std::string str;
 
-  if (g_KmsMediaDataType_constants.STRING_DATA_TYPE.compare (params.dataType) == 0) {
-    str = unmarshalString (params.data);
+  if (g_KmsMediaDataType_constants.STRING_DATA_TYPE.compare (param.dataType) == 0) {
+    str = unmarshalString (param.data);
   } else {
     throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Params is not of 'String' data type");
+        "Param is not of 'String' data type");
   }
 
   return str;
 }
 
-std::shared_ptr<KmsMediaCommand>
-createVoidCommand (std::string commandName)
-{
-  std::shared_ptr<KmsMediaCommand> command (new KmsMediaCommand () );
-  KmsMediaParams params;
-
-  params.__set_dataType (g_KmsMediaDataType_constants.VOID_DATA_TYPE);
-  command->__set_name (commandName);
-  command->__set_params (params);
-
-  return command;
-}
-
-std::shared_ptr<KmsMediaCommand>
-createStringCommand (std::string commandName, std::string str)
+std::map<std::string, KmsMediaParam>
+createKmsMediaUriEndPointConstructorParams (std::string uri)
 throw (KmsMediaServerException)
 {
-  std::shared_ptr<KmsMediaCommand> command (new KmsMediaCommand () );
-  KmsMediaParams params;
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaParam param;
+  KmsMediaUriEndPointConstructorParams uriEpParams;
 
-  params.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
-  params.__set_data (marshalString (str) );
-  command->__set_name (commandName);
-  command->__set_params (params);
+  uriEpParams.__set_uri (uri);
+  param.__set_dataType (g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  param.__set_data (marshalKmsMediaUriEndPointConstructorParams (uriEpParams) );
+  params[g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
 
-  return command;
+  return params;
+}
+
+std::string
+marshalKmsMediaUriEndPointConstructorParams (KmsMediaUriEndPointConstructorParams &uriEpParams)
+throw (KmsMediaServerException)
+{
+  boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
+  TBinaryProtocol protocol (transport);
+  std::string data;
+
+  try {
+    uriEpParams.write (&protocol);
+    transport->appendBufferToString (data);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
+        "Cannot marshal KmsMediaUriEndPointConstructorParams");
+  }
+
+  return data;
+}
+
+std::shared_ptr<KmsMediaUriEndPointConstructorParams>
+unmarshalKmsMediaUriEndPointConstructorParams (std::string data)
+throw (KmsMediaServerException)
+{
+  std::shared_ptr<KmsMediaUriEndPointConstructorParams> params (new KmsMediaUriEndPointConstructorParams () );
+  boost::shared_ptr<TMemoryBuffer> transport;
+
+  try {
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
+    TBinaryProtocol protocol = TBinaryProtocol (transport);
+    params->read (&protocol);
+  } catch (...) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+        "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
+  }
+
+  return params;
 }
 
 } // kurento

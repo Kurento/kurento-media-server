@@ -24,13 +24,14 @@ namespace kurento
 class HttpEndPoint : public EndPoint
 {
 public:
-  HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params = defaultKmsMediaParams)
+  HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
                 throw (KmsMediaServerException);
   ~HttpEndPoint() throw ();
 
   std::string getUrl ();
 
-  std::shared_ptr<KmsMediaCommandResult> sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
+  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string& command,
+              const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
 
 private:
   std::string url;

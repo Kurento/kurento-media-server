@@ -24,8 +24,8 @@ namespace kurento
 class RtpEndPoint : public SdpEndPoint
 {
 public:
-  RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params = defaultKmsMediaParams)
-                throw (KmsMediaServerException);
+  RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> & params)
+               throw (KmsMediaServerException);
   ~RtpEndPoint() throw ();
 
 private:

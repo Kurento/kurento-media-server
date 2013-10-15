@@ -33,7 +33,8 @@ public:
   std::string getLocalSessionDescription () throw (KmsMediaServerException);
   std::string getRemoteSessionDescription () throw (KmsMediaServerException);
 
-  std::shared_ptr<KmsMediaCommandResult> sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
+  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string& command,
+              const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
 };
 
 } // kurento

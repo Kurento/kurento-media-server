@@ -15,6 +15,7 @@
 
 #include "RecorderEndPoint.hpp"
 
+#include "KmsMediaUriEndPointType_constants.h"
 #include "KmsMediaRecorderEndPointType_constants.h"
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
@@ -41,18 +42,23 @@ RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string
   gst_element_sync_state_with_parent (element);
 }
 
-RecorderEndPoint::RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+RecorderEndPoint::RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
 throw (KmsMediaServerException)
   : UriEndPoint (parent, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME)
 {
-  if (g_KmsMediaDataType_constants.STRING_DATA_TYPE.compare (params.dataType) == 0) {
-    std::string uri;
-    uri = unmarshalString (params.data);
-    init (parent, uri);
-  } else {
-    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "RecorderEndPoint has not any constructor with params of type " + params.dataType);
+  const KmsMediaParam *p;
+  std::shared_ptr<KmsMediaUriEndPointConstructorParams> uriEpParams;
+
+  p = getParam (params, g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+
+  if (p == NULL) {
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+        "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
   }
+
+  uriEpParams = unmarshalKmsMediaUriEndPointConstructorParams (p->data);
+
+  init (parent, uriEpParams->uri);
 }
 
 RecorderEndPoint::~RecorderEndPoint() throw ()

@@ -23,7 +23,7 @@
 namespace kurento
 {
 
-KmsMediaParams MediaObjectImpl::defaultKmsMediaParams = KmsMediaParams ();
+std::map<std::string, KmsMediaParam> MediaObjectImpl::emptyParams = std::map<std::string, KmsMediaParam> ();
 KmsMediaEventData MediaObjectImpl::defaultKmsMediaEventData = KmsMediaEventData ();
 
 static KmsMediaObjectId
@@ -73,11 +73,13 @@ MediaObjectImpl::getParent () throw (KmsMediaServerException)
   return parent;
 }
 
-std::shared_ptr<KmsMediaCommandResult>
-MediaObjectImpl::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
+
+std::shared_ptr<KmsMediaInvocationReturn>
+MediaObjectImpl::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> & params)
+throw (KmsMediaServerException)
 {
-  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_COMMAND_NOT_FOUND,
-      "This media object has not any command named " + command.name);
+  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_METHOD_NOT_FOUND,
+      "This media object has not any command named " + command);
 }
 
 std::string

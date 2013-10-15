@@ -36,19 +36,17 @@ RtpEndPoint::init (std::shared_ptr<MediaPipeline> parent)
   gst_element_sync_state_with_parent (element);
 }
 
-RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> & params)
 throw (KmsMediaServerException)
   : SdpEndPoint (parent, g_KmsMediaRtpEndPointType_constants.TYPE_NAME)
 {
-  if (params == defaultKmsMediaParams ||
-      g_KmsMediaDataType_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
+  if (params.empty () ) {
     init (parent);
   } else {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "RtpEndPoint has not any constructor with params of type " + params.dataType);
+        "RtpEndPoint only has the default constructor");
   }
 }
-
 
 RtpEndPoint::~RtpEndPoint() throw ()
 {

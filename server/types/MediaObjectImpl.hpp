@@ -32,7 +32,8 @@ public:
   virtual ~MediaObjectImpl() throw () = 0;
 
   std::shared_ptr<MediaObjectImpl> getParent () throw (KmsMediaServerException);
-  virtual std::shared_ptr<KmsMediaCommandResult> sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException);
+  virtual std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string& command,
+              const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
   virtual std::string subscribe (const std::string &eventType, const std::string &handlerAddress,
                                             const int32_t handlerPort) throw (KmsMediaServerException);
   virtual void unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException);
@@ -41,7 +42,7 @@ public:
   std::shared_ptr<MediaObjectImpl> parent;
 
 protected:
-  static KmsMediaParams defaultKmsMediaParams;
+  static std::map<std::string, KmsMediaParam> emptyParams;
   MediaHandlerManager mediaHandlerManager;
 
   void sendEvent (const std::string &eventType, const KmsMediaEventData &eventData = defaultKmsMediaEventData);

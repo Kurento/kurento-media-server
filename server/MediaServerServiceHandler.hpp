@@ -45,8 +45,8 @@ public:
                       throw (KmsMediaServerException);
   void unsubscribeError(const KmsMediaObjectRef& mediaObjectRef, const std::string& callbackToken)
                         throw (KmsMediaServerException);
-  void sendCommand(KmsMediaCommandResult& _return, const KmsMediaObjectRef& mediaObjectRef, const KmsMediaCommand& command)
-		   throw (KmsMediaServerException);
+  void invoke(KmsMediaInvocationReturn& _return, const KmsMediaObjectRef& mediaObjectRef, const std::string& command,
+              const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
   void getParent(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaObjectRef)
 		 throw (KmsMediaServerException);
   void getMediaPipeline(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaObjectRef)
@@ -54,17 +54,17 @@ public:
 
   /* MediaPileline */
   void createMediaPipeline(KmsMediaObjectRef& _return) throw (KmsMediaServerException);
-  void createMediaPipelineWithParams(KmsMediaObjectRef& _return, const KmsMediaParams& params)
+  void createMediaPipelineWithParams(KmsMediaObjectRef& _return, const std::map<std::string, KmsMediaParam>& params)
 				     throw (KmsMediaServerException);
   void createMediaElement(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaPipeline,
 			  const std::string& elementType) throw (KmsMediaServerException);
   void createMediaElementWithParams(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaPipeline,
-				    const std::string& elementType, const KmsMediaParams& params)
+				    const std::string& elementType, const std::map<std::string, KmsMediaParam>& params)
 				    throw (KmsMediaServerException);
   void createMediaMixer(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaPipeline,
 			const std::string& mixerType) throw (KmsMediaServerException);
   void createMediaMixerWithParams(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaPipeline,
-				  const std::string& mixerType, const KmsMediaParams& params)
+				  const std::string& mixerType, const std::map<std::string, KmsMediaParam>& params)
 				  throw (KmsMediaServerException);
 
   /* MediaElement */
@@ -84,6 +84,12 @@ public:
 				      throw (KmsMediaServerException);
   void connectElements(const KmsMediaObjectRef& srcMediaElement, const KmsMediaObjectRef& sinkMediaElement)
                         throw (KmsMediaServerException);
+  void connectElementsByMediaType(const KmsMediaObjectRef& srcMediaElement, const KmsMediaObjectRef& sinkMediaElement,
+                                  const KmsMediaType::type mediaType) throw (KmsMediaServerException);
+  void connectElementsByFullDescription(const KmsMediaObjectRef& srcMediaElement, const KmsMediaObjectRef& sinkMediaElement,
+                                        const KmsMediaType::type mediaType, const std::string& mediaDescription)
+                                        throw (KmsMediaServerException);
+
   /* MediaPad */
   void getMediaElement(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mediaPadRef) throw (KmsMediaServerException);
 
@@ -97,7 +103,8 @@ public:
 
   /* Mixer */
   void createMixerEndPoint(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mixer) throw (KmsMediaServerException);
-  void createMixerEndPointWithParams(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mixer, const KmsMediaParams& params)
+  void createMixerEndPointWithParams(KmsMediaObjectRef& _return, const KmsMediaObjectRef& mixer,
+                                     const std::map<std::string, KmsMediaParam>& params)
 				     throw (KmsMediaServerException);
 
 private:

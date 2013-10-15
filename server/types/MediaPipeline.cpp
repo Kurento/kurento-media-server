@@ -68,16 +68,15 @@ MediaPipeline::init ()
   this->objectType.__set_pipeline (*this);
 }
 
-MediaPipeline::MediaPipeline (const KmsMediaParams &params) throw (KmsMediaServerException)
+MediaPipeline::MediaPipeline (const std::map<std::string, KmsMediaParam> &params) throw (KmsMediaServerException)
   : MediaObjectImpl (),
     KmsMediaPipeline ()
 {
-  if (params == defaultKmsMediaParams ||
-      g_KmsMediaDataType_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
+  if (params.empty () ) {
     init ();
   } else {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "MediaPipeline has not any constructor with params of type " + params.dataType);
+        "MediaPipeline  only has the default constructor");
   }
 }
 
@@ -91,7 +90,7 @@ MediaPipeline::~MediaPipeline() throw()
 }
 
 std::shared_ptr<MediaElement>
-MediaPipeline::createMediaElement (const std::string &elementType, const KmsMediaParams &params)
+MediaPipeline::createMediaElement (const std::string &elementType, const std::map<std::string, KmsMediaParam>& params)
 throw (KmsMediaServerException)
 {
   GST_WARNING ("TODO: complete");
@@ -113,7 +112,7 @@ throw (KmsMediaServerException)
 }
 
 std::shared_ptr<Mixer>
-MediaPipeline::createMediaMixer (const std::string &mixerType, const KmsMediaParams &params)
+MediaPipeline::createMediaMixer (const std::string &mixerType, const std::map<std::string, KmsMediaParam>& params)
 throw (KmsMediaServerException)
 {
   GST_WARNING ("TODO: complete");

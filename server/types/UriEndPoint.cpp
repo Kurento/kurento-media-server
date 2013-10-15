@@ -16,11 +16,20 @@
 #include "UriEndPoint.hpp"
 
 #include "KmsMediaUriEndPointType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
+
+#include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
+
+#include "protocol/TBinaryProtocol.h"
+#include "transport/TBufferTransports.h"
 
 #define GST_CAT_DEFAULT kurento_uri_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoUriEndPoint"
+
+using apache::thrift::transport::TMemoryBuffer;
+using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {
@@ -65,14 +74,15 @@ UriEndPoint::stop ()
   g_object_set (G_OBJECT (element), "state", 0 /* stop */, NULL);
 }
 
-std::shared_ptr<KmsMediaCommandResult>
-UriEndPoint::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
+std::shared_ptr<KmsMediaInvocationReturn>
+UriEndPoint::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> & params)
+throw (KmsMediaServerException)
 {
-  if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command.name) == 0) {
-    return createStirngCommandResult (getUri () );
+  if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command) == 0) {
+    return createStringInvocationReturn (getUri () );
   }
 
-  return EndPoint::sendCommand (command);
+  return EndPoint::invoke (command, params);
 }
 
 UriEndPoint::StaticConstructor UriEndPoint::staticConstructor;

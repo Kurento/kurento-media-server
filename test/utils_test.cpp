@@ -16,13 +16,16 @@
 #define BOOST_TEST_MODULE utils_test
 #include <boost/test/unit_test.hpp>
 
+#include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
+
+#include "KmsMediaUriEndPointType_constants.h"
 
 using namespace kurento;
 
 BOOST_AUTO_TEST_SUITE (utils_test)
 
-BOOST_AUTO_TEST_CASE ( marshal_unmarshal_string )
+BOOST_AUTO_TEST_CASE ( test_marshal_unmarshal_string )
 {
   std::string originalStr = "abcd1234";
   std::string marshalledStr, unmarshalledStr;
@@ -33,4 +36,17 @@ BOOST_AUTO_TEST_CASE ( marshal_unmarshal_string )
   BOOST_REQUIRE_EQUAL (0, originalStr.compare (unmarshalledStr) );
 }
 
+BOOST_AUTO_TEST_CASE ( test_KmsMediaUriEndPointConstructorParams )
+{
+  std::string originalStr = "abcd1234";
+  std::map<std::string, KmsMediaParam> params;
+  const KmsMediaParam *p;
+  std::shared_ptr<KmsMediaUriEndPointConstructorParams> uriEpParams;
+
+  params = createKmsMediaUriEndPointConstructorParams (originalStr);
+  p = getParam (params, g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  uriEpParams = unmarshalKmsMediaUriEndPointConstructorParams (p->data);
+
+  BOOST_REQUIRE_EQUAL (0, originalStr.compare (uriEpParams->uri) );
+}
 BOOST_AUTO_TEST_SUITE_END ()

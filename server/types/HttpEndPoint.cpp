@@ -234,33 +234,30 @@ throw (KmsMediaServerException)
   return params;
 }
 
-HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
 throw (KmsMediaServerException)
   : EndPoint (parent, g_KmsMediaHttpEndPointType_constants.TYPE_NAME)
 {
-  if (params == defaultKmsMediaParams ||
-      g_KmsMediaDataType_constants.VOID_DATA_TYPE.compare (params.dataType) == 0) {
-    init (parent, COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
-  } else if (g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE.compare (params.dataType) == 0) {
-    guint cookieLifetime = COOKIE_LIFETIME;
-    guint disconnectionTimeout = DISCONNECTION_TIMEOUT;
-    KmsMediaHttpEndPointConstructorParams p;
+  const KmsMediaParam *p;
+  KmsMediaHttpEndPointConstructorParams httpEpParams;
+  guint cookieLifetime = COOKIE_LIFETIME;
+  guint disconnectionTimeout = DISCONNECTION_TIMEOUT;
 
-    p = unmarshalKmsMediaHttpEndPointConstructorParams (params.data);
+  p = getParam (params, g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
-    if (p.__isset.cookieLifetime) {
-      cookieLifetime = p.cookieLifetime;
+  if (p != NULL) {
+    httpEpParams = unmarshalKmsMediaHttpEndPointConstructorParams (p->data);
+
+    if (httpEpParams.__isset.cookieLifetime) {
+      cookieLifetime = httpEpParams.cookieLifetime;
     }
 
-    if (p.__isset.disconnectionTimeout) {
-      disconnectionTimeout = p.disconnectionTimeout;
+    if (httpEpParams.__isset.disconnectionTimeout) {
+      disconnectionTimeout = httpEpParams.disconnectionTimeout;
     }
-
-    init (parent, cookieLifetime, disconnectionTimeout);
-  } else {
-    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CONSTRUCTOR_NOT_FOUND,
-        "PlayerEndPoint has not any constructor with params of type " + params.dataType);
   }
+
+  init (parent, cookieLifetime, disconnectionTimeout);
 }
 
 static std::string
@@ -330,16 +327,15 @@ HttpEndPoint::setUrl (std::string newUrl)
   url = newUrl;
 }
 
-std::shared_ptr<KmsMediaCommandResult>
-HttpEndPoint::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
+std::shared_ptr<KmsMediaInvocationReturn>
+HttpEndPoint::invoke (const std::string &command, const std::map<std::string, KmsMediaParam>& params)
+throw (KmsMediaServerException)
 {
-  KmsMediaCommandResult result;
-
-  if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command.name) == 0) {
-    return createStirngCommandResult (getUrl () );
+  if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command) == 0) {
+    return createStringInvocationReturn (getUrl () );
   }
 
-  return EndPoint::sendCommand (command);
+  return EndPoint::invoke (command, params);
 }
 
 HttpEndPoint::StaticConstructor HttpEndPoint::staticConstructor;

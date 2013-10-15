@@ -15,6 +15,7 @@
 
 #include "utils.hpp"
 
+#include "marshalling.hpp"
 #include "KmsMediaErrorCodes_constants.h"
 
 #include <glibmm.h>
@@ -60,6 +61,54 @@ createKmsMediaServerException (int errorCode, std::string description)
   mse.__set_description (description);
 
   return mse;
+}
+
+int32_t
+getI32Param (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName)
+{
+  std::map< std::string, KmsMediaParam>::const_iterator it;
+  it = params.find (paramName);
+
+  if (it != params.end () ) {
+    return unmarshalI32Param (it->second);
+  }
+
+  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+      "Param '" + paramName + "' not found");
+}
+
+std::string
+getStringParam (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName)
+{
+  std::map< std::string, KmsMediaParam>::const_iterator it;
+  it = params.find (paramName);
+
+  if (it != params.end () ) {
+    return unmarshalStringParam (it->second);
+  }
+
+  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+      "Param '" + paramName + "' not found");
+}
+
+
+void
+setStringParam (std::map<std::string, KmsMediaParam>& params, const std::string &paramName, const std::string &paramValue)
+{
+  params[paramName] = * (createStringParam (paramValue) );
+}
+
+const KmsMediaParam *
+getParam (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName)
+{
+  std::map< std::string, KmsMediaParam>::const_iterator it;
+  it = params.find (paramName);
+
+  if (it != params.end () ) {
+    return & (it->second);
+  }
+
+  return NULL;
 }
 
 } // kurento

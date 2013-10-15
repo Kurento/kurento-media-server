@@ -26,6 +26,13 @@ std::string generateUUID ();
 KmsMediaServerException createKmsMediaServerException (std::string description);
 KmsMediaServerException createKmsMediaServerException (int errorCode, std::string description);
 
+int32_t getI32Param (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName);
+
+std::string getStringParam (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName);
+void setStringParam (std::map<std::string, KmsMediaParam>& params, const std::string &paramName, const std::string &paramValue);
+
+const KmsMediaParam* getParam (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName);
+
 } // kurento
 
 #endif /* __UTILS_HPP__ */

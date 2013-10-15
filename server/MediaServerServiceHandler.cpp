@@ -144,25 +144,26 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::sendCommand (KmsMediaCommandResult &_return, const KmsMediaObjectRef &mediaObjectRef, const KmsMediaCommand &command)
+MediaServerServiceHandler::invoke (KmsMediaInvocationReturn &_return, const KmsMediaObjectRef &mediaObjectRef, const std::string &command,
+    const std::map<std::string, KmsMediaParam> & params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
 
-  GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT, mediaObjectRef.id);
+  GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT, mediaObjectRef.id);
 
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
-    _return = * (mo->sendCommand (command) );
+    _return = * (mo->invoke (command, params) );
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
+    GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
     throw e;
   } catch (...) {
-    GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in sendCommand");
+    GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
+    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in invoke");
   }
 
-  GST_TRACE ("sendCommand mediaObjectRef: %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
+  GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
 }
 
 void
@@ -240,7 +241,8 @@ MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return) thro
 }
 
 void
-MediaServerServiceHandler::createMediaPipelineWithParams (KmsMediaObjectRef &_return, const KmsMediaParams &params)
+MediaServerServiceHandler::createMediaPipelineWithParams (KmsMediaObjectRef &_return,
+    const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaHandler> mh;
@@ -290,7 +292,7 @@ MediaServerServiceHandler::createMediaElement (KmsMediaObjectRef &_return, const
 
 void
 MediaServerServiceHandler::createMediaElementWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
-    const std::string &elementType, const KmsMediaParams &params)
+    const std::string &elementType, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPipeline> mp;
@@ -343,7 +345,7 @@ MediaServerServiceHandler::createMediaMixer (KmsMediaObjectRef &_return, const K
 
 void
 MediaServerServiceHandler::createMediaMixerWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
-    const std::string &mixerType, const KmsMediaParams &params)
+    const std::string &mixerType, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPipeline> mp;
@@ -517,6 +519,25 @@ throw (KmsMediaServerException)
   GST_WARNING ("TODO: implement");
 }
 
+void
+MediaServerServiceHandler::connectElementsByMediaType (const KmsMediaObjectRef &srcMediaElement,
+    const KmsMediaObjectRef &sinkMediaElement,
+    const KmsMediaType::type mediaType)
+throw (KmsMediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
+void
+MediaServerServiceHandler::connectElementsByFullDescription (const KmsMediaObjectRef &srcMediaElement,
+    const KmsMediaObjectRef &sinkMediaElement,
+    const KmsMediaType::type mediaType,
+    const std::string &mediaDescription)
+throw (KmsMediaServerException)
+{
+  GST_WARNING ("TODO: implement");
+}
+
 /* MediaPad */
 
 void
@@ -662,7 +683,7 @@ MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return, cons
 }
 
 void
-MediaServerServiceHandler::createMixerEndPointWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer, const KmsMediaParams &params)
+MediaServerServiceHandler::createMixerEndPointWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   GST_WARNING ("TODO: implement");

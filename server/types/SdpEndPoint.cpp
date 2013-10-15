@@ -173,24 +173,25 @@ SdpEndPoint::getRemoteSessionDescription () throw (KmsMediaServerException)
   return remoteSdpStr;
 }
 
-std::shared_ptr<KmsMediaCommandResult>
-SdpEndPoint::sendCommand (const KmsMediaCommand &command) throw (KmsMediaServerException)
+std::shared_ptr<KmsMediaInvocationReturn>
+SdpEndPoint::invoke (const std::string &command, const std::map< std::string, KmsMediaParam >& params)
+throw (KmsMediaServerException)
 {
-  if (g_KmsMediaSdpEndPointType_constants.GET_LOCAL_SDP.compare (command.name) == 0) {
-    return createStirngCommandResult (getLocalSessionDescription () );
-  } else if (g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP.compare (command.name) == 0) {
-    return createStirngCommandResult (getRemoteSessionDescription () );
-  } else if (g_KmsMediaSdpEndPointType_constants.GENERATE_SDP_OFFER.compare (command.name) == 0) {
-    return createStirngCommandResult (generateOffer () );
-  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER.compare (command.name) == 0) {
-    std::string offer = unmarshalStringParams (command.params);
-    return createStirngCommandResult (processOffer (offer) );
-  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER.compare (command.name) == 0) {
-    std::string answer = unmarshalStringParams (command.params);
-    return createStirngCommandResult (processAnswer (answer) );
+  if (g_KmsMediaSdpEndPointType_constants.GET_LOCAL_SDP.compare (command) == 0) {
+    return createStringInvocationReturn (getLocalSessionDescription () );
+  } else if (g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP.compare (command) == 0) {
+    return createStringInvocationReturn (getRemoteSessionDescription () );
+  } else if (g_KmsMediaSdpEndPointType_constants.GENERATE_SDP_OFFER.compare (command) == 0) {
+    return createStringInvocationReturn (generateOffer () );
+  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER.compare (command) == 0) {
+    std::string offer = getStringParam (params, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER_PARAM_OFFER_STR);
+    return createStringInvocationReturn (processOffer (offer) );
+  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER.compare (command) == 0) {
+    std::string answer = getStringParam (params, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER_PARAM_ANSWER_STR);
+    return createStringInvocationReturn (processAnswer (answer) );
   }
 
-  return EndPoint::sendCommand (command);
+  return EndPoint::invoke (command, params);
 }
 
 } // kurento

@@ -24,7 +24,7 @@ namespace kurento
 class ZBarFilter : public Filter
 {
 public:
-  ZBarFilter (std::shared_ptr<MediaPipeline> parent, const KmsMediaParams &params)
+  ZBarFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> & params)
                  throw (KmsMediaServerException);
   ~ZBarFilter() throw ();
 
