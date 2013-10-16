@@ -45,7 +45,8 @@ auto_release (gpointer dataPointer)
 {
   AutoReleaseData *data = (AutoReleaseData *) dataPointer;
 
-  GST_TRACE ("Auto release media object %ld, force: %d", data->objectId, data->forceRemoving);
+  GST_TRACE ("Auto release media object %" G_GINT64_FORMAT ", force: %d",
+             data->objectId, data->forceRemoving);
   data->mediaSet->remove (data->objectId, data->forceRemoving);
   return TRUE;
 }
@@ -73,7 +74,7 @@ throw (KmsMediaServerException)
   std::map<KmsMediaObjectId, std::shared_ptr<AutoReleaseData>>::iterator it;
 
   if (!canBeAutoreleased (mediaObject) ) {
-    GST_DEBUG ("MediaObject %d is not auto releasable", mediaObject.id);
+    GST_DEBUG ("MediaObject %" G_GINT64_FORMAT " is not auto releasable", mediaObject.id);
     return;
   }
 
@@ -81,7 +82,7 @@ throw (KmsMediaServerException)
   mo = getMediaObject<MediaObjectImpl> (mediaObject);
 
   if (mo->getExcludeFromGC () ) {
-    GST_DEBUG ("MediaObject %d is excluded from GC", mediaObject.id);
+    GST_DEBUG ("MediaObject %" G_GINT64_FORMAT " is excluded from GC", mediaObject.id);
     return;
   }
 

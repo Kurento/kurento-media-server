@@ -68,7 +68,8 @@ MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
       this->excludeFromGC = mediaObjectParams->excludeFromGC;
   }
 
-  GST_TRACE ("MediaObject %d excludeFromGC: %d", this->id, this->excludeFromGC);
+  GST_TRACE ("MediaObject %" G_GINT64_FORMAT " excludeFromGC: %d", this->id,
+             this->excludeFromGC);
 }
 
 MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam> &params)

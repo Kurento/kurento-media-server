@@ -251,7 +251,7 @@ new_sample_handler (GstElement *httpep, gpointer data)
   GstSample *sample = NULL;
   struct sample_data *sdata;
 
-  GST_TRACE ("New-sample for message %" GST_PTR_FORMAT, msg);
+  GST_TRACE ("New-sample for message %" GST_PTR_FORMAT, (gpointer) msg);
 
   g_signal_emit_by_name (httpep, "pull-sample", &sample);
 
@@ -305,12 +305,12 @@ disconnect_eos_new_sample_signals (SoupMessage *msg)
 
   if (!g_hash_table_contains (serv->priv->handlers, path) ) {
     GST_WARNING ("Message %" GST_PTR_FORMAT
-                 " was bounded to an unregistered HttpEndPoint", msg);
+                 " was bounded to an unregistered HttpEndPoint", (gpointer) msg);
     return;
   }
 
   httpep = (GstElement *) g_hash_table_lookup (serv->priv->handlers, path);
-  GST_DEBUG ("Message %" GST_PTR_FORMAT " is bounded to %s", msg,
+  GST_DEBUG ("Message %" GST_PTR_FORMAT " is bounded to %s", (gpointer) msg,
              GST_ELEMENT_NAME (httpep) );
 
   /* Disconnect signals */
@@ -399,7 +399,7 @@ finished_get_processing (SoupMessage *msg, gpointer data)
   GstElement *httpep = GST_ELEMENT (data);
   gpointer param;
 
-  GST_DEBUG ("Message finished %" GST_PTR_FORMAT, msg);
+  GST_DEBUG ("Message finished %" GST_PTR_FORMAT, (gpointer) msg);
   msg_finished (msg);
 
   disconnect_eos_new_sample_signals (msg);
@@ -705,7 +705,7 @@ destroy_pending_message (SoupMessage *msg)
 {
   gulong *handlerid;
 
-  GST_DEBUG ("Destroy pending message %" GST_PTR_FORMAT, msg);
+  GST_DEBUG ("Destroy pending message %" GST_PTR_FORMAT, (gpointer) msg);
 
   if (msg->method == SOUP_METHOD_GET) {
     KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
