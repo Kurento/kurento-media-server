@@ -50,7 +50,7 @@ PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string &
   gst_element_sync_state_with_parent (element);
 }
 
-PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
+PlayerEndPoint::PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
   : UriEndPoint (parent, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params)
 {
@@ -61,7 +61,7 @@ throw (KmsMediaServerException)
 
   if (p == NULL) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-        "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
+                                         "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
   }
 
   uriEpParams = unmarshalKmsMediaUriEndPointConstructorParams (p->data);
@@ -92,7 +92,7 @@ PlayerEndPoint::StaticConstructor PlayerEndPoint::staticConstructor;
 PlayerEndPoint::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

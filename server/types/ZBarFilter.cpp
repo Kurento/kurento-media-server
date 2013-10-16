@@ -51,7 +51,7 @@ zbar_receive_message (GstBus *bus, GstMessage *message, gpointer zbar)
       return;
 
     if (!gst_structure_get (st, "timestamp", G_TYPE_UINT64, &ts,
-        "type", G_TYPE_STRING, &type, "symbol", G_TYPE_STRING, &symbol, NULL) )
+                            "type", G_TYPE_STRING, &type, "symbol", G_TYPE_STRING, &symbol, NULL) )
       return;
 
     std::string symbolStr (symbol);
@@ -88,7 +88,7 @@ ZBarFilter::init (std::shared_ptr<MediaPipeline> parent)
 }
 
 ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent,
-    const std::map<std::string, KmsMediaParam> & params)
+                        const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
   : Filter (parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME, params)
 {
@@ -150,7 +150,7 @@ ZBarFilter::StaticConstructor ZBarFilter::staticConstructor;
 ZBarFilter::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

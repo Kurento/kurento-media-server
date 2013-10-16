@@ -25,7 +25,7 @@ namespace kurento
 {
 
 SdpEndPoint::SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string type,
-    const std::map<std::string, KmsMediaParam>& params)
+                          const std::map<std::string, KmsMediaParam> &params)
   : EndPoint (parent, type, params)
 {
 }
@@ -45,7 +45,7 @@ str_to_sdp (const std::string &sdpStr)
 
   if (result != GST_SDP_OK) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.SDP_CREATE_ERROR,
-        "Error creating SDP message");
+                                         "Error creating SDP message");
   }
 
   result = gst_sdp_message_parse_buffer ( (const guint8 *) sdpStr.c_str (), -1, sdp);
@@ -53,7 +53,7 @@ str_to_sdp (const std::string &sdpStr)
   if (result != GST_SDP_OK) {
     gst_sdp_message_free (sdp);
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.SDP_PARSE_ERROR,
-        "Error parsing SDP");
+                                         "Error parsing SDP");
   }
 
   return sdp;
@@ -85,7 +85,7 @@ SdpEndPoint::generateOffer ()
 
   if (offer == NULL) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.SDP_END_POINT_GENERATE_OFFER_ERROR,
-        "Error generating offer");
+                                         "Error generating offer");
   }
 
   offerStr = sdp_to_str (offer);
@@ -119,7 +119,7 @@ SdpEndPoint::processOffer (const std::string &offer)
 
   if (result == NULL) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.SDP_END_POINT_PROCESS_OFFER_ERROR,
-        "Error processing offer");
+                                         "Error processing offer");
   }
 
   resultStr = sdp_to_str (result);
@@ -142,7 +142,7 @@ SdpEndPoint::getLocalSessionDescription () throw (KmsMediaServerException)
 
   if (localSdp == NULL) {
     throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.SDP_END_POINT_NO_LOCAL_SDP_ERROR,
-        "No local SDP");
+                                          "No local SDP");
   }
 
   localSdpStr = sdp_to_str (localSdp);
@@ -165,7 +165,7 @@ SdpEndPoint::getRemoteSessionDescription () throw (KmsMediaServerException)
 
   if (remoteSdp == NULL) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.SDP_END_POINT_NO_REMOTE_SDP_ERROR,
-        "No remote SDP");
+                                         "No remote SDP");
   }
 
   remoteSdpStr = sdp_to_str (remoteSdp);;
@@ -175,7 +175,7 @@ SdpEndPoint::getRemoteSessionDescription () throw (KmsMediaServerException)
 }
 
 std::shared_ptr<KmsMediaInvocationReturn>
-SdpEndPoint::invoke (const std::string &command, const std::map< std::string, KmsMediaParam >& params)
+SdpEndPoint::invoke (const std::string &command, const std::map< std::string, KmsMediaParam > &params)
 throw (KmsMediaServerException)
 {
   if (g_KmsMediaSdpEndPointType_constants.GET_LOCAL_SDP.compare (command) == 0) {

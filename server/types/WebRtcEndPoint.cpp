@@ -20,7 +20,7 @@
 namespace kurento
 {
 
-WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
+WebRtcEndPoint::WebRtcEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> &params)
   : SdpEndPoint (parent, g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME, params)
 {
 

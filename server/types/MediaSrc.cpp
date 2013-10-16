@@ -150,7 +150,7 @@ MediaSrc::StaticConstructor MediaSrc::staticConstructor;
 MediaSrc::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

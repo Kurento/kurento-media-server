@@ -87,7 +87,7 @@ send_event (gpointer data, gpointer user_data)
     transport->close();
   } catch (...) {
     GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
-        mh->callbackToken.c_str (), mh->address.c_str (), mh->port);
+                 mh->callbackToken.c_str (), mh->address.c_str (), mh->port);
   }
 
   g_slice_free (SendEventData, data);
@@ -125,7 +125,7 @@ MediaHandlerManager::addMediaHandler (std::string eventType, const std::string &
   mutex.unlock ();
 
   GST_DEBUG ("MediaHandler(%s, %s, %d) added for '%s' type event", mediaHandler->callbackToken.c_str (),
-      handlerAddress.c_str (), handlerPort, eventType.c_str () );
+             handlerAddress.c_str (), handlerPort, eventType.c_str () );
 
   return mediaHandler->callbackToken;
 }
@@ -241,7 +241,7 @@ MediaHandlerManager::StaticConstructor MediaHandlerManager::staticConstructor;
 MediaHandlerManager::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 }

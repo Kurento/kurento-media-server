@@ -64,7 +64,7 @@ createKmsMediaServerException (int errorCode, std::string description)
 }
 
 int32_t
-getI32Param (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName)
+getI32Param (const std::map<std::string, KmsMediaParam> &params, const std::string &paramName)
 {
   std::map< std::string, KmsMediaParam>::const_iterator it;
   it = params.find (paramName);
@@ -74,11 +74,11 @@ getI32Param (const std::map<std::string, KmsMediaParam>& params, const std::stri
   }
 
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-      "Param '" + paramName + "' not found");
+                                       "Param '" + paramName + "' not found");
 }
 
 std::string
-getStringParam (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName)
+getStringParam (const std::map<std::string, KmsMediaParam> &params, const std::string &paramName)
 {
   std::map< std::string, KmsMediaParam>::const_iterator it;
   it = params.find (paramName);
@@ -88,18 +88,18 @@ getStringParam (const std::map<std::string, KmsMediaParam>& params, const std::s
   }
 
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-      "Param '" + paramName + "' not found");
+                                       "Param '" + paramName + "' not found");
 }
 
 
 void
-setStringParam (std::map<std::string, KmsMediaParam>& params, const std::string &paramName, const std::string &paramValue)
+setStringParam (std::map<std::string, KmsMediaParam> &params, const std::string &paramName, const std::string &paramValue)
 {
   params[paramName] = * (createStringParam (paramValue) );
 }
 
 const KmsMediaParam *
-getParam (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName)
+getParam (const std::map<std::string, KmsMediaParam> &params, const std::string &paramName)
 {
   std::map< std::string, KmsMediaParam>::const_iterator it;
   it = params.find (paramName);

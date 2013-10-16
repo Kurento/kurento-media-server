@@ -96,7 +96,7 @@ throw (KmsMediaServerException)
   }
 
   data->timeoutId = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, AUTO_RELEASE_INTERVAL * 2,
-      auto_release, (gpointer) data.get (), NULL);
+                    auto_release, (gpointer) data.get (), NULL);
   mutex.unlock();
 }
 
@@ -300,7 +300,7 @@ MediaSet::StaticConstructor MediaSet::staticConstructor;
 MediaSet::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

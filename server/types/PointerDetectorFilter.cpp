@@ -30,7 +30,7 @@ pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer poin
 
 // FIXME: use thrift constant
 PointerDetectorFilter::PointerDetectorFilter (std::shared_ptr<MediaPipeline> parent,
-    const std::map<std::string, KmsMediaParam>& params)
+    const std::map<std::string, KmsMediaParam> &params)
   : Filter (parent, "POINTER_DETECTOR_FILTER_TYPE", params)
 {
   element = gst_element_factory_make ("filterelement", NULL);
@@ -69,7 +69,7 @@ PointerDetectorFilter::StaticConstructor PointerDetectorFilter::staticConstructo
 PointerDetectorFilter::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

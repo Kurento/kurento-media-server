@@ -48,6 +48,7 @@ receive_message (GstBus *bus, GstMessage *message, gpointer pipeline)
     gst_debug_bin_to_dot_file_with_ts (GST_BIN (pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "error");
     // TODO: Check if further notification is needed
     break;
+
   default:
     break;
   }
@@ -87,7 +88,7 @@ MediaPipeline::~MediaPipeline() throw()
 }
 
 std::shared_ptr<MediaElement>
-MediaPipeline::createMediaElement (const std::string &elementType, const std::map<std::string, KmsMediaParam>& params)
+MediaPipeline::createMediaElement (const std::string &elementType, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   GST_WARNING ("TODO: complete");
@@ -107,11 +108,11 @@ throw (KmsMediaServerException)
   }
 
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,
-      "There is not any media object type " + elementType);
+                                       "There is not any media object type " + elementType);
 }
 
 std::shared_ptr<Mixer>
-MediaPipeline::createMediaMixer (const std::string &mixerType, const std::map<std::string, KmsMediaParam>& params)
+MediaPipeline::createMediaMixer (const std::string &mixerType, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   GST_WARNING ("TODO: complete");
@@ -123,7 +124,7 @@ MediaPipeline::StaticConstructor MediaPipeline::staticConstructor;
 MediaPipeline::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

@@ -61,14 +61,14 @@ init_test_case ()
   gst_init (NULL, NULL);
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 
   loop = g_main_loop_new (NULL, FALSE);
   session = soup_session_async_new();
 
   /* Start Http End Point Server */
   httpepserver = kms_http_ep_server_new (KMS_HTTP_EP_SERVER_PORT, DEFAULT_PORT,
-      KMS_HTTP_EP_SERVER_INTERFACE, DEFAULT_HOST, NULL);
+                                         KMS_HTTP_EP_SERVER_INTERFACE, DEFAULT_HOST, NULL);
 }
 
 static void
@@ -95,7 +95,7 @@ register_http_end_points (gint n)
 
     GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
     url = kms_http_ep_server_register_end_point (httpepserver, httpep,
-        COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
+          COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
 
     BOOST_CHECK (url != NULL);
 
@@ -121,10 +121,10 @@ http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   SoupURI *uri;
 
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-      &status_code, "uri", &uri, NULL);
+                &status_code, "uri", &uri, NULL);
 
   GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-      status_code, *expected);
+             status_code, *expected);
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 
@@ -173,7 +173,7 @@ url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 
 static void
 action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
-    KmsHttpEndPointAction action, gpointer data)
+                     KmsHttpEndPointAction action, gpointer data)
 {
   GST_DEBUG ("Action %d requested on %s", action, uri);
   BOOST_CHECK ( action == KMS_HTTP_END_POINT_ACTION_GET );
@@ -201,9 +201,9 @@ BOOST_AUTO_TEST_CASE ( register_http_end_point_test )
   init_test_case ();
 
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (url_removed_cb),
-      NULL);
+                    NULL);
   g_signal_connect (httpepserver, "action-requested", G_CALLBACK (action_requested_cb),
-      NULL);
+                    NULL);
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb);
 
@@ -232,10 +232,10 @@ t2_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   SoupURI *uri;
 
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-      &status_code, "uri", &uri, NULL);
+                &status_code, "uri", &uri, NULL);
 
   GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-      status_code, *expected);
+             status_code, *expected);
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 
@@ -248,7 +248,7 @@ t2_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
 
 static void
 t2_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
-    KmsHttpEndPointAction action, gpointer data)
+                        KmsHttpEndPointAction action, gpointer data)
 {
   GST_DEBUG ("Action %d requested on %s", action, uri);
 
@@ -282,9 +282,9 @@ BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
 {
   init_test_case ();
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (t2_url_removed_cb),
-      NULL);
+                    NULL);
   g_signal_connect (httpepserver, "action-requested",
-      G_CALLBACK (t2_action_requested_cb), NULL);
+                    G_CALLBACK (t2_action_requested_cb), NULL);
 
   kms_http_ep_server_start (httpepserver, t2_http_server_start_cb);
 
@@ -312,10 +312,10 @@ t3_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   SoupURI *uri;
 
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-      &status_code, "uri", &uri, NULL);
+                &status_code, "uri", &uri, NULL);
 
   GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-      status_code, *expected);
+             status_code, *expected);
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 
@@ -343,7 +343,7 @@ t3_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 
 static void
 t3_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
-    KmsHttpEndPointAction action, gpointer data)
+                        KmsHttpEndPointAction action, gpointer data)
 {
   GST_DEBUG ("Action %d requested on %s", action, uri);
 
@@ -363,9 +363,9 @@ BOOST_AUTO_TEST_CASE ( shutdown_http_end_point_test )
 {
   init_test_case ();
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (t3_url_removed_cb),
-      NULL);
+                    NULL);
   g_signal_connect (httpepserver, "action-requested",
-      G_CALLBACK (t3_action_requested_cb), NULL);
+                    G_CALLBACK (t3_action_requested_cb), NULL);
 
   kms_http_ep_server_start (httpepserver, t3_http_server_start_cb);
 
@@ -390,10 +390,10 @@ t4_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   const gchar *cookie_str;
 
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-      &status_code, "uri", &uri, NULL);
+                &status_code, "uri", &uri, NULL);
 
   GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-      status_code, *expected);
+             status_code, *expected);
   BOOST_CHECK (status_code == *expected);
 
   /* TODO: Check why soup_cookies_from_response does not work */
@@ -427,7 +427,7 @@ t4_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 
 static void
 t4_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
-    KmsHttpEndPointAction action, gpointer data)
+                        KmsHttpEndPointAction action, gpointer data)
 {
   GST_DEBUG ("Action %d requested on %s", action, uri);
 
@@ -441,7 +441,7 @@ BOOST_AUTO_TEST_CASE ( cookie_http_end_point_test )
   init_test_case ();
 
   g_signal_connect (httpepserver, "action-requested",
-      G_CALLBACK (t4_action_requested_cb), NULL);
+                    G_CALLBACK (t4_action_requested_cb), NULL);
 
   kms_http_ep_server_start (httpepserver, t4_http_server_start_cb);
 
@@ -468,15 +468,17 @@ bus_msg_cb (GstBus *bus, GstMessage *msg, gpointer pipeline)
   switch (msg->type) {
   case GST_MESSAGE_ERROR: {
     GST_ERROR ("%s bus error: %" GST_PTR_FORMAT, GST_ELEMENT_NAME (pipeline),
-        msg);
+               msg);
     BOOST_FAIL ("Error received on the bus");
     break;
   }
+
   case GST_MESSAGE_WARNING: {
     GST_WARNING ("%s bus: %" GST_PTR_FORMAT, GST_ELEMENT_NAME (pipeline),
-        msg);
+                 msg);
     break;
   }
+
   default:
     break;
   }
@@ -484,7 +486,7 @@ bus_msg_cb (GstBus *bus, GstMessage *msg, gpointer pipeline)
 
 static void
 t5_request_with_expired_cookie (SoupSession *session, SoupMessage *msg,
-    gpointer user_data)
+                                gpointer user_data)
 {
   guint status_code;
   SoupURI *uri;
@@ -493,10 +495,10 @@ t5_request_with_expired_cookie (SoupSession *session, SoupMessage *msg,
   GST_DEBUG ("Response received");
 
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-      &status_code, "uri", &uri, NULL);
+                &status_code, "uri", &uri, NULL);
 
   GST_WARNING ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-      status_code, SOUP_STATUS_BAD_REQUEST);
+               status_code, SOUP_STATUS_BAD_REQUEST);
 
   BOOST_CHECK (status_code == SOUP_STATUS_BAD_REQUEST);
 
@@ -524,7 +526,7 @@ t5_send_get_request_3 (gpointer user_data)
   g_free (header);
 
   soup_session_queue_message (session, msg, t5_request_with_expired_cookie,
-      NULL);
+                              NULL);
 
   g_free (url);
 
@@ -533,7 +535,7 @@ t5_send_get_request_3 (gpointer user_data)
 
 static void
 t5_request_no_cookie_cb (SoupSession *session, SoupMessage *msg,
-    gpointer user_data)
+                         gpointer user_data)
 {
   GST_DEBUG ("status code: %d", msg->status_code);
 
@@ -572,7 +574,7 @@ t5_cancel_cb (gpointer data)
 
 static void
 t5_request_with_cookie_cb (SoupSession *session, SoupMessage *msg,
-    gpointer user_data)
+                           gpointer user_data)
 {
   guint status_code;
   gchar *method;
@@ -581,10 +583,10 @@ t5_request_with_cookie_cb (SoupSession *session, SoupMessage *msg,
   GST_DEBUG ("Request with cookie");
 
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-      &status_code, "uri", &uri, NULL);
+                &status_code, "uri", &uri, NULL);
 
   GST_WARNING ("%s %s status code: %d, expected %d", method,
-      soup_uri_get_path (uri), status_code, SOUP_STATUS_CANCELLED);
+               soup_uri_get_path (uri), status_code, SOUP_STATUS_CANCELLED);
 
   BOOST_CHECK (status_code == SOUP_STATUS_CANCELLED);
 
@@ -612,7 +614,7 @@ t5_send_get_request_2 ()
   soup_session_queue_message (session, msg, t5_request_with_cookie_cb, NULL);
 
   g_timeout_add_full (G_PRIORITY_DEFAULT, 1000, t5_cancel_cb,
-      g_object_ref (G_OBJECT (msg) ), g_object_unref);
+                      g_object_ref (G_OBJECT (msg) ), g_object_unref);
   g_free (url);
 }
 
@@ -625,10 +627,10 @@ t5_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   const gchar *header;
 
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-      &status_code, "uri", &uri, NULL);
+                &status_code, "uri", &uri, NULL);
 
   GST_WARNING ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-      status_code, SOUP_STATUS_CANCELLED);
+               status_code, SOUP_STATUS_CANCELLED);
   BOOST_CHECK (status_code == SOUP_STATUS_CANCELLED);
 
   /* TODO: Check why soup_cookies_from_response does not work */
@@ -658,7 +660,7 @@ t5_send_get_request_1 ()
   soup_session_queue_message (session, msg, t5_http_req_callback, NULL);
 
   g_timeout_add_full (G_PRIORITY_DEFAULT, 1000, t5_cancel_cb,
-      g_object_ref (G_OBJECT (msg) ), g_object_unref);
+                      g_object_ref (G_OBJECT (msg) ), g_object_unref);
   g_free (url);
 }
 
@@ -673,7 +675,7 @@ t5_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 
   GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
   t5_uri = kms_http_ep_server_register_end_point (httpepserver, httpep,
-      COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
+           COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
   BOOST_CHECK (t5_uri != NULL);
 
   if (t5_uri == NULL) {
@@ -695,7 +697,7 @@ t5_url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 
 static void
 t5_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
-    KmsHttpEndPointAction action, gpointer data)
+                        KmsHttpEndPointAction action, gpointer data)
 {
   GST_DEBUG ("Action %d requested on %s", action, uri);
   BOOST_CHECK ( action == KMS_HTTP_END_POINT_ACTION_GET );
@@ -734,7 +736,7 @@ BOOST_AUTO_TEST_CASE ( expired_cookie_http_end_point_test )
 
   GST_DEBUG ("Configuring source pipeline");
   gst_bin_add_many (GST_BIN (pipeline), videotestsrc, timeoverlay,
-      encoder, agnosticbin, httpep, NULL);
+                    encoder, agnosticbin, httpep, NULL);
   gst_element_link (videotestsrc, timeoverlay);
   gst_element_link (timeoverlay, encoder);
   gst_element_link (encoder, agnosticbin);
@@ -742,13 +744,13 @@ BOOST_AUTO_TEST_CASE ( expired_cookie_http_end_point_test )
 
   GST_DEBUG ("Configuring elements");
   g_object_set (G_OBJECT (videotestsrc), "is-live", TRUE, "do-timestamp", TRUE,
-      "pattern", 18, NULL);
+                "pattern", 18, NULL);
   g_object_set (G_OBJECT (timeoverlay), "font-desc", "Sans 28", NULL);
 
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (t5_url_removed_cb),
-      NULL);
+                    NULL);
   g_signal_connect (httpepserver, "action-requested",
-      G_CALLBACK (t5_action_requested_cb), NULL);
+                    G_CALLBACK (t5_action_requested_cb), NULL);
 
   kms_http_ep_server_start (httpepserver, t5_http_server_start_cb);
 

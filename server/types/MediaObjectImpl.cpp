@@ -54,7 +54,7 @@ getId()
 }
 
 void
-MediaObjectImpl::init (const std::map<std::string, KmsMediaParam>& params)
+MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
 {
   const KmsMediaParam *p;
   std::shared_ptr<KmsMediaObjectConstructorParams> mediaObjectParams;
@@ -71,7 +71,7 @@ MediaObjectImpl::init (const std::map<std::string, KmsMediaParam>& params)
   GST_TRACE ("MediaObject %d excludeFromGC: %d", this->id, this->excludeFromGC);
 }
 
-MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam>& params)
+MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam> &params)
   : KmsMediaObjectRef()
 {
   id = getId();
@@ -79,7 +79,7 @@ MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam>& pa
   init (params);
 }
 
-MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, const std::map<std::string, KmsMediaParam>& params)
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, const std::map<std::string, KmsMediaParam> &params)
   : KmsMediaObjectRef()
 {
   id = getId();
@@ -109,11 +109,11 @@ MediaObjectImpl::getExcludeFromGC ()
 }
 
 std::shared_ptr<KmsMediaInvocationReturn>
-MediaObjectImpl::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> & params)
+MediaObjectImpl::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_METHOD_NOT_FOUND,
-      "This media object has not any command named " + command);
+                                       "This media object has not any command named " + command);
 }
 
 std::string
@@ -121,7 +121,7 @@ MediaObjectImpl::subscribe (const std::string &eventType, const std::string &han
 throw (KmsMediaServerException)
 {
   throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
-      "This media object has not any event named " + eventType);
+                                       "This media object has not any event named " + eventType);
 }
 
 void
@@ -157,7 +157,7 @@ MediaObjectImpl::StaticConstructor MediaObjectImpl::staticConstructor;
 MediaObjectImpl::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

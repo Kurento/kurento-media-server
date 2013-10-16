@@ -35,7 +35,7 @@ namespace kurento
 {
 
 UriEndPoint::UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string type,
-    const std::map<std::string, KmsMediaParam>& params)
+                          const std::map<std::string, KmsMediaParam> &params)
   : EndPoint (parent, type, params)
 {
 }
@@ -76,7 +76,7 @@ UriEndPoint::stop ()
 }
 
 std::shared_ptr<KmsMediaInvocationReturn>
-UriEndPoint::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> & params)
+UriEndPoint::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command) == 0) {
@@ -91,7 +91,7 @@ UriEndPoint::StaticConstructor UriEndPoint::staticConstructor;
 UriEndPoint::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

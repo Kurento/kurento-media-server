@@ -23,7 +23,7 @@ namespace kurento
 {
 
 MediaElement::MediaElement (std::shared_ptr<MediaObjectImpl> parent, const std::string elementType,
-    const std::map<std::string, KmsMediaParam>& params)
+                            const std::map<std::string, KmsMediaParam> &params)
   : MediaObjectImpl (parent, params),
     KmsMediaElement()
 {
@@ -176,7 +176,7 @@ MediaElement::StaticConstructor MediaElement::staticConstructor;
 MediaElement::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

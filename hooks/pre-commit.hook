@@ -65,7 +65,6 @@ ASTYLE_PARAMS="--style=linux\
  --indent=spaces=2\
  --indent-preprocessor\
  --min-conditional-indent=2\
- --max-instatement-indent=2\
  --break-blocks\
  --pad-oper\
  --pad-paren-out\

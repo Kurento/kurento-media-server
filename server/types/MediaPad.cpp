@@ -35,7 +35,7 @@ MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, KmsMediaPadDirection::
 }
 
 MediaPad::MediaPad (std::shared_ptr<MediaElement> parent, KmsMediaPadDirection::type direction, KmsMediaType::type mediaType,
-    const std::string mediaDescription)
+                    const std::string mediaDescription)
   : MediaObjectImpl (parent),
     KmsMediaPad ()
 {
@@ -67,7 +67,7 @@ MediaPad::StaticConstructor MediaPad::staticConstructor;
 MediaPad::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

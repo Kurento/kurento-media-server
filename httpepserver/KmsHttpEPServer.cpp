@@ -65,9 +65,9 @@ static GType http_t = G_TYPE_INVALID;
 /* class initialization */
 
 G_DEFINE_TYPE_WITH_CODE (KmsHttpEPServer, kms_http_ep_server,
-    G_TYPE_OBJECT,
-    GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, OBJECT_NAME,
-        0, "debug category for " OBJECT_NAME " element") )
+                         G_TYPE_OBJECT,
+                         GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, OBJECT_NAME,
+                             0, "debug category for " OBJECT_NAME " element") )
 
 /* properties */
 enum {
@@ -131,9 +131,11 @@ get_address ()
     case G_SOCKET_FAMILY_UNIX:
       /* Ignore this addresses */
       break;
+
     case G_SOCKET_FAMILY_IPV6:
       /* Ignore this addresses */
       break;
+
     case G_SOCKET_FAMILY_IPV4:
       addressStr = g_strdup ( (const gchar *) l->data);
       done = TRUE;
@@ -203,7 +205,7 @@ send_buffer_cb (gpointer data)
 
   if (msg_has_finished (sdata->msg) ) {
     GST_WARNING ("Client has closed underlaying HTTP connection. "
-        "Buffer won't be sent");
+                 "Buffer won't be sent");
     return FALSE;
   }
 
@@ -218,7 +220,7 @@ send_buffer_cb (gpointer data)
   }
 
   soup_message_body_append (sdata->msg->response_body, SOUP_MEMORY_COPY,
-      info.data, info.size);
+                            info.data, info.size);
   soup_server_unpause_message (sdata->httpepserver->priv->server, sdata->msg);
 
   gst_buffer_unmap (buffer, &info);
@@ -260,11 +262,11 @@ new_sample_handler (GstElement *httpep, gpointer data)
   sdata->sample = gst_sample_ref (sample);
   sdata->msg = (SoupMessage *) g_object_ref (G_OBJECT (msg) );
   sdata->httpepserver = KMS_HTTP_EP_SERVER (g_object_ref (
-      g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) ) );
+                          g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) ) );
 
   /* Write buffer in the main context thread */
   g_idle_add_full (G_PRIORITY_HIGH_IDLE, send_buffer_cb, sdata,
-      destroy_sample_data);
+                   destroy_sample_data);
 
   gst_sample_unref (sample);
   return GST_FLOW_OK;
@@ -292,7 +294,7 @@ static void
 disconnect_eos_new_sample_signals (SoupMessage *msg)
 {
   KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
-      g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
+                            g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   GstElement *httpep;
@@ -303,17 +305,17 @@ disconnect_eos_new_sample_signals (SoupMessage *msg)
 
   if (!g_hash_table_contains (serv->priv->handlers, path) ) {
     GST_WARNING ("Message %" GST_PTR_FORMAT
-        " was bounded to an unregistered HttpEndPoint", msg);
+                 " was bounded to an unregistered HttpEndPoint", msg);
     return;
   }
 
   httpep = (GstElement *) g_hash_table_lookup (serv->priv->handlers, path);
   GST_DEBUG ("Message %" GST_PTR_FORMAT " is bounded to %s", msg,
-      GST_ELEMENT_NAME (httpep) );
+             GST_ELEMENT_NAME (httpep) );
 
   /* Disconnect signals */
   handler = (gulong *) g_object_get_data (G_OBJECT (msg),
-      KEY_NEW_SAMPLE_HANDLER_ID);
+                                          KEY_NEW_SAMPLE_HANDLER_ID);
   g_signal_handler_disconnect (httpep, *handler);
 
   handler = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS_HANDLER_ID);
@@ -325,7 +327,7 @@ emit_expiration_signal_cb (gpointer user_data)
 {
   SoupMessage *msg = (SoupMessage *) user_data;
   KmsHttpEPServer *serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
-      KEY_HTTP_EP_SERVER);
+                          KEY_HTTP_EP_SERVER);
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   GstElement *httpep;
@@ -351,7 +353,7 @@ static void
 emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
 {
   KmsHttpEPServer *self = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
-      KEY_HTTP_EP_SERVER);
+                          KEY_HTTP_EP_SERVER);
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   SoupCookie *cookie;
@@ -380,15 +382,15 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
 
   t_cookie = difftime (soup_date_to_time_t (date), soup_date_to_time_t (now) );
   t_timeout = difftime (soup_date_to_time_t (now) + *timeout,
-      soup_date_to_time_t (now) );
+                        soup_date_to_time_t (now) );
 
   interval = (guint) ( (t_cookie < t_timeout) ? t_cookie : t_timeout);
 
   id = g_slice_new (guint);
   *id = g_timeout_add_full (G_PRIORITY_DEFAULT, interval * 1000,
-      emit_expiration_signal_cb, g_object_ref (G_OBJECT (msg) ), g_object_unref);
+                            emit_expiration_signal_cb, g_object_ref (G_OBJECT (msg) ), g_object_unref);
   g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, id,
-      (GDestroyNotify) destroy_guint);
+                          (GDestroyNotify) destroy_guint);
 }
 
 static void
@@ -434,12 +436,12 @@ msg_add_finished_property (SoupMessage *msg)
   *finished = FALSE;
 
   g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED, finished,
-      (GDestroyNotify) destroy_gboolean);
+                          (GDestroyNotify) destroy_gboolean);
 }
 
 static void
 kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
-    GstElement *httpep)
+                                GstElement *httpep)
 {
   gulong *handlerid;
 
@@ -448,28 +450,28 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   /* for webm in content type response */
   soup_message_set_status (msg, SOUP_STATUS_OK);
   soup_message_headers_set_content_type (msg->response_headers, "video/webm",
-      NULL);
+                                         NULL);
   soup_message_headers_set_encoding (msg->response_headers,
-      SOUP_ENCODING_CHUNKED);
+                                     SOUP_ENCODING_CHUNKED);
 
   msg_add_finished_property (msg);
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (G_OBJECT (msg), "finished",
-      G_CALLBACK (finished_get_processing), httpep);
+                                 G_CALLBACK (finished_get_processing), httpep);
   g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED_HANDLER_ID, handlerid,
-      (GDestroyNotify) destroy_ulong);
+                          (GDestroyNotify) destroy_ulong);
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (httpep, "new-sample",
-      G_CALLBACK (new_sample_handler), NULL);
+                                 G_CALLBACK (new_sample_handler), NULL);
   g_object_set_data_full (G_OBJECT (msg), KEY_NEW_SAMPLE_HANDLER_ID, handlerid,
-      (GDestroyNotify) destroy_ulong);
+                          (GDestroyNotify) destroy_ulong);
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), msg);
   g_object_set_data_full (G_OBJECT (msg), KEY_EOS_HANDLER_ID, handlerid,
-      (GDestroyNotify) destroy_ulong);
+                          (GDestroyNotify) destroy_ulong);
 
   /* allow media stream to flow in HttpEndPoint pipeline */
   g_object_set (G_OBJECT (httpep), "start", TRUE, NULL);
@@ -477,8 +479,8 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
 
 static void
 find_content_part (const gchar *start, const gchar *end,
-    const gchar **content_start, const gchar **content_end,
-    const gchar *boundary)
+                   const gchar **content_start, const gchar **content_end,
+                   const gchar *boundary)
 {
   const char *b, *c;
   int boundary_len;
@@ -488,7 +490,7 @@ find_content_part (const gchar *start, const gchar *end,
   *content_end = NULL;
 
   for (b = (const char *) memchr (start, '-', end - start);
-      b && b + boundary_len + 4 < end; b = (const char *) memchr (b + 2, '-', end - (b + 2) ) ) {
+       b && b + boundary_len + 4 < end; b = (const char *) memchr (b + 2, '-', end - (b + 2) ) ) {
     /* Check for "--boundary" */
     if (b[1] != '-' || g_str_has_prefix (boundary, b + 2) != 0)
       continue;
@@ -507,7 +509,7 @@ find_content_part (const gchar *start, const gchar *end,
 
   if (*content_start != NULL) {
     for (c = (const char *) memchr (*content_start, '\r', end - *content_start);
-        c < end; c = (const char *) memchr (c + 4, '\r', end - (c + 2) ) ) {
+         c < end; c = (const char *) memchr (c + 4, '\r', end - (c + 2) ) ) {
       if (c[1] == '\n' && c[2] == '\r' && c[3] == '\n') {
         *content_start = c + 4;
         break;
@@ -535,7 +537,7 @@ got_chunk_handler (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
 
   if (boundary != NULL)
     find_content_part (chunk->data, chunk->data + chunk->length, &content_start,
-        &content_end, boundary);
+                       &content_end, boundary);
 
   if (content_start != NULL) {
     if (content_end != NULL)
@@ -568,7 +570,7 @@ got_chunk_handler (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
   if (ret != GST_FLOW_OK) {
     /* something wrong */
     GST_ERROR ("Could not send buffer to httpep %s. Ret code %d",
-        GST_ELEMENT_NAME (httpep), ret);
+               GST_ELEMENT_NAME (httpep), ret);
   }
 
   gst_buffer_unref (buffer);
@@ -589,7 +591,7 @@ finished_post_processing (SoupMessage *msg, gpointer data)
   if (ret != GST_FLOW_OK) {
     // something wrong
     GST_ERROR ("Could not send EOS to %s. Ret code %d",
-        GST_ELEMENT_NAME (httpep), ret);
+               GST_ELEMENT_NAME (httpep), ret);
   }
 
   param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
@@ -602,7 +604,7 @@ finished_post_processing (SoupMessage *msg, gpointer data)
 
 static void
 kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
-    GstElement *httpep)
+                                 GstElement *httpep)
 {
   const gchar *content_type;
   GHashTable *params;
@@ -643,15 +645,15 @@ get_chunks:
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (msg, "got-chunk",
-      G_CALLBACK (got_chunk_handler), httpep);
+                                 G_CALLBACK (got_chunk_handler), httpep);
   g_object_set_data_full (G_OBJECT (msg), KEY_GOT_CHUNK_HANDLER_ID, handlerid,
-      (GDestroyNotify) destroy_ulong);
+                          (GDestroyNotify) destroy_ulong);
 
   handlerid = g_slice_new (gulong);
   *handlerid = g_signal_connect (msg, "finished",
-      G_CALLBACK (finished_post_processing), httpep);
+                                 G_CALLBACK (finished_post_processing), httpep);
   g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED_HANDLER_ID, handlerid,
-      (GDestroyNotify) destroy_ulong);
+                          (GDestroyNotify) destroy_ulong);
 
 end:
 
@@ -707,7 +709,7 @@ destroy_pending_message (SoupMessage *msg)
 
   if (msg->method == SOUP_METHOD_GET) {
     KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
-        g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
+                              g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
     GstElement *httpep = kms_http_ep_server_get_ep_from_msg (serv, msg);
 
     disconnect_eos_new_sample_signals (msg);
@@ -721,7 +723,7 @@ destroy_pending_message (SoupMessage *msg)
     soup_message_body_complete (msg->response_body);
   } else if (msg->method == SOUP_METHOD_POST) {
     handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
-        KEY_GOT_CHUNK_HANDLER_ID);
+                KEY_GOT_CHUNK_HANDLER_ID);
     g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
   }
 
@@ -730,7 +732,7 @@ destroy_pending_message (SoupMessage *msg)
 
   /* Do not call to finished callback */
   handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
-      KEY_FINISHED_HANDLER_ID);
+              KEY_FINISHED_HANDLER_ID);
   g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
 
   /* Remove internal msg reference */
@@ -739,7 +741,7 @@ destroy_pending_message (SoupMessage *msg)
 
 static gboolean
 kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
-    GstElement *endpoint)
+                                     GstElement *endpoint)
 {
   GstElement *element;
 
@@ -747,7 +749,7 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
 
   if (element != NULL) {
     GST_ERROR ("URI %s is already registered for element %s.", uri,
-        GST_ELEMENT_NAME (element) );
+               GST_ELEMENT_NAME (element) );
     return FALSE;
   }
 
@@ -758,7 +760,7 @@ kms_http_ep_server_register_handler (KmsHttpEPServer *self, gchar *uri,
 
 static void
 kms_http_ep_server_set_cookie (KmsHttpEPServer *self, GstElement *httpep,
-    SoupMessage *msg, const char *path)
+                               SoupMessage *msg, const char *path)
 {
   gchar *id_str, *header;
   SoupCookie *cookie;
@@ -767,11 +769,11 @@ kms_http_ep_server_set_cookie (KmsHttpEPServer *self, GstElement *httpep,
 
   /* No cookie has been set for this httpep */
   lifetime = (guint *) g_object_get_data (G_OBJECT (httpep),
-      KEY_PARAM_LIFETIME);
+                                          KEY_PARAM_LIFETIME);
   id = g_rand_double_range (self->priv->rand, G_MININT64, G_MAXINT64);
   id_str = g_strdup_printf ("%" G_GINT64_FORMAT, id);
   cookie = soup_cookie_new (COOKIE_NAME, id_str, self->priv->announcedAddr,
-      path, *lifetime);
+                            path, *lifetime);
   g_free (id_str);
 
   header = soup_cookie_to_set_cookie_header (cookie);
@@ -779,7 +781,7 @@ kms_http_ep_server_set_cookie (KmsHttpEPServer *self, GstElement *httpep,
   g_free (header);
 
   g_object_set_data_full (G_OBJECT (httpep), KEY_COOKIE, cookie,
-      (GDestroyNotify) soup_cookie_free);
+                          (GDestroyNotify) soup_cookie_free);
 }
 
 static gboolean
@@ -805,11 +807,11 @@ kms_http_ep_server_check_cookie (SoupCookie *cookie, SoupMessage *msg)
     SoupCookie *c = (SoupCookie *) e->data;
 
     if (g_strcmp0 (soup_cookie_get_name (cookie),
-        soup_cookie_get_name (c) ) != 0)
+                   soup_cookie_get_name (c) ) != 0)
       continue;
 
     if (g_strcmp0 (soup_cookie_get_value (cookie),
-        soup_cookie_get_value (c) ) == 0) {
+                   soup_cookie_get_value (c) ) == 0) {
       ret = TRUE;
       break;
     }
@@ -849,14 +851,14 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   if (httpep == NULL) {
     /* URI is not registered */
     soup_message_set_status_full (msg, SOUP_STATUS_NOT_FOUND,
-        "Http end point not found");
+                                  "Http end point not found");
     return;
   }
 
   if (!kms_http_ep_server_manage_cookie_session (self, httpep, msg, path) ) {
     GST_TRACE ("Request declined because of a cookie error");
     soup_message_set_status_full (msg, SOUP_STATUS_BAD_REQUEST,
-        "Invalid cookie");
+                                  "Invalid cookie");
     return;
   }
 
@@ -864,11 +866,11 @@ got_headers_handler (SoupMessage *msg, gpointer data)
 
   /* Bind message life cicle to this httpendpoint */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
-      g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
+                          g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
 
   /* Common parameters used for both, get and post operations */
   g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER,
-      g_object_ref (self), g_object_unref);
+                          g_object_ref (self), g_object_unref);
 
   if (msg->method == SOUP_METHOD_GET) {
     kms_http_ep_server_get_handler (self, msg, httpep);
@@ -879,17 +881,17 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   } else {
     GST_WARNING ("HTTP operation %s is not allowed", msg->method);
     soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
-        "Not allowed");
+                                  "Not allowed");
     return;
   }
 
   g_signal_emit (G_OBJECT (self), obj_signals[ACTION_REQUESTED], 0, path,
-      action);
+                 action);
 }
 
 static void
 request_started_handler (SoupServer *server, SoupMessage *msg,
-    SoupClientContext *client, gpointer data)
+                         SoupClientContext *client, gpointer data)
 {
   g_signal_connect (msg, "got-headers", G_CALLBACK (got_headers_handler), data);
 }
@@ -900,11 +902,11 @@ kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
   SoupSocket *listener;
 
   self->priv->server = soup_server_new (SOUP_SERVER_PORT, self->priv->port,
-      SOUP_SERVER_INTERFACE, addr, NULL);
+                                        SOUP_SERVER_INTERFACE, addr, NULL);
 
   /* Connect server signals handlers */
   g_signal_connect (self->priv->server, "request-started",
-      G_CALLBACK (request_started_handler), self);
+                    G_CALLBACK (request_started_handler), self);
 
   soup_server_run_async (self->priv->server);
 
@@ -930,7 +932,7 @@ kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
   }
 
   GST_DEBUG ("Http end point server running in %s:%d", self->priv->iface,
-      self->priv->port );
+             self->priv->port );
 }
 
 static void
@@ -944,17 +946,20 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
     GST_DEBUG ("Domain name resolved");
     kms_http_ep_server_create_server (rdata->server, addr);
     break;
+
   case SOUP_STATUS_CANCELLED:
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
-        HTTPEPSERVER_RESOLVE_CANCELED_ERROR, "Domain name resolution canceled");
+                 HTTPEPSERVER_RESOLVE_CANCELED_ERROR, "Domain name resolution canceled");
     break;
+
   case SOUP_STATUS_CANT_RESOLVE:
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
-        HTTPEPSERVER_CANT_RESOLVE_ERROR, "Domain name can not be resolved");
+                 HTTPEPSERVER_CANT_RESOLVE_ERROR, "Domain name can not be resolved");
     break;
+
   default:
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
-        HTTPEPSERVER_UNEXPECTED_ERROR, "Domain name can not be resolved");
+                 HTTPEPSERVER_UNEXPECTED_ERROR, "Domain name can not be resolved");
     break;
   }
 
@@ -970,7 +975,7 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
 
 static void
 kms_http_ep_server_start_impl (KmsHttpEPServer *self,
-    KmsHttpEPServerStartCallback start_cb)
+                               KmsHttpEPServerStartCallback start_cb)
 {
   struct resolv_data *rdata;
   SoupAddress *addr = NULL;
@@ -993,8 +998,8 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
   addr = soup_address_new (self->priv->iface, self->priv->port);
 
   soup_address_resolve_async (addr, NULL,
-      NULL /* FIXME: Add cancellable support */,
-      (SoupAddressCallback) soup_address_callback, rdata);
+                              NULL /* FIXME: Add cancellable support */,
+                              (SoupAddressCallback) soup_address_callback, rdata);
 }
 
 static void
@@ -1005,7 +1010,7 @@ add_guint_param (GstElement *httpep, const gchar *name, guint val)
   param = g_slice_new (guint);
   *param = val;
   g_object_set_data_full (G_OBJECT (httpep), name, param,
-      (GDestroyNotify) destroy_guint);
+                          (GDestroyNotify) destroy_guint);
 }
 
 static const gchar *
@@ -1129,7 +1134,7 @@ kms_http_ep_server_finalize (GObject *obj)
 
 static void
 kms_http_ep_server_set_property (GObject *obj, guint prop_id,
-    const GValue *value, GParamSpec *pspec)
+                                 const GValue *value, GParamSpec *pspec)
 {
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (obj);
 
@@ -1137,6 +1142,7 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
   case PROP_KMS_HTTP_EP_SERVER_PORT:
     self->priv->port = g_value_get_int (value);
     break;
+
   case PROP_KMS_HTTP_EP_SERVER_INTERFACE:
 
     if (self->priv->iface != NULL)
@@ -1144,6 +1150,7 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
 
     self->priv->iface = g_value_dup_string (value);
     break;
+
   case PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS: {
     gchar *val = g_value_dup_string (value);
 
@@ -1159,6 +1166,7 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
 
     break;
   }
+
   default:
     /* We don't have any other property... */
     G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -1168,7 +1176,7 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
 
 static void
 kms_http_ep_server_get_property (GObject *obj, guint prop_id, GValue *value,
-    GParamSpec *pspec)
+                                 GParamSpec *pspec)
 {
   KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (obj);
 
@@ -1176,12 +1184,15 @@ kms_http_ep_server_get_property (GObject *obj, guint prop_id, GValue *value,
   case PROP_KMS_HTTP_EP_SERVER_PORT:
     g_value_set_int (value, self->priv->port);
     break;
+
   case PROP_KMS_HTTP_EP_SERVER_INTERFACE:
     g_value_set_string (value, self->priv->iface);
     break;
+
   case PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS:
     g_value_set_string (value, self->priv->announcedAddr);
     break;
+
   default:
     /* We don't have any other property... */
     G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -1207,52 +1218,52 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_PORT] =
     g_param_spec_int (KMS_HTTP_EP_SERVER_PORT,
-        "port number",
-        "The TCP port to listen on",
-        0,
-        G_MAXUSHORT,
-        KMS_HTTP_EP_SERVER_DEFAULT_PORT,
-        (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
+                      "port number",
+                      "The TCP port to listen on",
+                      0,
+                      G_MAXUSHORT,
+                      KMS_HTTP_EP_SERVER_DEFAULT_PORT,
+                      (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_INTERFACE] =
     g_param_spec_string (KMS_HTTP_EP_SERVER_INTERFACE,
-        "IP address",
-        "IP address of the network interface to run the server on",
-        KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
-        (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
+                         "IP address",
+                         "IP address of the network interface to run the server on",
+                         KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
+                         (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
 
   obj_properties[PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS] =
     g_param_spec_string (KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
-        "Announced IP address",
-        "IP address that will be used to compose URLs",
-        KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
-        (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
+                         "Announced IP address",
+                         "IP address that will be used to compose URLs",
+                         KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE,
+                         (GParamFlags) (G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE) );
 
   g_object_class_install_properties (gobject_class,
-      N_PROPERTIES,
-      obj_properties);
+                                     N_PROPERTIES,
+                                     obj_properties);
 
   obj_signals[ACTION_REQUESTED] =
     g_signal_new ("action-requested",
-        G_TYPE_FROM_CLASS (klass),
-        G_SIGNAL_RUN_LAST,
-        G_STRUCT_OFFSET (KmsHttpEPServerClass, action_requested), NULL, NULL,
-        kms_marshal_VOID__STRING_ENUM, G_TYPE_NONE, 2, G_TYPE_STRING,
-        GST_TYPE_HTTP_END_POINT_ACTION);
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (KmsHttpEPServerClass, action_requested), NULL, NULL,
+                  kms_marshal_VOID__STRING_ENUM, G_TYPE_NONE, 2, G_TYPE_STRING,
+                  GST_TYPE_HTTP_END_POINT_ACTION);
 
   obj_signals[URL_REMOVED] =
     g_signal_new ("url-removed",
-        G_TYPE_FROM_CLASS (klass),
-        G_SIGNAL_RUN_LAST,
-        G_STRUCT_OFFSET (KmsHttpEPServerClass, url_removed), NULL, NULL,
-        g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (KmsHttpEPServerClass, url_removed), NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   obj_signals[URL_EXPIRED] =
     g_signal_new ("url-expired",
-        G_TYPE_FROM_CLASS (klass),
-        G_SIGNAL_RUN_LAST,
-        G_STRUCT_OFFSET (KmsHttpEPServerClass, url_expired), NULL, NULL,
-        g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (KmsHttpEPServerClass, url_expired), NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   /* Registers a private structure for an instantiatable type */
   g_type_class_add_private (klass, sizeof (KmsHttpEPServerPrivate) );
@@ -1278,7 +1289,7 @@ kms_http_ep_server_init (KmsHttpEPServer *self)
   self->priv->iface = KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE;
   self->priv->announcedAddr = KMS_HTTP_EP_SERVER_DEFAULT_ANNOUNCED_ADDRESS;
   self->priv->handlers = g_hash_table_new_full (g_str_hash, equal_str_key,
-      g_free, g_object_unref);
+                         g_free, g_object_unref);
 
   self->priv->rand = g_rand_new();
 }
@@ -1293,7 +1304,7 @@ kms_http_ep_server_new (const char *optname1, ...)
 
   va_start (ap, optname1);
   self = KMS_HTTP_EP_SERVER (g_object_new_valist (KMS_TYPE_HTTP_EP_SERVER,
-      optname1, ap) );
+                             optname1, ap) );
   va_end (ap);
 
   return KMS_HTTP_EP_SERVER (self);
@@ -1301,7 +1312,7 @@ kms_http_ep_server_new (const char *optname1, ...)
 
 void
 kms_http_ep_server_start (KmsHttpEPServer *self,
-    KmsHttpEPServerStartCallback start_cb)
+                          KmsHttpEPServerStartCallback start_cb)
 {
   g_return_if_fail (KMS_IS_HTTP_EP_SERVER (self) );
 
@@ -1318,12 +1329,12 @@ kms_http_ep_server_stop (KmsHttpEPServer *self)
 
 const gchar *
 kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
-    GstElement *endpoint, guint lifetime, guint timeout)
+                                       GstElement *endpoint, guint lifetime, guint timeout)
 {
   g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), NULL);
 
   return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self,
-      endpoint, lifetime, timeout);
+         endpoint, lifetime, timeout);
 }
 
 gboolean

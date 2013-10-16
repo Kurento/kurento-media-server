@@ -37,7 +37,7 @@ JackVaderFilter::init (std::shared_ptr<MediaPipeline> parent)
   gst_element_sync_state_with_parent (element);
 }
 
-JackVaderFilter::JackVaderFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
+JackVaderFilter::JackVaderFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> &params)
   : Filter (parent, g_KmsMediaJackVaderFilterType_constants.TYPE_NAME, params)
 {
   init (parent);
@@ -55,7 +55,7 @@ JackVaderFilter::StaticConstructor JackVaderFilter::staticConstructor;
 JackVaderFilter::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

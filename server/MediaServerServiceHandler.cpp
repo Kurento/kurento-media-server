@@ -145,7 +145,7 @@ throw (KmsMediaServerException)
 
 void
 MediaServerServiceHandler::invoke (KmsMediaInvocationReturn &_return, const KmsMediaObjectRef &mediaObjectRef, const std::string &command,
-    const std::map<std::string, KmsMediaParam> & params)
+                                   const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
@@ -373,7 +373,7 @@ throw (KmsMediaServerException)
 /* MediaElement */
 
 void
-MediaServerServiceHandler::getMediaSrcs (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement)
+MediaServerServiceHandler::getMediaSrcs (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
@@ -404,7 +404,7 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::getMediaSinks (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement)
+MediaServerServiceHandler::getMediaSinks (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
@@ -435,7 +435,7 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
     const KmsMediaType::type mediaType) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
@@ -466,7 +466,7 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<KmsMediaObjectRe
 }
 
 void
-MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
     const KmsMediaType::type mediaType) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
@@ -497,7 +497,7 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<KmsMediaObjectR
 }
 
 void
-MediaServerServiceHandler::getMediaSrcsByFullDescription (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+MediaServerServiceHandler::getMediaSrcsByFullDescription (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
     const KmsMediaType::type mediaType, const std::string &description)
 throw (KmsMediaServerException)
 {
@@ -505,7 +505,7 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::getMediaSinksByFullDescription (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+MediaServerServiceHandler::getMediaSinksByFullDescription (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
     const KmsMediaType::type mediaType, const std::string &description)
 throw (KmsMediaServerException)
 {
@@ -605,7 +605,7 @@ MediaServerServiceHandler::disconnect (const KmsMediaObjectRef &mediaSrc, const 
 }
 
 void
-MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaSrc) throw (KmsMediaServerException)
+MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaSrc) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::vector < std::shared_ptr<MediaSink> > *mediaSinks = NULL;
@@ -694,7 +694,7 @@ MediaServerServiceHandler::StaticConstructor MediaServerServiceHandler::staticCo
 MediaServerServiceHandler::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

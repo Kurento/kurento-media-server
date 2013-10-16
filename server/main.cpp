@@ -106,9 +106,9 @@ static void
 set_default_media_server_config ()
 {
   GST_WARNING ("Setting default configuration for media server. "
-      "Using IP address: %s, port: %d. "
-      "No codecs support will be available with default configuration.",
-      MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT);
+               "Using IP address: %s, port: %d. "
+               "No codecs support will be available with default configuration.",
+               MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT);
 
   serverAddress = MEDIA_SERVER_ADDRESS;
   serverServicePort = MEDIA_SERVER_SERVICE_PORT;
@@ -119,8 +119,8 @@ set_default_http_ep_server_config ()
 {
   httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
   GST_WARNING ("Setting default configuration for http end point server. "
-      "Using IP address: %s, port: %d. ",
-      httpEPServerAddress.c_str (), httpEPServerServicePort);
+               "Using IP address: %s, port: %d. ",
+               httpEPServerAddress.c_str (), httpEPServerServicePort);
 }
 
 static void
@@ -201,11 +201,11 @@ configure_kurento_media_server (KeyFile &configFile, const std::string &file_nam
 
   try {
     serverAddress = configFile.get_string (SERVER_GROUP,
-        MEDIA_SERVER_ADDRESS_KEY);
+                                           MEDIA_SERVER_ADDRESS_KEY);
   } catch (Glib::KeyFileError err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default address %s to media server",
-        MEDIA_SERVER_ADDRESS);
+                 MEDIA_SERVER_ADDRESS);
     serverAddress = MEDIA_SERVER_ADDRESS;
   }
 
@@ -216,7 +216,7 @@ configure_kurento_media_server (KeyFile &configFile, const std::string &file_nam
   } catch (Glib::KeyFileError err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default port %d to media server",
-        MEDIA_SERVER_SERVICE_PORT);
+                 MEDIA_SERVER_SERVICE_PORT);
     serverServicePort = MEDIA_SERVER_SERVICE_PORT;
   }
 
@@ -237,7 +237,7 @@ configure_http_ep_server (KeyFile &configFile)
 
   try {
     httpEPServerAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
-        HTTP_EP_SERVER_ADDRESS_KEY);
+                          HTTP_EP_SERVER_ADDRESS_KEY);
   } catch (Glib::KeyFileError err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Http end point server will be listening to all interfaces");
@@ -250,17 +250,17 @@ configure_http_ep_server (KeyFile &configFile)
   } catch (Glib::KeyFileError err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default port %d to http end point server",
-        HTTP_EP_SERVER_SERVICE_PORT);
+                 HTTP_EP_SERVER_SERVICE_PORT);
     httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
   }
 
   try {
     httpEPServerAnnouncedAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
-        HTTP_EP_SERVER_ANNOUNCED_ADDRESS_KEY);
+                                   HTTP_EP_SERVER_ANNOUNCED_ADDRESS_KEY);
   } catch (Glib::KeyFileError err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Http end point server will choose any available "
-        "IP address to compose URLs");
+                 "IP address to compose URLs");
   }
 }
 
@@ -274,8 +274,8 @@ load_config (const std::string &file_name)
   /* Try to load configuration file */
   try {
     if (!configFile.load_from_file (file_name,
-        KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
-        KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS) ) {
+                                    KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
+                                    KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS) ) {
       GST_WARNING ("Can not load configuration file %s", file_name.c_str () );
       set_default_config ();
       return;
@@ -343,7 +343,7 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
   /* Do something useful with siginfo_t */
   if (sig == SIGSEGV) {
     printf ("Got signal %d, faulty address is %p\n", sig,
-        (gpointer) info->si_addr);
+            (gpointer) info->si_addr);
   } else if (sig == SIGKILL || sig == SIGINT) {
     /* since we connect to a signal handler, asynchronous management might */
     /* might happen so we need to set an idle handler to exit the main loop */
@@ -376,7 +376,7 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
       exe = strs[0];
 
     sprintf (syscom, "echo -n \"\t[bt]\t\t\"; addr2line %p -s -e %s",
-        trace[i], exe);
+             trace[i], exe);
     g_strfreev (strs);
     system (syscom);
   }
@@ -424,7 +424,7 @@ main (int argc, char **argv)
 
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-      GST_DEFAULT_NAME);
+                           GST_DEFAULT_NAME);
 
   /* Install our signal handler */
   sa.sa_sigaction = /*(void (*)(int, siginfo*, gpointer)) */ bt_sighandler;
@@ -445,13 +445,13 @@ main (int argc, char **argv)
   /* Start Http End Point Server */
   GST_DEBUG ("Starting Http end point server.");
   httpepserver = kms_http_ep_server_new (
-      KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
-      KMS_HTTP_EP_SERVER_INTERFACE,
-      (httpEPServerAddress.empty() ) ? NULL : httpEPServerAddress.c_str (),
-      KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
-      (httpEPServerAnnouncedAddress.empty() ) ? NULL :
-      httpEPServerAnnouncedAddress.c_str (),
-      NULL);
+                   KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
+                   KMS_HTTP_EP_SERVER_INTERFACE,
+                   (httpEPServerAddress.empty() ) ? NULL : httpEPServerAddress.c_str (),
+                   KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
+                   (httpEPServerAnnouncedAddress.empty() ) ? NULL :
+                   httpEPServerAnnouncedAddress.c_str (),
+                   NULL);
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb);
 

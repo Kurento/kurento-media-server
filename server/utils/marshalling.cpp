@@ -43,7 +43,7 @@ marshalI32 (const int32_t i) throw (KmsMediaServerException)
     transport->appendBufferToString (data);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-        "Cannot marshal I32");
+                                         "Cannot marshal I32");
   }
 
   return data;
@@ -61,7 +61,7 @@ unmarshalI32 (const std::string &data) throw (KmsMediaServerException)
     protocol.readI32 (i);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Cannot unmarshal I32");
+                                         "Cannot unmarshal I32");
   }
 
   return i;
@@ -79,7 +79,7 @@ marshalString (const std::string &str) throw (KmsMediaServerException)
     transport->appendBufferToString (data);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-        "Cannot marshal string");
+                                         "Cannot marshal string");
   }
 
   return data;
@@ -97,7 +97,7 @@ unmarshalString (const std::string &data) throw (KmsMediaServerException)
     protocol.readString (str);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Cannot unmarshal string");
+                                         "Cannot unmarshal string");
   }
 
   return str;
@@ -123,7 +123,7 @@ unmarshalI32Param (const KmsMediaParam &param) throw (KmsMediaServerException)
     i = unmarshalI32 (param.data);
   } else {
     throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Param is not of 'I32' data type");
+                                          "Param is not of 'I32' data type");
   }
 
   return i;
@@ -149,7 +149,7 @@ unmarshalStringParam (const KmsMediaParam &param) throw (KmsMediaServerException
     str = unmarshalString (param.data);
   } else {
     throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Param is not of 'String' data type");
+                                          "Param is not of 'String' data type");
   }
 
   return str;
@@ -183,7 +183,7 @@ throw (KmsMediaServerException)
     params->read (&protocol);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
+                                         "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
   }
 
   return params;
@@ -202,7 +202,7 @@ throw (KmsMediaServerException)
     transport->appendBufferToString (data);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-        "Cannot marshal KmsMediaObjectConstructorParams");
+                                         "Cannot marshal KmsMediaObjectConstructorParams");
   }
 
   return data;
@@ -221,7 +221,7 @@ throw (KmsMediaServerException)
     params->read (&protocol);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Cannot unmarshal KmsMediaObjectConstructorParams");
+                                         "Cannot unmarshal KmsMediaObjectConstructorParams");
   }
 
   return params;
@@ -256,7 +256,7 @@ throw (KmsMediaServerException)
     transport->appendBufferToString (data);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-        "Cannot marshal KmsMediaUriEndPointConstructorParams");
+                                         "Cannot marshal KmsMediaUriEndPointConstructorParams");
   }
 
   return data;
@@ -275,7 +275,7 @@ throw (KmsMediaServerException)
     params->read (&protocol);
   } catch (...) {
     throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-        "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
+                                         "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
   }
 
   return params;
