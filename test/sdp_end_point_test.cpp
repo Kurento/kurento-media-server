@@ -68,29 +68,29 @@ BOOST_AUTO_TEST_CASE ( rtp_end_point_test )
   }
 
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, sdpEpA, g_KmsMediaSdpEndPointType_constants.GENERATE_SDP_OFFER, emptyParams) );
-  BOOST_REQUIRE_NO_THROW (sdp = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (sdp, ret) );
 
   std::map<std::string, KmsMediaParam> paramsProcessOffer;
   setStringParam (paramsProcessOffer, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER_PARAM_OFFER_STR, sdp);
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, sdpEpB, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER, paramsProcessOffer) );
-  BOOST_REQUIRE_NO_THROW (sdp = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (sdp, ret) );
 
   std::map<std::string, KmsMediaParam> paramsProcessAnswer;
   setStringParam (paramsProcessAnswer, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER_PARAM_ANSWER_STR, sdp);
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, sdpEpA, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER, paramsProcessAnswer) );
-  BOOST_REQUIRE_NO_THROW (sdp = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (sdp, ret) );
 
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, sdpEpA, g_KmsMediaSdpEndPointType_constants.GET_LOCAL_SDP, emptyParams) );
-  BOOST_REQUIRE_NO_THROW (localSdpA = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (localSdpA, ret) );
 
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, sdpEpA, g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP, emptyParams) );
-  BOOST_REQUIRE_NO_THROW (remoteSdpA = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (remoteSdpA, ret) );
 
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, sdpEpB, g_KmsMediaSdpEndPointType_constants.GET_LOCAL_SDP, emptyParams) );
-  BOOST_REQUIRE_NO_THROW (localSdpB = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (localSdpB, ret) );
 
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, sdpEpB, g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP, emptyParams) );
-  BOOST_REQUIRE_NO_THROW (remoteSdpB = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (remoteSdpB, ret) );
 
   BOOST_CHECK_EQUAL (localSdpA, remoteSdpB);
   BOOST_CHECK_EQUAL (localSdpB, remoteSdpA);

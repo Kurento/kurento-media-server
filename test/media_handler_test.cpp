@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE ( add_remove_media_handlers )
   for (i = 0; i < 4; i++) {
     for (j = 0; j < nMediaHandlersPerEventType; j++) {
       n++;
-      callbackToken = mediaHandlerManager.addMediaHandler (eventTypes[i], "", n);
+      mediaHandlerManager.addMediaHandler (callbackToken, eventTypes[i], "", n);
       callbackTokens.insert (callbackToken);
 
       BOOST_REQUIRE_EQUAL (n, mediaHandlerManager.getHandlersMapSize() );

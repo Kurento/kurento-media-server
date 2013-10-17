@@ -31,13 +31,15 @@ public:
   MediaHandlerManager ();
   ~MediaHandlerManager ();
 
-  std::string addMediaHandler (const std::string eventType, const std::string &handlerAddress, const int32_t handlerPort);
-  void removeMediaHandler (const std::string callbackToken);
+  void addMediaHandler (std::string &_return, const std::string &eventType,
+                        const std::string &handlerAddress,
+                        const int32_t handlerPort);
+  void removeMediaHandler (const std::string &callbackToken);
   void sendEvent (std::shared_ptr<KmsMediaEvent> event);
 
   int getHandlersMapSize ();
   int getEventTypesMapSize ();
-  int getMediaHandlersSetSize (std::string eventType);
+  int getMediaHandlersSetSize (const std::string &eventType);
 
 private:
   Glib::Threads::RecMutex mutex;

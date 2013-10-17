@@ -24,7 +24,7 @@ namespace kurento
 class SdpEndPoint : public EndPoint
 {
 public:
-  SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string type,
+  SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string &type,
                const std::map<std::string, KmsMediaParam>& params);
   virtual ~SdpEndPoint() throw () = 0;
 
@@ -34,8 +34,8 @@ public:
   std::string getLocalSessionDescription () throw (KmsMediaServerException);
   std::string getRemoteSessionDescription () throw (KmsMediaServerException);
 
-  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string &command,
-      const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
+               const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
 };
 
 } // kurento

@@ -31,22 +31,22 @@ using apache::thrift::protocol::TBinaryProtocol;
 namespace kurento
 {
 
-std::string
-marshalI32 (const int32_t i) throw (KmsMediaServerException)
+void
+marshalI32 (std::string &_return, const int32_t i) throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
-  std::string data;
 
   try {
     protocol.writeI32 (i);
-    transport->appendBufferToString (data);
+    transport->appendBufferToString (_return);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-                                         "Cannot marshal I32");
-  }
+    KmsMediaServerException except;
 
-  return data;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
+                                   "Cannot marshal I32");
+    throw except;
+  }
 }
 
 int32_t
@@ -60,58 +60,59 @@ unmarshalI32 (const std::string &data) throw (KmsMediaServerException)
     TBinaryProtocol protocol = TBinaryProtocol (transport);
     protocol.readI32 (i);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                         "Cannot unmarshal I32");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Cannot unmarshal I32");
+    throw except;
   }
 
   return i;
 }
 
-std::string
-marshalString (const std::string &str) throw (KmsMediaServerException)
+void
+marshalString (std::string &_return, const std::string &str) throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
-  std::string data;
 
   try {
     protocol.writeString (str);
-    transport->appendBufferToString (data);
+    transport->appendBufferToString (_return);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-                                         "Cannot marshal string");
-  }
+    KmsMediaServerException except;
 
-  return data;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
+                                   "Cannot marshal string");
+    throw except;
+  }
 }
 
-std::string
-unmarshalString (const std::string &data) throw (KmsMediaServerException)
+void
+unmarshalString (std::string &_return, const std::string &data) throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport;
-  std::string str;
 
   try {
     transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
     TBinaryProtocol protocol = TBinaryProtocol (transport);
-    protocol.readString (str);
+    protocol.readString (_return);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                         "Cannot unmarshal string");
-  }
+    KmsMediaServerException except;
 
-  return str;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Cannot unmarshal string");
+    throw except;
+  }
 }
 
-std::shared_ptr<KmsMediaParam>
-createI32Param (const int32_t i) throw (KmsMediaServerException)
+void
+createI32Param (KmsMediaParam &_return, const int32_t i) throw (KmsMediaServerException)
 {
-  std::shared_ptr<KmsMediaParam> result (new KmsMediaParam () );
+  marshalI32 (_return.data, i);
+  _return.__isset.data = true;
 
-  result->__set_dataType (g_KmsMediaDataType_constants.I32_DATA_TYPE);
-  result->__set_data (marshalI32 (i) );
-
-  return result;
+  _return.__set_dataType (g_KmsMediaDataType_constants.I32_DATA_TYPE);
 }
 
 int32_t
@@ -122,44 +123,45 @@ unmarshalI32Param (const KmsMediaParam &param) throw (KmsMediaServerException)
   if (g_KmsMediaDataType_constants.I32_DATA_TYPE.compare (param.dataType) == 0) {
     i = unmarshalI32 (param.data);
   } else {
-    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                          "Param is not of 'I32' data type");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Param is not of 'I32' data type");
+    throw except;
   }
 
   return i;
 }
 
-std::shared_ptr<KmsMediaParam>
-createStringParam (const std::string &data) throw (KmsMediaServerException)
+void
+createStringParam (KmsMediaParam &_return, const std::string &data) throw (KmsMediaServerException)
 {
-  std::shared_ptr<KmsMediaParam> result (new KmsMediaParam () );
+  marshalString (_return.data, data);
+  _return.__isset.data = true;
 
-  result->__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
-  result->__set_data (marshalString (data) );
-
-  return result;
+  _return.__set_dataType (g_KmsMediaDataType_constants.STRING_DATA_TYPE);
 }
 
-std::string
-unmarshalStringParam (const KmsMediaParam &param) throw (KmsMediaServerException)
+void
+unmarshalStringParam (std::string &_return, const KmsMediaParam &param) throw (KmsMediaServerException)
 {
-  std::string str;
-
   if (g_KmsMediaDataType_constants.STRING_DATA_TYPE.compare (param.dataType) == 0) {
-    str = unmarshalString (param.data);
+    unmarshalString (_return, param.data);
   } else {
-    throw createKmsMediaServerException  (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                          "Param is not of 'String' data type");
-  }
+    KmsMediaServerException except;
 
-  return str;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Param is not of 'String' data type");
+    throw except;
+  }
 }
 
-std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (
+void
+createKmsMediaObjectConstructorParams (
+  std::map<std::string, KmsMediaParam> & _return,
   bool excludeFromGC, int32_t garbageCollectorPeriod)
 throw (KmsMediaServerException)
 {
-  std::map<std::string, KmsMediaParam> params;
   KmsMediaParam param;
   KmsMediaObjectConstructorParams moParams;
 
@@ -170,52 +172,54 @@ throw (KmsMediaServerException)
     moParams.__set_garbageCollectorPeriod (garbageCollectorPeriod);
 
   param.__set_dataType (g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-  param.__set_data (marshalKmsMediaObjectConstructorParams (moParams) );
-  params[g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
-
-  return params;
+  marshalKmsMediaObjectConstructorParams (param.data, moParams);
+  param.__isset.data = true;
+  _return[g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
 }
 
-std::shared_ptr<KmsMediaUriEndPointConstructorParams>
-marshalKmsMediaObjectConstructorParams (std::string data)
+void
+marshalKmsMediaObjectConstructorParams (
+  KmsMediaUriEndPointConstructorParams &_return, std::string &data)
 throw (KmsMediaServerException)
 {
-  std::shared_ptr<KmsMediaUriEndPointConstructorParams> params (new KmsMediaUriEndPointConstructorParams () );
   boost::shared_ptr<TMemoryBuffer> transport;
 
   try {
     transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
     TBinaryProtocol protocol = TBinaryProtocol (transport);
-    params->read (&protocol);
+    _return.read (&protocol);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                         "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
-  }
+    KmsMediaServerException except;
 
-  return params;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
+    throw except;
+  }
 }
 
-std::string
-marshalKmsMediaObjectConstructorParams (KmsMediaObjectConstructorParams &moParams)
+void
+marshalKmsMediaObjectConstructorParams (std::string &_return,
+                                        KmsMediaObjectConstructorParams &moParams)
 throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
   TBinaryProtocol protocol (transport);
-  std::string data;
 
   try {
     moParams.write (&protocol);
-    transport->appendBufferToString (data);
+    transport->appendBufferToString (_return);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-                                         "Cannot marshal KmsMediaObjectConstructorParams");
-  }
+    KmsMediaServerException except;
 
-  return data;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
+                                   "Cannot marshal KmsMediaObjectConstructorParams");
+    throw except;
+  }
 }
 
-std::shared_ptr<KmsMediaObjectConstructorParams>
-unmarshalKmsMediaObjectConstructorParams (std::string data)
+void
+unmarshalKmsMediaObjectConstructorParams (
+  KmsMediaObjectConstructorParams &_return, const std::string &data)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<KmsMediaObjectConstructorParams> params (new KmsMediaObjectConstructorParams () );
@@ -224,33 +228,34 @@ throw (KmsMediaServerException)
   try {
     transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
     TBinaryProtocol protocol = TBinaryProtocol (transport);
-    params->read (&protocol);
+    _return.read (&protocol);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                         "Cannot unmarshal KmsMediaObjectConstructorParams");
-  }
+    KmsMediaServerException except;
 
-  return params;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Cannot unmarshal KmsMediaObjectConstructorParams");
+    throw except;
+  }
 }
 
-std::map<std::string, KmsMediaParam>
-createKmsMediaUriEndPointConstructorParams (std::string uri)
+void
+createKmsMediaUriEndPointConstructorParams (std::map<std::string, KmsMediaParam> & _return, const std::string &uri)
 throw (KmsMediaServerException)
 {
-  std::map<std::string, KmsMediaParam> params;
   KmsMediaParam param;
   KmsMediaUriEndPointConstructorParams uriEpParams;
 
   uriEpParams.__set_uri (uri);
   param.__set_dataType (g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-  param.__set_data (marshalKmsMediaUriEndPointConstructorParams (uriEpParams) );
-  params[g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+  marshalKmsMediaUriEndPointConstructorParams (param.data, uriEpParams);
+  param.__isset.data = true;
+  _return[g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
 
-  return params;
 }
 
-std::string
-marshalKmsMediaUriEndPointConstructorParams (KmsMediaUriEndPointConstructorParams &uriEpParams)
+void
+marshalKmsMediaUriEndPointConstructorParams (std::string &_return,
+    KmsMediaUriEndPointConstructorParams &uriEpParams)
 throw (KmsMediaServerException)
 {
   boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
@@ -259,32 +264,33 @@ throw (KmsMediaServerException)
 
   try {
     uriEpParams.write (&protocol);
-    transport->appendBufferToString (data);
+    transport->appendBufferToString (_return);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
-                                         "Cannot marshal KmsMediaUriEndPointConstructorParams");
+    KmsMediaServerException except;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,
+                                   "Cannot marshal KmsMediaUriEndPointConstructorParams");
+    throw except;
   }
-
-  return data;
 }
 
-std::shared_ptr<KmsMediaUriEndPointConstructorParams>
-unmarshalKmsMediaUriEndPointConstructorParams (std::string data)
+void
+unmarshalKmsMediaUriEndPointConstructorParams (
+  KmsMediaUriEndPointConstructorParams &_return, const std::string &data)
 throw (KmsMediaServerException)
 {
-  std::shared_ptr<KmsMediaUriEndPointConstructorParams> params (new KmsMediaUriEndPointConstructorParams () );
   boost::shared_ptr<TMemoryBuffer> transport;
 
   try {
     transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
     TBinaryProtocol protocol = TBinaryProtocol (transport);
-    params->read (&protocol);
+    _return.read (&protocol);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                         "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
-  }
+    KmsMediaServerException except;
 
-  return params;
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Cannot unmarshal KmsMediaUriEndPointConstructorParams");
+    throw except;
+  }
 }
 
 } // kurento

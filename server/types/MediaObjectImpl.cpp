@@ -57,18 +57,18 @@ void
 MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
 {
   const KmsMediaParam *p;
-  std::shared_ptr<KmsMediaObjectConstructorParams> mediaObjectParams;
+  KmsMediaObjectConstructorParams mediaObjectParams;
 
   p = getParam (params, g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
   if (p != NULL) {
-    mediaObjectParams = unmarshalKmsMediaObjectConstructorParams (p->data);
+    unmarshalKmsMediaObjectConstructorParams (mediaObjectParams, p->data);
 
-    if (mediaObjectParams->__isset.excludeFromGC)
-      this->excludeFromGC = mediaObjectParams->excludeFromGC;
+    if (mediaObjectParams.__isset.excludeFromGC)
+      this->excludeFromGC = mediaObjectParams.excludeFromGC;
 
-    if (mediaObjectParams->__isset.garbageCollectorPeriod)
-      this->garbageCollectorPeriod = mediaObjectParams->garbageCollectorPeriod;
+    if (mediaObjectParams.__isset.garbageCollectorPeriod)
+      this->garbageCollectorPeriod = mediaObjectParams.garbageCollectorPeriod;
   }
 
   GST_TRACE ("MediaObject %" G_GINT64_FORMAT " excludeFromGC: %d", this->id,
@@ -79,7 +79,7 @@ MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam> &pa
   : KmsMediaObjectRef()
 {
   id = getId();
-  this->token = generateUUID ();
+  generateUUID (token);
   init (params);
 }
 
@@ -100,7 +100,10 @@ std::shared_ptr<MediaObjectImpl>
 MediaObjectImpl::getParent () throw (KmsMediaServerException)
 {
   if (parent == NULL) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, "No parent");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, "No parent");
+    throw except;
   }
 
   return parent;
@@ -112,20 +115,30 @@ MediaObjectImpl::getExcludeFromGC ()
   return excludeFromGC;
 }
 
-std::shared_ptr<KmsMediaInvocationReturn>
-MediaObjectImpl::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> &params)
+void
+MediaObjectImpl::invoke (KmsMediaInvocationReturn &_return,
+                         const std::string &command,
+                         const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
-  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_METHOD_NOT_FOUND,
-                                       "This media object has not any command named " + command);
+  KmsMediaServerException except;
+
+  createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_METHOD_NOT_FOUND,
+                                 "This media object has not any command named " + command);
+  throw except;
 }
 
-std::string
-MediaObjectImpl::subscribe (const std::string &eventType, const std::string &handlerAddress, const int32_t handlerPort)
+void
+MediaObjectImpl::subscribe (std::string &_return, const std::string &eventType,
+                            const std::string &handlerAddress,
+                            const int32_t handlerPort)
 throw (KmsMediaServerException)
 {
-  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
-                                       "This media object has not any event named " + eventType);
+  KmsMediaServerException except;
+
+  createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
+                                 "This media object has not any event named " + eventType);
+  throw except;
 }
 
 void

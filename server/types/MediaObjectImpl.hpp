@@ -35,10 +35,10 @@ public:
   bool getExcludeFromGC ();
 
   std::shared_ptr<MediaObjectImpl> getParent () throw (KmsMediaServerException);
-  virtual std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string &command,
-      const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
-  virtual std::string subscribe (const std::string &eventType, const std::string &handlerAddress,
-                                 const int32_t handlerPort) throw (KmsMediaServerException);
+  virtual void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
+                       const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  virtual void subscribe (std::string &_return, const std::string &eventType, const std::string &handlerAddress,
+                          const int32_t handlerPort) throw (KmsMediaServerException);
   virtual void unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException);
 
 public:

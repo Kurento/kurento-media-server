@@ -26,7 +26,7 @@ class Mixer;
 class MixerEndPoint : public EndPoint
 {
 public:
-  MixerEndPoint (std::shared_ptr<Mixer> parent, const std::string type, const std::map<std::string, KmsMediaParam>& params);
+  MixerEndPoint (std::shared_ptr<Mixer> parent, const std::string &type, const std::map<std::string, KmsMediaParam>& params);
   virtual ~MixerEndPoint() throw () = 0;
 };
 

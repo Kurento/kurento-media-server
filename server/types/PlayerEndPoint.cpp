@@ -55,18 +55,21 @@ throw (KmsMediaServerException)
   : UriEndPoint (parent, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params)
 {
   const KmsMediaParam *p;
-  std::shared_ptr<KmsMediaUriEndPointConstructorParams> uriEpParams;
+  KmsMediaUriEndPointConstructorParams uriEpParams;
 
   p = getParam (params, g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
   if (p == NULL) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-                                         "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+                                   "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
+    throw except;
   }
 
-  uriEpParams = unmarshalKmsMediaUriEndPointConstructorParams (p->data);
+  unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
 
-  init (parent, uriEpParams->uri);
+  init (parent, uriEpParams.uri);
 }
 
 PlayerEndPoint::~PlayerEndPoint() throw ()
@@ -76,15 +79,14 @@ PlayerEndPoint::~PlayerEndPoint() throw ()
   g_object_unref (element);
 }
 
-std::string
-PlayerEndPoint::subscribe (const std::string &eventType, const std::string &handlerAddress, const int32_t handlerPort)
+void
+PlayerEndPoint::subscribe (std::string &_return, const std::string &eventType, const std::string &handlerAddress, const int32_t handlerPort)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaPlayerEndPointType_constants.EVENT_EOS.compare (eventType) == 0) {
-    return mediaHandlerManager.addMediaHandler (eventType, handlerAddress, handlerPort);
-  }
-
-  return UriEndPoint::subscribe (eventType, handlerAddress, handlerPort);
+  if (g_KmsMediaPlayerEndPointType_constants.EVENT_EOS.compare (eventType) == 0)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress, handlerPort);
+  else
+    UriEndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
 }
 
 PlayerEndPoint::StaticConstructor PlayerEndPoint::staticConstructor;

@@ -30,7 +30,7 @@ class MediaElement : public MediaObjectImpl,
   public std::enable_shared_from_this<MediaElement>
 {
 public:
-  MediaElement (std::shared_ptr<MediaObjectImpl> parent, const std::string elementType,
+  MediaElement (std::shared_ptr<MediaObjectImpl> parent, const std::string &elementType,
                 const std::map<std::string, KmsMediaParam>& params);
   virtual ~MediaElement() throw () = 0;
 

@@ -212,8 +212,11 @@ throw (KmsMediaServerException)
   operate_in_main_loop_context (register_http_end_point, this, NULL);
 
   if (!urlSet) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
-                                         "Cannot register HttpEndPoint");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
+                                   "Cannot register HttpEndPoint");
+    throw except;
   }
 }
 
@@ -229,8 +232,11 @@ throw (KmsMediaServerException)
     TBinaryProtocol protocol = TBinaryProtocol (transport);
     params.read (&protocol);
   } catch (...) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
-                                         "Cannot unmarshal KmsMediaHttpEndPointConstructorParams");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+                                   "Cannot unmarshal KmsMediaHttpEndPointConstructorParams");
+    throw except;
   }
 
   return params;
@@ -329,15 +335,16 @@ HttpEndPoint::setUrl (std::string newUrl)
   url = newUrl;
 }
 
-std::shared_ptr<KmsMediaInvocationReturn>
-HttpEndPoint::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> &params)
+void
+HttpEndPoint::invoke (KmsMediaInvocationReturn &_return,
+                      const std::string &command,
+                      const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command) == 0) {
-    return createStringInvocationReturn (getUrl () );
-  }
-
-  return EndPoint::invoke (command, params);
+  if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command) == 0)
+    createStringInvocationReturn (_return, getUrl () );
+  else
+    EndPoint::invoke (_return, command, params);
 }
 
 HttpEndPoint::StaticConstructor HttpEndPoint::staticConstructor;

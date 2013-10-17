@@ -56,7 +56,7 @@ MediaHandler::MediaHandler (const std::string eventType, const std::string &addr
   this->eventType = eventType;
   this->address = address;
   this->port = port;
-  this->callbackToken = generateUUID ();
+  generateUUID (callbackToken);
 }
 
 MediaHandler::~MediaHandler ()
@@ -103,8 +103,11 @@ MediaHandlerManager::~MediaHandlerManager ()
   g_thread_pool_free (threadPool, TRUE, FALSE);
 }
 
-std::string
-MediaHandlerManager::addMediaHandler (std::string eventType, const std::string &handlerAddress, const int32_t handlerPort)
+void
+MediaHandlerManager::addMediaHandler (std::string &_return,
+                                      const std::string &eventType,
+                                      const std::string &handlerAddress,
+                                      const int32_t handlerPort)
 {
   std::map<std::string, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator it;
   std::shared_ptr<std::set<std::shared_ptr<MediaHandler>>> handlers;
@@ -127,11 +130,11 @@ MediaHandlerManager::addMediaHandler (std::string eventType, const std::string &
   GST_DEBUG ("MediaHandler(%s, %s, %d) added for '%s' type event", mediaHandler->callbackToken.c_str (),
              handlerAddress.c_str (), handlerPort, eventType.c_str () );
 
-  return mediaHandler->callbackToken;
+  _return = mediaHandler->callbackToken;
 }
 
 void
-MediaHandlerManager::removeMediaHandler (std::string callbackToken)
+MediaHandlerManager::removeMediaHandler (const std::string &callbackToken)
 {
   std::map < std::string /*callbackToken*/, std::shared_ptr<MediaHandler >>::iterator handlersMapIt;
   std::map < std::string /*eventType*/, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator eventTypesMapIt;
@@ -215,7 +218,7 @@ MediaHandlerManager::getEventTypesMapSize ()
 }
 
 int
-MediaHandlerManager::getMediaHandlersSetSize (std::string eventType)
+MediaHandlerManager::getMediaHandlersSetSize (const std::string &eventType)
 {
   int size;
   std::map<std::string, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator it;

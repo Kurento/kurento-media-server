@@ -30,8 +30,8 @@ public:
 
   std::string getUrl ();
 
-  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string &command,
-      const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
+               const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
 
 private:
   std::string url;

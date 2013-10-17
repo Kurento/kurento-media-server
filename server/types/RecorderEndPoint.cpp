@@ -47,18 +47,21 @@ throw (KmsMediaServerException)
   : UriEndPoint (parent, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params)
 {
   const KmsMediaParam *p;
-  std::shared_ptr<KmsMediaUriEndPointConstructorParams> uriEpParams;
+  KmsMediaUriEndPointConstructorParams uriEpParams;
 
   p = getParam (params, g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
   if (p == NULL) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-                                         "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+                                   "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
+    throw except;
   }
 
-  uriEpParams = unmarshalKmsMediaUriEndPointConstructorParams (p->data);
+  unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
 
-  init (parent, uriEpParams->uri);
+  init (parent, uriEpParams.uri);
 }
 
 RecorderEndPoint::~RecorderEndPoint() throw ()

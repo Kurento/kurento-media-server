@@ -285,13 +285,19 @@ throw (KmsMediaServerException)
   mutex.unlock();
 
   if (mo == NULL) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, "Media object not found");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, "Media object not found");
+    throw except;
   }
 
   typedMo = std::dynamic_pointer_cast<T> (mo);
 
   if (typedMo == NULL) {
-    throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CAST_ERROR, "Media Object found is not of requested type");
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_CAST_ERROR, "Media Object found is not of requested type");
+    throw except;
   }
 
   return typedMo;

@@ -102,7 +102,7 @@ check_use_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServ
 
   client->createMediaPipeline (mediaPipeline);
   client->release (mediaPipeline);
-  params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
+  createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
 
   try {
     client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
@@ -121,9 +121,9 @@ check_auto_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerSer
   std::map<std::string, KmsMediaParam> params;
   std::map<std::string, KmsMediaParam> mediaObjectparams;
 
-  mediaObjectparams = createKmsMediaObjectConstructorParams (false,
-                      AUTO_RELEASE_INTERVAL);
-  params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
+  createKmsMediaObjectConstructorParams (mediaObjectparams, false,
+                                         AUTO_RELEASE_INTERVAL);
+  createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
   params.insert (mediaObjectparams.begin(), mediaObjectparams.end() );
 
   client->createMediaPipelineWithParams (mediaPipeline, mediaObjectparams);
@@ -185,8 +185,8 @@ check_keep_alive_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServic
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> mediaObjectparams;
 
-  mediaObjectparams = createKmsMediaObjectConstructorParams (false,
-                      AUTO_RELEASE_INTERVAL);
+  createKmsMediaObjectConstructorParams (mediaObjectparams, false,
+                                         AUTO_RELEASE_INTERVAL);
 
   client->createMediaPipelineWithParams (mediaPipeline, mediaObjectparams);
 
@@ -204,7 +204,7 @@ check_exclude_from_gc (boost::shared_ptr<kurento::KmsMediaServerServiceClient> c
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
 
-  params = createKmsMediaObjectConstructorParams (true, AUTO_RELEASE_INTERVAL);
+  createKmsMediaObjectConstructorParams (params, true, AUTO_RELEASE_INTERVAL);
 
   client->createMediaPipelineWithParams (mediaPipeline, params);
   g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);
@@ -221,7 +221,7 @@ check_parent (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
   std::map<std::string, KmsMediaParam> params;
 
   client->createMediaPipeline (mediaPipeline);
-  params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
+  createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
   client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   client->getParent (parent, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, parent.id);
@@ -259,7 +259,7 @@ check_getMediaPipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
   client->getMediaPipeline (mediaPipelineGot, mediaPipeline);
   BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
 
-  params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
+  createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
   client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   client->getMediaPipeline (mediaPipelineGot, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
@@ -275,7 +275,7 @@ check_same_token (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client
   std::map<std::string, KmsMediaParam> params;
 
   client->createMediaPipeline (mediaPipeline);
-  params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
+  createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
   client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
 
@@ -293,8 +293,9 @@ check_get_media_element_from_pad (boost::shared_ptr<kurento::KmsMediaServerServi
   std::vector<KmsMediaObjectRef>::iterator it;
 
   client->createMediaPipeline (mediaPipeline);
-  params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
   client->getMediaSrcs (pads, playerEndPoint);
 
@@ -325,12 +326,12 @@ check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
   std::string callbackToken;
 
   client->createMediaPipeline (mediaPipeline);
-  params = createKmsMediaUriEndPointConstructorParams (originalUri);
+  createKmsMediaUriEndPointConstructorParams (params, originalUri);
   client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
   client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
 
-  BOOST_REQUIRE_NO_THROW (resultUri = unmarshalStringInvocationReturn (ret) );
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
 
   client->subscribeEvent (callbackToken, playerEndPoint, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS, "", 0);
@@ -354,16 +355,16 @@ check_recorder_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient
   KmsMediaObjectRef recorderEndPoint = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
   KmsMediaInvocationReturn ret;
-  std::string originalUri = "file:///tmp/player_end_point_test.webm";
+  const std::string originalUri = "file:///tmp/player_end_point_test.webm";
   std::string resultUri;
 
   client->createMediaPipeline (mediaPipeline);
-  params = createKmsMediaUriEndPointConstructorParams (originalUri);
+  createKmsMediaUriEndPointConstructorParams (params, originalUri);
   client->createMediaElementWithParams (recorderEndPoint, mediaPipeline, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params);
 
   client->invoke (ret, recorderEndPoint, g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
 
-  BOOST_REQUIRE_NO_THROW (resultUri = unmarshalStringInvocationReturn (ret) );;
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );;
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
 
   client->release (mediaPipeline);
@@ -375,12 +376,15 @@ check_http_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> cl
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef httpEp = KmsMediaObjectRef();
   KmsMediaInvocationReturn ret;
+  std::string url;
 
   client->createMediaPipeline (mediaPipeline);
   client->createMediaElement (httpEp, mediaPipeline, g_KmsMediaHttpEndPointType_constants.TYPE_NAME);
   client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL, emptyParams);
 
-  GST_INFO ("HttpEndPoint URL: %s", unmarshalStringInvocationReturn (ret).c_str () );
+  unmarshalStringInvocationReturn (url, ret);
+
+  GST_INFO ("HttpEndPoint URL: %s", url.c_str () );
 
   client->release (mediaPipeline);
 }

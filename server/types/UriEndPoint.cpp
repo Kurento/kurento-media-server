@@ -34,7 +34,7 @@ using apache::thrift::protocol::TBinaryProtocol;
 namespace kurento
 {
 
-UriEndPoint::UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string type,
+UriEndPoint::UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &type,
                           const std::map<std::string, KmsMediaParam> &params)
   : EndPoint (parent, type, params)
 {
@@ -75,15 +75,16 @@ UriEndPoint::stop ()
   g_object_set (G_OBJECT (element), "state", 0 /* stop */, NULL);
 }
 
-std::shared_ptr<KmsMediaInvocationReturn>
-UriEndPoint::invoke (const std::string &command, const std::map<std::string, KmsMediaParam> &params)
+void
+UriEndPoint::invoke (KmsMediaInvocationReturn &_return,
+                     const std::string &command,
+                     const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command) == 0) {
-    return createStringInvocationReturn (getUri () );
-  }
-
-  return EndPoint::invoke (command, params);
+  if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command) == 0)
+    createStringInvocationReturn (_return, getUri () );
+  else
+    EndPoint::invoke (_return, command, params);
 }
 
 UriEndPoint::StaticConstructor UriEndPoint::staticConstructor;

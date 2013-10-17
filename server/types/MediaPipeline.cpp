@@ -105,10 +105,14 @@ throw (KmsMediaServerException)
     return std::shared_ptr<ZBarFilter> (new ZBarFilter (shared_from_this (), params) );
   } else if (g_KmsMediaJackVaderFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
     return std::shared_ptr<JackVaderFilter> (new JackVaderFilter (shared_from_this (), params) );
-  }
+  } else {
+    KmsMediaServerException except;
 
-  throw createKmsMediaServerException (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,
-                                       "There is not any media object type " + elementType);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,
+                                   "There is not any media object type " + elementType);
+    throw except;
+  }
 }
 
 std::shared_ptr<Mixer>

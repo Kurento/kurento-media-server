@@ -26,7 +26,7 @@ namespace kurento
 class UriEndPoint : public EndPoint
 {
 public:
-  UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string type, const std::map<std::string, KmsMediaParam>& params);
+  UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &type, const std::map<std::string, KmsMediaParam>& params);
   virtual ~UriEndPoint() throw ();
 
   std::string getUri ();
@@ -34,8 +34,9 @@ public:
   void pause ();
   void stop ();
 
-  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string &command,
-      const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  void invoke (KmsMediaInvocationReturn &_return,
+               const std::string &command,
+               const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
 
 private:
   class StaticConstructor

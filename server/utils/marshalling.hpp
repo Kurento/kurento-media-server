@@ -26,52 +26,56 @@
 namespace kurento
 {
 
-std::string marshalI32 (const int32_t i) throw (KmsMediaServerException);
+void marshalI32 (std::string &_return, const int32_t i) throw (KmsMediaServerException);
 int32_t unmarshalI32 (const std::string &data) throw (KmsMediaServerException);
-std::string marshalString (const std::string &str) throw (KmsMediaServerException);
-std::string unmarshalString (const std::string &data) throw (KmsMediaServerException);
+void marshalString (std::string &_return, const std::string &str) throw (KmsMediaServerException);
+void unmarshalString (std::string &_return, const std::string &data) throw (KmsMediaServerException);
 
-std::shared_ptr<KmsMediaParam> createI32Param (const int32_t i) throw (KmsMediaServerException);
+void createI32Param (KmsMediaParam &_return, const int32_t i) throw (KmsMediaServerException);
 int32_t unmarshalI32Param (const KmsMediaParam &param) throw (KmsMediaServerException);
-std::shared_ptr<KmsMediaParam> createStringParam (const std::string &data) throw (KmsMediaServerException);
-std::string unmarshalStringParam (const KmsMediaParam &param) throw (KmsMediaServerException);
+void createStringParam (KmsMediaParam &_return, const std::string &data) throw (KmsMediaServerException);
+void unmarshalStringParam (std::string &_return, const KmsMediaParam &param) throw (KmsMediaServerException);
 
-inline std::shared_ptr<KmsMediaInvocationReturn> createStringInvocationReturn (const std::string &data)
+inline void createStringInvocationReturn (KmsMediaInvocationReturn &_return, const std::string &data)
 throw (KmsMediaServerException)
 {
-  return (std::shared_ptr<KmsMediaInvocationReturn>) createStringParam (data);
+  createStringParam ( (KmsMediaParam &) _return, data);
 }
 
-inline std::string unmarshalStringInvocationReturn (const KmsMediaInvocationReturn &invocationReturn)
+inline void unmarshalStringInvocationReturn (std::string &_return,
+    const KmsMediaInvocationReturn &invocationReturn)
 throw (KmsMediaServerException)
 {
-  return unmarshalStringParam ( (KmsMediaParam) invocationReturn);
+  unmarshalStringParam (_return, (KmsMediaParam) invocationReturn);
 }
 
-inline std::shared_ptr<KmsMediaEventData> createStringEventData (const std::string &data) throw (KmsMediaServerException)
+inline void createStringEventData (KmsMediaEventData &_return, const std::string &data) throw (KmsMediaServerException)
 {
-  return (std::shared_ptr<KmsMediaEventData>) createStringParam (data);
+  createStringParam ( (KmsMediaParam &) _return, data);
 }
 
-inline std::string unmarshalStringEventData (const KmsMediaEventData &eventData)
+inline void unmarshalStringEventData (std::string &_return, const KmsMediaEventData &eventData)
 throw (KmsMediaServerException)
 {
-  return unmarshalStringParam ( (KmsMediaEventData) eventData);
+  unmarshalStringParam (_return, (KmsMediaEventData) eventData);
 }
 
-std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (bool excludeFromGC,
-    int32_t garbageCollectorPeriod = g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD)
+void createKmsMediaObjectConstructorParams (std::map<std::string, KmsMediaParam> & _return,
+    bool excludeFromGC, int32_t garbageCollectorPeriod = g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD)
 throw (KmsMediaServerException);
-std::string marshalKmsMediaObjectConstructorParams (KmsMediaObjectConstructorParams &moParams)
+void marshalKmsMediaObjectConstructorParams (std::string &_return, KmsMediaObjectConstructorParams &moParams)
 throw (KmsMediaServerException);
-std::shared_ptr<KmsMediaObjectConstructorParams> unmarshalKmsMediaObjectConstructorParams (std::string data)
+void unmarshalKmsMediaObjectConstructorParams (KmsMediaObjectConstructorParams &_return, const std::string &data)
 throw (KmsMediaServerException);
 
-std::map<std::string, KmsMediaParam> createKmsMediaUriEndPointConstructorParams (std::string uri)
+void createKmsMediaUriEndPointConstructorParams (std::map<std::string, KmsMediaParam> & _return,
+    const std::string &uri)
 throw (KmsMediaServerException);
-std::string marshalKmsMediaUriEndPointConstructorParams (KmsMediaUriEndPointConstructorParams &uriEpParams)
+void marshalKmsMediaUriEndPointConstructorParams (std::string &_return,
+    KmsMediaUriEndPointConstructorParams &uriEpParams)
 throw (KmsMediaServerException);
-std::shared_ptr<KmsMediaUriEndPointConstructorParams> unmarshalKmsMediaUriEndPointConstructorParams (std::string data)
+void unmarshalKmsMediaUriEndPointConstructorParams (
+  KmsMediaUriEndPointConstructorParams &_return, const std::string &data)
 throw (KmsMediaServerException);
 
 } // kurento

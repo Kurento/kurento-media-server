@@ -27,7 +27,7 @@ class Mixer : public MediaObjectImpl,
   public std::enable_shared_from_this<Mixer>
 {
 public:
-  Mixer (std::shared_ptr<MediaPipeline> parent, const std::string mixerType,
+  Mixer (std::shared_ptr<MediaPipeline> parent, const std::string &mixerType,
          const std::map<std::string, KmsMediaParam>& params);
   virtual ~Mixer() throw () = 0;
 
