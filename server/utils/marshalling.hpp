@@ -45,7 +45,7 @@ throw (KmsMediaServerException)
 inline std::string unmarshalStringInvocationReturn (const KmsMediaInvocationReturn &invocationReturn)
 throw (KmsMediaServerException)
 {
-  return unmarshalStringParam ((KmsMediaParam) invocationReturn);
+  return unmarshalStringParam ( (KmsMediaParam) invocationReturn);
 }
 
 inline std::shared_ptr<KmsMediaEventData> createStringEventData (const std::string &data) throw (KmsMediaServerException)
@@ -56,23 +56,23 @@ inline std::shared_ptr<KmsMediaEventData> createStringEventData (const std::stri
 inline std::string unmarshalStringEventData (const KmsMediaEventData &eventData)
 throw (KmsMediaServerException)
 {
-  return unmarshalStringParam ((KmsMediaEventData) eventData);
+  return unmarshalStringParam ( (KmsMediaEventData) eventData);
 }
 
 std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (bool excludeFromGC,
     int32_t garbageCollectorPeriod = g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD)
-                                      throw (KmsMediaServerException);
+throw (KmsMediaServerException);
 std::string marshalKmsMediaObjectConstructorParams (KmsMediaObjectConstructorParams &moParams)
-                                      throw (KmsMediaServerException);
+throw (KmsMediaServerException);
 std::shared_ptr<KmsMediaObjectConstructorParams> unmarshalKmsMediaObjectConstructorParams (std::string data)
-                                      throw (KmsMediaServerException);
+throw (KmsMediaServerException);
 
 std::map<std::string, KmsMediaParam> createKmsMediaUriEndPointConstructorParams (std::string uri)
-                                      throw (KmsMediaServerException);
+throw (KmsMediaServerException);
 std::string marshalKmsMediaUriEndPointConstructorParams (KmsMediaUriEndPointConstructorParams &uriEpParams)
-                                      throw (KmsMediaServerException);
+throw (KmsMediaServerException);
 std::shared_ptr<KmsMediaUriEndPointConstructorParams> unmarshalKmsMediaUriEndPointConstructorParams (std::string data)
-                                      throw (KmsMediaServerException);
+throw (KmsMediaServerException);
 
 } // kurento
 

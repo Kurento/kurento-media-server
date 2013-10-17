@@ -24,7 +24,7 @@ namespace kurento
 class JackVaderFilter : public Filter
 {
 public:
-   JackVaderFilter(std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params);
+  JackVaderFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params);
   ~JackVaderFilter() throw ();
 
 private:

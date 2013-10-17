@@ -25,7 +25,7 @@ class RecorderEndPoint : public UriEndPoint
 {
 public:
   RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
-                   throw (KmsMediaServerException);
+  throw (KmsMediaServerException);
   ~RecorderEndPoint() throw ();
 
 private:

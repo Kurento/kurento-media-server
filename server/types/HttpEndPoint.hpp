@@ -25,13 +25,13 @@ class HttpEndPoint : public EndPoint
 {
 public:
   HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
-                throw (KmsMediaServerException);
+  throw (KmsMediaServerException);
   ~HttpEndPoint() throw ();
 
   std::string getUrl ();
 
-  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string& command,
-              const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string &command,
+      const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
 
 private:
   std::string url;
@@ -43,7 +43,7 @@ private:
 
 private:
   void init (std::shared_ptr<MediaPipeline> parent, guint cookieLifetime, guint disconnectionTimeout)
-              throw (KmsMediaServerException);
+  throw (KmsMediaServerException);
 
   class StaticConstructor
   {

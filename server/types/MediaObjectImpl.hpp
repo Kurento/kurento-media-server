@@ -28,22 +28,24 @@ namespace kurento
 class MediaObjectImpl : public KmsMediaObjectRef
 {
 public:
-  MediaObjectImpl(const std::map<std::string, KmsMediaParam>& params = emptyParams);
+  MediaObjectImpl (const std::map<std::string, KmsMediaParam>& params = emptyParams);
   MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, const std::map<std::string, KmsMediaParam>& params = emptyParams);
   virtual ~MediaObjectImpl() throw () = 0;
 
   bool getExcludeFromGC ();
 
   std::shared_ptr<MediaObjectImpl> getParent () throw (KmsMediaServerException);
-  virtual std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string& command,
-              const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  virtual std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string &command,
+      const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
   virtual std::string subscribe (const std::string &eventType, const std::string &handlerAddress,
-                                            const int32_t handlerPort) throw (KmsMediaServerException);
+                                 const int32_t handlerPort) throw (KmsMediaServerException);
   virtual void unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException);
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;
-  int32_t getGarbageCollectorPeriod () { return garbageCollectorPeriod; }
+  int32_t getGarbageCollectorPeriod () {
+    return garbageCollectorPeriod;
+  }
 
 protected:
   static std::map<std::string, KmsMediaParam> emptyParams;

@@ -34,8 +34,8 @@ public:
   void pause ();
   void stop ();
 
-  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string& command,
-              const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  std::shared_ptr<KmsMediaInvocationReturn> invoke (const std::string &command,
+      const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
 
 private:
   class StaticConstructor

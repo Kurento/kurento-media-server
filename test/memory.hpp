@@ -16,6 +16,6 @@
 #ifndef __MEMORY_H__
 #define __MEMORY_H__
 
-int get_data_memory(int pid);
+int get_data_memory (int pid);
 
 #endif /* __MEMORY_H__ */

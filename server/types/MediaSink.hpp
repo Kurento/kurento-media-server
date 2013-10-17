@@ -37,8 +37,8 @@ public:
 private:
   std::string getPadName ();
 
-  bool linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad * pad);
-  void unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad * sink);
+  bool linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad *pad);
+  void unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink);
 
   std::weak_ptr <MediaSrc> connectedSrc;
 

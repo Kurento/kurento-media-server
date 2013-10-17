@@ -25,7 +25,7 @@ class ZBarFilter : public Filter
 {
 public:
   ZBarFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> & params)
-                 throw (KmsMediaServerException);
+  throw (KmsMediaServerException);
   ~ZBarFilter() throw ();
 
 private:
@@ -39,8 +39,8 @@ private:
   std::string lastType;
   std::string lastSymbol;
 
-  void barcodeDetected(guint64 ts, std::string& type, std::string& symbol);
-  void raiseEvent(guint64 ts, std::string& type, std::string& symbol);
+  void barcodeDetected (guint64 ts, std::string &type, std::string &symbol);
+  void raiseEvent (guint64 ts, std::string &type, std::string &symbol);
 
   class StaticConstructor
   {
