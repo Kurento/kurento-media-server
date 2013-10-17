@@ -8,10 +8,6 @@ SET(KMSC_SOURCE main.cpp version.cpp MediaServerServiceHandler.cpp
               ${COMMON} ${TYPES} ${UTILS})
 
 set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
-if (DEFINED KMS_TEST)
-  message("KMS_TEST set")
-  set(CFLAGS ${CFLAGS}"-DKMS_TEST ")
-endif ()
 
 set_source_files_properties(${KMSC_SOURCE}
 		PROPERTIES COMPILE_FLAGS ${CFLAGS})

@@ -96,8 +96,9 @@ throw (KmsMediaServerException)
       g_source_remove (data->timeoutId);
   }
 
-  data->timeoutId = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, AUTO_RELEASE_INTERVAL * 2,
-                    auto_release, (gpointer) data.get (), NULL);
+  data->timeoutId = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
+                    mo->getGarbageCollectorPeriod() * 2, auto_release,
+                    (gpointer) data.get (), NULL);
   mutex.unlock();
 }
 

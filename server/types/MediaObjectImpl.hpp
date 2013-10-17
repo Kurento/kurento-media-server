@@ -17,6 +17,7 @@
 #define __MEDIA_OBJECT_IMPL_HPP__
 
 #include "KmsMediaServer_types.h"
+#include "KmsMediaServer_constants.h"
 #include <gst/gst.h>
 
 #include "MediaHandler.hpp"
@@ -42,6 +43,7 @@ public:
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;
+  int32_t getGarbageCollectorPeriod () { return garbageCollectorPeriod; }
 
 protected:
   static std::map<std::string, KmsMediaParam> emptyParams;
@@ -52,6 +54,7 @@ protected:
 
 private:
   bool excludeFromGC = false;
+  int32_t garbageCollectorPeriod = g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD;
 
   void init (const std::map<std::string, KmsMediaParam>& params);
 

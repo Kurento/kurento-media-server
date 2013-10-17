@@ -17,6 +17,7 @@
 #define __MARSHALLING_HPP__
 
 #include "KmsMediaServer_types.h"
+#include "KmsMediaServer_constants.h"
 #include "KmsMediaHandler_types.h"
 
 #include "KmsMediaObject_types.h"
@@ -58,7 +59,8 @@ throw (KmsMediaServerException)
   return unmarshalStringParam ((KmsMediaEventData) eventData);
 }
 
-std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (bool excludeFromGC)
+std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (bool excludeFromGC,
+    int32_t garbageCollectorPeriod = g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD)
                                       throw (KmsMediaServerException);
 std::string marshalKmsMediaObjectConstructorParams (KmsMediaObjectConstructorParams &moParams)
                                       throw (KmsMediaServerException);

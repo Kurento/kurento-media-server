@@ -155,7 +155,8 @@ unmarshalStringParam (const KmsMediaParam &param) throw (KmsMediaServerException
   return str;
 }
 
-std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (bool excludeFromGC)
+std::map<std::string, KmsMediaParam> createKmsMediaObjectConstructorParams (
+  bool excludeFromGC, int32_t garbageCollectorPeriod)
 throw (KmsMediaServerException)
 {
   std::map<std::string, KmsMediaParam> params;
@@ -163,6 +164,11 @@ throw (KmsMediaServerException)
   KmsMediaObjectConstructorParams moParams;
 
   moParams.__set_excludeFromGC (excludeFromGC);
+
+  if (garbageCollectorPeriod !=
+      g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD)
+    moParams.__set_garbageCollectorPeriod (garbageCollectorPeriod);
+
   param.__set_dataType (g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
   param.__set_data (marshalKmsMediaObjectConstructorParams (moParams) );
   params[g_KmsMediaObject_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;

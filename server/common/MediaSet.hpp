@@ -20,12 +20,6 @@
 
 #include <glibmm.h>
 
-#ifdef KMS_TEST
-#define AUTO_RELEASE_INTERVAL 1
-#else
-#define AUTO_RELEASE_INTERVAL g_KmsMediaServer_constants.GARBAGE_PERIOD
-#endif
-
 typedef struct _AutoReleaseData AutoReleaseData;
 
 namespace kurento

@@ -66,6 +66,9 @@ MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
 
     if (mediaObjectParams->__isset.excludeFromGC)
       this->excludeFromGC = mediaObjectParams->excludeFromGC;
+
+    if (mediaObjectParams->__isset.garbageCollectorPeriod)
+      this->garbageCollectorPeriod = mediaObjectParams->garbageCollectorPeriod;
   }
 
   GST_TRACE ("MediaObject %" G_GINT64_FORMAT " excludeFromGC: %d", this->id,

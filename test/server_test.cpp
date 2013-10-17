@@ -37,6 +37,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "server_test"
 
+#define AUTO_RELEASE_INTERVAL 1
+
 using namespace kurento;
 
 static std::map<std::string, KmsMediaParam> emptyParams = std::map<std::string, KmsMediaParam> ();
@@ -117,10 +119,14 @@ check_auto_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerSer
   KmsMediaObjectRef moA = KmsMediaObjectRef();
   KmsMediaObjectRef moB = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
+  std::map<std::string, KmsMediaParam> mediaObjectparams;
 
+  mediaObjectparams = createKmsMediaObjectConstructorParams (false,
+                      AUTO_RELEASE_INTERVAL);
   params = createKmsMediaUriEndPointConstructorParams ("file:///tmp/f.webm");
+  params.insert (mediaObjectparams.begin(), mediaObjectparams.end() );
 
-  client->createMediaPipeline (mediaPipeline);
+  client->createMediaPipelineWithParams (mediaPipeline, mediaObjectparams);
   g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);
 
   try {
@@ -130,7 +136,7 @@ check_auto_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerSer
     BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
   }
 
-  client->createMediaPipeline (mediaPipeline);
+  client->createMediaPipelineWithParams (mediaPipeline, mediaObjectparams);
   g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
   BOOST_REQUIRE_NO_THROW (client->createMediaElementWithParams (moA, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params););
 
@@ -177,8 +183,12 @@ check_keep_alive_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServic
 {
   int i;
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> mediaObjectparams;
 
-  client->createMediaPipeline (mediaPipeline);
+  mediaObjectparams = createKmsMediaObjectConstructorParams (false,
+                      AUTO_RELEASE_INTERVAL);
+
+  client->createMediaPipelineWithParams (mediaPipeline, mediaObjectparams);
 
   for (i = 0; i < 5; i++) {
     g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
@@ -194,7 +204,7 @@ check_exclude_from_gc (boost::shared_ptr<kurento::KmsMediaServerServiceClient> c
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
 
-  params = createKmsMediaObjectConstructorParams (true);
+  params = createKmsMediaObjectConstructorParams (true, AUTO_RELEASE_INTERVAL);
 
   client->createMediaPipelineWithParams (mediaPipeline, params);
   g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);
