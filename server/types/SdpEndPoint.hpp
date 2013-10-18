@@ -28,11 +28,11 @@ public:
                const std::map<std::string, KmsMediaParam>& params);
   virtual ~SdpEndPoint() throw () = 0;
 
-  std::string generateOffer ();
-  std::string processAnswer (const std::string &answer);
-  std::string processOffer (const std::string &offer);
-  std::string getLocalSessionDescription () throw (KmsMediaServerException);
-  std::string getRemoteSessionDescription () throw (KmsMediaServerException);
+  void generateOffer (std::string &_return);
+  void processAnswer (std::string &_return, const std::string &answer);
+  void processOffer (std::string &_return, const std::string &offer);
+  void getLocalSessionDescription (std::string &_return) throw (KmsMediaServerException);
+  void getRemoteSessionDescription (std::string &_return) throw (KmsMediaServerException);
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
                const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);

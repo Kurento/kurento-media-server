@@ -65,24 +65,22 @@ str_to_sdp (const std::string &sdpStr)
   return sdp;
 }
 
-static std::string
-sdp_to_str (const GstSDPMessage *sdp)
+static void
+sdp_to_str (std::string &_return, const GstSDPMessage *sdp)
 {
   std::string sdpStr;
   gchar *sdpGchar;
 
   sdpGchar = gst_sdp_message_as_text (sdp);
-  sdpStr = std::string (sdpGchar);
+  _return.clear ();
+  _return.append (sdpGchar);
   free (sdpGchar);
-
-  return sdpStr;
 }
 
-std::string
-SdpEndPoint::generateOffer ()
+void
+SdpEndPoint::generateOffer (std::string &_return)
 {
   GstSDPMessage *offer = NULL;
-  std::string offerStr;
 
   if (element == NULL) {
   }
@@ -97,14 +95,12 @@ SdpEndPoint::generateOffer ()
     throw except;
   }
 
-  offerStr = sdp_to_str (offer);
+  sdp_to_str (_return, offer);
   gst_sdp_message_free (offer);
-
-  return offerStr;
 }
 
-std::string
-SdpEndPoint::processAnswer (const std::string &answer)
+void
+SdpEndPoint::processAnswer (std::string &_return, const std::string &answer)
 {
   GstSDPMessage *answerSdp;
   std::string resultStr;
@@ -113,14 +109,13 @@ SdpEndPoint::processAnswer (const std::string &answer)
   g_signal_emit_by_name (element, "process-answer", answerSdp, NULL);
   gst_sdp_message_free (answerSdp);
 
-  return getLocalSessionDescription ();
+  getLocalSessionDescription (_return);
 }
 
-std::string
-SdpEndPoint::processOffer (const std::string &offer)
+void
+SdpEndPoint::processOffer (std::string &_return, const std::string &offer)
 {
   GstSDPMessage *offerSdp = NULL, *result = NULL;
-  std::string resultStr;
 
   offerSdp = str_to_sdp (offer);
   g_signal_emit_by_name (element, "process-offer", offerSdp, &result);
@@ -134,17 +129,14 @@ SdpEndPoint::processOffer (const std::string &offer)
     throw except;
   }
 
-  resultStr = sdp_to_str (result);
+  sdp_to_str (_return, result);
   gst_sdp_message_free (result);
-
-  return resultStr;
 }
 
-std::string
-SdpEndPoint::getLocalSessionDescription () throw (KmsMediaServerException)
+void
+SdpEndPoint::getLocalSessionDescription (std::string &_return) throw (KmsMediaServerException)
 {
   GstSDPMessage *localSdp = NULL;
-  std::string localSdpStr;
 
   g_object_get (element, "local-answer-sdp", &localSdp, NULL);
 
@@ -161,17 +153,14 @@ SdpEndPoint::getLocalSessionDescription () throw (KmsMediaServerException)
     throw except;
   }
 
-  localSdpStr = sdp_to_str (localSdp);
+  sdp_to_str (_return, localSdp);
   gst_sdp_message_free (localSdp);
-
-  return localSdpStr;
 }
 
-std::string
-SdpEndPoint::getRemoteSessionDescription () throw (KmsMediaServerException)
+void
+SdpEndPoint::getRemoteSessionDescription (std::string &_return) throw (KmsMediaServerException)
 {
   GstSDPMessage *remoteSdp = NULL;
-  std::string remoteSdpStr;
 
   g_object_get (element, "remote-answer-sdp", &remoteSdp, NULL);
 
@@ -186,10 +175,8 @@ SdpEndPoint::getRemoteSessionDescription () throw (KmsMediaServerException)
     throw except;
   }
 
-  remoteSdpStr = sdp_to_str (remoteSdp);;
+  sdp_to_str (_return, remoteSdp);;
   gst_sdp_message_free (remoteSdp);
-
-  return remoteSdpStr;
 }
 
 void
@@ -199,19 +186,34 @@ SdpEndPoint::invoke (KmsMediaInvocationReturn &_return,
 throw (KmsMediaServerException)
 {
   if (g_KmsMediaSdpEndPointType_constants.GET_LOCAL_SDP.compare (command) == 0) {
-    createStringInvocationReturn (_return, getLocalSessionDescription () );
+    std::string localSdp;
+
+    getLocalSessionDescription (localSdp);
+    createStringInvocationReturn (_return, localSdp);
   } else if (g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP.compare (command) == 0) {
-    createStringInvocationReturn (_return, getRemoteSessionDescription () );
+    std::string remoteSdp;
+
+    getRemoteSessionDescription (remoteSdp);
+    createStringInvocationReturn (_return, remoteSdp);
   } else if (g_KmsMediaSdpEndPointType_constants.GENERATE_SDP_OFFER.compare (command) == 0) {
-    createStringInvocationReturn (_return, generateOffer () );
+    std::string offer;
+
+    generateOffer (offer);
+    createStringInvocationReturn (_return, offer);
   } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER.compare (command) == 0) {
     std::string offer;
+    std::string answer;
+
     getStringParam (offer, params, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER_PARAM_OFFER_STR);
-    createStringInvocationReturn (_return, processOffer (offer) );
+    processOffer (answer, offer);
+    createStringInvocationReturn (_return, answer);
   } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER.compare (command) == 0) {
     std::string answer;
+    std::string localSdp;
+
     getStringParam (answer, params, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER_PARAM_ANSWER_STR);
-    createStringInvocationReturn (_return, processAnswer (answer) );
+    processAnswer (localSdp, answer);
+    createStringInvocationReturn (_return, localSdp);
   } else {
     EndPoint::invoke (_return, command, params);
   }
