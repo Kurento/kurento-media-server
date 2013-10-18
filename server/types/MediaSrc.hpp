@@ -41,7 +41,7 @@ private:
 
   Glib::RecMutex mutex;
 
-  std::string getPadName ();
+  const gchar * getPadName ();
 
   class StaticConstructor
   {

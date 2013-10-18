@@ -35,13 +35,13 @@ MediaSrc::~MediaSrc() throw ()
 
 }
 
-std::string
+const gchar *
 MediaSrc::getPadName ()
 {
   if (mediaType == KmsMediaType::type::AUDIO)
-    return "audio_src_%u";
+    return (const gchar *) "audio_src_%u";
   else
-    return "video_src_%u";
+    return (const gchar *) "video_src_%u";
 }
 
 static void
@@ -59,7 +59,7 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 
   mutex.lock();
 
-  pad = gst_element_get_request_pad (getElement(), getPadName().c_str() );
+  pad = gst_element_get_request_pad (getElement(), getPadName() );
 
   g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked), getElement() );
 
