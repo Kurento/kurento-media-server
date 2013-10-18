@@ -32,7 +32,7 @@ public:
 
   void connect (std::shared_ptr<MediaSink> mediaSink);
   void disconnect (std::shared_ptr<MediaSink> mediaSink);
-  std::vector < std::shared_ptr<MediaSink> > * getConnectedSinks ();
+  void getConnectedSinks (std::vector < std::shared_ptr<MediaSink> > &_return);
 
 private:
   std::vector < std::weak_ptr<MediaSink> > connectedSinks;

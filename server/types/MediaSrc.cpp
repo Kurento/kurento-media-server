@@ -119,13 +119,13 @@ MediaSrc::disconnect (MediaSink *mediaSink)
   mutex.unlock();
 }
 
-std::vector < std::shared_ptr<MediaSink> > *
-MediaSrc:: getConnectedSinks ()
+void
+MediaSrc:: getConnectedSinks (std::vector < std::shared_ptr<MediaSink> > &_return)
 {
   std::shared_ptr<MediaSink> sinkLocked;
   std::vector< std::weak_ptr<MediaSink> >::iterator it;
 
-  std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
+  _return.clear();
 
   mutex.lock();
 
@@ -136,13 +136,11 @@ MediaSrc:: getConnectedSinks ()
     }
 
     if (sinkLocked != NULL) {
-      mediaSinks->push_back (sinkLocked);
+      _return.push_back (sinkLocked);
     }
   }
 
   mutex.unlock();
-
-  return mediaSinks;
 }
 
 MediaSrc::StaticConstructor MediaSrc::staticConstructor;

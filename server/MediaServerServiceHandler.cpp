@@ -666,29 +666,26 @@ void
 MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaSrc) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
-  std::vector < std::shared_ptr<MediaSink> > * mediaSinks = NULL;
+  std::vector < std::shared_ptr<MediaSink> > mediaSinks;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
   try {
     GST_TRACE ("getConnectedSinks src: %" G_GUINT64_FORMAT, mediaSrc.id);
     src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
-    mediaSinks = src->getConnectedSinks();
+    src->getConnectedSinks (mediaSinks);
 
-    for ( it = mediaSinks->begin() ; it != mediaSinks->end(); ++it) {
+    for ( it = mediaSinks.begin() ; it != mediaSinks.end(); ++it) {
       mediaSet.put (*it);
       _return.push_back (**it);
     }
 
-    delete mediaSinks;
     GST_TRACE ("getConnectedSinks src: %" G_GUINT64_FORMAT " done", mediaSrc.id);
   } catch (const KmsMediaServerException &e) {
-    delete mediaSinks;
     GST_TRACE ("getConnectedSinks src: %" G_GUINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, e.what () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    delete mediaSinks;
     GST_TRACE ("getConnectedSinks src: %" G_GUINT64_FORMAT " throws KmsMediaServerException", mediaSrc.id);
     createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getConnectedSinks");
     throw except;
