@@ -34,10 +34,10 @@ public:
                 const std::map<std::string, KmsMediaParam>& params);
   virtual ~MediaElement() throw () = 0;
 
-  std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcs ();
-  std::vector < std::shared_ptr<MediaSink> > * getMediaSinks();
-  std::vector < std::shared_ptr<MediaSrc> > * getMediaSrcsByMediaType (const KmsMediaType::type mediaType);
-  std::vector < std::shared_ptr<MediaSink> > * getMediaSinksByMediaType (const KmsMediaType::type mediaType);
+  void getMediaSrcs (std::vector < std::shared_ptr<MediaSrc> > &_return);
+  void  getMediaSinks (std::vector < std::shared_ptr<MediaSink> > &_return);
+  void getMediaSrcsByMediaType (std::vector < std::shared_ptr<MediaSrc> > &_return, const KmsMediaType::type mediaType);
+  void getMediaSinksByMediaType (std::vector < std::shared_ptr<MediaSink> > &_return, const KmsMediaType::type mediaType);
 
 protected:
   GstElement *element;

@@ -123,52 +123,40 @@ MediaElement::getOrCreateVideoMediaSink()
   return locked;
 }
 
-std::vector < std::shared_ptr<MediaSrc> > *
-MediaElement::getMediaSrcs ()
+void
+MediaElement::getMediaSrcs (std::vector < std::shared_ptr<MediaSrc> > &_return)
 {
-  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
-
-  mediaSrcs->push_back (getOrCreateAudioMediaSrc() );
-  mediaSrcs->push_back (getOrCreateVideoMediaSrc() );
-
-  return mediaSrcs;
+  _return.push_back (getOrCreateAudioMediaSrc() );
+  _return.push_back (getOrCreateVideoMediaSrc() );
 }
 
-std::vector < std::shared_ptr<MediaSink> > *
-MediaElement::getMediaSinks()
+void
+MediaElement::getMediaSinks (std::vector < std::shared_ptr<MediaSink> > &_return)
 {
-  std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
-
-  mediaSinks->push_back (getOrCreateAudioMediaSink() );
-  mediaSinks->push_back (getOrCreateVideoMediaSink() );
-
-  return mediaSinks;
+  _return.push_back (getOrCreateAudioMediaSink() );
+  _return.push_back (getOrCreateVideoMediaSink() );
 }
 
-std::vector < std::shared_ptr<MediaSrc> > *
-MediaElement::getMediaSrcsByMediaType (const KmsMediaType::type mediaType)
+void
+MediaElement::getMediaSrcsByMediaType (
+  std::vector < std::shared_ptr<MediaSrc> > &_return,
+  const KmsMediaType::type mediaType)
 {
-  std::vector < std::shared_ptr<MediaSrc> > *mediaSrcs = new std::vector< std::shared_ptr<MediaSrc> >();
-
   if (mediaType == KmsMediaType::type::AUDIO)
-    mediaSrcs->push_back (getOrCreateAudioMediaSrc() );
+    _return.push_back (getOrCreateAudioMediaSrc() );
   else if (mediaType == KmsMediaType::type::VIDEO)
-    mediaSrcs->push_back (getOrCreateVideoMediaSrc() );
-
-  return mediaSrcs;
+    _return.push_back (getOrCreateVideoMediaSrc() );
 }
 
-std::vector < std::shared_ptr<MediaSink> > *
-MediaElement::getMediaSinksByMediaType (const KmsMediaType::type mediaType)
+void
+MediaElement::getMediaSinksByMediaType (
+  std::vector < std::shared_ptr<MediaSink> > &_return,
+  const KmsMediaType::type mediaType)
 {
-  std::vector< std::shared_ptr<MediaSink> > *mediaSinks = new std::vector< std::shared_ptr<MediaSink> >();
-
   if (mediaType == KmsMediaType::type::AUDIO)
-    mediaSinks->push_back (getOrCreateAudioMediaSink() );
+    _return.push_back (getOrCreateAudioMediaSink() );
   else if (mediaType == KmsMediaType::type::VIDEO)
-    mediaSinks->push_back (getOrCreateVideoMediaSink() );
-
-  return mediaSinks;
+    _return.push_back (getOrCreateVideoMediaSink() );
 }
 
 MediaElement::StaticConstructor MediaElement::staticConstructor;
