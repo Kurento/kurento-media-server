@@ -84,15 +84,16 @@ action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
 {
   HttpEndPoint *httpEp = (HttpEndPoint *) data;
   std::string uriStr = uri;
+  std::string url = httpEp->getUrl();
 
   GST_DEBUG ("Action requested URI %s", uriStr.c_str() );
 
-  if (httpEp->getUrl().size() <= uriStr.size() )
+  if (url.size() <= uriStr.size() )
     return;
 
   /* Remove the initial "http://host:port" to compare the uri */
-  std::string substr = httpEp->getUrl().substr (httpEp->getUrl().size() -
-                       uriStr.size(), std::string::npos);
+  std::string substr = url.substr (url.size() - uriStr.size(),
+                                   std::string::npos);
 
   if (substr.compare (uriStr) != 0)
     return;
@@ -330,7 +331,7 @@ HttpEndPoint::getUrl ()
 }
 
 void
-HttpEndPoint::setUrl (std::string newUrl)
+HttpEndPoint::setUrl (const std::string &newUrl)
 {
   url = newUrl;
 }
@@ -342,7 +343,7 @@ HttpEndPoint::invoke (KmsMediaInvocationReturn &_return,
 throw (KmsMediaServerException)
 {
   if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command) == 0)
-    createStringInvocationReturn (_return, getUrl () );
+    createStringInvocationReturn (_return, url);
   else
     EndPoint::invoke (_return, command, params);
 }

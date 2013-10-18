@@ -39,7 +39,7 @@ private:
   guint cookieLifetime;
   guint disconnectionTimeout;
 
-  void setUrl (std::string);
+  void setUrl (const std::string &);
 
 private:
   void init (std::shared_ptr<MediaPipeline> parent, guint cookieLifetime, guint disconnectionTimeout)
