@@ -159,6 +159,30 @@ MediaElement::getMediaSinksByMediaType (
     _return.push_back (getOrCreateVideoMediaSink() );
 }
 
+void
+MediaElement::connect (std::shared_ptr<MediaElement> sink)
+throw (KmsMediaServerException)
+{
+  std::shared_ptr<MediaSrc> audio_src = getOrCreateAudioMediaSrc();
+  std::shared_ptr<MediaSink> audio_sink = sink->getOrCreateAudioMediaSink();
+
+  std::shared_ptr<MediaSrc> video_src = getOrCreateVideoMediaSrc();
+  std::shared_ptr<MediaSink> video_sink = sink->getOrCreateVideoMediaSink();
+
+  audio_src->connect (audio_sink);
+
+  try {
+    video_src->connect (video_sink);
+  } catch (...) {
+    try {
+      audio_src->disconnect (audio_sink);
+    } catch (...) {
+    }
+
+    throw;
+  }
+}
+
 MediaElement::StaticConstructor MediaElement::staticConstructor;
 
 MediaElement::StaticConstructor::StaticConstructor()

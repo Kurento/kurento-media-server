@@ -39,6 +39,8 @@ public:
   void getMediaSrcsByMediaType (std::vector < std::shared_ptr<MediaSrc> > &_return, const KmsMediaType::type mediaType);
   void getMediaSinksByMediaType (std::vector < std::shared_ptr<MediaSink> > &_return, const KmsMediaType::type mediaType);
 
+  void connect (std::shared_ptr<MediaElement> sink) throw (KmsMediaServerException);
+
 protected:
   GstElement *element;
 

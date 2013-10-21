@@ -555,7 +555,39 @@ void
 MediaServerServiceHandler::connectElements (const KmsMediaObjectRef &srcMediaElement, const KmsMediaObjectRef &sinkMediaElement)
 throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaElement> sink;
+  std::shared_ptr<MediaElement> src;
+
+  try {
+    GST_TRACE ("connectElements srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT, srcMediaElement.id,
+               sinkMediaElement.id);
+    sink = mediaSet.getMediaObject<MediaElement> (sinkMediaElement);
+    src = mediaSet.getMediaObject<MediaElement> (srcMediaElement);
+
+    src->connect (sink);
+
+    GST_TRACE ("connectElements srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT " done",
+               srcMediaElement.id, sinkMediaElement.id);
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("connectElements srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT
+               " throws KmsMediaServerException (%s)", srcMediaElement.id,
+               sinkMediaElement.id, e.what () );
+    throw e;
+  } catch (...) {
+    KmsMediaServerException except;
+
+    GST_TRACE ("connectElements srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT
+               " throws KmsMediaServerException", srcMediaElement.id,
+               sinkMediaElement.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in connectElements");
+    throw except;
+  }
 }
 
 void
