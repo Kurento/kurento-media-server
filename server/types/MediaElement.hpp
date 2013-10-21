@@ -35,7 +35,7 @@ public:
   virtual ~MediaElement() throw () = 0;
 
   void getMediaSrcs (std::vector < std::shared_ptr<MediaSrc> > &_return);
-  void  getMediaSinks (std::vector < std::shared_ptr<MediaSink> > &_return);
+  void getMediaSinks (std::vector < std::shared_ptr<MediaSink> > &_return);
   void getMediaSrcsByMediaType (std::vector < std::shared_ptr<MediaSrc> > &_return, const KmsMediaType::type mediaType);
   void getMediaSinksByMediaType (std::vector < std::shared_ptr<MediaSink> > &_return, const KmsMediaType::type mediaType);
 
