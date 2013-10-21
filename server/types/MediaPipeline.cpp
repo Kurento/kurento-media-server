@@ -91,8 +91,6 @@ std::shared_ptr<MediaElement>
 MediaPipeline::createMediaElement (const std::string &elementType, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: complete");
-
   if (g_KmsMediaPlayerEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
     return std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (shared_from_this (), params) );
   } else if (g_KmsMediaRecorderEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
