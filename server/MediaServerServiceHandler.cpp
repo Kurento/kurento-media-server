@@ -162,23 +162,23 @@ throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
 
-  GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT, mediaObjectRef.id);
+  GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GUINT64_FORMAT, command.c_str (), mediaObjectRef.id);
 
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     mo->invoke (_return, command, params);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
+    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException (%s)", command.c_str (), mediaObjectRef.id, e.what () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
+    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GUINT64_FORMAT " throws KmsMediaServerException", command.c_str (), mediaObjectRef.id);
     createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in invoke");
     throw except;
   }
 
-  GST_TRACE ("invoke mediaObjectRef: %" G_GUINT64_FORMAT " done", mediaObjectRef.id);
+  GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GUINT64_FORMAT " done", command.c_str (), mediaObjectRef.id);
 }
 
 void
