@@ -107,6 +107,12 @@ unmarshalString (std::string &_return, const std::string &data) throw (KmsMediaS
 }
 
 void
+createVoidParam (KmsMediaParam &_return) throw (KmsMediaServerException)
+{
+  _return.__set_dataType (g_KmsMediaDataType_constants.VOID_DATA_TYPE);
+}
+
+void
 createI32Param (KmsMediaParam &_return, const int32_t i) throw (KmsMediaServerException)
 {
   marshalI32 (_return.data, i);

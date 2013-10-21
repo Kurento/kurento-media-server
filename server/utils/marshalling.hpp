@@ -31,10 +31,17 @@ int32_t unmarshalI32 (const std::string &data) throw (KmsMediaServerException);
 void marshalString (std::string &_return, const std::string &str) throw (KmsMediaServerException);
 void unmarshalString (std::string &_return, const std::string &data) throw (KmsMediaServerException);
 
+void createVoidParam (KmsMediaParam &_return) throw (KmsMediaServerException);
 void createI32Param (KmsMediaParam &_return, const int32_t i) throw (KmsMediaServerException);
 int32_t unmarshalI32Param (const KmsMediaParam &param) throw (KmsMediaServerException);
 void createStringParam (KmsMediaParam &_return, const std::string &data) throw (KmsMediaServerException);
 void unmarshalStringParam (std::string &_return, const KmsMediaParam &param) throw (KmsMediaServerException);
+
+inline void createVoidInvocationReturn (KmsMediaInvocationReturn &_return)
+throw (KmsMediaServerException)
+{
+  createVoidParam ((KmsMediaParam &) _return);
+}
 
 inline void createStringInvocationReturn (KmsMediaInvocationReturn &_return, const std::string &data)
 throw (KmsMediaServerException)

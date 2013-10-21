@@ -81,10 +81,20 @@ UriEndPoint::invoke (KmsMediaInvocationReturn &_return,
                      const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command) == 0)
+  if (g_KmsMediaUriEndPointType_constants.GET_URI.compare (command) == 0) {
     createStringInvocationReturn (_return, getUri () );
-  else
+  } else if (g_KmsMediaUriEndPointType_constants.START.compare (command) == 0) {
+    start ();
+    createVoidInvocationReturn (_return);
+  } else if (g_KmsMediaUriEndPointType_constants.PAUSE.compare (command) == 0) {
+    pause ();
+    createVoidInvocationReturn (_return);
+  } else if (g_KmsMediaUriEndPointType_constants.STOP.compare (command) == 0) {
+    stop ();
+    createVoidInvocationReturn (_return);
+  } else {
     EndPoint::invoke (_return, command, params);
+  }
 }
 
 UriEndPoint::StaticConstructor UriEndPoint::staticConstructor;
