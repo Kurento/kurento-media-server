@@ -16,6 +16,8 @@
 #include "MediaSrc.hpp"
 
 #include "MediaElement.hpp"
+#include "KmsMediaErrorCodes_constants.h"
+#include "utils/utils.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_src
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -51,9 +53,10 @@ pad_unlinked (GstPad *pad, GstPad *peer, GstElement *parent)
 }
 
 void
-MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
+MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink) throw (KmsMediaServerException)
 {
   GstPad *pad;
+  bool ret;
 
   GST_INFO ("connect %" G_GINT64_FORMAT " to %" G_GINT64_FORMAT, this->id, mediaSink->id);
 
@@ -63,16 +66,30 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink)
 
   g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked), getElement() );
 
-  if (mediaSink->linkPad (shared_from_this(), pad) ) {
+  ret = mediaSink->linkPad (shared_from_this(), pad);
+
+  if (ret) {
     connectedSinks.push_back (std::weak_ptr<MediaSink> (mediaSink) );
   } else {
     gst_element_release_request_pad (getElement(), pad);
-    GST_WARNING ("Cannot connect %" G_GINT64_FORMAT " to %" G_GINT64_FORMAT, this->id, mediaSink->id);
   }
 
   g_object_unref (pad);
 
   mutex.unlock();
+
+  if (!ret) {
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.CONNECT_ERROR,
+                                   "MediaSrc " + std::to_string (this->id) +
+                                   " and MediaSink " +
+                                   std::to_string (mediaSink->id) +
+                                   " cannot be linked");
+
+    throw except;
+  }
 }
 
 void

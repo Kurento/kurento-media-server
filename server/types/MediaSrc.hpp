@@ -30,7 +30,7 @@ public:
   MediaSrc (std::shared_ptr<MediaElement> parent, KmsMediaType::type mediaType);
   ~MediaSrc() throw ();
 
-  void connect (std::shared_ptr<MediaSink> mediaSink);
+  void connect (std::shared_ptr<MediaSink> mediaSink) throw (KmsMediaServerException);
   void disconnect (std::shared_ptr<MediaSink> mediaSink);
   void getConnectedSinks (std::vector < std::shared_ptr<MediaSink> > &_return);
 
