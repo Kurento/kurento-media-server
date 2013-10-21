@@ -105,7 +105,7 @@ MediaSrc::removeSink (MediaSink *mediaSink)
   while (it != connectedSinks.end() ) {
     try {
       sinkLocked = (*it).lock();
-    } catch (std::bad_weak_ptr e) {
+    } catch (const std::bad_weak_ptr &e) {
     }
 
     if (sinkLocked == NULL || sinkLocked->id == mediaSink->id) {
@@ -149,7 +149,7 @@ MediaSrc:: getConnectedSinks (std::vector < std::shared_ptr<MediaSink> > &_retur
   for ( it = connectedSinks.begin() ; it != connectedSinks.end(); ++it) {
     try {
       sinkLocked = (*it).lock();
-    } catch (std::bad_weak_ptr e) {
+    } catch (const std::bad_weak_ptr &e) {
     }
 
     if (sinkLocked != NULL) {

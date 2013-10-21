@@ -60,7 +60,7 @@ MediaSet::canBeAutoreleased (const KmsMediaObjectRef &mediaObject)
   try {
     getMediaObject<MediaPad> (mediaObject);
     return false;
-  } catch (KmsMediaServerException &e) {
+  } catch (const KmsMediaServerException &e) {
     return true;
   }
 }

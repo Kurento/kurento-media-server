@@ -202,7 +202,7 @@ configure_kurento_media_server (KeyFile &configFile, const std::string &file_nam
   try {
     serverAddress = configFile.get_string (SERVER_GROUP,
                                            MEDIA_SERVER_ADDRESS_KEY);
-  } catch (Glib::KeyFileError err) {
+  } catch (const Glib::KeyFileError &err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default address %s to media server",
                  MEDIA_SERVER_ADDRESS);
@@ -213,7 +213,7 @@ configure_kurento_media_server (KeyFile &configFile, const std::string &file_nam
     port = configFile.get_integer (SERVER_GROUP, MEDIA_SERVER_SERVICE_PORT_KEY);
     check_port (port);
     serverServicePort = port;
-  } catch (Glib::KeyFileError err) {
+  } catch (const Glib::KeyFileError &err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default port %d to media server",
                  MEDIA_SERVER_SERVICE_PORT);
@@ -224,7 +224,7 @@ configure_kurento_media_server (KeyFile &configFile, const std::string &file_nam
     sdpPattern = load_sdp_pattern (configFile, file_name);
     GST_DEBUG ("SDP: \n%s", sdpMessageText = gst_sdp_message_as_text (sdpPattern) );
     g_free (sdpMessageText);
-  } catch (Glib::KeyFileError err) {
+  } catch (const Glib::KeyFileError &err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Wrong codec configuration, communication won't be possible");
   }
@@ -238,7 +238,7 @@ configure_http_ep_server (KeyFile &configFile)
   try {
     httpEPServerAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
                           HTTP_EP_SERVER_ADDRESS_KEY);
-  } catch (Glib::KeyFileError err) {
+  } catch (const Glib::KeyFileError &err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Http end point server will be listening to all interfaces");
   }
@@ -247,7 +247,7 @@ configure_http_ep_server (KeyFile &configFile)
     port = configFile.get_integer (HTTP_EP_SERVER_GROUP, HTTP_EP_SERVER_SERVICE_PORT_KEY);
     check_port (port);
     httpEPServerServicePort = port;
-  } catch (Glib::KeyFileError err) {
+  } catch (const Glib::KeyFileError &err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default port %d to http end point server",
                  HTTP_EP_SERVER_SERVICE_PORT);
@@ -257,7 +257,7 @@ configure_http_ep_server (KeyFile &configFile)
   try {
     httpEPServerAnnouncedAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
                                    HTTP_EP_SERVER_ANNOUNCED_ADDRESS_KEY);
-  } catch (Glib::KeyFileError err) {
+  } catch (const Glib::KeyFileError &err) {
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Http end point server will choose any available "
                  "IP address to compose URLs");
@@ -280,7 +280,7 @@ load_config (const std::string &file_name)
       set_default_config ();
       return;
     }
-  } catch (Glib::Error ex) {
+  } catch (const Glib::Error &ex) {
     GST_ERROR ("Error loading configuration: %s", ex.what ().c_str () );
     set_default_config ();
     return;

@@ -35,7 +35,7 @@ MediaSink::~MediaSink() throw ()
 
   try {
     connectedSrcLocked = connectedSrc.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   if (connectedSrcLocked != NULL) {
@@ -116,7 +116,7 @@ MediaSink::linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad *src)
 
   try {
     connectedSrcLocked = connectedSrc.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   if ( (sink = gst_element_get_static_pad (getElement(), getPadName().c_str() ) ) == NULL)
@@ -195,7 +195,7 @@ MediaSink::unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink)
 
   try {
     connectedSrcLocked = connectedSrc.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   if (connectedSrcLocked != NULL && mediaSrc == connectedSrcLocked) {
@@ -242,7 +242,7 @@ MediaSink::getConnectedSrc ()
 
   try {
     connectedSrcLocked = connectedSrc.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   return connectedSrcLocked;

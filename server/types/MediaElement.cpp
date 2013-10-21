@@ -44,7 +44,7 @@ MediaElement::getOrCreateAudioMediaSrc()
 
   try {
     locked = audioMediaSrc.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   if (locked.get() == NULL) {
@@ -66,7 +66,7 @@ MediaElement::getOrCreateVideoMediaSrc()
 
   try {
     locked = videoMediaSrc.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   if (locked.get() == NULL) {
@@ -88,7 +88,7 @@ MediaElement::getOrCreateAudioMediaSink()
 
   try {
     locked = audioMediaSink.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   if (locked.get() == NULL) {
@@ -110,7 +110,7 @@ MediaElement::getOrCreateVideoMediaSink()
 
   try {
     locked = videoMediaSink.lock();
-  } catch (std::bad_weak_ptr e) {
+  } catch (const std::bad_weak_ptr &e) {
   }
 
   if (locked.get() == NULL) {

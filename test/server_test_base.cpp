@@ -114,7 +114,7 @@ F::F()
       transport->open ();
       initialized = true;
       break;
-    } catch (std::exception e) {
+    } catch (const std::exception &e) {
       GST_WARNING ("Error connecting to the server (retry %d/%d): %s", i + 1, MAX_RETRIES, e.what () );
       usleep (100000);
     }
