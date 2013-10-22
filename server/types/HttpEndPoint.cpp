@@ -15,12 +15,11 @@
 
 #include "HttpEndPoint.hpp"
 
-#include "httpendpointserver.hpp"
-
 #include "KmsMediaHttpEndPointType_constants.h"
 #include "KmsMediaHttpEndPointType_types.h"
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
+#include "KmsMediaSessionEndPointType_constants.h"
 
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
@@ -45,37 +44,17 @@ namespace kurento
 void
 http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action)
 {
-// TODO: reuse when needed
-#if 0
-  MediaEvent event;
-  HttpEndPointEvent httpEndPointEvent;
+  if (!g_atomic_int_compare_and_exchange (& (httpEp->sessionStarted), 0, 1) )
+    return;
 
-  boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );
-  TBinaryProtocol protocol (transport);
-
-  switch (action) {
-  case KMS_HTTP_END_POINT_ACTION_GET:
-    httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::GET_REQUEST_EVENT);
-    break;
-
-  case KMS_HTTP_END_POINT_ACTION_POST:
-    httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::POST_REQUEST_EVENT);
-    break;
-
-  default:
-    httpEndPointEvent.__set_request (HttpEndPointRequestEvent::type::UNEXPECTED_REQUEST_EVENT);
-    break;
+  if (action == KMS_HTTP_END_POINT_ACTION_UNDEFINED) {
+    GST_ERROR ("Invalid or unexpected request received");
+    // TODO: Raise error to remote client
+    return;
   }
 
-  httpEndPointEvent.write (&protocol);
-  std::string event_str;
-  transport->appendBufferToString (event_str);
-  event.__set_event (event_str);
-  event.__set_source (*httpEp);
-
-  std::dynamic_pointer_cast<MediaPipeline> (httpEp->parent)->sendEvent (event);
-  GST_INFO ("Signal raised");
-#endif
+  httpEp->sendEvent (
+    g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START);
 }
 
 static void
@@ -346,6 +325,18 @@ throw (KmsMediaServerException)
     createStringInvocationReturn (_return, url);
   else
     EndPoint::invoke (_return, command, params);
+}
+
+void
+HttpEndPoint::subscribe (std::string &_return, const std::string &eventType, const std::string &handlerAddress, const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START.compare (
+        eventType) == 0)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  else
+    EndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
 }
 
 HttpEndPoint::StaticConstructor HttpEndPoint::staticConstructor;

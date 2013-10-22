@@ -17,6 +17,7 @@
 #define __HTTP_END_POINT_HPP__
 
 #include "EndPoint.hpp"
+#include "httpendpointserver.hpp"
 
 namespace kurento
 {
@@ -32,6 +33,8 @@ public:
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
                const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+  void subscribe (std::string &_return, const std::string &eventType,
+                  const std::string &handlerAddress, const int32_t handlerPort) throw (KmsMediaServerException);
 
 private:
   std::string url;
@@ -55,9 +58,10 @@ private:
   gulong actionRequestedHandlerId;
   gulong urlRemovedHandlerId;
   gulong urlExpiredHandlerId;
+  gint sessionStarted = 0;
 
   friend gboolean register_http_end_point (gpointer data);
-  friend void http_end_point_raise_petition_event (HttpEndPoint *httpEp);
+  friend void http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action);
 };
 
 } // kurento
