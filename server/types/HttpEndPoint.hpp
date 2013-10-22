@@ -62,6 +62,7 @@ private:
 
   friend gboolean register_http_end_point (gpointer data);
   friend void http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action);
+  friend void kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, const gchar *uri);
 };
 
 } // kurento

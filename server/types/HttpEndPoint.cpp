@@ -80,6 +80,30 @@ action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
   http_end_point_raise_petition_event (httpEp, action);
 }
 
+void
+kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, const gchar *uri)
+{
+  std::string uriStr = uri;
+
+  GST_DEBUG ("Action requested URI %s", uriStr.c_str() );
+
+  if (httpEp->url.size() <= uriStr.size() )
+    return;
+
+  /* Remove the initial "http://host:port" to compare the uri */
+  std::string substr = httpEp->url.substr (httpEp->url.size() - uriStr.size(),
+                       std::string::npos);
+
+  if (substr.compare (uriStr) != 0)
+    return;
+
+  if (!g_atomic_int_compare_and_exchange (& (httpEp->sessionStarted), 1, 0) )
+    return;
+
+  httpEp->sendEvent (
+    g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE);
+}
+
 static void
 url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
 {
@@ -333,6 +357,10 @@ throw (KmsMediaServerException)
 {
   if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START.compare (
         eventType) == 0)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE.compare (
+             eventType) == 0)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
   else
