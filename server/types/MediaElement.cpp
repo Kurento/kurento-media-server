@@ -14,6 +14,8 @@
  */
 
 #include "MediaElement.hpp"
+#include "KmsMediaErrorCodes_constants.h"
+#include "utils/utils.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_element
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -183,6 +185,31 @@ throw (KmsMediaServerException)
   }
 }
 
+void
+MediaElement::connect (std::shared_ptr<MediaElement> sink,
+                       const KmsMediaType::type mediaType)
+throw (KmsMediaServerException)
+{
+  std::shared_ptr<MediaSrc> mediaSrc;
+  std::shared_ptr<MediaSink> mediaSink;
+
+  if (mediaType == KmsMediaType::AUDIO) {
+    mediaSrc = getOrCreateAudioMediaSrc();
+    mediaSink = sink->getOrCreateAudioMediaSink();
+  } else if (mediaType == KmsMediaType::VIDEO) {
+    mediaSrc = getOrCreateVideoMediaSrc();
+    mediaSink = sink->getOrCreateVideoMediaSink();
+  } else {
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNSUPPORTED_MEDIA_TYPE,
+                                   "Unsupported media type");
+    throw except;
+  }
+
+  mediaSrc->connect (mediaSink);
+}
 MediaElement::StaticConstructor MediaElement::staticConstructor;
 
 MediaElement::StaticConstructor::StaticConstructor()

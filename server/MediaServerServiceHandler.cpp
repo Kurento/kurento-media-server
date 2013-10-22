@@ -596,7 +596,43 @@ MediaServerServiceHandler::connectElementsByMediaType (const KmsMediaObjectRef &
     const KmsMediaType::type mediaType)
 throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaElement> sink;
+  std::shared_ptr<MediaElement> src;
+
+  try {
+    GST_TRACE ("connectElementsByMediaType srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT " mediaType: %s",
+               srcMediaElement.id, sinkMediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    sink = mediaSet.getMediaObject<MediaElement> (sinkMediaElement);
+    src = mediaSet.getMediaObject<MediaElement> (srcMediaElement);
+
+    src->connect (sink, mediaType);
+
+    GST_TRACE ("connectElementsByMediaType srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT " mediaType: %s done",
+               srcMediaElement.id, sinkMediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("connectElements srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT " mediaType: %s"
+               " throws KmsMediaServerException (%s)", srcMediaElement.id,
+               sinkMediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.what () );
+    throw e;
+  } catch (...) {
+    KmsMediaServerException except;
+
+    GST_TRACE ("connectElements srcMediaElement: %" G_GUINT64_FORMAT
+               " sinkMediaElement: %" G_GUINT64_FORMAT " mediaType: %s"
+               " throws KmsMediaServerException", srcMediaElement.id,
+               sinkMediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in connectElements");
+    throw except;
+  }
 }
 
 void
