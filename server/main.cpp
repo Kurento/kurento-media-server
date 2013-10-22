@@ -416,7 +416,8 @@ main (int argc, char **argv)
   g_option_context_add_group (context, gst_init_get_option_group () );
 
   if (!g_option_context_parse (context, &argc, &argv, &error) ) {
-    GST_ERROR ("option parsing failed: %s\n", error->message);
+    g_printerr ("option parsing failed: %s\n", error->message);
+    g_error_free (error);
     exit (1);
   }
 
