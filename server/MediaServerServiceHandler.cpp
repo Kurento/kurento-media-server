@@ -248,7 +248,7 @@ MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return) thro
   GST_TRACE ("createMediaPipeline");
 
   try {
-    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline () );
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet) );
     GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.put (mediaPipeline);
 
@@ -275,7 +275,7 @@ throw (KmsMediaServerException)
   GST_TRACE ("createMediaPipelineWithParams");
 
   try {
-    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (params) );
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet, params) );
     GST_DEBUG ("createMediaPipelineWithParams id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.put (mediaPipeline);
 
@@ -303,7 +303,6 @@ MediaServerServiceHandler::createMediaElement (KmsMediaObjectRef &_return, const
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
     me = mp->createMediaElement (elementType);
-    mediaSet.put (me);
 
     _return = *me;
   } catch (const KmsMediaServerException &e) {
@@ -333,7 +332,6 @@ throw (KmsMediaServerException)
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
     me = mp->createMediaElement (elementType, params);
-    mediaSet.put (me);
 
     _return = *me;
   } catch (const KmsMediaServerException &e) {
@@ -362,7 +360,6 @@ MediaServerServiceHandler::createMediaMixer (KmsMediaObjectRef &_return, const K
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
     mixer = mp->createMediaMixer (mixerType);
-    mediaSet.put (mixer);
 
     _return = *mixer;
   } catch (const KmsMediaServerException &e) {
@@ -392,7 +389,6 @@ throw (KmsMediaServerException)
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
     mixer = mp->createMediaMixer (mixerType, params);
-    mediaSet.put (mixer);
 
     _return = *mixer;
   } catch (const KmsMediaServerException &e) {

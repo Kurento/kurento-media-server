@@ -16,7 +16,7 @@
 #ifndef __MEDIA_PIPELINE_HPP__
 #define __MEDIA_PIPELINE_HPP__
 
-#include "MediaObjectImpl.hpp"
+#include "MediaObjectParent.hpp"
 #include "MediaHandler.hpp"
 #include <common/MediaSet.hpp>
 
@@ -26,13 +26,13 @@ namespace kurento
 class MediaElement;
 class Mixer;
 
-class MediaPipeline : public MediaObjectImpl,
+class MediaPipeline : public MediaObjectParent,
   public KmsMediaPipeline,
   public std::enable_shared_from_this<MediaPipeline>
 {
 
 public:
-  MediaPipeline (const std::map<std::string, KmsMediaParam>& params = emptyParams) throw (KmsMediaServerException);
+  MediaPipeline (MediaSet &mediaSet, const std::map<std::string, KmsMediaParam>& params = emptyParams) throw (KmsMediaServerException);
   ~MediaPipeline() throw();
 
   std::shared_ptr<MediaElement> createMediaElement (const std::string &elementType,
