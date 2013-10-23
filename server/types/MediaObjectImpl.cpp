@@ -163,12 +163,6 @@ MediaObjectImpl::sendEvent (const std::string &eventType, const KmsMediaEventDat
   mediaHandlerManager.sendEvent (event);
 }
 
-void
-MediaObjectImpl::sendVoidEvent (const std::string &eventType)
-{
-  sendEvent (eventType);
-}
-
 MediaObjectImpl::StaticConstructor MediaObjectImpl::staticConstructor;
 
 MediaObjectImpl::StaticConstructor::StaticConstructor()

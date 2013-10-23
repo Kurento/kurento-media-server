@@ -33,7 +33,7 @@ namespace kurento
 void
 player_eos (GstElement *player, PlayerEndPoint *self)
 {
-  self->sendVoidEvent (g_KmsMediaPlayerEndPointType_constants.EVENT_EOS);
+  self->sendEvent (g_KmsMediaPlayerEndPointType_constants.EVENT_EOS);
 }
 
 void
