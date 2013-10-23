@@ -115,14 +115,22 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
   std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >::iterator it;
   std::shared_ptr<std::set<KmsMediaObjectId>> children;
 
+  mutex.lock();
+
+  auto findIt = mediaObjectsMap.find (mediaObject->id);
+
+  if (findIt != mediaObjectsMap.end() && findIt->second != NULL) {
+    // The object is already in the mediaset
+    mutex.unlock();
+    return;
+  }
+
   if (!mediaObject->getExcludeFromGC () ) {
     data = std::shared_ptr<AutoReleaseData> (new AutoReleaseData() );
     data->mediaSet = this;
     data->objectId = mediaObject->id;
     data->forceRemoving = isForceRemoving (mediaObject);
   }
-
-  mutex.lock();
 
   if (mediaObject->parent != NULL) {
     it = childrenMap.find (mediaObject->parent->id);
