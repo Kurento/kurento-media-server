@@ -34,9 +34,11 @@ using apache::thrift::protocol::TBinaryProtocol;
 namespace kurento
 {
 
-UriEndPoint::UriEndPoint (std::shared_ptr<MediaPipeline> parent, const std::string &type,
+UriEndPoint::UriEndPoint (MediaSet &mediaSet,
+                          std::shared_ptr<MediaPipeline> parent,
+                          const std::string &type,
                           const std::map<std::string, KmsMediaParam> &params)
-  : EndPoint (parent, type, params)
+  : EndPoint (mediaSet, parent, type, params)
 {
 }
 

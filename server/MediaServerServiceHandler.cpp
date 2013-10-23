@@ -421,7 +421,6 @@ throw (KmsMediaServerException)
     me->getMediaSrcs (mediaSrcs);
 
     for ( it = mediaSrcs.begin() ; it != mediaSrcs.end(); ++it) {
-      mediaSet.put (*it);
       _return.push_back (**it);
     }
 
@@ -452,7 +451,6 @@ throw (KmsMediaServerException)
     me->getMediaSinks (mediaSinks);
 
     for ( it = mediaSinks.begin() ; it != mediaSinks.end(); ++it) {
-      mediaSet.put (*it);
       _return.push_back (**it);
     }
 
@@ -483,7 +481,6 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<KmsMediaObjectRe
     me->getMediaSrcsByMediaType (mediaSrcs, mediaType);
 
     for ( it = mediaSrcs.begin() ; it != mediaSrcs.end(); ++it) {
-      mediaSet.put (*it);
       _return.push_back (**it);
     }
 
@@ -514,7 +511,6 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<KmsMediaObjectR
     me->getMediaSinksByMediaType (mediaSinks, mediaType);
 
     for ( it = mediaSinks.begin() ; it != mediaSinks.end(); ++it) {
-      mediaSet.put (*it);
       _return.push_back (**it);
     }
 
@@ -727,7 +723,6 @@ MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> &_r
     src->getConnectedSinks (mediaSinks);
 
     for ( it = mediaSinks.begin() ; it != mediaSinks.end(); ++it) {
-      mediaSet.put (*it);
       _return.push_back (**it);
     }
 

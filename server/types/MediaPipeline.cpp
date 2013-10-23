@@ -96,17 +96,23 @@ throw (KmsMediaServerException)
   std::shared_ptr<MediaElement> element;
 
   if (g_KmsMediaPlayerEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (shared_from_this (), params) );
+    element = std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (
+                getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaRecorderEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<RecorderEndPoint> (new RecorderEndPoint (shared_from_this (), params) );
+    element = std::shared_ptr<RecorderEndPoint> (new RecorderEndPoint (
+                getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaRtpEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<RtpEndPoint> (new RtpEndPoint (shared_from_this (), params) );
+    element = std::shared_ptr<RtpEndPoint> (new RtpEndPoint (getMediaSet(),
+                                            shared_from_this (), params) );
   } else if (g_KmsMediaHttpEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<HttpEndPoint> (new HttpEndPoint (shared_from_this (), params) );
+    element = std::shared_ptr<HttpEndPoint> (new HttpEndPoint (getMediaSet(),
+              shared_from_this (), params) );
   } else if (g_KmsMediaZBarFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<ZBarFilter> (new ZBarFilter (shared_from_this (), params) );
+    element = std::shared_ptr<ZBarFilter> (new ZBarFilter (getMediaSet(),
+                                           shared_from_this (), params) );
   } else if (g_KmsMediaJackVaderFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<JackVaderFilter> (new JackVaderFilter (shared_from_this (), params) );
+    element = std::shared_ptr<JackVaderFilter> (new JackVaderFilter (
+                getMediaSet(), shared_from_this (), params) );
   } else {
     KmsMediaServerException except;
 

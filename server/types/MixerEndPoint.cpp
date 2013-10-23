@@ -19,9 +19,10 @@
 namespace kurento
 {
 
-MixerEndPoint::MixerEndPoint (std::shared_ptr<Mixer> parent, const std::string &type,
+MixerEndPoint::MixerEndPoint (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
+                              const std::string &type,
                               const std::map<std::string, KmsMediaParam> &params)
-  : EndPoint (parent, type, params)
+  : EndPoint (mediaSet, parent, type, params)
 {
 }
 

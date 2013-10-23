@@ -18,9 +18,10 @@
 namespace kurento
 {
 
-EndPoint::EndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string &endPointType,
+EndPoint::EndPoint (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
+                    const std::string &endPointType,
                     const std::map<std::string, KmsMediaParam> &params)
-  : MediaElement (parent, endPointType, params)
+  : MediaElement (mediaSet, parent, endPointType, params)
 {
 
 }

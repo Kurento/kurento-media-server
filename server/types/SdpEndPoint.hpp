@@ -24,7 +24,8 @@ namespace kurento
 class SdpEndPoint : public EndPoint
 {
 public:
-  SdpEndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string &type,
+  SdpEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
+               const std::string &type,
                const std::map<std::string, KmsMediaParam>& params);
   virtual ~SdpEndPoint() throw () = 0;
 

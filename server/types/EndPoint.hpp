@@ -24,7 +24,8 @@ namespace kurento
 class EndPoint : public MediaElement
 {
 public:
-  EndPoint (std::shared_ptr<MediaObjectImpl> parent, const std::string &endPointType,
+  EndPoint (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
+            const std::string &endPointType,
             const std::map<std::string, KmsMediaParam>& params);
   virtual ~EndPoint() throw () = 0;
 

@@ -48,6 +48,10 @@ void MediaObjectParent::registerChild (std::shared_ptr< MediaObjectImpl > child)
   mediaSet.put (child);
 }
 
+MediaSet &MediaObjectParent::getMediaSet()
+{
+  return mediaSet;
+}
 
 MediaObjectParent::StaticConstructor MediaObjectParent::staticConstructor;
 

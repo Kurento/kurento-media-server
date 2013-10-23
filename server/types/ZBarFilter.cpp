@@ -87,10 +87,11 @@ ZBarFilter::init (std::shared_ptr<MediaPipeline> parent)
   g_object_unref (zbar);
 }
 
-ZBarFilter::ZBarFilter (std::shared_ptr<MediaPipeline> parent,
+ZBarFilter::ZBarFilter (MediaSet &mediaSet,
+                        std::shared_ptr<MediaPipeline> parent,
                         const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : Filter (parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME, params)
+  : Filter (mediaSet, parent, g_KmsMediaZBarFilterType_constants.TYPE_NAME, params)
 {
   init (parent);
 }

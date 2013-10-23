@@ -18,9 +18,10 @@
 namespace kurento
 {
 
-Filter::Filter (std::shared_ptr<MediaObjectImpl> parent, const std::string &filterType,
+Filter::Filter (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
+                const std::string &filterType,
                 const std::map<std::string, KmsMediaParam> &params)
-  : MediaElement (parent, filterType, params)
+  : MediaElement (mediaSet, parent, filterType, params)
 {
 }
 

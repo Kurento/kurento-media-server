@@ -24,7 +24,9 @@ namespace kurento
 class PointerDetectorFilter : public Filter
 {
 public:
-  PointerDetectorFilter (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params);
+  PointerDetectorFilter (MediaSet &mediaSet,
+                         std::shared_ptr<MediaPipeline> parent,
+                         const std::map<std::string, KmsMediaParam>& params);
   ~PointerDetectorFilter() throw ();
 
 private:

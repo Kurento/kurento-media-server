@@ -246,9 +246,12 @@ throw (KmsMediaServerException)
   return params;
 }
 
-HttpEndPoint::HttpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> &params)
+HttpEndPoint::HttpEndPoint (MediaSet &mediaSet,
+                            std::shared_ptr<MediaPipeline> parent,
+                            const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : EndPoint (parent, g_KmsMediaHttpEndPointType_constants.TYPE_NAME, params)
+  : EndPoint (mediaSet, parent, g_KmsMediaHttpEndPointType_constants.TYPE_NAME,
+              params)
 {
   const KmsMediaParam *p;
   KmsMediaHttpEndPointConstructorParams httpEpParams;

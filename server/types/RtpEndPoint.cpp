@@ -36,9 +36,12 @@ RtpEndPoint::init (std::shared_ptr<MediaPipeline> parent)
   gst_element_sync_state_with_parent (element);
 }
 
-RtpEndPoint::RtpEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> &params)
+RtpEndPoint::RtpEndPoint (MediaSet &mediaSet,
+                          std::shared_ptr<MediaPipeline> parent,
+                          const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : SdpEndPoint (parent, g_KmsMediaRtpEndPointType_constants.TYPE_NAME, params)
+  : SdpEndPoint (mediaSet, parent,
+                 g_KmsMediaRtpEndPointType_constants.TYPE_NAME, params)
 {
   init (parent);
 }

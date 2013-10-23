@@ -32,6 +32,7 @@ public:
 protected:
 
   void registerChild (std::shared_ptr<MediaObjectImpl> child);
+  MediaSet &getMediaSet();
 
 private:
   MediaSet &mediaSet;

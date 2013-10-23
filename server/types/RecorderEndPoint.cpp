@@ -42,9 +42,12 @@ RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string
   gst_element_sync_state_with_parent (element);
 }
 
-RecorderEndPoint::RecorderEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam> &params)
+RecorderEndPoint::RecorderEndPoint (MediaSet &mediaSet,
+                                    std::shared_ptr<MediaPipeline> parent,
+                                    const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : UriEndPoint (parent, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params)
+  : UriEndPoint (mediaSet, parent,
+                 g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params)
 {
   const KmsMediaParam *p;
   KmsMediaUriEndPointConstructorParams uriEpParams;

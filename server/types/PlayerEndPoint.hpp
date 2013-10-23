@@ -24,7 +24,8 @@ namespace kurento
 class PlayerEndPoint : public UriEndPoint
 {
 public:
-  PlayerEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params)
+  PlayerEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
+                  const std::map<std::string, KmsMediaParam>& params)
   throw (KmsMediaServerException);
   ~PlayerEndPoint() throw ();
 

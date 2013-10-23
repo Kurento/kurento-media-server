@@ -24,9 +24,11 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaElement::MediaElement (std::shared_ptr<MediaObjectImpl> parent, const std::string &elementType,
+MediaElement::MediaElement (MediaSet &mediaSet,
+                            std::shared_ptr<MediaObjectImpl> parent,
+                            const std::string &elementType,
                             const std::map<std::string, KmsMediaParam> &params)
-  : MediaObjectImpl (parent, params),
+  : MediaObjectParent (mediaSet, parent, params),
     KmsMediaElement()
 {
   this->elementType = elementType;
@@ -52,6 +54,7 @@ MediaElement::getOrCreateAudioMediaSrc()
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), KmsMediaType::type::AUDIO) );
     audioMediaSrc = std::weak_ptr<MediaSrc> (locked);
+    registerChild (locked);
   }
 
   mutex.unlock();
@@ -74,6 +77,7 @@ MediaElement::getOrCreateVideoMediaSrc()
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), KmsMediaType::type::VIDEO) );
     videoMediaSrc = std::weak_ptr<MediaSrc> (locked);
+    registerChild (locked);
   }
 
   mutex.unlock();
@@ -96,6 +100,7 @@ MediaElement::getOrCreateAudioMediaSink()
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), KmsMediaType::type::AUDIO) );
     audioMediaSink = std::weak_ptr<MediaSink> (locked);
+    registerChild (locked);
   }
 
   mutex.unlock();
@@ -118,6 +123,7 @@ MediaElement::getOrCreateVideoMediaSink()
   if (locked.get() == NULL) {
     locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), KmsMediaType::type::VIDEO) );
     videoMediaSink = std::weak_ptr<MediaSink> (locked);
+    registerChild (locked);
   }
 
   mutex.unlock();

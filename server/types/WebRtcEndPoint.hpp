@@ -24,7 +24,8 @@ namespace kurento
 class WebRtcEndPoint : public SdpEndPoint
 {
 public:
-  WebRtcEndPoint (std::shared_ptr<MediaPipeline> parent, const std::map<std::string, KmsMediaParam>& params);
+  WebRtcEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
+                  const std::map<std::string, KmsMediaParam>& params);
   ~WebRtcEndPoint() throw ();
 };
 

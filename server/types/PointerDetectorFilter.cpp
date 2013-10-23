@@ -29,9 +29,10 @@ pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer poin
 }
 
 // FIXME: use thrift constant
-PointerDetectorFilter::PointerDetectorFilter (std::shared_ptr<MediaPipeline> parent,
-    const std::map<std::string, KmsMediaParam> &params)
-  : Filter (parent, "POINTER_DETECTOR_FILTER_TYPE", params)
+PointerDetectorFilter::PointerDetectorFilter (
+  MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
+  const std::map<std::string, KmsMediaParam> &params)
+  : Filter (mediaSet, parent, "POINTER_DETECTOR_FILTER_TYPE", params)
 {
   element = gst_element_factory_make ("filterelement", NULL);
 
