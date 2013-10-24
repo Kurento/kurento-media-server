@@ -38,6 +38,7 @@ class MediaHandler
 {
 public:
   MediaHandler (const std::string eventType, const std::string &address, const int32_t port);
+  MediaHandler (const std::string &address, const int32_t port);
   ~MediaHandler ();
 
 private:
@@ -54,6 +55,13 @@ private:
 MediaHandler::MediaHandler (const std::string eventType, const std::string &address, const int32_t port)
 {
   this->eventType = eventType;
+  this->address = address;
+  this->port = port;
+  generateUUID (callbackToken);
+}
+
+MediaHandler::MediaHandler (const std::string &address, const int32_t port)
+{
   this->address = address;
   this->port = port;
   generateUUID (callbackToken);
@@ -191,6 +199,33 @@ MediaHandlerManager::sendEvent (std::shared_ptr<KmsMediaEvent> event)
     data->event = event;
     g_thread_pool_push (threadPool, data, NULL);
   }
+}
+
+void
+MediaHandlerManager::addMediaErrorHandler (std::string &_return,
+    const std::string &handlerAddress,
+    const int32_t handlerPort)
+{
+  std::shared_ptr<MediaHandler> mediaHandler (new MediaHandler (handlerAddress,
+      handlerPort) );
+
+  mutex.lock ();
+  errorHandlersMap[mediaHandler->callbackToken] = mediaHandler;
+  mutex.unlock ();
+
+  GST_DEBUG ("MediaHandler(%s, %s, %d) added for error",
+             mediaHandler->callbackToken.c_str (),
+             handlerAddress.c_str (), handlerPort);
+
+  _return = mediaHandler->callbackToken;
+}
+
+void
+MediaHandlerManager::removeMediaErrorHandler (const std::string &callbackToken)
+{
+  mutex.lock ();
+  errorHandlersMap.erase (callbackToken);
+  mutex.unlock ();
 }
 
 int

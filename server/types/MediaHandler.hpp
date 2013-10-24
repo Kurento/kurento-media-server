@@ -37,6 +37,11 @@ public:
   void removeMediaHandler (const std::string &callbackToken);
   void sendEvent (std::shared_ptr<KmsMediaEvent> event);
 
+  void addMediaErrorHandler (std::string &_return,
+                             const std::string &handlerAddress,
+                             const int32_t handlerPort);
+  void removeMediaErrorHandler (const std::string &callbackToken);
+
   int getHandlersMapSize ();
   int getEventTypesMapSize ();
   int getMediaHandlersSetSize (const std::string &eventType);
@@ -45,6 +50,8 @@ private:
   Glib::Threads::RecMutex mutex;
   std::map < std::string /*callbackToken*/, std::shared_ptr<MediaHandler >> handlersMap;
   std::map < std::string /*eventType*/, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> >> eventTypesMap;
+
+  std::map < std::string /*callbackToken*/, std::shared_ptr<MediaHandler >> errorHandlersMap;
   GThreadPool *threadPool;
 
   class StaticConstructor
