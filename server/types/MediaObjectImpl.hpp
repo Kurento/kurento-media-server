@@ -41,6 +41,11 @@ public:
                           const int32_t handlerPort) throw (KmsMediaServerException);
   virtual void unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException);
 
+  virtual void subscribeError (std::string &_return,
+                               const std::string &handlerAddress,
+                               const int32_t handlerPort) throw (KmsMediaServerException);
+  virtual void unsubscribeError (const std::string &callbackToken) throw (KmsMediaServerException);
+
 public:
   std::shared_ptr<MediaObjectImpl> parent;
   int32_t getGarbageCollectorPeriod () {

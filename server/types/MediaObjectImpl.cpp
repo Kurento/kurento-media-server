@@ -163,6 +163,22 @@ MediaObjectImpl::sendEvent (const std::string &eventType, const KmsMediaEventDat
   mediaHandlerManager.sendEvent (event);
 }
 
+void
+MediaObjectImpl::subscribeError (std::string &_return,
+                                 const std::string &handlerAddress,
+                                 const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  mediaHandlerManager.addMediaErrorHandler (_return, handlerAddress, handlerPort);
+}
+
+void
+MediaObjectImpl::unsubscribeError (const std::string &callbackToken)
+throw (KmsMediaServerException)
+{
+  mediaHandlerManager.removeMediaErrorHandler (callbackToken);
+}
+
 MediaObjectImpl::StaticConstructor MediaObjectImpl::staticConstructor;
 
 MediaObjectImpl::StaticConstructor::StaticConstructor()

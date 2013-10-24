@@ -145,14 +145,66 @@ MediaServerServiceHandler::subscribeError (std::string &_return, const KmsMediaO
     const std::string &handlerAddress, const int32_t handlerPort)
 throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaObjectImpl> mo;
+
+  GST_TRACE ("subscribe for errors in mediaObjectRef: %" G_GUINT64_FORMAT,
+             mediaObjectRef.id);
+
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
+    mo->subscribeError (_return, handlerAddress, handlerPort);
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("subscribe for errors in mediaObjectRef: %" G_GUINT64_FORMAT
+               " throws KmsMediaServerException (%s)",
+               mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    KmsMediaServerException except;
+
+    GST_TRACE ("subscribe for errors in mediaObjectRef: %" G_GUINT64_FORMAT
+               " throws KmsMediaServerException", mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in subscribe");
+    throw except;
+  }
+
+  GST_TRACE ("subscribe for errors in mediaObjectRef: %" G_GUINT64_FORMAT
+             " done", mediaObjectRef.id);
 }
 
 void
 MediaServerServiceHandler::unsubscribeError (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
 throw (KmsMediaServerException)
 {
-  GST_WARNING ("TODO: implement");
+  std::shared_ptr<MediaObjectImpl> mo;
+
+  GST_TRACE ("unsubscribeError for '%s' callbackToken in mediaObjectRef: %"
+             G_GUINT64_FORMAT, callbackToken.c_str (), mediaObjectRef.id);
+
+  try {
+    mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
+    mo->unsubscribeError (callbackToken);
+  } catch (const KmsMediaServerException &e) {
+    GST_TRACE ("unsubscribeError for '%s' callbackToken in mediaObjectRef: %"
+               G_GUINT64_FORMAT " throws KmsMediaServerException (%s)",
+               callbackToken.c_str (), mediaObjectRef.id, e.what () );
+    throw e;
+  } catch (...) {
+    KmsMediaServerException except;
+
+    GST_TRACE ("unsubscribeError for '%s' callbackToken in mediaObjectRef: %"
+               G_GUINT64_FORMAT " throws KmsMediaServerException",
+               callbackToken.c_str (), mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in subscribe");
+    throw except;
+  }
+
+  GST_TRACE ("unsubscribeError for '%s' callbackToken in mediaObjectRef: %"
+             G_GUINT64_FORMAT " done", callbackToken.c_str (),
+             mediaObjectRef.id);
 }
 
 void
