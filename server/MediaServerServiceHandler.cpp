@@ -584,7 +584,13 @@ MediaServerServiceHandler::getMediaSrcsByFullDescription (std::vector<KmsMediaOb
     const KmsMediaType::type mediaType, const std::string &description)
 throw (KmsMediaServerException)
 {
+  KmsMediaServerException except;
+
   GST_WARNING ("TODO: implement");
+  createKmsMediaServerException (except,
+                                 g_KmsMediaErrorCodes_constants.NOT_IMPLEMENTED,
+                                 "Not implemented");
+  throw except;
 }
 
 void
@@ -592,7 +598,13 @@ MediaServerServiceHandler::getMediaSinksByFullDescription (std::vector<KmsMediaO
     const KmsMediaType::type mediaType, const std::string &description)
 throw (KmsMediaServerException)
 {
+  KmsMediaServerException except;
+
   GST_WARNING ("TODO: implement");
+  createKmsMediaServerException (except,
+                                 g_KmsMediaErrorCodes_constants.NOT_IMPLEMENTED,
+                                 "Not implemented");
+  throw except;
 }
 
 void
@@ -686,7 +698,13 @@ MediaServerServiceHandler::connectElementsByFullDescription (const KmsMediaObjec
     const std::string &mediaDescription)
 throw (KmsMediaServerException)
 {
+  KmsMediaServerException except;
+
   GST_WARNING ("TODO: implement");
+  createKmsMediaServerException (except,
+                                 g_KmsMediaErrorCodes_constants.NOT_IMPLEMENTED,
+                                 "Not implemented");
+  throw except;
 }
 
 /* MediaPad */
@@ -849,7 +867,13 @@ void
 MediaServerServiceHandler::createMixerEndPointWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
+  KmsMediaServerException except;
+
   GST_WARNING ("TODO: implement");
+  createKmsMediaServerException (except,
+                                 g_KmsMediaErrorCodes_constants.NOT_IMPLEMENTED,
+                                 "Not implemented");
+  throw except;
 }
 
 MediaServerServiceHandler::StaticConstructor MediaServerServiceHandler::staticConstructor;

@@ -130,8 +130,13 @@ std::shared_ptr<Mixer>
 MediaPipeline::createMediaMixer (const std::string &mixerType, const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
+  KmsMediaServerException except;
+
   GST_WARNING ("TODO: complete");
-  return NULL;
+  createKmsMediaServerException (except,
+                                 g_KmsMediaErrorCodes_constants.NOT_IMPLEMENTED,
+                                 "Not implemented");
+  throw except;
 }
 
 MediaPipeline::StaticConstructor MediaPipeline::staticConstructor;
