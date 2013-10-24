@@ -57,6 +57,8 @@ protected:
   MediaHandlerManager mediaHandlerManager;
 
   void sendEvent (const std::string &eventType, const KmsMediaEventData &eventData = defaultKmsMediaEventData);
+  void sendError (const std::string &errorType, const std::string &description,
+                  int32_t errorCode);
 
 private:
   bool excludeFromGC = false;

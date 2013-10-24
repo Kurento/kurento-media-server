@@ -147,7 +147,6 @@ MediaObjectImpl::unsubscribe (const std::string &callbackToken) throw (KmsMediaS
   mediaHandlerManager.removeMediaHandler (callbackToken);
 }
 
-
 void
 MediaObjectImpl::sendEvent (const std::string &eventType, const KmsMediaEventData &eventData)
 {
@@ -177,6 +176,20 @@ MediaObjectImpl::unsubscribeError (const std::string &callbackToken)
 throw (KmsMediaServerException)
 {
   mediaHandlerManager.removeMediaErrorHandler (callbackToken);
+}
+
+void
+MediaObjectImpl::sendError (const std::string &errorType,
+                            const std::string &description, int32_t errorCode)
+{
+  std::shared_ptr<KmsMediaError> error (new KmsMediaError () );
+
+  error->__set_type (errorType);
+  error->__set_description (description);
+  error->__set_errorCode (errorCode);
+  error->__set_source (*this);
+
+  mediaHandlerManager.sendError (error);
 }
 
 MediaObjectImpl::StaticConstructor MediaObjectImpl::staticConstructor;
