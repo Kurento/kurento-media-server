@@ -31,7 +31,7 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoHttpEndPoint"
 
-#define COOKIE_LIFETIME 5 /* seconds */
+#define COOKIE_LIFETIME (((60 * 60) * 24) * 7) * 365 /* seconds */
 #define DISCONNECTION_TIMEOUT 2 /* seconds */
 #define REGISTER_TIMEOUT 3 /* seconds */
 
@@ -174,7 +174,7 @@ register_http_end_point (gpointer data)
 
   /* TODO: Set proper values for cookie life time and disconnection timeout */
   url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element,
-        httpEp->cookieLifetime, httpEp->disconnectionTimeout);
+        COOKIE_LIFETIME, httpEp->disconnectionTimeout);
 
   if (url == NULL)
     return FALSE;
@@ -194,7 +194,7 @@ register_http_end_point (gpointer data)
 }
 
 void
-HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent, guint cookieLifetime, guint disconnectionTimeout)
+HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout)
 throw (KmsMediaServerException)
 {
   element = gst_element_factory_make ("httpendpoint", NULL);
@@ -210,7 +210,6 @@ throw (KmsMediaServerException)
   urlExpiredHandlerId = g_signal_connect (httpepserver, "url-expired",
                                           G_CALLBACK (url_expired_cb), this);
 
-  this->cookieLifetime = cookieLifetime;
   this->disconnectionTimeout = disconnectionTimeout;
 
   operate_in_main_loop_context (register_http_end_point, this, NULL);
@@ -255,7 +254,6 @@ throw (KmsMediaServerException)
 {
   const KmsMediaParam *p;
   KmsMediaHttpEndPointConstructorParams httpEpParams;
-  guint cookieLifetime = COOKIE_LIFETIME;
   guint disconnectionTimeout = DISCONNECTION_TIMEOUT;
 
   p = getParam (params, g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
@@ -263,16 +261,12 @@ throw (KmsMediaServerException)
   if (p != NULL) {
     httpEpParams = unmarshalKmsMediaHttpEndPointConstructorParams (p->data);
 
-    if (httpEpParams.__isset.cookieLifetime) {
-      cookieLifetime = httpEpParams.cookieLifetime;
-    }
-
     if (httpEpParams.__isset.disconnectionTimeout) {
       disconnectionTimeout = httpEpParams.disconnectionTimeout;
     }
   }
 
-  init (parent, cookieLifetime, disconnectionTimeout);
+  init (parent, disconnectionTimeout);
 }
 
 static std::string

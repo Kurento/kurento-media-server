@@ -40,13 +40,12 @@ public:
 private:
   std::string url;
   bool urlSet = false;
-  guint cookieLifetime;
   guint disconnectionTimeout;
 
   void setUrl (const std::string &);
 
 private:
-  void init (std::shared_ptr<MediaPipeline> parent, guint cookieLifetime, guint disconnectionTimeout)
+  void init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout)
   throw (KmsMediaServerException);
 
   class StaticConstructor
