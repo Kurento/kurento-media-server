@@ -101,7 +101,7 @@ struct _KmsHttpEPServerClass
   void (*start) (KmsHttpEPServer * self, KmsHttpEPServerStartCallback);
   void (*stop) (KmsHttpEPServer * self);
   const gchar *(*register_end_point) (KmsHttpEPServer * self,
-      GstElement * endpoint, guint lifetime, guint timeout);
+      GstElement * endpoint, guint timeout);
   gboolean (*unregister_end_point) (KmsHttpEPServer * self, const gchar *);
 
   /* signal callbacks */
@@ -120,7 +120,7 @@ void kms_http_ep_server_start (KmsHttpEPServer * self,
     KmsHttpEPServerStartCallback start_cb);
 void kms_http_ep_server_stop (KmsHttpEPServer * self);
 const gchar *kms_http_ep_server_register_end_point (KmsHttpEPServer * self,
-    GstElement * endpoint, guint lifetime, guint timeout);
+    GstElement * endpoint, guint timeout);
 gboolean kms_http_ep_server_unregister_end_point (KmsHttpEPServer * self,
     const gchar * uri);
 

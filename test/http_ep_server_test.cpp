@@ -25,7 +25,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "http_endpoint_server_test"
 
 #define MAX_REGISTERED_HTTP_END_POINTS 10
-#define COOKIE_LIFETIME 3 /* seconds */
 #define DISCONNECTION_TIMEOUT 2 /* seconds */
 
 #define HTTP_GET "GET"
@@ -95,7 +94,7 @@ register_http_end_points (gint n)
 
     GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
     url = kms_http_ep_server_register_end_point (httpepserver, httpep,
-          COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
+          DISCONNECTION_TIMEOUT);
 
     BOOST_CHECK (url != NULL);
 
@@ -485,55 +484,6 @@ bus_msg_cb (GstBus *bus, GstMessage *msg, gpointer pipeline)
 }
 
 static void
-t5_request_with_expired_cookie (SoupSession *session, SoupMessage *msg,
-                                gpointer user_data)
-{
-  guint status_code;
-  SoupURI *uri;
-  gchar *method;
-
-  GST_DEBUG ("Response received");
-
-  g_object_get (G_OBJECT (msg), "method", &method, "status-code",
-                &status_code, "uri", &uri, NULL);
-
-  GST_WARNING ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-               status_code, SOUP_STATUS_BAD_REQUEST);
-
-  BOOST_CHECK (status_code == SOUP_STATUS_BAD_REQUEST);
-
-  g_free (method);
-  soup_uri_free (uri);
-
-  g_main_loop_quit (loop);
-}
-
-static gboolean
-t5_send_get_request_3 (gpointer user_data)
-{
-  SoupMessage *msg;
-  gchar *url, *header;
-
-  GST_DEBUG ("Sending request using an out dated cookie");
-
-  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, t5_uri);
-
-  GST_INFO ("Send " HTTP_GET " %s", url);
-  msg = soup_message_new (HTTP_GET, url);
-
-  header = soup_cookie_to_cookie_header (cookie);
-  soup_message_headers_append (msg->request_headers, "Cookie", header);
-  g_free (header);
-
-  soup_session_queue_message (session, msg, t5_request_with_expired_cookie,
-                              NULL);
-
-  g_free (url);
-
-  return FALSE;
-}
-
-static void
 t5_request_no_cookie_cb (SoupSession *session, SoupMessage *msg,
                          gpointer user_data)
 {
@@ -543,7 +493,7 @@ t5_request_no_cookie_cb (SoupSession *session, SoupMessage *msg,
   if (msg->status_code != SOUP_STATUS_BAD_REQUEST)
     BOOST_FAIL ("Get request without cookie failed");
 
-  g_timeout_add (COOKIE_LIFETIME * 1000, t5_send_get_request_3, NULL);
+  g_main_loop_quit (loop);
 }
 
 static void
@@ -675,7 +625,7 @@ t5_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 
   GST_DEBUG ("Registering %s", GST_ELEMENT_NAME (httpep) );
   t5_uri = kms_http_ep_server_register_end_point (httpepserver, httpep,
-           COOKIE_LIFETIME, DISCONNECTION_TIMEOUT);
+           DISCONNECTION_TIMEOUT);
   BOOST_CHECK (t5_uri != NULL);
 
   if (t5_uri == NULL) {
