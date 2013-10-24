@@ -48,7 +48,7 @@ private:
   std::string callbackToken;
 
   friend class MediaHandlerManager;
-  friend void send_event (gpointer p, gpointer data);
+  friend void send_to_client (gpointer p, gpointer data);
 };
 
 /* MediaHandler */
@@ -73,15 +73,19 @@ MediaHandler::~MediaHandler ()
 
 /* MediaHandlerManager */
 
-typedef struct _SendEventData {
+typedef struct _SendData {
   std::shared_ptr<MediaHandler> mediaHandler;
-  std::shared_ptr<KmsMediaEvent> event;
-} SendEventData;
+  bool is_error;
+  union {
+    std::shared_ptr<KmsMediaEvent> event;
+    std::shared_ptr<KmsMediaError> error;
+  };
+} SendData;
 
 void
-send_event (gpointer data, gpointer user_data)
+send_to_client (gpointer data, gpointer user_data)
 {
-  SendEventData *d = (SendEventData *) data;
+  SendData *d = (SendData *) data;
   std::shared_ptr<MediaHandler> mh = d->mediaHandler;
 
   boost::shared_ptr<TSocket> socket (new TSocket (mh->address, mh->port) );
@@ -91,19 +95,24 @@ send_event (gpointer data, gpointer user_data)
 
   try {
     transport->open();
-    client.onEvent (mh->callbackToken, * (d->event) );
+
+    if (d->is_error)
+      client.onError (mh->callbackToken, * (d->error) );
+    else
+      client.onEvent (mh->callbackToken, * (d->event) );
+
     transport->close();
   } catch (...) {
     GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
                  mh->callbackToken.c_str (), mh->address.c_str (), mh->port);
   }
 
-  g_slice_free (SendEventData, data);
+  g_slice_free (SendData, data);
 }
 
 MediaHandlerManager::MediaHandlerManager ()
 {
-  threadPool = g_thread_pool_new (send_event, NULL, -1, FALSE, NULL);
+  threadPool = g_thread_pool_new (send_to_client, NULL, -1, FALSE, NULL);
 }
 
 MediaHandlerManager::~MediaHandlerManager ()
@@ -193,9 +202,10 @@ MediaHandlerManager::sendEvent (std::shared_ptr<KmsMediaEvent> event)
   mediaHandlerIt = handlersCopy->begin ();
 
   for (; mediaHandlerIt != handlersCopy->end(); ++mediaHandlerIt) {
-    SendEventData *data = g_slice_new0 (SendEventData);
+    SendData *data = g_slice_new0 (SendData);
 
     data->mediaHandler = *mediaHandlerIt;
+    data->is_error = false;
     data->event = event;
     g_thread_pool_push (threadPool, data, NULL);
   }
@@ -226,6 +236,23 @@ MediaHandlerManager::removeMediaErrorHandler (const std::string &callbackToken)
   mutex.lock ();
   errorHandlersMap.erase (callbackToken);
   mutex.unlock ();
+}
+
+void
+MediaHandlerManager::sendError (std::shared_ptr<KmsMediaError> error)
+{
+  mutex.lock();
+
+  for (auto it = errorHandlersMap.begin(); it != errorHandlersMap.end(); it++) {
+    SendData *data = g_slice_new0 (SendData);
+
+    data->mediaHandler = it->second;
+    data->is_error = true;
+    data->error = error;
+    g_thread_pool_push (threadPool, data, NULL);
+  }
+
+  mutex.unlock();
 }
 
 int

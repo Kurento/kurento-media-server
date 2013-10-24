@@ -41,6 +41,7 @@ public:
                              const std::string &handlerAddress,
                              const int32_t handlerPort);
   void removeMediaErrorHandler (const std::string &callbackToken);
+  void sendError (std::shared_ptr<KmsMediaError> error);
 
   int getHandlersMapSize ();
   int getEventTypesMapSize ();
