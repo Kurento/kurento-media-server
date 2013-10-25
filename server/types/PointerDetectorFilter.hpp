@@ -35,6 +35,8 @@ private:
 
   GstElement *pointerDetector;
 
+  void raiseEvent (const std::string &type, const std::string &windowID);
+
   class StaticConstructor
   {
   public:

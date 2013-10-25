@@ -15,9 +15,22 @@
 
 #include "PointerDetectorFilter.hpp"
 
+#include "KmsMediaPointerDetectorFilterType_constants.h"
+
+#include "utils/utils.hpp"
+#include "utils/marshalling.hpp"
+#include "KmsMediaDataType_constants.h"
+#include "KmsMediaErrorCodes_constants.h"
+
+#include "protocol/TBinaryProtocol.h"
+#include "transport/TBufferTransports.h"
+
 #define GST_CAT_DEFAULT kurento_pointer_detector_filter
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPointerDetectorFilter"
+
+using apache::thrift::transport::TMemoryBuffer;
+using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {
@@ -25,7 +38,37 @@ namespace kurento
 void
 pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer pointerDetector)
 {
-  //TODO: Implement
+  const GstStructure *st;
+  gchar *windowID;
+  const gchar *type;
+  std::string windowIDStr, typeStr;
+  PointerDetectorFilter *filter = (PointerDetectorFilter *) pointerDetector;
+
+  if (GST_MESSAGE_SRC (message) != GST_OBJECT (filter->pointerDetector) ||
+      GST_MESSAGE_TYPE (message) != GST_MESSAGE_ELEMENT)
+    return;
+
+  st = gst_message_get_structure (message);
+  type = gst_structure_get_name (st);
+
+  if ( (g_strcmp0 (type, "window-out") != 0) &&
+       (g_strcmp0 (type, "window-in") != 0) ) {
+    GST_WARNING ("The message does not have the correct name");
+    return;
+  }
+
+  if (!gst_structure_get (st, "window", G_TYPE_STRING , &windowID, NULL) ) {
+    GST_WARNING ("The message does not contain the window ID");
+    return;
+  }
+
+  windowIDStr = windowID;
+  typeStr = type;
+
+  g_free (windowID);
+
+  filter->raiseEvent (typeStr, windowIDStr);
+
 }
 
 // FIXME: use thrift constant
@@ -63,6 +106,26 @@ PointerDetectorFilter::~PointerDetectorFilter() throw ()
   gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
+}
+
+void
+PointerDetectorFilter::raiseEvent (const std::string &type, const std::string &windowID)
+{
+  KmsMediaEventData eventData;
+
+  createStringEventData (eventData, windowID);
+
+  if ( type.compare ("window-out") == 0) {
+    GST_DEBUG ("Raise event. Type: %s, Window ID: %s", type.c_str(),
+               windowID.c_str() );
+
+    sendEvent (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_OUT, eventData);
+  } else {
+    GST_DEBUG ("Raise event. Type: %s, Window ID: %s", type.c_str(),
+               windowID.c_str() );
+
+    sendEvent (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_IN, eventData);
+  }
 }
 
 PointerDetectorFilter::StaticConstructor PointerDetectorFilter::staticConstructor;
