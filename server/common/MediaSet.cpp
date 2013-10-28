@@ -198,7 +198,7 @@ MediaSet::remove (const KmsMediaObjectId &id, bool force)
     children = std::shared_ptr<std::set<KmsMediaObjectId>> (new std::set<KmsMediaObjectId> (* (childrenMapIt->second) ) );
 
     if (!force && !children->empty () ) {
-      GST_DEBUG ("Media Object %ld has children and not is forcing, so it will not be removed.", id);
+      GST_DEBUG ("Media Object %" G_GINT64_FORMAT " has children and not is forcing, so it will not be removed.", id);
       mutex.unlock();
       return;
     }
