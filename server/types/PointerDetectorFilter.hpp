@@ -17,6 +17,7 @@
 #define __POINTER_DETECTOR_FILTER_HPP__
 
 #include "Filter.hpp"
+#include "KmsMediaPointerDetectorFilterType_types.h"
 
 namespace kurento
 {
@@ -27,7 +28,12 @@ public:
   PointerDetectorFilter (MediaSet &mediaSet,
                          std::shared_ptr<MediaPipeline> parent,
                          const std::map<std::string, KmsMediaParam>& params);
+
   ~PointerDetectorFilter() throw ();
+
+   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
+                const std::map<std::string, KmsMediaParam> & params)
+                throw (KmsMediaServerException);
 
 private:
 
@@ -36,6 +42,10 @@ private:
   GstElement *pointerDetector;
 
   void raiseEvent (const std::string &type, const std::string &windowID);
+  void addWindow(KmsMediaPointerDetectorWindow windowInfo);
+  void removeWindow(std::string id);
+  void clearWindows();
+
 
   class StaticConstructor
   {

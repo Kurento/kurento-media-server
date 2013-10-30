@@ -71,11 +71,15 @@ pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer poin
 
 }
 
+/* default constructor */
 PointerDetectorFilter::PointerDetectorFilter (
   MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
   const std::map<std::string, KmsMediaParam> &params)
   : Filter (mediaSet, parent, g_KmsMediaPointerDetectorFilterType_constants.TYPE_NAME, params)
 {
+  const KmsMediaParam *p;
+  KmsMediaPointerDetectorWindowSet windowSet;
+
   element = gst_element_factory_make ("filterelement", NULL);
 
   g_object_set (element, "filter-factory", "pointerdetector", NULL);
@@ -89,6 +93,40 @@ PointerDetectorFilter::PointerDetectorFilter (
   g_object_get (G_OBJECT (element), "filter", &pointerDetector, NULL);
 
   this->pointerDetector = pointerDetector;
+
+  p = getParam (params,
+                g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+
+  if (p != NULL) {
+    GstStructure *buttonsLayout;
+    //there are data about windows
+    unmarshalStruct (windowSet, p->data);
+    /* set the window layout list */
+    buttonsLayout = gst_structure_new_empty  ("buttonsLayout");
+
+    for (auto it = windowSet.windows.begin(); it != windowSet.windows.end(); ++it) {
+      KmsMediaPointerDetectorWindow windowInfo = *it;
+      GstStructure *buttonsLayoutAux;
+      buttonsLayoutAux = gst_structure_new (
+                           windowInfo.id.c_str(),
+                           "upRightCornerX", G_TYPE_INT, windowInfo.topRightCornerX,
+                           "upRightCornerY", G_TYPE_INT, windowInfo.topRightCornerY,
+                           "width", G_TYPE_INT, windowInfo.width,
+                           "height", G_TYPE_INT, windowInfo.height,
+                           "id", G_TYPE_STRING, windowInfo.id.c_str(),
+                           NULL);
+      gst_structure_set (buttonsLayout,
+                         windowInfo.id.c_str(), GST_TYPE_STRUCTURE, buttonsLayoutAux,
+                         NULL);
+
+      gst_structure_free (buttonsLayoutAux);
+    }
+
+    g_object_set (G_OBJECT (this->pointerDetector), "buttons-layout", buttonsLayout, NULL);
+    gst_structure_free (buttonsLayout);
+  }
+
+  windowSet.windows.clear();
 
   bus_handler_id = g_signal_connect (bus, "message", G_CALLBACK (pointerDetector_receive_message), this);
   g_object_unref (bus);
@@ -124,6 +162,101 @@ PointerDetectorFilter::raiseEvent (const std::string &type, const std::string &w
                windowID.c_str() );
 
     sendEvent (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_IN, eventData);
+  }
+}
+
+void
+PointerDetectorFilter::addWindow (KmsMediaPointerDetectorWindow window)
+{
+  GstStructure *buttonsLayout, *buttonsLayoutAux;
+
+  buttonsLayoutAux = gst_structure_new (
+                       window.id.c_str(),
+                       "upRightCornerX", G_TYPE_INT, window.topRightCornerX,
+                       "upRightCornerY", G_TYPE_INT, window.topRightCornerY,
+                       "width", G_TYPE_INT, window.width,
+                       "height", G_TYPE_INT, window.height,
+                       "id", G_TYPE_STRING, window.id.c_str(),
+                       NULL);
+
+  /* The function obtains the actual window list */
+  g_object_get (G_OBJECT (pointerDetector), "buttons-layout", &buttonsLayout, NULL);
+  gst_structure_set (buttonsLayout,
+                     window.id.c_str(), GST_TYPE_STRUCTURE, buttonsLayoutAux,
+                     NULL);
+
+  g_object_set (G_OBJECT (pointerDetector), "buttons-layout", buttonsLayout, NULL);
+
+  gst_structure_free (buttonsLayout);
+  gst_structure_free (buttonsLayoutAux);
+}
+
+void
+PointerDetectorFilter::removeWindow (std::string id)
+{
+  GstStructure *buttonsLayout;
+  gint len;
+
+  /* The function obtains the actual window list */
+  g_object_get (G_OBJECT (pointerDetector), "buttons-layout", &buttonsLayout, NULL);
+  len = gst_structure_n_fields (buttonsLayout);
+
+  if (len == 0) {
+    GST_WARNING ("There are no windows in the layout");
+    return;
+  }
+
+  for (int i = 0; i < len; i++) {
+    const gchar *name;
+    name = gst_structure_nth_field_name (buttonsLayout, i);
+
+    if ( g_strcmp0 (name, id.c_str() ) == 0) {
+      /* this window will be removed */
+      gst_structure_remove_field (buttonsLayout, name);
+    }
+  }
+
+  /* Set the buttons layout list without the window with id = id */
+  g_object_set (G_OBJECT (pointerDetector), "buttons-layout", buttonsLayout, NULL);
+
+  gst_structure_free (buttonsLayout);
+}
+
+void
+PointerDetectorFilter::clearWindows()
+{
+  GstStructure *buttonsLayout;
+
+  buttonsLayout = gst_structure_new_empty  ("buttonsLayout");
+  g_object_set (G_OBJECT (this->pointerDetector), "buttons-layout", buttonsLayout, NULL);
+  gst_structure_free (buttonsLayout);
+}
+
+void
+PointerDetectorFilter::invoke (KmsMediaInvocationReturn &_return,
+                               const std::string &command,
+                               const std::map< std::string, KmsMediaParam > &params)
+throw (KmsMediaServerException)
+{
+  if (g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW.compare (command) == 0) {
+    KmsMediaPointerDetectorWindow windowInfo;
+    const KmsMediaParam *p;
+    /* extract window params from param */
+    p = getParam (params,
+                  g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
+
+    if (p != NULL) {
+      unmarshalStruct (windowInfo, p->data);
+      /* create window */
+      addWindow (windowInfo);
+    }
+  } else if (g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW.compare (command) == 0) {
+    std::string id;
+
+    getStringParam (id, params, g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW_PARAM_WINDOW_ID);
+    removeWindow (id);
+  } else if (g_KmsMediaPointerDetectorFilterType_constants.CLEAR_WINDOWS.compare (command) == 0) {
+    clearWindows();
   }
 }
 

@@ -56,7 +56,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 set(CFLAGS "-DHAVE_NETINET_IN_H ")
 
-set(SERVER_TEST_SOURCE server_test_base.cpp server_test.cpp sdp_end_point_test.cpp ${UTILS})
+set(SERVER_TEST_SOURCE server_test_base.cpp server_test.cpp sdp_end_point_test.cpp ../server/common/Operators.cpp ${UTILS})
 set_source_files_properties(${SERVER_TEST_SOURCE}
                 PROPERTIES COMPILE_FLAGS ${CFLAGS})
 

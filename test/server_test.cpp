@@ -26,8 +26,10 @@
 #include "KmsMediaHttpEndPointType_constants.h"
 #include "KmsMediaZBarFilterType_constants.h"
 #include "KmsMediaJackVaderFilterType_constants.h"
+#include "KmsMediaPointerDetectorFilterType_constants.h"
 
 #include "utils/marshalling.hpp"
+#include "utils/utils.hpp"
 
 #include <gst/gst.h>
 
@@ -412,6 +414,68 @@ check_jackvader_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
 }
 
 static void
+check_pointer_detector_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef pointerDetectorFilter = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaParam param;
+  KmsMediaPointerDetectorWindowSet windowSet;
+  KmsMediaPointerDetectorWindow window;
+  KmsMediaInvocationReturn ret;
+  std::string name;
+
+  gint32 numElements = 5;
+
+  //create window layouts
+  for (int i = 0; i < numElements ; i++) {
+    KmsMediaPointerDetectorWindow aux;
+    aux.topRightCornerX = i * 3;
+    aux.topRightCornerY = i * 4;
+    aux.width = i * 5;
+    aux.height = i * 6;
+    aux.id = "window" + std::to_string (i);
+    windowSet.windows.insert (aux);
+  }
+
+  //marshalling data
+  createStructParam (param, windowSet, g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+
+  //create elements
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElementWithParams (pointerDetectorFilter, mediaPipeline,
+                                        g_KmsMediaPointerDetectorFilterType_constants.TYPE_NAME,
+                                        params);
+
+  params.clear();
+
+  //test functions
+  //add new Window
+  window.topRightCornerX = 15;
+  window.topRightCornerY = 15;
+  window.width = 15;
+  window.height = 15;
+  window.id = "new";
+
+  //marshalling data
+  createStructParam (param, window, g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
+  params[g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW] = param;
+
+  BOOST_REQUIRE_NO_THROW (client->invoke (ret, pointerDetectorFilter,
+                                          g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW, params);)
+  //remove window
+  name = "new";
+  setStringParam (params, g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW_PARAM_WINDOW_ID, name);
+  client->invoke (ret, pointerDetectorFilter, g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW, params);
+
+  //clear windows
+  client->invoke (ret, pointerDetectorFilter, g_KmsMediaPointerDetectorFilterType_constants.CLEAR_WINDOWS, emptyParams);
+
+  client->release (mediaPipeline);
+}
+
+static void
 client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 {
   check_version (client);
@@ -434,6 +498,7 @@ client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
   check_http_end_point (client);
   check_zbar_filter (client);
   check_jackvader_filter (client);
+  check_pointer_detector_filter (client);
 }
 
 BOOST_AUTO_TEST_CASE ( server_test )
