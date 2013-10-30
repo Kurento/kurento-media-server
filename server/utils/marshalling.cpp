@@ -17,16 +17,9 @@
 
 #include "utils.hpp"
 #include "KmsMediaDataType_constants.h"
-#include "KmsMediaErrorCodes_constants.h"
 
 #include "KmsMediaObject_constants.h"
 #include "KmsMediaUriEndPointType_constants.h"
-
-#include "protocol/TBinaryProtocol.h"
-#include "transport/TBufferTransports.h"
-
-using apache::thrift::transport::TMemoryBuffer;
-using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {

@@ -49,4 +49,29 @@ BOOST_AUTO_TEST_CASE ( test_KmsMediaUriEndPointConstructorParams )
 
   BOOST_REQUIRE_EQUAL (0, originalStr.compare (uriEpParams.uri) );
 }
+
+BOOST_AUTO_TEST_CASE ( struct_marshal_unmarshal_test )
+{
+  KmsMediaPointerDetectorWindowSet originalSet, newSet;
+  std::string marshalledSet;
+
+  for (int i = 0; i < 5; i++) {
+    KmsMediaPointerDetectorWindow aux;
+    aux.topRightCornerX = 10;
+    aux.topRightCornerY = 40;
+    aux.height = 30;
+    aux.width = 20;
+    aux.id = "test" + i;
+    originalSet.windows.insert (aux);
+  }
+
+  marshalStruct (marshalledSet, originalSet);
+  unmarshalStruct (newSet, marshalledSet);
+
+  for (auto it = newSet.windows.begin(); it != newSet.windows.end(); ++it) {
+    if (originalSet.windows.find (*it) == originalSet.windows.end() ) {
+      BOOST_FAIL ("Element not found");
+    }
+  }
+}
 BOOST_AUTO_TEST_SUITE_END ()

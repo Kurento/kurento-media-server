@@ -2,7 +2,7 @@ find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 
 aux_source_directory("${CMAKE_SOURCE_DIR}/server/utils" UTILS)
 
-SET(UTILS_TEST_SOURCE utils_test.cpp ${UTILS})
+SET(UTILS_TEST_SOURCE utils_test.cpp ../server/common/Operators.cpp ${UTILS})
 SET_SOURCE_FILES_PROPERTIES(${UTILS_TEST_SOURCE}
                 PROPERTIES COMPILE_FLAGS
                 -DHAVE_NETINET_IN_H)

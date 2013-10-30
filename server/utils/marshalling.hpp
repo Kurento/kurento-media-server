@@ -23,6 +23,16 @@
 #include "KmsMediaObject_types.h"
 #include "KmsMediaUriEndPointType_types.h"
 
+#include "KmsMediaPointerDetectorFilterType_types.h"
+#include "KmsMediaErrorCodes_constants.h"
+
+#include "protocol/TBinaryProtocol.h"
+#include "transport/TBufferTransports.h"
+#include "protocol/TProtocol.h"
+
+using apache::thrift::transport::TMemoryBuffer;
+using apache::thrift::protocol::TBinaryProtocol;
+
 namespace kurento
 {
 
@@ -30,6 +40,38 @@ void marshalI32 (std::string &_return, const int32_t i) throw (KmsMediaServerExc
 int32_t unmarshalI32 (const std::string &data) throw (KmsMediaServerException);
 void marshalString (std::string &_return, const std::string &str) throw (KmsMediaServerException);
 void unmarshalString (std::string &_return, const std::string &data) throw (KmsMediaServerException);
+#define unmarshalStruct(_return, msData)                                \
+do {                                                                    \
+  boost::shared_ptr<TMemoryBuffer> transport;                           \
+  try {                                                                 \
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer     \
+                    ( (uint8_t *) msData.data(), msData.size () ) );    \
+    TBinaryProtocol protocol = TBinaryProtocol (transport);             \
+    _return.read(&protocol);                                            \
+  } catch (...) {                                                       \
+    KmsMediaServerException except;                                     \
+    createKmsMediaServerException (except,                              \
+        g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,                \
+        "Cannot unmarshal KmsMediaPointerDetectorWindowSet");           \
+    throw except;                                                       \
+  }                                                                     \
+} while (0)
+#define marshalStruct(_return, st)                                      \
+do {                                                                    \
+  try {                                                                 \
+    boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );  \
+    TBinaryProtocol protocol (transport);                               \
+    st.write(&protocol);                                                \
+    transport->appendBufferToString (_return);                          \
+  } catch (...) {                                                       \
+    KmsMediaServerException except;                                     \
+                                                                        \
+    createKmsMediaServerException (except,                              \
+        g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,                  \
+        "Cannot marshal KmsMediaPointerDetectorWindow");                \
+    throw except;                                                       \
+  }                                                                     \
+} while (0)
 
 void createVoidParam (KmsMediaParam &_return) throw (KmsMediaServerException);
 void createI32Param (KmsMediaParam &_return, const int32_t i) throw (KmsMediaServerException);
