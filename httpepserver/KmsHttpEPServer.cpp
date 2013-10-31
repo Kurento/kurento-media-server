@@ -267,9 +267,15 @@ static void
 get_recv_eos (GstElement *httep, gpointer data)
 {
   SoupMessage *msg = (SoupMessage *) data;
+  SoupURI *uri = soup_message_get_uri (msg);
+  const char *path = soup_uri_get_path (uri);
+  KmsHttpEPServer *serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
+                          KEY_HTTP_EP_SERVER);
 
   GST_DEBUG ("EOS received on HttpEndPoint %s", GST_ELEMENT_NAME (httep) );
   soup_message_body_complete (msg->response_body);
+
+  g_signal_emit (G_OBJECT (serv), obj_signals[URL_EXPIRED], 0, path);
 }
 
 static void
