@@ -106,13 +106,15 @@ kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, con
 static void
 url_removed_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
 {
-  GST_DEBUG ("TODO: Implement url_removed_cb");
+  kurento_http_end_point_raise_session_terminated_event ( (HttpEndPoint *) data,
+      uri);
 }
 
 static void
 url_expired_cb (KmsHttpEPServer *server, const gchar *uri, gpointer data)
 {
-  GST_DEBUG ("TODO: Implement url_expired_cb");
+  kurento_http_end_point_raise_session_terminated_event ( (HttpEndPoint *) data,
+      uri);
 }
 
 struct MainLoopData {
