@@ -28,6 +28,7 @@
 #include "KmsMediaJackVaderFilterType_constants.h"
 #include "KmsMediaPointerDetectorFilterType_constants.h"
 #include "KmsMediaWebRtcEndPointType_constants.h"
+#include "KmsMediaPlateDetectorFilterType_constants.h"
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
@@ -85,6 +86,7 @@ protected:
   void check_jackvader_filter ();
   void check_pointer_detector_filter ();
   void check_web_rtc_end_point ();
+  void check_plate_detector_filter();
 };
 
 void
@@ -679,6 +681,59 @@ ClientHandler::check_web_rtc_end_point ()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_plate_detector_filter()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef plateDetector = KmsMediaObjectRef();
+  KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaInvocationReturn ret;
+  std::string originalUri = "https://ci.kurento.com/video/plates.webm";
+  std::string resultUri;
+  std::string callbackToken;
+  Glib::Mutex mutex;
+  Glib::Cond cond;
+  Glib::TimeVal timeout;
+  gboolean endTimeout;
+
+  client->createMediaPipeline (mediaPipeline);
+  createKmsMediaUriEndPointConstructorParams (params, originalUri);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElement (plateDetector, mediaPipeline, g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME);
+  client->connectElements (playerEndPoint, plateDetector);
+
+  mutex.lock();
+  auto f = [&cond, &mutex, this] (std::string cT, KmsMediaEvent e) {
+    GST_INFO ("PlateDetector: %s received", e.type.c_str() );
+    mutex.lock();
+    cond.signal();
+    handlerTest->deleteEventFunction();
+    mutex.unlock();
+  };
+  handlerTest->setEventFunction (f, g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED);
+
+  client->subscribeEvent (callbackToken, plateDetector,
+                          g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED,
+                          HANDLER_IP, HANDLER_PORT);
+
+  GST_DEBUG ("callbackToken: %s", callbackToken.c_str () );
+  params.clear();
+  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START,
+                  params);
+  timeout.assign_current_time();
+  timeout += 20;
+  endTimeout = cond.timed_wait (mutex, timeout);
+  mutex.unlock();
+
+  if (!endTimeout) {
+    BOOST_FAIL ("check_plate_detector_filter_event: Not license plates detected until timeout");
+  }
+
+  client->unsubscribeEvent (plateDetector, callbackToken);
+  client->release (mediaPipeline);
+}
+
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
@@ -709,6 +764,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_jackvader_filter ();
   check_pointer_detector_filter ();
   check_web_rtc_end_point ();
+  check_plate_detector_filter();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
