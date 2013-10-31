@@ -84,7 +84,7 @@ kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, con
 {
   std::string uriStr = uri;
 
-  GST_DEBUG ("Action requested URI %s", uriStr.c_str() );
+  GST_DEBUG ("Session terminated URI %s", uriStr.c_str() );
 
   if (httpEp->url.size() <= uriStr.size() )
     return;
