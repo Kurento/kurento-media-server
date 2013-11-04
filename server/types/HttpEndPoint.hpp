@@ -45,8 +45,8 @@ private:
   void setUrl (const std::string &);
 
 private:
-  void init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout)
-  throw (KmsMediaServerException);
+  void init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout,
+    bool terminateOnEOS) throw (KmsMediaServerException);
 
   class StaticConstructor
   {

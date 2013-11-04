@@ -33,6 +33,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define DISCONNECTION_TIMEOUT 2 /* seconds */
 #define REGISTER_TIMEOUT 3 /* seconds */
+#define TERMINATE_ON_EOS_DEFAULT false;
 
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
@@ -195,10 +196,13 @@ register_http_end_point (gpointer data)
 }
 
 void
-HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout)
+HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent,
+                    guint disconnectionTimeout, bool terminateOnEOS)
 throw (KmsMediaServerException)
 {
   element = gst_element_factory_make ("httpendpoint", NULL);
+
+  g_object_set ( G_OBJECT (element), "is-live", !terminateOnEOS, NULL);
 
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
@@ -256,6 +260,7 @@ throw (KmsMediaServerException)
   const KmsMediaParam *p;
   KmsMediaHttpEndPointConstructorParams httpEpParams;
   guint disconnectionTimeout = DISCONNECTION_TIMEOUT;
+  bool terminateOnEOS = TERMINATE_ON_EOS_DEFAULT;
 
   p = getParam (params, g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
@@ -265,9 +270,12 @@ throw (KmsMediaServerException)
     if (httpEpParams.__isset.disconnectionTimeout) {
       disconnectionTimeout = httpEpParams.disconnectionTimeout;
     }
+
+    if (httpEpParams.__isset.terminateOnEOS)
+      terminateOnEOS = httpEpParams.terminateOnEOS;
   }
 
-  init (parent, disconnectionTimeout);
+  init (parent, disconnectionTimeout, terminateOnEOS);
 }
 
 static std::string
