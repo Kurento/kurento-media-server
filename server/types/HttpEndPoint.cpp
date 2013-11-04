@@ -196,6 +196,14 @@ register_http_end_point (gpointer data)
 }
 
 void
+kurento_http_end_point_eos_detected_cb (GstElement *element, gpointer data)
+{
+  HttpEndPoint *httpEp = (HttpEndPoint *) data;
+  httpEp->sendEvent (
+    g_KmsMediaHttpEndPointType_constants.EVENT_EOS_DETECTED);
+}
+
+void
 HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent,
                     guint disconnectionTimeout, bool terminateOnEOS)
 throw (KmsMediaServerException)
@@ -214,6 +222,8 @@ throw (KmsMediaServerException)
                                           G_CALLBACK (url_removed_cb), this);
   urlExpiredHandlerId = g_signal_connect (httpepserver, "url-expired",
                                           G_CALLBACK (url_expired_cb), this);
+  g_signal_connect (element, "eos-detected",
+                    G_CALLBACK (kurento_http_end_point_eos_detected_cb), this);
 
   this->disconnectionTimeout = disconnectionTimeout;
 
@@ -366,6 +376,10 @@ throw (KmsMediaServerException)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
   else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE.compare (
+             eventType) == 0)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  else if (g_KmsMediaHttpEndPointType_constants.EVENT_EOS_DETECTED.compare (
              eventType) == 0)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
