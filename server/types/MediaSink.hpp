@@ -39,6 +39,7 @@ private:
 
   bool linkPad (std::shared_ptr<MediaSrc> mediaSrc, GstPad *pad);
   void unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink);
+  void unlinkUnchecked (GstPad *sink);
 
   std::weak_ptr <MediaSrc> connectedSrc;
 
@@ -52,6 +53,7 @@ private:
 
   static StaticConstructor staticConstructor;
 
+  friend MediaSrc::~MediaSrc ();
   friend void MediaSrc::disconnect (MediaSink *mediaSink);
   friend void MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink);
 };

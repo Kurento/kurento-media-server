@@ -34,7 +34,25 @@ MediaSrc::MediaSrc (std::shared_ptr< kurento::MediaElement > parent, kurento::Km
 
 MediaSrc::~MediaSrc() throw ()
 {
+  mutex.lock();
 
+  for (auto it = connectedSinks.begin(); it != connectedSinks.end(); it++) {
+    try {
+      std::shared_ptr<MediaSink> connectedSinkLocked;
+
+      GST_INFO ("connectedSink");
+      connectedSinkLocked = it->lock();
+
+      if (connectedSinkLocked != NULL) {
+        connectedSinkLocked->unlinkUnchecked (NULL);
+      }
+    } catch (const std::bad_weak_ptr &e) {
+      GST_WARNING ("Got invalid reference while releasing MediaSrc %"
+                   G_GINT64_FORMAT, id);
+    }
+  }
+
+  mutex.unlock();
 }
 
 const gchar *

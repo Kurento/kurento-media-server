@@ -199,40 +199,43 @@ MediaSink::unlink (std::shared_ptr<MediaSrc> mediaSrc, GstPad *sink)
   }
 
   if (connectedSrcLocked != NULL && mediaSrc == connectedSrcLocked) {
-    GstPad *peer;
-    GstPad *sinkPad;
-
-    if (sink == NULL)
-      sinkPad = gst_element_get_static_pad (getElement(), getPadName().c_str() );
-    else
-      sinkPad = sink;
-
-    if (sinkPad == NULL)
-      goto end;
-
-    peer = gst_pad_get_peer (sinkPad);
-
-    if (peer != NULL) {
-      gst_pad_unlink (peer, sinkPad);
-
-      g_object_unref (peer);
-    }
-
-    if (sink == NULL) {
-      GstElement *elem;
-
-      elem = gst_pad_get_parent_element (sinkPad);
-      gst_element_release_request_pad (elem, sinkPad);
-      g_object_unref (elem);
-      g_object_unref (sinkPad);
-    }
-
-end:
-
+    unlinkUnchecked (sink);
     connectedSrcLocked->removeSink (this);
   }
 
   mutex.unlock();
+}
+
+void
+MediaSink::unlinkUnchecked (GstPad *sink)
+{
+  GstPad *peer;
+  GstPad *sinkPad;
+
+  if (sink == NULL)
+    sinkPad = gst_element_get_static_pad (getElement(), getPadName().c_str() );
+  else
+    sinkPad = sink;
+
+  if (sinkPad == NULL)
+    return;
+
+  peer = gst_pad_get_peer (sinkPad);
+
+  if (peer != NULL) {
+    gst_pad_unlink (peer, sinkPad);
+
+    g_object_unref (peer);
+  }
+
+  if (sink == NULL) {
+    GstElement *elem;
+
+    elem = gst_pad_get_parent_element (sinkPad);
+    gst_element_release_request_pad (elem, sinkPad);
+    g_object_unref (elem);
+    g_object_unref (sinkPad);
+  }
 }
 
 std::shared_ptr<MediaSrc>
