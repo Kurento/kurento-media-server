@@ -43,6 +43,10 @@ private:
   void barcodeDetected (guint64 ts, std::string &type, std::string &symbol);
   void raiseEvent (guint64 ts, std::string &type, std::string &symbol);
 
+  void subscribe (std::string &_return, const std::string &eventType,
+                  const std::string &handlerAddress,
+                  const int32_t handlerPort) throw (KmsMediaServerException);
+
   class StaticConstructor
   {
   public:

@@ -146,6 +146,17 @@ ZBarFilter::barcodeDetected (guint64 ts, std::string &type, std::string &symbol)
   }
 }
 
+void
+ZBarFilter::subscribe (std::string &_return, const std::string &eventType,
+                       const std::string &handlerAddress,
+                       const int32_t handlerPort) throw (KmsMediaServerException)
+{
+  if (g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND == eventType)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress, handlerPort);
+  else
+    Filter::subscribe (_return, eventType, handlerAddress, handlerPort);
+}
+
 ZBarFilter::StaticConstructor ZBarFilter::staticConstructor;
 
 ZBarFilter::StaticConstructor::StaticConstructor()
