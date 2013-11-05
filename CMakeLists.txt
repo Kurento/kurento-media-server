@@ -130,7 +130,7 @@ endif(NOT DEFINED SYSCONFDIR)
 install(FILES kurento.conf pattern.sdp DESTINATION ${SYSCONFDIR}/${CUSTOM_PREFIX})
 install(PROGRAMS "scripts/init.d/kurento" DESTINATION ${SYSCONFDIR}/init.d)
 install(FILES "scripts/default/kurento" DESTINATION ${SYSCONFDIR}/default)
-install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}/lib/gstreamer-1.0 USE_SOURCE_PERMISSIONS DESTINATION usr/lib)
+install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}/lib/gst-kurento-plugins USE_SOURCE_PERMISSIONS DESTINATION usr/lib)
 install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}/share/gst-kurento-plugins USE_SOURCE_PERMISSIONS DESTINATION usr/share)
 
 include(CPack)
