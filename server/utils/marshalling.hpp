@@ -62,6 +62,7 @@ do {                                                                    \
     boost::shared_ptr<TMemoryBuffer> transport (new TMemoryBuffer() );  \
     TBinaryProtocol protocol (transport);                               \
     st.write(&protocol);                                                \
+    _return.clear();                                                    \
     transport->appendBufferToString (_return);                          \
   } catch (...) {                                                       \
     KmsMediaServerException except;                                     \
