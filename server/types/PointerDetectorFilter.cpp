@@ -29,6 +29,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPointerDetectorFilter"
 
+#define WINDOWS_LAYOUT "windows-layout"
+
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
 
@@ -102,7 +104,7 @@ PointerDetectorFilter::PointerDetectorFilter (
     //there are data about windows
     unmarshalStruct (windowSet, p->data);
     /* set the window layout list */
-    buttonsLayout = gst_structure_new_empty  ("buttonsLayout");
+    buttonsLayout = gst_structure_new_empty  ("windowsLayout");
 
     for (auto it = windowSet.windows.begin(); it != windowSet.windows.end(); ++it) {
       KmsMediaPointerDetectorWindow windowInfo = *it;
@@ -122,7 +124,7 @@ PointerDetectorFilter::PointerDetectorFilter (
       gst_structure_free (buttonsLayoutAux);
     }
 
-    g_object_set (G_OBJECT (this->pointerDetector), "buttons-layout", buttonsLayout, NULL);
+    g_object_set (G_OBJECT (this->pointerDetector), WINDOWS_LAYOUT, buttonsLayout, NULL);
     gst_structure_free (buttonsLayout);
   }
 
@@ -180,12 +182,12 @@ PointerDetectorFilter::addWindow (KmsMediaPointerDetectorWindow window)
                        NULL);
 
   /* The function obtains the actual window list */
-  g_object_get (G_OBJECT (pointerDetector), "buttons-layout", &buttonsLayout, NULL);
+  g_object_get (G_OBJECT (pointerDetector), WINDOWS_LAYOUT, &buttonsLayout, NULL);
   gst_structure_set (buttonsLayout,
                      window.id.c_str(), GST_TYPE_STRUCTURE, buttonsLayoutAux,
                      NULL);
 
-  g_object_set (G_OBJECT (pointerDetector), "buttons-layout", buttonsLayout, NULL);
+  g_object_set (G_OBJECT (pointerDetector), WINDOWS_LAYOUT, buttonsLayout, NULL);
 
   gst_structure_free (buttonsLayout);
   gst_structure_free (buttonsLayoutAux);
@@ -198,7 +200,7 @@ PointerDetectorFilter::removeWindow (std::string id)
   gint len;
 
   /* The function obtains the actual window list */
-  g_object_get (G_OBJECT (pointerDetector), "buttons-layout", &buttonsLayout, NULL);
+  g_object_get (G_OBJECT (pointerDetector), WINDOWS_LAYOUT, &buttonsLayout, NULL);
   len = gst_structure_n_fields (buttonsLayout);
 
   if (len == 0) {
@@ -217,7 +219,7 @@ PointerDetectorFilter::removeWindow (std::string id)
   }
 
   /* Set the buttons layout list without the window with id = id */
-  g_object_set (G_OBJECT (pointerDetector), "buttons-layout", buttonsLayout, NULL);
+  g_object_set (G_OBJECT (pointerDetector), WINDOWS_LAYOUT, buttonsLayout, NULL);
 
   gst_structure_free (buttonsLayout);
 }
@@ -228,7 +230,7 @@ PointerDetectorFilter::clearWindows()
   GstStructure *buttonsLayout;
 
   buttonsLayout = gst_structure_new_empty  ("buttonsLayout");
-  g_object_set (G_OBJECT (this->pointerDetector), "buttons-layout", buttonsLayout, NULL);
+  g_object_set (G_OBJECT (this->pointerDetector), WINDOWS_LAYOUT, buttonsLayout, NULL);
   gst_structure_free (buttonsLayout);
 }
 
