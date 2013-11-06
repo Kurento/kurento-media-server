@@ -6,7 +6,7 @@
 #  LIBSOUP_LIBRARIES - the libraries needed to use LibSoup
 
 find_package(PkgConfig)
-pkg_check_modules(PC_LIBSOUP REQUIRED libsoup-2.4)
+pkg_check_modules(PC_LIBSOUP REQUIRED libsoup-2.4>=2.37)
 
 find_path(LIBSOUP_INCLUDE_DIRS
     NAMES libsoup/soup.h
