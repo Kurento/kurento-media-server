@@ -74,4 +74,24 @@ BOOST_AUTO_TEST_CASE ( struct_marshal_unmarshal_test )
     }
   }
 }
+
+BOOST_AUTO_TEST_CASE ( struct_marshal_unmarshal_test2 )
+{
+  KmsMediaPointerDetectorWindow originalStruct, newStruct;
+  std::string marshalledStruct;
+
+  originalStruct.topRightCornerX = 10;
+  originalStruct.topRightCornerY = 40;
+  originalStruct.height = 30;
+  originalStruct.width = 20;
+  originalStruct.id = "test";
+
+  marshalStruct (marshalledStruct, originalStruct);
+  unmarshalStruct (newStruct, marshalledStruct);
+
+  if (originalStruct != newStruct ) {
+    BOOST_FAIL ("Test fails");
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END ()
