@@ -260,6 +260,20 @@ throw (KmsMediaServerException)
   }
 }
 
+void
+PointerDetectorFilter::subscribe (std::string &_return, const std::string &eventType,
+                                  const std::string &handlerAddress,
+                                  const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  if (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_IN == eventType)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress, handlerPort);
+  else  if (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_OUT == eventType)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress, handlerPort);
+  else
+    Filter::subscribe (_return, eventType, handlerAddress, handlerPort);
+}
+
 PointerDetectorFilter::StaticConstructor PointerDetectorFilter::staticConstructor;
 
 PointerDetectorFilter::StaticConstructor::StaticConstructor()

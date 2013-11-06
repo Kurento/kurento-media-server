@@ -45,7 +45,10 @@ private:
   void addWindow(KmsMediaPointerDetectorWindow windowInfo);
   void removeWindow(std::string id);
   void clearWindows();
-
+  void subscribe (std::string &_return, const std::string &eventType,
+                  const std::string &handlerAddress,
+                  const int32_t handlerPort)
+                  throw (KmsMediaServerException);
 
   class StaticConstructor
   {
