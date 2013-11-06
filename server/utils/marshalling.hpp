@@ -80,6 +80,22 @@ int32_t unmarshalI32Param (const KmsMediaParam &param) throw (KmsMediaServerExce
 void createStringParam (KmsMediaParam &_return, const std::string &data) throw (KmsMediaServerException);
 void unmarshalStringParam (std::string &_return, const KmsMediaParam &param) throw (KmsMediaServerException);
 
+#define createStructParam(_return, st, type)                            \
+do {                                                                    \
+  try {                                                                 \
+    _return.__set_dataType (type);                                      \
+    marshalStruct (_return.data, st);                                   \
+    _return.__isset.data = true;                                        \
+  } catch (...) {                                                       \
+    KmsMediaServerException except;                                     \
+                                                                        \
+    createKmsMediaServerException (except,                              \
+        g_KmsMediaErrorCodes_constants.MARSHALL_ERROR,                  \
+        "Cannot create struct param");                                  \
+    throw except;                                                       \
+  }                                                                     \
+} while (0)
+
 inline void createVoidInvocationReturn (KmsMediaInvocationReturn &_return)
 throw (KmsMediaServerException)
 {
