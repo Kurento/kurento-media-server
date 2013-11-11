@@ -85,8 +85,6 @@ kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, con
 {
   std::string uriStr = uri;
 
-  GST_DEBUG ("Session terminated URI %s", uriStr.c_str() );
-
   if (httpEp->url.size() <= uriStr.size() )
     return;
 
@@ -96,6 +94,8 @@ kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, con
 
   if (substr.compare (uriStr) != 0)
     return;
+
+  GST_DEBUG ("Session terminated URI %s", uriStr.c_str() );
 
   if (!g_atomic_int_compare_and_exchange (& (httpEp->sessionStarted), 1, 0) )
     return;
