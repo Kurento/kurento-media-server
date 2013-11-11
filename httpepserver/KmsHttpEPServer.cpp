@@ -647,7 +647,7 @@ emit_removed_url_signal (gpointer data, gpointer user_data)
 }
 
 static void
-kms_http_ep_server_destroy_handlers (KmsHttpEPServer *self)
+kms_http_ep_server_remove_handlers (KmsHttpEPServer *self)
 {
   GList *keys;
 
@@ -658,7 +658,6 @@ kms_http_ep_server_destroy_handlers (KmsHttpEPServer *self)
 
   /* Remove handlers */
   g_hash_table_remove_all (self->priv->handlers);
-  self->priv->handlers = NULL;
 }
 
 static void
@@ -669,7 +668,7 @@ kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
     return;
   }
 
-  kms_http_ep_server_destroy_handlers (self);
+  kms_http_ep_server_remove_handlers (self);
 
   /* Stops processing for server */
   soup_server_quit (self->priv->server);
@@ -1086,8 +1085,11 @@ kms_http_ep_server_finalize (GObject *obj)
     self->priv->announcedAddr = NULL;
   }
 
-  if (self->priv->handlers != NULL)
-    kms_http_ep_server_destroy_handlers (self);
+  if (self->priv->handlers != NULL) {
+    kms_http_ep_server_remove_handlers (self);
+    g_hash_table_unref (self->priv->handlers);
+    self->priv->handlers = NULL;
+  }
 
   if (self->priv->rand != NULL) {
     g_rand_free (self->priv->rand);
