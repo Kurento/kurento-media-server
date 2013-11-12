@@ -55,7 +55,7 @@ MediaServerServiceHandler::keepAlive (const KmsMediaObjectRef &mediaObjectRef) t
   try {
     mediaSet.keepAlive (mediaObjectRef);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("keepAlive %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
+    GST_TRACE ("keepAlive %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -76,7 +76,7 @@ MediaServerServiceHandler::release (const KmsMediaObjectRef &mediaObjectRef) thr
   try {
     mediaSet.remove (mediaObjectRef, true);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
+    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -102,7 +102,7 @@ MediaServerServiceHandler::subscribeEvent (std::string &_return, const KmsMediaO
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     mo->subscribe (_return, eventType, handlerAddress, handlerPort);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", eventType.c_str (), mediaObjectRef.id, e.what () );
+    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", eventType.c_str (), mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -127,7 +127,7 @@ throw (KmsMediaServerException)
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     mo->unsubscribe (callbackToken);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", callbackToken.c_str (), mediaObjectRef.id, e.what () );
+    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", callbackToken.c_str (), mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -156,7 +156,7 @@ throw (KmsMediaServerException)
   } catch (const KmsMediaServerException &e) {
     GST_TRACE ("subscribe for errors in mediaObjectRef: %" G_GINT64_FORMAT
                " throws KmsMediaServerException (%s)",
-               mediaObjectRef.id, e.what () );
+               mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -188,7 +188,7 @@ throw (KmsMediaServerException)
   } catch (const KmsMediaServerException &e) {
     GST_TRACE ("unsubscribeError for '%s' callbackToken in mediaObjectRef: %"
                G_GINT64_FORMAT " throws KmsMediaServerException (%s)",
-               callbackToken.c_str (), mediaObjectRef.id, e.what () );
+               callbackToken.c_str (), mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -220,7 +220,7 @@ throw (KmsMediaServerException)
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     mo->invoke (_return, command, params);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", command.c_str (), mediaObjectRef.id, e.what () );
+    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", command.c_str (), mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -247,7 +247,7 @@ throw (KmsMediaServerException)
     parent = mo->getParent ();
     _return = *parent;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getParent %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
+    GST_TRACE ("getParent %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -277,7 +277,7 @@ throw (KmsMediaServerException)
       _return = * (mo->getParent () );
     }
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaPipeline %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.what () );
+    GST_TRACE ("getMediaPipeline %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -358,7 +358,7 @@ MediaServerServiceHandler::createMediaElement (KmsMediaObjectRef &_return, const
 
     _return = *me;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.what () );
+    GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -387,7 +387,7 @@ throw (KmsMediaServerException)
 
     _return = *me;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.what () );
+    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -415,7 +415,7 @@ MediaServerServiceHandler::createMediaMixer (KmsMediaObjectRef &_return, const K
 
     _return = *mixer;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.what () );
+    GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -444,7 +444,7 @@ throw (KmsMediaServerException)
 
     _return = *mixer;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.what () );
+    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -478,7 +478,7 @@ throw (KmsMediaServerException)
 
     GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT " done", mediaElement.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaElement.id, e.what () );
+    GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaElement.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -508,7 +508,7 @@ throw (KmsMediaServerException)
 
     GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT " done", mediaElement.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaElement.id, e.what () );
+    GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaElement.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -538,7 +538,7 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<KmsMediaObjectRe
 
     GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT " mediaType: %s done", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.what () );
+    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -568,7 +568,7 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<KmsMediaObjectR
 
     GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s done", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.what () );
+    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -630,7 +630,7 @@ throw (KmsMediaServerException)
     GST_TRACE ("connectElements srcMediaElement: %" G_GINT64_FORMAT
                " sinkMediaElement: %" G_GINT64_FORMAT
                " throws KmsMediaServerException (%s)", srcMediaElement.id,
-               sinkMediaElement.id, e.what () );
+               sinkMediaElement.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -674,7 +674,7 @@ throw (KmsMediaServerException)
                " sinkMediaElement: %" G_GINT64_FORMAT " mediaType: %s"
                " throws KmsMediaServerException (%s)", srcMediaElement.id,
                sinkMediaElement.id,
-               _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.what () );
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -719,7 +719,7 @@ MediaServerServiceHandler::getMediaElement (KmsMediaObjectRef &_return, const Km
     pad = mediaSet.getMediaObject<MediaPad> (mediaPadRef);
     _return = * (pad->getMediaElement () );
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaElement of pad: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaPadRef.id, e.what () );
+    GST_TRACE ("getMediaElement of pad: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaPadRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -746,7 +746,7 @@ MediaServerServiceHandler::connect (const KmsMediaObjectRef &mediaSrc, const Kms
     src->connect (sink);
     GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " done", mediaSrc.id, mediaSink.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id, e.what () );
+    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -770,7 +770,7 @@ MediaServerServiceHandler::disconnect (const KmsMediaObjectRef &mediaSrc, const 
     src->disconnect (sink);
     GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " done", mediaSrc.id, mediaSink.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id, e.what () );
+    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -798,7 +798,7 @@ MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> &_r
 
     GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT " done", mediaSrc.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, e.what () );
+    GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -822,7 +822,7 @@ MediaServerServiceHandler::getConnectedSrc (KmsMediaObjectRef &_return, const Km
     _return = * (sink->getConnectedSrc() );
     GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT " done", mediaSinkRef.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSinkRef.id, e.what () );
+    GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSinkRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
@@ -850,7 +850,7 @@ MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return, cons
 
     _return = *mixerEndPoint;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mixer.id, e.what () );
+    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mixer.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
