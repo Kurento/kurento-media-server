@@ -1,4 +1,5 @@
 find_package (Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 aux_source_directory("${CMAKE_SOURCE_DIR}/server/utils" UTILS)
 
@@ -54,9 +55,10 @@ include_directories(media_handler_test ${CMAKE_SOURCE_DIR}/server)
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 
-set(CFLAGS "-DHAVE_NETINET_IN_H ")
+set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
+set(CXXFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
 
-set(SERVER_TEST_SOURCE server_test_base.cpp server_test.cpp sdp_end_point_test.cpp ../server/common/Operators.cpp ${UTILS})
+set(SERVER_TEST_SOURCE server_test_base.cpp server_test.cpp sdp_end_point_test.cpp ../server/common/Operators.cpp HandlerTest.cpp ${UTILS})
 set_source_files_properties(${SERVER_TEST_SOURCE}
                 PROPERTIES COMPILE_FLAGS ${CFLAGS})
 
@@ -70,10 +72,11 @@ target_link_libraries(server_test
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
                       )
 target_link_libraries(server_test ${EVENT_LIBRARIES})
-target_link_libraries(server_test kmsiface ${THRIFT_LIBRARIES})
+target_link_libraries(server_test kmsiface ${THRIFT_LIBRARIES} ${EVENT_LIBRARIES})
 target_link_libraries(server_test ${GSTREAMER_LIBRARIES})
 target_link_libraries(server_test ${GLIBMM_LIBRARIES})
 target_link_libraries(server_test ${UUID_LIBRARIES})
+target_link_libraries(server_test ${GLIB2_LIBRARIES} -lpthread)
 
 include_directories(server_test ${THRIFT_INCLUDE_DIRS})
 include_directories(server_test ${GSTREAMER_INCLUDE_DIRS})

@@ -55,8 +55,7 @@ private:
   HandlerTest handlerTest;
 };
 
-
-BOOST_FIXTURE_TEST_SUITE ( server_test_suite,  F)
+BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 static void
 check_version (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
