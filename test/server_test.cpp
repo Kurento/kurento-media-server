@@ -30,6 +30,7 @@
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
+#include "HandlerTest.hpp"
 
 #include <gst/gst.h>
 
@@ -44,6 +45,16 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 using namespace kurento;
 
 static std::map<std::string, KmsMediaParam> emptyParams = std::map<std::string, KmsMediaParam> ();
+
+class ClientHandler : public F
+{
+public:
+  ClientHandler() : F(), handlerTest() {};
+
+private:
+  HandlerTest handlerTest;
+};
+
 
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite,  F)
 
