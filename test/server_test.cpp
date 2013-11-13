@@ -49,10 +49,16 @@ static std::map<std::string, KmsMediaParam> emptyParams = std::map<std::string, 
 class ClientHandler : public F
 {
 public:
-  ClientHandler() : F(), handlerTest() {};
+  ClientHandler() : F(), handlerTest (new HandlerTest() ) {
+    handlerTest->start ();
+  };
 
-private:
-  HandlerTest handlerTest;
+  ~ClientHandler () {
+    handlerTest->stop();
+  }
+
+protected:
+  boost::shared_ptr<HandlerTest> handlerTest;
 };
 
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)

@@ -18,7 +18,6 @@
 #include <protocol/TBinaryProtocol.h>
 #include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
-#include <server/TNonblockingServer.h>
 #include <server/TServer.h>
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
@@ -36,47 +35,49 @@ using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
 using namespace ::apache::thrift::server;
 using namespace ::apache::thrift::concurrency;
-using boost::shared_ptr;
 
 namespace kurento
 {
-static void
-*thread_func (HandlerTest *handlerTest)
-{
-  shared_ptr < HandlerTest > handler (handlerTest);
-  shared_ptr < TProcessor >
-  processor (new KmsMediaHandlerServiceProcessor (handler) );
-  shared_ptr < TProtocolFactory >
-  protocolFactory (new TBinaryProtocolFactory () );
-  shared_ptr < PosixThreadFactory > threadFactory (new PosixThreadFactory () );
-  shared_ptr < ThreadManager > threadManager =
-    ThreadManager::newSimpleThreadManager (1);
-  threadManager->threadFactory (threadFactory);
-  threadManager->start ();
-  TNonblockingServer server (processor, protocolFactory, HANDLER_PORT,
-                             threadManager);
-
-  GST_INFO ("Starting MediaHandlerService");
-  server.serve ();
-
-  return NULL;
-}
 
 HandlerTest::HandlerTest ()
 {
-  GThread *th;
-
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
-  GST_INFO ("ClientHandler: Handler Create");
-
-  th = g_thread_new ("handler_server", (GThreadFunc) thread_func, this);
-  g_thread_unref (th);
 }
 
 HandlerTest::~HandlerTest()
 {
 }
+
+void
+HandlerTest::start()
+{
+  boost::shared_ptr < HandlerTest > handler (shared_from_this() );
+  boost::shared_ptr < TProcessor > processor (new KmsMediaHandlerServiceProcessor (handler) );
+  boost::shared_ptr < TProtocolFactory >
+  protocolFactory (new TBinaryProtocolFactory () );
+  boost::shared_ptr < PosixThreadFactory > threadFactory (new PosixThreadFactory () );
+  boost::shared_ptr <TTransportFactory> transportFactory (new TFramedTransportFactory () );
+  boost::shared_ptr <TServerTransport> serverTransport (new TServerSocket (HANDLER_PORT) );
+
+  server = boost::shared_ptr<TSimpleServer> (new TSimpleServer (processor, serverTransport, transportFactory, protocolFactory) );
+
+  boost::shared_ptr<Thread> serverThread;
+  serverThread = threadFactory->newThread (
+                   boost::dynamic_pointer_cast<Runnable> (server) );
+
+  serverThread->start();
+}
+
+void
+HandlerTest::stop()
+{
+  if (server) {
+    server->stop();
+    server.reset();
+  }
+}
+
 
 void
 HandlerTest::onError (const std::string &callbackToken,

@@ -17,15 +17,20 @@
 #define __HANDLER_TEST_HPP__
 
 #include "KmsMediaHandlerService.h"
-#include <glibmm/thread.h>
+#include <glibmm.h>
 #include <functional>
+
+#include <server/TSimpleServer.h>
 
 #define HANDLER_IP "localhost"
 #define HANDLER_PORT 9191
+
+using ::apache::thrift::server::TSimpleServer;
+
 namespace kurento
 {
 
-class HandlerTest : virtual public KmsMediaHandlerServiceIf
+class HandlerTest : virtual public KmsMediaHandlerServiceIf, virtual public boost::enable_shared_from_this<HandlerTest>
 {
 public:
   HandlerTest();
@@ -40,6 +45,9 @@ public:
                               <void (std::string, KmsMediaError)> &function,
                          std::string waitError);
 
+  void start();
+  void stop();
+
 private:
   Glib::RecMutex mutex;
 
@@ -47,6 +55,8 @@ private:
   std::function <void (std::string, KmsMediaError)> errorFunc;
   std::string waitEvent;
   std::string waitError;
+
+  boost::shared_ptr<TSimpleServer> server;
 };
 
 } // kurento
