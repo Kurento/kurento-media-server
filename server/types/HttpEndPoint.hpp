@@ -18,6 +18,7 @@
 
 #include "EndPoint.hpp"
 #include "httpendpointserver.hpp"
+#include "KmsMediaProfile_types.h"
 
 namespace kurento
 {
@@ -46,7 +47,8 @@ private:
 
 private:
   void init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout,
-    bool terminateOnEOS) throw (KmsMediaServerException);
+    bool terminateOnEOS, KmsMediaProfile profile)
+throw (KmsMediaServerException);
 
   class StaticConstructor
   {

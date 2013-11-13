@@ -31,11 +31,25 @@ namespace kurento
 {
 
 void
-RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
+RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent,
+                        const std::string &uri,
+                        KmsMediaProfile profile)
 {
   element = gst_element_factory_make ("recorderendpoint", NULL);
 
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
+
+  switch (profile.mediaMuxer) {
+  case KmsMediaMuxer::WEBM:
+    g_object_set ( G_OBJECT (element), "profile", "webm", NULL);
+    GST_INFO ("Set WEBM profile");
+    break;
+
+  case KmsMediaMuxer::MP4:
+    g_object_set ( G_OBJECT (element), "profile", "mp4", NULL);
+    GST_INFO ("Set MP4 profile");
+    break;
+  }
 
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
@@ -51,6 +65,8 @@ throw (KmsMediaServerException)
 {
   const KmsMediaParam *p;
   KmsMediaUriEndPointConstructorParams uriEpParams;
+  KmsMediaRecoderEndPointConstructorParams recorderParams;
+  KmsMediaProfile profile;
 
   p = getParam (params, g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
@@ -63,8 +79,19 @@ throw (KmsMediaServerException)
   }
 
   unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
+  //unmarshal KmsMediaRecoderEndPointConstructorParams
+  p = getParam (params, g_KmsMediaRecorderEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  profile.mediaMuxer = KmsMediaMuxer::WEBM;
 
-  init (parent, uriEpParams.uri);
+  if (p != NULL) {
+    unmarshalStruct (recorderParams, p->data);
+
+    if (recorderParams.__isset.profileType) {
+      profile = recorderParams.profileType;
+    }
+  }
+
+  init (parent, uriEpParams.uri, profile);
 }
 
 RecorderEndPoint::~RecorderEndPoint() throw ()

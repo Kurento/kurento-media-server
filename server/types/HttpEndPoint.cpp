@@ -266,12 +266,25 @@ kurento_http_end_point_eos_detected_cb (GstElement *element, gpointer data)
 
 void
 HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent,
-                    guint disconnectionTimeout, bool terminateOnEOS)
+                    guint disconnectionTimeout, bool terminateOnEOS,
+                    KmsMediaProfile profile)
 throw (KmsMediaServerException)
 {
   element = gst_element_factory_make ("httpendpoint", NULL);
 
   g_object_set ( G_OBJECT (element), "is-live", !terminateOnEOS, NULL);
+
+  switch (profile.mediaMuxer) {
+  case KmsMediaMuxer::WEBM:
+    g_object_set ( G_OBJECT (element), "profile", "webm", NULL);
+    GST_INFO ("Set WEBM profile");
+    break;
+
+  case KmsMediaMuxer::MP4:
+    g_object_set ( G_OBJECT (element), "profile", "mp4", NULL);
+    GST_INFO ("Set MP4 profile");
+    break;
+  }
 
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
@@ -326,6 +339,9 @@ throw (KmsMediaServerException)
   KmsMediaHttpEndPointConstructorParams httpEpParams;
   guint disconnectionTimeout = DISCONNECTION_TIMEOUT;
   bool terminateOnEOS = TERMINATE_ON_EOS_DEFAULT;
+  KmsMediaProfile profile;
+
+  profile.mediaMuxer = KmsMediaMuxer::WEBM;
 
   p = getParam (params, g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
@@ -338,9 +354,12 @@ throw (KmsMediaServerException)
 
     if (httpEpParams.__isset.terminateOnEOS)
       terminateOnEOS = httpEpParams.terminateOnEOS;
+
+    if (httpEpParams.__isset.profileType)
+      profile = httpEpParams.profileType;
   }
 
-  init (parent, disconnectionTimeout, terminateOnEOS);
+  init (parent, disconnectionTimeout, terminateOnEOS, profile);
 }
 
 HttpEndPoint::~HttpEndPoint() throw ()

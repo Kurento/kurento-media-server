@@ -17,6 +17,7 @@
 #define __RECORDER_END_POINT_HPP__
 
 #include "UriEndPoint.hpp"
+#include "KmsMediaProfile_types.h"
 
 namespace kurento
 {
@@ -30,7 +31,8 @@ public:
   ~RecorderEndPoint() throw ();
 
 private:
-  void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
+  void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri,
+    KmsMediaProfile profile);
 
   class StaticConstructor
   {
