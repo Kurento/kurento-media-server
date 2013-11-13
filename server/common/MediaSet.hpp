@@ -29,6 +29,7 @@ class MediaSet
 {
 public:
   MediaSet () {};
+  ~MediaSet ();
 
   void put (std::shared_ptr<MediaObjectImpl> mediaObject);
   void keepAlive (const KmsMediaObjectRef &mediaObject) throw (KmsMediaServerException);
@@ -44,6 +45,8 @@ private:
   std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> > mediaObjectsMap;
   std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> > childrenMap;
   std::map<KmsMediaObjectId, std::shared_ptr<AutoReleaseData>> mediaObjectsAlive;
+
+  Glib::ThreadPool threadPool;
 
   bool canBeAutoreleased (const KmsMediaObjectRef &mediaObject);
   void removeAutoRelease (const KmsMediaObjectId &id);

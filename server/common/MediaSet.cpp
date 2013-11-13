@@ -54,6 +54,27 @@ auto_release (gpointer dataPointer)
 namespace kurento
 {
 
+class ObjectReleasing
+{
+public:
+  ~ObjectReleasing () {
+    if (!object.unique() )
+      GST_WARNING ("Destroying object %" G_GINT64_FORMAT " that is not unique",
+                   object->id);
+    else
+      GST_DEBUG ("Destroying object %" G_GINT64_FORMAT, object->id);
+
+    object.reset();
+  }
+
+  std::shared_ptr <MediaObjectImpl> object;
+};
+
+MediaSet::~MediaSet ()
+{
+  threadPool.shutdown (true);
+}
+
 bool
 MediaSet::canBeAutoreleased (const KmsMediaObjectRef &mediaObject)
 {
@@ -229,6 +250,17 @@ MediaSet::remove (const KmsMediaObjectId &id, bool force)
   mediaObjectsMap.erase (id);
   removeAutoRelease (id);
   mutex.unlock();
+
+  if (mo) {
+    ObjectReleasing *obj = new ObjectReleasing();
+
+    obj->object = mo;
+    mo.reset();
+
+    threadPool.push ([obj] () {
+      delete obj;
+    } );
+  }
 }
 
 int
