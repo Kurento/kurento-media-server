@@ -31,6 +31,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSet"
 
+#define RELEASE_TIMEOUT 10
+
 using namespace kurento;
 
 struct _AutoReleaseData {
@@ -58,6 +60,12 @@ class ObjectReleasing
 {
 public:
   ~ObjectReleasing () {
+    Glib::RefPtr<Glib::TimeoutSource> timeout;
+
+    timeout = Glib::TimeoutSource::create (RELEASE_TIMEOUT * 1000);
+    timeout->connect (sigc::mem_fun<bool, ObjectReleasing> (this, &ObjectReleasing::timeout) );
+    timeout->attach ();
+
     if (!object.unique() )
       GST_WARNING ("Destroying object %" G_GINT64_FORMAT " that is not unique",
                    object->id);
@@ -65,9 +73,17 @@ public:
       GST_DEBUG ("Destroying object %" G_GINT64_FORMAT, object->id);
 
     object.reset();
+    timeout->destroy ();
   }
 
   std::shared_ptr <MediaObjectImpl> object;
+
+private:
+
+  bool timeout () {
+    GST_WARNING ("Timeout releasing object %" G_GINT64_FORMAT, this->object->id);
+    return false;
+  }
 };
 
 MediaSet::~MediaSet ()
