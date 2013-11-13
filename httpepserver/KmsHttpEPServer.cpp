@@ -378,6 +378,7 @@ finished_get_processing (SoupMessage *msg, gpointer data)
   msg_finished (msg);
 
   disconnect_eos_new_sample_signals (msg);
+  emit_expiration_signal (msg, httpep);
 
   /* Drop internal media flowing in the piepline */
   g_object_set (G_OBJECT (httpep), "start", FALSE, NULL);
@@ -386,8 +387,6 @@ finished_get_processing (SoupMessage *msg, gpointer data)
 
   if (param != NULL)
     g_object_unref (G_OBJECT (param) );
-
-  emit_expiration_signal (msg, httpep);
 }
 
 static void
