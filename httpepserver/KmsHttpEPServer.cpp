@@ -101,9 +101,8 @@ struct resolv_data {
 };
 
 struct sample_data {
-  KmsHttpEPServer *httpepserver;
+  GstElement *httpep;
   GstSample *sample;
-  SoupMessage *msg;
 };
 
 static gchar *
@@ -191,10 +190,13 @@ static gboolean
 send_buffer_cb (gpointer data)
 {
   struct sample_data *sdata = (struct sample_data *) data;
+  SoupMessage *msg = (SoupMessage *) g_object_get_data (
+                       G_OBJECT (sdata->httpep), KEY_MESSAGE);
+  KmsHttpEPServer *httpepserver;
   GstBuffer *buffer;
   GstMapInfo info;
 
-  if (msg_has_finished (sdata->msg) ) {
+  if (msg == NULL || msg_has_finished (msg) ) {
     GST_WARNING ("Client has closed underlaying HTTP connection. "
                  "Buffer won't be sent");
     return FALSE;
@@ -210,9 +212,12 @@ send_buffer_cb (gpointer data)
     return FALSE;
   }
 
-  soup_message_body_append (sdata->msg->response_body, SOUP_MEMORY_COPY,
+  httpepserver = KMS_HTTP_EP_SERVER (g_object_get_data (G_OBJECT (msg),
+                                     KEY_HTTP_EP_SERVER) );
+
+  soup_message_body_append (msg->response_body, SOUP_MEMORY_COPY,
                             info.data, info.size);
-  soup_server_unpause_message (sdata->httpepserver->priv->server, sdata->msg);
+  soup_server_unpause_message (httpepserver->priv->server, msg);
 
   gst_buffer_unmap (buffer, &info);
   return FALSE;
@@ -226,11 +231,8 @@ destroy_sample_data (gpointer data)
   if (sdata->sample != NULL)
     gst_sample_unref (sdata->sample);
 
-  if (sdata->httpepserver != NULL)
-    g_object_unref (sdata->httpepserver);
-
-  if (sdata->msg != NULL)
-    g_object_unref (sdata->msg);
+  if (sdata->httpep != NULL)
+    gst_object_unref (sdata->httpep);
 
   g_slice_free (struct sample_data, sdata);
 }
@@ -238,11 +240,10 @@ destroy_sample_data (gpointer data)
 static GstFlowReturn
 new_sample_handler (GstElement *httpep, gpointer data)
 {
-  SoupMessage *msg = (SoupMessage *) g_object_get_data (G_OBJECT (httpep), KEY_MESSAGE);
   GstSample *sample = NULL;
   struct sample_data *sdata;
 
-  GST_TRACE ("New-sample for message %" GST_PTR_FORMAT, (gpointer) msg);
+  GST_TRACE ("New-sample in %" GST_PTR_FORMAT, (gpointer) httpep);
 
   g_signal_emit_by_name (httpep, "pull-sample", &sample);
 
@@ -251,9 +252,7 @@ new_sample_handler (GstElement *httpep, gpointer data)
 
   sdata = g_slice_new (struct sample_data);
   sdata->sample = gst_sample_ref (sample);
-  sdata->msg = (SoupMessage *) g_object_ref (G_OBJECT (msg) );
-  sdata->httpepserver = KMS_HTTP_EP_SERVER (g_object_ref (
-                          g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) ) );
+  sdata->httpep = GST_ELEMENT (gst_object_ref (httpep) );
 
   /* Write buffer in the main context thread */
   g_idle_add_full (G_PRIORITY_HIGH_IDLE, send_buffer_cb, sdata,
