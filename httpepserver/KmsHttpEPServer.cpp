@@ -262,19 +262,40 @@ new_sample_handler (GstElement *httpep, gpointer data)
   return GST_FLOW_OK;
 }
 
+static gboolean
+get_recv_eos_cb (gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+  SoupMessage *msg;
+  SoupURI *uri;
+  const char *path;
+  KmsHttpEPServer *serv;
+
+  msg = (SoupMessage *) g_object_get_data (G_OBJECT (httpep), KEY_MESSAGE);
+
+  if (msg == NULL) {
+    GST_WARNING ("Could not send EOS in %" GST_PTR_FORMAT, (gpointer) httpep);
+    return FALSE;
+  }
+
+  GST_DEBUG ("EOS received in %" GST_PTR_FORMAT, (gpointer) httpep);
+
+  uri = soup_message_get_uri (msg);
+  path = soup_uri_get_path (uri);
+  soup_message_body_complete (msg->response_body);
+
+  serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
+         KEY_HTTP_EP_SERVER);
+  g_signal_emit (G_OBJECT (serv), obj_signals[URL_EXPIRED], 0, path);
+
+  return FALSE;
+}
+
 static void
 get_recv_eos (GstElement *httpep, gpointer data)
 {
-  SoupMessage *msg = (SoupMessage *) g_object_get_data (G_OBJECT (httpep), KEY_MESSAGE);
-  SoupURI *uri = soup_message_get_uri (msg);
-  const char *path = soup_uri_get_path (uri);
-  KmsHttpEPServer *serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
-                          KEY_HTTP_EP_SERVER);
-
-  GST_DEBUG ("EOS received on HttpEndPoint %s", GST_ELEMENT_NAME (httpep) );
-  soup_message_body_complete (msg->response_body);
-
-  g_signal_emit (G_OBJECT (serv), obj_signals[URL_EXPIRED], 0, path);
+  g_idle_add_full (G_PRIORITY_HIGH_IDLE, get_recv_eos_cb,
+                   gst_object_ref (httpep), gst_object_unref);
 }
 
 static void
