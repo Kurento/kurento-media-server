@@ -59,12 +59,32 @@ public:
 
 protected:
   boost::shared_ptr<HandlerTest> handlerTest;
+
+  void check_version ();
+  void check_use_released_media_pipeline ();
+  void check_auto_released_media_pipeline ();
+  void check_keep_alive_media_pipeline ();
+  void check_exclude_from_gc ();
+  void check_parent ();
+  void check_get_parent_of_media_pipeline ();
+  void check_getMediaPipeline ();
+  void check_same_token ();
+  void check_get_media_element_from_pad ();
+
+#if 0 /* Temporally disabled */
+  void check_type ();
+#endif
+
+  void check_player_end_point ();
+  void check_recorder_end_point ();
+  void check_http_end_point ();
+  void check_zbar_filter ();
+  void check_jackvader_filter ();
+  void check_pointer_detector_filter ();
 };
 
-BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
-
-static void
-check_version (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_version ()
 {
   int32_t gotVersion;
 
@@ -73,8 +93,8 @@ check_version (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
 }
 
 #if 0 /* Temporally disabled */
-static void
-check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
+void
+ClientHandler::check_type ()
 {
   MediaObjectId mediaPipeline = MediaObjectId();
   MediaObjectId mo = MediaObjectId();
@@ -111,8 +131,8 @@ check_type (boost::shared_ptr<kurento::MediaServerServiceClient> client)
 }
 #endif
 
-static void
-check_use_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_use_released_media_pipeline ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef mo = KmsMediaObjectRef();
@@ -130,8 +150,8 @@ check_use_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServ
   }
 }
 
-static void
-check_auto_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_auto_released_media_pipeline ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef moA = KmsMediaObjectRef();
@@ -196,8 +216,8 @@ check_auto_released_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerSer
   }
 }
 
-static void
-check_keep_alive_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_keep_alive_media_pipeline ()
 {
   int i;
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
@@ -216,8 +236,8 @@ check_keep_alive_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServic
   client->release (mediaPipeline);
 }
 
-static void
-check_exclude_from_gc (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_exclude_from_gc ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
@@ -230,8 +250,8 @@ check_exclude_from_gc (boost::shared_ptr<kurento::KmsMediaServerServiceClient> c
   BOOST_REQUIRE_NO_THROW (client->release (mediaPipeline) );
 }
 
-static void
-check_parent (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_parent ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef mo = KmsMediaObjectRef();
@@ -247,8 +267,8 @@ check_parent (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
   client->release (mediaPipeline);
 }
 
-static void
-check_get_parent_of_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_get_parent_of_media_pipeline ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef parent = KmsMediaObjectRef();
@@ -265,8 +285,8 @@ check_get_parent_of_media_pipeline (boost::shared_ptr<kurento::KmsMediaServerSer
   client->release (mediaPipeline);
 }
 
-static void
-check_getMediaPipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_getMediaPipeline ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef mo = KmsMediaObjectRef();
@@ -285,8 +305,8 @@ check_getMediaPipeline (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
   client->release (mediaPipeline);
 }
 
-static void
-check_same_token (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_same_token ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef mo = KmsMediaObjectRef();
@@ -300,8 +320,8 @@ check_same_token (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client
   client->release (mediaPipeline);
 }
 
-static void
-check_get_media_element_from_pad (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_get_media_element_from_pad ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
@@ -332,8 +352,8 @@ check_get_media_element_from_pad (boost::shared_ptr<kurento::KmsMediaServerServi
   client->release (mediaPipeline);
 }
 
-static void
-check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_player_end_point ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
@@ -366,8 +386,8 @@ check_player_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
   client->release (mediaPipeline);
 }
 
-static void
-check_recorder_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_recorder_end_point ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef recorderEndPoint = KmsMediaObjectRef();
@@ -388,8 +408,8 @@ check_recorder_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient
   client->release (mediaPipeline);
 }
 
-static void
-check_http_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_http_end_point ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef httpEp = KmsMediaObjectRef();
@@ -407,8 +427,8 @@ check_http_end_point (boost::shared_ptr<kurento::KmsMediaServerServiceClient> cl
   client->release (mediaPipeline);
 }
 
-static void
-check_zbar_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_zbar_filter ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef zbarFilter = KmsMediaObjectRef();
@@ -418,8 +438,8 @@ check_zbar_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> clien
   client->release (mediaPipeline);
 }
 
-static void
-check_jackvader_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_jackvader_filter ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef jackVaderFilter = KmsMediaObjectRef();
@@ -429,8 +449,8 @@ check_jackvader_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> 
   client->release (mediaPipeline);
 }
 
-static void
-check_pointer_detector_filter (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
+void
+ClientHandler::check_pointer_detector_filter ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef pointerDetectorFilter = KmsMediaObjectRef();
@@ -491,37 +511,34 @@ check_pointer_detector_filter (boost::shared_ptr<kurento::KmsMediaServerServiceC
   client->release (mediaPipeline);
 }
 
-static void
-client_side (boost::shared_ptr<kurento::KmsMediaServerServiceClient> client)
-{
-  check_version (client);
-  check_use_released_media_pipeline (client);
-  check_auto_released_media_pipeline (client);
-  check_keep_alive_media_pipeline (client);
-  check_exclude_from_gc (client);
-  check_parent (client);
-  check_get_parent_of_media_pipeline (client);
-  check_getMediaPipeline (client);
-  check_same_token (client);
-  check_get_media_element_from_pad (client);
-
-#if 0 /* Temporally disabled */
-  check_type (client);
-#endif
-
-  check_player_end_point (client);
-  check_recorder_end_point (client);
-  check_http_end_point (client);
-  check_zbar_filter (client);
-  check_jackvader_filter (client);
-  check_pointer_detector_filter (client);
-}
+BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
 {
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
-  client_side (client);
+
+  check_version();
+  check_use_released_media_pipeline ();
+  check_auto_released_media_pipeline ();
+  check_keep_alive_media_pipeline ();
+  check_exclude_from_gc ();
+  check_parent ();
+  check_get_parent_of_media_pipeline ();
+  check_getMediaPipeline ();
+  check_same_token ();
+  check_get_media_element_from_pad ();
+
+#if 0 /* Temporally disabled */
+  check_type ();
+#endif
+
+  check_player_end_point ();
+  check_recorder_end_point ();
+  check_http_end_point ();
+  check_zbar_filter ();
+  check_jackvader_filter ();
+  check_pointer_detector_filter ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
