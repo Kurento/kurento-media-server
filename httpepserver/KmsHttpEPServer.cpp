@@ -264,15 +264,15 @@ new_sample_handler (GstElement *httpep, gpointer data)
 }
 
 static void
-get_recv_eos (GstElement *httep, gpointer data)
+get_recv_eos (GstElement *httpep, gpointer data)
 {
-  SoupMessage *msg = (SoupMessage *) data;
+  SoupMessage *msg = (SoupMessage *) g_object_get_data (G_OBJECT (httpep), KEY_MESSAGE);
   SoupURI *uri = soup_message_get_uri (msg);
   const char *path = soup_uri_get_path (uri);
   KmsHttpEPServer *serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
                           KEY_HTTP_EP_SERVER);
 
-  GST_DEBUG ("EOS received on HttpEndPoint %s", GST_ELEMENT_NAME (httep) );
+  GST_DEBUG ("EOS received on HttpEndPoint %s", GST_ELEMENT_NAME (httpep) );
   soup_message_body_complete (msg->response_body);
 
   g_signal_emit (G_OBJECT (serv), obj_signals[URL_EXPIRED], 0, path);
@@ -285,38 +285,6 @@ msg_finished (SoupMessage *msg)
 
   finished = (gboolean *) g_object_get_data (G_OBJECT (msg), KEY_FINISHED);
   *finished = TRUE;
-}
-
-static void
-disconnect_eos_new_sample_signals (SoupMessage *msg)
-{
-  KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
-                            g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
-  SoupURI *uri = soup_message_get_uri (msg);
-  const char *path = soup_uri_get_path (uri);
-  GstElement *httpep;
-  gulong *handler;
-
-  if (serv->priv->handlers == NULL)
-    return;
-
-  if (!g_hash_table_contains (serv->priv->handlers, path) ) {
-    GST_WARNING ("Message %" GST_PTR_FORMAT
-                 " was bounded to an unregistered HttpEndPoint", (gpointer) msg);
-    return;
-  }
-
-  httpep = (GstElement *) g_hash_table_lookup (serv->priv->handlers, path);
-  GST_DEBUG ("Message %" GST_PTR_FORMAT " is bounded to %s", (gpointer) msg,
-             GST_ELEMENT_NAME (httpep) );
-
-  /* Disconnect signals */
-  handler = (gulong *) g_object_get_data (G_OBJECT (msg),
-                                          KEY_NEW_SAMPLE_HANDLER_ID);
-  g_signal_handler_disconnect (httpep, *handler);
-
-  handler = (gulong *) g_object_get_data (G_OBJECT (msg), KEY_EOS_HANDLER_ID);
-  g_signal_handler_disconnect (httpep, *handler);
 }
 
 static gboolean
@@ -377,7 +345,6 @@ finished_get_processing (SoupMessage *msg, gpointer data)
   GST_DEBUG ("Message finished %" GST_PTR_FORMAT, (gpointer) msg);
   msg_finished (msg);
 
-  disconnect_eos_new_sample_signals (msg);
   emit_expiration_signal (msg, httpep);
 
   /* Drop internal media flowing in the piepline */
@@ -414,6 +381,62 @@ msg_add_finished_property (SoupMessage *msg)
 }
 
 static void
+install_http_get_signals (GstElement *httpep)
+{
+  gulong *handlerid;
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_NEW_SAMPLE_HANDLER_ID);
+
+  if (handlerid == NULL) {
+    handlerid = g_slice_new (gulong);
+    *handlerid = g_signal_connect (httpep, "new-sample",
+                                   G_CALLBACK (new_sample_handler), NULL);
+    GST_DEBUG ("Installing new-sample signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_NEW_SAMPLE_HANDLER_ID, handlerid,
+                            (GDestroyNotify) destroy_ulong);
+  }
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_EOS_HANDLER_ID);
+
+  if (handlerid == NULL) {
+    handlerid = g_slice_new (gulong);
+    *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos),
+                                   NULL);
+    GST_DEBUG ("Installing eos signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_EOS_HANDLER_ID, handlerid,
+                            (GDestroyNotify) destroy_ulong);
+  }
+}
+
+static void
+uninstall_http_get_signals (GstElement *httpep)
+{
+  gulong *handlerid;
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_NEW_SAMPLE_HANDLER_ID);
+
+  if (handlerid != NULL) {
+    GST_DEBUG ("Disconnecting new-sample signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_signal_handler_disconnect (httpep, *handlerid);
+  }
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_EOS_HANDLER_ID);
+
+  if (handlerid != NULL) {
+    GST_DEBUG ("Disconnecting eos signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_signal_handler_disconnect (httpep, *handlerid);
+  }
+}
+
+static void
 kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
                                 GstElement *httpep)
 {
@@ -436,16 +459,7 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED_HANDLER_ID, handlerid,
                           (GDestroyNotify) destroy_ulong);
 
-  handlerid = g_slice_new (gulong);
-  *handlerid = g_signal_connect (httpep, "new-sample",
-                                 G_CALLBACK (new_sample_handler), NULL);
-  g_object_set_data_full (G_OBJECT (msg), KEY_NEW_SAMPLE_HANDLER_ID, handlerid,
-                          (GDestroyNotify) destroy_ulong);
-
-  handlerid = g_slice_new (gulong);
-  *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos), msg);
-  g_object_set_data_full (G_OBJECT (msg), KEY_EOS_HANDLER_ID, handlerid,
-                          (GDestroyNotify) destroy_ulong);
+  install_http_get_signals (httpep);
 
   /* allow media stream to flow in HttpEndPoint pipeline */
   g_object_set (G_OBJECT (httpep), "start", TRUE, NULL);
@@ -684,8 +698,6 @@ destroy_pending_message (SoupMessage *msg)
     KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
                               g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
     GstElement *httpep = kms_http_ep_server_get_ep_from_msg (serv, msg);
-
-    disconnect_eos_new_sample_signals (msg);
 
     if (httpep != NULL) {
       /* Drop internal media flowing in the piepline */
@@ -1040,6 +1052,7 @@ kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
   }
 
   httpep = (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
+  uninstall_http_get_signals (httpep);
 
   remove_timeout (httpep);
 
