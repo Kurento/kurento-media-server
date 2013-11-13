@@ -60,7 +60,10 @@ private:
   gulong urlExpiredHandlerId;
   gint sessionStarted = 0;
 
-  friend gboolean register_http_end_point (gpointer data);
+  /* Functions that operate in main loop context */
+  friend gboolean dispose_http_end_point (gpointer data);
+  friend gboolean init_http_end_point (gpointer data);
+
   friend void http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action);
   friend void kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, const gchar *uri);
   friend void kurento_http_end_point_eos_detected_cb (GstElement *element, gpointer data);

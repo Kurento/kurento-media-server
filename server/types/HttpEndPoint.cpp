@@ -80,6 +80,44 @@ action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
   http_end_point_raise_petition_event (httpEp, action);
 }
 
+static std::string
+getUriFromUrl (std::string url)
+{
+  std::string uri;
+  gboolean host_read = FALSE;
+
+  /* skip first 7 characters in the url regarding the protocol "http://" */
+  if (url.size() < 7) {
+    GST_ERROR ("Invalid URL %s", url.c_str() );
+    return NULL;
+  }
+
+  for ( guint i = 7; i < url.size(); i++) {
+    gchar c = url.at (i);
+
+    if (!host_read) {
+      if (c == '/') {
+        /* URL has no port */
+        uri = url.substr (i, std::string::npos);
+        break;
+      } else if (c == ':') {
+        /* skip port number */
+        host_read = TRUE;
+        continue;
+      } else
+        continue;
+    }
+
+    if (c != '/')
+      continue;
+
+    uri = url.substr (i, std::string::npos);
+    break;
+  }
+
+  return uri;
+}
+
 void
 kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, const gchar *uri)
 {
@@ -165,7 +203,7 @@ operate_in_main_loop_context (GSourceFunc func, gpointer data,
 }
 
 gboolean
-register_http_end_point (gpointer data)
+init_http_end_point (gpointer data)
 {
   HttpEndPoint *httpEp = (HttpEndPoint *) data;
   std::string uri;
@@ -174,7 +212,13 @@ register_http_end_point (gpointer data)
   gchar *addr;
   guint port;
 
-  /* TODO: Set proper values for cookie life time and disconnection timeout */
+  httpEp->actionRequestedHandlerId = g_signal_connect (httpepserver, "action-requested",
+                                     G_CALLBACK (action_requested_cb), httpEp);
+  httpEp->urlRemovedHandlerId = g_signal_connect (httpepserver, "url-removed",
+                                G_CALLBACK (url_removed_cb), httpEp);
+  httpEp->urlExpiredHandlerId = g_signal_connect (httpepserver, "url-expired",
+                                G_CALLBACK (url_expired_cb), httpEp);
+
   url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element,
         httpEp->disconnectionTimeout);
 
@@ -191,6 +235,23 @@ register_http_end_point (gpointer data)
 
   httpEp->setUrl (uri);
   httpEp->urlSet = true;
+
+  return FALSE;
+}
+
+gboolean
+dispose_http_end_point (gpointer data)
+{
+  HttpEndPoint *httpEp = (HttpEndPoint *) data;
+
+  g_signal_handler_disconnect (httpepserver, httpEp->actionRequestedHandlerId);
+  g_signal_handler_disconnect (httpepserver, httpEp->urlExpiredHandlerId);
+  g_signal_handler_disconnect (httpepserver, httpEp->urlRemovedHandlerId);
+
+  std::string uri = getUriFromUrl (httpEp->url);
+
+  if (!uri.empty() )
+    kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str() );
 
   return FALSE;
 }
@@ -216,18 +277,12 @@ throw (KmsMediaServerException)
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
 
-  actionRequestedHandlerId = g_signal_connect (httpepserver, "action-requested",
-                             G_CALLBACK (action_requested_cb), this);
-  urlRemovedHandlerId = g_signal_connect (httpepserver, "url-removed",
-                                          G_CALLBACK (url_removed_cb), this);
-  urlExpiredHandlerId = g_signal_connect (httpepserver, "url-expired",
-                                          G_CALLBACK (url_expired_cb), this);
   g_signal_connect (element, "eos-detected",
                     G_CALLBACK (kurento_http_end_point_eos_detected_cb), this);
 
   this->disconnectionTimeout = disconnectionTimeout;
 
-  operate_in_main_loop_context (register_http_end_point, this, NULL);
+  operate_in_main_loop_context (init_http_end_point, this, NULL);
 
   if (!urlSet) {
     KmsMediaServerException except;
@@ -288,54 +343,9 @@ throw (KmsMediaServerException)
   init (parent, disconnectionTimeout, terminateOnEOS);
 }
 
-static std::string
-getUriFromUrl (std::string url)
-{
-  std::string uri;
-  gboolean host_read = FALSE;
-
-  /* skip first 7 characters in the url regarding the protocol "http://" */
-  if (url.size() < 7) {
-    GST_ERROR ("Invalid URL %s", url.c_str() );
-    return NULL;
-  }
-
-  for ( guint i = 7; i < url.size(); i++) {
-    gchar c = url.at (i);
-
-    if (!host_read) {
-      if (c == '/') {
-        /* URL has no port */
-        uri = url.substr (i, std::string::npos);
-        break;
-      } else if (c == ':') {
-        /* skip port number */
-        host_read = TRUE;
-        continue;
-      } else
-        continue;
-    }
-
-    if (c != '/')
-      continue;
-
-    uri = url.substr (i, std::string::npos);
-    break;
-  }
-
-  return uri;
-}
-
 HttpEndPoint::~HttpEndPoint() throw ()
 {
-  g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
-  g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
-  g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
-
-  std::string uri = getUriFromUrl (url);
-
-  if (!uri.empty() )
-    kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str() );
+  operate_in_main_loop_context (dispose_http_end_point, this, NULL);
 
   gst_bin_remove (GST_BIN ( (
                               (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);
