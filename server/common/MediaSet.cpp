@@ -61,16 +61,19 @@ class ObjectReleasing
 public:
   ~ObjectReleasing () {
     Glib::RefPtr<Glib::TimeoutSource> timeout;
+    gint wait_times = 1;
+
+    while (object && !object.unique() ) {
+      GST_DEBUG ("Object reference %" G_GINT64_FORMAT " is not unique, "
+                 "waiting %d ms", object->id, wait_times * 50);
+      g_usleep (wait_times++ * 50000);
+    }
 
     timeout = Glib::TimeoutSource::create (RELEASE_TIMEOUT * 1000);
     timeout->connect (sigc::mem_fun<bool, ObjectReleasing> (this, &ObjectReleasing::timeout) );
     timeout->attach ();
 
-    if (!object.unique() )
-      GST_WARNING ("Destroying object %" G_GINT64_FORMAT " that is not unique",
-                   object->id);
-    else
-      GST_DEBUG ("Destroying object %" G_GINT64_FORMAT, object->id);
+    GST_DEBUG ("Destroying object %" G_GINT64_FORMAT, object->id);
 
     object.reset();
     timeout->destroy ();
