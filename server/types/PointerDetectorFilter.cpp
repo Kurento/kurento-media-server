@@ -96,6 +96,16 @@ PointerDetectorFilter::PointerDetectorFilter (
 
   this->pointerDetector = pointerDetector;
 
+  if (this->pointerDetector == NULL) {
+    g_object_unref (bus);
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_AVAILAIBLE,
+                                   "Media Object not available");
+    throw except;
+  }
+
   p = getParam (params,
                 g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
