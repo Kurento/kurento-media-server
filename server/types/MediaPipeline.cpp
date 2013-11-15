@@ -33,6 +33,7 @@
 #include "JackVaderFilter.hpp"
 #include "KmsMediaPointerDetectorFilterType_constants.h"
 #include "PointerDetectorFilter.hpp"
+#include "KmsMediaErrorCodes_constants.h"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -41,13 +42,16 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-static void
-receive_message (GstBus *bus, GstMessage *message, gpointer pipeline)
+void
+media_pipeline_receive_message (GstBus *bus, GstMessage *message, gpointer data)
 {
+  MediaPipeline *m = (MediaPipeline *) data;
+
   switch (message->type) {
   case GST_MESSAGE_ERROR:
     GST_ERROR ("Error on bus: %" GST_PTR_FORMAT, message);
-    gst_debug_bin_to_dot_file_with_ts (GST_BIN (pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "error");
+    gst_debug_bin_to_dot_file_with_ts (GST_BIN (m->pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "error");
+    m->sendError ("UNEXPECTED_ERROR", "Error on bus", g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR);
     // TODO: Check if further notification is needed
     break;
 
@@ -67,7 +71,7 @@ MediaPipeline::init ()
 
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
   gst_bus_add_signal_watch (bus);
-  g_signal_connect (bus, "message", G_CALLBACK (receive_message), pipeline);
+  g_signal_connect (bus, "message", G_CALLBACK (media_pipeline_receive_message), (gpointer) this);
   g_object_unref (bus);
 
   this->objectType.__set_pipeline (*this);

@@ -54,6 +54,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend void media_pipeline_receive_message (GstBus *bus, GstMessage *message, gpointer data);
 };
 
 } // kurento
