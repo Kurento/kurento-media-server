@@ -33,6 +33,7 @@
 #include "HandlerTest.hpp"
 
 #include <gst/gst.h>
+#include <glibmm/timeval.h>
 
 #include "common/MediaSet.hpp"
 
@@ -359,9 +360,13 @@ ClientHandler::check_player_end_point ()
   KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
   KmsMediaInvocationReturn ret;
-  std::string originalUri = "file:///tmp/player_end_point_test.webm";
+  std::string originalUri = "https://ci.kurento.com/video/small.webm";
   std::string resultUri;
   std::string callbackToken;
+  Glib::Mutex mutex;
+  Glib::Cond cond;
+  Glib::TimeVal timeout;
+  gboolean endTimeout;
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
@@ -372,8 +377,30 @@ ClientHandler::check_player_end_point ()
   BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
 
-  client->subscribeEvent (callbackToken, playerEndPoint, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS, "", 0);
+  mutex.lock();
+  auto f = [&cond, &mutex] (std::string cT, KmsMediaEvent e) {
+    GST_INFO ("playerEndPoint: %s received", e.type.c_str() );
+    mutex.lock();
+    cond.signal();
+    mutex.unlock();
+  };
+  handlerTest->setEventFunction (f, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS);
+  client->subscribeEvent (callbackToken, playerEndPoint,
+                          g_KmsMediaPlayerEndPointType_constants.EVENT_EOS,
+                          HANDLER_IP, HANDLER_PORT);
   GST_DEBUG ("callbackToken: %s", callbackToken.c_str () );
+  params.clear();
+  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START,
+                  params);
+  timeout.assign_current_time();
+  timeout += 20;
+  endTimeout = cond.timed_wait (mutex, timeout);
+  mutex.unlock();
+
+  if (!endTimeout) {
+    BOOST_FAIL ("check_player_end_point: EOS event timeout reached ");
+  }
+
   client->unsubscribeEvent (playerEndPoint, callbackToken);
 
   try {
@@ -432,9 +459,50 @@ ClientHandler::check_zbar_filter ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef zbarFilter = KmsMediaObjectRef();
+  KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaInvocationReturn ret;
+  std::string originalUri = "https://ci.kurento.com/video/barcodes.webm";
+  std::string resultUri;
+  std::string callbackToken;
+  Glib::Mutex mutex;
+  Glib::Cond cond;
+  Glib::TimeVal timeout;
+  gboolean endTimeout;
 
   client->createMediaPipeline (mediaPipeline);
+  createKmsMediaUriEndPointConstructorParams (params, originalUri);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   client->createMediaElement (zbarFilter, mediaPipeline, g_KmsMediaZBarFilterType_constants.TYPE_NAME);
+  client->connectElements (playerEndPoint, zbarFilter);
+
+  mutex.lock();
+  auto f = [&cond, &mutex] (std::string cT, KmsMediaEvent e) {
+    GST_INFO ("zBarFilter: %s received", e.type.c_str() );
+    mutex.lock();
+    cond.signal();
+    mutex.unlock();
+  };
+  handlerTest->setEventFunction (f, g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND);
+
+  client->subscribeEvent (callbackToken, zbarFilter,
+                          g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND,
+                          HANDLER_IP, HANDLER_PORT);
+
+  GST_DEBUG ("callbackToken: %s", callbackToken.c_str () );
+  params.clear();
+  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START,
+                  params);
+  timeout.assign_current_time();
+  timeout += 20;
+  endTimeout = cond.timed_wait (mutex, timeout);
+  mutex.unlock();
+
+  if (!endTimeout) {
+    BOOST_FAIL ("check_zbar_filter_event: Not barcodes detected until timeout");
+  }
+
+  client->unsubscribeEvent (zbarFilter, callbackToken);
   client->release (mediaPipeline);
 }
 
