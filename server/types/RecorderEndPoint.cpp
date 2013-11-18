@@ -41,12 +41,14 @@ RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent,
 
   switch (profile.mediaMuxer) {
   case KmsMediaMuxer::WEBM:
-    g_object_set ( G_OBJECT (element), "profile", "webm", NULL);
+    //value 0 means KMS_RECORDING_PROFILE_WEBM
+    g_object_set ( G_OBJECT (element), "profile", 0, NULL);
     GST_INFO ("Set WEBM profile");
     break;
 
   case KmsMediaMuxer::MP4:
-    g_object_set ( G_OBJECT (element), "profile", "mp4", NULL);
+    //value 1 means KMS_RECORDING_PROFILE_MP4
+    g_object_set ( G_OBJECT (element), "profile", 1, NULL);
     GST_INFO ("Set MP4 profile");
     break;
   }
