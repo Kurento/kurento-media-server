@@ -77,6 +77,7 @@ protected:
 #endif
 
   void check_player_end_point ();
+  void check_player_end_point_signal_errors ();
   void check_recorder_end_point ();
   void check_http_end_point ();
   void check_zbar_filter ();
@@ -414,6 +415,51 @@ ClientHandler::check_player_end_point ()
 }
 
 void
+ClientHandler::check_player_end_point_signal_errors()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaInvocationReturn ret;
+  std::string originalUri = "file:///tmp/f.webm";
+  std::string resultUri;
+  std::string callbackToken;
+  Glib::Mutex mutex;
+  Glib::Cond cond;
+  Glib::TimeVal timeout;
+  gboolean endTimeout;
+
+  client->createMediaPipeline (mediaPipeline);
+  createKmsMediaUriEndPointConstructorParams (params, originalUri);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+
+  mutex.lock();
+  auto f = [&cond, &mutex, this] (std::string cT, KmsMediaError e) {
+    mutex.lock();
+    cond.signal();
+    handlerTest->setErrorFunction ([] (std::string cT, KmsMediaError e) {},
+    "invalid-uri");
+    mutex.unlock();
+  };
+  client->subscribeError (callbackToken, playerEndPoint, HANDLER_IP, HANDLER_PORT);
+  handlerTest->setErrorFunction (f, "invalid-uri");
+  params.clear();
+  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START,
+                  params);
+  timeout.assign_current_time();
+  timeout += 20;
+  endTimeout = cond.timed_wait (mutex, timeout);
+  mutex.unlock();
+
+  if (!endTimeout) {
+    BOOST_FAIL ("check_player_end_point_signal_errors: timeout reached");
+  }
+
+  client->unsubscribeError (playerEndPoint, callbackToken);
+  client->release (mediaPipeline);
+}
+
+void
 ClientHandler::check_recorder_end_point ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
@@ -602,6 +648,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
 #endif
 
   check_player_end_point ();
+  check_player_end_point_signal_errors ();
   check_recorder_end_point ();
   check_http_end_point ();
   check_zbar_filter ();
