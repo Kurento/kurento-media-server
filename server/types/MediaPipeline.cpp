@@ -48,12 +48,18 @@ media_pipeline_receive_message (GstBus *bus, GstMessage *message, gpointer data)
   MediaPipeline *m = (MediaPipeline *) data;
 
   switch (message->type) {
-  case GST_MESSAGE_ERROR:
+  case GST_MESSAGE_ERROR: {
+    GError *err = NULL;
+    gchar *dbg_info = NULL;
+
     GST_ERROR ("Error on bus: %" GST_PTR_FORMAT, message);
     gst_debug_bin_to_dot_file_with_ts (GST_BIN (m->pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "error");
-    m->sendError ("UNEXPECTED_ERROR", "Error on bus", g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR);
-    // TODO: Check if further notification is needed
+    gst_message_parse_error (message, &err, &dbg_info);
+    m->sendError ("UNEXPECTED_ERROR", err->message, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR);
+    g_error_free (err);
+    g_free (dbg_info);
     break;
+  }
 
   default:
     break;
