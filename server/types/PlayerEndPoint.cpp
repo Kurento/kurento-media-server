@@ -37,6 +37,18 @@ player_eos (GstElement *player, PlayerEndPoint *self)
 }
 
 void
+player_invalid_uri (GstElement *player, PlayerEndPoint *self)
+{
+  self->sendError ("invalid-uri", "invalid-uri", g_KmsMediaErrorCodes_constants.CONNECT_ERROR);
+}
+
+void
+player_invalid_media (GstElement *player, PlayerEndPoint *self)
+{
+  self->sendError ("invalid-media", "invalid-media", g_KmsMediaErrorCodes_constants.MEDIA_ERROR);
+}
+
+void
 PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string &uri)
 {
   element = gst_element_factory_make ("playerendpoint", NULL);
@@ -44,6 +56,8 @@ PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent, const std::string &
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 
   g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);
+  g_signal_connect (element, "invalid-uri", G_CALLBACK (player_invalid_uri), this);
+  g_signal_connect (element, "invalid-media", G_CALLBACK (player_invalid_media), this);
 
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);

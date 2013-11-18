@@ -44,6 +44,8 @@ private:
   static StaticConstructor staticConstructor;
 
   friend void player_eos (GstElement *player, PlayerEndPoint *self);
+  friend void player_invalid_uri (GstElement *player, PlayerEndPoint *self);
+  friend void player_invalid_media (GstElement *player, PlayerEndPoint *self);
 };
 
 } // kurento
