@@ -69,24 +69,12 @@ public:
       g_usleep (wait_times++ * 50000);
     }
 
-    timeout = Glib::TimeoutSource::create (RELEASE_TIMEOUT * 1000);
-    timeout->connect (sigc::mem_fun<bool, ObjectReleasing> (this, &ObjectReleasing::timeout) );
-    timeout->attach ();
-
     GST_DEBUG ("Destroying object %" G_GINT64_FORMAT, object->id);
 
     object.reset();
-    timeout->destroy ();
   }
 
   std::shared_ptr <MediaObjectImpl> object;
-
-private:
-
-  bool timeout () {
-    GST_WARNING ("Timeout releasing object %" G_GINT64_FORMAT, this->object->id);
-    return false;
-  }
 };
 
 MediaSet::~MediaSet ()
