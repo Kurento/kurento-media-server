@@ -379,10 +379,11 @@ ClientHandler::check_player_end_point ()
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
 
   mutex.lock();
-  auto f = [&cond, &mutex] (std::string cT, KmsMediaEvent e) {
+  auto f = [&cond, &mutex, this] (std::string cT, KmsMediaEvent e) {
     GST_INFO ("playerEndPoint: %s received", e.type.c_str() );
     mutex.lock();
     cond.signal();
+    handlerTest->deleteEventFunction();
     mutex.unlock();
   };
   handlerTest->setEventFunction (f, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS);
@@ -437,8 +438,7 @@ ClientHandler::check_player_end_point_signal_errors()
   auto f = [&cond, &mutex, this] (std::string cT, KmsMediaError e) {
     mutex.lock();
     cond.signal();
-    handlerTest->setErrorFunction ([] (std::string cT, KmsMediaError e) {},
-    "invalid-uri");
+    handlerTest->deleteErrorFunction();
     mutex.unlock();
   };
   client->subscribeError (callbackToken, playerEndPoint, HANDLER_IP, HANDLER_PORT);
@@ -523,10 +523,11 @@ ClientHandler::check_zbar_filter ()
   client->connectElements (playerEndPoint, zbarFilter);
 
   mutex.lock();
-  auto f = [&cond, &mutex] (std::string cT, KmsMediaEvent e) {
+  auto f = [&cond, &mutex, this] (std::string cT, KmsMediaEvent e) {
     GST_INFO ("zBarFilter: %s received", e.type.c_str() );
     mutex.lock();
     cond.signal();
+    handlerTest->deleteEventFunction();
     mutex.unlock();
   };
   handlerTest->setEventFunction (f, g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND);

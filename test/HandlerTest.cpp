@@ -130,6 +130,14 @@ HandlerTest::setEventFunction (const std::function
 }
 
 void
+HandlerTest::deleteEventFunction()
+{
+  mutex.lock ();
+  this->eventFunc = NULL;
+  mutex.unlock ();
+}
+
+void
 HandlerTest::setErrorFunction (const std::function
                                <void (std::string, KmsMediaError) > &function,
                                std::string waitError)
@@ -137,6 +145,13 @@ HandlerTest::setErrorFunction (const std::function
   mutex.lock ();
   this->waitError = waitError;
   this->errorFunc = function;
+  mutex.unlock ();
+}
+
+void HandlerTest::deleteErrorFunction()
+{
+  mutex.lock ();
+  this->errorFunc = NULL;
   mutex.unlock ();
 }
 

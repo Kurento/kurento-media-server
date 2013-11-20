@@ -41,10 +41,11 @@ public:
   void setEventFunction (const std::function
                               <void (std::string, KmsMediaEvent)> &function,
                          std::string waitEvent);
+  void deleteEventFunction ();
   void setErrorFunction (const std::function
                               <void (std::string, KmsMediaError)> &function,
                          std::string waitError);
-
+  void deleteErrorFunction ();
   void start();
   void stop();
 
