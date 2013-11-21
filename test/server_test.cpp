@@ -464,19 +464,59 @@ ClientHandler::check_recorder_end_point ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef recorderEndPoint = KmsMediaObjectRef();
+  KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
+  std::string callbackToken;
   KmsMediaInvocationReturn ret;
-  const std::string originalUri = "file:///tmp/player_end_point_test.webm";
+  Glib::Mutex mutex;
+  Glib::Cond cond;
+  Glib::TimeVal timeout;
+  gboolean endTimeout;
+  const std::string uriSrc = "https://ci.kurento.com/video/small.webm";
+  const std::string uriDst = "file:///tmp/test/player_end_point_test.webm";
   std::string resultUri;
 
   client->createMediaPipeline (mediaPipeline);
-  createKmsMediaUriEndPointConstructorParams (params, originalUri);
+  createKmsMediaUriEndPointConstructorParams (params, uriSrc);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  params.clear();
+  createKmsMediaUriEndPointConstructorParams (params, uriDst);
   client->createMediaElementWithParams (recorderEndPoint, mediaPipeline, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params);
 
-  client->invoke (ret, recorderEndPoint, g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
+  client->connectElements (playerEndPoint, recorderEndPoint);
 
-  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );;
-  BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
+  client->subscribeError (callbackToken, mediaPipeline, HANDLER_IP, HANDLER_PORT);
+
+  client->invoke (ret, recorderEndPoint, g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
+  BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );
+  BOOST_CHECK_EQUAL (0, uriDst.compare (resultUri) );
+
+
+  mutex.lock();
+  auto f = [&cond, &mutex, this] (std::string cT, KmsMediaError e) {
+    mutex.lock();
+    cond.signal();
+    handlerTest->deleteErrorFunction();
+    mutex.unlock();
+  };
+
+  handlerTest->setErrorFunction (f, "UNEXPECTED_ERROR");
+  params.clear();
+  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START, params);
+
+  params.clear();
+  client->invoke (ret, recorderEndPoint, g_KmsMediaUriEndPointType_constants.START, params);
+
+  timeout.assign_current_time();
+  timeout += 120;
+  endTimeout = cond.timed_wait (mutex, timeout);
+  mutex.unlock();
+
+  if (!endTimeout) {
+    BOOST_FAIL ("check_player_end_point_signal_errors: timeout reached");
+  }
+
+  client->unsubscribeError (mediaPipeline, callbackToken);
 
   client->release (mediaPipeline);
 }
