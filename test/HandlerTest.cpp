@@ -75,6 +75,9 @@ HandlerTest::stop()
   if (server) {
     server->stop();
     server.reset();
+    //TODO: There is a race condition that we have to solve. Sleep is only
+    // a temporal solution.
+    sleep (1);
   }
 }
 
