@@ -27,6 +27,7 @@
 #include "KmsMediaZBarFilterType_constants.h"
 #include "KmsMediaJackVaderFilterType_constants.h"
 #include "KmsMediaPointerDetectorFilterType_constants.h"
+#include "KmsMediaWebRtcEndPointType_constants.h"
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
@@ -83,6 +84,7 @@ protected:
   void check_zbar_filter ();
   void check_jackvader_filter ();
   void check_pointer_detector_filter ();
+  void check_web_rtc_end_point ();
 };
 
 void
@@ -666,6 +668,17 @@ ClientHandler::check_pointer_detector_filter ()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_web_rtc_end_point ()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef webRtcEndPoint = KmsMediaObjectRef();
+
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElement (webRtcEndPoint, mediaPipeline, g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME);
+  client->release (mediaPipeline);
+}
+
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
@@ -695,6 +708,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_zbar_filter ();
   check_jackvader_filter ();
   check_pointer_detector_filter ();
+  check_web_rtc_end_point ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

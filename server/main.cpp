@@ -58,6 +58,8 @@ static std::string serverAddress, httpEPServerAddress,
 static gint serverServicePort, httpEPServerServicePort;
 GstSDPMessage *sdpPattern;
 KmsHttpEPServer *httpepserver;
+std::string stunServerAddress, pemCertificate;
+gint stunServerPort;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create (true);
 static TNonblockingServer *p_server = NULL;
@@ -265,6 +267,49 @@ configure_http_ep_server (KeyFile &configFile)
 }
 
 static void
+configure_web_rtc_end_point (KeyFile &configFile, const std::string &file_name)
+{
+  gint port;
+  std::string pem_certificate_file_name;
+
+  try {
+    stunServerAddress = configFile.get_string (WEB_RTC_END_POINT_GROUP,
+                        WEB_RTC_END_POINT_STUN_SERVER_ADDRESS_KEY);
+  } catch (const Glib::KeyFileError &err) {
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default address %s to stun server",
+                 STUN_SERVER_ADDRESS);
+    stunServerAddress = STUN_SERVER_ADDRESS;
+  }
+
+  try {
+    port = configFile.get_integer (WEB_RTC_END_POINT_GROUP,
+                                   WEB_RTC_END_POINT_STUN_SERVER_PORT_KEY);
+    check_port (port);
+    stunServerPort = port;
+  } catch (const Glib::KeyFileError &err) {
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default port %d to stun server",
+                 STUN_SERVER_PORT);
+    stunServerPort = STUN_SERVER_PORT;
+  }
+
+  try {
+    pem_certificate_file_name = configFile.get_string (WEB_RTC_END_POINT_GROUP,
+                                WEB_RTC_END_POINT_PEM_CERTIFICATE_KEY);
+    boost::filesystem::path p (file_name.c_str () );
+    pem_certificate_file_name.insert (0, "/");
+    pem_certificate_file_name.insert (0, p.parent_path ().c_str() );
+    pemCertificate = pem_certificate_file_name.c_str();
+
+  } catch (const Glib::KeyFileError &err) {
+    pemCertificate = "";
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Pem Certificate not found.");
+  }
+}
+
+static void
 load_config (const std::string &file_name)
 {
   KeyFile configFile;
@@ -289,6 +334,7 @@ load_config (const std::string &file_name)
   /* parse options so as to configure servers */
   configure_kurento_media_server (configFile, file_name);
   configure_http_ep_server (configFile);
+  configure_web_rtc_end_point (configFile, file_name);
 
   GST_INFO ("Configuration loaded successfully");
 }

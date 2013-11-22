@@ -27,6 +27,18 @@ public:
   WebRtcEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
                   const std::map<std::string, KmsMediaParam>& params);
   ~WebRtcEndPoint() throw ();
+
+private:
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
+
+  GstElement *webrtcendpoint;
 };
 
 } // kurento

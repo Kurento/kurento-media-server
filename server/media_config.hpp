@@ -31,11 +31,22 @@
 #define HTTP_EP_SERVER_SERVICE_PORT_KEY MEDIA_SERVER_SERVICE_PORT_KEY
 #define HTTP_EP_SERVER_ANNOUNCED_ADDRESS_KEY "announcedAddress"
 
+#define WEB_RTC_END_POINT_GROUP "WebRtcEndPoint"
+#define WEB_RTC_END_POINT_STUN_SERVER_ADDRESS_KEY "stunServerAddress"
+#define WEB_RTC_END_POINT_STUN_SERVER_PORT_KEY "stunServerPort"
+#define WEB_RTC_END_POINT_PEM_CERTIFICATE_KEY "pemCertificate"
+
 #define MEDIA_SERVER_ADDRESS "localhost"
 #define MEDIA_SERVER_SERVICE_PORT 9090
+
+#define STUN_SERVER_ADDRESS "77.72.174.167"
+#define STUN_SERVER_PORT 0
 
 #define HTTP_EP_SERVER_SERVICE_PORT ((MEDIA_SERVER_SERVICE_PORT) + 1)
 
 extern GstSDPMessage *sdpPattern;
+extern std::string stunServerAddress;
+extern gint stunServerPort;
+extern std::string pemCertificate;
 
 #endif /* __MEDIA_CONFIG_HPP__ */

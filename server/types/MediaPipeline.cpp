@@ -33,7 +33,10 @@
 #include "JackVaderFilter.hpp"
 #include "KmsMediaPointerDetectorFilterType_constants.h"
 #include "PointerDetectorFilter.hpp"
+#include "KmsMediaWebRtcEndPointType_constants.h"
+#include "WebRtcEndPoint.hpp"
 #include "KmsMediaErrorCodes_constants.h"
+
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -127,6 +130,9 @@ throw (KmsMediaServerException)
                 getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaPointerDetectorFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
     element = std::shared_ptr<PointerDetectorFilter> (new PointerDetectorFilter (
+                getMediaSet(), shared_from_this (), params) );
+  } else if (g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+    element = std::shared_ptr<WebRtcEndPoint> (new WebRtcEndPoint (
                 getMediaSet(), shared_from_this (), params) );
   } else {
     KmsMediaServerException except;
