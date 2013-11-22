@@ -56,6 +56,7 @@ private:
   friend MediaSrc::~MediaSrc ();
   friend void MediaSrc::disconnect (MediaSink *mediaSink);
   friend void MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink);
+  friend gboolean link_media_elements(std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> sink);
 };
 
 } // kurento

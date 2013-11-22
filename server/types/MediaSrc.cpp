@@ -23,8 +23,96 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSrc"
 
+#define KEY_DATA_PROPERTY "kms-test-utils-prop"
+
 namespace kurento
 {
+
+
+struct tmp_data {
+  std::weak_ptr<MediaSrc> src;
+  std::weak_ptr<MediaSink> sink;
+  gulong handler;
+};
+
+static void
+destroy_tmp_data (gpointer data, GClosure *closure)
+{
+  struct tmp_data *tmp = (struct tmp_data *) data;
+
+  g_slice_free (struct tmp_data, tmp);
+}
+
+static struct tmp_data *
+create_tmp_data (std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> sink)
+{
+  struct tmp_data *tmp;
+
+  tmp = g_slice_new0 (struct tmp_data);
+
+  tmp->src = std::weak_ptr<MediaSrc> (src);
+  tmp->sink = std::weak_ptr<MediaSink> (sink);
+  tmp->handler = 0L;
+
+  return tmp;
+}
+
+static void
+pad_unlinked (GstPad *pad, GstPad *peer, GstElement *parent)
+{
+  gst_element_release_request_pad (parent, pad);
+}
+
+gboolean
+link_media_elements (std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> sink)
+{
+  bool ret = FALSE;
+  GstPad *pad;
+
+  src->mutex.lock ();
+  pad = gst_element_get_request_pad (src->getElement(), src->getPadName() );
+
+  if (pad == NULL)
+    goto end;
+
+  GST_WARNING ("Connecting pad %s", src->getPadName() );
+
+  g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked),
+                    src->getElement() );
+
+  if (sink->linkPad (src, pad) ) {
+    src->connectedSinks.push_back (std::weak_ptr<MediaSink> (sink) );
+    ret = TRUE;
+  } else {
+    gst_element_release_request_pad (src->getElement(), pad);
+    ret = FALSE;
+  }
+
+  gst_object_unref (pad);
+
+end:
+  src->mutex.unlock ();
+  return ret;
+}
+
+static void
+agnosticbin_added_cb (GstElement *element, gpointer data)
+{
+  struct tmp_data *tmp = (struct tmp_data *) data;
+  std::shared_ptr<MediaSrc> src;
+  std::shared_ptr<MediaSink> sink;
+
+  try {
+    src = tmp->src.lock();
+    sink = tmp->sink.lock();
+
+    if (src && sink && link_media_elements (src, sink) )
+      g_signal_handler_disconnect (element, tmp->handler);
+  } catch (const std::bad_weak_ptr &e) {
+    GST_WARNING ("Removed before connecting");
+    g_signal_handler_disconnect (element, tmp->handler);
+  }
+}
 
 MediaSrc::MediaSrc (std::shared_ptr< kurento::MediaElement > parent, kurento::KmsMediaType::type mediaType)
   : MediaPad (parent, KmsMediaPadDirection::SRC, mediaType)
@@ -64,12 +152,6 @@ MediaSrc::getPadName ()
     return (const gchar *) "video_src_%u";
 }
 
-static void
-pad_unlinked (GstPad *pad, GstPad *peer, GstElement *parent)
-{
-  gst_element_release_request_pad (parent, pad);
-}
-
 void
 MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink) throw (KmsMediaServerException)
 {
@@ -81,6 +163,20 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink) throw (KmsMediaServerEx
   mutex.lock();
 
   pad = gst_element_get_request_pad (getElement(), getPadName() );
+
+  if (pad == NULL) {
+    struct tmp_data *tmp;
+
+    GST_DEBUG ("Put connection off until agnostic bin is created for pad %s",
+               getPadName() );
+    tmp = create_tmp_data (shared_from_this(), mediaSink);
+    tmp->handler = g_signal_connect_data (getElement(), "agnosticbin-added",
+                                          G_CALLBACK (agnosticbin_added_cb), tmp, destroy_tmp_data,
+                                          (GConnectFlags) 0);
+
+    mutex.unlock();
+    return;
+  }
 
   g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked), getElement() );
 

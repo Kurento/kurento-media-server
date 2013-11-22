@@ -52,6 +52,7 @@ private:
   static StaticConstructor staticConstructor;
 
   friend class MediaSink;
+  friend gboolean link_media_elements(std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> sink);
 };
 
 } // kurento
