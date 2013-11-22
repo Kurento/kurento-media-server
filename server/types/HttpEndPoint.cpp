@@ -273,6 +273,7 @@ throw (KmsMediaServerException)
   element = gst_element_factory_make ("httpendpoint", NULL);
 
   g_object_set ( G_OBJECT (element), "is-live", !terminateOnEOS, NULL);
+  g_object_set ( G_OBJECT (element), "accept-eos", terminateOnEOS, NULL);
 
   switch (profile.mediaMuxer) {
   case KmsMediaMuxer::WEBM:
