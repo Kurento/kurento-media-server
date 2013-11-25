@@ -257,14 +257,6 @@ dispose_http_end_point (gpointer data)
 }
 
 void
-kurento_http_end_point_eos_detected_cb (GstElement *element, gpointer data)
-{
-  HttpEndPoint *httpEp = (HttpEndPoint *) data;
-  httpEp->sendEvent (
-    g_KmsMediaHttpEndPointType_constants.EVENT_EOS_DETECTED);
-}
-
-void
 HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent,
                     guint disconnectionTimeout, bool terminateOnEOS,
                     KmsMediaProfile profile)
@@ -291,9 +283,6 @@ throw (KmsMediaServerException)
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
-
-  g_signal_connect (element, "eos-detected",
-                    G_CALLBACK (kurento_http_end_point_eos_detected_cb), this);
 
   this->disconnectionTimeout = disconnectionTimeout;
 
