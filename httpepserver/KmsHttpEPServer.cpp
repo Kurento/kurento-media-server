@@ -461,13 +461,25 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
                                 GstElement *httpep)
 {
   gulong *handlerid;
+  gint profile;
 
   /* TODO: Check wether we support client's capabilities before sending */
   /* back a response code 200 OK. Furthermore, we only provide support  */
   /* for webm in content type response */
   soup_message_set_status (msg, SOUP_STATUS_OK);
-  soup_message_headers_set_content_type (msg->response_headers, "video/webm",
-                                         NULL);
+
+  g_object_get (G_OBJECT (httpep), "profile", &profile, NULL);
+
+  if (profile == 0 /* webm */)
+    soup_message_headers_set_content_type (msg->response_headers, "video/webm",
+                                           NULL);
+  else if (profile == 1 /* mp4 */)
+    soup_message_headers_set_content_type (msg->response_headers, "video/mp4",
+                                           NULL);
+  else
+    soup_message_headers_set_content_type (msg->response_headers, "video/unknown",
+                                           NULL);
+
   soup_message_headers_set_encoding (msg->response_headers,
                                      SOUP_ENCODING_CHUNKED);
 
