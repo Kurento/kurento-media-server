@@ -615,7 +615,7 @@ kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
                                  GstElement *httpep)
 {
   const gchar *content_type;
-  GHashTable *params;
+  GHashTable *params = NULL;
   gulong *handlerid;
   gchar *boundary;
 
