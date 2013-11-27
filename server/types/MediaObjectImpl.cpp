@@ -179,6 +179,12 @@ throw (KmsMediaServerException)
 }
 
 void
+MediaObjectImpl::sendError (const std::shared_ptr<KmsMediaError> &error)
+{
+  mediaHandlerManager.sendError (error);
+}
+
+void
 MediaObjectImpl::sendError (const std::string &errorType,
                             const std::string &description, int32_t errorCode)
 {
@@ -190,6 +196,12 @@ MediaObjectImpl::sendError (const std::string &errorType,
   error->__set_source (*this);
 
   mediaHandlerManager.sendError (error);
+
+  try {
+    this->getParent()->sendError (error);
+  } catch (KmsMediaServerException e) {
+    GST_DEBUG ("No parent");
+  }
 }
 
 MediaObjectImpl::StaticConstructor MediaObjectImpl::staticConstructor;

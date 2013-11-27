@@ -65,6 +65,7 @@ private:
   int32_t garbageCollectorPeriod = g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD;
 
   void init (const std::map<std::string, KmsMediaParam>& params);
+  void sendError (const std::shared_ptr<KmsMediaError> &error);
 
   static KmsMediaEventData defaultKmsMediaEventData;
 
