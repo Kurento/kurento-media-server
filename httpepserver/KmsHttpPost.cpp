@@ -102,6 +102,21 @@ end:
 }
 
 static void
+kms_http_post_release_message (KmsHttpPost *self)
+{
+  if (self->priv->msg == NULL)
+    return;
+
+  if (self->priv->handler_id != 0L) {
+    g_signal_handler_disconnect (self->priv->msg, self->priv->handler_id);
+    self->priv->handler_id = 0L;
+  }
+
+  g_object_unref (self->priv->msg);
+  self->priv->msg = NULL;
+}
+
+static void
 kms_http_post_set_property (GObject *obj, guint prop_id,
                             const GValue *value, GParamSpec *pspec)
 {
@@ -109,8 +124,12 @@ kms_http_post_set_property (GObject *obj, guint prop_id,
 
   switch (prop_id) {
   case PROP_MESSAGE:
-    if (self->priv->msg != NULL)
-      g_object_unref (self->priv->msg);
+    kms_http_post_release_message (self);
+
+    if (self->priv->boundary != NULL) {
+      g_free (self->priv->boundary);
+      self->priv->boundary = NULL;
+    }
 
     self->priv->msg = SOUP_MESSAGE (g_object_ref (g_value_get_object (value) ) );
     kms_http_post_configure_msg (self);
@@ -146,10 +165,7 @@ kms_http_post_dispose (GObject *obj)
 {
   KmsHttpPost *self = KMS_HTTP_POST (obj);
 
-  if (self->priv->msg != NULL) {
-    g_object_unref ( G_OBJECT (self->priv->msg) );
-    self->priv->msg = NULL;
-  }
+  kms_http_post_release_message (self);
 
   /* Chain up to the parent class */
   G_OBJECT_CLASS (kms_http_post_parent_class)->dispose (obj);
@@ -205,4 +221,5 @@ static void
 kms_http_post_init (KmsHttpPost *self)
 {
   self->priv = KMS_HTTP_POST_GET_PRIVATE (self);
+  self->priv->handler_id = 0L;
 }
