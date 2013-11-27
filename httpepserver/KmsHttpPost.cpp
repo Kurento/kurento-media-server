@@ -16,6 +16,7 @@
 #include "KmsHttpPost.h"
 
 #define OBJECT_NAME "HttpPost"
+#define MIME_MULTIPART_FORM_DATA "multipart/form-data"
 
 #define GST_CAT_DEFAULT kms_http_post_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -23,7 +24,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define KMS_HTTP_POST_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_POST, KmsHttpPostPrivate))
 struct _KmsHttpPostPrivate {
   SoupMessage *msg;
-  guint id;
+  gchar *boundary;
+  gulong handler_id;
 };
 
 /* class initialization */
@@ -53,6 +55,53 @@ enum {
 static guint obj_signals[LAST_SIGNAL] = { 0 };
 
 static void
+got_chunk_cb (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
+{
+  GST_DEBUG ("TODO: Process data");
+}
+
+static void
+kms_http_post_configure_msg (KmsHttpPost *self)
+{
+  const gchar *content_type;
+  GHashTable *params = NULL;
+
+  content_type =
+    soup_message_headers_get_content_type (self->priv->msg->request_headers,
+        &params);
+
+  if (content_type == NULL) {
+    GST_WARNING ("Content-type header is not present in request");
+    soup_message_set_status (self->priv->msg, SOUP_STATUS_NOT_ACCEPTABLE);
+    goto end;
+  }
+
+  if (g_strcmp0 (content_type, MIME_MULTIPART_FORM_DATA) == 0) {
+    self->priv->boundary = g_strdup ( (gchar *) g_hash_table_lookup (params,
+                                      "boundary") );
+
+    if (self->priv->boundary == NULL) {
+      GST_WARNING ("Malformed multipart POST request");
+      soup_message_set_status (self->priv->msg, SOUP_STATUS_NOT_ACCEPTABLE);
+      goto end;
+    }
+  }
+
+  soup_message_set_status (self->priv->msg, SOUP_STATUS_OK);
+
+  /* Get chunks without filling-in body's data field after */
+  /* the body is fully sent/received */
+  soup_message_body_set_accumulate (self->priv->msg->request_body, FALSE);
+
+  self->priv->handler_id = g_signal_connect (self->priv->msg, "got-chunk",
+                           G_CALLBACK (got_chunk_cb), self);
+end:
+
+  if (params != NULL)
+    g_hash_table_destroy (params);
+}
+
+static void
 kms_http_post_set_property (GObject *obj, guint prop_id,
                             const GValue *value, GParamSpec *pspec)
 {
@@ -63,8 +112,8 @@ kms_http_post_set_property (GObject *obj, guint prop_id,
     if (self->priv->msg != NULL)
       g_object_unref (self->priv->msg);
 
-    /* TODO: Connect to "got-chunk" signal */
     self->priv->msg = SOUP_MESSAGE (g_object_ref (g_value_get_object (value) ) );
+    kms_http_post_configure_msg (self);
     break;
 
   default:
@@ -109,6 +158,13 @@ kms_http_post_dispose (GObject *obj)
 static void
 kms_http_post_finalize (GObject *obj)
 {
+  KmsHttpPost *self = KMS_HTTP_POST (obj);
+
+  if (self->priv->boundary != NULL) {
+    g_free (self->priv->boundary);
+    self->priv->boundary = NULL;
+  }
+
   /* Chain up to the parent class */
   G_OBJECT_CLASS (kms_http_post_parent_class)->finalize (obj);
 }
