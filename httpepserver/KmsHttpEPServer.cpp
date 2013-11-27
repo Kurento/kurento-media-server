@@ -21,6 +21,7 @@
 #include <nice/interfaces.h>
 
 #include "KmsHttpEPServer.h"
+#include "KmsHttpPost.h"
 #include "kms-enumtypes.h"
 #include "kms-marshal.h"
 

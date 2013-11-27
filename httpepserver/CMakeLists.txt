@@ -19,10 +19,12 @@ find_package(LibSoup REQUIRED)
 
 SET(HTTP_EP_SOURCES
   KmsHttpEPServer.cpp
+  KmsHttpPost.cpp
 )
 
 SET(HTTP_EP_HEADERS
   KmsHttpEPServer.h
+  KmsHttpPost.h
 )
 
 set(ENUM_HEADERS
