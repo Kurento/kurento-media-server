@@ -80,6 +80,7 @@ ZBarFilter::init (std::shared_ptr<MediaPipeline> parent)
   g_object_get (G_OBJECT (element), "filter", &zbar, NULL);
 
   this->zbar = zbar;
+  g_object_set (G_OBJECT (zbar), "qos", FALSE, NULL);
 
   bus_handler_id = g_signal_connect (bus, "message", G_CALLBACK (zbar_receive_message), this);
   g_object_unref (bus);
