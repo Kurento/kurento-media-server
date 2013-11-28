@@ -22,9 +22,15 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define KMS_HTTP_POST_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_POST, KmsHttpPostPrivate))
-struct _KmsHttpPostPrivate {
-  SoupMessage *msg;
+typedef struct _KmsHttpPostMultipart {
   gchar *boundary;
+  gboolean got_boundary;
+  gboolean got_last_boundary;
+} KmsHttpPostMultipart;
+
+struct _KmsHttpPostPrivate {
+  KmsHttpPostMultipart *multipart;
+  SoupMessage *msg;
   gulong handler_id;
 };
 
@@ -61,6 +67,30 @@ got_chunk_cb (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
 }
 
 static void
+kms_http_post_destroy_multipart (KmsHttpPost *self)
+{
+  if (self->priv->multipart == NULL)
+    return;
+
+  if (self->priv->multipart->boundary != NULL)
+    g_free (self->priv->multipart->boundary);
+
+  g_slice_free (KmsHttpPostMultipart, self->priv->multipart);
+  self->priv->multipart = NULL;
+}
+
+static void
+kms_http_post_init_multipart (KmsHttpPost *self)
+{
+  if (self->priv->multipart != NULL) {
+    GST_WARNING ("Multipart data is already initialized");
+    kms_http_post_destroy_multipart (self);
+  }
+
+  self->priv->multipart = g_slice_new0 (KmsHttpPostMultipart);
+}
+
+static void
 kms_http_post_configure_msg (KmsHttpPost *self)
 {
   const gchar *content_type;
@@ -77,11 +107,13 @@ kms_http_post_configure_msg (KmsHttpPost *self)
   }
 
   if (g_strcmp0 (content_type, MIME_MULTIPART_FORM_DATA) == 0) {
-    self->priv->boundary = g_strdup ( (gchar *) g_hash_table_lookup (params,
+    kms_http_post_init_multipart (self);
+    self->priv->multipart->boundary = g_strdup ( (gchar *) g_hash_table_lookup (params,
                                       "boundary") );
 
-    if (self->priv->boundary == NULL) {
+    if (self->priv->multipart->boundary == NULL) {
       GST_WARNING ("Malformed multipart POST request");
+      kms_http_post_destroy_multipart (self);
       soup_message_set_status (self->priv->msg, SOUP_STATUS_NOT_ACCEPTABLE);
       goto end;
     }
@@ -125,12 +157,7 @@ kms_http_post_set_property (GObject *obj, guint prop_id,
   switch (prop_id) {
   case PROP_MESSAGE:
     kms_http_post_release_message (self);
-
-    if (self->priv->boundary != NULL) {
-      g_free (self->priv->boundary);
-      self->priv->boundary = NULL;
-    }
-
+    kms_http_post_destroy_multipart (self);
     self->priv->msg = SOUP_MESSAGE (g_object_ref (g_value_get_object (value) ) );
     kms_http_post_configure_msg (self);
     break;
@@ -176,10 +203,7 @@ kms_http_post_finalize (GObject *obj)
 {
   KmsHttpPost *self = KMS_HTTP_POST (obj);
 
-  if (self->priv->boundary != NULL) {
-    g_free (self->priv->boundary);
-    self->priv->boundary = NULL;
-  }
+  kms_http_post_destroy_multipart (self);
 
   /* Chain up to the parent class */
   G_OBJECT_CLASS (kms_http_post_parent_class)->finalize (obj);
