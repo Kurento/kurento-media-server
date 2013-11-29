@@ -293,14 +293,22 @@ kms_http_post_configure_msg (KmsHttpPost *self)
     goto end;
   }
 
-  if (g_strcmp0 (content_type, MIME_MULTIPART_FORM_DATA) == 0) {
-    kms_http_post_init_multipart (self);
-    self->priv->multipart->boundary = g_strdup ( (gchar *) g_hash_table_lookup (params,
-                                      "boundary") );
+  if (strncmp (content_type, "multipart/", 10) == 0) {
+    if (strlen (content_type) >= 19 &&
+        strncmp (content_type + 11, "form-data", 9) ) {
+      /* Content-Type: multipart/form-data */
+      kms_http_post_init_multipart (self);
+      self->priv->multipart->boundary =
+        g_strdup ( (gchar *) g_hash_table_lookup (params, "boundary") );
 
-    if (self->priv->multipart->boundary == NULL) {
-      GST_WARNING ("Malformed multipart POST request");
-      kms_http_post_destroy_multipart (self);
+      if (self->priv->multipart->boundary == NULL) {
+        GST_WARNING ("Malformed multipart POST request");
+        kms_http_post_destroy_multipart (self);
+        soup_message_set_status (self->priv->msg, SOUP_STATUS_NOT_ACCEPTABLE);
+        goto end;
+      }
+    } else {
+      GST_WARNING ("Unsupported multipart format: %s", content_type);
       soup_message_set_status (self->priv->msg, SOUP_STATUS_NOT_ACCEPTABLE);
       goto end;
     }
