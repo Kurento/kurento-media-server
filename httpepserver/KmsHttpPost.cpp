@@ -12,6 +12,7 @@
  * Lesser General Public License for more details.
  *
  */
+#include <string.h>
 #include <libsoup/soup.h>
 #include "KmsHttpPost.h"
 
@@ -22,10 +23,17 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define KMS_HTTP_POST_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_POST, KmsHttpPostPrivate))
+
+typedef enum {
+  MULTIPART_FIND_BOUNDARY,
+  MULTIPART_READ_HEADERS
+} ParseState;
+
 typedef struct _KmsHttpPostMultipart {
   gchar *boundary;
-  gboolean got_boundary;
-  gboolean got_last_boundary;
+  ParseState state;
+  gchar *tmp_buff;
+  guint len;
 } KmsHttpPostMultipart;
 
 struct _KmsHttpPostPrivate {
@@ -61,9 +69,107 @@ enum {
 static guint obj_signals[LAST_SIGNAL] = { 0 };
 
 static void
+kms_http_post_concat_previous_buffer (KmsHttpPost *self, const char **start,
+                                      const char **end)
+{
+  if (self->priv->multipart->tmp_buff == NULL)
+    return;
+
+  self->priv->multipart->tmp_buff = (char *) g_realloc (
+                                      self->priv->multipart->tmp_buff,
+                                      self->priv->multipart->len + (*end - *start) );
+  memmove (self->priv->multipart->tmp_buff + self->priv->multipart->len,
+           *start, *end - *start);
+  self->priv->multipart->len += (*end - *start);
+
+  *start = self->priv->multipart->tmp_buff;
+  *end = self->priv->multipart->tmp_buff + self->priv->multipart->len;
+}
+
+static void
+kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
+                             const char **end, const char *boundary, int boundary_len)
+{
+  const char *b;
+
+  if (self->priv->multipart->tmp_buff != NULL)
+    kms_http_post_concat_previous_buffer (self, start, end);
+
+  for (b = (const char *) memchr (*start, '-', *end - *start); b != NULL;
+       b = (const char *) memchr (b + 2, '-', *end - (b + 2) ) ) {
+
+    if (b + boundary_len + 4 > *end) {
+      /* boundary does not fit in this buffer */
+      gchar *mem = NULL;
+
+      if (self->priv->multipart->tmp_buff != NULL)
+        mem = self->priv->multipart->tmp_buff;
+
+      self->priv->multipart->tmp_buff = (gchar *) g_memdup (b, *end - b);
+      self->priv->multipart->len = *end - b;
+
+      if (mem != NULL)
+        g_free (mem);
+
+      return;
+    }
+
+    /* Check for "--boundary" */
+    if (b[1] != '-' ||
+        memcmp (b + 2, boundary, boundary_len) != 0)
+      continue;
+
+    /* Check for "--" or "\r\n" after boundary */
+    if ( (b[boundary_len + 2] == '-' && b[boundary_len + 3] == '-') ||
+         (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') ) {
+      self->priv->multipart->state = MULTIPART_READ_HEADERS;
+
+      if (*end <= b + boundary_len + 4) {
+        /* Free temporal buffer */
+        break;
+      }
+
+      *start = b + boundary_len + 4;
+      return;
+    }
+  }
+
+  if (self->priv->multipart->tmp_buff != NULL) {
+    g_free (self->priv->multipart->tmp_buff);
+    self->priv->multipart->tmp_buff = NULL;
+  }
+}
+
+static void
+kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *data,
+                                    const char *end)
+{
+  switch (self->priv->multipart->state) {
+  case MULTIPART_FIND_BOUNDARY:
+    /* skip preamble */
+    kms_http_post_find_boundary (self, &data, &end,
+                                 self->priv->multipart->boundary,
+                                 strlen (self->priv->multipart->boundary) );
+
+    if (self->priv->multipart->state == MULTIPART_FIND_BOUNDARY)
+      break;
+
+  case MULTIPART_READ_HEADERS:
+    /* TODO: Read headers */
+    ;
+  }
+}
+
+static void
 got_chunk_cb (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
 {
-  GST_DEBUG ("TODO: Process data");
+  KmsHttpPost *self = KMS_HTTP_POST (data);
+
+  if (self->priv->multipart == NULL)
+    GST_DEBUG ("Process raw data");
+  else
+    kms_http_post_parse_multipart_data (self, chunk->data,
+                                        chunk->data + chunk->length);
 }
 
 static void
@@ -74,6 +180,9 @@ kms_http_post_destroy_multipart (KmsHttpPost *self)
 
   if (self->priv->multipart->boundary != NULL)
     g_free (self->priv->multipart->boundary);
+
+  if (self->priv->multipart->tmp_buff != NULL)
+    g_free (self->priv->multipart->tmp_buff);
 
   g_slice_free (KmsHttpPostMultipart, self->priv->multipart);
   self->priv->multipart = NULL;
