@@ -26,7 +26,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 typedef enum {
   MULTIPART_FIND_BOUNDARY,
-  MULTIPART_READ_HEADERS
+  MULTIPART_READ_HEADERS,
+  MULTIPART_READ_CONTENT
 } ParseState;
 
 typedef struct _KmsHttpPostMultipart {
@@ -74,6 +75,12 @@ kms_http_post_concat_previous_buffer (KmsHttpPost *self, const char **start,
 {
   if (self->priv->multipart->tmp_buff == NULL)
     return;
+
+  if (self->priv->multipart->tmp_buff <= *start &&
+      *start <= self->priv->multipart->tmp_buff + self->priv->multipart->len) {
+    /* Memory overlap => Do not reallocate more memory in this case */
+    return;
+  }
 
   self->priv->multipart->tmp_buff = (char *) g_realloc (
                                       self->priv->multipart->tmp_buff,
@@ -141,6 +148,72 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
 }
 
 static void
+kms_http_post_parse_header (KmsHttpPost *self, const char *start,
+                            const char *end)
+{
+  gchar *header;
+
+  header = strndup (start, end - start);
+  GST_DEBUG ("TODO Parse header: *%s*", header);
+  g_free (header);
+}
+
+static void
+kms_http_post_read_headers (KmsHttpPost *self, const char **start,
+                            const char **end)
+{
+  const char *b;
+
+  if (self->priv->multipart->tmp_buff != NULL)
+    kms_http_post_concat_previous_buffer (self, start, end);
+
+  b = *start;
+
+  while (b <= *end) {
+    const char *newline = (const char *) memchr (b, '\n', *end - b);
+
+    if (newline == NULL) {
+      /* header does not fit in this buffer */
+      gchar *mem = NULL;
+
+      if (self->priv->multipart->tmp_buff != NULL)
+        mem = self->priv->multipart->tmp_buff;
+
+      self->priv->multipart->tmp_buff = (gchar *) g_memdup (b, *end - b);
+      self->priv->multipart->len = *end - b;
+
+      if (mem != NULL)
+        g_free (mem);
+
+      return;
+    }
+
+    /* Check if this is a blank line */
+    if (newline - b == 1 && b[0] == '\r' && b[1] == '\n') {
+      self->priv->multipart->state = MULTIPART_READ_CONTENT;
+
+      if (*end <= newline + 1) {
+        /* Free temporal buffer */
+        break;
+      }
+
+      *start = newline + 1;
+      return;
+    }
+
+    kms_http_post_parse_header (self, b, newline);
+
+    /* Search next header starting from the next character following '\n' */
+    b = newline + 1;
+  }
+
+  if (self->priv->multipart->tmp_buff != NULL) {
+    g_free (self->priv->multipart->tmp_buff);
+    self->priv->multipart->tmp_buff = NULL;
+  }
+}
+
+static void
 kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *data,
                                     const char *end)
 {
@@ -155,8 +228,13 @@ kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *data,
       break;
 
   case MULTIPART_READ_HEADERS:
-    /* TODO: Read headers */
-    ;
+    kms_http_post_read_headers (self, &data, &end);
+
+    if (self->priv->multipart->state == MULTIPART_READ_HEADERS)
+      break;
+
+  case MULTIPART_READ_CONTENT:
+    GST_DEBUG ("TODO: Read content");
   }
 }
 
