@@ -31,6 +31,7 @@ typedef enum {
 } ParseState;
 
 typedef struct _KmsHttpPostMultipart {
+  SoupMessageHeaders *headers;
   gchar *boundary;
   ParseState state;
   gchar *tmp_buff;
@@ -151,11 +152,51 @@ static void
 kms_http_post_parse_header (KmsHttpPost *self, const char *start,
                             const char *end)
 {
-  gchar *header;
+  const char *name_start, *name_end, *value_start, *value_end, *eol;
+  char *name, *value;
 
-  header = strndup (start, end - start);
-  GST_DEBUG ("TODO Parse header: *%s*", header);
-  g_free (header);
+  name_start = start;
+  name_end = strchr (start, ':');
+
+  /* Reject if there is no ':', or the header name is
+   * empty, or it contains whitespace.
+   */
+  if (name_end == NULL || name_end == name_start ||
+      name_start + strcspn (name_start, " \t\r\n") < name_end) {
+    /* Ignore this line. */
+    return;
+  }
+
+  /* Find the end of the value; ie, an end-of-line that
+   * isn't followed by a continuation line.
+   */
+  value_start = name_end + 1;
+  value_end = strchr (name_start, '\n');
+
+  if (value_end == NULL)
+    return;
+
+  /* Skip leading whitespace */
+  while (value_start < value_end &&
+         (*value_start == ' ' || *value_start == '\t' ||
+          *value_start == '\r' || *value_start == '\n') )
+    value_start++;
+
+  /* clip trailing whitespace */
+  eol = value_end;
+
+  while (eol > value_start &&
+         (eol[-1] == ' ' || eol[-1] == '\t' || eol[-1] == '\r') )
+    eol--;
+
+  name = g_strndup (name_start, name_end - name_start );
+  value = g_strndup (value_start, eol - value_start );
+
+  /* Add new header */
+  soup_message_headers_append (self->priv->multipart->headers, name, value);
+
+  g_free (name);
+  g_free (value);
 }
 
 static void
@@ -259,6 +300,9 @@ kms_http_post_destroy_multipart (KmsHttpPost *self)
   if (self->priv->multipart->boundary != NULL)
     g_free (self->priv->multipart->boundary);
 
+  if (self->priv->multipart->headers != NULL)
+    soup_message_headers_free (self->priv->multipart->headers);
+
   if (self->priv->multipart->tmp_buff != NULL)
     g_free (self->priv->multipart->tmp_buff);
 
@@ -275,6 +319,8 @@ kms_http_post_init_multipart (KmsHttpPost *self)
   }
 
   self->priv->multipart = g_slice_new0 (KmsHttpPostMultipart);
+  self->priv->multipart->headers =
+    soup_message_headers_new (SOUP_MESSAGE_HEADERS_MULTIPART);
 }
 
 static void
