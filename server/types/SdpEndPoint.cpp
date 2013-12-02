@@ -22,6 +22,10 @@
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
 
+#define GST_CAT_DEFAULT kurento_sdp_end_point
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoSdpEndPoint"
+
 namespace kurento
 {
 
@@ -243,6 +247,14 @@ throw (KmsMediaServerException)
                                          handlerPort);
   else
     EndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
+}
+
+SdpEndPoint::StaticConstructor SdpEndPoint::staticConstructor;
+
+SdpEndPoint::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 }
 
 } // kurento

@@ -40,6 +40,16 @@ public:
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
                const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+
+private:
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } // kurento
