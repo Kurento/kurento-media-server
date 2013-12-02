@@ -34,6 +34,9 @@ public:
   void processOffer (std::string &_return, const std::string &offer);
   void getLocalSessionDescription (std::string &_return) throw (KmsMediaServerException);
   void getRemoteSessionDescription (std::string &_return) throw (KmsMediaServerException);
+  void subscribe (std::string &_return, const std::string &eventType,
+                  const std::string &handlerAddress,
+                  const int32_t handlerPort) throw (KmsMediaServerException);
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
                const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);

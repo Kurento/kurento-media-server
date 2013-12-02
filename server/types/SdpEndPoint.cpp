@@ -17,6 +17,7 @@
 
 #include "KmsMediaErrorCodes_constants.h"
 #include "KmsMediaSdpEndPointType_constants.h"
+#include "KmsMediaSessionEndPointType_constants.h"
 #include <gst/sdp/gstsdpmessage.h>
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
@@ -112,6 +113,9 @@ SdpEndPoint::processAnswer (std::string &_return, const std::string &answer)
   gst_sdp_message_free (answerSdp);
 
   getLocalSessionDescription (_return);
+
+  sendEvent (
+    g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START);
 }
 
 void
@@ -133,6 +137,8 @@ SdpEndPoint::processOffer (std::string &_return, const std::string &offer)
 
   sdp_to_str (_return, result);
   gst_sdp_message_free (result);
+
+  sendEvent (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START);
 }
 
 void
@@ -219,6 +225,24 @@ throw (KmsMediaServerException)
   } else {
     EndPoint::invoke (_return, command, params);
   }
+}
+
+void
+SdpEndPoint::subscribe (std::string &_return, const std::string &eventType,
+                        const std::string &handlerAddress,
+                        const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START ==
+      eventType)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE  ==
+           eventType)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  else
+    EndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
 }
 
 } // kurento
