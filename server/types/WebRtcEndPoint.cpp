@@ -34,6 +34,7 @@ WebRtcEndPoint::WebRtcEndPoint (MediaSet &mediaSet,
                  g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME, params)
 {
   element = gst_element_factory_make ("webrtcendpoint", NULL);
+  g_object_set (element, "pattern-sdp", sdpPattern, NULL);
 
   //set properties
   GST_INFO ("stun port %d\n", stunServerPort);
