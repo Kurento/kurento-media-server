@@ -27,7 +27,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 typedef enum {
   MULTIPART_FIND_BOUNDARY,
   MULTIPART_READ_HEADERS,
-  MULTIPART_READ_CONTENT
+  MULTIPART_READ_CONTENT,
+  MULTIPART_FINISHED
 } ParseState;
 
 typedef struct _KmsHttpPostMultipart {
@@ -95,9 +96,17 @@ kms_http_post_concat_previous_buffer (KmsHttpPost *self, const char **start,
 }
 
 static void
-kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
-                             const char **end, const char *boundary, int boundary_len)
+kms_compose_buffer (KmsHttpPost *self, const char *start, const char *end)
 {
+  /*TODO: Compose buffer and emit "got-data" signal */
+}
+
+static void
+kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
+                             const char **end, gboolean ignore)
+{
+  const char *boundary = self->priv->multipart->boundary;
+  int boundary_len = strlen (boundary);
   const char *b;
 
   if (self->priv->multipart->tmp_buff != NULL)
@@ -116,9 +125,15 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
       self->priv->multipart->tmp_buff = (gchar *) g_memdup (b, *end - b);
       self->priv->multipart->len = *end - b;
 
+      /* Notify data read so far */
+      if (!ignore && *start < b)
+        kms_compose_buffer (self, *start, b );
+
       if (mem != NULL)
         g_free (mem);
 
+      /* Move start pointer up to the end */
+      *start = *end;
       return;
     }
 
@@ -130,7 +145,19 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
     /* Check for "--" or "\r\n" after boundary */
     if ( (b[boundary_len + 2] == '-' && b[boundary_len + 3] == '-') ||
          (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') ) {
-      self->priv->multipart->state = MULTIPART_READ_HEADERS;
+
+      if (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') {
+        /* End of this body part */
+        self->priv->multipart->state = MULTIPART_READ_HEADERS;
+      } else {
+        /* Double hyphens at the end of the boundary marks the end */
+        /* of the multipart post requets */
+        self->priv->multipart->state = MULTIPART_FINISHED;
+      }
+
+      /* Notify data read so far */
+      if (!ignore && *start < b)
+        kms_compose_buffer (self, *start, b);
 
       if (*end <= b + boundary_len + 4) {
         /* Free temporal buffer */
@@ -142,10 +169,17 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
     }
   }
 
+  /* Notify data */
+  if (!ignore && b == NULL)
+    kms_compose_buffer (self, *start, *end);
+
   if (self->priv->multipart->tmp_buff != NULL) {
     g_free (self->priv->multipart->tmp_buff);
     self->priv->multipart->tmp_buff = NULL;
   }
+
+  /* Move start pointer up to the end */
+  *start = *end;
 }
 
 static void
@@ -226,6 +260,8 @@ kms_http_post_read_headers (KmsHttpPost *self, const char **start,
       if (mem != NULL)
         g_free (mem);
 
+      /* Move start pointer up to the end */
+      *start = *end;
       return;
     }
 
@@ -252,30 +288,34 @@ kms_http_post_read_headers (KmsHttpPost *self, const char **start,
     g_free (self->priv->multipart->tmp_buff);
     self->priv->multipart->tmp_buff = NULL;
   }
+
+  /* Move start pointer up to the end */
+  *start = *end;
 }
 
 static void
-kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *data,
+kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *start,
                                     const char *end)
 {
-  switch (self->priv->multipart->state) {
-  case MULTIPART_FIND_BOUNDARY:
-    /* skip preamble */
-    kms_http_post_find_boundary (self, &data, &end,
-                                 self->priv->multipart->boundary,
-                                 strlen (self->priv->multipart->boundary) );
-
-    if (self->priv->multipart->state == MULTIPART_FIND_BOUNDARY)
+  while (start != end) {
+    switch (self->priv->multipart->state) {
+    case MULTIPART_FIND_BOUNDARY:
+      /* skip preamble */
+      kms_http_post_find_boundary (self, &start, &end, TRUE);
       break;
 
-  case MULTIPART_READ_HEADERS:
-    kms_http_post_read_headers (self, &data, &end);
-
-    if (self->priv->multipart->state == MULTIPART_READ_HEADERS)
+    case MULTIPART_READ_HEADERS:
+      kms_http_post_read_headers (self, &start, &end);
       break;
 
-  case MULTIPART_READ_CONTENT:
-    GST_DEBUG ("TODO: Read content");
+    case MULTIPART_READ_CONTENT:
+      kms_http_post_find_boundary (self, &start, &end, FALSE);
+      break;
+
+    case MULTIPART_FINISHED:
+      /* Ignore next data if there is any */
+      return;
+    }
   }
 }
 
