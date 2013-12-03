@@ -96,9 +96,15 @@ kms_http_post_concat_previous_buffer (KmsHttpPost *self, const char **start,
 }
 
 static void
-kms_compose_buffer (KmsHttpPost *self, const char *start, const char *end)
+kms_notify_buffer_data (KmsHttpPost *self, const char *start, const char *end)
 {
-  /*TODO: Compose buffer and emit "got-data" signal */
+  SoupBuffer *buffer;
+
+  buffer = soup_buffer_new (SOUP_MEMORY_STATIC, start, end - start);
+
+  g_signal_emit (G_OBJECT (self), obj_signals[GOT_DATA], 0, buffer);
+
+  soup_buffer_free (buffer);
 }
 
 static void
@@ -127,7 +133,7 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
 
       /* Notify data read so far */
       if (!ignore && *start < b)
-        kms_compose_buffer (self, *start, b );
+        kms_notify_buffer_data (self, *start, b );
 
       if (mem != NULL)
         g_free (mem);
@@ -157,7 +163,7 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
 
       /* Notify data read so far */
       if (!ignore && *start < b)
-        kms_compose_buffer (self, *start, b);
+        kms_notify_buffer_data (self, *start, b);
 
       if (*end <= b + boundary_len + 4) {
         /* Free temporal buffer */
@@ -171,7 +177,7 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
 
   /* Notify data */
   if (!ignore && b == NULL)
-    kms_compose_buffer (self, *start, *end);
+    kms_notify_buffer_data (self, *start, *end);
 
   if (self->priv->multipart->tmp_buff != NULL) {
     g_free (self->priv->multipart->tmp_buff);
@@ -516,7 +522,7 @@ kms_http_post_class_init (KmsHttpPostClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (KmsHttpPostClass, got_data), NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
+                  g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, SOUP_TYPE_BUFFER);
 
   /* Registers a private structure for an instantiatable type */
   g_type_class_add_private (klass, sizeof (KmsHttpPostPrivate) );
