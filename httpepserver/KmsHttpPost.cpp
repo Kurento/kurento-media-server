@@ -27,7 +27,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 typedef enum {
   MULTIPART_FIND_BOUNDARY,
   MULTIPART_READ_HEADERS,
+  MULTIPART_CHECK_HEADERS,
   MULTIPART_READ_CONTENT,
+  MULTIPART_IGNORE_CONTENT,
   MULTIPART_FINISHED
 } ParseState;
 
@@ -273,7 +275,7 @@ kms_http_post_read_headers (KmsHttpPost *self, const char **start,
 
     /* Check if this is a blank line */
     if (newline - b == 1 && b[0] == '\r' && b[1] == '\n') {
-      self->priv->multipart->state = MULTIPART_READ_CONTENT;
+      self->priv->multipart->state = MULTIPART_CHECK_HEADERS;
 
       if (*end <= newline + 1) {
         /* Free temporal buffer */
@@ -300,6 +302,34 @@ kms_http_post_read_headers (KmsHttpPost *self, const char **start,
 }
 
 static void
+kms_http_post_check_headers (KmsHttpPost *self)
+{
+  GHashTable *params = NULL;
+  gchar *disposition = NULL;
+
+  if (self->priv->multipart->headers == NULL)
+    return;
+
+  if (!soup_message_headers_get_content_disposition (
+        self->priv->multipart->headers, &disposition, &params) )
+    goto end;
+
+  /* We are only interested in filename param */
+  if (g_hash_table_contains (params, "filename") )
+    self->priv->multipart->state = MULTIPART_READ_CONTENT;
+  else
+    self->priv->multipart->state = MULTIPART_IGNORE_CONTENT;
+
+end:
+
+  if (disposition != NULL)
+    g_free (disposition);
+
+  if (params != NULL)
+    g_hash_table_destroy (params);
+}
+
+static void
 kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *start,
                                     const char *end)
 {
@@ -314,8 +344,26 @@ kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *start,
       kms_http_post_read_headers (self, &start, &end);
       break;
 
+    case MULTIPART_CHECK_HEADERS:
+      kms_http_post_check_headers (self);
+      break;
+
+    case MULTIPART_IGNORE_CONTENT:
+      kms_http_post_find_boundary (self, &start, &end, TRUE);
+
+      if (self->priv->multipart->state != MULTIPART_IGNORE_CONTENT)
+        soup_message_headers_clear (self->priv->multipart->headers);
+
+      break;
+
     case MULTIPART_READ_CONTENT:
       kms_http_post_find_boundary (self, &start, &end, FALSE);
+
+      if (self->priv->multipart->state != MULTIPART_READ_CONTENT) {
+        /* Do not process anything else */
+        self->priv->multipart->state = MULTIPART_FINISHED;
+      }
+
       break;
 
     case MULTIPART_FINISHED:
