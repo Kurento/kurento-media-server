@@ -25,7 +25,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define KMS_HTTP_POST_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_POST, KmsHttpPostPrivate))
 
 typedef enum {
-  MULTIPART_FIND_BOUNDARY,
+  MULTIPART_INITIAL_STAGE,
+  MULTIPART_SKIP_PREAMBLE,
   MULTIPART_READ_HEADERS,
   MULTIPART_CHECK_HEADERS,
   MULTIPART_READ_CONTENT,
@@ -110,8 +111,8 @@ kms_notify_buffer_data (KmsHttpPost *self, const char *start, const char *end)
 }
 
 static void
-kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
-                             const char **end, gboolean ignore)
+kms_http_post_skip_preamble (KmsHttpPost *self, const char **start,
+                             const char **end)
 {
   const char *boundary = self->priv->multipart->boundary;
   int boundary_len = strlen (boundary);
@@ -120,10 +121,83 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
   if (self->priv->multipart->tmp_buff != NULL)
     kms_http_post_concat_previous_buffer (self, start, end);
 
-  for (b = (const char *) memchr (*start, '-', *end - *start); b != NULL;
-       b = (const char *) memchr (b + 2, '-', *end - (b + 2) ) ) {
+  b = (const char *) memchr (*start, '-', *end - *start);
 
-    if (b + boundary_len + 4 > *end) {
+  if (b == NULL || b != *start) {
+    /*first line of the body is not the boundary tag */
+    self->priv->multipart->state = MULTIPART_IGNORE_CONTENT;
+    return;
+  }
+
+  if (b + boundary_len + 4 > *end) {
+    /* boundary does not fit in this buffer */
+    gchar *mem = NULL;
+
+    if (self->priv->multipart->tmp_buff != NULL)
+      mem = self->priv->multipart->tmp_buff;
+
+    self->priv->multipart->tmp_buff = (gchar *) g_memdup (b, *end - b);
+    self->priv->multipart->len = *end - b;
+
+    if (mem != NULL)
+      g_free (mem);
+
+    /* Move start pointer up to the end */
+    *start = *end;
+    return;
+  }
+
+  /* Check for "--boundary" */
+  if (b[1] != '-' ||
+      memcmp (b + 2, boundary, boundary_len) != 0) {
+    /*first line of the body is not the boundary tag */
+    self->priv->multipart->state = MULTIPART_IGNORE_CONTENT;
+    return;
+  }
+
+  /* Check for "--" or "\r\n" after boundary */
+  if ( (b[boundary_len + 2] == '-' && b[boundary_len + 3] == '-') ||
+       (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') ) {
+
+    if (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') {
+      /* End of this body part */
+      self->priv->multipart->state = MULTIPART_READ_HEADERS;
+    } else {
+      /* Double hyphens at the end of the boundary marks the end */
+      /* of the multipart post requets */
+      self->priv->multipart->state = MULTIPART_FINISHED;
+    }
+  }
+
+  if (*end > b + boundary_len + 4) {
+    *start = b + boundary_len + 4;
+    return;
+  }
+
+  if (self->priv->multipart->tmp_buff != NULL) {
+    g_free (self->priv->multipart->tmp_buff);
+    self->priv->multipart->tmp_buff = NULL;
+  }
+
+  /* Move start pointer up to the end */
+  *start = *end;
+}
+
+static void
+kms_http_post_read_until_boundary (KmsHttpPost *self, const char **start,
+                                   const char **end, gboolean ignore)
+{
+  const char *boundary = self->priv->multipart->boundary;
+  int boundary_len = strlen (boundary);
+  const char *b;
+
+  if (self->priv->multipart->tmp_buff != NULL)
+    kms_http_post_concat_previous_buffer (self, start, end);
+
+  for (b = (const char *) memchr (*start, '\r', *end - *start); b != NULL;
+       b = (const char *) memchr (b + 1, '\r', *end - (b + 1) ) ) {
+
+    if (b + boundary_len + 6 > *end) {
       /* boundary does not fit in this buffer */
       gchar *mem = NULL;
 
@@ -145,16 +219,16 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
       return;
     }
 
-    /* Check for "--boundary" */
-    if (b[1] != '-' ||
-        memcmp (b + 2, boundary, boundary_len) != 0)
+    /* Check for "\r\n--boundary" */
+    if (b[1] != '\n' || b[2] != '-' || b[3] != '-' ||
+        memcmp (b + 4, boundary, boundary_len) != 0)
       continue;
 
     /* Check for "--" or "\r\n" after boundary */
-    if ( (b[boundary_len + 2] == '-' && b[boundary_len + 3] == '-') ||
-         (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') ) {
+    if ( (b[boundary_len + 4] == '-' && b[boundary_len + 5] == '-') ||
+         (b[boundary_len + 4] == '\r' && b[boundary_len + 5] == '\n') ) {
 
-      if (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') {
+      if (b[boundary_len + 4] == '\r' && b[boundary_len + 5] == '\n') {
         /* End of this body part */
         self->priv->multipart->state = MULTIPART_READ_HEADERS;
       } else {
@@ -167,12 +241,12 @@ kms_http_post_find_boundary (KmsHttpPost *self, const char **start,
       if (!ignore && *start < b)
         kms_notify_buffer_data (self, *start, b);
 
-      if (*end <= b + boundary_len + 4) {
+      if (*end <= b + boundary_len + 6) {
         /* Free temporal buffer */
         break;
       }
 
-      *start = b + boundary_len + 4;
+      *start = b + boundary_len + 6;
       return;
     }
   }
@@ -330,14 +404,47 @@ end:
 }
 
 static void
+kms_http_post_check_preamble (KmsHttpPost *self, const char **start,
+                              const char **end)
+{
+  if (*end - *start < 1)
+    return;
+
+  if (*start[0] == '\r') {
+    /* Multipart without preamble */
+    self->priv->multipart->state = MULTIPART_IGNORE_CONTENT;
+    return;
+  }
+
+  /* RFC 1341 7.2.1 Multipart: The common syntax */
+
+  /* Note that the encapsulation boundary must occur at the beginning of a line,
+   * i.e., following a CRLF, and that initial CRLF is considered to be part of
+   * the encapsulation boundary rather than part of the preceding part.
+   * The requirement that the encapsulation boundary begins with a CRLF implies
+   * that the body of a multipart entity must itself begin with a CRLF before
+   * the first encapsulation line -- that is, if the "preamble" area is not
+   * used, the entity headers must be followed by TWO CRLFs. This is indeed how
+   * such entities should be composed. A tolerant mail reading program, however,
+   * may interpret a body of type multipart that begins with an encapsulation
+   * line NOT initiated by a CRLF as also being an encapsulation boundary
+   */
+
+  self->priv->multipart->state = MULTIPART_SKIP_PREAMBLE;
+}
+
+static void
 kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *start,
                                     const char *end)
 {
   while (start != end) {
     switch (self->priv->multipart->state) {
-    case MULTIPART_FIND_BOUNDARY:
-      /* skip preamble */
-      kms_http_post_find_boundary (self, &start, &end, TRUE);
+    case MULTIPART_INITIAL_STAGE:
+      kms_http_post_check_preamble (self, &start, &end);
+      break;
+
+    case MULTIPART_SKIP_PREAMBLE:
+      kms_http_post_skip_preamble (self, &start, &end);
       break;
 
     case MULTIPART_READ_HEADERS:
@@ -349,7 +456,7 @@ kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *start,
       break;
 
     case MULTIPART_IGNORE_CONTENT:
-      kms_http_post_find_boundary (self, &start, &end, TRUE);
+      kms_http_post_read_until_boundary (self, &start, &end, TRUE);
 
       if (self->priv->multipart->state != MULTIPART_IGNORE_CONTENT)
         soup_message_headers_clear (self->priv->multipart->headers);
@@ -357,7 +464,7 @@ kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *start,
       break;
 
     case MULTIPART_READ_CONTENT:
-      kms_http_post_find_boundary (self, &start, &end, FALSE);
+      kms_http_post_read_until_boundary (self, &start, &end, FALSE);
 
       if (self->priv->multipart->state != MULTIPART_READ_CONTENT) {
         /* Do not process anything else */
