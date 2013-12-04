@@ -485,11 +485,15 @@ got_chunk_cb (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
 {
   KmsHttpPost *self = KMS_HTTP_POST (data);
 
-  if (self->priv->multipart == NULL)
-    GST_DEBUG ("Process raw data");
-  else
+  if (self->priv->multipart != NULL) {
+    /* Extract data from body parts */
     kms_http_post_parse_multipart_data (self, chunk->data,
                                         chunk->data + chunk->length);
+  } else {
+    /* Data received in a non multipart POST request is */
+    /* provided as it is without any further processing */
+    kms_notify_buffer_data (self, chunk->data, chunk->data + chunk->length);
+  }
 }
 
 static void
