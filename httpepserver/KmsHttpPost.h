@@ -88,4 +88,6 @@ struct _KmsHttpPostClass
 /* used by KMS_TYPE_HTTP_POST */
 GType kms_http_post_get_type (void);
 
+KmsHttpPost * kms_http_post_new ();
+
 #endif /* __KMS_HTTP_POST_H__ */

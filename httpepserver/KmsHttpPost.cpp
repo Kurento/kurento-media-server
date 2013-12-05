@@ -719,3 +719,13 @@ kms_http_post_init (KmsHttpPost *self)
 {
   self->priv = KMS_HTTP_POST_GET_PRIVATE (self);
 }
+
+KmsHttpPost *
+kms_http_post_new ()
+{
+  KmsHttpPost *obj;
+
+  obj = KMS_HTTP_POST (g_object_new (KMS_TYPE_HTTP_POST, NULL) );
+
+  return obj;
+}
