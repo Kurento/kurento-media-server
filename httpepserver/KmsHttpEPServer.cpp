@@ -109,7 +109,7 @@ struct sample_data {
 static gchar *
 get_address ()
 {
-  gchar *addressStr;
+  gchar *addressStr = NULL;
   GList *ips, *l;
   gboolean done = FALSE;
 
@@ -145,6 +145,9 @@ get_address ()
   }
 
   g_list_free_full (ips, g_free);
+
+  if (addressStr == NULL)
+    addressStr = g_strdup ("0.0.0.0");
 
   return addressStr;
 }
