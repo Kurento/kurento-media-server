@@ -624,8 +624,13 @@ kms_http_post_set_property (GObject *obj, guint prop_id,
   case PROP_MESSAGE:
     kms_http_post_release_message (self);
     kms_http_post_destroy_multipart (self);
-    self->priv->msg = SOUP_MESSAGE (g_object_ref (g_value_get_object (value) ) );
-    kms_http_post_configure_msg (self);
+
+    if (SOUP_IS_MESSAGE (g_value_get_object (value) ) ) {
+      self->priv->msg = SOUP_MESSAGE (g_object_ref (
+                                        g_value_get_object (value) ) );
+      kms_http_post_configure_msg (self);
+    }
+
     break;
 
   default:

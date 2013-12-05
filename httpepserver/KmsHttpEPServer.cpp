@@ -34,7 +34,7 @@
 
 #define KEY_HTTP_EP_SERVER "kms-http-ep-server"
 #define KEY_NEW_SAMPLE_HANDLER_ID "kms-new-sample-handler-id"
-#define KEY_GOT_CHUNK_HANDLER_ID "kms-got-chunk-handler-id"
+#define KEY_GOT_DATA_HANDLER_ID "kms-got-data-handler-id"
 #define KEY_FINISHED_HANDLER_ID "kms-finish-handler-id"
 #define KEY_EOS_HANDLER_ID "kms-eos-handler-id"
 #define KEY_TIMEOUT_ID "kms-timeout-id"
@@ -43,6 +43,7 @@
 #define KEY_MESSAGE "kms-message"
 #define KEY_COOKIE "kms-cookie"
 
+#define KEY_PARAM_POST_CONTROLLER "kms-post-controller"
 #define KEY_PARAM_TIMEOUT "kms-param-timeout"
 
 #define GST_CAT_DEFAULT kms_http_ep_server_debug_category
@@ -448,6 +449,8 @@ uninstall_http_get_signals (GstElement *httpep)
     GST_DEBUG ("Disconnecting new-sample signal with id %lu from %p ",
                *handlerid, (gpointer) httpep);
     g_signal_handler_disconnect (httpep, *handlerid);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_NEW_SAMPLE_HANDLER_ID, NULL,
+                            NULL);
   }
 
   handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
@@ -457,6 +460,134 @@ uninstall_http_get_signals (GstElement *httpep)
     GST_DEBUG ("Disconnecting eos signal with id %lu from %p ",
                *handlerid, (gpointer) httpep);
     g_signal_handler_disconnect (httpep, *handlerid);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_EOS_HANDLER_ID, NULL, NULL);
+  }
+}
+
+static void
+got_post_data_cb (KmsHttpPost *post_obj, SoupBuffer *buffer, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+  GstFlowReturn ret;
+  GstBuffer *new_buffer;
+  GstMemory *memory;
+  GstMapInfo info;
+
+  new_buffer = gst_buffer_new ();
+  memory = gst_allocator_alloc (NULL, buffer->length, NULL);
+  gst_buffer_append_memory (new_buffer, memory);
+
+  gst_buffer_map (new_buffer, &info, GST_MAP_WRITE);
+  memcpy (info.data, buffer->data, info.size);
+  gst_buffer_unmap (new_buffer, &info);
+
+  g_signal_emit_by_name (httpep, "push-buffer", new_buffer, &ret);
+
+  if (ret != GST_FLOW_OK) {
+    /* something wrong */
+    GST_ERROR ("Could not send buffer to httpep %s. Ret code %d",
+               GST_ELEMENT_NAME (httpep), ret);
+  }
+
+  gst_buffer_unref (new_buffer);
+}
+
+static void
+finished_post_cb (KmsHttpPost *post_obj, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+  GstFlowReturn ret;
+  gpointer param;
+
+  GST_DEBUG ("POST finished");
+
+  g_signal_emit_by_name (httpep, "end-of-stream", &ret);
+
+  if (ret != GST_FLOW_OK) {
+    // something wrong
+    GST_ERROR ("Could not send EOS to %s. Ret code %d",
+               GST_ELEMENT_NAME (httpep), ret);
+  }
+
+  param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
+
+  if (SOUP_IS_MESSAGE (param) ) {
+    emit_expiration_signal (SOUP_MESSAGE (param), httpep);
+    g_object_unref (G_OBJECT (param) );
+  }
+}
+
+static void
+install_http_post_signals (GstElement *httpep)
+{
+  KmsHttpPost *post_obj;
+  gulong *handlerid;
+
+  post_obj = (KmsHttpPost *) g_object_get_data (G_OBJECT (httpep),
+             KEY_PARAM_POST_CONTROLLER);
+
+  if (post_obj == NULL)
+    return;
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_GOT_DATA_HANDLER_ID);
+
+  if (handlerid == NULL) {
+    handlerid = g_slice_new (gulong);
+    *handlerid = g_signal_connect (post_obj, "got-data",
+                                   G_CALLBACK (got_post_data_cb), httpep);
+    GST_DEBUG ("Installing got-data signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_GOT_DATA_HANDLER_ID,
+                            handlerid, (GDestroyNotify) destroy_ulong);
+  }
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_FINISHED_HANDLER_ID);
+
+  if (handlerid == NULL) {
+    handlerid = g_slice_new (gulong);
+    *handlerid = g_signal_connect (post_obj, "finished",
+                                   G_CALLBACK (finished_post_cb), httpep);
+    GST_DEBUG ("Installing finished signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_FINISHED_HANDLER_ID,
+                            handlerid, (GDestroyNotify) destroy_ulong);
+  }
+}
+
+static void
+uninstall_http_post_signals (GstElement *httpep)
+{
+  KmsHttpPost *post_obj;
+  gulong *handlerid;
+
+  post_obj = (KmsHttpPost *) g_object_get_data (G_OBJECT (httpep),
+             KEY_PARAM_POST_CONTROLLER);
+
+  if (post_obj == NULL)
+    return;
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_GOT_DATA_HANDLER_ID);
+
+  if (handlerid != NULL) {
+    GST_DEBUG ("Disconnecting got-data signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_signal_handler_disconnect (post_obj, *handlerid);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_GOT_DATA_HANDLER_ID, NULL,
+                            NULL);
+  }
+
+  handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
+              KEY_FINISHED_HANDLER_ID);
+
+  if (handlerid != NULL) {
+    GST_DEBUG ("Disconnecting finished signal with id %lu from %p ",
+               *handlerid, (gpointer) httpep);
+    g_signal_handler_disconnect (post_obj, *handlerid);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_FINISHED_HANDLER_ID, NULL,
+                            NULL);
   }
 }
 
@@ -502,187 +633,22 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
 }
 
 static void
-find_content_part (const gchar *start, const gchar *end,
-                   const gchar **content_start, const gchar **content_end,
-                   const gchar *boundary)
-{
-  const char *b, *c;
-  int boundary_len;
-
-  boundary_len = g_utf8_strlen (boundary, -1);
-  *content_start = NULL;
-  *content_end = NULL;
-
-  for (b = (const char *) memchr (start, '-', end - start);
-       b && b + boundary_len + 4 < end; b = (const char *) memchr (b + 2, '-', end - (b + 2) ) ) {
-    /* Check for "--boundary" */
-    if (b[1] != '-' || g_str_has_prefix (boundary, b + 2) != 0)
-      continue;
-
-    /* Check that it's at start of line */
-    if (! (b == start || (b[-1] == '\n' && b[-2] == '\r') ) )
-      continue;
-
-    /* Check for "--" or "\r\n" after boundary */
-    if (b[boundary_len + 2] == '-' && b[boundary_len + 3] == '-') {
-      *content_end = b - 2;
-    } else if (b[boundary_len + 2] == '\r' && b[boundary_len + 3] == '\n') {
-      *content_start = b + boundary_len + 3;
-    }
-  }
-
-  if (*content_start != NULL) {
-    for (c = (const char *) memchr (*content_start, '\r', end - *content_start);
-         c < end; c = (const char *) memchr (c + 4, '\r', end - (c + 2) ) ) {
-      if (c[1] == '\n' && c[2] == '\r' && c[3] == '\n') {
-        *content_start = c + 4;
-        break;
-      }
-    }
-  }
-}
-
-static void
-got_chunk_handler (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
-{
-  const gchar *content_start = NULL, *content_end = NULL;
-  gchar *boundary = (gchar *) g_object_get_data (G_OBJECT (msg), KEY_BOUNDARY);
-  GstElement *httpep = GST_ELEMENT (data);
-  gconstpointer copy_from;
-  GstFlowReturn ret;
-  GstBuffer *buffer;
-  GstMemory *memory;
-  GstMapInfo info;
-  gint len = 0;
-
-  guint method;
-
-  GST_INFO ("Chunk callback.");
-
-  if (boundary != NULL)
-    find_content_part (chunk->data, chunk->data + chunk->length, &content_start,
-                       &content_end, boundary);
-
-  if (content_start != NULL) {
-    if (content_end != NULL)
-      len = content_end - content_start;
-    else
-      len = chunk->length - (content_start - chunk->data);
-
-    copy_from = content_start;
-  } else if (content_end != NULL) {
-    len = content_end - chunk->data;
-    copy_from = chunk->data;
-  } else {
-    len = chunk->length;
-    copy_from = chunk->data;
-  }
-
-  buffer = gst_buffer_new ();
-  memory = gst_allocator_alloc (NULL, len, NULL);
-  gst_buffer_append_memory (buffer, memory);
-
-  gst_buffer_map (buffer, &info, GST_MAP_WRITE);
-
-  memcpy (info.data, copy_from, info.size);
-  gst_buffer_unmap (buffer, &info);
-
-  g_object_get (G_OBJECT (httpep), "http-method", &method, NULL);
-
-  g_signal_emit_by_name (httpep, "push-buffer", buffer, &ret);
-
-  if (ret != GST_FLOW_OK) {
-    /* something wrong */
-    GST_ERROR ("Could not send buffer to httpep %s. Ret code %d",
-               GST_ELEMENT_NAME (httpep), ret);
-  }
-
-  gst_buffer_unref (buffer);
-}
-
-static void
-finished_post_processing (SoupMessage *msg, gpointer data)
-{
-  GstElement *httpep = GST_ELEMENT (data);
-  GstFlowReturn ret;
-  gpointer param;
-
-  GST_DEBUG ("POST finished");
-  msg_finished (msg);
-
-  g_signal_emit_by_name (httpep, "end-of-stream", &ret);
-
-  if (ret != GST_FLOW_OK) {
-    // something wrong
-    GST_ERROR ("Could not send EOS to %s. Ret code %d",
-               GST_ELEMENT_NAME (httpep), ret);
-  }
-
-  param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
-
-  if (param != NULL)
-    g_object_unref (G_OBJECT (param) );
-
-  emit_expiration_signal (msg, httpep);
-}
-
-static void
 kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
                                  GstElement *httpep)
 {
-  const gchar *content_type;
-  GHashTable *params = NULL;
-  gulong *handlerid;
-  gchar *boundary;
+  KmsHttpPost *post_obj;
 
-  content_type =
-    soup_message_headers_get_content_type (msg->request_headers, &params);
+  post_obj = (KmsHttpPost *) g_object_get_data (G_OBJECT (httpep),
+             KEY_PARAM_POST_CONTROLLER);
 
-  if (content_type == NULL) {
-    GST_WARNING ("Content-type header is not present in request");
-    soup_message_set_status (msg, SOUP_STATUS_NOT_ACCEPTABLE);
-    goto end;
+  if (post_obj == NULL) {
+    post_obj = kms_http_post_new ();
+    g_object_set_data_full (G_OBJECT (httpep), KEY_PARAM_POST_CONTROLLER,
+                            post_obj, g_object_unref);
   }
 
-  if (!g_str_has_prefix ("multipart/", content_type) )
-    goto get_chunks;
-
-  boundary = g_strdup ( (gchar *) g_hash_table_lookup (params, "boundary") );
-
-  if (boundary == NULL) {
-    GST_WARNING ("Malformed multipart POST request");
-    soup_message_set_status (msg, SOUP_STATUS_NOT_ACCEPTABLE);
-    goto end;
-  }
-
-  g_object_set_data_full (G_OBJECT (msg), KEY_BOUNDARY, boundary, g_free);
-
-get_chunks:
-
-  soup_message_set_status (msg, SOUP_STATUS_OK);
-
-  /* Get chunks without filling-in body's data field after */
-  /* the body is fully sent/received */
-  soup_message_body_set_accumulate (msg->request_body, FALSE);
-
-  msg_add_finished_property (msg);
-
-  handlerid = g_slice_new (gulong);
-  *handlerid = g_signal_connect (msg, "got-chunk",
-                                 G_CALLBACK (got_chunk_handler), httpep);
-  g_object_set_data_full (G_OBJECT (msg), KEY_GOT_CHUNK_HANDLER_ID, handlerid,
-                          (GDestroyNotify) destroy_ulong);
-
-  handlerid = g_slice_new (gulong);
-  *handlerid = g_signal_connect (msg, "finished",
-                                 G_CALLBACK (finished_post_processing), httpep);
-  g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED_HANDLER_ID, handlerid,
-                          (GDestroyNotify) destroy_ulong);
-
-end:
-
-  if (params != NULL)
-    g_hash_table_destroy (params);
+  install_http_post_signals (httpep);
+  g_object_set (G_OBJECT (post_obj), "soup-message", msg, NULL);
 }
 
 static void
@@ -726,14 +692,14 @@ kms_http_ep_server_stop_impl (KmsHttpEPServer *self)
 static void
 destroy_pending_message (SoupMessage *msg)
 {
-  gulong *handlerid;
+  KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (g_object_get_data (G_OBJECT (msg),
+                          KEY_HTTP_EP_SERVER) );
+  GstElement *httpep = kms_http_ep_server_get_ep_from_msg (serv, msg);
 
   GST_DEBUG ("Destroy pending message %" GST_PTR_FORMAT, (gpointer) msg);
 
   if (msg->method == SOUP_METHOD_GET) {
-    KmsHttpEPServer *serv = KMS_HTTP_EP_SERVER (
-                              g_object_get_data (G_OBJECT (msg), KEY_HTTP_EP_SERVER) );
-    GstElement *httpep = kms_http_ep_server_get_ep_from_msg (serv, msg);
+    gulong *handlerid;
 
     if (httpep != NULL) {
       /* Drop internal media flowing in the piepline */
@@ -742,19 +708,25 @@ destroy_pending_message (SoupMessage *msg)
 
     soup_server_unpause_message (serv->priv->server, msg);
     soup_message_body_complete (msg->response_body);
-  } else if (msg->method == SOUP_METHOD_POST) {
+
+    /* Do not call to finished callback */
     handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
-                KEY_GOT_CHUNK_HANDLER_ID);
+                KEY_FINISHED_HANDLER_ID);
     g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
+
+  } else if (msg->method == SOUP_METHOD_POST) {
+    KmsHttpPost *post_obj = NULL;
+
+    if (httpep != NULL)
+      post_obj = (KmsHttpPost *) g_object_get_data (G_OBJECT (httpep),
+                 KEY_PARAM_POST_CONTROLLER);
+
+    if (post_obj != NULL)
+      g_object_set (G_OBJECT (post_obj), "soup-message", NULL, NULL);
   }
 
   /* Force to remove http server reference */
   g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER, NULL, NULL);
-
-  /* Do not call to finished callback */
-  handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
-              KEY_FINISHED_HANDLER_ID);
-  g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
 
   /* Remove internal msg reference */
   g_object_unref (G_OBJECT (msg) );
@@ -879,7 +851,8 @@ got_headers_handler (SoupMessage *msg, gpointer data)
 
   /* Bind message life cicle to this httpendpoint */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
-                          g_object_ref (G_OBJECT (msg) ), (GDestroyNotify) destroy_pending_message);
+                          g_object_ref (G_OBJECT (msg) ),
+                          (GDestroyNotify) destroy_pending_message);
 
   /* Common parameters used for both, get and post operations */
   g_object_set_data_full (G_OBJECT (msg), KEY_HTTP_EP_SERVER,
@@ -1089,6 +1062,7 @@ kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
 
   httpep = (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
   uninstall_http_get_signals (httpep);
+  uninstall_http_post_signals (httpep);
 
   remove_timeout (httpep);
 
