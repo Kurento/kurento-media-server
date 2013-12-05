@@ -82,6 +82,7 @@ struct _KmsHttpPostClass
 
   /* signal callbacks */
   void (*got_data) (KmsHttpPost * self, SoupBuffer *buffer);
+  void (*finished) (KmsHttpPost * self);
 };
 
 /* used by KMS_TYPE_HTTP_POST */

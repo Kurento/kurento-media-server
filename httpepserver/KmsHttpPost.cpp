@@ -45,7 +45,8 @@ typedef struct _KmsHttpPostMultipart {
 struct _KmsHttpPostPrivate {
   KmsHttpPostMultipart *multipart;
   SoupMessage *msg;
-  gulong handler_id;
+  gulong chunk_id;
+  gulong finish_id;
 };
 
 /* class initialization */
@@ -69,6 +70,7 @@ static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 /* signals */
 enum {
   GOT_DATA,
+  FINISHED,
   LAST_SIGNAL
 };
 
@@ -529,6 +531,37 @@ kms_http_post_init_multipart (KmsHttpPost *self)
 }
 
 static void
+kms_http_post_release_message (KmsHttpPost *self)
+{
+  if (self->priv->msg == NULL)
+    return;
+
+  if (self->priv->chunk_id != 0L) {
+    g_signal_handler_disconnect (self->priv->msg, self->priv->chunk_id);
+    self->priv->chunk_id = 0L;
+  }
+
+  if (self->priv->finish_id != 0L) {
+    g_signal_handler_disconnect (self->priv->msg, self->priv->finish_id);
+    self->priv->finish_id = 0L;
+  }
+
+  g_object_unref (self->priv->msg);
+  self->priv->msg = NULL;
+}
+
+static void
+finished_cb (SoupMessage *msg, gpointer data)
+{
+  KmsHttpPost *self = KMS_HTTP_POST (data);
+
+  kms_http_post_release_message (self);
+  kms_http_post_destroy_multipart (self);
+
+  g_signal_emit (G_OBJECT (self), obj_signals[FINISHED], 0, NULL);
+}
+
+static void
 kms_http_post_configure_msg (KmsHttpPost *self)
 {
   const gchar *content_type;
@@ -571,27 +604,14 @@ kms_http_post_configure_msg (KmsHttpPost *self)
   /* the body is fully sent/received */
   soup_message_body_set_accumulate (self->priv->msg->request_body, FALSE);
 
-  self->priv->handler_id = g_signal_connect (self->priv->msg, "got-chunk",
-                           G_CALLBACK (got_chunk_cb), self);
+  self->priv->chunk_id = g_signal_connect (self->priv->msg, "got-chunk",
+                         G_CALLBACK (got_chunk_cb), self);
+  self->priv->finish_id = g_signal_connect (self->priv->msg, "finished",
+                          G_CALLBACK (finished_cb), self);
 end:
 
   if (params != NULL)
     g_hash_table_destroy (params);
-}
-
-static void
-kms_http_post_release_message (KmsHttpPost *self)
-{
-  if (self->priv->msg == NULL)
-    return;
-
-  if (self->priv->handler_id != 0L) {
-    g_signal_handler_disconnect (self->priv->msg, self->priv->handler_id);
-    self->priv->handler_id = 0L;
-  }
-
-  g_object_unref (self->priv->msg);
-  self->priv->msg = NULL;
 }
 
 static void
@@ -683,6 +703,13 @@ kms_http_post_class_init (KmsHttpPostClass *klass)
                   G_STRUCT_OFFSET (KmsHttpPostClass, got_data), NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, SOUP_TYPE_BUFFER);
 
+  obj_signals[FINISHED] =
+    g_signal_new ("finished",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (KmsHttpPostClass, finished), NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0, NULL);
+
   /* Registers a private structure for an instantiatable type */
   g_type_class_add_private (klass, sizeof (KmsHttpPostPrivate) );
 }
@@ -691,5 +718,4 @@ static void
 kms_http_post_init (KmsHttpPost *self)
 {
   self->priv = KMS_HTTP_POST_GET_PRIVATE (self);
-  self->priv->handler_id = 0L;
 }
