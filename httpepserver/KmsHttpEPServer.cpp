@@ -61,7 +61,8 @@ struct _KmsHttpEPServerPrivate {
 
 static GType http_t = G_TYPE_INVALID;
 
-#define KMS_IS_EXPECTED_TYPE(obj, objtype) (G_TYPE_CHECK_INSTANCE_TYPE((obj),(objtype)))
+#define KMS_IS_EXPECTED_TYPE(obj, objtype) \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),(objtype)))
 
 /* class initialization */
 
@@ -83,7 +84,8 @@ enum {
 
 #define KMS_HTTP_EP_SERVER_DEFAULT_PORT 0
 #define KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE NULL
-#define KMS_HTTP_EP_SERVER_DEFAULT_ANNOUNCED_ADDRESS KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE
+#define KMS_HTTP_EP_SERVER_DEFAULT_ANNOUNCED_ADDRESS \
+  KMS_HTTP_EP_SERVER_DEFAULT_INTERFACE
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
@@ -356,7 +358,8 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
 
   id = g_slice_new (guint);
   *id = g_timeout_add_full (G_PRIORITY_DEFAULT, t_timeout * 1000,
-                            emit_expiration_signal_cb, g_object_ref (G_OBJECT (msg) ), g_object_unref);
+                            emit_expiration_signal_cb,
+                            g_object_ref (G_OBJECT (msg) ), g_object_unref);
   g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, id,
                           (GDestroyNotify) destroy_guint);
 }
@@ -419,8 +422,8 @@ install_http_get_signals (GstElement *httpep)
                                    G_CALLBACK (new_sample_handler), NULL);
     GST_DEBUG ("Installing new-sample signal with id %lu from %p ",
                *handlerid, (gpointer) httpep);
-    g_object_set_data_full (G_OBJECT (httpep), KEY_NEW_SAMPLE_HANDLER_ID, handlerid,
-                            (GDestroyNotify) destroy_ulong);
+    g_object_set_data_full (G_OBJECT (httpep), KEY_NEW_SAMPLE_HANDLER_ID,
+                            handlerid, (GDestroyNotify) destroy_ulong);
   }
 
   handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
@@ -606,14 +609,14 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   g_object_get (G_OBJECT (httpep), "profile", &profile, NULL);
 
   if (profile == 0 /* webm */)
-    soup_message_headers_set_content_type (msg->response_headers, "video/webm",
-                                           NULL);
+    soup_message_headers_set_content_type (msg->response_headers,
+                                           "video/webm", NULL);
   else if (profile == 1 /* mp4 */)
-    soup_message_headers_set_content_type (msg->response_headers, "video/mp4",
-                                           NULL);
+    soup_message_headers_set_content_type (msg->response_headers,
+                                           "video/mp4", NULL);
   else
-    soup_message_headers_set_content_type (msg->response_headers, "video/unknown",
-                                           NULL);
+    soup_message_headers_set_content_type (msg->response_headers,
+                                           "video/unknown", NULL);
 
   soup_message_headers_set_encoding (msg->response_headers,
                                      SOUP_ENCODING_CHUNKED);
@@ -935,17 +938,20 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
 
   case SOUP_STATUS_CANCELLED:
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
-                 HTTPEPSERVER_RESOLVE_CANCELED_ERROR, "Domain name resolution canceled");
+                 HTTPEPSERVER_RESOLVE_CANCELED_ERROR,
+                 "Domain name resolution canceled");
     break;
 
   case SOUP_STATUS_CANT_RESOLVE:
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
-                 HTTPEPSERVER_CANT_RESOLVE_ERROR, "Domain name can not be resolved");
+                 HTTPEPSERVER_CANT_RESOLVE_ERROR,
+                 "Domain name can not be resolved");
     break;
 
   default:
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
-                 HTTPEPSERVER_UNEXPECTED_ERROR, "Domain name can not be resolved");
+                 HTTPEPSERVER_UNEXPECTED_ERROR,
+                 "Domain name can not be resolved");
     break;
   }
 
@@ -985,7 +991,8 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
 
   soup_address_resolve_async (addr, NULL,
                               NULL /* FIXME: Add cancellable support */,
-                              (SoupAddressCallback) soup_address_callback, rdata);
+                              (SoupAddressCallback) soup_address_callback,
+                              rdata);
 }
 
 static void
@@ -1022,7 +1029,8 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
   }
 
   if (!KMS_IS_EXPECTED_TYPE (endpoint, http_t) ) {
-    GST_ERROR ("Element %s is not an httpendpoint", GST_ELEMENT_NAME (endpoint) );
+    GST_ERROR ("Element %s is not an httpendpoint",
+               GST_ELEMENT_NAME (endpoint) );
     return NULL;
   }
 
@@ -1237,23 +1245,25 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
     g_signal_new ("action-requested",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (KmsHttpEPServerClass, action_requested), NULL, NULL,
-                  kms_marshal_VOID__STRING_ENUM, G_TYPE_NONE, 2, G_TYPE_STRING,
-                  GST_TYPE_HTTP_END_POINT_ACTION);
+                  G_STRUCT_OFFSET (KmsHttpEPServerClass, action_requested),
+                  NULL, NULL, kms_marshal_VOID__STRING_ENUM, G_TYPE_NONE, 2,
+                  G_TYPE_STRING, GST_TYPE_HTTP_END_POINT_ACTION);
 
   obj_signals[URL_REMOVED] =
     g_signal_new ("url-removed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (KmsHttpEPServerClass, url_removed), NULL, NULL,
-                  g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
+                  G_STRUCT_OFFSET (KmsHttpEPServerClass, url_removed), NULL,
+                  NULL, g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   obj_signals[URL_EXPIRED] =
     g_signal_new ("url-expired",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (KmsHttpEPServerClass, url_expired), NULL, NULL,
-                  g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1, G_TYPE_STRING);
+                  G_STRUCT_OFFSET (KmsHttpEPServerClass, url_expired), NULL,
+                  NULL, g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   /* Registers a private structure for an instantiatable type */
   g_type_class_add_private (klass, sizeof (KmsHttpEPServerPrivate) );

@@ -22,7 +22,8 @@
 #define GST_CAT_DEFAULT kms_http_post_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
-#define KMS_HTTP_POST_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_POST, KmsHttpPostPrivate))
+#define KMS_HTTP_POST_GET_PRIVATE(obj) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_POST, KmsHttpPostPrivate))
 
 typedef enum {
   MULTIPART_INITIAL_STAGE,
@@ -706,7 +707,8 @@ kms_http_post_class_init (KmsHttpPostClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (KmsHttpPostClass, got_data), NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, SOUP_TYPE_BUFFER);
+                  g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1,
+                  SOUP_TYPE_BUFFER);
 
   obj_signals[FINISHED] =
     g_signal_new ("finished",
