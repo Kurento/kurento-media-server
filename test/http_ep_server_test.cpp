@@ -28,6 +28,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define DISCONNECTION_TIMEOUT 2 /* seconds */
 
 #define HTTP_GET "GET"
+#define HTTP_POST "POST"
 #define DEFAULT_PORT 9091
 #define DEFAULT_HOST "localhost"
 
@@ -718,6 +719,245 @@ BOOST_AUTO_TEST_CASE ( expired_cookie_http_end_point_test )
   gst_object_unref (GST_OBJECT (pipeline) );
   g_source_remove (bus_watch_id1);
 
+  tear_down_test_case ();
+}
+
+
+/**********************************/
+/*           POST tests           */
+/**********************************/
+
+#define TEST_PARAM_URI "test-param-url"
+
+static guint use_cases = 7;
+static guint cases_counted = 0;
+
+static const gchar *boundary = "----WebKitFormBoundaryaxGqVIPtg0lAjCrV";
+static const gchar *body1 =
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"mytext\"\r\n"
+  "\r\n"
+  "This text must be ignored\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"testName\"\r\n"
+  "\r\n"
+  "This text is processsed because of the filename attribute in headers\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV--\r\n";
+
+static const gchar *body2 =
+  "\r\n------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"testName\"\r\n"
+  "\r\n"
+  "Test with a body starting with a blank line preceding the boundary\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV--\r\n";
+
+static const gchar *body3 =
+  "This is the preamble.  It is to be ignored, though it "
+  "is a handy place for mail composers to include an "
+  "explanatory note to non-MIME compliant readers.\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"testName\"\r\n"
+  "\r\n"
+  "This is the key data in the body with preamble\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"mytext\"\r\n"
+  "\r\n"
+  "This text must be ignored\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV--\r\n";
+
+static const gchar *body4 =
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"mytext\"\r\n"
+  "\r\n"
+  "This text must be ignored\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"name1\"\r\n"
+  "\r\n"
+  "This is the first piece of data that uses filename attribute\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"name2\"\r\n"
+  "\r\n"
+  "This portion of data should be ignored\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV--\r\n";
+
+static const gchar *body5 =
+  "--This is the preamble starting with two hyphens.\r\n"
+  "This preamble conatins new lines characters and \r\n"
+  "it also contains the boundary ------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"mytext\"\r\n"
+  "\r\n"
+  "This text must be ignored\r\n"
+  "\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"name1\"\r\n"
+  "\r\n"
+  "Valid data\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"name2\"\r\n"
+  "\r\n"
+  "This portion of data should be ignored\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV--\r\n";
+
+static const gchar *body6 =
+  "--This is the preamble starting with two hyphens.\r\n"
+  "This preamble conatins new lines characters and \r\n"
+  "it also contains the boundary ------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV\r\n"
+  "Content-Disposition: form-data; name=\"testFile\"; filename=\"name1\"\r\n"
+  "\r\n"
+  "Valid data with only a portion of data in the multipart body\r\n"
+  "------WebKitFormBoundaryaxGqVIPtg0lAjCrV--\r\n";
+
+static void
+check_test_finish ()
+{
+  if (++cases_counted != use_cases)
+    return;
+
+  GST_INFO ("Finishing test");
+  g_main_loop_quit (loop);
+}
+
+static GstElement *
+register_http_endpoint ()
+{
+  GstElement *httpep;
+  const gchar *uri;
+
+  httpep = gst_element_factory_make ("httpendpoint", NULL);
+  BOOST_CHECK ( httpep != NULL );
+
+  uri = kms_http_ep_server_register_end_point (httpepserver, httpep,
+        DISCONNECTION_TIMEOUT);
+  BOOST_CHECK (uri != NULL);
+
+  g_object_set_data_full (G_OBJECT (httpep), TEST_PARAM_URI,
+                          g_strndup (uri, strlen (uri) ), g_free);
+
+  return httpep;
+}
+
+static void
+unregister_http_endpoint (GstElement *httpep)
+{
+  gchar *uri;
+
+  uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
+  BOOST_CHECK (uri != NULL);
+
+  BOOST_CHECK (kms_http_ep_server_unregister_end_point (httpepserver, uri) );
+}
+
+static void
+http_post_req_expected_failed (SoupSession *session, SoupMessage *msg, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+
+  BOOST_CHECK (msg->status_code == SOUP_STATUS_NOT_ACCEPTABLE);
+
+  unregister_http_endpoint (httpep);
+
+  check_test_finish ();
+}
+
+static void
+http_post_req (SoupSession *session, SoupMessage *msg, gpointer data)
+{
+  GstElement *httpep = GST_ELEMENT (data);
+
+  BOOST_CHECK (msg->status_code == SOUP_STATUS_OK);
+
+  unregister_http_endpoint (httpep);
+
+  check_test_finish ();
+}
+
+static void
+send_malformed_post_request ()
+{
+  GstElement *httpep;
+  SoupMessage *msg;
+  gchar *url, *uri;
+
+  httpep = register_http_endpoint ();
+  uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
+
+  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
+
+  GST_INFO ("Send " HTTP_POST " %s", url);
+
+  msg = soup_message_new (HTTP_POST, url);
+  soup_message_headers_set_content_type (msg->request_headers,
+                                         "multipart/form-data",
+                                         NULL);
+  soup_session_queue_message (session, msg,
+                              http_post_req_expected_failed, httpep);
+
+  g_free (url);
+}
+
+static void
+send_post_request (const gchar *body)
+{
+  GstElement *httpep;
+  GHashTable *params;
+  SoupMessage *msg;
+  gchar *url, *uri;
+
+  httpep = register_http_endpoint ();
+  uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
+
+  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
+  params = g_hash_table_new_full (g_str_hash,  g_str_equal, g_free, g_free);
+  g_hash_table_insert (params,
+                       g_strdup_printf ("%s", "boundary"),
+                       g_strdup_printf ("%s", boundary) );
+
+  GST_INFO ("Send " HTTP_POST " %s", url);
+
+  msg = soup_message_new (HTTP_POST, url);
+  soup_message_set_request (msg, "multipart/form-data", SOUP_MEMORY_STATIC,
+                            body, strlen (body) );
+  soup_message_headers_set_content_type (msg->request_headers,
+                                         "multipart/form-data",
+                                         params);
+  soup_session_queue_message (session, msg, http_post_req, httpep);
+
+  g_free (url);
+  g_hash_table_unref (params);
+}
+
+static void
+post_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    g_main_loop_quit (loop);
+    return;
+  }
+
+  send_malformed_post_request ();
+  send_post_request (body1);
+  send_post_request (body2);
+  send_post_request (body3);
+  send_post_request (body4);
+  send_post_request (body5);
+  send_post_request (body6);
+}
+
+BOOST_AUTO_TEST_CASE ( post_http_end_point_test )
+{
+  init_test_case ();
+
+  kms_http_ep_server_start (httpepserver, post_http_server_start_cb);
+
+  g_main_loop_run (loop);
+
+  GST_DEBUG ("Test finished");
+
+  /* Stop Http End Point Server and destroy it */
+  kms_http_ep_server_stop (httpepserver);
   tear_down_test_case ();
 }
 
