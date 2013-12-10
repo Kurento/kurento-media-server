@@ -12,7 +12,7 @@ START_DAEMON=true
 # Additional options that are passed to the Daemon.
 DAEMON_OPTS=""
 
-export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:/usr/lib/gst-kurento-plugins
+export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:/usr/lib/gst-kurento-plugins:/usr/lib/kms-dtls-plugins
 
 # Next line enables debug for some kurento classes it can be modified to change
 # log level and logged tags
