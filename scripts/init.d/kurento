@@ -1,7 +1,7 @@
 ### BEGIN INIT INFO
 # Provides:          kurentod
-# Required-Start:    $local_fs networking
-# Required-Stop:     $local_fs
+# Required-Start:    $remote_fs $network
+# Required-Stop:     $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Kurento Media Server daemon
@@ -131,6 +131,11 @@ case "$1" in
     ;;
 
   restart)
+    $0 stop
+    $0 start
+    ;;
+
+  force-reload)
     $0 stop
     $0 start
     ;;
