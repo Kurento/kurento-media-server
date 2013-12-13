@@ -29,6 +29,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define HTTP_GET "GET"
 #define HTTP_POST "POST"
+#define HTTP_OPTIONS "OPTIONS"
+
 #define DEFAULT_PORT 9091
 #define DEFAULT_HOST "localhost"
 
@@ -955,6 +957,129 @@ BOOST_AUTO_TEST_CASE ( post_http_end_point_test )
   g_main_loop_run (loop);
 
   GST_DEBUG ("Test finished");
+
+  /* Stop Http End Point Server and destroy it */
+  kms_http_ep_server_stop (httpepserver);
+  tear_down_test_case ();
+}
+
+/**********************************/
+/*         Options tests          */
+/**********************************/
+
+#define KMS_HTTP_END_POINT_METHOD_GET 0
+#define KMS_HTTP_END_POINT_METHOD_POST 1
+
+static GstElement *get_pipeline;
+static GstElement *get_http;
+const gchar *allow_expected = "GET, POST";
+
+static void
+options_register_http_endpoint (GstElement *httpep)
+{
+  const gchar *uri;
+
+  uri = kms_http_ep_server_register_end_point (httpepserver, httpep,
+        DISCONNECTION_TIMEOUT);
+  BOOST_CHECK (uri != NULL);
+
+  g_object_set_data_full (G_OBJECT (httpep), TEST_PARAM_URI,
+                          g_strndup (uri, strlen (uri) ), g_free);
+}
+
+static void
+create_get_pipeline ()
+{
+  GstElement *videotestsrc, *audiotestsrc, *timeoverlay, *encoder, *aencoder;
+  guint method;
+
+  get_pipeline = gst_pipeline_new ("src-pipeline");
+  videotestsrc = gst_element_factory_make ("videotestsrc", NULL);
+  encoder = gst_element_factory_make ("vp8enc", NULL);
+  aencoder = gst_element_factory_make ("vorbisenc", NULL);
+  timeoverlay = gst_element_factory_make ("timeoverlay", NULL);
+  audiotestsrc = gst_element_factory_make ("audiotestsrc", NULL);
+  get_http = gst_element_factory_make ("httpendpoint", NULL);
+
+  GST_DEBUG ("Configuring GET pipeline");
+  gst_bin_add_many (GST_BIN (get_pipeline), videotestsrc, timeoverlay,
+                    audiotestsrc, encoder, aencoder, get_http, NULL);
+  gst_element_link (videotestsrc, timeoverlay);
+  gst_element_link (timeoverlay, encoder);
+  gst_element_link (audiotestsrc, aencoder);
+  gst_element_link_pads (encoder, NULL, get_http, "video_sink");
+  gst_element_link_pads (aencoder, NULL, get_http, "audio_sink");
+
+  gst_element_set_state (get_pipeline, GST_STATE_READY);
+
+  g_object_get (G_OBJECT (get_http), "http-method", &method, NULL);
+  GST_INFO ("Http end point configured as %d", method);
+  BOOST_CHECK (method == KMS_HTTP_END_POINT_METHOD_GET);
+
+  options_register_http_endpoint (get_http);
+}
+
+static void
+http_options_req (SoupSession *session, SoupMessage *msg, gpointer data)
+{
+  const gchar *expected = (gchar *) data;
+  const gchar *method;
+
+  BOOST_CHECK (msg->status_code == SOUP_STATUS_OK);
+
+  method = soup_message_headers_get_one (msg->response_headers, "Allow");
+  BOOST_CHECK (method != NULL);
+
+  BOOST_CHECK (g_strcmp0 (method, expected) == 0);
+
+  g_main_loop_quit (loop);
+}
+
+static void
+send_option_request (GstElement *httpep, const gchar *expected)
+{
+  SoupMessage *msg;
+  gchar *url, *uri;
+
+  uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
+
+  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
+
+  GST_INFO ("Send " HTTP_OPTIONS " %s", url);
+
+  msg = soup_message_new (HTTP_OPTIONS, url);
+
+  soup_session_queue_message (session, msg, http_options_req,
+                              (gpointer) expected);
+
+  g_free (url);
+}
+
+static void
+options_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    g_main_loop_quit (loop);
+    return;
+  }
+
+  create_get_pipeline ();
+  send_option_request (get_http, allow_expected);
+}
+
+BOOST_AUTO_TEST_CASE ( options_http_end_point_test )
+{
+  init_test_case ();
+
+  kms_http_ep_server_start (httpepserver, options_http_server_start_cb);
+
+  g_main_loop_run (loop);
+
+  GST_DEBUG ("Test finished");
+
+  gst_element_set_state (get_pipeline, GST_STATE_NULL);
+  gst_object_unref (GST_OBJECT (get_pipeline) );
 
   /* Stop Http End Point Server and destroy it */
   kms_http_ep_server_stop (httpepserver);
