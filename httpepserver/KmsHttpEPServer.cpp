@@ -836,6 +836,20 @@ kms_http_ep_server_manage_cookie_session (KmsHttpEPServer *self,
 }
 
 static void
+kms_http_ep_server_options_handler (KmsHttpEPServer *self, SoupMessage *msg,
+                                    GstElement *httpep)
+{
+  soup_message_headers_append (msg->response_headers, "Allow", "GET, POST");
+
+  soup_message_set_status (msg, SOUP_STATUS_OK);
+
+  /* We allow access from all domains. This is generally not appropriate */
+  /* TODO: Provide a configuration file containing all allowed domains */
+  soup_message_headers_append (msg->response_headers,
+                               "Access-Control-Allow-Origin", "*");
+}
+
+static void
 got_headers_handler (SoupMessage *msg, gpointer data)
 {
   KmsHttpEndPointAction action = KMS_HTTP_END_POINT_ACTION_UNDEFINED;
@@ -877,6 +891,9 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   } else if (msg->method == SOUP_METHOD_POST) {
     kms_http_ep_server_post_handler (self, msg, httpep);
     action = KMS_HTTP_END_POINT_ACTION_POST;
+  } else if (msg->method == SOUP_METHOD_OPTIONS) {
+    kms_http_ep_server_options_handler (self, msg, httpep);
+    return;
   } else {
     GST_WARNING ("HTTP operation %s is not allowed", msg->method);
     soup_message_set_status_full (msg, SOUP_STATUS_METHOD_NOT_ALLOWED,
