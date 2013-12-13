@@ -505,14 +505,12 @@ kms_http_post_destroy_multipart (KmsHttpPost *self)
   if (self->priv->multipart == NULL)
     return;
 
-  if (self->priv->multipart->boundary != NULL)
-    g_free (self->priv->multipart->boundary);
+  g_free (self->priv->multipart->boundary);
 
   if (self->priv->multipart->headers != NULL)
     soup_message_headers_free (self->priv->multipart->headers);
 
-  if (self->priv->multipart->tmp_buff != NULL)
-    g_free (self->priv->multipart->tmp_buff);
+  g_free (self->priv->multipart->tmp_buff);
 
   g_slice_free (KmsHttpPostMultipart, self->priv->multipart);
   self->priv->multipart = NULL;
@@ -547,8 +545,7 @@ kms_http_post_release_message (KmsHttpPost *self)
     self->priv->finish_id = 0L;
   }
 
-  g_object_unref (self->priv->msg);
-  self->priv->msg = NULL;
+  g_clear_object (&self->priv->msg);
 }
 
 static void

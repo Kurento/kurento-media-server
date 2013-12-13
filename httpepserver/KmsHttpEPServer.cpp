@@ -1105,15 +1105,9 @@ kms_http_ep_server_finalize (GObject *obj)
 
   GST_DEBUG_OBJECT (self, "finalize");
 
-  if (self->priv->iface) {
-    g_free (self->priv->iface);
-    self->priv->iface = NULL;
-  }
+  g_free (self->priv->iface);
 
-  if (self->priv->announcedAddr) {
-    g_free (self->priv->announcedAddr);
-    self->priv->announcedAddr = NULL;
-  }
+  g_free (self->priv->announcedAddr);
 
   if (self->priv->handlers != NULL) {
     kms_http_ep_server_remove_handlers (self);
