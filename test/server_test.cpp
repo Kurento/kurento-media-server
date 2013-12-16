@@ -29,6 +29,7 @@
 #include "KmsMediaPointerDetectorFilterType_constants.h"
 #include "KmsMediaWebRtcEndPointType_constants.h"
 #include "KmsMediaPlateDetectorFilterType_constants.h"
+#include "KmsMediaFaceOverlayFilterType_constants.h"
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
@@ -87,6 +88,7 @@ protected:
   void check_pointer_detector_filter ();
   void check_web_rtc_end_point ();
   void check_plate_detector_filter();
+  void check_face_overlay_filter();
 };
 
 void
@@ -652,6 +654,8 @@ ClientHandler::check_pointer_detector_filter ()
   window.width = 15;
   window.height = 15;
   window.id = "new";
+  window.overlayImageUri = "/tmp/image.png";
+  window.overlayTransparency = 0.2;
 
   //marshalling data
   createStructParam (param, window, g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
@@ -734,6 +738,44 @@ ClientHandler::check_plate_detector_filter()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_face_overlay_filter()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef faceOverlay = KmsMediaObjectRef();
+  KmsMediaObjectRef playerEndPoint = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaInvocationReturn ret;
+  std::string originalUri = "https://ci.kurento.com/video/fiwarecut.webm";
+  std::string resultUri;
+  KmsMediaFaceOverlayImage image;
+  KmsMediaParam param;
+
+  client->createMediaPipeline (mediaPipeline);
+  createKmsMediaUriEndPointConstructorParams (params, originalUri);
+  client->createMediaElementWithParams (playerEndPoint,
+                                        mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElement (faceOverlay, mediaPipeline,
+                              g_KmsMediaFaceOverlayFilterType_constants.TYPE_NAME);
+
+  client->connectElements (playerEndPoint, faceOverlay);
+
+  image.offsetXPercent = 0.0;
+  image.offsetYPercent = 0.0;
+  image.widthPercent = 1.0;
+  image.heightPercent = 1.0;
+  image.uri = "/tmp/img.png";
+
+  //marshalling data
+  createStructParam (param, image, g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY_PARAM_IMAGE);
+  params[g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY_PARAM_IMAGE] = param;
+
+  client->invoke (ret, faceOverlay, g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY, params);
+
+  client->release (mediaPipeline);
+}
+
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
@@ -765,6 +807,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_pointer_detector_filter ();
   check_web_rtc_end_point ();
   check_plate_detector_filter();
+  check_face_overlay_filter ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

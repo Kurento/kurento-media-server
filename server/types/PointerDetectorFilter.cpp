@@ -119,6 +119,7 @@ PointerDetectorFilter::PointerDetectorFilter (
     for (auto it = windowSet.windows.begin(); it != windowSet.windows.end(); ++it) {
       KmsMediaPointerDetectorWindow windowInfo = *it;
       GstStructure *buttonsLayoutAux;
+
       buttonsLayoutAux = gst_structure_new (
                            windowInfo.id.c_str(),
                            "upRightCornerX", G_TYPE_INT, windowInfo.topRightCornerX,
@@ -127,6 +128,17 @@ PointerDetectorFilter::PointerDetectorFilter (
                            "height", G_TYPE_INT, windowInfo.height,
                            "id", G_TYPE_STRING, windowInfo.id.c_str(),
                            NULL);
+
+      if (windowInfo.__isset.overlayImageUri) {
+        gst_structure_set (buttonsLayoutAux, "uri",
+                           G_TYPE_STRING, windowInfo.overlayImageUri.c_str(), NULL);
+      }
+
+      if (windowInfo.__isset.overlayTransparency) {
+        gst_structure_set (buttonsLayoutAux, "transparency",
+                           G_TYPE_DOUBLE, windowInfo.overlayTransparency, NULL);
+      }
+
       gst_structure_set (buttonsLayout,
                          windowInfo.id.c_str(), GST_TYPE_STRUCTURE, buttonsLayoutAux,
                          NULL);
@@ -190,6 +202,16 @@ PointerDetectorFilter::addWindow (KmsMediaPointerDetectorWindow window)
                        "height", G_TYPE_INT, window.height,
                        "id", G_TYPE_STRING, window.id.c_str(),
                        NULL);
+
+  if (window.__isset.overlayImageUri) {
+    gst_structure_set (buttonsLayoutAux, "uri",
+                       G_TYPE_STRING, window.overlayImageUri.c_str(), NULL);
+  }
+
+  if (window.__isset.overlayTransparency) {
+    gst_structure_set (buttonsLayoutAux, "transparency",
+                       G_TYPE_DOUBLE, window.overlayTransparency, NULL);
+  }
 
   /* The function obtains the actual window list */
   g_object_get (G_OBJECT (pointerDetector), WINDOWS_LAYOUT, &buttonsLayout, NULL);
