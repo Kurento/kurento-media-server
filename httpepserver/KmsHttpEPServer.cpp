@@ -854,7 +854,7 @@ got_headers_handler (SoupMessage *msg, gpointer data)
   }
 
   if (!kms_http_ep_server_manage_cookie_session (self, httpep, msg, path) ) {
-    GST_TRACE ("Request declined because of a cookie error");
+    GST_WARNING ("Request declined because of a cookie error");
     soup_message_set_status_full (msg, SOUP_STATUS_BAD_REQUEST,
                                   "Invalid cookie");
     return;
