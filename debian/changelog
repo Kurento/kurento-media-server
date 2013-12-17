@@ -1,0 +1,1415 @@
+kurento (2.0.0) saucy; urgency=low
+
+  [ Miguel París Díaz ]
+  * Update implementation for new thrift interface
+  * Add utilities to marshal and unmarshal strings
+  * Implement PlayerEndPoint creation
+  * Implement RecorderEndPoint creation
+  * Implement GET_URI command in UriEndPoint
+  * Add test for PlayerEndPoint
+  * Add test for RecorderEndPoint
+  * Enable test for checking media server version
+  * Add test for using a released MediaPipeline
+  * Add test for getParent
+  * Implement getMediaPipeline
+  * Add test for checking same token
+  * Update kms-interface
+  * Add test for getting parent of a MediaPipeline
+  * Delete old and useless tests
+  * Add static constructor in MediaSet to init GST log
+  * Implement auto release and keepalive
+  * Throw KmsMediaServerException with UNEXPECTED_ERROR code when unexpected error
+  * Update kms-interface
+  * Implement generic subscribe method for MediaObjectImpl
+  * Add utility for generating UUIDs
+  * Add classes for MediaHandler managing
+  * PlayerEndPoint: Implement subscribe event for EOS
+  * Implement unsubscribe
+  * MediaHandlerManger: implement sendEvent
+  * MediaObjectImpl: add sendVoidEvent method
+  * PlayerEndPoint: implement send EOS event
+  * MediaServerServiceHandler: delete old addHandlerAddress
+  * MediaPad: implement getMediaElement
+  * Implement RtpEndPoint creation
+
+  [ Jose Antonio Santos Cadenas ]
+  * MediaObjectImpl: Make sendCommand return a shared_ptr not a value
+
+  [ Miguel París Díaz ]
+  * Add marshal utilities for string Params, CommandResult and EventData types
+  * Add utilities for creating Commands
+  * SdpEndPoint: implement sendCommand
+  * Enable sdp_end_point_test
+  * Implement ZBarFilter creation
+  * MediaServerServiceHandler: delete unnecessary includes
+  * MediaObjectImpl: add sendEvent method
+  * ZBarFilter: implement raiseEvent
+  * Implement HttpEndPoint creation
+  * HttpEndPoint: implement sendCommand for GET_URL
+  * Enable test for HttpEndPoint
+  * Reenable http_ep_server_test
+  * Update kms-interface to "Add methods to allow error subscription"
+  * Update kms-interface to "Added method to connect two elements"
+  * Change sendCommand by invoke and allow a map of params
+  * Implement JackVaderFilter creation
+  * Implement new garbage collector
+  * Implement excluding from GC
+
+  [ Jose Antonio Santos Cadenas ]
+  * Modify commit hook to make it work with new astyle version
+  * Make server work in ubuntu 13.10
+  * Make garbage collector time configurable
+  * Use astyle to fix the format of header files
+  * Avoid passing potentially big objects by copy
+  * Avoid returning sdp's, pass them as a reference parameter
+  * Avoid copy a string all the times a pad name is requested
+  * Avoid the use of pointers passing a reference parameter
+  * Do not return pointers to vector in MediaElement methods
+  * Avoid string copy in HttpEndPoint
+
+  [ Miguel París Díaz ]
+  * UriEndPoint: implement start, pause and stop
+  * Log method name in invoke method
+  * MediaPipeline: Delete old "TODO" log
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update gstreamer plugins, now using agnosticbin2
+  * Raise exception when a Pad connection fails
+  * Catch exception as references
+  * Remove extra space
+  * Implement connect method for element
+  * Add element connect method filtering by media type
+  * Fix error printing when bad command line options are passed
+  * Raise session started for HttpEndPoint
+  * Raise session complete for HttpEndPoint
+  * Create a base class for all parent objects
+  * Make pipeline inherit from MediaObjectParent
+  * Make MediaElement inherit from MediaObjectParent
+  * MediaSet: make put method idempotent
+  * Ignore .orig files
+  * MediaObjectImpl: Remove sendVoidEvent
+  * Update kms-interface removing setUri method
+  * Make media handler accept error suscription
+  * Implement sendError method in MediaHandler
+  * Implement error suscription
+  * Add method to send errors to clients
+  * Print media object id as int64, not at uint64
+  * Remove cookieLifetime from HttpEndpointConstructor
+  * Raise exception if a method is not implemented
+  * Remove cookie lifetime, just delete connections using timeout
+  * Update gstreamer plugins
+  * Add opencv support in ubuntu 13.10
+
+  [ David Fernandez ]
+  * Emit pointer detector events when they are posted in the bus
+  * Change pointer detector constructor header to add thrief constant
+
+  [ Jose Antonio Santos Cadenas ]
+  * Fix compilation issue in x86 architectures
+  * Disable check that is failing in 32 bits architectures
+  * Reduce and simplify debian package dependencies
+  * Fix issue with firefox and http endpoint
+
+  [ David Fernandez ]
+  * Add new file to define the overwrites of operators
+  * Add marshal and unmarshal function of pointer detector type
+
+  [ Jose Antonio Santos Cadenas ]
+  * HttpEndPoint: Raise sessionTerminated event when url is removed or expired
+  * HttpEpServer: Emit URL_EXPIRED signal when eos is detected in the endpoint
+  * HttpEndPoint: Fix debug message
+  * HttpEndPoint: Process terminateOnEOS constructor parameter
+  * HttpEndPoint: Implement EVENT_EOS_DETECTED
+
+  [ David Fernandez ]
+  * Modify marshalStruct to clear the return string before using it
+
+  [ Jose Antonio Santos Cadenas ]
+  * ZBarFilter: Allow subscription for EVENT_CODE_FOUND
+  * Install kurento plugins in a custom directory
+  * Disconnect MediaSrc when it is released
+
+  [ David Fernandez ]
+  * Add marshal/unmarshal test for simple struct
+  * Add createStructParam to add a marshall struct to KmsMediaParam
+  * Add functions to pointer detector to add, remove and clear windows
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update dependencies version
+
+  [ David Fernandez ]
+  * PointerDetector: Add event subscription function
+  * pointerDetector: Change buttons-layout callings by windows-layouts
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add traces of all petitions done by the clients
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpEPServer: Fix memory leak
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add binutils as a depency to have installed binutils for debugging purposes
+  * Update plugins to fix problem with missing keyframes
+
+  [ Santiago Carot-Nemesio ]
+  * HttpEndPoint: Show debug message only in the destroyed object
+
+  [ David Fernandez ]
+  * Create client event handler infrastructure for testing
+  * Enable HandlerTest during test execution
+
+  [ Jose Antonio Santos Cadenas ]
+  * Allow handler start and stop during test executions
+  * Make test fixture acessible from tests
+  * Print exception description instead of default message with what()
+  * Release objects on a different thread to avoid race conditions
+  * Add timeout to warn about not released objects
+  * Check if the object is unreferenced by others before destroying it
+
+  [ Santiago Carot-Nemesio ]
+  * Operations done over http server should be done in the main loop context
+  * HttpEPServer: Do not unref message before using it
+  * HttpEPServer: Manage signals in httpep instead of doing it from the associated message
+  * HttpEPServer: Manage the whole send buffer process in the main loop context
+  * HttpEPServer: Do EOS management in main loop context
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugins to add fix for filter element with audio and video
+
+  [ David Fernandez ]
+  * Add possibility to set profile property in constructor
+  * pointerDetector: Add exception if the filter has not been created
+  * Send error message from MediaPipeline
+  * Add event tests for playerEndPoint and zBarFilter
+  * Fix error using KmsRecordingProfile values
+  * playerEndPoint: Receive and send error signals
+  * Add test for error signals in playerEndPoint
+
+  [ Jose Antonio Santos Cadenas ]
+  * Remove warning timeout that causes segmentation fault
+
+  [ David Fernandez ]
+  * Add temporal solution for race condition in HandlerTest
+  * Add remove method for event and error functions in HandlerTest
+  * Change default error message for error message from GstMessage
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugins version to solve sinchronization problems
+  * Update httpendpoint property to handle accept eos events
+
+  [ David Fernandez ]
+  * Add error test for recorderEndPoint
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add missing dependency in debian package
+  * HttpEndPoint: Do not use removed is-live property
+  * HttpEndPoint: Do not attach to eos-detected signal that has been removed
+
+  [ Santiago Carot-Nemesio ]
+  * Connect pads when agnosticbin signal is launched from kmselement
+
+  [ David Fernandez ]
+  * Include webRtcEndPoint into MediaServer
+
+  [ Santiago Carot-Nemesio ]
+  * HttpePServer: Do not release non-allocated memory
+
+  [ Jose Antonio Santos Cadenas ]
+  * HttpEpServer: Set content correctly depending on httpendpoint configuration
+  * Update plugins improvement
+
+  [ David Fernandez ]
+  * Propagate error events to parents
+
+  [ Santiago Carot-Nemesio ]
+  * server port has to be under HttpEPServer section in kurento config file
+  * Add KmsHttpPost object skelleton
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugins with bugfixes
+  * zbarfilter: Force scan all the frames even if computer is overloaded
+  * Prepare release 2.0.0
+
+ -- Santiago Gala <sgala@apache.org>  Sat, 07 Dec 2013 17:39:23 +0100
+
+kurento (1.1.0) saucy; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare to next development release
+  * Update GMutex related and other glib functions to new version
+
+  [ Miguel París Díaz ]
+  * Delete old sources and dependencies.
+  * Update to 2.0.0 version.
+  * Use new api from kms-interface.
+  * Update dependencies.
+  * Use -Werror and fix some warnings in log.cpp.
+  * Use TNonblockingServer instead of TThreadedServer.
+  * Mange SIGINT and SIGKILL to finish the server correctly.
+  * Assing p_server to NULL when it is stopped.
+  * Use gst log.
+  * Add log for each method of MediaServerServiceHandler.
+  * Update createMixer method from the new kms-interface.
+  * Use command line option parser.
+  * Use GstSDPMessage to store the SDP from config.
+  * Add log.h.
+  * Add *~ into .gitignore.
+
+  [ Jose Antonio Santos Cadenas ]
+  * Codding style fixes
+  * Add pre-commit hook
+  * Add .gitreview configuration
+
+  [ Miguel París Díaz ]
+  * Add base classes.
+  * Apply c++ style in .hpp files.
+  * Rename .h files extension by .hpp.
+  * Add ConcurrentMap and MediaSet classes.
+  * Add getJoinable and getMediaRecorder in MediaSet.
+  * Add basic implementation of MediaFactory.
+  * Add methods impl. into  namespace kurento in MediaServerServiceHandler.cpp.
+  * Implement creation of MediaObjects.
+  * Add basic implementation of play, pause and stop of MediaPlayer.
+  * Add basic implementation of record, pause and stop of MediaRecorder.
+  * Format MediaFactory.hpp.
+  * Implement base Joinable functionality.
+  * Use std:shared_ptr to manage media objects.
+  * Implement release call.
+  * Add base implementation of Stream methods.
+  * Add Mixer and MixerPort classes.
+  * Add DummyMixer class.
+  * Add createMixer method in MediaFactory.
+  * Add getMixer method in MediaSet.
+  * Add getMixerPort method in MediaSet.
+  * Implement base Mixer and MixerPort calls.
+  * Use shared_ptr when new objects are created.
+  * Make param "const" in unjoin method.
+  * Fix Mixer shared_ptr management.
+  * Use Joinable to create MediaSrc and MediaSink instead of MediaFactory
+  * Add getMediaSrc and getMediaSink methods in MediaSet class.
+  * Add base implementation of MediaSrc and MediaSink calls.
+  * Use static constructor to instantiate log.
+  * Add includes into guards in MediaFactory.hpp.
+  * Delete include dirs that do not exists.
+  * Use templates to obtain MediaObjects childrens from MediaSet
+  * Use recursive mutex in ConcurrentMap
+  * Create MediaObjects in tree mode using parent
+  * Not show log about actived MediaFactories
+  * Manage MediaObject pointers in MediaSet.
+  * Delete extra line at the end of MediaSet.cpp
+  * Put Mixer types in MediaFactory.hpp
+  * Add test infraestrucutre
+  * Fix some memory leaks
+  * Fix memory leaks when a MediaObject is released in MediaSet
+  * Use macros to start and stop server test
+  * Add memory test to detect leaks
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add missing library that ubuntu seems to need
+  * Use a git submodule instead of cloning kms-interface using cmake
+
+  [ Santiago Carot-Nemesio ]
+  * Fix bug #552: Exit main loop from main thread's context
+
+  [ Jose Antonio Santos Cadenas ]
+  * Remove kdev4 file that should not be here
+
+  [ Miguel París Díaz ]
+  * Update kms-interface
+  * Add throw clauses
+  * Implement getVersion
+  * Implement getParent
+  * Add test to use a released MediaManager
+  * Fix log for server_memory_test
+  * Implement createSdpEndPoint
+  * Implement createSdpEndPointWithFixedSdp
+  * Implement createUriEndpoint
+  * Become abstract classes destructors as virtual
+  * Implement createHttpEndPoint
+  * Implement getUrl
+  * Set type in MediaPad
+  * Set type in MediaManager
+  * Set type in Mixer
+  * Set type in HttpEndPoint
+  * Set type in MixerEndPoint
+  * Set type in UriEndPoint
+  * Set type in SdpEndPoint
+  * Add test to check MediaObject types
+  * Implement getMediaType
+  * Update kms-interface
+  * Not override getMediaType in MediaSink and MediaSrc
+  * Add ConcurrentMap
+  * Add MediaHandler.hpp
+  * Implement addHandlerAddress
+  * Register MediaHandler into MediaManager
+  * Add test for addHandlerAddress
+  * Compile gst-kurento-plugins as submodule
+  * Fix MediaSet remove
+  * Add format when GST log is used
+  * Associate pipeline to MediaManager
+  * Include gst/gst.h in MediaObjectImpl.hpp
+  * Add getIdStr method to get the MediaObject id as string
+  * Parent as MediaObjectImpl
+  * Associate rtpendpoint element to RtpEndPoint
+  * Load SDP pattern from config
+  * Set SDP pattern to rtpendpoint element
+  * Implement SdpEndPoint
+  * Update kms-interface to ea9100e
+  * Update gst-kurento-plugins to 0ff3c32
+  * Add ZBarFilter
+  * Implement createFilter
+  * Fix test excecution
+  * Fix test problems
+  * Move SdpEndPoint tests to a different file
+  * Refactor memory leaks detection tests
+  * Add memory test for zbar filter creation
+
+  [ Santiago Carot-Nemesio ]
+  * Add initial skeleton for http end point server library
+  * Load configuration for HttpEndPoint
+  * Manage soup server life cycle
+  * Remove magic numbers in the source code
+  * Implement register function
+  * Add tests getting registered URLS
+  * Add debug messages on server dispose and finalize
+  * Remove registered urls once they are served
+  * Emit url-removed signal
+  * Create soup server only when start method is invoked
+  * Make address resolution asynchronous
+  * Delay thrift starting up until http server is ready to attend requests
+
+  [ Jose Antonio Santos Cadenas ]
+  * Initialize log for MediaManager
+  * Attach MediaManager to bus messages to handle errors
+  * Initialize debug for ZBarFilter
+  * Listen messages posted in the bus by zbar element
+  * Create element for player endpoint
+  * Create element for recorder endpoint
+  * Use element to store uri in UriEndpoint
+  * Disable GST_DEBUG by default in tests
+  * Add Kurento prefix to debug category
+  * Change element state on UriEndPoint changes
+  * Add debug to PlayerEndPoint
+  * Listen eos signal on playerEndPoint
+  * Add send event method tho MediaManager and MediaHandler
+  * Set MediaHandler attributes as private
+  * Generate Player EOS Event
+  * Send events to a random client
+  * Include updates in kms-interface to avoid thrift bug
+  * Change MediaObject to MediaObjectId
+  * Fix bug in test that was hidden by thrift bug
+  * Fix MediaElement debug labels
+  * Change MediaPad constructor to initialize MediaType
+  * Implement getMediaSources/Sinks methods in MediaElement
+  * Prepare MediaSrc and MediaSink to link gstreamer elements
+  * Fix debug label for MediaSrc
+  * Move element attribute to MediaElement
+  * Add getElement method to MediaPad
+  * Fix connect and and disconnect methods
+  * Implement pad link when MediaSink and MediaSrc are connected
+  * Change MediaManger to MediaPipeline
+  * Update kurento gstreamer plugins
+  * Create a proper debian package
+
+  [ Santiago Carot-Nemesio ]
+  * Implement constructor and destructor for HttpEndPoint class
+  * Add setUrl method
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add debug by default when server is started using init.d scripts
+  * Add tesseract dependencies needed by some plugins
+
+  [ Santiago Carot-Nemesio ]
+  * Prepare environment to register HttpEndPoint from main loop
+  * Change log tags
+  * Add error log message
+  * Register HttpEndPoint from main context
+  * Prepare callbacks to pull buffers working in GET mode
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare ZBar to raise events via thrift
+  * Send zbar events via thrift
+
+  [ Santiago Carot-Nemesio ]
+  * Prepare signal emision when any uri is removed as a result of an HTTP operation
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add debug for HtttpEndPoint
+  * Add HttpEndPointEvent to notify get/post requests via thrift
+  * Let gstreamer to generate default names for elements
+
+  [ Santiago Carot-Nemesio ]
+  * Process GET request in HTTPEndPoint server
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update changes made in gst-kurento-plugins that solve linking problems
+  * Be aware of exeptions thrown by lock in a weak_ptr
+  * Update bugfixses in gstreamer plugins
+  * Add fixes for rtpendpoint
+
+  [ Miguel París Díaz ]
+  * Fix misprint in license text of MediaHandler
+  * Rename media_manager refs to media_pipeline
+
+  [ Santiago Carot-Nemesio ]
+  * Do not wait until request has completed to check if it is allowed
+
+  [ Miguel París Díaz ]
+  * Add server_test always
+  * Change log in connect and disconnect
+
+  [ Santiago Carot-Nemesio ]
+  * HttpServer code refactorized
+  * Add support for POST method
+
+  [ Miguel París Díaz ]
+  * Change plugin path used in server for memory leak tests
+  * Add memory test for connect
+  * Fix memory leaks in connect
+  * Add memory test to check releasing of a sink element
+  * Add memory test to check releasing of a source element
+  * Add memory test for creating player
+  * Add memory test for creating recorder
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add MP4 in pattern sdp
+  * Print a debug graph in an error on bus is detected
+  * Update fixes in plugins
+  * Destroy source pads when they are unlinked
+  * Add debug to MediaSink
+  * Release pad, not its peer
+
+  [ Santiago Carot-Nemesio ]
+  * Add unregister function in http server
+  * Change parameter order.
+
+  [ Jose Antonio Santos Cadenas ]
+  * Reduce wait time if server is not ready
+  * Add environment variable to load plugins correctly
+  * Fig typo in debug message
+  * Update plugins to allow rtp with mp4
+  * Compile plugins as a dependency of kurento, not only when cmake is executed
+  * Add an intermediate element to allow loopback connections
+
+  [ Miguel París Díaz ]
+  * Declare MediaObjectNotFoundException throwing in getParent
+  * Declare MediaServerException throwing in getParent
+  * Throw MediaServerException for generic exceptions
+  * Use automatic selected address for http server if serverAddress is not set
+
+  [ Jose Antonio Santos Cadenas ]
+  * Disconnect from bus signal correctly in zbar filter
+  * Update plugins project solving some race conditions
+
+  [ Joaquin Mengual Garcia ]
+  * pointerdetector: Base implementation without events
+  * pointerdetector: Remove unnecessary header
+
+  [ Miguel París Díaz ]
+  * Add JackVaderFilter
+
+  [ Jose Antonio Santos Cadenas ]
+  * Capture exceptions and raise them correctly
+  * Include data files from gst-kurento-plugins in installation
+  * Add support for JackVaderFilter
+  * Update plugins to make work JackVader filter
+  * Update gstreamer code
+  * Update gstreamer plugins
+  * Cosmetic codding style changes
+  * Attach soup server to all interfaces
+  * Change submodules access
+
+  [ Santiago Carot-Nemesio ]
+  * Remove pending GET request before unregistering the httpendpoint
+  * Do not send data when httpendpoint is destroyed before POST request finishes
+  * Do not register root path
+  * Do not allow to register anything else that is not an httpendpoint element
+  * Cancel previous request if a new one arrives
+  * Unify how url-removed signal is emitted
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add trace to petitions
+  * Add filter to only create version from tags that match kmsc-*
+  * Modify pre-commit hook to not format header files
+
+  [ Santiago Carot-Nemesio ]
+  * Emmit new action requested signal
+  * Use CMake way to find libsoup library.
+  * Enable support for both multipart and non-multipart POST requests
+
+  [ Jose Antonio Santos Cadenas ]
+  * Use G_GINT64_FORMAT to print id instead of %ld
+  * Raise GET and POST signal when action-request from httpserver is raised
+
+  [ Santiago Carot-Nemesio ]
+  * Fix signal management in soup messages
+  * Use only one gulong variable to retrieve handler ids
+  * Shutdown current http transaction before unregistering the end point
+  * Reset internal httpendpoint pipeline when a new request is established
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update gst-kurento-plugins to solve elements race conditions
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpEPServer: Stop internal pipeline when clients disconnect
+  * Http Server will listen to all interfaces in case nothing else is specified
+  * Add a new option to HttpEPServer to provide an address to compose URLs
+  * Use defined macros to name properties
+  * Get an announced IP address automatically if no one is provided
+  * Use announced IP to compose URLs instead of server interface
+  * Use empty instead of length to check out whether a string object is initialized
+  * Fix typo error in test name for http end point server
+  * Add test to check there is not memory leaks unregistering pending GET requests
+  * Add missed unrefs for main loop
+  * Check that http end points release their resources when server is shut down
+  * Do not emit action request signal on unsupported http operations
+  * Set cookie to http end points
+  * Test that Set-Cookie header is beeing set
+
+  [ Pedro Garcia Rodriguez ]
+  * Modified gitreview file
+
+  [ Santiago Carot-Nemesio ]
+  * Check cookie before accepting subsequent connections to the same httpendpoint
+  * Set log severity lower for annoying debug message
+  * Fix print formats to be compatible with newer library versions
+  * Change cookie name
+  * Install new url-expired signal
+  * Emit expiration signal when connection closes and cookie expires
+  * Set cookie expiration timeout for GET requests
+  * Add common properties in Soup Messages for GET and POST operations
+  * Emit expiration signal in POST operations
+  * Change handler property name to match with signal action-requested
+  * Catch missed callbacks for http end poiont server
+  * Add a disconnection timeout to emit expired url signal
+  * Prepare API to configure availability of http end points
+  * Set timeout and cookie lifetime depending on values provided in the new API
+  * Remove warnings when server is stopped in the middle of a transaction
+  * Fix memory leak when main loop is stopped in the middle of a transaction
+  * Add cookie test
+  * Add test to check responses to requests sent using an expired cookie
+  * Fix memory leak in http end point server test
+
+  [ Santiago Gala ]
+  * Add LICENSE and README.md for publishing at github under LGPL license
+  * Add Source headers to files
+
+ -- Santiago Gala <sgala@apache.org>  Sat, 07 Dec 2013 17:35:19 +0100
+
+kurento (1.0.2) saucy; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add support for red5 flash server
+  * Use g_set_error instead of a custom macro
+  * Fix issues to allow compilation with old compilers
+
+  [ kurento ]
+  * Fixes to compile in X64
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update kms-interface to next release
+  * Change mediaspec namespace
+  * Add flag to compiler to add debugging symbols
+  * Fix h264 codec configuration
+  * Fix test to work with localhost
+  * Codding style
+  * Add width and height to generated caps
+  * Workaoround udpsrc deadlock changing state to NULL (keeps a thread oppen)
+  * Create and release thread main_thread correctly
+  * Configure fakesinks to be more efficient disabling signals
+  * Disable signals on queues
+  * Add an utility function to get bandwidth attribute from caps
+  * Transfor bandwidth attribute of caps
+  * Calculate bandwidth in KmsMediaHandlerSrc
+  * Enable gstreamer debuggin in kms-utils
+  * Add method to configure encoders bandwidth
+  * Fix warnning message
+  * Configure to use gstreamer debug system on kms-media-handler-src
+  * Remove bw timeout when object is destroyed
+  * Configure encoders bitrate when new bandwith is calculated
+  * Add nellymoser codec to configurable codecs
+  * Improve debugging message in kms_utils_configure_bw function
+  * Bandwith is get in kbps from session spec
+  * Add ffenc_flv to bitrate configurable codecs
+  * Improve check_pad_compatible function
+  * Remove uneeded debug
+  * Use gstreamer functions to check caps intersections
+  * Fixes getting target pad
+  * Set sink caps for bandwidth as a range to allow minor bw values
+  * Also modify caps width and height as range for sink pads
+  * Fix codecs configurations
+  * Do not set bandwith all the time, just if it changes over a threshold
+  * More fixes to xvidenc configuration
+  * Do not set bitrate for audio codec nellymosser
+  * Prepare rtmp-sender to use h264parser when h264 is selected (not enabled)
+  * Remove unused attribute on priv rtpReceiver estructure
+  * Minor codding style issues
+  * Create nice agents for audio and video on rtpConnection
+  * Use conditions to wait for candidates gathering
+  * Improve mediaspec intersection to remove no common transports
+  * Fix error in path names
+  * Prepare receiver to use nice agents
+  * Manage agents only on rtp-connection
+  * Use nicesink on rtpSender when agent is configured
+  * Wait for agents to be connected before start the media transmission
+  * Remove unused attribute
+  * Disable stun on server side
+  * Avoid deadlock not holding element lock while unlinking
+  * Configure rtp-sender and rtp-receiver when negotiation is done (#368)
+  * Fix the way that joinees map is released
+  * Check if spec is correctly set before start media
+  * Fix condition to receive media correctly
+  * Adding new test for ice
+  * Effectively create media transmission elementes when agent is connected
+  * Prepare negotiation of medias
+  * Change executable name and fix package creation
+  * Add package dependencies and change project name
+  * Change default configuration file
+  * Add init scripts
+  * Fix debian package dependencies
+  * Add nellymosser to example configuration
+  * Disable error log because it stops the program
+  * Update to thrift version 0.9.0
+  * Fix accepted caps for rtmp sender
+  * Set upnp to false to avoid open many connections
+  * Avoid using deprecated gstreamer functions
+  * Release 1.0.2
+
+ -- Santiago Gala <sgala@apache.org>  Sat, 07 Dec 2013 17:32:48 +0100
+
+kurento (1.0.1) saucy; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare to next release 1.0.1 development
+  * Make rtmp functionality compile using new spec types (not tested)
+  * Add method to intersect rtmp transports
+  * Minor bug fixes after testing in rtmp
+  * Adapt rtmp test to new sessionSpec
+  * Add framerate negotiation
+  * Remove extra space (codding style)
+  * Check if transports has intersected correctly
+  * Add TODO to mediaspec intersection
+  * Do not start media chain if rtmp transport is not set
+  * Check if transport is compatible before intersect medias
+  * Add support for rtp or rtmp on networkConnection
+  * Allow rtmp capabilities to server configuration
+  * Filter local descriptor medias to the supported by the endpoint
+  * Prepare networkConnection to handle various endpoints at the same time
+  * Prepare getLocalDescriptor to handle with multiple connections
+  * Change configuration method names
+  * Add method to select a configuration
+  * If a media does not contain any payload, set it to inactive
+  * Add remote-spec property to rtmp-connection
+  * Change exception message
+  * Change implementation of select_config
+  * Add process for anwser and offer using multiple endpoints
+  * Add signal handler to print a backtrace and not break on SIGPIPE
+  * By now only flash video is suppported for rtmp
+  * Improve stack trace print
+  * Improve exceptions thrown by release method and print them
+  * Fix debug initialization for NcManager
+  * Remove local connections when they are not needed
+  * Use a block size bigger than 10 for rtmp packages
+  * Change kms-interface to stable release
+  * Update version to release
+
+ -- Santiago Gala <sgala@apache.org>  Sat, 07 Dec 2013 17:31:02 +0100
+
+kurento (1.0.0) raring; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Create makefiles for server executable
+  * Change project name
+  * Update .gitignore file
+  * Create a basic server that handles media server service
+  * Add compiler flags in a cleaner way
+  * Launch server service in a separated thread
+  * Add manager to handle MediaSessions
+  * Use MediaSessionManager to handle MediaService petitions
+  * Change boost thread library to glib thread library
+  * Codding style
+  * Create a basic log system
+  * Add basic log on MediaService
+  * Solve memory leak on log functions
+  * Use a pointer in getInstance instead of shared_ptr
+  * Generate more usefull log information
+  * Implement create media session and delete media session
+  * Make MediaObjectImpl extend from MediaObjectService
+  * Add error to log class
+  * Raise Exit to finish server thread when done
+  * Use ServerConfig to configure services ports and return when requested
+  * Fix errors in log system
+  * Add warning to log system
+  * Add service stub for media sessionService
+  * Minor fix in MediaServiceHandler header
+  * Log when a method of session service is called
+  * Get a reference of session manager on service handler construction
+  * Change parameters name to match with thrift spec
+  * Make MediaSession implement its service methods
+  * Do not make objects to implement service methods, just its equivalent
+  * Return MediaSessionImplementation on manager instead of just Thrift type
+  * Implement a method to find an already created session
+  * Minor fixes on types hierarchy
+  * Add type joinable
+  * Reorder constructor arguments
+  * Add methods to joinable to handle streams
+  * Add basic NetworkConnectionImpl
+  * Remove dummy function
+  * Add basic NetworkConnectionManager
+  * Add new line at end of file
+  * Update field names changed in thrift files
+  * Remove reference to MediaSession in NetworkConnectionManager
+  * Implement method to create a network connection
+  * Create method to get network connections of a session
+  * Delete networkConnections when manager is deleted
+  * Codding style
+  * Fix method name
+  * Implement a method to delete network connections
+  * Add "extern C" to C headers
+  * Integrate endpoints library in kmsc executable
+  * Handle exceptions to avoid service breaking when processing
+  * Implement methods in handler to manage mixers
+  * Add methods to get a session using its object
+  * Fix typo in parameter name
+  * Update to changes in thritf specification
+  * Move ping method from mediaObject to MediaSession
+  * Pass tokens and sessions on constructors
+  * Set tokens to objects correctly
+  * Pass reference to string in constructor
+  * Add timeout to handle pings of mediaSession
+  * Do not continue iterating if the list is modified
+  * Do not print file on logs
+  * Add classes to manage Mixers
+  * Implement create mixer method
+  * Implement deleteMixer implementation
+  * Implement getMixers method
+  * Do not use pointerr for managers
+  * Use maps instead of lists to avoid iterations
+  * Add log to know the number of active sessions
+  * Add -Werror flag
+  * Remove not used includes
+  * Update to changes in thrift interface, server port is required
+  * Create NetworkConnectionService
+  * Add logs to service handlers
+  * Make jonable methods to return vectors via reference
+  * Create basic implementation of getStreams method
+  * Implement join method
+  * Implement unjoin
+  * Add joinStream method
+  * Implement unJoinStream
+  * Add implementation of getJoinees
+  * Fix interface typo
+  * Create getDirectionJoinees method
+  * Implement getStreamJoinees
+  * Add getStreamDirectionJoinees method
+  * Create generatoOffer method
+  * Add processAnswer method
+  * Add processOffer method
+  * Add method getLocalDescriptor
+  * Add method getRemoteDescriptor
+  * Fix exceptions that networkconnecion can raise
+  * Remove references to mediaObject services
+  * Fix comment
+  * Add mixer service
+  * Use Direction from mediaspec project
+  * Prepare to include gmediaspec library in core library
+  * Do not chreate shared an static library for endpoints, just static
+  * Do not install kmsclib by now
+  * Do not compile RTMP until session_spec integration is complete
+  * Change session description to the classes generete by thrift
+  * Implement intersect function for session spec
+  * Avoid iterate twice over type keys
+  * Implement function to intersect two mediaspecs
+  * Remove old TODO and unused variable
+  * Implement function to intersect payload
+  * Fixes to use media types correctly on rtp sender and receiver
+  * Add handlers for our own logging messages
+  * Parse config from a file
+  * Check if the ports got from configuration are valid
+  * Fix default configurations when a bad configuration is read
+  * Implement configuration loader for sessionSpec and mediaSpec
+  * Add configuration loader for transport
+  * Add configuration example
+  * Improve the way tha transport config is loaded
+  * Implement config loader for codec
+  * Load direction value for media from config
+  * Load media types from configuration
+  * Add function to print a debug trace with loaded session spec
+  * Pass references to configured sessionSpec to NetworkConnection
+  * Add function to generate a KmsSessionSpec from a byte array binary encoded
+  * Create an endpoint and a rtp_connection when NetworkConnection is created
+  * Change connect_to_remote interface to allow select offerer or answerer
+  * Create utils function to transform a c++ sesion spec into a C one
+  * Fix bug in intersect functions
+  * Return session as a reference parameter.
+  * Implement function to process an sdpOffer
+  * Implement delete joinable function
+  * Implement getStreams method
+  * Bugfix: Set correct video port on rtp-receiver
+  * Remove test for rtmp by now
+  * Remove old enumerator KmsSdpMode now KmsDirection is used
+  * Unify the use of hash_table for thrift sets
+  * Fix a bug on kms_payload_rtp_intersect
+  * Improve test_rtp_connection with one more check
+  * Minor fixes on rtp_transmission test
+  * Remove last refernces to SDP_MODE on enum names
+  * Use g_type_class_ref instead of g_type_class_peek
+  * Release lock correctly in all cases
+  * Fix condition to get_caps_for_pt
+  * Add udpsrc to test to receive the packets sent by server
+  * Get descriptor instead of local-spec
+  * Implement getJoinable and deleteJoinable for mixers
+  * Add deleteJoinable method to MixerManager
+  * Fixes to allow multiple calls to kms_connection_connect
+  * Implement joinStream
+  * Create a mixer enpoint when MixerImpl is created
+  * Correctly release all data created in joinalbe destructor
+  * Implement unjoin methods
+  * Implement generateOffer for networkconnection
+  * Implement process answer method for NetworkConnectionImpl
+  * Fixes on payloadRtp intersection
+  * Fix on media session intersect function
+  * Implement NetworkConnection getRemoteDescriptor method
+  * Remove debug prints
+  * Add global test of server using gstreamer
+  * Fix error checking  on test
+  * Fix debug printed information format
+  * Change return type of create_loca_connection function
+  * Fixes on joinable implementation
+  * Bug fix, wrong variable checked, can cause memory corruption
+  * Bug fix: connections in RECVONLY mode were not possible
+  * Bug fix: rtp-sender receives remote spec so sendonly means do nothing
+  * Fix direction on test_server
+  * Print server version
+  * Add TODO in joinableImpl header
+  * Add custom file for getting version
+  * Generate distribution packages with "make package"
+  * Install configure file in configure directory
+  * Add license to project
+  * Add configuration for some video elements
+  * Change test_server codecs to use h264 reception
+  * Change includes to new project name
+  * Add license to source code
+  * Add netbeans configurations to gitignore
+  * Prepare to release 1.0.0
+
+ -- Santiago Gala <sgala@apache.org>  Sat, 07 Dec 2013 17:29:40 +0100
+
+kurento (0.9.0) raring; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * initial project import from KDevelop
+  * Add basic object for endpoint
+  * Add private field structure to Ep object
+  * Add connection objects
+  * Add comment with minimal required method that will be implemented
+  * Add declarations for endpoint methods
+  * Add definitions of connection methods
+  * Handle localname as a property
+  * Add a test to endpoint
+  * Implements finalize function correctly
+  * Codding style issues
+  * Add basic implementation of create connection
+  * Move source from interfaces subdirectory
+  * Add interface for media-handler-manager
+  * Change files names to fit styling
+  * Check if the interface method is not null before using it
+  * Codding style in kms-media-handler-manager
+  * Add dummy interface for media handler factory
+  * Return a correctl media handler factory
+  * Wrong name fixes in handler factory
+  * Add MediaHandlerSink interface
+  * Add MediaHandlerSrc
+  * Fix error message
+  * Add handlerFactory methods for getting source and sink
+  * Add property to handle MediaHandlerManager in Endpoint constructor
+  * Use just one mutex for protecting the object against race conditions
+  * Use mutex when an endpoint parameter is modified
+  * Store created connection in priv data
+  * Define kms connection correctly
+  * Add local-connection type
+  * Check if an error can be created
+  * Create local connections
+  * Avoid namespace collisions adding prefix to constants
+  * Add id property to kms-connection
+  * Implement get_property function for kms-connection
+  * BUGFIX: Set values with an sting, not static string
+  * Fix connection identifier creating
+  * Manage connection name correctly in create_connection
+  * Assign an identifier to new local-connections
+  * Basic implementation of set_mode for connection
+  * Add implementation of terminate function for kms-connection
+  * Add gitignore
+  * Implement delete-connection for kms-endpoint
+  * Add test for delete connection method
+  * Codding style
+  * First step for creating integrity test
+  * Do not need pkgconfig in main CMakeList
+  * Codding style issue
+  * Solve memory leaks in test program
+  * Add tests classes for basic endpoint interaction
+  * Store a refernce of local connections
+  * Delete local references of connections
+  * Add pedantic compilation and solve warnings
+  * Reorder (again) the project structure
+  * Make insternal functions static
+  * Dispose endpoint manager reference correctly when setting a new one.
+  * Add endpoint as a connection property
+  * Test endpoint property of the endpoint
+  * Some method are not needed, properties are used
+  * Change endpoint property from pointer to g_object
+  * Add PayloadClass
+  * Chainup disponse and finalize functions
+  * Add sdp-media class to handle sdp media descriptions
+  * Use object dup instead of manually ref object
+  * Rename payload to add prefix sdp (keep naming style)
+  * Add class for handle a session description
+  * Add missing properties in get method of SdpMedia
+  * First version of sdp classes test
+  * Solve bugs in sdp-media properties
+  * Bugfix: allow set media before construction
+  * Create a sdp-media for testing
+  * Organize tests with functions
+  * Create more than one sdp-media
+  * Manage media references in payload as weak references
+  * Use weak references for session reference in sdp-media object
+  * Solve memory problems in sdp_tests
+  * Avoid using a null pointer in payload
+  * Add rtp specific classes (just stubs, not implemented)
+  * Create a shared library with all the libraries in src
+  * Allow installing headers and shared library
+  * Minor coding style issue
+  * Change the way that the library is created
+  * Delete old file
+  * Add possible new fields to sdp-session
+  * Do not build static libraries, just the shared library
+  * Solve possible use of null pointer
+  * Install session property in sdp-media
+  * Solve memory leak in sdp-session
+  * Add creation of sdp-session to test
+  * Test correct values of sdp-media
+  * Remove dummy file not needed now
+  * Improve memory management
+  * Add test for rtp endpoints
+  * Use weak references for storing endpoint in connections
+  * Use generic endpoint instead of specific type in test
+  * Create and delete rtp connections
+  * Delete link with local connection in endpoint
+  * Test creation and deletion of local-connections
+  * Add more checks to test_rtp
+  * Codding style issue in kms-endpoint.c
+  * Add additional flags to be more strict with compilation
+  * Implement delete_all_connections for ep
+  * Add delete_all_connections to test
+  * No need to dispose if unref weak callback is called, just set to NULL
+  * Check if the connection is being terminated is a connection
+  * Delete all connections when the endpoint is disposed
+  * Add memory check
+  * Move memory check to a different file to allow reutilitation
+  * Make memory checks more reusable
+  * Add new test for rtp endpoint
+  * Better codding style in in rtp test
+  * Implement set mode for Connection
+  * Remove already done TODOS
+  * Avoid deadlock when condition is not passed
+  * Add attribute media-factory for local-connection
+  * Set MediaHandlerFactory to LocalConnections
+  * Increment iterations to detect memory leaks of 1byte
+  * Implement dispose_factory method
+  * Solve memory management issue
+  * Make a unique include file
+  * Redefine connect methods for connection
+  * Define internal functions as static
+  * Add media type to connection method
+  * Add a macro for setting errors and add checks
+  * Improve debug macros
+  * Add basic implementation of generic connect_to_remote
+  * Initialize mode_changed default function as NULL
+  * Add additional check to connection creation.
+  * Add test for connect_to_remote
+  * No need to handle get_property in local_connection
+  * Move memory test to a library
+  * Create a library for rtp test (avoding double compiling of files)
+  * Avoid double memory.h inclusion
+  * Add test with a different name
+  * Add stub connect_to_remote method in rtp-connection
+  * Add method for initializing kms (shold be called first)
+  * Store a reference of the Pipeline locally in rtp connection
+  * Add property to sdp session and modify test
+  * Cleanup sdp test
+  * Add more properties to sdp-session
+  * Add new sdp-session parameters to tests
+  * Configure sdp_test to detect smaller memory leaks
+  * Codding style in test_sdp
+  * Chainup constructed function to parent class
+  * Add property "local-spec" to rtp-connection
+  * Initialize local_spec to NULL in rtp-connection
+  * Add local-spec as new property to rtp-endpoint
+  * Do library version check just one time
+  * Effectively add local-spec property to rtp-endpoint
+  * Avoid SEGFAULT with invalid paramter setting
+  * Update tests to add local-spec to rtp-endpoint
+  * Craeate a complete local session spec to test rtp-endpoint
+  * Correctly release local_spec in rtp-connection
+  * Check if local spec was set in rtp-connection
+  * Add local-spec to created rtp-connection's
+  * Coding style issues
+  * Compile shared and static library for kmsc
+  * Minor codding style in test
+  * Rename libraries
+  * Make media-handler-sink to be an object
+  * Make media-handler-src to be an object
+  * Use a unique include for the rtp library
+  * Add stubs for rtp-receiver and rtp-sender
+  * Do not force to set local-spec property at construction time
+  * Create rtp-receiver when rtp-connection is constructed
+  * Prepare rtp-receiver to handle local-spec property
+  * Codding style issue
+  * Handle local-spec property in rtp-receiver
+  * Set the local descriptor of the receiver
+  * Return rtp-receiver as media-handler-src in rtp-connection
+  * Add a copy method to sdp-session and test it
+  * Add method to clone sdp-media
+  * Create method to copy payloads
+  * Pass a copy of payload spec to each connection
+  * Make kms_get_pipeline to return an ref incremented object
+  * Store a pipeline reference inside RtpReceiver
+  * Create a bin for each rtp-receiver
+  * Connection does not need to store a pipeline reference
+  * Do not increment reference of pipeline
+  * Move Bin to parent class
+  * FIX: Set parent instance correctly
+  * FIX: refcount needs a hack when disposing a media-handler-src
+  * Make all bus events to be signals
+  * Use correct macro for mutex creation
+  * Use GMutex instead of GStaticMutex couse threads are initialized
+  * Use specific function to terminate rtp-receiver (not only unref it)
+  * First attempt to create media_src for rtp-receiver
+  * Create media src for audio and video.
+  * Allow set sdp-media ports after construction
+  * Set ports of each media type in local session descriptor.
+  * Do not check memory on rtp test
+  * Change limits of bandwidth values
+  * Add descriptor property to rtp-connection
+  * Add test for rtp transmission
+  * Convert session to string
+  * Convert sdp-media to string
+  * Create method to convert sdp-payloads to string
+  * Remove uneeded trace
+  * Firts part of connect_to_remote implementation for rtp-connection
+  * Create an empty value array if null is received in sdp-media
+  * Create an empty value array if null is received in sdp-session
+  * Create a second session for rtp test
+  * Check memory ussage in rtp-connection test
+  * Create method for intersect a session spec
+  * Intersect sessions when connecting to remote rtp connection
+  * Avoid making a copy of medias valueArray's
+  * Remove dummy comment
+  * Add method to compare payloads
+  * Remove old TODO
+  * Create method for intersect sdp-media's
+  * Use sdp-media intersection to intersect sdp-session
+  * Set descriptor with negotiaded session spec
+  * When a connection is terminated, dispose its resources
+  * Fix error message
+  * Implement kms_connection_connect function
+  * Add stub of connect method for local-connection
+  * Remove old TODO
+  * Set negotiated descriptor to rtp-receiver when negotiation is done
+  * Add callbacks to handle ptdemux pad creation
+  * Connect a signal to display errors on pipeline
+  * Initialize default value of session in sdp-media to NULL
+  * Find a valid payload for Pt
+  * Prepare test for media reception
+  * Fix bug: passing null pointer to function.
+  * Modify the way that media is send in test
+  * Modify memory usage check
+  * Behave correctly when weak unref signal is received
+  * Bug fix: Free got arrays
+  * Store payload codec name in upper case
+  * Create method to generate caps using a sdp-payload
+  * Generate correct caps when new payload is received
+  * Configure correctly media sent in test
+  * Make test more generic not using the camera
+  * Remove prints to make test more clear
+  * Connect a sink to all discovered pads
+  * Make kms-utils internal and export its public functions to other header
+  * Create a jitterbuffer for each incomming media
+  * Conect src pad to callbacks, not sink path
+  * Implement link and unlink callbacks to dynamically link elements.
+  * Create utilitie to create element from caps
+  * Initial connection of depay chain
+  * Create a macro for pipeline debugging
+  * Add additional caps for AMR
+  * Use macro to debug pipeline
+  * Add utilitie to create an element with filtered caps
+  * Remove old prints
+  * Connect queues on each tee pad before other elements
+  * Connect a typefind to depayloader element
+  * Add traces of the pipeline to debug
+  * Don't set an specific name to src element, let gstreammer do it
+  * Make media-handler-src inherit from gst-bin
+  * Ignore *swp files
+  * Correctly initialize mutex for media-handler-sink
+  * Create rtp-sender for rtp-connection
+  * Add properties to rtp-receiver to get audio and video fd's
+  * Change property name from local-spec to remote-spec for rtp-connection
+  * Create and dispose rtp-sender mutex correctly
+  * Add property "remote-spec"
+  * Add audio-fd and video-fd properties for rtp-sender
+  * Codding style
+  * Prepare rtp-sender to create sending elements
+  * Remove dummy print
+  * Set property limmits correctly for port in sdp-media
+  * Codding style: bad identation
+  * Make rtp-sender inherit from media-handler-sin
+  * Change codec order in generated offer
+  * Generate basic media chain to send media (not connected yet)
+  * Add TODO comment to release elements correctly
+  * Create local connections on transmission test.
+  * Remove not used define from rtp-transmission test
+  * Return a pointer not value
+  * Codding style
+  * Change methods names (wrong type prefix)
+  * Return source and sink correctly for rtp-connection
+  * Get media-src and media-sink when local-connection is constructed
+  * Check error correctly in transmission test
+  * Add private attributes for connected local-connections for audio and video
+  * Bug fix: unref correct attribute in weak unref callback
+  * Implement connect method in local-connection
+  * Fix condition check in test_rtp_transmission
+  * Fix sdp test using case insensitive comparation
+  * Change set_mode method to get media type parameter
+  * Set mode to send_recv for local-connections in rtp-transmission test
+  * Implement get_mode for connection class
+  * Implement mode_changed for local-connection
+  * Reduce ammount of code for checking compatibility of local-connection
+  * Use an static lock for mode_changed in local-connection
+  * Get other connection when checking compatibility
+  * Add stub methods for connect and disconnects sinks and sources
+  * Add pad templates to create pads in a gstreammer way for media src's
+  * Set unique names for created pads
+  * Add pads to rtp-sender
+  * Fix parameter name in method
+  * Do not increase class reference for static enums
+  * Add media type to connect and disconnect methods
+  * Implement connection method for sources
+  * Add TODO in rtp-sender
+  * Disconnect sink pad if it is connected to other source when linking
+  * Release if sink_pad cannot be obtained
+  * Notify if linking between source and sink failed
+  * Set link and unlink methods for source pads (not implemented yet)
+  * Add attributes for agnostic connection management
+  * Separate link and unlink callbacks for audio and video pads
+  * Implement a common method for audio and video pad linking
+  * Release components in case of fail in rtp-receiver new_payload_type
+  * Add attribute to know media type when types are detected
+  * Connect a tee after depayloader to allow multiple connections
+  * Implement set_pad in media-handler-src as a prefered pad
+  * Store MediaType as pad data and use a common callback for link
+  * Use a signal to perform actions when unlinked
+  * Do not unlink element if more source pads are still linked
+  * Keep the lock until target is really connected
+  * Check if a pad can be linked when adding a connectable pad
+  * Do not use an specific function for relase pad, use the default one
+  * Add an error to be sure that kms-utils.h is not added to public includes
+  * Create a function to connect a queue as a target for ghostpads
+  * Solve memory leak unrefing target if got one
+  * Firt step to discover received media before publishing pads to connect
+  * Connect a decoder to discover raw media
+  * Correctly unref bin when done when coded-pad is found
+  * Remove typefind elements and prepare real decoder and depayloader
+  * Prepare decoding elements to be connected when media is detected
+  * Prepare function to configure elements
+  * Use element caps if none are provided when generating a bin from element
+  * Check correct variable in rtp-sender
+  * Configure payloader and filter its sink caps in rtp-sender
+  * Add configuration for mp4payloader
+  * Configure decoder element
+  * Change address to IP because "localhost" seems to not work
+  * Use rtp_caps to prepare depayloader (not finished)
+  * Prepare depayloader transfering caps
+  * Create a macro to print caps
+  * Implement caps transfer function
+  * Implement disconnect method for handler-sink's
+  * Dispose rtp-receiver when it is terminated
+  * Implement terminate method for rtp-sender
+  * Fix memory leak, some unrefs missing
+  * Solve memory leak releasing queues at sink pad
+  * Create a function to unify the queue creation and configuration
+  * Do not use graw format as raw video format
+  * Create method to set raw target pad to connect in media-handler-src
+  * First step to connect agnostic media to a raw target pad
+  * Fix memory leak on error setting pad target
+  * Pass self instance to allow adding elements to bin if needed
+  * Check if other target pad is available
+  * Create a reusable function to generate a raw chain
+  * Bug fix: Set correct raw pad calling to get_target_pad
+  * Set correct tee setting raw media pad
+  * Generate raw chain for audio
+  * Generate target pad for new medias
+  * Ref stored pad in new other list
+  * Add prints to make debugging easier
+  * Improve caps transfer function
+  * Transfer negotiated caps to sender sink pads and payloaders
+  * Add function to generate raw video chain
+  * Remove already done TODO in rtp-sender
+  * Remove no needed elements when they are disconnected
+  * Reduce the amount of time before remove the typefind bin
+  * Fix typo in TODO commit
+  * Create mixer endpoint a basic test
+  * Create mixer-manager class
+  * Store a copy of mixer-manager in mixer-endpoint
+  * Codding style issue in local-connection
+  * Bug fix: check if src and sink for local connection are set correctly
+  * Bug fix: release the mutex correctly
+  * Bug fix: check parameter when disconnecting media-handler-sink
+  * Bug fix: Check parameter when trying to connect media-handler-src
+  * Add basic implementation of mixer-factory
+  * Prepare function to connect mixer-factories between them
+  * Debug pipeline before and after connection and disconnection
+  * Create mixer-src and mixer-sink
+  * Return reffered object when src and sink are requested
+  * Construct mixer sink and src
+  * Create a basic media chain for mixer sink
+  * Create audio src for mixer-src
+  * Do not connect local connections for Video on mixer test
+  * Dispose src pads when disposing a media-handler-src
+  * Implement kms_mixer_factory_connect for mixer-factory
+  * By now do not send and flush_start event
+  * Test mixer creating double connection to the rtp endpoint
+  * Make generate_pad_name generic
+  * Move remove_src_pads y remove_sink_pads to kms-utils
+  * Change gstreamer version requirement
+  * Prepare mixer-src and mixer-sink to create mixer internal connections
+  * Remove tee pads when they are disconnected for mixer-src
+  * Change pad templates name for mixer internal pads
+  * Create a util to dispose disconnected pads of an element
+  * Implement link and unnlink functions for mixer-sink
+  * Store adder in an attribute of mixer-src
+  * Implement link_pad function for mixer-src
+  * Create a method to dispose media-handler-factories
+  * Add dummy function for dispose factory in rtp-connection
+  * Create a function for dispose a factory in mixer-manager
+  * Remove ghost pad and set a NULL target when unlinked
+  * Remove typefind when they are not used in mixer-src
+  * Fix deadlock when connection fails
+  * Do not raise error if pads are not found when connecting, just warn
+  * Use live adder instead of an adder in mixer
+  * Debug pipeline on error
+  * Change debug points in media-handler-src
+  * Remove excesive debuggin in media-handler-sink
+  * Move jitter buffer to a place where it is not removed
+  * Create rtmp endpoint and rtmp connection
+  * Do not depend on gstreamer 0.10.36, is not released yet
+  * Add fmtp parameters to sdp-payload
+  * Add test for rtmp endpoints
+  * Avoid segfault when receiving a NULL medias proprety in sdp-session
+  * Create classes rtmp-receiver and rtmp-sender
+  * Store rtmp-receiver and rtmp-sender as attributes in rtmp-connection
+  * Create session specs in rtmp-test
+  * Add class rtmp-session ford handling rtmp session spec strings
+  * Fix a bug creating rtmp-session from a string
+  * Use rtmp-session in rtmp classes
+  * Bugfix: rtmpreceiver uses sdp-session not sdp-media
+  * Use rtmp-session instead of sdp-session
+  * Set a unique identifier as offerer string
+  * Fix function name for rtmp-session method
+  * Create method to generate sdp-session from a rtmp-session
+  * Bug fix in generation of rtmp-session from string
+  * If no local_spec is set, generate a default one for rtmp-endpoint
+  * Bug fix set fmtp as a string
+  * Bug fix: genereate rtmp-session fmtp string correcty
+  * Create method to convert rtmp-session into sdp-session
+  * Initial set descriptor as a copy of local_spec
+  * Parse offerer url from sdp-session
+  * Create method to intersect rtmp-session
+  * Avoid dead lock when error sdp-payload
+  * Use rtmp-session method to create a proper sdp-session
+  * Generate a "(null)" string when rtmp-session is NULL
+  * Implement connect_to_remote method for rtmp-connection
+  * Create rtmp-sender and rtmp-receiver when session is negotiated
+  * Create method to get url in rtmp-session
+  * Fix typo answerer, not anwserer
+  * Use new rtmp-session method to get the url
+  * Generata media chain for rtmp-sender
+  * Bug fix: Correctly intersect offerer value in rtmp-session
+  * Correctly get url for rtmp-sender
+  * First steps to create media chain for rtmp-receiver
+  * Change debugging traces
+  * Reconnect rtmp if an eos event is received
+  * Get url to send media correctly
+  * Generate media chain for rtmp-receiver
+  * Ensure that self has a reference when calling to event_handler
+  * Pad needs a increased reference when calling to set_pad method
+  * Set target pad only when a new segment is detected
+  * Check that ghost pad target is not set more than once
+  * Change the way that media is sent in rtmp test
+  * Do not use new_segment event to connect, use a typefind
+  * Typefind received media in rtmp-receiver
+  * Fix video size and rate in rtmp test
+  * Print an error if dynamic link fails
+  * Change media characteristics for rtmp test stream
+  * Add decoder to allow raw connections
+  * Add a queue to create a new thread to handle rtmpsink
+  * Set element to NULL before unrefing it
+  * Generate queues in a way that are allowed to discard packets
+  * Configure rtmpsrc element
+  * Increase de amount of data that can be buffered
+  * Add some TODO's
+  * Add a queue before typefind to generate a new thread
+  * Unref pads correctly when release_request_pad is called
+  * Install rtmp files correctly
+  * Improve a little bit more media sent in rtmp test
+  * Disable las-buffer property in rtmp sink
+  * Remove excesive debugging
+  * Fix another mistake in rtmp install
+  * Change the way to check if pads are compatible
+  * Add attributes to handle fake sources for audio and video
+  * Add fake src for audio in rtmp-sender
+  * Republish rtmp stream when video is connected
+  * Cleanup rtmpsender
+  * Generate rtmpsink in a common function
+  * No need to get reference to queue and rtmpsink when linking video
+  * Set prefered pad before the raw pad
+  * Change (again) media type sent in test-rtmp
+  * Change rtmp-sender
+  * Remove queues when are not in use
+  * Unset video and audio pad when ghost pad is unlinked
+  * Remove queue rtmp-sender sink on sink ghost pads
+  * Refactor unlinked_delete in kms-utils
+  * Remove typefind when rtmp-sender is disconnected
+  * Bugfix: do not free username when other attributes are set
+  * Set fake address and remote_handler to rtmp-session
+  * Return on fail in media-handler-src
+  * Publish and play on correct stream
+  * Get publish url correctly
+  * Simplify rtmp-receiver, no need to do typefind
+  * mixer-src do not offer video_src pads, no video in mixer yet!
+  * Change allowed caps of rtmp-sender
+  * Codding style
+  * Add get_resource method to endpoint
+  * Add basic implementation of player endpoint
+  * Compile files in player directory
+  * Add kms-player abstract class
+  * Convert player and resource in interfaces
+  * Add player-src class
+  * Make player-endpoint implement manager and factory interfaces
+  * Override get_resource method in player-endpoint
+  * Do not use error on get_resource method in endpoint class
+  * Add player-src as player-endpoint attribute
+  * Return player as handler-src and resource if requested
+  * Fix some warnings in media-handler-src
+  * Check if raw pad is set before trying to generata a raw chain
+  * Limit audio codec to nellymoser at rate 8000 for rtmp sender
+  * Debug what rtmp element is restarting
+  * Retry rtmp connection each 3 seconds instead of each 500ms
+  * set send-config attribute in mp4 element (for old gstreamer versions)
+  * Bug fix: possible deadlock in rtmp-connection
+  * Bug fix: possible deadlock in rtp-connection
+  * Avoid segfault in librtmp code that cannot be executed concurrently
+  * Improve debugging messages
+  * Do not raise error if param check is wrong
+  * Make audiorate do not start emitting buffers until the first frame
+
+ -- Santiago Gala <sgala@apache.org>  Sat, 07 Dec 2013 17:27:20 +0100

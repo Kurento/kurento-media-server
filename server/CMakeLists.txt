@@ -30,4 +30,4 @@ include_directories(kurento ${GSTREAMER_INCLUDE_DIRS})
 include_directories(kurento ${UUID_INCLUDE_DIRS})
 include_directories(kurento ${KMSIFACE_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/server)
 
-install(TARGETS kurento RUNTIME DESTINATION usr/bin)
+install(TARGETS kurento RUNTIME DESTINATION bin)

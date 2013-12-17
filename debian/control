@@ -1,0 +1,39 @@
+Source: kurento
+Section: net
+Priority: optional
+Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
+Build-Depends:
+ autoconf,
+ cmake,
+ debhelper,
+ gnutls-bin,
+ gtk-doc-tools,
+ libboost-dev,
+ libboost-system-dev,
+ libboost-filesystem-dev,
+ libboost-test-dev,
+ libevent-dev,
+ libglibmm-2.4-dev,
+ libgnutls28-dev,
+ libgstreamer1.0-dev,
+ libgstreamer-plugins-base1.0-dev,
+ libnice-dev,
+ libopencv-dev,
+ libsoup2.4-dev,
+ libthrift-dev (>= 0.9.0),
+ libthrift-dev (<= 0.9.1),
+ libtool,
+ libvpx-dev,
+ tesseract-ocr-dev,
+ tesseract-ocr-eng,
+ thrift-compiler,
+ uuid-dev
+Standards-Version: 3.9.4
+
+
+Package: kurento
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Streaming Media Server
+ The Kurento Media Server processes audio and video streams,
+ doing composable pipeline-based processing or media.

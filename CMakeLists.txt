@@ -23,9 +23,9 @@ endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 
 set (GSTREAMER_PLUGINS_DIR ${CMAKE_BINARY_DIR}/plugins)
 
-execute_process(COMMAND bash -c "export FINAL_INSTALL_DIR=/usr;./autogen.sh --prefix=${GSTREAMER_PLUGINS_DIR}" WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
+execute_process(COMMAND bash -c "export FINAL_INSTALL_DIR=${CMAKE_INSTALL_PREFIX};./autogen.sh --prefix=${CMAKE_INSTALL_PREFIX}" WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
 
-add_custom_target(plugins COMMAND make install WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
+add_custom_target(plugins COMMAND make DESTDIR=${GSTREAMER_PLUGINS_DIR} prefix=${CMAKE_INSTALL_PREFIX} install WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/gst-kurento-plugins)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
@@ -69,12 +69,14 @@ enable_testing()
 add_test(utils_test test/utils_test)
 add_test(media_handler_test test/media_handler_test)
 
+if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 add_test(server_test test/server_test)
 set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
-set_property(TEST server_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/share/gst-kurento-plugins")
+set_property(TEST server_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins")
 
 add_test(http_ep_server_test test/http_ep_server_test)
 set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 
 # Temporally disabled
 if (0)
@@ -133,16 +135,17 @@ SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} libvpx1,")
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS} gnutls-bin")
 
 # Is also possible to set DEBIAN_PACKAGE_BUILDS_DEPENDS
+if(NOT DEFINED SYSCONF_INSTALL_DIR)
+	set(SYSCONF_INSTALL_DIR etc CACHE PATH
+		    "Install directory for system-wide configuration files")
+endif(NOT DEFINED SYSCONF_INSTALL_DIR)
 
-if(NOT DEFINED SYSCONFDIR)
-	set(SYSCONFDIR etc)
-endif(NOT DEFINED SYSCONFDIR)
-
-install(FILES kurento.conf pattern.sdp DESTINATION ${SYSCONFDIR}/${CUSTOM_PREFIX})
-install(PROGRAMS "scripts/init.d/kurento" DESTINATION ${SYSCONFDIR}/init.d)
-install(FILES "scripts/default/kurento" DESTINATION ${SYSCONFDIR}/default)
-install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}/lib/kms-dtls-plugins USE_SOURCE_PERMISSIONS DESTINATION usr/lib)
-install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}/lib/gst-kurento-plugins USE_SOURCE_PERMISSIONS DESTINATION usr/lib)
-install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}/share/gst-kurento-plugins USE_SOURCE_PERMISSIONS DESTINATION usr/share)
+install(FILES kurento.conf pattern.sdp DESTINATION ${SYSCONF_INSTALL_DIR}/${CUSTOM_PREFIX})
+install(PROGRAMS "scripts/init.d/kurento" DESTINATION ${SYSCONF_INSTALL_DIR}/init.d)
+install(FILES "scripts/default/kurento" DESTINATION ${SYSCONF_INSTALL_DIR}/default)
+install(FILES README.md LICENSE DESTINATION share/doc/${CPACK_PACKAGE_NAME})
+install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}${CMAKE_INSTALL_PREFIX}/lib/kms-dtls-plugins USE_SOURCE_PERMISSIONS DESTINATION lib)
+install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}${CMAKE_INSTALL_PREFIX}/lib/gst-kurento-plugins USE_SOURCE_PERMISSIONS DESTINATION lib)
+install(DIRECTORY ${GSTREAMER_PLUGINS_DIR}${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins USE_SOURCE_PERMISSIONS DESTINATION share)
 
 include(CPack)

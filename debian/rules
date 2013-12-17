@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	export FINAL_INSTALL_DIR=/usr
+	dh_auto_configure -- -DSYSCONF_INSTALL_DIR=/etc -DDISABLE_NETWORK_TESTS=1
+
