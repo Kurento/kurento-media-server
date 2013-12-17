@@ -53,13 +53,13 @@ MediaPad::~MediaPad () throw ()
 std::shared_ptr<MediaElement>
 MediaPad::getMediaElement ()
 {
-  return (std::shared_ptr<MediaElement> &) parent;
+  return std::dynamic_pointer_cast<MediaElement> (parent);
 }
 
 GstElement *
 MediaPad::getElement ()
 {
-  return ( (std::shared_ptr<MediaElement> &) parent)->element;
+  return std::dynamic_pointer_cast<MediaElement> (parent)->element;
 }
 
 MediaPad::StaticConstructor MediaPad::staticConstructor;

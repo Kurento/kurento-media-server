@@ -48,7 +48,7 @@ JackVaderFilter::JackVaderFilter (MediaSet &mediaSet,
 
 JackVaderFilter::~JackVaderFilter() throw ()
 {
-  gst_bin_remove (GST_BIN ( ( (std::shared_ptr<MediaPipeline> &) parent)->pipeline), element);
+  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }
