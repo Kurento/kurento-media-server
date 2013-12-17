@@ -33,6 +33,11 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror -std=c++0x -DGST_DISABLE_DEPRECATED")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -Werror -std=c99 -DGST_DISABLE_DEPRECATED")
 
+if (${PLATE_DETECTOR_CHECK})
+  message (STATUS "Plate detector check enabled")
+  add_definitions(-DPLATE_DETECTOR_CHECK)
+endif ()
+
 set(CUSTOM_PREFIX "kurento")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
 set(LIB_PREFIX "lib")

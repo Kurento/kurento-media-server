@@ -806,7 +806,9 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_jackvader_filter ();
   check_pointer_detector_filter ();
   check_web_rtc_end_point ();
+#ifdef PLATE_DETECTOR_CHECK
   check_plate_detector_filter();
+#endif
   check_face_overlay_filter ();
 }
 
