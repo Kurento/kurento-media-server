@@ -814,6 +814,16 @@ kms_http_ep_server_manage_cookie_session (KmsHttpEPServer *self,
     GstElement *httpep, SoupMessage *msg, const char *path)
 {
   SoupCookie *cookie;
+  gchar *method = NULL;
+
+  g_object_get (G_OBJECT (msg), "method", &method, NULL);
+
+  if (g_strcmp0 (method, SOUP_METHOD_OPTIONS) == 0) {
+    g_free (method);
+    return TRUE;
+  }
+
+  g_free (method);
 
   cookie = (SoupCookie *) g_object_get_data (G_OBJECT (httpep), KEY_COOKIE);
 
