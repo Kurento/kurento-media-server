@@ -149,7 +149,11 @@ read_entire_file (const gchar *file_name)
   f_size = ftell (fp);
   fseek (fp, 0, SEEK_SET);
   data = (gchar *) g_malloc0 (f_size);
-  fread (data, 1, f_size, fp);
+
+  if (fread (data, 1, f_size, fp) != (size_t) f_size) {
+    GST_ERROR ("Error reading file");
+  }
+
   fclose (fp);
 
   return data;
@@ -424,7 +428,9 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
     sprintf (syscom, "echo -n \"\t[bt]\t\t\"; addr2line %p -s -e %s",
              trace[i], exe);
     g_strfreev (strs);
-    system (syscom);
+
+    if (system (syscom) == -1)
+      g_printerr ("Error calling addr2line");
   }
 
   if (sig == SIGPIPE) {
