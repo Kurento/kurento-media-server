@@ -129,14 +129,19 @@ PointerDetectorFilter::PointerDetectorFilter (
                            "id", G_TYPE_STRING, windowInfo.id.c_str(),
                            NULL);
 
-      if (windowInfo.__isset.overlayImageUri) {
-        gst_structure_set (buttonsLayoutAux, "uri",
-                           G_TYPE_STRING, windowInfo.overlayImageUri.c_str(), NULL);
+      if (windowInfo.__isset.inactiveOverlayImageUri) {
+        gst_structure_set (buttonsLayoutAux, "inactive_uri",
+                           G_TYPE_STRING, windowInfo.inactiveOverlayImageUri.c_str(), NULL);
       }
 
       if (windowInfo.__isset.overlayTransparency) {
         gst_structure_set (buttonsLayoutAux, "transparency",
                            G_TYPE_DOUBLE, windowInfo.overlayTransparency, NULL);
+      }
+
+      if (windowInfo.__isset.activeOverlayImageUri) {
+        gst_structure_set (buttonsLayoutAux, "active_uri",
+                           G_TYPE_STRING, windowInfo.activeOverlayImageUri.c_str(), NULL);
       }
 
       gst_structure_set (buttonsLayout,
@@ -203,15 +208,21 @@ PointerDetectorFilter::addWindow (KmsMediaPointerDetectorWindow window)
                        "id", G_TYPE_STRING, window.id.c_str(),
                        NULL);
 
-  if (window.__isset.overlayImageUri) {
-    gst_structure_set (buttonsLayoutAux, "uri",
-                       G_TYPE_STRING, window.overlayImageUri.c_str(), NULL);
+  if (window.__isset.inactiveOverlayImageUri) {
+    gst_structure_set (buttonsLayoutAux, "inactive_uri",
+                       G_TYPE_STRING, window.inactiveOverlayImageUri.c_str(), NULL);
   }
 
   if (window.__isset.overlayTransparency) {
     gst_structure_set (buttonsLayoutAux, "transparency",
                        G_TYPE_DOUBLE, window.overlayTransparency, NULL);
   }
+
+  if (window.__isset.activeOverlayImageUri) {
+    gst_structure_set (buttonsLayoutAux, "active_uri",
+                       G_TYPE_STRING, window.activeOverlayImageUri.c_str(), NULL);
+  }
+
 
   /* The function obtains the actual window list */
   g_object_get (G_OBJECT (pointerDetector), WINDOWS_LAYOUT, &buttonsLayout, NULL);

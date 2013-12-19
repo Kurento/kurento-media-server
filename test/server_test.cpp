@@ -654,8 +654,9 @@ ClientHandler::check_pointer_detector_filter ()
   window.width = 15;
   window.height = 15;
   window.id = "new";
-  window.overlayImageUri = "/tmp/image.png";
+  window.activeOverlayImageUri = "/tmp/image.png";
   window.overlayTransparency = 0.2;
+  window.inactiveOverlayImageUri = "/tmp/image2.png";
 
   //marshalling data
   createStructParam (param, window, g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
