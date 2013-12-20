@@ -30,6 +30,7 @@
 #include "KmsMediaWebRtcEndPointType_constants.h"
 #include "KmsMediaPlateDetectorFilterType_constants.h"
 #include "KmsMediaFaceOverlayFilterType_constants.h"
+#include "KmsMediaGStreamerFilterType_constants.h"
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
@@ -89,6 +90,7 @@ protected:
   void check_web_rtc_end_point ();
   void check_plate_detector_filter();
   void check_face_overlay_filter();
+  void check_gstreamer_filter();
 };
 
 void
@@ -777,6 +779,29 @@ ClientHandler::check_face_overlay_filter()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_gstreamer_filter()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef gstreamerFilter = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaInvocationReturn ret;
+  KmsMediaParam param;
+
+  client->createMediaPipeline (mediaPipeline);
+
+  //marshalling data
+
+  std::string command ("videoflip qos=TRUE    method   =   horizontal-flip     test=cas9aa");
+  createStringParam (param, command);
+  params[g_KmsMediaGStreamerFilterType_constants.CONSTRUCTOR_PARAM_GSTREAMER_COMMAND] = param;
+
+  client->createMediaElementWithParams (gstreamerFilter,
+                                        mediaPipeline,
+                                        g_KmsMediaGStreamerFilterType_constants.TYPE_NAME, params);
+  client->release (mediaPipeline);
+}
+
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
@@ -811,6 +836,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_plate_detector_filter();
 #endif
   check_face_overlay_filter ();
+  check_gstreamer_filter ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

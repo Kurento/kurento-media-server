@@ -39,6 +39,8 @@
 #include "PlateDetectorFilter.hpp"
 #include "KmsMediaFaceOverlayFilterType_constants.h"
 #include "FaceOverlayFilter.hpp"
+#include "KmsMediaGStreamerFilterType_constants.h"
+#include "GStreamerFilter.hpp"
 #include "KmsMediaErrorCodes_constants.h"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
@@ -142,6 +144,9 @@ throw (KmsMediaServerException)
                 getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaFaceOverlayFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
     element = std::shared_ptr<FaceOverlayFilter> (new FaceOverlayFilter (
+                getMediaSet(), shared_from_this (), params) );
+  } else if (g_KmsMediaGStreamerFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+    element = std::shared_ptr<GStreamerFilter> (new GStreamerFilter (
                 getMediaSet(), shared_from_this (), params) );
   } else {
     KmsMediaServerException except;
