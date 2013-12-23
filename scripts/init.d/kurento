@@ -1,3 +1,5 @@
+#! /bin/sh
+
 ### BEGIN INIT INFO
 # Provides:          kurentod
 # Required-Start:    $remote_fs $network
