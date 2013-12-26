@@ -31,6 +31,7 @@
 #include "KmsMediaPlateDetectorFilterType_constants.h"
 #include "KmsMediaFaceOverlayFilterType_constants.h"
 #include "KmsMediaGStreamerFilterType_constants.h"
+#include "KmsMediaChromaFilterType_constants.h"
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
@@ -91,6 +92,7 @@ protected:
   void check_plate_detector_filter();
   void check_face_overlay_filter();
   void check_gstreamer_filter();
+  void check_chroma_filter();
 };
 
 void
@@ -802,6 +804,42 @@ ClientHandler::check_gstreamer_filter()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_chroma_filter()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef chromaFilter = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  std::string backgroundUri = "/tmp/img.png";
+  KmsMediaChromaConstructorParams chromaParams;
+  KmsMediaChromaBackgroundImage backgroundImage;
+  KmsMediaParam param;
+  KmsMediaInvocationReturn ret;
+
+  client->createMediaPipeline (mediaPipeline);
+
+  backgroundImage.uri = backgroundUri;
+  chromaParams.backgroundImage = backgroundImage;
+  chromaParams.calibrationArea.x = 200;
+  chromaParams.calibrationArea.y = 150;
+  chromaParams.calibrationArea.width = 50;
+  chromaParams.calibrationArea.height = 50;
+  createStructParam (param, chromaParams, g_KmsMediaChromaFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaChromaFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+  client->createMediaElementWithParams (chromaFilter,
+                                        mediaPipeline,
+                                        g_KmsMediaChromaFilterType_constants.TYPE_NAME, params);
+
+  params.clear ();
+  createStructParam (param, backgroundImage, g_KmsMediaChromaFilterType_constants.SET_BACKGROUND_PARAM_BACKGROUND_IMAGE);
+  params[g_KmsMediaChromaFilterType_constants.SET_BACKGROUND_PARAM_BACKGROUND_IMAGE] = param;
+
+  client->invoke (ret, chromaFilter,
+                  g_KmsMediaChromaFilterType_constants.SET_BACKGROUND, params);
+
+  client->release (mediaPipeline);
+}
+
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
@@ -837,6 +875,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
 #endif
   check_face_overlay_filter ();
   check_gstreamer_filter ();
+  check_chroma_filter ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
