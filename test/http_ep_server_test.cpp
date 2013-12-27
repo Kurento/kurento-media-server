@@ -203,6 +203,8 @@ BOOST_AUTO_TEST_CASE ( register_http_end_point_test )
 {
   init_test_case ();
 
+  GST_INFO ("Running test register_http_end_point_test");
+
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (url_removed_cb),
                     NULL);
   g_signal_connect (httpepserver, "action-requested", G_CALLBACK (action_requested_cb),
@@ -284,6 +286,9 @@ t2_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
 {
   init_test_case ();
+
+  GST_INFO ("Running locked_get_request_http_end_point_test");
+
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (t2_url_removed_cb),
                     NULL);
   g_signal_connect (httpepserver, "action-requested",
@@ -365,6 +370,9 @@ t3_url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 BOOST_AUTO_TEST_CASE ( shutdown_http_end_point_test )
 {
   init_test_case ();
+
+  GST_INFO ("Running shutdown_http_end_point_test");
+
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (t3_url_removed_cb),
                     NULL);
   g_signal_connect (httpepserver, "action-requested",
@@ -442,6 +450,8 @@ t4_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
 BOOST_AUTO_TEST_CASE ( cookie_http_end_point_test )
 {
   init_test_case ();
+
+  GST_INFO ("Running cookie_http_end_point_test");
 
   g_signal_connect (httpepserver, "action-requested",
                     G_CALLBACK (t4_action_requested_cb), NULL);
@@ -671,7 +681,7 @@ BOOST_AUTO_TEST_CASE ( expired_cookie_http_end_point_test )
 
   init_test_case ();
 
-  GST_DEBUG ("Preparing pipeline");
+  GST_INFO ("Running expired_cookie_http_end_point_test");
 
   /* Create gstreamer elements */
   pipeline = gst_pipeline_new ("src-pipeline");
@@ -952,6 +962,8 @@ BOOST_AUTO_TEST_CASE ( post_http_end_point_test )
 {
   init_test_case ();
 
+  GST_INFO ("Running post_http_end_point_test");
+
   kms_http_ep_server_start (httpepserver, post_http_server_start_cb);
 
   g_main_loop_run (loop);
@@ -1071,6 +1083,8 @@ options_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 BOOST_AUTO_TEST_CASE ( options_http_end_point_test )
 {
   init_test_case ();
+
+  GST_INFO ("Running options_http_end_point_test");
 
   kms_http_ep_server_start (httpepserver, options_http_server_start_cb);
 
