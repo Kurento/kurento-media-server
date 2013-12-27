@@ -189,6 +189,8 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
 {
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
+    g_main_loop_quit (loop);
+    BOOST_FAIL ( "Http server could not start" );
     return;
   }
 
@@ -273,6 +275,8 @@ t2_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 {
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
+    g_main_loop_quit (loop);
+    BOOST_FAIL ( "Http server could not start" );
     return;
   }
 
@@ -339,6 +343,8 @@ t3_http_server_start_cb (KmsHttpEPServer *self, GError *err)
 {
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
+    g_main_loop_quit (loop);
+    BOOST_FAIL ( "Http server could not start" );
     return;
   }
 
@@ -426,6 +432,7 @@ t4_http_server_start_cb (KmsHttpEPServer *self, GError *err)
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
     g_main_loop_quit (loop);
+    BOOST_FAIL ( "Http server could not start" );
     return;
   }
 
@@ -634,6 +641,7 @@ t5_http_server_start_cb (KmsHttpEPServer *self, GError *err)
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
     g_main_loop_quit (loop);
+    BOOST_FAIL ( "Http server could not start" );
     return;
   }
 
@@ -946,6 +954,7 @@ post_http_server_start_cb (KmsHttpEPServer *self, GError *err)
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
     g_main_loop_quit (loop);
+    BOOST_FAIL ( "Http server could not start" );
     return;
   }
 
@@ -1073,6 +1082,7 @@ options_http_server_start_cb (KmsHttpEPServer *self, GError *err)
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
     g_main_loop_quit (loop);
+    BOOST_FAIL ( "Http server could not start" );
     return;
   }
 
