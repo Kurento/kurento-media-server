@@ -313,12 +313,9 @@ BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
 /* Functions and variables used for tests 3 */
 /********************************************/
 
-static guint QUEUED = 2;
-
 static void
 t3_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
 {
-  SoupKnownStatusCode *expected = (SoupKnownStatusCode *) data;
   guint status_code;
   gchar *method;
   SoupURI *uri;
@@ -326,10 +323,8 @@ t3_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
                 &status_code, "uri", &uri, NULL);
 
-  GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
-             status_code, *expected);
-
-  BOOST_CHECK_EQUAL (*expected, status_code);
+  GST_DEBUG ("%s %s status code: %d", method, soup_uri_get_path (uri),
+             status_code);
 
   if (++counted == urls_registered)
     g_main_loop_quit (loop);
@@ -348,11 +343,11 @@ t3_http_server_start_cb (KmsHttpEPServer *self, GError *err)
     return;
   }
 
-  register_http_end_points (QUEUED);
+  register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS);
 
   session_cb = t3_http_req_callback;
 
-  g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_200);
+  g_idle_add ( (GSourceFunc) checking_registered_urls, NULL);
 }
 
 static void
@@ -361,10 +356,9 @@ t3_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
 {
   GST_DEBUG ("Action %d requested on %s", action, uri);
 
-  if (++signal_count == QUEUED) {
-    /* Stop Http End Point Server and destroy it */
-    kms_http_ep_server_stop (httpepserver);
-  }
+  /* Stop Http End Point Server and destroy it */
+  GST_DEBUG ("Stopping http end point server");
+  kms_http_ep_server_stop (httpepserver);
 }
 
 static void

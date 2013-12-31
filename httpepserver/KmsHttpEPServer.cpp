@@ -709,13 +709,13 @@ destroy_pending_message (SoupMessage *msg)
       g_object_set (G_OBJECT (httpep), "start", FALSE, NULL);
     }
 
-    soup_server_unpause_message (serv->priv->server, msg);
-    soup_message_body_complete (msg->response_body);
-
     /* Do not call to finished callback */
     handlerid = (gulong *) g_object_get_data (G_OBJECT (msg),
                 KEY_FINISHED_HANDLER_ID);
     g_signal_handler_disconnect (G_OBJECT (msg), *handlerid);
+
+    soup_server_unpause_message (serv->priv->server, msg);
+    soup_message_body_complete (msg->response_body);
 
   } else if (msg->method == SOUP_METHOD_POST) {
     KmsHttpPost *post_obj = NULL;
