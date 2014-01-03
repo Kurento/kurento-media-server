@@ -72,7 +72,7 @@ target_link_libraries(server_test
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
                       )
 target_link_libraries(server_test ${EVENT_LIBRARIES})
-target_link_libraries(server_test kmsiface ${THRIFT_LIBRARIES} ${EVENT_LIBRARIES})
+target_link_libraries(server_test kmsiface ${THRIFT_LIBRARIES})
 target_link_libraries(server_test ${GSTREAMER_LIBRARIES})
 target_link_libraries(server_test ${GLIBMM_LIBRARIES})
 target_link_libraries(server_test ${UUID_LIBRARIES})
