@@ -33,7 +33,15 @@ Standards-Version: 3.9.4
 
 Package: kurento
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ gstreamer1.0-plugins-base (>= 1.2.0),
+ gstreamer1.0-libav,
+ gstreamer1.0-nice,
+ gstreamer1.0-plugins-bad (>= 1.2.0),
+ gstreamer1.0-plugins-good (>= 1.2.0),
+ gstreamer1.0-plugins-ugly (>= 1.2.0),
+ gnutls-bin,
+ libopencv-dev
 Description: Streaming Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
