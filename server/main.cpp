@@ -32,12 +32,11 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <version.hpp>
-#include "log.hpp"
 #include "httpendpointserver.hpp"
 
-#define GST_DEFAULT_NAME "media_server"
-
-GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
+#define GST_CAT_DEFAULT kurento_media_server
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoMediaServer"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
