@@ -96,11 +96,43 @@ throw (KmsMediaServerException)
   init (parent, uriEpParams.uri, profile);
 }
 
-RecorderEndPoint::~RecorderEndPoint() throw ()
+static void
+dispose_element (GstElement *element)
 {
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline), element);
+  GstObject *pipe;
+
+  GST_TRACE_OBJECT (element, "Disposing");
+  pipe = GST_OBJECT_PARENT (element);
+
+  if (pipe != NULL)
+    gst_bin_remove (GST_BIN (pipe), element);
+
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
+}
+
+static void
+state_changed (GstElement *element, gint state, gpointer data)
+{
+  GST_TRACE_OBJECT (element, "State changed: %d", state);
+  dispose_element (element);
+}
+
+RecorderEndPoint::~RecorderEndPoint() throw ()
+{
+  gint state = -1;
+
+  g_object_get (element, "state", &state, NULL);
+
+  if (state == 0 /* stop */) {
+    dispose_element (element);
+    return;
+  }
+
+  g_signal_connect (element, "state-changed",
+                    G_CALLBACK (state_changed), NULL);
+
+  stop();
 }
 
 RecorderEndPoint::StaticConstructor RecorderEndPoint::staticConstructor;
