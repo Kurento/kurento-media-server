@@ -351,7 +351,7 @@ initialiseExecutableName (char *exe, int size)
   len = readlink (link, exe, size);
 
   if (len == -1) {
-    fprintf (stderr, "ERROR GETTING NAME\n");
+    g_printerr ("ERROR GETTING NAME\n");
     exit (1);
   }
 
@@ -387,12 +387,12 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
   char **messages = (char **) NULL;
   int i, trace_size = 0;
 
-//      ucontext_t *uc = (ucontext_t *)data;
+  g_print ("Got signal %d", sig);
 
   /* Do something useful with siginfo_t */
   if (sig == SIGSEGV) {
-    printf ("Got signal %d, faulty address is %p\n", sig,
-            (gpointer) info->si_addr);
+    g_printerr ("Got signal %d, faulty address is %p\n", sig,
+                (gpointer) info->si_addr);
   } else if (sig == SIGKILL || sig == SIGINT) {
     /* since we connect to a signal handler, asynchronous management might */
     /* might happen so we need to set an idle handler to exit the main loop */
@@ -401,13 +401,10 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
     idle_source->connect (sigc::ptr_fun (&quit_loop) );
     idle_source->attach (loop->get_context() );
     return;
-  } else {
-    printf ("Got signal %d\n", sig);
   }
 
   trace_size = backtrace (trace, 35);
   /* overwrite sigaction with caller's address */
-  //trace[1] = (void *) uc->uc_mcontext.gregs[REG_EIP];
   messages = backtrace_symbols (trace, trace_size);
   /* skip first stack frame (points here) */
   g_print ("\t[bt] Execution path:\n");
@@ -479,7 +476,7 @@ main (int argc, char **argv)
                            GST_DEFAULT_NAME);
 
   /* Install our signal handler */
-  sa.sa_sigaction = /*(void (*)(int, siginfo*, gpointer)) */ bt_sighandler;
+  sa.sa_sigaction = bt_sighandler;
   sigemptyset (&sa.sa_mask);
   sa.sa_flags = SA_RESTART | SA_SIGINFO;
   sigaction (SIGSEGV, &sa, NULL);
