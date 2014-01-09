@@ -24,6 +24,8 @@
 #include "KmsMediaPlayerEndPointType_constants.h"
 #include "KmsMediaRecorderEndPointType_constants.h"
 #include "KmsMediaHttpEndPointType_constants.h"
+#include "KmsMediaHttpGetEndPointType_constants.h"
+#include "KmsMediaHttpPostEndPointType_constants.h"
 #include "KmsMediaZBarFilterType_constants.h"
 #include "KmsMediaJackVaderFilterType_constants.h"
 #include "KmsMediaPointerDetectorFilterType_constants.h"
@@ -84,7 +86,8 @@ protected:
   void check_player_end_point ();
   void check_player_end_point_signal_errors ();
   void check_recorder_end_point ();
-  void check_http_end_point ();
+  void check_http_get_end_point ();
+  void check_http_post_end_point ();
   void check_zbar_filter ();
   void check_jackvader_filter ();
   void check_pointer_detector_filter ();
@@ -131,7 +134,7 @@ ClientHandler::check_type ()
   BOOST_CHECK (mo.type.__isset.uriEndPoint);
   BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::RECORDER_END_POINT);
 
-  client->createHttpEndPoint (mo, mediaPipeline);
+  client->createHttpGetEndPoint (mo, mediaPipeline);
   BOOST_CHECK (mo.type.__isset.endPoint);
   BOOST_CHECK_EQUAL (mo.type.endPoint, EndPointType::type::HTTP_END_POINT);
 
@@ -532,7 +535,7 @@ ClientHandler::check_recorder_end_point ()
 }
 
 void
-ClientHandler::check_http_end_point ()
+ClientHandler::check_http_get_end_point ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef httpEp = KmsMediaObjectRef();
@@ -540,7 +543,30 @@ ClientHandler::check_http_end_point ()
   std::string url;
 
   client->createMediaPipeline (mediaPipeline);
-  client->createMediaElement (httpEp, mediaPipeline, g_KmsMediaHttpEndPointType_constants.TYPE_NAME);
+
+  client->createMediaElement (httpEp, mediaPipeline, g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME);
+
+  client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL, emptyParams);
+
+  unmarshalStringInvocationReturn (url, ret);
+
+  GST_INFO ("HttpEndPoint URL: %s", url.c_str () );
+
+  client->release (mediaPipeline);
+}
+
+void
+ClientHandler::check_http_post_end_point ()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef httpEp = KmsMediaObjectRef();
+  KmsMediaInvocationReturn ret;
+  std::string url;
+
+  client->createMediaPipeline (mediaPipeline);
+
+  client->createMediaElement (httpEp, mediaPipeline, g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME);
+
   client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL, emptyParams);
 
   unmarshalStringInvocationReturn (url, ret);
@@ -865,7 +891,8 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_player_end_point ();
   check_player_end_point_signal_errors ();
   check_recorder_end_point ();
-  check_http_end_point ();
+  check_http_get_end_point ();
+  check_http_post_end_point ();
   check_zbar_filter ();
   check_jackvader_filter ();
   check_pointer_detector_filter ();

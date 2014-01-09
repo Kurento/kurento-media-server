@@ -21,6 +21,9 @@
 #include "KmsMediaErrorCodes_constants.h"
 #include "KmsMediaSessionEndPointType_constants.h"
 
+#include "KmsMediaHttpGetEndPointType_constants.h"
+#include "KmsMediaHttpGetEndPointType_types.h"
+
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
 
@@ -32,8 +35,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoHttpEndPoint"
 
 #define DISCONNECTION_TIMEOUT 2 /* seconds */
-#define REGISTER_TIMEOUT 3 /* seconds */
-#define TERMINATE_ON_EOS_DEFAULT false;
 
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
@@ -223,7 +224,7 @@ init_http_end_point (gpointer data)
         httpEp->disconnectionTimeout);
 
   if (url == NULL)
-    return FALSE;
+    return G_SOURCE_REMOVE;
 
   g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port", &port,
                 NULL);
@@ -236,7 +237,7 @@ init_http_end_point (gpointer data)
   httpEp->setUrl (uri);
   httpEp->urlSet = true;
 
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 gboolean
@@ -258,43 +259,28 @@ dispose_http_end_point (gpointer data)
 
 void
 HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent,
-                    guint disconnectionTimeout, bool terminateOnEOS,
-                    KmsMediaProfile profile)
+                    guint disconnectionTimeout)
 throw (KmsMediaServerException)
 {
   element = gst_element_factory_make ("httpendpoint", NULL);
-
-  g_object_set ( G_OBJECT (element), "accept-eos", terminateOnEOS, NULL);
-
-  switch (profile.mediaMuxer) {
-  case KmsMediaMuxer::WEBM:
-    //value 0 means KMS_RECORDING_PROFILE_WEBM
-    g_object_set ( G_OBJECT (element), "profile", 0, NULL);
-    GST_INFO ("Set WEBM profile");
-    break;
-
-  case KmsMediaMuxer::MP4:
-    //value 1 means KMS_RECORDING_PROFILE_MP4
-    g_object_set ( G_OBJECT (element), "profile", 1, NULL);
-    GST_INFO ("Set MP4 profile");
-    break;
-  }
 
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
 
   this->disconnectionTimeout = disconnectionTimeout;
+}
 
+void
+HttpEndPoint::register_end_point ()
+{
   operate_in_main_loop_context (init_http_end_point, this, NULL);
+}
 
-  if (!urlSet) {
-    KmsMediaServerException except;
-
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
-                                   "Cannot register HttpEndPoint");
-    throw except;
-  }
+gboolean
+HttpEndPoint::is_registered ()
+{
+  return urlSet;
 }
 
 KmsMediaHttpEndPointConstructorParams
@@ -321,15 +307,14 @@ throw (KmsMediaServerException)
 
 HttpEndPoint::HttpEndPoint (MediaSet &mediaSet,
                             std::shared_ptr<MediaPipeline> parent,
+                            const std::string &type,
                             const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : EndPoint (mediaSet, parent, g_KmsMediaHttpEndPointType_constants.TYPE_NAME,
-              params)
+  : EndPoint (mediaSet, parent, type, params)
 {
   const KmsMediaParam *p;
   KmsMediaHttpEndPointConstructorParams httpEpParams;
   guint disconnectionTimeout = DISCONNECTION_TIMEOUT;
-  bool terminateOnEOS = TERMINATE_ON_EOS_DEFAULT;
   KmsMediaProfile profile;
 
   profile.mediaMuxer = KmsMediaMuxer::WEBM;
@@ -342,15 +327,9 @@ throw (KmsMediaServerException)
     if (httpEpParams.__isset.disconnectionTimeout) {
       disconnectionTimeout = httpEpParams.disconnectionTimeout;
     }
-
-    if (httpEpParams.__isset.terminateOnEOS)
-      terminateOnEOS = httpEpParams.terminateOnEOS;
-
-    if (httpEpParams.__isset.profileType)
-      profile = httpEpParams.profileType;
   }
 
-  init (parent, disconnectionTimeout, terminateOnEOS, profile);
+  init (parent, disconnectionTimeout);
 }
 
 HttpEndPoint::~HttpEndPoint() throw ()
@@ -395,10 +374,6 @@ throw (KmsMediaServerException)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
   else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE.compare (
-             eventType) == 0)
-    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
-                                         handlerPort);
-  else if (g_KmsMediaHttpEndPointType_constants.EVENT_EOS_DETECTED.compare (
              eventType) == 0)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);

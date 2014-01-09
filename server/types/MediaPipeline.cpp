@@ -25,8 +25,10 @@
 #include "RecorderEndPoint.hpp"
 #include "KmsMediaRtpEndPointType_constants.h"
 #include "RtpEndPoint.hpp"
-#include "KmsMediaHttpEndPointType_constants.h"
-#include "HttpEndPoint.hpp"
+#include "KmsMediaHttpGetEndPointType_constants.h"
+#include "HttpGetEndPoint.hpp"
+#include "KmsMediaHttpPostEndPointType_constants.h"
+#include "HttpPostEndPoint.hpp"
 #include "KmsMediaZBarFilterType_constants.h"
 #include "ZBarFilter.hpp"
 #include "KmsMediaJackVaderFilterType_constants.h"
@@ -126,8 +128,11 @@ throw (KmsMediaServerException)
   } else if (g_KmsMediaRtpEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
     element = std::shared_ptr<RtpEndPoint> (new RtpEndPoint (getMediaSet(),
                                             shared_from_this (), params) );
-  } else if (g_KmsMediaHttpEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<HttpEndPoint> (new HttpEndPoint (getMediaSet(),
+  } else if (g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+    element = std::shared_ptr<HttpPostEndPoint> (new HttpPostEndPoint (getMediaSet(),
+              shared_from_this (), params) );
+  } else if (g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+    element = std::shared_ptr<HttpGetEndPoint> (new HttpGetEndPoint (getMediaSet(),
               shared_from_this (), params) );
   } else if (g_KmsMediaZBarFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
     element = std::shared_ptr<ZBarFilter> (new ZBarFilter (getMediaSet(),

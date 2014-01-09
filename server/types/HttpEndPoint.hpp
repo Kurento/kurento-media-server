@@ -27,9 +27,10 @@ class HttpEndPoint : public EndPoint
 {
 public:
   HttpEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
+                const std::string &type,
                 const std::map<std::string, KmsMediaParam>& params)
   throw (KmsMediaServerException);
-  ~HttpEndPoint() throw ();
+  virtual ~HttpEndPoint() throw ();
 
   std::string getUrl ();
 
@@ -38,17 +39,17 @@ public:
   void subscribe (std::string &_return, const std::string &eventType,
                   const std::string &handlerAddress, const int32_t handlerPort) throw (KmsMediaServerException);
 
+protected:
+  void register_end_point ();
+  gboolean is_registered();
+
 private:
   std::string url;
   bool urlSet = false;
   guint disconnectionTimeout;
-
   void setUrl (const std::string &);
-
-private:
-  void init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout,
-    bool terminateOnEOS, KmsMediaProfile profile)
-throw (KmsMediaServerException);
+  void init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout)
+             throw (KmsMediaServerException);
 
   class StaticConstructor
   {
