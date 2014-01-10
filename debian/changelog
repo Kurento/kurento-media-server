@@ -1,3 +1,126 @@
+kurento (3.0.4) UNRELEASED; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development version
+  * WebrtcEndPoint: Set sdp pattern to element
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpPost: Add Message property
+  * KmsHttpPost: Check for boundary header
+  * KmsHttpPost: Disconnect signal when message is removed
+  * KmsHttpPost: Add multipart field to private structure
+  * KmsHttpPost: Read boundary
+
+  [ David Fernandez ]
+  * Create plate detector filter in the server
+
+  [ Jose Antonio Santos Cadenas ]
+  * SdpEndPoint: Allow subscription for MediaSessionEvents
+  * SdpEndPoint: Create static constructor for debug initialization
+  * Add opus with two channels to SDP pattern
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpPost: Read headers
+  * KmsHttpPost: Provide support only to form-data multipart variant
+  * KmsHttpPost: Parse headers contained in multipart bodies
+  * KmsHttpPost: Read data from body parts
+  * KmsHttpPost: Emit got-data signal when data is read from multipart body
+  * KmsHttpPost: Read data only if it has a filename attribute
+
+  [ Santiago Gala ]
+  * Use the same version of libevent for debian package than for the build
+
+  [ Jose Antonio Santos Cadenas ]
+  * KmsHttpEPServer: Fix compilation warning
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttPost: Boundaries should be preceded by a new line.
+  * KmsHttpPost: Process non-multipart POST requets
+  * KmsHttpPost: Add finished signal
+  * KmsHttpPost: Add object constructor
+  * KmsHttpEPServer: Use Post object to manage POST requests
+  * libkmshttpep: Make lines shorter than 80 characters
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugins submodule
+
+  [ Miguel París Díaz ]
+  * Install kms-dtls-plugins correctly
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add gnutls-bin and libgnutls28 as dependencies for .deb package
+
+  [ Santiago Gala ]
+  * remove obsolete license.txt
+
+  [ Santiago Carot-Nemesio ]
+  * Add multipart post tests
+
+  [ Miguel París Díaz ]
+  * pattern.sdp: replace stereo OPUS by PCMU
+
+  [ Santiago Gala ]
+  * lintian errors: several errors in the init.d script
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update gst-kurento-plugins to add webrtc bundle support and vp8parser
+
+  [ Santiago Carot-Nemesio ]
+  * Remove unneded checks
+
+  [ David Fernandez ]
+  * faceOverlay: Add face overlay filter to media server
+  * pointerdetector: allow set an icon for each window
+
+  [ Jose Antonio Santos Cadenas ]
+  * HttpEPServer: Do not check cookies for OPTIONS method
+  * HttpEPServer: Print a warning if a request is rejected because of a cookie
+
+  [ Santiago Carot-Nemesio ]
+  * HttpEpServer: Add support for OPTIONS requests
+  * Add Option tests for http end point server
+
+  [ Jose Antonio Santos Cadenas ]
+  * Disable plate_detector_check
+  * Use dynamic_pointer_cast instead of casting for shared_ptr
+  * Fix compilation warnings
+
+  [ David Fernandez ]
+  * pointerdetector: Add active icon for windows
+
+  [ Santiago Gala ]
+  * Deb packaging with git-buildpackage
+
+  [ Santiago Carot-Nemesio ]
+  * Add debug messages for http end point server tests
+  * Make http end point server tests fail if server can not start
+  * Do not manage signal handler when the message has been destroyed
+
+  [ Miguel París Díaz ]
+  * Fix not adding libraries twice
+
+  [ Santiago Gala ]
+  * Use LGPL-2.1 license text
+  * Split kurento into runtime and development packages
+  * lintian warning: executable-not-elf-or-script
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add missing dtls-plugins libraries
+  * Add missing depdendencies that are not automatically detected by shlibs
+  * Update gst-kurento-plugins some bugs where solved
+
+  [ Miguel París Díaz ]
+  * main: improve gstreamer log usage
+  * main: use g_print properly
+
+  [ Jose Antonio Santos Cadenas ]
+  * RecorderEndPoint: Ensure that recorder is stopped before destroying it
+  * Prepare relase 3.0.3
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 10 Jan 2014 12:30:07 +0100
+
 kurento (2.0.0) saucy; urgency=low
 
   [ Miguel París Díaz ]
