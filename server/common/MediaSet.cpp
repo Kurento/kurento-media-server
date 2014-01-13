@@ -139,7 +139,6 @@ isForceRemoving (std::shared_ptr<MediaObjectImpl> mediaObject)
 void
 MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
 {
-  std::shared_ptr<AutoReleaseData> data;
   std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >::iterator it;
   std::shared_ptr<std::set<KmsMediaObjectId>> children;
 
@@ -151,13 +150,6 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
     // The object is already in the mediaset
     mutex.unlock();
     return;
-  }
-
-  if (!mediaObject->getExcludeFromGC () ) {
-    data = std::shared_ptr<AutoReleaseData> (new AutoReleaseData() );
-    data->mediaSet = this;
-    data->objectId = mediaObject->id;
-    data->forceRemoving = isForceRemoving (mediaObject);
   }
 
   if (mediaObject->parent != NULL) {
@@ -176,6 +168,13 @@ MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
   mediaObjectsMap[mediaObject->id] = mediaObject;
 
   if (!mediaObject->getExcludeFromGC () ) {
+    std::shared_ptr<AutoReleaseData> data;
+
+    data = std::shared_ptr<AutoReleaseData> (new AutoReleaseData() );
+    data->mediaSet = this;
+    data->objectId = mediaObject->id;
+    data->forceRemoving = isForceRemoving (mediaObject);
+
     mediaObjectsAlive[mediaObject->id] = data;
     keepAlive (*mediaObject);
   }
