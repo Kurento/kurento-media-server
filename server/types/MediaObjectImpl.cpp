@@ -56,7 +56,8 @@ getId()
 }
 
 void
-MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
+MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params,
+                       bool defaultCollectOnUnreferenced)
 {
   const KmsMediaParam *p;
   KmsMediaObjectConstructorParams mediaObjectParams;
@@ -66,8 +67,10 @@ MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
   if (p != NULL) {
     unmarshalKmsMediaObjectConstructorParams (mediaObjectParams, p->data);
 
-    if (mediaObjectParams.__isset.excludeFromGC) {
-      this->excludeFromGC = mediaObjectParams.excludeFromGC;
+    if (mediaObjectParams.__isset.collectOnUnreferenced) {
+      this->collectOnUnreferenced = mediaObjectParams.collectOnUnreferenced;
+    } else {
+      this->collectOnUnreferenced = defaultCollectOnUnreferenced;
     }
 
     if (mediaObjectParams.__isset.garbageCollectorPeriod) {
@@ -75,27 +78,31 @@ MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
     }
   }
 
-  GST_TRACE ("MediaObject %" G_GINT64_FORMAT " excludeFromGC: %d", this->id,
-             this->excludeFromGC);
+  this->excludeFromGC = (this->garbageCollectorPeriod <= 0);
+
+  GST_TRACE ("MediaObject %" G_GINT64_FORMAT
+             " excludeFromGC: %d, collectOnUnreferenced: %d", this->id,
+             this->excludeFromGC, this->collectOnUnreferenced);
 }
 
 MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam>
-                                  &params)
+                                  &params, bool defaultCollectOnUnreferenced)
   : KmsMediaObjectRef()
 {
   id = getId();
   generateUUID (token);
-  init (params);
+  init (params, defaultCollectOnUnreferenced);
 }
 
 MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent,
-                                  const std::map<std::string, KmsMediaParam> &params)
+                                  const std::map<std::string, KmsMediaParam> &params,
+                                  bool defaultCollectOnUnreferenced)
   : KmsMediaObjectRef()
 {
   id = getId();
   this->token = parent->token;
   this->parent = parent;
-  init (params);
+  init (params, defaultCollectOnUnreferenced);
 }
 
 MediaObjectImpl::~MediaObjectImpl() throw ()
@@ -114,12 +121,6 @@ MediaObjectImpl::getParent () throw (KmsMediaServerException)
   }
 
   return parent;
-}
-
-bool
-MediaObjectImpl::getExcludeFromGC ()
-{
-  return excludeFromGC;
 }
 
 void

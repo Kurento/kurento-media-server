@@ -101,7 +101,7 @@ MediaPipeline::init ()
 MediaPipeline::MediaPipeline (MediaSet &mediaSet,
                               const std::map < std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : MediaObjectParent (mediaSet, params),
+  : MediaObjectParent (mediaSet, params, true),
     KmsMediaPipeline ()
 {
   init ();

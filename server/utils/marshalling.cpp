@@ -173,13 +173,11 @@ unmarshalStringParam (std::string &_return,
 void
 createKmsMediaObjectConstructorParams (
   std::map<std::string, KmsMediaParam> &_return,
-  bool excludeFromGC, int32_t garbageCollectorPeriod)
+  int32_t garbageCollectorPeriod)
 throw (KmsMediaServerException)
 {
   KmsMediaParam param;
   KmsMediaObjectConstructorParams moParams;
-
-  moParams.__set_excludeFromGC (excludeFromGC);
 
   if (garbageCollectorPeriod !=
       g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD) {

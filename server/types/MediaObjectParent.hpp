@@ -26,9 +26,11 @@ class MediaObjectParent : public MediaObjectImpl
 {
 public:
   MediaObjectParent (MediaSet &mediaSet,
-                     const std::map<std::string, KmsMediaParam> &params = emptyParams);
+                     const std::map<std::string, KmsMediaParam> &params = emptyParams,
+                     bool defaultCollectOnUnreferenced = false);
   MediaObjectParent (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
-                     const std::map<std::string, KmsMediaParam> &params = emptyParams);
+                     const std::map<std::string, KmsMediaParam> &params = emptyParams,
+                     bool defaultCollectOnUnreferenced = false);
   virtual ~MediaObjectParent() throw () = 0;
 
 protected:

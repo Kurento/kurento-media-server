@@ -138,7 +138,7 @@ throw (KmsMediaServerException)
 
 void createKmsMediaObjectConstructorParams (std::map<std::string, KmsMediaParam>
     &_return,
-    bool excludeFromGC, int32_t garbageCollectorPeriod =
+    int32_t garbageCollectorPeriod =
       g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD)
 throw (KmsMediaServerException);
 void marshalKmsMediaObjectConstructorParams (std::string &_return,

@@ -185,7 +185,7 @@ ClientHandler::check_auto_released_media_pipeline ()
   std::map<std::string, KmsMediaParam> params;
   std::map<std::string, KmsMediaParam> mediaObjectparams;
 
-  createKmsMediaObjectConstructorParams (mediaObjectparams, false,
+  createKmsMediaObjectConstructorParams (mediaObjectparams,
                                          AUTO_RELEASE_INTERVAL);
   createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
   params.insert (mediaObjectparams.begin(), mediaObjectparams.end() );
@@ -255,7 +255,7 @@ ClientHandler::check_keep_alive_media_pipeline ()
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> mediaObjectparams;
 
-  createKmsMediaObjectConstructorParams (mediaObjectparams, false,
+  createKmsMediaObjectConstructorParams (mediaObjectparams,
                                          AUTO_RELEASE_INTERVAL);
 
   client->createMediaPipelineWithParams (mediaPipeline, mediaObjectparams);
@@ -274,7 +274,7 @@ ClientHandler::check_exclude_from_gc ()
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
 
-  createKmsMediaObjectConstructorParams (params, true, AUTO_RELEASE_INTERVAL);
+  createKmsMediaObjectConstructorParams (params, 0);
 
   client->createMediaPipelineWithParams (mediaPipeline, params);
   g_usleep ( (2 * AUTO_RELEASE_INTERVAL + 1) * G_USEC_PER_SEC);

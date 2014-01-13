@@ -29,12 +29,11 @@ class MediaObjectImpl : public KmsMediaObjectRef
 {
 public:
   MediaObjectImpl (const std::map<std::string, KmsMediaParam> &params =
-                     emptyParams);
+                     emptyParams, bool defaultCollectOnUnreferenced = false);
   MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent,
-                   const std::map<std::string, KmsMediaParam> &params = emptyParams);
+                   const std::map<std::string, KmsMediaParam> &params = emptyParams,
+                   bool collectOnUnreferenced = false);
   virtual ~MediaObjectImpl() throw () = 0;
-
-  bool getExcludeFromGC ();
 
   std::shared_ptr<MediaObjectImpl> getParent () throw (KmsMediaServerException);
   virtual void invoke (KmsMediaInvocationReturn &_return,
@@ -55,6 +54,15 @@ public:
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;
+
+  bool getExcludeFromGC () {
+    return excludeFromGC;
+  }
+
+  bool getCollectOnUnreferenced () {
+    return collectOnUnreferenced;
+  }
+
   int32_t getGarbageCollectorPeriod () {
     return garbageCollectorPeriod;
   }
@@ -69,11 +77,13 @@ protected:
                   int32_t errorCode);
 
 private:
-  bool excludeFromGC = false;
+  bool excludeFromGC;
+  bool collectOnUnreferenced = false;
   int32_t garbageCollectorPeriod =
     g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD;
 
-  void init (const std::map<std::string, KmsMediaParam> &params);
+  void init (const std::map<std::string, KmsMediaParam> &params,
+             bool defaultCollectOnUnreferenced);
   void sendError (const std::shared_ptr<KmsMediaError> &error);
 
   static KmsMediaEventData defaultKmsMediaEventData;
