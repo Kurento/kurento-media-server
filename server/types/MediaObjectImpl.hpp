@@ -25,6 +25,11 @@
 namespace kurento
 {
 
+typedef enum {
+  REF,
+  UNREF
+} State;
+
 class MediaObjectImpl : public KmsMediaObjectRef
 {
 public:
@@ -67,6 +72,14 @@ public:
     return garbageCollectorPeriod;
   }
 
+  State getState () {
+    return state;
+  }
+
+  void setState (State newState) {
+    this->state = newState;
+  }
+
 protected:
   static std::map<std::string, KmsMediaParam> emptyParams;
   MediaHandlerManager mediaHandlerManager;
@@ -81,6 +94,7 @@ private:
   bool collectOnUnreferenced = false;
   int32_t garbageCollectorPeriod =
     g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD;
+  State state = REF;
 
   void init (const std::map<std::string, KmsMediaParam> &params,
              bool defaultCollectOnUnreferenced);
