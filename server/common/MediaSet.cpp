@@ -50,7 +50,8 @@ auto_release (gpointer dataPointer)
   GST_TRACE ("Auto release media object %" G_GINT64_FORMAT ", force: %d",
              data->objectId, data->forceRemoving);
   data->mediaSet->remove (data->objectId, data->forceRemoving);
-  return TRUE;
+
+  return G_SOURCE_CONTINUE;
 }
 
 namespace kurento
