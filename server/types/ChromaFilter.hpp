@@ -41,6 +41,7 @@ private:
   GstElement *chroma;
 
   void setBackground (KmsMediaChromaBackgroundImage backgroundImage);
+  void unsetBackground ();
 
   class StaticConstructor
   {

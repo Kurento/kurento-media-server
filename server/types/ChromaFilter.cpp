@@ -109,6 +109,12 @@ ChromaFilter::setBackground (KmsMediaChromaBackgroundImage backgroundImage)
 }
 
 void
+ChromaFilter::unsetBackground ()
+{
+  g_object_set (G_OBJECT (this->chroma), SET_BACKGROUND_URI, NULL, NULL);
+}
+
+void
 ChromaFilter::invoke (KmsMediaInvocationReturn &_return,
                       const std::string &command,
                       const std::map< std::string, KmsMediaParam > &params)
@@ -126,6 +132,8 @@ throw (KmsMediaServerException)
       unmarshalStruct (backgroundImage, p->data);
       setBackground (backgroundImage);
     }
+  } else if (g_KmsMediaChromaFilterType_constants.UNSET_BACKGROUND.compare (command) == 0) {
+    unsetBackground ();
   }
 }
 
