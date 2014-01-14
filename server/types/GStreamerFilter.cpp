@@ -170,7 +170,6 @@ GStreamerFilter::setCommandProperties (string rest_token)
       }
     }
 
-    g_param_spec_unref (pspec);
     g_strfreev (elements);
   }
 
