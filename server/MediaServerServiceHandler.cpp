@@ -274,13 +274,14 @@ MediaServerServiceHandler::getParent (KmsMediaObjectRef &_return,
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
-  std::shared_ptr<KmsMediaObjectRef> parent;
+  std::shared_ptr<MediaObjectImpl> parent;
 
   GST_TRACE ("getParent %" G_GINT64_FORMAT, mediaObjectRef.id);
 
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     parent = mo->getParent ();
+    mediaSet.reg (parent);
     _return = *parent;
   } catch (const KmsMediaServerException &e) {
     GST_TRACE ("getParent %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)",
@@ -305,7 +306,7 @@ MediaServerServiceHandler::getMediaPipeline (KmsMediaObjectRef &_return,
     const KmsMediaObjectRef &mediaObjectRef)
 throw (KmsMediaServerException)
 {
-  std::shared_ptr<MediaObjectImpl> mo;
+  std::shared_ptr<MediaObjectImpl> mo, mediaPipeline;
 
   GST_TRACE ("getMediaPipeline %" G_GINT64_FORMAT, mediaObjectRef.id);
 
@@ -313,10 +314,13 @@ throw (KmsMediaServerException)
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
 
     if (std::dynamic_pointer_cast<MediaPipeline> (mo) ) {
-      _return = *mo;
+      mediaPipeline = mo;
     } else {
-      _return = * (mo->getParent () );
+      mediaPipeline = mo->getParent ();
     }
+
+    mediaSet.reg (mediaPipeline);
+    _return = *mediaPipeline;
   } catch (const KmsMediaServerException &e) {
     GST_TRACE ("getMediaPipeline %" G_GINT64_FORMAT
                " throws KmsMediaServerException (%s)", mediaObjectRef.id,
