@@ -31,10 +31,10 @@ public:
   MediaSet () {};
   ~MediaSet ();
 
-  void put (std::shared_ptr<MediaObjectImpl> mediaObject);
+  void reg (std::shared_ptr<MediaObjectImpl> mediaObject);
   void keepAlive (const KmsMediaObjectRef &mediaObject) throw (KmsMediaServerException);
-  void remove (const KmsMediaObjectRef &mediaObject, bool force);
-  void remove (const KmsMediaObjectId &id, bool force);
+  void unreg (const KmsMediaObjectRef &mediaObject, bool force = true);
+  void unreg (const KmsMediaObjectId &id, bool force = true);
   int size();
 
   template <class T>

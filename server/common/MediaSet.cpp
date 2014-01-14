@@ -49,7 +49,7 @@ auto_release (gpointer dataPointer)
 
   GST_TRACE ("Auto release media object %" G_GINT64_FORMAT ", force: %d",
              data->objectId, data->forceRemoving);
-  data->mediaSet->remove (data->objectId, data->forceRemoving);
+  data->mediaSet->unreg (data->objectId, data->forceRemoving);
 
   return G_SOURCE_CONTINUE;
 }
@@ -138,7 +138,7 @@ isForceRemoving (std::shared_ptr<MediaObjectImpl> mediaObject)
 }
 
 void
-MediaSet::put (std::shared_ptr<MediaObjectImpl> mediaObject)
+MediaSet::reg (std::shared_ptr<MediaObjectImpl> mediaObject)
 {
   std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >::iterator it;
   std::shared_ptr<std::set<KmsMediaObjectId>> children;
@@ -204,13 +204,13 @@ MediaSet::removeAutoRelease (const KmsMediaObjectId &id)
 }
 
 void
-MediaSet::remove (const KmsMediaObjectRef &mediaObject, bool force)
+MediaSet::unreg (const KmsMediaObjectRef &mediaObject, bool force)
 {
-  remove (mediaObject.id, force);
+  unreg (mediaObject.id, force);
 }
 
 void
-MediaSet::remove (const KmsMediaObjectId &id, bool force)
+MediaSet::unreg (const KmsMediaObjectId &id, bool force)
 {
   std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> >::iterator mediaObjectsMapIt;
   std::shared_ptr<MediaObjectImpl> mo = NULL;
@@ -232,7 +232,7 @@ MediaSet::remove (const KmsMediaObjectId &id, bool force)
     }
 
     for (childrenIt = children->begin(); childrenIt != children->end(); childrenIt++) {
-      remove (*childrenIt, force);
+      unreg (*childrenIt, force);
     }
 
     childrenMap.erase (id);

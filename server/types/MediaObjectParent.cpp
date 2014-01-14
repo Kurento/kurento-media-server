@@ -45,7 +45,7 @@ MediaObjectParent::~MediaObjectParent () throw ()
 
 void MediaObjectParent::registerChild (std::shared_ptr< MediaObjectImpl > child)
 {
-  mediaSet.put (child);
+  mediaSet.reg (child);
 }
 
 MediaSet &MediaObjectParent::getMediaSet()

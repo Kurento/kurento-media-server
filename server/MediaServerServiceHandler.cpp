@@ -74,7 +74,7 @@ MediaServerServiceHandler::release (const KmsMediaObjectRef &mediaObjectRef) thr
   GST_TRACE ("release %" G_GINT64_FORMAT, mediaObjectRef.id);
 
   try {
-    mediaSet.remove (mediaObjectRef, true);
+    mediaSet.unreg (mediaObjectRef);
   } catch (const KmsMediaServerException &e) {
     GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
     throw e;
@@ -302,7 +302,7 @@ MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return) thro
   try {
     mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet) );
     GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
-    mediaSet.put (mediaPipeline);
+    mediaSet.reg (mediaPipeline);
 
     _return = *mediaPipeline;
   } catch (...) {
@@ -329,7 +329,7 @@ throw (KmsMediaServerException)
   try {
     mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet, params) );
     GST_DEBUG ("createMediaPipelineWithParams id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
-    mediaSet.put (mediaPipeline);
+    mediaSet.reg (mediaPipeline);
 
     _return = *mediaPipeline;
   } catch (...) {
@@ -846,7 +846,7 @@ MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return, cons
   try {
     m = mediaSet.getMediaObject<Mixer> (mixer);
     mixerEndPoint = m->createMixerEndPoint();
-    mediaSet.put (mixerEndPoint);
+    mediaSet.reg (mixerEndPoint);
 
     _return = *mixerEndPoint;
   } catch (const KmsMediaServerException &e) {
