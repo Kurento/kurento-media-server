@@ -60,6 +60,10 @@ public:
 public:
   std::shared_ptr<MediaObjectImpl> parent;
 
+  bool getUnregChilds () {
+    return unregChilds;
+  }
+
   bool getExcludeFromGC () {
     return excludeFromGC;
   }
@@ -81,6 +85,8 @@ public:
   }
 
 protected:
+  bool unregChilds = true;
+
   static std::map<std::string, KmsMediaParam> emptyParams;
   MediaHandlerManager mediaHandlerManager;
 

@@ -96,6 +96,7 @@ MediaPipeline::init ()
   g_object_unref (bus);
 
   this->objectType.__set_pipeline (*this);
+  this->unregChilds = false;
 }
 
 MediaPipeline::MediaPipeline (MediaSet &mediaSet,
