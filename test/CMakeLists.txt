@@ -138,3 +138,36 @@ include_directories(http_ep_server_test ${LIBSOUP_INCLUDE_DIRS})
 include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/server)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
+
+
+set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
+set(CXXFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
+
+set(SERVER_UNEXPECTED_TEST_SOURCE server_test_base.cpp server_unexpected_test.cpp sdp_end_point_test.cpp ../server/common/Operators.cpp HandlerTest.cpp ${UTILS})
+set_source_files_properties(${SERVER_UNEXPECTED_TEST_SOURCE}
+                PROPERTIES COMPILE_FLAGS ${CFLAGS})
+
+add_executable(server_unexpected_test ${SERVER_UNEXPECTED_TEST_SOURCE})
+add_dependencies(server_unexpected_test kmsiface-project)
+add_dependencies(server_unexpected_test kurento)
+
+target_link_libraries(server_unexpected_test
+                      ${Boost_FILESYSTEM_LIBRARY}
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      )
+target_link_libraries(server_unexpected_test ${EVENT_LIBRARIES})
+target_link_libraries(server_unexpected_test kmsiface ${THRIFT_LIBRARIES})
+target_link_libraries(server_unexpected_test ${GSTREAMER_LIBRARIES})
+target_link_libraries(server_unexpected_test ${GLIBMM_LIBRARIES})
+target_link_libraries(server_unexpected_test ${UUID_LIBRARIES})
+target_link_libraries(server_unexpected_test ${GLIB2_LIBRARIES} -lpthread)
+
+include_directories(server_unexpected_test ${THRIFT_INCLUDE_DIRS})
+include_directories(server_unexpected_test ${GSTREAMER_INCLUDE_DIRS})
+include_directories(server_unexpected_test ${GLIBMM_INCLUDE_DIRS})
+include_directories(server_unexpected_test ${UUID_INCLUDE_DIRS})
+include_directories(server_unexpected_test ${KMSIFACE_INCLUDE_DIR})
+include_directories(server_unexpected_test ${CMAKE_SOURCE_DIR}/server)
+
+add_definitions(-DBOOST_TEST_DYN_LINK)

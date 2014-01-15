@@ -76,6 +76,9 @@ set_property(TEST server_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMA
 
 add_test(http_ep_server_test test/http_ep_server_test)
 set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+
+add_test(server_unexpected_test test/server_unexpected_test)
+set_tests_properties(server_unexpected_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 
 # Temporally disabled
