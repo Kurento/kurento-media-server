@@ -17,12 +17,14 @@
 
 #include "KmsMediaPlayerEndPointType_constants.h"
 #include "utils/marshalling.hpp"
+#include "utils/utils.hpp"
 
 #define GST_CAT_DEFAULT kurento_player_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPlayerEndPoint"
 
 #define FACTORY_NAME "playerendpoint"
+#define USE_ENCODED_MEDIA "use-encoded-media"
 
 namespace kurento
 {
@@ -54,6 +56,21 @@ throw (KmsMediaServerException)
   : UriEndPoint (mediaSet, parent,
                  g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
 {
+  const KmsMediaParam *p;
+  KmsMediaPlayerEndPointConstructorParams constructorParams;
+
+  p = getParam (params,
+                g_KmsMediaPlayerEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+
+  if (p != NULL) {
+    unmarshalStruct (constructorParams, p->data);
+
+    if (constructorParams.__isset.useEncodedMedia) {
+      g_object_set (G_OBJECT (element), USE_ENCODED_MEDIA,
+                    constructorParams.useEncodedMedia, NULL);
+    }
+  }
+
   g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);
   g_signal_connect (element, "invalid-uri", G_CALLBACK (player_invalid_uri),
                     this);

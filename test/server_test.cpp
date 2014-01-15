@@ -396,9 +396,18 @@ ClientHandler::check_player_end_point ()
   Glib::Cond cond;
   Glib::TimeVal timeout;
   gboolean endTimeout;
+  KmsMediaPlayerEndPointConstructorParams constructorParams;
+  KmsMediaParam param;
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
+//marshalling data
+  constructorParams.useEncodedMedia = TRUE;
+  constructorParams.__isset.useEncodedMedia = TRUE;
+  createStructParam (param, constructorParams,
+                     g_KmsMediaPlayerEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaPlayerEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] =
+    param;
   client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
                                         g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
