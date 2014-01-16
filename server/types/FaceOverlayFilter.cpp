@@ -74,6 +74,21 @@ FaceOverlayFilter::setImageOverlay (KmsMediaFaceOverlayImage image)
 }
 
 void
+FaceOverlayFilter::unsetImageOverlay ()
+{
+  GstStructure *imageSt;
+  imageSt = gst_structure_new ("image",
+                               "offsetXPercent", G_TYPE_DOUBLE, 0.0,
+                               "offsetYPercent", G_TYPE_DOUBLE, 0.0,
+                               "widthPercent", G_TYPE_DOUBLE, 0.0,
+                               "heightPercent", G_TYPE_DOUBLE, 0.0,
+                               "url", G_TYPE_STRING, NULL,
+                               NULL);
+  g_object_set (G_OBJECT (faceOverlay), "image-to-overlay", imageSt, NULL);
+  gst_structure_free (imageSt);
+}
+
+void
 FaceOverlayFilter::invoke (KmsMediaInvocationReturn &_return,
                            const std::string &command,
                            const std::map< std::string, KmsMediaParam > &params)
@@ -91,7 +106,12 @@ throw (KmsMediaServerException)
       unmarshalStruct (imageInfo, p->data);
       setImageOverlay (imageInfo);
     }
+  } else if (
+    g_KmsMediaFaceOverlayFilterType_constants.UNSET_IMAGE_OVERLAY.compare (
+      command) == 0) {
+    unsetImageOverlay ();
   }
+
 }
 
 FaceOverlayFilter::StaticConstructor FaceOverlayFilter::staticConstructor;

@@ -40,6 +40,7 @@ public:
 private:
 
   void setImageOverlay (KmsMediaFaceOverlayImage image);
+  void unsetImageOverlay ();
 
   class StaticConstructor
   {
