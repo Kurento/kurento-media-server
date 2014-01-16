@@ -71,7 +71,9 @@ ASTYLE_PARAMS="--style=linux\
  --convert-tabs\
  --align-pointer=name\
  --lineend=linux\
- --break-blocks"
+ --break-blocks\
+ --max-code-length=80\
+ --add-brackets"
 
 if [ $(version $VERSION) -ge $(version "2.02") ]; then
   ASTYLE_PARAMS="$ASTYLE_PARAMS --align-reference=name"
