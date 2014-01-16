@@ -52,7 +52,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 using namespace kurento;
 
-static std::map<std::string, KmsMediaParam> emptyParams = std::map<std::string, KmsMediaParam> ();
+static std::map<std::string, KmsMediaParam> emptyParams =
+  std::map<std::string, KmsMediaParam> ();
 
 class ClientHandler : public F
 {
@@ -116,23 +117,31 @@ ClientHandler::check_type ()
 
   client->createMediaPipeline (mediaPipeline, 0);
   BOOST_CHECK (mediaPipeline.type.__isset.mediaObject);
-  BOOST_CHECK_EQUAL (mediaPipeline.type.mediaObject, MediaObjectType::type::MEDIA_PIPELINE);
+  BOOST_CHECK_EQUAL (mediaPipeline.type.mediaObject,
+                     MediaObjectType::type::MEDIA_PIPELINE);
 
-  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::RTP_END_POINT);
+  client->createSdpEndPoint (mo, mediaPipeline,
+                             SdpEndPointType::type::RTP_END_POINT);
   BOOST_CHECK (mo.type.__isset.sdpEndPoint);
   BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::RTP_END_POINT);
 
-  client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::WEBRTC_END_POINT);
+  client->createSdpEndPoint (mo, mediaPipeline,
+                             SdpEndPointType::type::WEBRTC_END_POINT);
   BOOST_CHECK (mo.type.__isset.sdpEndPoint);
-  BOOST_CHECK_EQUAL (mo.type.sdpEndPoint, SdpEndPointType::type::WEBRTC_END_POINT);
+  BOOST_CHECK_EQUAL (mo.type.sdpEndPoint,
+                     SdpEndPointType::type::WEBRTC_END_POINT);
 
-  client->createUriEndPoint (mo, mediaPipeline, UriEndPointType::type::PLAYER_END_POINT, "");
+  client->createUriEndPoint (mo, mediaPipeline,
+                             UriEndPointType::type::PLAYER_END_POINT, "");
   BOOST_CHECK (mo.type.__isset.uriEndPoint);
-  BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::PLAYER_END_POINT);
+  BOOST_CHECK_EQUAL (mo.type.uriEndPoint,
+                     UriEndPointType::type::PLAYER_END_POINT);
 
-  client->createUriEndPoint (mo, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, "");
+  client->createUriEndPoint (mo, mediaPipeline,
+                             UriEndPointType::type::RECORDER_END_POINT, "");
   BOOST_CHECK (mo.type.__isset.uriEndPoint);
-  BOOST_CHECK_EQUAL (mo.type.uriEndPoint, UriEndPointType::type::RECORDER_END_POINT);
+  BOOST_CHECK_EQUAL (mo.type.uriEndPoint,
+                     UriEndPointType::type::RECORDER_END_POINT);
 
   client->createHttpGetEndPoint (mo, mediaPipeline);
   BOOST_CHECK (mo.type.__isset.endPoint);
@@ -158,10 +167,12 @@ ClientHandler::check_use_released_media_pipeline ()
   createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
 
   try {
-    client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+    client->createMediaElementWithParams (mo, mediaPipeline,
+                                          g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
     BOOST_FAIL ("Use a released MediaPipeline must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND,
+                       e.errorCode);
   }
 }
 
@@ -186,19 +197,22 @@ ClientHandler::check_auto_released_media_pipeline ()
     client->keepAlive (mediaPipeline);
     BOOST_FAIL ("Use an auto released MediaPipeline must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND,
+                       e.errorCode);
   }
 
   client->createMediaPipelineWithParams (mediaPipeline, mediaObjectparams);
   g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
-  BOOST_REQUIRE_NO_THROW (client->createMediaElementWithParams (moA, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params););
+  BOOST_REQUIRE_NO_THROW (client->createMediaElementWithParams (moA,
+                          mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params););
 
   g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
   BOOST_REQUIRE_NO_THROW (client->keepAlive (mediaPipeline) );
   BOOST_REQUIRE_NO_THROW (client->keepAlive (moA) );
 
   g_usleep (AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
-  BOOST_REQUIRE_NO_THROW (client->createMediaElementWithParams (moB, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params););
+  BOOST_REQUIRE_NO_THROW (client->createMediaElementWithParams (moB,
+                          mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params););
 
   g_usleep ( AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
   BOOST_REQUIRE_NO_THROW (client->keepAlive (moB) );
@@ -208,7 +222,8 @@ ClientHandler::check_auto_released_media_pipeline ()
     client->keepAlive (moA);
     BOOST_FAIL ("Use an auto released MediaObject must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND,
+                       e.errorCode);
   }
 
   BOOST_REQUIRE_NO_THROW (client->keepAlive (moB) );
@@ -220,14 +235,16 @@ ClientHandler::check_auto_released_media_pipeline ()
     client->keepAlive (moB);
     BOOST_FAIL ("Use an auto released MediaObject must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND,
+                       e.errorCode);
   }
 
   try {
     client->keepAlive (mediaPipeline);
     BOOST_FAIL ("Use an auto released MediaPipeline must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND,
+                       e.errorCode);
   }
 }
 
@@ -275,7 +292,8 @@ ClientHandler::check_parent ()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
-  client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (mo, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   client->getParent (parent, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, parent.id);
 
@@ -294,7 +312,8 @@ ClientHandler::check_get_parent_of_media_pipeline ()
     client->getParent (parent, mediaPipeline);
     BOOST_FAIL ("Get parent of a MediaPipeline must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, e.errorCode);
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT,
+                       e.errorCode);
   }
 
   client->release (mediaPipeline);
@@ -313,7 +332,8 @@ ClientHandler::check_getMediaPipeline ()
   BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
 
   createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
-  client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (mo, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   client->getMediaPipeline (mediaPipelineGot, mo);
   BOOST_CHECK_EQUAL (mediaPipeline.id, mediaPipelineGot.id);
 
@@ -329,7 +349,8 @@ ClientHandler::check_same_token ()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, "file:///tmp/f.webm");
-  client->createMediaElementWithParams (mo, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (mo, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   BOOST_CHECK_EQUAL (mediaPipeline.token, mo.token);
 
   client->release (mediaPipeline);
@@ -384,9 +405,11 @@ ClientHandler::check_player_end_point ()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
-  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
+  client->invoke (ret, playerEndPoint,
+                  g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
 
   BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
@@ -399,7 +422,8 @@ ClientHandler::check_player_end_point ()
     handlerTest->deleteEventFunction();
     mutex.unlock();
   };
-  handlerTest->setEventFunction (f, g_KmsMediaPlayerEndPointType_constants.EVENT_EOS);
+  handlerTest->setEventFunction (f,
+                                 g_KmsMediaPlayerEndPointType_constants.EVENT_EOS);
   client->subscribeEvent (callbackToken, playerEndPoint,
                           g_KmsMediaPlayerEndPointType_constants.EVENT_EOS,
                           HANDLER_IP, HANDLER_PORT);
@@ -422,7 +446,8 @@ ClientHandler::check_player_end_point ()
     client->subscribeEvent (callbackToken, playerEndPoint, "BAD_EVENT_TYPE", "", 0);
     BOOST_FAIL ("Subscribe for an event not supported by PlayerEndPoint must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED, e.errorCode);
+    BOOST_CHECK_EQUAL (
+      g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED, e.errorCode);
   }
 
   client->release (mediaPipeline);
@@ -445,7 +470,8 @@ ClientHandler::check_player_end_point_signal_errors()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
   mutex.lock();
   auto f = [&cond, &mutex, this] (std::string cT, KmsMediaError e) {
@@ -454,7 +480,8 @@ ClientHandler::check_player_end_point_signal_errors()
     handlerTest->deleteErrorFunction();
     mutex.unlock();
   };
-  client->subscribeError (callbackToken, playerEndPoint, HANDLER_IP, HANDLER_PORT);
+  client->subscribeError (callbackToken, playerEndPoint, HANDLER_IP,
+                          HANDLER_PORT);
   handlerTest->setErrorFunction (f, "invalid-uri");
   params.clear();
   client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START,
@@ -491,16 +518,19 @@ ClientHandler::check_recorder_end_point ()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, uriSrc);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
   params.clear();
   createKmsMediaUriEndPointConstructorParams (params, uriDst);
-  client->createMediaElementWithParams (recorderEndPoint, mediaPipeline, g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (recorderEndPoint, mediaPipeline,
+                                        g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params);
 
   client->connectElements (playerEndPoint, recorderEndPoint);
 
   client->subscribeError (callbackToken, mediaPipeline, HANDLER_IP, HANDLER_PORT);
 
-  client->invoke (ret, recorderEndPoint, g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
+  client->invoke (ret, recorderEndPoint,
+                  g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
   BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );
   BOOST_CHECK_EQUAL (0, uriDst.compare (resultUri) );
 
@@ -515,10 +545,12 @@ ClientHandler::check_recorder_end_point ()
 
   handlerTest->setErrorFunction (f, "UNEXPECTED_ERROR");
   params.clear();
-  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START, params);
+  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.START,
+                  params);
 
   params.clear();
-  client->invoke (ret, recorderEndPoint, g_KmsMediaUriEndPointType_constants.START, params);
+  client->invoke (ret, recorderEndPoint,
+                  g_KmsMediaUriEndPointType_constants.START, params);
 
   timeout.assign_current_time();
   timeout += 120;
@@ -544,9 +576,11 @@ ClientHandler::check_http_get_end_point ()
 
   client->createMediaPipeline (mediaPipeline);
 
-  client->createMediaElement (httpEp, mediaPipeline, g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME);
+  client->createMediaElement (httpEp, mediaPipeline,
+                              g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME);
 
-  client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL, emptyParams);
+  client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL,
+                  emptyParams);
 
   unmarshalStringInvocationReturn (url, ret);
 
@@ -565,9 +599,11 @@ ClientHandler::check_http_post_end_point ()
 
   client->createMediaPipeline (mediaPipeline);
 
-  client->createMediaElement (httpEp, mediaPipeline, g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME);
+  client->createMediaElement (httpEp, mediaPipeline,
+                              g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME);
 
-  client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL, emptyParams);
+  client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL,
+                  emptyParams);
 
   unmarshalStringInvocationReturn (url, ret);
 
@@ -594,8 +630,10 @@ ClientHandler::check_zbar_filter ()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
-  client->createMediaElement (zbarFilter, mediaPipeline, g_KmsMediaZBarFilterType_constants.TYPE_NAME);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElement (zbarFilter, mediaPipeline,
+                              g_KmsMediaZBarFilterType_constants.TYPE_NAME);
   client->connectElements (playerEndPoint, zbarFilter);
 
   mutex.lock();
@@ -606,7 +644,8 @@ ClientHandler::check_zbar_filter ()
     handlerTest->deleteEventFunction();
     mutex.unlock();
   };
-  handlerTest->setEventFunction (f, g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND);
+  handlerTest->setEventFunction (f,
+                                 g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND);
 
   client->subscribeEvent (callbackToken, zbarFilter,
                           g_KmsMediaZBarFilterType_constants.EVENT_CODE_FOUND,
@@ -636,7 +675,8 @@ ClientHandler::check_jackvader_filter ()
   KmsMediaObjectRef jackVaderFilter = KmsMediaObjectRef();
 
   client->createMediaPipeline (mediaPipeline);
-  client->createMediaElement (jackVaderFilter, mediaPipeline, g_KmsMediaJackVaderFilterType_constants.TYPE_NAME);
+  client->createMediaElement (jackVaderFilter, mediaPipeline,
+                              g_KmsMediaJackVaderFilterType_constants.TYPE_NAME);
   client->release (mediaPipeline);
 }
 
@@ -666,8 +706,10 @@ ClientHandler::check_pointer_detector_filter ()
   }
 
   //marshalling data
-  createStructParam (param, windowSet, g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-  params[g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+  createStructParam (param, windowSet,
+                     g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE]
+    = param;
 
   //create elements
   client->createMediaPipeline (mediaPipeline);
@@ -689,18 +731,24 @@ ClientHandler::check_pointer_detector_filter ()
   window.inactiveOverlayImageUri = "/tmp/image2.png";
 
   //marshalling data
-  createStructParam (param, window, g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
-  params[g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW] = param;
+  createStructParam (param, window,
+                     g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
+  params[g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW]
+    = param;
 
   BOOST_REQUIRE_NO_THROW (client->invoke (ret, pointerDetectorFilter,
                                           g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW, params);)
   //remove window
   name = "new";
-  setStringParam (params, g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW_PARAM_WINDOW_ID, name);
-  client->invoke (ret, pointerDetectorFilter, g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW, params);
+  setStringParam (params,
+                  g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW_PARAM_WINDOW_ID,
+                  name);
+  client->invoke (ret, pointerDetectorFilter,
+                  g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW, params);
 
   //clear windows
-  client->invoke (ret, pointerDetectorFilter, g_KmsMediaPointerDetectorFilterType_constants.CLEAR_WINDOWS, emptyParams);
+  client->invoke (ret, pointerDetectorFilter,
+                  g_KmsMediaPointerDetectorFilterType_constants.CLEAR_WINDOWS, emptyParams);
 
   client->release (mediaPipeline);
 }
@@ -712,7 +760,8 @@ ClientHandler::check_web_rtc_end_point ()
   KmsMediaObjectRef webRtcEndPoint = KmsMediaObjectRef();
 
   client->createMediaPipeline (mediaPipeline);
-  client->createMediaElement (webRtcEndPoint, mediaPipeline, g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME);
+  client->createMediaElement (webRtcEndPoint, mediaPipeline,
+                              g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME);
   client->release (mediaPipeline);
 }
 
@@ -734,8 +783,10 @@ ClientHandler::check_plate_detector_filter()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
-  client->createMediaElement (plateDetector, mediaPipeline, g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElement (plateDetector, mediaPipeline,
+                              g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME);
   client->connectElements (playerEndPoint, plateDetector);
 
   mutex.lock();
@@ -746,7 +797,8 @@ ClientHandler::check_plate_detector_filter()
     handlerTest->deleteEventFunction();
     mutex.unlock();
   };
-  handlerTest->setEventFunction (f, g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED);
+  handlerTest->setEventFunction (f,
+                                 g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED);
 
   client->subscribeEvent (callbackToken, plateDetector,
                           g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED,
@@ -799,10 +851,13 @@ ClientHandler::check_face_overlay_filter()
   image.uri = "/tmp/img.png";
 
   //marshalling data
-  createStructParam (param, image, g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY_PARAM_IMAGE);
-  params[g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY_PARAM_IMAGE] = param;
+  createStructParam (param, image,
+                     g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY_PARAM_IMAGE);
+  params[g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY_PARAM_IMAGE]
+    = param;
 
-  client->invoke (ret, faceOverlay, g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY, params);
+  client->invoke (ret, faceOverlay,
+                  g_KmsMediaFaceOverlayFilterType_constants.SET_IMAGE_OVERLAY, params);
 
   client->release (mediaPipeline);
 }
@@ -820,9 +875,11 @@ ClientHandler::check_gstreamer_filter()
 
   //marshalling data
 
-  std::string command ("videoflip qos=TRUE    method   =   horizontal-flip     test=cas9aa");
+  std::string
+  command ("videoflip qos=TRUE    method   =   horizontal-flip     test=cas9aa");
   createStringParam (param, command);
-  params[g_KmsMediaGStreamerFilterType_constants.CONSTRUCTOR_PARAM_GSTREAMER_COMMAND] = param;
+  params[g_KmsMediaGStreamerFilterType_constants.CONSTRUCTOR_PARAM_GSTREAMER_COMMAND]
+    = param;
 
   client->createMediaElementWithParams (gstreamerFilter,
                                         mediaPipeline,
@@ -850,15 +907,19 @@ ClientHandler::check_chroma_filter()
   chromaParams.calibrationArea.y = 150;
   chromaParams.calibrationArea.width = 50;
   chromaParams.calibrationArea.height = 50;
-  createStructParam (param, chromaParams, g_KmsMediaChromaFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-  params[g_KmsMediaChromaFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+  createStructParam (param, chromaParams,
+                     g_KmsMediaChromaFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaChromaFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] =
+    param;
   client->createMediaElementWithParams (chromaFilter,
                                         mediaPipeline,
                                         g_KmsMediaChromaFilterType_constants.TYPE_NAME, params);
 
   params.clear ();
-  createStructParam (param, backgroundImage, g_KmsMediaChromaFilterType_constants.SET_BACKGROUND_PARAM_BACKGROUND_IMAGE);
-  params[g_KmsMediaChromaFilterType_constants.SET_BACKGROUND_PARAM_BACKGROUND_IMAGE] = param;
+  createStructParam (param, backgroundImage,
+                     g_KmsMediaChromaFilterType_constants.SET_BACKGROUND_PARAM_BACKGROUND_IMAGE);
+  params[g_KmsMediaChromaFilterType_constants.SET_BACKGROUND_PARAM_BACKGROUND_IMAGE]
+    = param;
 
   client->invoke (ret, chromaFilter,
                   g_KmsMediaChromaFilterType_constants.SET_BACKGROUND, params);
@@ -871,7 +932,8 @@ BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 BOOST_AUTO_TEST_CASE ( server_test )
 {
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   check_version();
   check_use_released_media_pipeline ();

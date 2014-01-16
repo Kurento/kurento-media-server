@@ -38,7 +38,8 @@ namespace kurento
 {
 
 void
-pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer pointerDetector)
+pointerDetector_receive_message (GstBus *bus, GstMessage *message,
+                                 gpointer pointerDetector)
 {
   const GstStructure *st;
   gchar *windowID;
@@ -47,8 +48,9 @@ pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer poin
   PointerDetectorFilter *filter = (PointerDetectorFilter *) pointerDetector;
 
   if (GST_MESSAGE_SRC (message) != GST_OBJECT (filter->pointerDetector) ||
-      GST_MESSAGE_TYPE (message) != GST_MESSAGE_ELEMENT)
+      GST_MESSAGE_TYPE (message) != GST_MESSAGE_ELEMENT) {
     return;
+  }
 
   st = gst_message_get_structure (message);
   type = gst_structure_get_name (st);
@@ -77,7 +79,8 @@ pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer poin
 PointerDetectorFilter::PointerDetectorFilter (
   MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
   const std::map<std::string, KmsMediaParam> &params)
-  : Filter (mediaSet, parent, g_KmsMediaPointerDetectorFilterType_constants.TYPE_NAME, params)
+  : Filter (mediaSet, parent,
+            g_KmsMediaPointerDetectorFilterType_constants.TYPE_NAME, params)
 {
   const KmsMediaParam *p;
   KmsMediaPointerDetectorWindowSet windowSet;
@@ -151,13 +154,15 @@ PointerDetectorFilter::PointerDetectorFilter (
       gst_structure_free (buttonsLayoutAux);
     }
 
-    g_object_set (G_OBJECT (this->pointerDetector), WINDOWS_LAYOUT, buttonsLayout, NULL);
+    g_object_set (G_OBJECT (this->pointerDetector), WINDOWS_LAYOUT, buttonsLayout,
+                  NULL);
     gst_structure_free (buttonsLayout);
   }
 
   windowSet.windows.clear();
 
-  bus_handler_id = g_signal_connect (bus, "message", G_CALLBACK (pointerDetector_receive_message), this);
+  bus_handler_id = g_signal_connect (bus, "message",
+                                     G_CALLBACK (pointerDetector_receive_message), this);
   g_object_unref (bus);
   // There is no need to reference pointerdetector because its life cycle is the same as the filter life cycle
   g_object_unref (pointerDetector);
@@ -165,17 +170,20 @@ PointerDetectorFilter::PointerDetectorFilter (
 
 PointerDetectorFilter::~PointerDetectorFilter() throw ()
 {
-  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ) );
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (
+                                        std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ) );
   g_signal_handler_disconnect (bus, bus_handler_id);
   g_object_unref (bus);
 
-  gst_bin_remove (GST_BIN (std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ), element);
+  gst_bin_remove (GST_BIN (std::dynamic_pointer_cast<MediaPipeline>
+                           (parent)->pipeline ), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }
 
 void
-PointerDetectorFilter::raiseEvent (const std::string &type, const std::string &windowID)
+PointerDetectorFilter::raiseEvent (const std::string &type,
+                                   const std::string &windowID)
 {
   KmsMediaEventData eventData;
 
@@ -185,12 +193,14 @@ PointerDetectorFilter::raiseEvent (const std::string &type, const std::string &w
     GST_DEBUG ("Raise event. Type: %s, Window ID: %s", type.c_str(),
                windowID.c_str() );
 
-    sendEvent (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_OUT, eventData);
+    sendEvent (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_OUT,
+               eventData);
   } else {
     GST_DEBUG ("Raise event. Type: %s, Window ID: %s", type.c_str(),
                windowID.c_str() );
 
-    sendEvent (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_IN, eventData);
+    sendEvent (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_IN,
+               eventData);
   }
 }
 
@@ -273,7 +283,8 @@ PointerDetectorFilter::clearWindows()
   GstStructure *buttonsLayout;
 
   buttonsLayout = gst_structure_new_empty  ("buttonsLayout");
-  g_object_set (G_OBJECT (this->pointerDetector), WINDOWS_LAYOUT, buttonsLayout, NULL);
+  g_object_set (G_OBJECT (this->pointerDetector), WINDOWS_LAYOUT, buttonsLayout,
+                NULL);
   gst_structure_free (buttonsLayout);
 }
 
@@ -283,7 +294,8 @@ PointerDetectorFilter::invoke (KmsMediaInvocationReturn &_return,
                                const std::map< std::string, KmsMediaParam > &params)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW.compare (command) == 0) {
+  if (g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW.compare (
+        command) == 0) {
     KmsMediaPointerDetectorWindow windowInfo;
     const KmsMediaParam *p;
     /* extract window params from param */
@@ -295,31 +307,41 @@ throw (KmsMediaServerException)
       /* create window */
       addWindow (windowInfo);
     }
-  } else if (g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW.compare (command) == 0) {
+  } else if (g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW.compare (
+               command) == 0) {
     std::string id;
 
-    getStringParam (id, params, g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW_PARAM_WINDOW_ID);
+    getStringParam (id, params,
+                    g_KmsMediaPointerDetectorFilterType_constants.REMOVE_WINDOW_PARAM_WINDOW_ID);
     removeWindow (id);
-  } else if (g_KmsMediaPointerDetectorFilterType_constants.CLEAR_WINDOWS.compare (command) == 0) {
+  } else if (g_KmsMediaPointerDetectorFilterType_constants.CLEAR_WINDOWS.compare (
+               command) == 0) {
     clearWindows();
   }
 }
 
 void
-PointerDetectorFilter::subscribe (std::string &_return, const std::string &eventType,
+PointerDetectorFilter::subscribe (std::string &_return,
+                                  const std::string &eventType,
                                   const std::string &handlerAddress,
                                   const int32_t handlerPort)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_IN == eventType)
-    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress, handlerPort);
-  else  if (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_OUT == eventType)
-    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress, handlerPort);
-  else
+  if (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_IN ==
+      eventType) {
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  } else  if (g_KmsMediaPointerDetectorFilterType_constants.EVENT_WINDOW_OUT ==
+              eventType) {
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  } else {
     Filter::subscribe (_return, eventType, handlerAddress, handlerPort);
+  }
 }
 
-PointerDetectorFilter::StaticConstructor PointerDetectorFilter::staticConstructor;
+PointerDetectorFilter::StaticConstructor
+PointerDetectorFilter::staticConstructor;
 
 PointerDetectorFilter::StaticConstructor::StaticConstructor()
 {

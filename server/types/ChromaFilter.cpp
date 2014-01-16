@@ -35,7 +35,8 @@ namespace kurento
 ChromaFilter::ChromaFilter (
   MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
   const std::map<std::string, KmsMediaParam> &params)
-  : Filter (mediaSet, parent, g_KmsMediaChromaFilterType_constants.TYPE_NAME, params)
+  : Filter (mediaSet, parent, g_KmsMediaChromaFilterType_constants.TYPE_NAME,
+            params)
 {
   const KmsMediaParam *p;
   KmsMediaChromaConstructorParams constructorParams;
@@ -94,7 +95,8 @@ ChromaFilter::ChromaFilter (
 
 ChromaFilter::~ChromaFilter() throw ()
 {
-  gst_bin_remove (GST_BIN (std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ), element);
+  gst_bin_remove (GST_BIN (std::dynamic_pointer_cast<MediaPipeline>
+                           (parent)->pipeline ), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }
@@ -112,7 +114,8 @@ ChromaFilter::invoke (KmsMediaInvocationReturn &_return,
                       const std::map< std::string, KmsMediaParam > &params)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaChromaFilterType_constants.SET_BACKGROUND.compare (command) == 0) {
+  if (g_KmsMediaChromaFilterType_constants.SET_BACKGROUND.compare (
+        command) == 0) {
     KmsMediaChromaBackgroundImage backgroundImage;
     const KmsMediaParam *p;
     /* extract window params from param */

@@ -70,19 +70,23 @@ throw (KmsMediaServerException)
   KmsMediaRecoderEndPointConstructorParams recorderParams;
   KmsMediaProfile profile;
 
-  p = getParam (params, g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  p = getParam (params,
+                g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
   if (p == NULL) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-                                   "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE + "' not found");
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+                                   "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE +
+                                   "' not found");
     throw except;
   }
 
   unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
   //unmarshal KmsMediaRecoderEndPointConstructorParams
-  p = getParam (params, g_KmsMediaRecorderEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  p = getParam (params,
+                g_KmsMediaRecorderEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
   profile.mediaMuxer = KmsMediaMuxer::WEBM;
 
   if (p != NULL) {
@@ -104,8 +108,9 @@ dispose_element (GstElement *element)
   GST_TRACE_OBJECT (element, "Disposing");
   pipe = GST_OBJECT_PARENT (element);
 
-  if (pipe != NULL)
+  if (pipe != NULL) {
     gst_bin_remove (GST_BIN (pipe), element);
+  }
 
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);

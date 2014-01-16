@@ -149,8 +149,9 @@ get_address ()
 
   g_list_free_full (ips, g_free);
 
-  if (addressStr == NULL)
+  if (addressStr == NULL) {
     addressStr = g_strdup ("0.0.0.0");
+  }
 
   return addressStr;
 }
@@ -163,8 +164,9 @@ remove_timeout (GstElement *httpep)
   /* Remove timeout if there is any */
   timeout_id = (guint *) g_object_get_data (G_OBJECT (httpep), KEY_TIMEOUT_ID);
 
-  if (timeout_id == NULL)
+  if (timeout_id == NULL) {
     return;
+  }
 
   GST_DEBUG ("Remove timeout %d", *timeout_id);
   g_source_remove (*timeout_id);
@@ -187,8 +189,9 @@ kms_http_ep_server_get_ep_from_msg (KmsHttpEPServer *self, SoupMessage *msg)
   SoupURI *suri = soup_message_get_uri (msg);
   const char *uri = soup_uri_get_path (suri);
 
-  if (uri == NULL || self->priv->handlers == NULL)
+  if (uri == NULL || self->priv->handlers == NULL) {
     return NULL;
+  }
 
   return (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
 }
@@ -211,8 +214,9 @@ send_buffer_cb (gpointer data)
 
   buffer = gst_sample_get_buffer (sdata->sample);
 
-  if (buffer == NULL)
+  if (buffer == NULL) {
     return FALSE;
+  }
 
   if (!gst_buffer_map (buffer, &info, GST_MAP_READ) ) {
     GST_WARNING ("Could not get buffer map");
@@ -235,11 +239,13 @@ destroy_sample_data (gpointer data)
 {
   struct sample_data *sdata = (struct sample_data *) data;
 
-  if (sdata->sample != NULL)
+  if (sdata->sample != NULL) {
     gst_sample_unref (sdata->sample);
+  }
 
-  if (sdata->httpep != NULL)
+  if (sdata->httpep != NULL) {
     gst_object_unref (sdata->httpep);
+  }
 
   g_slice_free (struct sample_data, sdata);
 }
@@ -254,8 +260,9 @@ new_sample_handler (GstElement *httpep, gpointer data)
 
   g_signal_emit_by_name (httpep, "pull-sample", &sample);
 
-  if (sample == NULL)
+  if (sample == NULL) {
     return GST_FLOW_ERROR;
+  }
 
   sdata = g_slice_new (struct sample_data);
   sdata->sample = gst_sample_ref (sample);
@@ -329,8 +336,9 @@ emit_expiration_signal_cb (gpointer user_data)
 
   httpep = (GstElement *) g_hash_table_lookup (serv->priv->handlers, path);
 
-  if (httpep != NULL)
+  if (httpep != NULL) {
     remove_timeout (httpep);
+  }
 
   return FALSE;
 }
@@ -380,8 +388,9 @@ finished_get_processing (SoupMessage *msg, gpointer data)
 
   param = g_object_steal_data (G_OBJECT (httpep), KEY_MESSAGE);
 
-  if (param != NULL)
+  if (param != NULL) {
     g_object_unref (G_OBJECT (param) );
+  }
 }
 
 static void
@@ -529,8 +538,9 @@ install_http_post_signals (GstElement *httpep)
   post_obj = (KmsHttpPost *) g_object_get_data (G_OBJECT (httpep),
              KEY_PARAM_POST_CONTROLLER);
 
-  if (post_obj == NULL)
+  if (post_obj == NULL) {
     return;
+  }
 
   handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
               KEY_GOT_DATA_HANDLER_ID);
@@ -568,8 +578,9 @@ uninstall_http_post_signals (GstElement *httpep)
   post_obj = (KmsHttpPost *) g_object_get_data (G_OBJECT (httpep),
              KEY_PARAM_POST_CONTROLLER);
 
-  if (post_obj == NULL)
+  if (post_obj == NULL) {
     return;
+  }
 
   handlerid = (gulong *) g_object_get_data (G_OBJECT (httpep),
               KEY_GOT_DATA_HANDLER_ID);
@@ -724,8 +735,9 @@ destroy_pending_message (SoupMessage *msg)
       post_obj = (KmsHttpPost *) g_object_get_data (G_OBJECT (httpep),
                  KEY_PARAM_POST_CONTROLLER);
 
-    if (post_obj != NULL)
+    if (post_obj != NULL) {
       g_object_set (G_OBJECT (post_obj), "soup-message", NULL, NULL);
+    }
   }
 
   /* Force to remove http server reference */
@@ -795,8 +807,9 @@ kms_http_ep_server_check_cookie (SoupCookie *cookie, SoupMessage *msg)
     SoupCookie *c = (SoupCookie *) e->data;
 
     if (g_strcmp0 (soup_cookie_get_name (cookie),
-                   soup_cookie_get_name (c) ) != 0)
+                   soup_cookie_get_name (c) ) != 0) {
       continue;
+    }
 
     if (g_strcmp0 (soup_cookie_get_value (cookie),
                    soup_cookie_get_value (c) ) == 0) {
@@ -827,8 +840,9 @@ kms_http_ep_server_manage_cookie_session (KmsHttpEPServer *self,
 
   cookie = (SoupCookie *) g_object_get_data (G_OBJECT (httpep), KEY_COOKIE);
 
-  if (cookie != NULL)
+  if (cookie != NULL) {
     return kms_http_ep_server_check_cookie (cookie, msg);
+  }
 
   kms_http_ep_server_set_cookie (self, httpep, msg, path);
 
@@ -986,8 +1000,9 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
 
   g_object_unref (rdata->server);
 
-  if (gerr != NULL)
+  if (gerr != NULL) {
     g_error_free (gerr);
+  }
 
   g_slice_free (struct resolv_data, rdata);
 }
@@ -1087,8 +1102,9 @@ kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
 
   GST_DEBUG ("Unregister uri: %s", uri);
 
-  if (self->priv->handlers == NULL)
+  if (self->priv->handlers == NULL) {
     return FALSE;
+  }
 
   if (!g_hash_table_contains (self->priv->handlers, uri) ) {
     GST_DEBUG ("Uri %s is not registered", uri);
@@ -1164,8 +1180,9 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
 
   case PROP_KMS_HTTP_EP_SERVER_INTERFACE:
 
-    if (self->priv->iface != NULL)
+    if (self->priv->iface != NULL) {
       g_free (self->priv->iface);
+    }
 
     self->priv->iface = g_value_dup_string (value);
     break;
@@ -1173,8 +1190,9 @@ kms_http_ep_server_set_property (GObject *obj, guint prop_id,
   case PROP_KMS_HTTP_EP_SERVER_ANNOUNCED_ADDRESS: {
     gchar *val = g_value_dup_string (value);
 
-    if (self->priv->announcedAddr != NULL)
+    if (self->priv->announcedAddr != NULL) {
       g_free (self->priv->announcedAddr);
+    }
 
     if (val == NULL) {
       self->priv->announcedAddr = get_address ();

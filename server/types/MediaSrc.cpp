@@ -64,7 +64,8 @@ pad_unlinked (GstPad *pad, GstPad *peer, GstElement *parent)
 }
 
 gboolean
-link_media_elements (std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> sink)
+link_media_elements (std::shared_ptr<MediaSrc> src,
+                     std::shared_ptr<MediaSink> sink)
 {
   bool ret = FALSE;
   GstPad *pad;
@@ -72,8 +73,9 @@ link_media_elements (std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> s
   src->mutex.lock ();
   pad = gst_element_get_request_pad (src->getElement(), src->getPadName() );
 
-  if (pad == NULL)
+  if (pad == NULL) {
     goto end;
+  }
 
   GST_WARNING ("Connecting pad %s", src->getPadName() );
 
@@ -106,15 +108,17 @@ agnosticbin_added_cb (GstElement *element, gpointer data)
     src = tmp->src.lock();
     sink = tmp->sink.lock();
 
-    if (src && sink && link_media_elements (src, sink) )
+    if (src && sink && link_media_elements (src, sink) ) {
       g_signal_handler_disconnect (element, tmp->handler);
+    }
   } catch (const std::bad_weak_ptr &e) {
     GST_WARNING ("Removed before connecting");
     g_signal_handler_disconnect (element, tmp->handler);
   }
 }
 
-MediaSrc::MediaSrc (std::shared_ptr< kurento::MediaElement > parent, kurento::KmsMediaType::type mediaType)
+MediaSrc::MediaSrc (std::shared_ptr< kurento::MediaElement > parent,
+                    kurento::KmsMediaType::type mediaType)
   : MediaPad (parent, KmsMediaPadDirection::SRC, mediaType)
 {
 
@@ -146,19 +150,22 @@ MediaSrc::~MediaSrc() throw ()
 const gchar *
 MediaSrc::getPadName ()
 {
-  if (mediaType == KmsMediaType::type::AUDIO)
+  if (mediaType == KmsMediaType::type::AUDIO) {
     return (const gchar *) "audio_src_%u";
-  else
+  } else {
     return (const gchar *) "video_src_%u";
+  }
 }
 
 void
-MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink) throw (KmsMediaServerException)
+MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink) throw (
+  KmsMediaServerException)
 {
   GstPad *pad;
   bool ret;
 
-  GST_INFO ("connect %" G_GINT64_FORMAT " to %" G_GINT64_FORMAT, this->id, mediaSink->id);
+  GST_INFO ("connect %" G_GINT64_FORMAT " to %" G_GINT64_FORMAT, this->id,
+            mediaSink->id);
 
   mutex.lock();
 
@@ -178,7 +185,8 @@ MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink) throw (KmsMediaServerEx
     return;
   }
 
-  g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked), getElement() );
+  g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked),
+                    getElement() );
 
   ret = mediaSink->linkPad (shared_from_this(), pad);
 
@@ -241,7 +249,8 @@ MediaSrc::disconnect (std::shared_ptr<MediaSink> mediaSink)
 void
 MediaSrc::disconnect (MediaSink *mediaSink)
 {
-  GST_INFO ("disconnect %" G_GINT64_FORMAT " from %" G_GINT64_FORMAT, this->id, mediaSink->id);
+  GST_INFO ("disconnect %" G_GINT64_FORMAT " from %" G_GINT64_FORMAT, this->id,
+            mediaSink->id);
 
   mutex.lock();
 
@@ -251,7 +260,8 @@ MediaSrc::disconnect (MediaSink *mediaSink)
 }
 
 void
-MediaSrc:: getConnectedSinks (std::vector < std::shared_ptr<MediaSink> > &_return)
+MediaSrc:: getConnectedSinks (std::vector < std::shared_ptr<MediaSink> >
+                              &_return)
 {
   std::shared_ptr<MediaSink> sinkLocked;
   std::vector< std::weak_ptr<MediaSink> >::iterator it;

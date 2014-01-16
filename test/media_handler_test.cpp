@@ -41,7 +41,8 @@ BOOST_AUTO_TEST_CASE ( add_remove_media_handlers )
 
       BOOST_REQUIRE_EQUAL (n, mediaHandlerManager.getHandlersMapSize() );
       BOOST_REQUIRE_EQUAL (i + 1, mediaHandlerManager.getEventTypesMapSize() );
-      BOOST_REQUIRE_EQUAL (j + 1, mediaHandlerManager.getMediaHandlersSetSize (eventTypes[i]) );
+      BOOST_REQUIRE_EQUAL (j + 1,
+                           mediaHandlerManager.getMediaHandlersSetSize (eventTypes[i]) );
     }
   }
 
@@ -59,7 +60,8 @@ BOOST_AUTO_TEST_CASE ( add_remove_media_handlers )
   BOOST_REQUIRE_EQUAL (4, mediaHandlerManager.getEventTypesMapSize() );
 
   for (i = 0; i < 4; i++) {
-    BOOST_REQUIRE_EQUAL (0, mediaHandlerManager.getMediaHandlersSetSize (eventTypes[i]) );
+    BOOST_REQUIRE_EQUAL (0, mediaHandlerManager.getMediaHandlersSetSize (
+                           eventTypes[i]) );
   }
 }
 

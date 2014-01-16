@@ -30,7 +30,8 @@ HttpPostEndPoint::HttpPostEndPoint (MediaSet &mediaSet,
                                     std::shared_ptr<MediaPipeline> parent,
                                     const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : HttpEndPoint (mediaSet, parent, g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME,
+  : HttpEndPoint (mediaSet, parent,
+                  g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME,
                   params)
 {
   /* Do not accept EOS */
@@ -41,7 +42,8 @@ throw (KmsMediaServerException)
   if (!is_registered() ) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
                                    "Cannot register HttpGetEndPoint");
     throw except;
   }

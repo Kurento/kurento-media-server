@@ -182,7 +182,8 @@ GStreamerFilter::setCommandProperties (string rest_token)
 GStreamerFilter::GStreamerFilter (
   MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
   const std::map<std::string, KmsMediaParam> &params)
-  : Filter (mediaSet, parent, g_KmsMediaGStreamerFilterType_constants.TYPE_NAME, params)
+  : Filter (mediaSet, parent, g_KmsMediaGStreamerFilterType_constants.TYPE_NAME,
+            params)
 {
   std::string commandLine, command, rest_token;
   GstElement *gstreamerFilter;
@@ -218,7 +219,8 @@ GStreamerFilter::GStreamerFilter (
   rest_token = commandLine.substr (command.length(), commandLine.length() - 1);
 
   if (rest_token.front() == ' ') {
-    rest_token = rest_token.substr (rest_token.find_first_not_of (" "), rest_token.length() - 1);
+    rest_token = rest_token.substr (rest_token.find_first_not_of (" "),
+                                    rest_token.length() - 1);
   }
 
   if (rest_token.length() != 0) {
@@ -229,7 +231,8 @@ GStreamerFilter::GStreamerFilter (
 
 GStreamerFilter::~GStreamerFilter() throw ()
 {
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline), element);
+  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline>
+                            (parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }

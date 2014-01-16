@@ -41,7 +41,8 @@ BOOST_AUTO_TEST_CASE ( create_media_pipeline_memory_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
 
@@ -69,13 +70,15 @@ BOOST_AUTO_TEST_CASE ( create_player_memory_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
 
   for (i = 0; i < ITERATIONS; i++) {
     client->createMediaPipeline (mediaPipeline, 0);
-    client->createUriEndPoint (mo, mediaPipeline, UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
+    client->createUriEndPoint (mo, mediaPipeline,
+                               UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
     client->release (mediaPipeline);
 
     if (i == 0) {
@@ -98,13 +101,15 @@ BOOST_AUTO_TEST_CASE ( create_recorder_memory_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
 
   for (i = 0; i < ITERATIONS; i++) {
     client->createMediaPipeline (mediaPipeline, 0);
-    client->createUriEndPoint (mo, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/a");
+    client->createUriEndPoint (mo, mediaPipeline,
+                               UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/a");
     client->release (mediaPipeline);
 
     if (i == 0) {
@@ -127,13 +132,15 @@ BOOST_AUTO_TEST_CASE ( create_rtp_end_point_memory_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
 
   for (i = 0; i < ITERATIONS; i++) {
     client->createMediaPipeline (mediaPipeline, 0);
-    client->createSdpEndPoint (mo, mediaPipeline, SdpEndPointType::type::RTP_END_POINT);
+    client->createSdpEndPoint (mo, mediaPipeline,
+                               SdpEndPointType::type::RTP_END_POINT);
     client->release (mediaPipeline);
 
     if (i == 0) {
@@ -156,7 +163,8 @@ BOOST_AUTO_TEST_CASE ( create_zbar_filter_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
 
@@ -187,14 +195,17 @@ BOOST_AUTO_TEST_CASE ( connect_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
 
   for (i = 0; i < ITERATIONS; i++) {
     client->createMediaPipeline (mediaPipeline, 0);
-    client->createUriEndPoint (player, mediaPipeline, UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
-    client->createUriEndPoint (recorder, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/b");
+    client->createUriEndPoint (player, mediaPipeline,
+                               UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
+    client->createUriEndPoint (recorder, mediaPipeline,
+                               UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/b");
 
     client->getMediaSrcsByMediaType (srcs, player, MediaType::type::VIDEO);
     client->getMediaSinksByMediaType (sinks, recorder, MediaType::type::VIDEO);
@@ -223,15 +234,18 @@ BOOST_AUTO_TEST_CASE ( connect_releasing_sink_element_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
   client->createMediaPipeline (mediaPipeline, 0);
-  client->createUriEndPoint (player, mediaPipeline, UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
+  client->createUriEndPoint (player, mediaPipeline,
+                             UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
   client->getMediaSrcsByMediaType (srcs, player, MediaType::type::VIDEO);
 
   for (i = 0; i < ITERATIONS; i++) {
-    client->createUriEndPoint (recorder, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/b");
+    client->createUriEndPoint (recorder, mediaPipeline,
+                               UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/b");
     client->getMediaSinksByMediaType (sinks, recorder, MediaType::type::VIDEO);
     client->connect (srcs.front (), sinks.front () );
     client->release (recorder);
@@ -258,15 +272,18 @@ BOOST_AUTO_TEST_CASE ( connect_releasing_source_element_test )
   int i, maxMemorySize, currentMemorySize;
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   client->addHandlerAddress (0, "localhost", 2323);
   client->createMediaPipeline (mediaPipeline, 0);
-  client->createUriEndPoint (recorder, mediaPipeline, UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/b");
+  client->createUriEndPoint (recorder, mediaPipeline,
+                             UriEndPointType::type::RECORDER_END_POINT, "file:///tmp/b");
   client->getMediaSinksByMediaType (sinks, recorder, MediaType::type::VIDEO);
 
   for (i = 0; i < ITERATIONS; i++) {
-    client->createUriEndPoint (player, mediaPipeline, UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
+    client->createUriEndPoint (player, mediaPipeline,
+                               UriEndPointType::type::PLAYER_END_POINT, "file:///tmp/a");
     client->getMediaSrcsByMediaType (srcs, player, MediaType::type::VIDEO);
     client->connect (srcs.front (), sinks.front () );
     client->release (player);

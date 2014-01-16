@@ -19,7 +19,8 @@ namespace kurento
 {
 
 bool
-KmsMediaPointerDetectorWindow::operator < (const KmsMediaPointerDetectorWindow &second) const
+KmsMediaPointerDetectorWindow::operator < (const KmsMediaPointerDetectorWindow
+    &second) const
 {
   return this->id < second.id;
 }

@@ -81,8 +81,9 @@ static void
 kms_http_post_concat_previous_buffer (KmsHttpPost *self, const char **start,
                                       const char **end)
 {
-  if (self->priv->multipart->tmp_buff == NULL)
+  if (self->priv->multipart->tmp_buff == NULL) {
     return;
+  }
 
   if (self->priv->multipart->tmp_buff <= *start &&
       *start <= self->priv->multipart->tmp_buff + self->priv->multipart->len) {
@@ -121,8 +122,9 @@ kms_http_post_skip_preamble (KmsHttpPost *self, const char **start,
   int boundary_len = strlen (boundary);
   const char *b;
 
-  if (self->priv->multipart->tmp_buff != NULL)
+  if (self->priv->multipart->tmp_buff != NULL) {
     kms_http_post_concat_previous_buffer (self, start, end);
+  }
 
   b = (const char *) memchr (*start, '-', *end - *start);
 
@@ -136,14 +138,16 @@ kms_http_post_skip_preamble (KmsHttpPost *self, const char **start,
     /* boundary does not fit in this buffer */
     gchar *mem = NULL;
 
-    if (self->priv->multipart->tmp_buff != NULL)
+    if (self->priv->multipart->tmp_buff != NULL) {
       mem = self->priv->multipart->tmp_buff;
+    }
 
     self->priv->multipart->tmp_buff = (gchar *) g_memdup (b, *end - b);
     self->priv->multipart->len = *end - b;
 
-    if (mem != NULL)
+    if (mem != NULL) {
       g_free (mem);
+    }
 
     /* Move start pointer up to the end */
     *start = *end;
@@ -194,8 +198,9 @@ kms_http_post_read_until_boundary (KmsHttpPost *self, const char **start,
   int boundary_len = strlen (boundary);
   const char *b;
 
-  if (self->priv->multipart->tmp_buff != NULL)
+  if (self->priv->multipart->tmp_buff != NULL) {
     kms_http_post_concat_previous_buffer (self, start, end);
+  }
 
   for (b = (const char *) memchr (*start, '\r', *end - *start); b != NULL;
        b = (const char *) memchr (b + 1, '\r', *end - (b + 1) ) ) {
@@ -204,18 +209,21 @@ kms_http_post_read_until_boundary (KmsHttpPost *self, const char **start,
       /* boundary does not fit in this buffer */
       gchar *mem = NULL;
 
-      if (self->priv->multipart->tmp_buff != NULL)
+      if (self->priv->multipart->tmp_buff != NULL) {
         mem = self->priv->multipart->tmp_buff;
+      }
 
       self->priv->multipart->tmp_buff = (gchar *) g_memdup (b, *end - b);
       self->priv->multipart->len = *end - b;
 
       /* Notify data read so far */
-      if (!ignore && *start < b)
+      if (!ignore && *start < b) {
         kms_notify_buffer_data (self, *start, b );
+      }
 
-      if (mem != NULL)
+      if (mem != NULL) {
         g_free (mem);
+      }
 
       /* Move start pointer up to the end */
       *start = *end;
@@ -224,8 +232,9 @@ kms_http_post_read_until_boundary (KmsHttpPost *self, const char **start,
 
     /* Check for "\r\n--boundary" */
     if (b[1] != '\n' || b[2] != '-' || b[3] != '-' ||
-        memcmp (b + 4, boundary, boundary_len) != 0)
+        memcmp (b + 4, boundary, boundary_len) != 0) {
       continue;
+    }
 
     /* Check for "--" or "\r\n" after boundary */
     if ( (b[boundary_len + 4] == '-' && b[boundary_len + 5] == '-') ||
@@ -241,8 +250,9 @@ kms_http_post_read_until_boundary (KmsHttpPost *self, const char **start,
       }
 
       /* Notify data read so far */
-      if (!ignore && *start < b)
+      if (!ignore && *start < b) {
         kms_notify_buffer_data (self, *start, b);
+      }
 
       if (*end <= b + boundary_len + 6) {
         /* Free temporal buffer */
@@ -255,8 +265,9 @@ kms_http_post_read_until_boundary (KmsHttpPost *self, const char **start,
   }
 
   /* Notify data */
-  if (!ignore && b == NULL)
+  if (!ignore && b == NULL) {
     kms_notify_buffer_data (self, *start, *end);
+  }
 
   if (self->priv->multipart->tmp_buff != NULL) {
     g_free (self->priv->multipart->tmp_buff);
@@ -292,21 +303,24 @@ kms_http_post_parse_header (KmsHttpPost *self, const char *start,
   value_start = name_end + 1;
   value_end = strchr (name_start, '\n');
 
-  if (value_end == NULL)
+  if (value_end == NULL) {
     return;
+  }
 
   /* Skip leading whitespace */
   while (value_start < value_end &&
          (*value_start == ' ' || *value_start == '\t' ||
-          *value_start == '\r' || *value_start == '\n') )
+          *value_start == '\r' || *value_start == '\n') ) {
     value_start++;
+  }
 
   /* clip trailing whitespace */
   eol = value_end;
 
   while (eol > value_start &&
-         (eol[-1] == ' ' || eol[-1] == '\t' || eol[-1] == '\r') )
+         (eol[-1] == ' ' || eol[-1] == '\t' || eol[-1] == '\r') ) {
     eol--;
+  }
 
   name = g_strndup (name_start, name_end - name_start );
   value = g_strndup (value_start, eol - value_start );
@@ -324,8 +338,9 @@ kms_http_post_read_headers (KmsHttpPost *self, const char **start,
 {
   const char *b;
 
-  if (self->priv->multipart->tmp_buff != NULL)
+  if (self->priv->multipart->tmp_buff != NULL) {
     kms_http_post_concat_previous_buffer (self, start, end);
+  }
 
   b = *start;
 
@@ -336,14 +351,16 @@ kms_http_post_read_headers (KmsHttpPost *self, const char **start,
       /* header does not fit in this buffer */
       gchar *mem = NULL;
 
-      if (self->priv->multipart->tmp_buff != NULL)
+      if (self->priv->multipart->tmp_buff != NULL) {
         mem = self->priv->multipart->tmp_buff;
+      }
 
       self->priv->multipart->tmp_buff = (gchar *) g_memdup (b, *end - b);
       self->priv->multipart->len = *end - b;
 
-      if (mem != NULL)
+      if (mem != NULL) {
         g_free (mem);
+      }
 
       /* Move start pointer up to the end */
       *start = *end;
@@ -384,34 +401,40 @@ kms_http_post_check_headers (KmsHttpPost *self)
   GHashTable *params = NULL;
   gchar *disposition = NULL;
 
-  if (self->priv->multipart->headers == NULL)
+  if (self->priv->multipart->headers == NULL) {
     return;
+  }
 
   if (!soup_message_headers_get_content_disposition (
-        self->priv->multipart->headers, &disposition, &params) )
+        self->priv->multipart->headers, &disposition, &params) ) {
     goto end;
+  }
 
   /* We are only interested in filename param */
-  if (g_hash_table_contains (params, "filename") )
+  if (g_hash_table_contains (params, "filename") ) {
     self->priv->multipart->state = MULTIPART_READ_CONTENT;
-  else
+  } else {
     self->priv->multipart->state = MULTIPART_IGNORE_CONTENT;
+  }
 
 end:
 
-  if (disposition != NULL)
+  if (disposition != NULL) {
     g_free (disposition);
+  }
 
-  if (params != NULL)
+  if (params != NULL) {
     g_hash_table_destroy (params);
+  }
 }
 
 static void
 kms_http_post_check_preamble (KmsHttpPost *self, const char **start,
                               const char **end)
 {
-  if (*end - *start < 1)
+  if (*end - *start < 1) {
     return;
+  }
 
   if (*start[0] == '\r') {
     /* Multipart without preamble */
@@ -461,8 +484,9 @@ kms_http_post_parse_multipart_data (KmsHttpPost *self, const char *start,
     case MULTIPART_IGNORE_CONTENT:
       kms_http_post_read_until_boundary (self, &start, &end, TRUE);
 
-      if (self->priv->multipart->state != MULTIPART_IGNORE_CONTENT)
+      if (self->priv->multipart->state != MULTIPART_IGNORE_CONTENT) {
         soup_message_headers_clear (self->priv->multipart->headers);
+      }
 
       break;
 
@@ -502,13 +526,15 @@ got_chunk_cb (SoupMessage *msg, SoupBuffer *chunk, gpointer data)
 static void
 kms_http_post_destroy_multipart (KmsHttpPost *self)
 {
-  if (self->priv->multipart == NULL)
+  if (self->priv->multipart == NULL) {
     return;
+  }
 
   g_free (self->priv->multipart->boundary);
 
-  if (self->priv->multipart->headers != NULL)
+  if (self->priv->multipart->headers != NULL) {
     soup_message_headers_free (self->priv->multipart->headers);
+  }
 
   g_free (self->priv->multipart->tmp_buff);
 
@@ -532,8 +558,9 @@ kms_http_post_init_multipart (KmsHttpPost *self)
 static void
 kms_http_post_release_message (KmsHttpPost *self)
 {
-  if (self->priv->msg == NULL)
+  if (self->priv->msg == NULL) {
     return;
+  }
 
   if (self->priv->chunk_id != 0L) {
     g_signal_handler_disconnect (self->priv->msg, self->priv->chunk_id);
@@ -608,8 +635,9 @@ kms_http_post_configure_msg (KmsHttpPost *self)
                           G_CALLBACK (finished_cb), self);
 end:
 
-  if (params != NULL)
+  if (params != NULL) {
     g_hash_table_destroy (params);
+  }
 }
 
 static void

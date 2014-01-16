@@ -53,18 +53,21 @@ str_to_sdp (const std::string &sdpStr)
   if (result != GST_SDP_OK) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.SDP_CREATE_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.SDP_CREATE_ERROR,
                                    "Error creating SDP message");
     throw except;
   }
 
-  result = gst_sdp_message_parse_buffer ( (const guint8 *) sdpStr.c_str (), -1, sdp);
+  result = gst_sdp_message_parse_buffer ( (const guint8 *) sdpStr.c_str (), -1,
+                                          sdp);
 
   if (result != GST_SDP_OK) {
     KmsMediaServerException except;
 
     gst_sdp_message_free (sdp);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.SDP_PARSE_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.SDP_PARSE_ERROR,
                                    "Error parsing SDP");
     throw except;
   }
@@ -97,7 +100,8 @@ SdpEndPoint::generateOffer (std::string &_return)
   if (offer == NULL) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.SDP_END_POINT_GENERATE_OFFER_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.SDP_END_POINT_GENERATE_OFFER_ERROR,
                                    "Error generating offer");
     throw except;
   }
@@ -134,7 +138,8 @@ SdpEndPoint::processOffer (std::string &_return, const std::string &offer)
   if (result == NULL) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.SDP_END_POINT_PROCESS_OFFER_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.SDP_END_POINT_PROCESS_OFFER_ERROR,
                                    "Error processing offer");
     throw except;
   }
@@ -146,7 +151,8 @@ SdpEndPoint::processOffer (std::string &_return, const std::string &offer)
 }
 
 void
-SdpEndPoint::getLocalSessionDescription (std::string &_return) throw (KmsMediaServerException)
+SdpEndPoint::getLocalSessionDescription (std::string &_return) throw (
+  KmsMediaServerException)
 {
   GstSDPMessage *localSdp = NULL;
 
@@ -170,7 +176,8 @@ SdpEndPoint::getLocalSessionDescription (std::string &_return) throw (KmsMediaSe
 }
 
 void
-SdpEndPoint::getRemoteSessionDescription (std::string &_return) throw (KmsMediaServerException)
+SdpEndPoint::getRemoteSessionDescription (std::string &_return) throw (
+  KmsMediaServerException)
 {
   GstSDPMessage *remoteSdp = NULL;
 
@@ -182,7 +189,8 @@ SdpEndPoint::getRemoteSessionDescription (std::string &_return) throw (KmsMediaS
 
   if (remoteSdp == NULL) {
     KmsMediaServerException except;
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.SDP_END_POINT_NO_REMOTE_SDP_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.SDP_END_POINT_NO_REMOTE_SDP_ERROR,
                                    "No remote SDP");
     throw except;
   }
@@ -202,28 +210,34 @@ throw (KmsMediaServerException)
 
     getLocalSessionDescription (localSdp);
     createStringInvocationReturn (_return, localSdp);
-  } else if (g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP.compare (command) == 0) {
+  } else if (g_KmsMediaSdpEndPointType_constants.GET_REMOTE_SDP.compare (
+               command) == 0) {
     std::string remoteSdp;
 
     getRemoteSessionDescription (remoteSdp);
     createStringInvocationReturn (_return, remoteSdp);
-  } else if (g_KmsMediaSdpEndPointType_constants.GENERATE_SDP_OFFER.compare (command) == 0) {
+  } else if (g_KmsMediaSdpEndPointType_constants.GENERATE_SDP_OFFER.compare (
+               command) == 0) {
     std::string offer;
 
     generateOffer (offer);
     createStringInvocationReturn (_return, offer);
-  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER.compare (command) == 0) {
+  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER.compare (
+               command) == 0) {
     std::string offer;
     std::string answer;
 
-    getStringParam (offer, params, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER_PARAM_OFFER_STR);
+    getStringParam (offer, params,
+                    g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_OFFER_PARAM_OFFER_STR);
     processOffer (answer, offer);
     createStringInvocationReturn (_return, answer);
-  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER.compare (command) == 0) {
+  } else if (g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER.compare (
+               command) == 0) {
     std::string answer;
     std::string localSdp;
 
-    getStringParam (answer, params, g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER_PARAM_ANSWER_STR);
+    getStringParam (answer, params,
+                    g_KmsMediaSdpEndPointType_constants.PROCESS_SDP_ANSWER_PARAM_ANSWER_STR);
     processAnswer (localSdp, answer);
     createStringInvocationReturn (_return, localSdp);
   } else {
@@ -241,12 +255,14 @@ throw (KmsMediaServerException)
       eventType)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
-  else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE  ==
+  else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE
+           ==
            eventType)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
-  else
+  else {
     EndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
+  }
 }
 
 SdpEndPoint::StaticConstructor SdpEndPoint::staticConstructor;

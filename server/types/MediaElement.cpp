@@ -52,7 +52,8 @@ MediaElement::getOrCreateAudioMediaSrc()
   }
 
   if (locked.get() == NULL) {
-    locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), KmsMediaType::type::AUDIO) );
+    locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(),
+                                        KmsMediaType::type::AUDIO) );
     audioMediaSrc = std::weak_ptr<MediaSrc> (locked);
     registerChild (locked);
   }
@@ -75,7 +76,8 @@ MediaElement::getOrCreateVideoMediaSrc()
   }
 
   if (locked.get() == NULL) {
-    locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(), KmsMediaType::type::VIDEO) );
+    locked = std::shared_ptr<MediaSrc> (new  MediaSrc (shared_from_this(),
+                                        KmsMediaType::type::VIDEO) );
     videoMediaSrc = std::weak_ptr<MediaSrc> (locked);
     registerChild (locked);
   }
@@ -98,7 +100,8 @@ MediaElement::getOrCreateAudioMediaSink()
   }
 
   if (locked.get() == NULL) {
-    locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), KmsMediaType::type::AUDIO) );
+    locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(),
+                                         KmsMediaType::type::AUDIO) );
     audioMediaSink = std::weak_ptr<MediaSink> (locked);
     registerChild (locked);
   }
@@ -121,7 +124,8 @@ MediaElement::getOrCreateVideoMediaSink()
   }
 
   if (locked.get() == NULL) {
-    locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(), KmsMediaType::type::VIDEO) );
+    locked = std::shared_ptr<MediaSink> (new  MediaSink (shared_from_this(),
+                                         KmsMediaType::type::VIDEO) );
     videoMediaSink = std::weak_ptr<MediaSink> (locked);
     registerChild (locked);
   }
@@ -139,7 +143,8 @@ MediaElement::getMediaSrcs (std::vector < std::shared_ptr<MediaSrc> > &_return)
 }
 
 void
-MediaElement::getMediaSinks (std::vector < std::shared_ptr<MediaSink> > &_return)
+MediaElement::getMediaSinks (std::vector < std::shared_ptr<MediaSink> >
+                             &_return)
 {
   _return.push_back (getOrCreateAudioMediaSink() );
   _return.push_back (getOrCreateVideoMediaSink() );
@@ -150,10 +155,11 @@ MediaElement::getMediaSrcsByMediaType (
   std::vector < std::shared_ptr<MediaSrc> > &_return,
   const KmsMediaType::type mediaType)
 {
-  if (mediaType == KmsMediaType::type::AUDIO)
+  if (mediaType == KmsMediaType::type::AUDIO) {
     _return.push_back (getOrCreateAudioMediaSrc() );
-  else if (mediaType == KmsMediaType::type::VIDEO)
+  } else if (mediaType == KmsMediaType::type::VIDEO) {
     _return.push_back (getOrCreateVideoMediaSrc() );
+  }
 }
 
 void
@@ -161,10 +167,11 @@ MediaElement::getMediaSinksByMediaType (
   std::vector < std::shared_ptr<MediaSink> > &_return,
   const KmsMediaType::type mediaType)
 {
-  if (mediaType == KmsMediaType::type::AUDIO)
+  if (mediaType == KmsMediaType::type::AUDIO) {
     _return.push_back (getOrCreateAudioMediaSink() );
-  else if (mediaType == KmsMediaType::type::VIDEO)
+  } else if (mediaType == KmsMediaType::type::VIDEO) {
     _return.push_back (getOrCreateVideoMediaSink() );
+  }
 }
 
 void

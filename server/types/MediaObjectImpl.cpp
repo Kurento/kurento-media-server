@@ -30,8 +30,10 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-std::map<std::string, KmsMediaParam> MediaObjectImpl::emptyParams = std::map<std::string, KmsMediaParam> ();
-KmsMediaEventData MediaObjectImpl::defaultKmsMediaEventData = KmsMediaEventData ();
+std::map<std::string, KmsMediaParam> MediaObjectImpl::emptyParams =
+  std::map<std::string, KmsMediaParam> ();
+KmsMediaEventData MediaObjectImpl::defaultKmsMediaEventData =
+  KmsMediaEventData ();
 
 static KmsMediaObjectId
 getId()
@@ -64,18 +66,21 @@ MediaObjectImpl::init (const std::map<std::string, KmsMediaParam> &params)
   if (p != NULL) {
     unmarshalKmsMediaObjectConstructorParams (mediaObjectParams, p->data);
 
-    if (mediaObjectParams.__isset.excludeFromGC)
+    if (mediaObjectParams.__isset.excludeFromGC) {
       this->excludeFromGC = mediaObjectParams.excludeFromGC;
+    }
 
-    if (mediaObjectParams.__isset.garbageCollectorPeriod)
+    if (mediaObjectParams.__isset.garbageCollectorPeriod) {
       this->garbageCollectorPeriod = mediaObjectParams.garbageCollectorPeriod;
+    }
   }
 
   GST_TRACE ("MediaObject %" G_GINT64_FORMAT " excludeFromGC: %d", this->id,
              this->excludeFromGC);
 }
 
-MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam> &params)
+MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam>
+                                  &params)
   : KmsMediaObjectRef()
 {
   id = getId();
@@ -83,7 +88,8 @@ MediaObjectImpl::MediaObjectImpl (const std::map<std::string, KmsMediaParam> &pa
   init (params);
 }
 
-MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, const std::map<std::string, KmsMediaParam> &params)
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent,
+                                  const std::map<std::string, KmsMediaParam> &params)
   : KmsMediaObjectRef()
 {
   id = getId();
@@ -102,7 +108,8 @@ MediaObjectImpl::getParent () throw (KmsMediaServerException)
   if (parent == NULL) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, "No parent");
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_HAS_NOT_PARENT, "No parent");
     throw except;
   }
 
@@ -123,7 +130,8 @@ throw (KmsMediaServerException)
 {
   KmsMediaServerException except;
 
-  createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_METHOD_NOT_FOUND,
+  createKmsMediaServerException (except,
+                                 g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_METHOD_NOT_FOUND,
                                  "This media object has not any command named " + command);
   throw except;
 }
@@ -136,19 +144,22 @@ throw (KmsMediaServerException)
 {
   KmsMediaServerException except;
 
-  createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
+  createKmsMediaServerException (except,
+                                 g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
                                  "This media object has not any event named " + eventType);
   throw except;
 }
 
 void
-MediaObjectImpl::unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException)
+MediaObjectImpl::unsubscribe (const std::string &callbackToken) throw (
+  KmsMediaServerException)
 {
   mediaHandlerManager.removeMediaHandler (callbackToken);
 }
 
 void
-MediaObjectImpl::sendEvent (const std::string &eventType, const KmsMediaEventData &eventData)
+MediaObjectImpl::sendEvent (const std::string &eventType,
+                            const KmsMediaEventData &eventData)
 {
   std::shared_ptr<KmsMediaEvent> event (new KmsMediaEvent () );
 

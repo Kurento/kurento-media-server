@@ -53,14 +53,19 @@ void
 HandlerTest::start()
 {
   boost::shared_ptr < HandlerTest > handler (shared_from_this() );
-  boost::shared_ptr < TProcessor > processor (new KmsMediaHandlerServiceProcessor (handler) );
+  boost::shared_ptr < TProcessor > processor (new
+      KmsMediaHandlerServiceProcessor (handler) );
   boost::shared_ptr < TProtocolFactory >
   protocolFactory (new TBinaryProtocolFactory () );
-  boost::shared_ptr < PosixThreadFactory > threadFactory (new PosixThreadFactory () );
-  boost::shared_ptr <TTransportFactory> transportFactory (new TFramedTransportFactory () );
-  boost::shared_ptr <TServerTransport> serverTransport (new TServerSocket (HANDLER_PORT) );
+  boost::shared_ptr < PosixThreadFactory > threadFactory (
+    new PosixThreadFactory () );
+  boost::shared_ptr <TTransportFactory> transportFactory (
+    new TFramedTransportFactory () );
+  boost::shared_ptr <TServerTransport> serverTransport (new TServerSocket (
+        HANDLER_PORT) );
 
-  server = boost::shared_ptr<TSimpleServer> (new TSimpleServer (processor, serverTransport, transportFactory, protocolFactory) );
+  server = boost::shared_ptr<TSimpleServer> (new TSimpleServer (processor,
+           serverTransport, transportFactory, protocolFactory) );
 
   boost::shared_ptr<Thread> serverThread;
   serverThread = threadFactory->newThread (

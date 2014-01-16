@@ -87,7 +87,8 @@ create_media_server_service ()
     ThreadManager::newSimpleThreadManager (15);
   threadManager->threadFactory (threadFactory);
   threadManager->start ();
-  TNonblockingServer server (processor, protocolFactory, serverServicePort, threadManager);
+  TNonblockingServer server (processor, protocolFactory, serverServicePort,
+                             threadManager);
   p_server = &server;
   GST_INFO ("Starting MediaServerService");
   kill (getppid(), SIGCONT);
@@ -99,8 +100,9 @@ create_media_server_service ()
 static void
 check_port (int port)
 {
-  if (port <= 0 || port > G_MAXUSHORT)
+  if (port <= 0 || port > G_MAXUSHORT) {
     throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid value");
+  }
 }
 
 static void
@@ -186,7 +188,8 @@ load_sdp_pattern (Glib::KeyFile &configFile, const std::string &confFileName)
     return NULL;
   }
 
-  result = gst_sdp_message_parse_buffer ( (const guint8 *) sdp_pattern_text, -1, sdp_pattern);
+  result = gst_sdp_message_parse_buffer ( (const guint8 *) sdp_pattern_text, -1,
+                                          sdp_pattern);
   g_free (sdp_pattern_text);
 
   if (result != GST_SDP_OK) {
@@ -199,7 +202,8 @@ load_sdp_pattern (Glib::KeyFile &configFile, const std::string &confFileName)
 }
 
 static void
-configure_kurento_media_server (KeyFile &configFile, const std::string &file_name)
+configure_kurento_media_server (KeyFile &configFile,
+                                const std::string &file_name)
 {
   gint port;
   gchar *sdpMessageText = NULL;
@@ -249,7 +253,8 @@ configure_http_ep_server (KeyFile &configFile)
   }
 
   try {
-    port = configFile.get_integer (HTTP_EP_SERVER_GROUP, HTTP_EP_SERVER_SERVICE_PORT_KEY);
+    port = configFile.get_integer (HTTP_EP_SERVER_GROUP,
+                                   HTTP_EP_SERVER_SERVICE_PORT_KEY);
     check_port (port);
     httpEPServerServicePort = port;
   } catch (const Glib::KeyFileError &err) {
@@ -416,17 +421,19 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
     const gchar *exe;
     strs = g_strsplit (messages[i], "(", 2);
 
-    if (strs[1] == NULL)
+    if (strs[1] == NULL) {
       exe = getExecutableName ();
-    else
+    } else {
       exe = strs[0];
+    }
 
     sprintf (syscom, "echo -n \"\t[bt]\t\t\"; addr2line %p -s -e %s",
              trace[i], exe);
     g_strfreev (strs);
 
-    if (system (syscom) == -1)
+    if (system (syscom) == -1) {
       g_printerr ("Error calling addr2line");
+    }
   }
 
   if (sig == SIGPIPE) {
@@ -486,10 +493,11 @@ main (int argc, char **argv)
   Glib::thread_init ();
   GST_INFO ("Kmsc version: %s", get_version () );
 
-  if (!conf_file)
+  if (!conf_file) {
     load_config (DEFAULT_CONFIG_FILE);
-  else
+  } else {
     load_config ( (std::string) conf_file);
+  }
 
   /* Start Http End Point Server */
   GST_DEBUG ("Starting Http end point server.");

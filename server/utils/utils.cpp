@@ -58,7 +58,8 @@ createKmsMediaServerException (KmsMediaServerException &_return,
 }
 
 int32_t
-getI32Param (const std::map<std::string, KmsMediaParam> &params, const std::string &paramName)
+getI32Param (const std::map<std::string, KmsMediaParam> &params,
+             const std::string &paramName)
 {
   std::map< std::string, KmsMediaParam>::const_iterator it;
   it = params.find (paramName);
@@ -68,7 +69,8 @@ getI32Param (const std::map<std::string, KmsMediaParam> &params, const std::stri
   } else {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
                                    "Param '" + paramName + "' not found");
     throw except;
   }
@@ -87,7 +89,8 @@ getStringParam (std::string &_return,
   } else {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
                                    "Param '" + paramName + "' not found");
     throw except;
   }
@@ -95,13 +98,15 @@ getStringParam (std::string &_return,
 
 
 void
-setStringParam (std::map<std::string, KmsMediaParam> &params, const std::string &paramName, const std::string &paramValue)
+setStringParam (std::map<std::string, KmsMediaParam> &params,
+                const std::string &paramName, const std::string &paramValue)
 {
   createStringParam (params[paramName], paramValue);
 }
 
 const KmsMediaParam *
-getParam (const std::map<std::string, KmsMediaParam> &params, const std::string &paramName)
+getParam (const std::map<std::string, KmsMediaParam> &params,
+          const std::string &paramName)
 {
   std::map< std::string, KmsMediaParam>::const_iterator it;
   it = params.find (paramName);

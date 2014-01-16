@@ -43,10 +43,12 @@ namespace kurento
 {
 
 void
-http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action)
+http_end_point_raise_petition_event (HttpEndPoint *httpEp,
+                                     KmsHttpEndPointAction action)
 {
-  if (!g_atomic_int_compare_and_exchange (& (httpEp->sessionStarted), 0, 1) )
+  if (!g_atomic_int_compare_and_exchange (& (httpEp->sessionStarted), 0, 1) ) {
     return;
+  }
 
   if (action == KMS_HTTP_END_POINT_ACTION_UNDEFINED) {
     GST_ERROR ("Invalid or unexpected request received");
@@ -68,15 +70,17 @@ action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
 
   GST_DEBUG ("Action requested URI %s", uriStr.c_str() );
 
-  if (url.size() <= uriStr.size() )
+  if (url.size() <= uriStr.size() ) {
     return;
+  }
 
   /* Remove the initial "http://host:port" to compare the uri */
   std::string substr = url.substr (url.size() - uriStr.size(),
                                    std::string::npos);
 
-  if (substr.compare (uriStr) != 0)
+  if (substr.compare (uriStr) != 0) {
     return;
+  }
 
   http_end_point_raise_petition_event (httpEp, action);
 }
@@ -105,12 +109,14 @@ getUriFromUrl (std::string url)
         /* skip port number */
         host_read = TRUE;
         continue;
-      } else
+      } else {
         continue;
+      }
     }
 
-    if (c != '/')
+    if (c != '/') {
       continue;
+    }
 
     uri = url.substr (i, std::string::npos);
     break;
@@ -120,24 +126,28 @@ getUriFromUrl (std::string url)
 }
 
 void
-kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, const gchar *uri)
+kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp,
+    const gchar *uri)
 {
   std::string uriStr = uri;
 
-  if (httpEp->url.size() <= uriStr.size() )
+  if (httpEp->url.size() <= uriStr.size() ) {
     return;
+  }
 
   /* Remove the initial "http://host:port" to compare the uri */
   std::string substr = httpEp->url.substr (httpEp->url.size() - uriStr.size(),
                        std::string::npos);
 
-  if (substr.compare (uriStr) != 0)
+  if (substr.compare (uriStr) != 0) {
     return;
+  }
 
   GST_DEBUG ("Session terminated URI %s", uriStr.c_str() );
 
-  if (!g_atomic_int_compare_and_exchange (& (httpEp->sessionStarted), 1, 0) )
+  if (!g_atomic_int_compare_and_exchange (& (httpEp->sessionStarted), 1, 0) ) {
     return;
+  }
 
   httpEp->sendEvent (
     g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE);
@@ -177,8 +187,9 @@ main_loop_data_destroy (gpointer data)
 {
   struct MainLoopData *mdata = (struct MainLoopData *) data;
 
-  if (mdata->destroy != NULL)
+  if (mdata->destroy != NULL) {
     mdata->destroy (mdata->data);
+  }
 
   mdata->mutex->unlock();
   g_slice_free (struct MainLoopData, mdata);
@@ -213,7 +224,8 @@ init_http_end_point (gpointer data)
   gchar *addr;
   guint port;
 
-  httpEp->actionRequestedHandlerId = g_signal_connect (httpepserver, "action-requested",
+  httpEp->actionRequestedHandlerId = g_signal_connect (httpepserver,
+                                     "action-requested",
                                      G_CALLBACK (action_requested_cb), httpEp);
   httpEp->urlRemovedHandlerId = g_signal_connect (httpepserver, "url-removed",
                                 G_CALLBACK (url_removed_cb), httpEp);
@@ -223,10 +235,12 @@ init_http_end_point (gpointer data)
   url = kms_http_ep_server_register_end_point (httpepserver, httpEp->element,
         httpEp->disconnectionTimeout);
 
-  if (url == NULL)
+  if (url == NULL) {
     return G_SOURCE_REMOVE;
+  }
 
-  g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port", &port,
+  g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port",
+                &port,
                 NULL);
   c_uri = g_strdup_printf ("http://%s:%d%s", addr, port, url);
   uri = c_uri;
@@ -251,8 +265,9 @@ dispose_http_end_point (gpointer data)
 
   std::string uri = getUriFromUrl (httpEp->url);
 
-  if (!uri.empty() )
+  if (!uri.empty() ) {
     kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str() );
+  }
 
   return FALSE;
 }
@@ -291,13 +306,15 @@ throw (KmsMediaServerException)
   boost::shared_ptr<TMemoryBuffer> transport;
 
   try {
-    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (
+                  uint8_t *) data.data(), data.size () ) );
     TBinaryProtocol protocol = TBinaryProtocol (transport);
     params.read (&protocol);
   } catch (...) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
                                    "Cannot unmarshal KmsMediaHttpEndPointConstructorParams");
     throw except;
   }
@@ -319,7 +336,8 @@ throw (KmsMediaServerException)
 
   profile.mediaMuxer = KmsMediaMuxer::WEBM;
 
-  p = getParam (params, g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  p = getParam (params,
+                g_KmsMediaHttpEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
   if (p != NULL) {
     httpEpParams = unmarshalKmsMediaHttpEndPointConstructorParams (p->data);
@@ -336,7 +354,8 @@ HttpEndPoint::~HttpEndPoint() throw ()
 {
   operate_in_main_loop_context (dispose_http_end_point, this, NULL);
 
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline), element);
+  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline>
+                            (parent)->pipeline), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }
@@ -359,14 +378,16 @@ HttpEndPoint::invoke (KmsMediaInvocationReturn &_return,
                       const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command) == 0)
+  if (g_KmsMediaHttpEndPointType_constants.GET_URL.compare (command) == 0) {
     createStringInvocationReturn (_return, url);
-  else
+  } else {
     EndPoint::invoke (_return, command, params);
+  }
 }
 
 void
-HttpEndPoint::subscribe (std::string &_return, const std::string &eventType, const std::string &handlerAddress, const int32_t handlerPort)
+HttpEndPoint::subscribe (std::string &_return, const std::string &eventType,
+                         const std::string &handlerAddress, const int32_t handlerPort)
 throw (KmsMediaServerException)
 {
   if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START.compare (
@@ -377,8 +398,9 @@ throw (KmsMediaServerException)
              eventType) == 0)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
-  else
+  else {
     EndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
+  }
 }
 
 HttpEndPoint::StaticConstructor HttpEndPoint::staticConstructor;

@@ -65,9 +65,11 @@ media_pipeline_receive_message (GstBus *bus, GstMessage *message, gpointer data)
     gchar *dbg_info = NULL;
 
     GST_ERROR ("Error on bus: %" GST_PTR_FORMAT, message);
-    gst_debug_bin_to_dot_file_with_ts (GST_BIN (m->pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "error");
+    gst_debug_bin_to_dot_file_with_ts (GST_BIN (m->pipeline),
+                                       GST_DEBUG_GRAPH_SHOW_ALL, "error");
     gst_message_parse_error (message, &err, &dbg_info);
-    m->sendError ("UNEXPECTED_ERROR", err->message, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR);
+    m->sendError ("UNEXPECTED_ERROR", err->message,
+                  g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR);
     g_error_free (err);
     g_free (dbg_info);
     break;
@@ -89,7 +91,8 @@ MediaPipeline::init ()
 
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline) );
   gst_bus_add_signal_watch (bus);
-  g_signal_connect (bus, "message", G_CALLBACK (media_pipeline_receive_message), (gpointer) this);
+  g_signal_connect (bus, "message", G_CALLBACK (media_pipeline_receive_message),
+                    (gpointer) this);
   g_object_unref (bus);
 
   this->objectType.__set_pipeline (*this);
@@ -114,48 +117,63 @@ MediaPipeline::~MediaPipeline() throw()
 }
 
 std::shared_ptr<MediaElement>
-MediaPipeline::createMediaElement (const std::string &elementType, const std::map<std::string, KmsMediaParam> &params)
+MediaPipeline::createMediaElement (const std::string &elementType,
+                                   const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> element;
 
-  if (g_KmsMediaPlayerEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+  if (g_KmsMediaPlayerEndPointType_constants.TYPE_NAME.compare (
+        elementType) == 0) {
     element = std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaRecorderEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaRecorderEndPointType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<RecorderEndPoint> (new RecorderEndPoint (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaRtpEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaRtpEndPointType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<RtpEndPoint> (new RtpEndPoint (getMediaSet(),
                                             shared_from_this (), params) );
-  } else if (g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
-    element = std::shared_ptr<HttpPostEndPoint> (new HttpPostEndPoint (getMediaSet(),
-              shared_from_this (), params) );
-  } else if (g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
+    element = std::shared_ptr<HttpPostEndPoint> (new HttpPostEndPoint (
+                getMediaSet(),
+                shared_from_this (), params) );
+  } else if (g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<HttpGetEndPoint> (new HttpGetEndPoint (getMediaSet(),
               shared_from_this (), params) );
-  } else if (g_KmsMediaZBarFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaZBarFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<ZBarFilter> (new ZBarFilter (getMediaSet(),
                                            shared_from_this (), params) );
-  } else if (g_KmsMediaJackVaderFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaJackVaderFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<JackVaderFilter> (new JackVaderFilter (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaPointerDetectorFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaPointerDetectorFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<PointerDetectorFilter> (new PointerDetectorFilter (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<PlateDetectorFilter> (new PlateDetectorFilter (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<WebRtcEndPoint> (new WebRtcEndPoint (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaFaceOverlayFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaFaceOverlayFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<FaceOverlayFilter> (new FaceOverlayFilter (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaGStreamerFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaGStreamerFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<GStreamerFilter> (new GStreamerFilter (
                 getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaChromaFilterType_constants.TYPE_NAME.compare (elementType) == 0) {
+  } else if (g_KmsMediaChromaFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<ChromaFilter> (new ChromaFilter (
                 getMediaSet(), shared_from_this (), params) );
   } else {
@@ -172,7 +190,8 @@ throw (KmsMediaServerException)
 }
 
 std::shared_ptr<Mixer>
-MediaPipeline::createMediaMixer (const std::string &mixerType, const std::map<std::string, KmsMediaParam> &params)
+MediaPipeline::createMediaMixer (const std::string &mixerType,
+                                 const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   KmsMediaServerException except;

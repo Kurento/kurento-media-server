@@ -48,20 +48,25 @@ MediaServerServiceHandler::getVersion ()
 /* MediaObject */
 
 void
-MediaServerServiceHandler::keepAlive (const KmsMediaObjectRef &mediaObjectRef) throw (KmsMediaServerException)
+MediaServerServiceHandler::keepAlive (const KmsMediaObjectRef &mediaObjectRef)
+throw (KmsMediaServerException)
 {
   GST_TRACE ("keepAlive %" G_GINT64_FORMAT, mediaObjectRef.id);
 
   try {
     mediaSet.keepAlive (mediaObjectRef);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("keepAlive %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
+    GST_TRACE ("keepAlive %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)",
+               mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("keepAlive %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in keepAlive");
+    GST_TRACE ("keepAlive %" G_GINT64_FORMAT " throws KmsMediaServerException",
+               mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in keepAlive");
     throw except;
   }
 
@@ -69,20 +74,24 @@ MediaServerServiceHandler::keepAlive (const KmsMediaObjectRef &mediaObjectRef) t
 }
 
 void
-MediaServerServiceHandler::release (const KmsMediaObjectRef &mediaObjectRef) throw (KmsMediaServerException)
+MediaServerServiceHandler::release (const KmsMediaObjectRef &mediaObjectRef)
+throw (KmsMediaServerException)
 {
   GST_TRACE ("release %" G_GINT64_FORMAT, mediaObjectRef.id);
 
   try {
     mediaSet.unreg (mediaObjectRef);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
+    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)",
+               mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in release");
+    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException",
+               mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in release");
     throw except;
   }
 
@@ -90,58 +99,76 @@ MediaServerServiceHandler::release (const KmsMediaObjectRef &mediaObjectRef) thr
 }
 
 void
-MediaServerServiceHandler::subscribeEvent (std::string &_return, const KmsMediaObjectRef &mediaObjectRef,
+MediaServerServiceHandler::subscribeEvent (std::string &_return,
+    const KmsMediaObjectRef &mediaObjectRef,
     const std::string &eventType, const std::string &handlerAddress,
     const int32_t handlerPort) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
 
-  GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT, eventType.c_str (), mediaObjectRef.id);
+  GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT,
+             eventType.c_str (), mediaObjectRef.id);
 
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     mo->subscribe (_return, eventType, handlerAddress, handlerPort);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", eventType.c_str (), mediaObjectRef.id, e.description.c_str () );
+    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException (%s)", eventType.c_str (), mediaObjectRef.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException", eventType.c_str (), mediaObjectRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in subscribe");
+    GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", eventType.c_str (), mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in subscribe");
     throw except;
   }
 
-  GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT " done", eventType.c_str (), mediaObjectRef.id);
+  GST_TRACE ("subscribe for '%s' event type in mediaObjectRef: %" G_GINT64_FORMAT
+             " done", eventType.c_str (), mediaObjectRef.id);
 }
 
 void
-MediaServerServiceHandler::unsubscribeEvent (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
+MediaServerServiceHandler::unsubscribeEvent (const KmsMediaObjectRef
+    &mediaObjectRef, const std::string &callbackToken)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
 
-  GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GINT64_FORMAT, callbackToken.c_str (), mediaObjectRef.id);
+  GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %"
+             G_GINT64_FORMAT, callbackToken.c_str (), mediaObjectRef.id);
 
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     mo->unsubscribe (callbackToken);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", callbackToken.c_str (), mediaObjectRef.id, e.description.c_str () );
+    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %"
+               G_GINT64_FORMAT " throws KmsMediaServerException (%s)", callbackToken.c_str (),
+               mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException", callbackToken.c_str (), mediaObjectRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in subscribe");
+    GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %"
+               G_GINT64_FORMAT " throws KmsMediaServerException", callbackToken.c_str (),
+               mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in subscribe");
     throw except;
   }
 
-  GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %" G_GINT64_FORMAT " done", callbackToken.c_str (), mediaObjectRef.id);
+  GST_TRACE ("unsubscribe for '%s' callbackToken in mediaObjectRef: %"
+             G_GINT64_FORMAT " done", callbackToken.c_str (), mediaObjectRef.id);
 }
 
 void
-MediaServerServiceHandler::subscribeError (std::string &_return, const KmsMediaObjectRef &mediaObjectRef,
+MediaServerServiceHandler::subscribeError (std::string &_return,
+    const KmsMediaObjectRef &mediaObjectRef,
     const std::string &handlerAddress, const int32_t handlerPort)
 throw (KmsMediaServerException)
 {
@@ -174,7 +201,8 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::unsubscribeError (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
+MediaServerServiceHandler::unsubscribeError (const KmsMediaObjectRef
+    &mediaObjectRef, const std::string &callbackToken)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
@@ -208,33 +236,41 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::invoke (KmsMediaInvocationReturn &_return, const KmsMediaObjectRef &mediaObjectRef, const std::string &command,
+MediaServerServiceHandler::invoke (KmsMediaInvocationReturn &_return,
+                                   const KmsMediaObjectRef &mediaObjectRef, const std::string &command,
                                    const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
 
-  GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT, command.c_str (), mediaObjectRef.id);
+  GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT,
+             command.c_str (), mediaObjectRef.id);
 
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
     mo->invoke (_return, command, params);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", command.c_str (), mediaObjectRef.id, e.description.c_str () );
+    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException (%s)", command.c_str (), mediaObjectRef.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT " throws KmsMediaServerException", command.c_str (), mediaObjectRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in invoke");
+    GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", command.c_str (), mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in invoke");
     throw except;
   }
 
-  GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT " done", command.c_str (), mediaObjectRef.id);
+  GST_TRACE ("invoke '%s' for mediaObjectRef: %" G_GINT64_FORMAT " done",
+             command.c_str (), mediaObjectRef.id);
 }
 
 void
-MediaServerServiceHandler::getParent (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaObjectRef)
+MediaServerServiceHandler::getParent (KmsMediaObjectRef &_return,
+                                      const KmsMediaObjectRef &mediaObjectRef)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
@@ -247,13 +283,17 @@ throw (KmsMediaServerException)
     parent = mo->getParent ();
     _return = *parent;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getParent %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
+    GST_TRACE ("getParent %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)",
+               mediaObjectRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getParent");
+    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException",
+               mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getParent");
     throw except;
   }
 
@@ -261,7 +301,8 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::getMediaPipeline (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaObjectRef)
+MediaServerServiceHandler::getMediaPipeline (KmsMediaObjectRef &_return,
+    const KmsMediaObjectRef &mediaObjectRef)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaObjectImpl> mo;
@@ -277,13 +318,18 @@ throw (KmsMediaServerException)
       _return = * (mo->getParent () );
     }
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaPipeline %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaObjectRef.id, e.description.c_str () );
+    GST_TRACE ("getMediaPipeline %" G_GINT64_FORMAT
+               " throws KmsMediaServerException (%s)", mediaObjectRef.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaObjectRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getMediaPipeline");
+    GST_TRACE ("release %" G_GINT64_FORMAT " throws KmsMediaServerException",
+               mediaObjectRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getMediaPipeline");
     throw except;
   }
 
@@ -293,7 +339,8 @@ throw (KmsMediaServerException)
 /* MediaPipeline */
 
 void
-MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return) throw (KmsMediaServerException)
+MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return)
+throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
 
@@ -301,7 +348,8 @@ MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return) thro
 
   try {
     mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet) );
-    GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
+    GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s",
+               mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.reg (mediaPipeline);
 
     _return = *mediaPipeline;
@@ -309,7 +357,9 @@ MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return) thro
     KmsMediaServerException except;
 
     GST_TRACE ("createMediaPipeline throws KmsMediaServerException");
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in createMediaPipeline");
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in createMediaPipeline");
     throw except;
   }
 
@@ -317,8 +367,9 @@ MediaServerServiceHandler::createMediaPipeline (KmsMediaObjectRef &_return) thro
 }
 
 void
-MediaServerServiceHandler::createMediaPipelineWithParams (KmsMediaObjectRef &_return,
-    const std::map<std::string, KmsMediaParam> &params)
+MediaServerServiceHandler::createMediaPipelineWithParams (
+  KmsMediaObjectRef &_return,
+  const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaHandler> mh;
@@ -327,8 +378,10 @@ throw (KmsMediaServerException)
   GST_TRACE ("createMediaPipelineWithParams");
 
   try {
-    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet, params) );
-    GST_DEBUG ("createMediaPipelineWithParams id: %" G_GINT64_FORMAT ", token: %s", mediaPipeline->id, mediaPipeline->token.c_str() );
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet,
+                    params) );
+    GST_DEBUG ("createMediaPipelineWithParams id: %" G_GINT64_FORMAT ", token: %s",
+               mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.reg (mediaPipeline);
 
     _return = *mediaPipeline;
@@ -336,7 +389,9 @@ throw (KmsMediaServerException)
     KmsMediaServerException except;
 
     GST_TRACE ("createMediaPipelineWithParams throws KmsMediaServerException");
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in createMediaPipelineWithParams");
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in createMediaPipelineWithParams");
     throw except;
   }
 
@@ -344,13 +399,15 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::createMediaElement (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
+MediaServerServiceHandler::createMediaElement (KmsMediaObjectRef &_return,
+    const KmsMediaObjectRef &mediaPipeline,
     const std::string &elementType) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPipeline> mp;
   std::shared_ptr<MediaElement> me;
 
-  GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s", mediaPipeline.id, elementType.c_str () );
+  GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s",
+             mediaPipeline.id, elementType.c_str () );
 
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
@@ -358,28 +415,38 @@ MediaServerServiceHandler::createMediaElement (KmsMediaObjectRef &_return, const
 
     _return = *me;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.description.c_str () );
+    GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id,
+               elementType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException", mediaPipeline.id, elementType.c_str () );
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in createMediaElement");
+    GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException", mediaPipeline.id,
+               elementType.c_str () );
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in createMediaElement");
     throw except;
   }
 
-  GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s done", mediaPipeline.id, elementType.c_str () );
+  GST_TRACE ("createMediaElement pipeline: %" G_GINT64_FORMAT ", type: %s done",
+             mediaPipeline.id, elementType.c_str () );
 }
 
 void
-MediaServerServiceHandler::createMediaElementWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
-    const std::string &elementType, const std::map<std::string, KmsMediaParam> &params)
+MediaServerServiceHandler::createMediaElementWithParams (
+  KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
+  const std::string &elementType,
+  const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPipeline> mp;
   std::shared_ptr<MediaElement> me;
 
-  GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT ", type: %s", mediaPipeline.id, elementType.c_str () );
+  GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT
+             ", type: %s", mediaPipeline.id, elementType.c_str () );
 
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
@@ -387,27 +454,36 @@ throw (KmsMediaServerException)
 
     _return = *me;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, elementType.c_str (), e.description.c_str () );
+    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id,
+               elementType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException", mediaPipeline.id, elementType.c_str () );
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in createMediaElementWithParams");
+    GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException", mediaPipeline.id,
+               elementType.c_str () );
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in createMediaElementWithParams");
     throw except;
   }
 
-  GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT ", type: %s done", mediaPipeline.id, elementType.c_str () );
+  GST_TRACE ("createMediaElementWithParams pipeline: %" G_GINT64_FORMAT
+             ", type: %s done", mediaPipeline.id, elementType.c_str () );
 }
 
 void
-MediaServerServiceHandler::createMediaMixer (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
+MediaServerServiceHandler::createMediaMixer (KmsMediaObjectRef &_return,
+    const KmsMediaObjectRef &mediaPipeline,
     const std::string &mixerType) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPipeline> mp;
   std::shared_ptr<Mixer> mixer;
 
-  GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s", mediaPipeline.id, mixerType.c_str () );
+  GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s",
+             mediaPipeline.id, mixerType.c_str () );
 
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
@@ -415,28 +491,38 @@ MediaServerServiceHandler::createMediaMixer (KmsMediaObjectRef &_return, const K
 
     _return = *mixer;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.description.c_str () );
+    GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id,
+               mixerType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException", mediaPipeline.id, mixerType.c_str () );
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in createMediaMixer");
+    GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException", mediaPipeline.id,
+               mixerType.c_str () );
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in createMediaMixer");
     throw except;
   }
 
-  GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s done", mediaPipeline.id, mixerType.c_str () );
+  GST_TRACE ("createMediaMixer pipeline: %" G_GINT64_FORMAT ", type: %s done",
+             mediaPipeline.id, mixerType.c_str () );
 }
 
 void
-MediaServerServiceHandler::createMediaMixerWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
-    const std::string &mixerType, const std::map<std::string, KmsMediaParam> &params)
+MediaServerServiceHandler::createMediaMixerWithParams (KmsMediaObjectRef
+    &_return, const KmsMediaObjectRef &mediaPipeline,
+    const std::string &mixerType,
+    const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPipeline> mp;
   std::shared_ptr<Mixer> mixer;
 
-  GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT ", type: %s", mediaPipeline.id, mixerType.c_str () );
+  GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT
+             ", type: %s", mediaPipeline.id, mixerType.c_str () );
 
   try {
     mp = mediaSet.getMediaObject<MediaPipeline> (mediaPipeline);
@@ -444,23 +530,31 @@ throw (KmsMediaServerException)
 
     _return = *mixer;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id, mixerType.c_str (), e.description.c_str () );
+    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException (%s)", mediaPipeline.id,
+               mixerType.c_str (), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT ", type: %s throws KmsMediaServerException", mediaPipeline.id, mixerType.c_str () );
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in createMediaMixerWithParams");
+    GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT
+               ", type: %s throws KmsMediaServerException", mediaPipeline.id,
+               mixerType.c_str () );
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in createMediaMixerWithParams");
     throw except;
   }
 
-  GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT ", type: %s done", mediaPipeline.id, mixerType.c_str () );
+  GST_TRACE ("createMediaMixerWithParams pipeline: %" G_GINT64_FORMAT
+             ", type: %s done", mediaPipeline.id, mixerType.c_str () );
 }
 
 /* MediaElement */
 
 void
-MediaServerServiceHandler::getMediaSrcs (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement)
+MediaServerServiceHandler::getMediaSrcs (std::vector<KmsMediaObjectRef>
+    &_return, const KmsMediaObjectRef &mediaElement)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
@@ -478,19 +572,25 @@ throw (KmsMediaServerException)
 
     GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT " done", mediaElement.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaElement.id, e.description.c_str () );
+    GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException (%s)", mediaElement.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaElement.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getMediaSrcs");
+    GST_TRACE ("getMediaSrcs element: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mediaElement.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getMediaSrcs");
     throw except;
   }
 }
 
 void
-MediaServerServiceHandler::getMediaSinks (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement)
+MediaServerServiceHandler::getMediaSinks (std::vector<KmsMediaObjectRef>
+    &_return, const KmsMediaObjectRef &mediaElement)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
@@ -508,27 +608,34 @@ throw (KmsMediaServerException)
 
     GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT " done", mediaElement.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT " throws KmsMediaServerException (%s)", mediaElement.id, e.description.c_str () );
+    GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException (%s)", mediaElement.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaElement.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getMediaSinks");
+    GST_TRACE ("getMediaSinks element: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mediaElement.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getMediaSinks");
     throw except;
   }
 }
 
 void
-MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
-    const KmsMediaType::type mediaType) throw (KmsMediaServerException)
+MediaServerServiceHandler::getMediaSrcsByMediaType (
+  std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
+  const KmsMediaType::type mediaType) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSrc> > mediaSrcs;
   std::vector< std::shared_ptr<MediaSrc> >::iterator it;
 
   try {
-    GST_TRACE ("getMediaSrcByType element: %" G_GINT64_FORMAT " mediaType: %s", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    GST_TRACE ("getMediaSrcByType element: %" G_GINT64_FORMAT " mediaType: %s",
+               mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
     me = mediaSet.getMediaObject<MediaElement> (mediaElement);
     me->getMediaSrcsByMediaType (mediaSrcs, mediaType);
 
@@ -536,29 +643,39 @@ MediaServerServiceHandler::getMediaSrcsByMediaType (std::vector<KmsMediaObjectRe
       _return.push_back (**it);
     }
 
-    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT " mediaType: %s done", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT
+               " mediaType: %s done", mediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.description.c_str () );
+    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT
+               " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getMediaSrcsByType");
+    GST_TRACE ("getMediaSrcsByType element: %" G_GINT64_FORMAT
+               " mediaType: %s throws KmsMediaServerException", mediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getMediaSrcsByType");
     throw except;
   }
 }
 
 void
-MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
-    const KmsMediaType::type mediaType) throw (KmsMediaServerException)
+MediaServerServiceHandler::getMediaSinksByMediaType (
+  std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
+  const KmsMediaType::type mediaType) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> me;
   std::vector < std::shared_ptr<MediaSink> > mediaSinks;
   std::vector< std::shared_ptr<MediaSink> >::iterator it;
 
   try {
-    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s",
+               mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
     me = mediaSet.getMediaObject<MediaElement> (mediaElement);
     me->getMediaSinksByMediaType (mediaSinks, mediaType);
 
@@ -566,22 +683,31 @@ MediaServerServiceHandler::getMediaSinksByMediaType (std::vector<KmsMediaObjectR
       _return.push_back (**it);
     }
 
-    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s done", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT
+               " mediaType: %s done", mediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.description.c_str () );
+    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT
+               " mediaType: %s throws KmsMediaServerException (%s)", mediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType), e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT " mediaType: %s throws KmsMediaServerException", mediaElement.id, _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getMediaSinksByType");
+    GST_TRACE ("getMediaSinksByType element: %" G_GINT64_FORMAT
+               " mediaType: %s throws KmsMediaServerException", mediaElement.id,
+               _KmsMediaType_VALUES_TO_NAMES.at (mediaType) );
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getMediaSinksByType");
     throw except;
   }
 }
 
 void
-MediaServerServiceHandler::getMediaSrcsByFullDescription (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
-    const KmsMediaType::type mediaType, const std::string &description)
+MediaServerServiceHandler::getMediaSrcsByFullDescription (
+  std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
+  const KmsMediaType::type mediaType, const std::string &description)
 throw (KmsMediaServerException)
 {
   KmsMediaServerException except;
@@ -594,8 +720,9 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::getMediaSinksByFullDescription (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
-    const KmsMediaType::type mediaType, const std::string &description)
+MediaServerServiceHandler::getMediaSinksByFullDescription (
+  std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaElement,
+  const KmsMediaType::type mediaType, const std::string &description)
 throw (KmsMediaServerException)
 {
   KmsMediaServerException except;
@@ -608,7 +735,8 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::connectElements (const KmsMediaObjectRef &srcMediaElement, const KmsMediaObjectRef &sinkMediaElement)
+MediaServerServiceHandler::connectElements (const KmsMediaObjectRef
+    &srcMediaElement, const KmsMediaObjectRef &sinkMediaElement)
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> sink;
@@ -647,7 +775,8 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::connectElementsByMediaType (const KmsMediaObjectRef &srcMediaElement,
+MediaServerServiceHandler::connectElementsByMediaType (const KmsMediaObjectRef
+    &srcMediaElement,
     const KmsMediaObjectRef &sinkMediaElement,
     const KmsMediaType::type mediaType)
 throw (KmsMediaServerException)
@@ -692,10 +821,11 @@ throw (KmsMediaServerException)
 }
 
 void
-MediaServerServiceHandler::connectElementsByFullDescription (const KmsMediaObjectRef &srcMediaElement,
-    const KmsMediaObjectRef &sinkMediaElement,
-    const KmsMediaType::type mediaType,
-    const std::string &mediaDescription)
+MediaServerServiceHandler::connectElementsByFullDescription (
+  const KmsMediaObjectRef &srcMediaElement,
+  const KmsMediaObjectRef &sinkMediaElement,
+  const KmsMediaType::type mediaType,
+  const std::string &mediaDescription)
 throw (KmsMediaServerException)
 {
   KmsMediaServerException except;
@@ -710,7 +840,8 @@ throw (KmsMediaServerException)
 /* MediaPad */
 
 void
-MediaServerServiceHandler::getMediaElement (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPadRef) throw (KmsMediaServerException)
+MediaServerServiceHandler::getMediaElement (KmsMediaObjectRef &_return,
+    const KmsMediaObjectRef &mediaPadRef) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaPad> pad;
 
@@ -719,12 +850,16 @@ MediaServerServiceHandler::getMediaElement (KmsMediaObjectRef &_return, const Km
     pad = mediaSet.getMediaObject<MediaPad> (mediaPadRef);
     _return = * (pad->getMediaElement () );
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getMediaElement of pad: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaPadRef.id, e.description.c_str () );
+    GST_TRACE ("getMediaElement of pad: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException(%s)", mediaPadRef.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
-    GST_TRACE ("getMediaElement of pad: %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaPadRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getMediaElement");
+    GST_TRACE ("getMediaElement of pad: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mediaPadRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getMediaElement");
     throw except;
   }
 
@@ -734,54 +869,70 @@ MediaServerServiceHandler::getMediaElement (KmsMediaObjectRef &_return, const Km
 /* MediaSrc */
 
 void
-MediaServerServiceHandler::connect (const KmsMediaObjectRef &mediaSrc, const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException)
+MediaServerServiceHandler::connect (const KmsMediaObjectRef &mediaSrc,
+                                    const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
 
   try {
-    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT, mediaSrc.id, mediaSink.id);
+    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT,
+               mediaSrc.id, mediaSink.id);
     src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
     sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
     src->connect (sink);
-    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " done", mediaSrc.id, mediaSink.id);
+    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " done",
+               mediaSrc.id, mediaSink.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id, e.description.c_str () );
+    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaSrc.id, mediaSink.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in connect");
+    GST_TRACE ("connect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mediaSrc.id, mediaSink.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in connect");
     throw except;
   }
 }
 
 void
-MediaServerServiceHandler::disconnect (const KmsMediaObjectRef &mediaSrc, const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException)
+MediaServerServiceHandler::disconnect (const KmsMediaObjectRef &mediaSrc,
+                                       const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::shared_ptr<MediaSink> sink;
 
   try {
-    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT, mediaSrc.id, mediaSink.id);
+    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT,
+               mediaSrc.id, mediaSink.id);
     src = mediaSet.getMediaObject<MediaSrc> (mediaSrc);
     sink = mediaSet.getMediaObject<MediaSink> (mediaSink);
     src->disconnect (sink);
-    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " done", mediaSrc.id, mediaSink.id);
+    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT
+               " done", mediaSrc.id, mediaSink.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id, e.description.c_str () );
+    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException(%s)", mediaSrc.id, mediaSink.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
-    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaSrc.id, mediaSink.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in disconnect");
+    GST_TRACE ("disconnect src: %" G_GINT64_FORMAT " sink: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mediaSrc.id, mediaSink.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in disconnect");
     throw except;
   }
 }
 
 void
-MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> &_return, const KmsMediaObjectRef &mediaSrc) throw (KmsMediaServerException)
+MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef>
+    &_return, const KmsMediaObjectRef &mediaSrc) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaSrc> src;
   std::vector < std::shared_ptr<MediaSink> > mediaSinks;
@@ -798,13 +949,17 @@ MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> &_r
 
     GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT " done", mediaSrc.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSrc.id, e.description.c_str () );
+    GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException(%s)", mediaSrc.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaSrc.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getConnectedSinks");
+    GST_TRACE ("getConnectedSinks src: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mediaSrc.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getConnectedSinks");
     throw except;
   }
 }
@@ -812,7 +967,8 @@ MediaServerServiceHandler::getConnectedSinks (std::vector<KmsMediaObjectRef> &_r
 /* MediaSink */
 
 void
-MediaServerServiceHandler::getConnectedSrc (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaSinkRef) throw (KmsMediaServerException)
+MediaServerServiceHandler::getConnectedSrc (KmsMediaObjectRef &_return,
+    const KmsMediaObjectRef &mediaSinkRef) throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaSink> sink;
 
@@ -822,13 +978,18 @@ MediaServerServiceHandler::getConnectedSrc (KmsMediaObjectRef &_return, const Km
     _return = * (sink->getConnectedSrc() );
     GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT " done", mediaSinkRef.id);
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mediaSinkRef.id, e.description.c_str () );
+    GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException(%s)", mediaSinkRef.id,
+               e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT " throws KmsMediaServerException", mediaSinkRef.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in getConnectedSrc");
+    GST_TRACE ("getConnectedSrc sink: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mediaSinkRef.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in getConnectedSrc");
     throw except;
   }
 }
@@ -836,7 +997,8 @@ MediaServerServiceHandler::getConnectedSrc (KmsMediaObjectRef &_return, const Km
 /* Mixer */
 
 void
-MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer) throw (KmsMediaServerException)
+MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return,
+    const KmsMediaObjectRef &mixer) throw (KmsMediaServerException)
 {
   std::shared_ptr<Mixer> m;
   std::shared_ptr<MixerEndPoint> mixerEndPoint;
@@ -850,13 +1012,17 @@ MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return, cons
 
     _return = *mixerEndPoint;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT " throws KmsMediaServerException(%s)", mixer.id, e.description.c_str () );
+    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException(%s)", mixer.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT " throws KmsMediaServerException", mixer.id);
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR, "Unexpected error in createMixerEndPoint");
+    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT
+               " throws KmsMediaServerException", mixer.id);
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
+                                   "Unexpected error in createMixerEndPoint");
     throw except;
   }
 
@@ -864,7 +1030,9 @@ MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return, cons
 }
 
 void
-MediaServerServiceHandler::createMixerEndPointWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer, const std::map<std::string, KmsMediaParam> &params)
+MediaServerServiceHandler::createMixerEndPointWithParams (
+  KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer,
+  const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
   KmsMediaServerException except;
@@ -876,7 +1044,8 @@ throw (KmsMediaServerException)
   throw except;
 }
 
-MediaServerServiceHandler::StaticConstructor MediaServerServiceHandler::staticConstructor;
+MediaServerServiceHandler::StaticConstructor
+MediaServerServiceHandler::staticConstructor;
 
 MediaServerServiceHandler::StaticConstructor::StaticConstructor()
 {

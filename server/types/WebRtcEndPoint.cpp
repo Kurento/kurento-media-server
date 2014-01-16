@@ -44,13 +44,15 @@ WebRtcEndPoint::WebRtcEndPoint (MediaSet &mediaSet,
   }
 
   GST_INFO ("stun address %s\n", stunServerAddress.c_str() );
-  g_object_set ( G_OBJECT (element), "stun-server", stunServerAddress.c_str(), NULL);
+  g_object_set ( G_OBJECT (element), "stun-server", stunServerAddress.c_str(),
+                 NULL);
 
   if (pemCertificate.compare ("") == 0) {
     GST_INFO ("Using default pemCertificate");
   } else {
     GST_INFO ("PemCertificate %s\n", pemCertificate.c_str() );
-    g_object_set ( G_OBJECT (element), "certificate-pem-file", pemCertificate.c_str(), NULL);
+    g_object_set ( G_OBJECT (element), "certificate-pem-file",
+                   pemCertificate.c_str(), NULL);
   }
 
   g_object_ref (element);
@@ -60,7 +62,8 @@ WebRtcEndPoint::WebRtcEndPoint (MediaSet &mediaSet,
 
 WebRtcEndPoint::~WebRtcEndPoint() throw ()
 {
-  gst_bin_remove (GST_BIN ( ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ) ), element);
+  gst_bin_remove (GST_BIN ( ( std::dynamic_pointer_cast<MediaPipeline>
+                              (parent)->pipeline ) ), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }

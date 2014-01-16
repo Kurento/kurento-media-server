@@ -28,7 +28,8 @@ namespace kurento
 {
 
 void
-plate_detector_receive_message (GstBus *bus, GstMessage *message, gpointer plateDetector)
+plate_detector_receive_message (GstBus *bus, GstMessage *message,
+                                gpointer plateDetector)
 {
   const GstStructure *st;
   gchar *plateNumber;
@@ -37,8 +38,9 @@ plate_detector_receive_message (GstBus *bus, GstMessage *message, gpointer plate
   PlateDetectorFilter *filter = (PlateDetectorFilter *) plateDetector;
 
   if (GST_MESSAGE_SRC (message) != GST_OBJECT (filter->plateDetector) ||
-      GST_MESSAGE_TYPE (message) != GST_MESSAGE_ELEMENT)
+      GST_MESSAGE_TYPE (message) != GST_MESSAGE_ELEMENT) {
     return;
+  }
 
   st = gst_message_get_structure (message);
   type = gst_structure_get_name (st);
@@ -63,7 +65,8 @@ plate_detector_receive_message (GstBus *bus, GstMessage *message, gpointer plate
 PlateDetectorFilter::PlateDetectorFilter (
   MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
   const std::map<std::string, KmsMediaParam> &params)
-  : Filter (mediaSet, parent, g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME, params)
+  : Filter (mediaSet, parent,
+            g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME, params)
 {
   GstElement *plateDetector;
   GstBus *bus;
@@ -76,7 +79,8 @@ PlateDetectorFilter::PlateDetectorFilter (
   gst_element_sync_state_with_parent (element);
 
   bus = gst_pipeline_get_bus (GST_PIPELINE (parent->pipeline) );
-  bus_handler_id = g_signal_connect (bus, "message", G_CALLBACK (plate_detector_receive_message ), this);
+  bus_handler_id = g_signal_connect (bus, "message",
+                                     G_CALLBACK (plate_detector_receive_message ), this);
   g_object_unref (bus);
 
   g_object_get (G_OBJECT (element), "filter", &plateDetector, NULL);
@@ -87,17 +91,20 @@ PlateDetectorFilter::PlateDetectorFilter (
 
 PlateDetectorFilter::~PlateDetectorFilter() throw ()
 {
-  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ) );
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (
+                                        std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ) );
   g_signal_handler_disconnect (bus, bus_handler_id);
   g_object_unref (bus);
 
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ), element);
+  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline>
+                            (parent)->pipeline ), element);
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);
 }
 
 void
-PlateDetectorFilter::raiseEvent (const std::string &type, const std::string &plateNumber)
+PlateDetectorFilter::raiseEvent (const std::string &type,
+                                 const std::string &plateNumber)
 {
   KmsMediaEventData eventData;
 
@@ -106,20 +113,25 @@ PlateDetectorFilter::raiseEvent (const std::string &type, const std::string &pla
   if ( type == "plate-detected") {
     GST_DEBUG ("Raise event. Type: %s, Plate Number: %s", type.c_str(),
                plateNumber.c_str() );
-    sendEvent (g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED, eventData);
+    sendEvent (g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED,
+               eventData);
   }
 }
 
 void
-PlateDetectorFilter::subscribe (std::string &_return, const std::string &eventType,
+PlateDetectorFilter::subscribe (std::string &_return,
+                                const std::string &eventType,
                                 const std::string &handlerAddress,
                                 const int32_t handlerPort)
 throw (KmsMediaServerException)
 {
-  if (g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED == eventType)
-    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress, handlerPort);
-  else
+  if (g_KmsMediaPlateDetectorFilterType_constants.EVENT_PLATE_DETECTED ==
+      eventType) {
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  } else {
     Filter::subscribe (_return, eventType, handlerAddress, handlerPort);
+  }
 }
 
 PlateDetectorFilter::StaticConstructor PlateDetectorFilter::staticConstructor;

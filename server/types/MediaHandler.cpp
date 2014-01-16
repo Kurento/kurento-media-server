@@ -37,7 +37,8 @@ namespace kurento
 class MediaHandler
 {
 public:
-  MediaHandler (const std::string eventType, const std::string &address, const int32_t port);
+  MediaHandler (const std::string eventType, const std::string &address,
+                const int32_t port);
   MediaHandler (const std::string &address, const int32_t port);
   ~MediaHandler ();
 
@@ -52,7 +53,8 @@ private:
 };
 
 /* MediaHandler */
-MediaHandler::MediaHandler (const std::string eventType, const std::string &address, const int32_t port)
+MediaHandler::MediaHandler (const std::string eventType,
+                            const std::string &address, const int32_t port)
 {
   this->eventType = eventType;
   this->address = address;
@@ -96,10 +98,11 @@ send_to_client (gpointer data, gpointer user_data)
   try {
     transport->open();
 
-    if (d->is_error)
+    if (d->is_error) {
       client.onError (mh->callbackToken, * (d->error) );
-    else
+    } else {
       client.onEvent (mh->callbackToken, * (d->event) );
+    }
 
     transport->close();
   } catch (...) {
@@ -126,9 +129,11 @@ MediaHandlerManager::addMediaHandler (std::string &_return,
                                       const std::string &handlerAddress,
                                       const int32_t handlerPort)
 {
-  std::map<std::string, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator it;
+  std::map<std::string, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator
+      it;
   std::shared_ptr<std::set<std::shared_ptr<MediaHandler>>> handlers;
-  std::shared_ptr<MediaHandler> mediaHandler (new MediaHandler (eventType, handlerAddress, handlerPort) );
+  std::shared_ptr<MediaHandler> mediaHandler (new MediaHandler (eventType,
+      handlerAddress, handlerPort) );
 
   mutex.lock ();
   it = eventTypesMap.find (eventType);
@@ -136,7 +141,8 @@ MediaHandlerManager::addMediaHandler (std::string &_return,
   if (it != eventTypesMap.end() ) {
     handlers = it->second;
   } else {
-    handlers = std::shared_ptr<std::set<std::shared_ptr<MediaHandler>>> (new std::set<std::shared_ptr<MediaHandler>>() );
+    handlers = std::shared_ptr<std::set<std::shared_ptr<MediaHandler>>>
+               (new std::set<std::shared_ptr<MediaHandler>>() );
     eventTypesMap[eventType] = handlers;
   }
 
@@ -144,7 +150,8 @@ MediaHandlerManager::addMediaHandler (std::string &_return,
   handlersMap[mediaHandler->callbackToken] = mediaHandler;
   mutex.unlock ();
 
-  GST_DEBUG ("MediaHandler(%s, %s, %d) added for '%s' type event", mediaHandler->callbackToken.c_str (),
+  GST_DEBUG ("MediaHandler(%s, %s, %d) added for '%s' type event",
+             mediaHandler->callbackToken.c_str (),
              handlerAddress.c_str (), handlerPort, eventType.c_str () );
 
   _return = mediaHandler->callbackToken;
@@ -153,8 +160,11 @@ MediaHandlerManager::addMediaHandler (std::string &_return,
 void
 MediaHandlerManager::removeMediaHandler (const std::string &callbackToken)
 {
-  std::map < std::string /*callbackToken*/, std::shared_ptr<MediaHandler >>::iterator handlersMapIt;
-  std::map < std::string /*eventType*/, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator eventTypesMapIt;
+  std::map < std::string /*callbackToken*/,
+      std::shared_ptr<MediaHandler >>::iterator handlersMapIt;
+  std::map < std::string /*eventType*/,
+      std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator
+      eventTypesMapIt;
   std::shared_ptr<std::set<std::shared_ptr<MediaHandler>>> handlers;
   std::shared_ptr<MediaHandler> mediaHandler;
 
@@ -162,7 +172,8 @@ MediaHandlerManager::removeMediaHandler (const std::string &callbackToken)
   handlersMapIt = handlersMap.find (callbackToken);
 
   if (handlersMapIt == handlersMap.end () ) {
-    GST_WARNING ("MediaHandler with '%s' callbackToken not found", callbackToken.c_str () );
+    GST_WARNING ("MediaHandler with '%s' callbackToken not found",
+                 callbackToken.c_str () );
     goto end;
   }
 
@@ -183,7 +194,9 @@ end:
 void
 MediaHandlerManager::sendEvent (std::shared_ptr<KmsMediaEvent> event)
 {
-  std::map < std::string /*eventType*/, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> >>::iterator eventTypesMapIt;
+  std::map < std::string /*eventType*/,
+      std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> >>::iterator
+      eventTypesMapIt;
   std::set<std::shared_ptr<MediaHandler>>::iterator mediaHandlerIt;
   std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > handlersCopy;
   sigc::slot<void, std::shared_ptr<MediaHandler>, KmsMediaEvent> s;
@@ -283,7 +296,8 @@ int
 MediaHandlerManager::getMediaHandlersSetSize (const std::string &eventType)
 {
   int size;
-  std::map<std::string, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator it;
+  std::map<std::string, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> > >::iterator
+      it;
   std::shared_ptr<std::set<std::shared_ptr<MediaHandler>>> handlers;
 
   mutex.lock ();

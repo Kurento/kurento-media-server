@@ -38,8 +38,9 @@ throw (KmsMediaServerException)
         eventType) == 0)
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
-  else
+  else {
     HttpEndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
+  }
 }
 
 void
@@ -68,13 +69,15 @@ throw (KmsMediaServerException)
   boost::shared_ptr<TMemoryBuffer> transport;
 
   try {
-    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (uint8_t *) data.data(), data.size () ) );
+    transport = boost::shared_ptr<TMemoryBuffer> (new TMemoryBuffer ( (
+                  uint8_t *) data.data(), data.size () ) );
     TBinaryProtocol protocol = TBinaryProtocol (transport);
     params.read (&protocol);
   } catch (...) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.UNMARSHALL_ERROR,
                                    "Cannot unmarshal KmsMediaHttpGetEndPointConstructorParams");
     throw except;
   }
@@ -86,7 +89,8 @@ HttpGetEndPoint::HttpGetEndPoint (MediaSet &mediaSet,
                                   std::shared_ptr<MediaPipeline> parent,
                                   const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : HttpEndPoint (mediaSet, parent, g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME,
+  : HttpEndPoint (mediaSet, parent,
+                  g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME,
                   params)
 {
   const KmsMediaParam *p;
@@ -96,18 +100,21 @@ throw (KmsMediaServerException)
 
   profile.mediaMuxer = KmsMediaMuxer::WEBM;
 
-  p = getParam (params, g_KmsMediaHttpGetEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  p = getParam (params,
+                g_KmsMediaHttpGetEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
 
   if (p != NULL) {
     KmsMediaHttpGetEndPointConstructorParams httpGetEpParams;
 
     httpGetEpParams = unmarshalKmsMediaHttpGetEndPointConstructorParams (p->data);
 
-    if (httpGetEpParams.__isset.terminateOnEOS)
+    if (httpGetEpParams.__isset.terminateOnEOS) {
       terminateOnEOS = httpGetEpParams.terminateOnEOS;
+    }
 
-    if (httpGetEpParams.__isset.profileType)
+    if (httpGetEpParams.__isset.profileType) {
       profile = httpGetEpParams.profileType;
+    }
   }
 
   init (terminateOnEOS, profile);
@@ -116,7 +123,8 @@ throw (KmsMediaServerException)
   if (!is_registered() ) {
     KmsMediaServerException except;
 
-    createKmsMediaServerException (except, g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.HTTP_END_POINT_REGISTRATION_ERROR,
                                    "Cannot register HttpGetEndPoint");
     throw except;
   }

@@ -44,7 +44,8 @@ BOOST_AUTO_TEST_CASE ( test_KmsMediaUriEndPointConstructorParams )
   KmsMediaUriEndPointConstructorParams uriEpParams;
 
   createKmsMediaUriEndPointConstructorParams (params, originalStr);
-  p = getParam (params, g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  p = getParam (params,
+                g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
   unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
 
   BOOST_REQUIRE_EQUAL (0, originalStr.compare (uriEpParams.uri) );

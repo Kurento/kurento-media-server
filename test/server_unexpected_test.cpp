@@ -40,7 +40,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 using namespace kurento;
 
-static std::map<std::string, KmsMediaParam> emptyParams = std::map<std::string, KmsMediaParam> ();
+static std::map<std::string, KmsMediaParam> emptyParams =
+  std::map<std::string, KmsMediaParam> ();
 
 class ClientHandler : public F
 {
@@ -76,9 +77,11 @@ ClientHandler::check_player_end_point_bad_uri ()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
 
-  client->invoke (ret, playerEndPoint, g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
+  client->invoke (ret, playerEndPoint,
+                  g_KmsMediaUriEndPointType_constants.GET_URI, emptyParams);
 
   BOOST_REQUIRE_NO_THROW (unmarshalStringInvocationReturn (resultUri, ret) );
   BOOST_CHECK_EQUAL (0, originalUri.compare (resultUri) );
@@ -105,8 +108,10 @@ ClientHandler::check_pointer_detector_send_empty_parameters ()
   KmsMediaInvocationReturn ret;
 
   //marshalling data
-  createStructParam (param, windowSet, g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-  params[g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+  createStructParam (param, windowSet,
+                     g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE]
+    = param;
 
   //create elements
   client->createMediaPipeline (mediaPipeline);
@@ -118,8 +123,10 @@ ClientHandler::check_pointer_detector_send_empty_parameters ()
 
   //add new Window
   //marshalling data
-  createStructParam (param, window, g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
-  params[g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW] = param;
+  createStructParam (param, window,
+                     g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
+  params[g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW]
+    = param;
 
   client->invoke (ret, pointerDetectorFilter,
                   g_KmsMediaPointerDetectorFilterType_constants.ADD_NEW_WINDOW, params);
@@ -137,10 +144,12 @@ ClientHandler::check_player_end_point_play_without_uri ()
   client->createMediaPipeline (mediaPipeline);
 
   try {
-    client->createMediaElement (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME);
+    client->createMediaElement (playerEndPoint, mediaPipeline,
+                                g_KmsMediaPlayerEndPointType_constants.TYPE_NAME);
     BOOST_FAIL ("Create a playerEndPoint without parameters must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR, e.errorCode);
+    BOOST_CHECK_EQUAL (
+      g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR, e.errorCode);
   }
 
   params.clear();
@@ -150,7 +159,8 @@ ClientHandler::check_player_end_point_play_without_uri ()
                     params);
     BOOST_FAIL ("Change the state of a non create element must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND, e.errorCode);
+    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND,
+                       e.errorCode);
   }
 
   client->release (mediaPipeline);
@@ -170,8 +180,10 @@ ClientHandler::check_player_and_filter_bad_config ()
 
   client->createMediaPipeline (mediaPipeline);
   createKmsMediaUriEndPointConstructorParams (params, originalUri);
-  client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
-  client->createMediaElement (zbarFilter, mediaPipeline, g_KmsMediaZBarFilterType_constants.TYPE_NAME);
+  client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                        g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+  client->createMediaElement (zbarFilter, mediaPipeline,
+                              g_KmsMediaZBarFilterType_constants.TYPE_NAME);
   client->connectElements (playerEndPoint, zbarFilter);
 
   params.clear();
@@ -210,16 +222,20 @@ ClientHandler::check_pointer_detector_create_element_wrong_params ()
   }
 
   //marshalling data
-  createStructParam (param, windowSet, g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-  params[g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] = param;
+  createStructParam (param, windowSet,
+                     g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaPointerDetectorFilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE]
+    = param;
 
   client->createMediaPipeline (mediaPipeline);
 
   try {
-    client->createMediaElementWithParams (playerEndPoint, mediaPipeline, g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
+    client->createMediaElementWithParams (playerEndPoint, mediaPipeline,
+                                          g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params);
     BOOST_FAIL ("Create an element with wrong media params must throw a KmsMediaServerException");
   } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR, e.errorCode);
+    BOOST_CHECK_EQUAL (
+      g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR, e.errorCode);
   }
 
   client->release (mediaPipeline);
@@ -230,7 +246,8 @@ BOOST_FIXTURE_TEST_SUITE ( server_unexpected_test_suite, ClientHandler)
 BOOST_AUTO_TEST_CASE ( server_unexpected_test )
 {
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   check_player_end_point_bad_uri ();
   check_pointer_detector_send_empty_parameters ();

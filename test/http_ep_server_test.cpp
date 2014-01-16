@@ -102,8 +102,9 @@ register_http_end_points (gint n)
 
     BOOST_CHECK (url != NULL);
 
-    if (url == NULL)
+    if (url == NULL) {
       continue;
+    }
 
     /* Leave the last reference to http end point server */
     g_object_unref (G_OBJECT (httpep) );
@@ -126,13 +127,15 @@ http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
                 &status_code, "uri", &uri, NULL);
 
-  GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
+  GST_DEBUG ("%s %s status code: %d, expected %d", method,
+             soup_uri_get_path (uri),
              status_code, *expected);
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 
-  if (*expected == expected_404 && ++counted == urls_registered)
+  if (*expected == expected_404 && ++counted == urls_registered) {
     g_main_loop_quit (loop);
+  }
 
   soup_uri_free (uri);
   g_free (method);
@@ -209,7 +212,8 @@ BOOST_AUTO_TEST_CASE ( register_http_end_point_test )
 
   g_signal_connect (httpepserver, "url-removed", G_CALLBACK (url_removed_cb),
                     NULL);
-  g_signal_connect (httpepserver, "action-requested", G_CALLBACK (action_requested_cb),
+  g_signal_connect (httpepserver, "action-requested",
+                    G_CALLBACK (action_requested_cb),
                     NULL);
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb);
@@ -241,13 +245,15 @@ t2_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
                 &status_code, "uri", &uri, NULL);
 
-  GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
+  GST_DEBUG ("%s %s status code: %d, expected %d", method,
+             soup_uri_get_path (uri),
              status_code, *expected);
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 
-  if (++counted == urls_registered)
+  if (++counted == urls_registered) {
     g_main_loop_quit (loop);
+  }
 
   soup_uri_free (uri);
   g_free (method);
@@ -326,8 +332,9 @@ t3_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   GST_DEBUG ("%s %s status code: %d", method, soup_uri_get_path (uri),
              status_code);
 
-  if (++counted == urls_registered)
+  if (++counted == urls_registered) {
     g_main_loop_quit (loop);
+  }
 
   soup_uri_free (uri);
   g_free (method);
@@ -403,16 +410,19 @@ t4_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
                 &status_code, "uri", &uri, NULL);
 
-  GST_DEBUG ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
+  GST_DEBUG ("%s %s status code: %d, expected %d", method,
+             soup_uri_get_path (uri),
              status_code, *expected);
   BOOST_CHECK (status_code == *expected);
 
   /* TODO: Check why soup_cookies_from_response does not work */
-  cookie_str = soup_message_headers_get_list (msg->response_headers, "Set-Cookie");
+  cookie_str = soup_message_headers_get_list (msg->response_headers,
+               "Set-Cookie");
   BOOST_CHECK (cookie_str != NULL);
 
-  if (++counted == urls_registered)
+  if (++counted == urls_registered) {
     g_main_loop_quit (loop);
+  }
 
   soup_uri_free (uri);
   g_free (method);
@@ -505,8 +515,9 @@ t5_request_no_cookie_cb (SoupSession *session, SoupMessage *msg,
   GST_DEBUG ("status code: %d", msg->status_code);
 
   /* Request should not be attended without the proper cookie */
-  if (msg->status_code != SOUP_STATUS_BAD_REQUEST)
+  if (msg->status_code != SOUP_STATUS_BAD_REQUEST) {
     BOOST_FAIL ("Get request without cookie failed");
+  }
 
   g_main_loop_quit (loop);
 }
@@ -594,7 +605,8 @@ t5_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   g_object_get (G_OBJECT (msg), "method", &method, "status-code",
                 &status_code, "uri", &uri, NULL);
 
-  GST_WARNING ("%s %s status code: %d, expected %d", method, soup_uri_get_path (uri),
+  GST_WARNING ("%s %s status code: %d, expected %d", method,
+               soup_uri_get_path (uri),
                status_code, SOUP_STATUS_CANCELLED);
   BOOST_CHECK (status_code == SOUP_STATUS_CANCELLED);
 
@@ -826,8 +838,9 @@ static const gchar *body6 =
 static void
 check_test_finish ()
 {
-  if (++cases_counted != use_cases)
+  if (++cases_counted != use_cases) {
     return;
+  }
 
   GST_INFO ("Finishing test");
   g_main_loop_quit (loop);
@@ -864,7 +877,8 @@ unregister_http_endpoint (GstElement *httpep)
 }
 
 static void
-http_post_req_expected_failed (SoupSession *session, SoupMessage *msg, gpointer data)
+http_post_req_expected_failed (SoupSession *session, SoupMessage *msg,
+                               gpointer data)
 {
   GstElement *httpep = GST_ELEMENT (data);
 

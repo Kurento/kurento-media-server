@@ -48,8 +48,9 @@ G_LOCK_DEFINE (mutex);
 static void
 sig_handler (int sig)
 {
-  if (sig == SIGCONT)
+  if (sig == SIGCONT) {
     G_UNLOCK (mutex);
+  }
 }
 
 int
@@ -72,7 +73,8 @@ start_server_test ()
 
   if (childpid >= 0) {
     if (childpid == 0) {
-      execl ("./server/kurento", "kurento", conf_file_param,  "--gst-plugin-path=./plugins", NULL);
+      execl ("./server/kurento", "kurento", conf_file_param,
+             "--gst-plugin-path=./plugins", NULL);
     } else {
       G_LOCK (mutex);
       G_UNLOCK (mutex);
@@ -99,15 +101,18 @@ F::F()
   int i;
 
   gst_init (NULL, NULL);
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0, GST_DEFAULT_NAME);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   GST_DEBUG ("setup fixture");
   pid = start_server_test(); // TODO: check pid < 0
 
-  boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT) );
+  boost::shared_ptr<TSocket> socket (new TSocket (MEDIA_SERVER_ADDRESS,
+                                     MEDIA_SERVER_SERVICE_PORT) );
   transport = boost::shared_ptr<TTransport> (new TFramedTransport (socket) );
   boost::shared_ptr<TProtocol> protocol (new TBinaryProtocol (transport) );
-  client = boost::shared_ptr<kurento::KmsMediaServerServiceClient> (new kurento::KmsMediaServerServiceClient (protocol) );
+  client = boost::shared_ptr<kurento::KmsMediaServerServiceClient>
+           (new kurento::KmsMediaServerServiceClient (protocol) );
 
   for (i = 0; i < MAX_RETRIES; i++) {
     try {
@@ -115,7 +120,8 @@ F::F()
       initialized = true;
       break;
     } catch (const std::exception &e) {
-      GST_WARNING ("Error connecting to the server (retry %d/%d): %s", i + 1, MAX_RETRIES, e.what () );
+      GST_WARNING ("Error connecting to the server (retry %d/%d): %s", i + 1,
+                   MAX_RETRIES, e.what () );
       usleep (100000);
     }
   }
