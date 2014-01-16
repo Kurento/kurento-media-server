@@ -30,20 +30,21 @@ using ::apache::thrift::server::TSimpleServer;
 namespace kurento
 {
 
-class HandlerTest : virtual public KmsMediaHandlerServiceIf, virtual public boost::enable_shared_from_this<HandlerTest>
+class HandlerTest : virtual public KmsMediaHandlerServiceIf,
+  virtual public boost::enable_shared_from_this<HandlerTest>
 {
 public:
   HandlerTest();
   ~HandlerTest();
 
-  void onEvent(const std::string& callbackToken, const KmsMediaEvent& event);
-  void onError(const std::string& callbackToken, const KmsMediaError& error);
+  void onEvent (const std::string &callbackToken, const KmsMediaEvent &event);
+  void onError (const std::string &callbackToken, const KmsMediaError &error);
   void setEventFunction (const std::function
-                              <void (std::string, KmsMediaEvent)> &function,
+                         <void (std::string, KmsMediaEvent) > &function,
                          std::string waitEvent);
   void deleteEventFunction ();
   void setErrorFunction (const std::function
-                              <void (std::string, KmsMediaError)> &function,
+                         <void (std::string, KmsMediaError) > &function,
                          std::string waitError);
   void deleteErrorFunction ();
   void start();
@@ -52,8 +53,8 @@ public:
 private:
   Glib::RecMutex mutex;
 
-  std::function <void (std::string, KmsMediaEvent)> eventFunc;
-  std::function <void (std::string, KmsMediaError)> errorFunc;
+  std::function <void (std::string, KmsMediaEvent) > eventFunc;
+  std::function <void (std::string, KmsMediaError) > errorFunc;
   std::string waitEvent;
   std::string waitError;
 

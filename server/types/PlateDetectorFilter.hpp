@@ -26,8 +26,8 @@ class PlateDetectorFilter : public Filter
 {
 public:
   PlateDetectorFilter (MediaSet &mediaSet,
-                         std::shared_ptr<MediaPipeline> parent,
-                         const std::map<std::string, KmsMediaParam>& params);
+                       std::shared_ptr<MediaPipeline> parent,
+                       const std::map<std::string, KmsMediaParam> &params);
 
   ~PlateDetectorFilter() throw ();
 
@@ -39,7 +39,7 @@ private:
   void subscribe (std::string &_return, const std::string &eventType,
                   const std::string &handlerAddress,
                   const int32_t handlerPort)
-                  throw (KmsMediaServerException);
+  throw (KmsMediaServerException);
 
   class StaticConstructor
   {
@@ -49,7 +49,8 @@ private:
 
   static StaticConstructor staticConstructor;
 
-  friend void plate_detector_receive_message (GstBus *bus, GstMessage *message, gpointer element);
+  friend void plate_detector_receive_message (GstBus *bus, GstMessage *message,
+      gpointer element);
 };
 
 } // kurento

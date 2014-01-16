@@ -30,7 +30,8 @@ public:
   MediaSrc (std::shared_ptr<MediaElement> parent, KmsMediaType::type mediaType);
   ~MediaSrc() throw ();
 
-  void connect (std::shared_ptr<MediaSink> mediaSink) throw (KmsMediaServerException);
+  void connect (std::shared_ptr<MediaSink> mediaSink) throw (
+    KmsMediaServerException);
   void disconnect (std::shared_ptr<MediaSink> mediaSink);
   void getConnectedSinks (std::vector < std::shared_ptr<MediaSink> > &_return);
 
@@ -41,7 +42,7 @@ private:
 
   Glib::RecMutex mutex;
 
-  const gchar * getPadName ();
+  const gchar *getPadName ();
 
   class StaticConstructor
   {
@@ -52,7 +53,8 @@ private:
   static StaticConstructor staticConstructor;
 
   friend class MediaSink;
-  friend gboolean link_media_elements(std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> sink);
+  friend gboolean link_media_elements (std::shared_ptr<MediaSrc> src,
+                                       std::shared_ptr<MediaSink> sink);
 };
 
 } // kurento

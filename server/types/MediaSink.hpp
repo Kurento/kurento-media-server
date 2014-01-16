@@ -26,7 +26,8 @@ namespace kurento
 
 class MediaElement;
 
-class MediaSink : public MediaPad, public std::enable_shared_from_this<MediaSink>
+class MediaSink : public MediaPad,
+  public std::enable_shared_from_this<MediaSink>
 {
 public:
   MediaSink (std::shared_ptr<MediaElement> parent, KmsMediaType::type mediaType);
@@ -56,7 +57,8 @@ private:
   friend MediaSrc::~MediaSrc ();
   friend void MediaSrc::disconnect (MediaSink *mediaSink);
   friend void MediaSrc::connect (std::shared_ptr<MediaSink> mediaSink);
-  friend gboolean link_media_elements(std::shared_ptr<MediaSrc> src, std::shared_ptr<MediaSink> sink);
+  friend gboolean link_media_elements (std::shared_ptr<MediaSrc> src,
+                                       std::shared_ptr<MediaSink> sink);
 };
 
 } // kurento

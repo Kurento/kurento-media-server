@@ -26,7 +26,7 @@ class Filter : public MediaElement
 public:
   Filter (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
           const std::string &filterType,
-          const std::map<std::string, KmsMediaParam>& params);
+          const std::map<std::string, KmsMediaParam> &params);
   virtual ~Filter() throw ();
 
 private:

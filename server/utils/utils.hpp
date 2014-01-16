@@ -23,16 +23,24 @@ namespace kurento
 
 void generateUUID (std::string &_return);
 
-void createKmsMediaServerException (KmsMediaServerException &_return, const std::string &description) throw (KmsMediaServerException);
-void createKmsMediaServerException (KmsMediaServerException &_return, int32_t errorCode, const std::string &description) throw (KmsMediaServerException);
+void createKmsMediaServerException (KmsMediaServerException &_return,
+                                    const std::string &description) throw (KmsMediaServerException);
+void createKmsMediaServerException (KmsMediaServerException &_return,
+                                    int32_t errorCode, const std::string &description) throw (
+                                      KmsMediaServerException);
 
-int32_t getI32Param (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName);
+int32_t getI32Param (const std::map<std::string, KmsMediaParam> &params,
+                     const std::string &paramName);
 
-void getStringParam (std::string &_return, const std::map<std::string, KmsMediaParam>& params, const std::string &paramName);
+void getStringParam (std::string &_return,
+                     const std::map<std::string, KmsMediaParam> &params,
+                     const std::string &paramName);
 // TODO: Remove this method or make it inline
-void setStringParam (std::map<std::string, KmsMediaParam>& params, const std::string &paramName, const std::string &paramValue);
+void setStringParam (std::map<std::string, KmsMediaParam> &params,
+                     const std::string &paramName, const std::string &paramValue);
 
-const KmsMediaParam *getParam (const std::map<std::string, KmsMediaParam>& params, const std::string &paramName);
+const KmsMediaParam *getParam (const std::map<std::string, KmsMediaParam>
+                               &params, const std::string &paramName);
 
 } // kurento
 

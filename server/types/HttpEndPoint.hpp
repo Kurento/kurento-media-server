@@ -28,16 +28,18 @@ class HttpEndPoint : public EndPoint
 public:
   HttpEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
                 const std::string &type,
-                const std::map<std::string, KmsMediaParam>& params)
+                const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
   virtual ~HttpEndPoint() throw ();
 
   std::string getUrl ();
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
-               const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+               const std::map<std::string, KmsMediaParam> &params) throw (
+                 KmsMediaServerException);
   void subscribe (std::string &_return, const std::string &eventType,
-                  const std::string &handlerAddress, const int32_t handlerPort) throw (KmsMediaServerException);
+                  const std::string &handlerAddress,
+                  const int32_t handlerPort) throw (KmsMediaServerException);
 
 protected:
   void register_end_point ();
@@ -49,7 +51,7 @@ private:
   guint disconnectionTimeout;
   void setUrl (const std::string &);
   void init (std::shared_ptr<MediaPipeline> parent, guint disconnectionTimeout)
-             throw (KmsMediaServerException);
+  throw (KmsMediaServerException);
 
   class StaticConstructor
   {
@@ -67,9 +69,12 @@ private:
   friend gboolean dispose_http_end_point (gpointer data);
   friend gboolean init_http_end_point (gpointer data);
 
-  friend void http_end_point_raise_petition_event (HttpEndPoint *httpEp, KmsHttpEndPointAction action);
-  friend void kurento_http_end_point_raise_session_terminated_event (HttpEndPoint *httpEp, const gchar *uri);
-  friend void kurento_http_end_point_eos_detected_cb (GstElement *element, gpointer data);
+  friend void http_end_point_raise_petition_event (HttpEndPoint *httpEp,
+      KmsHttpEndPointAction action);
+  friend void kurento_http_end_point_raise_session_terminated_event (
+    HttpEndPoint *httpEp, const gchar *uri);
+  friend void kurento_http_end_point_eos_detected_cb (GstElement *element,
+      gpointer data);
 };
 
 } // kurento

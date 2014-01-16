@@ -25,7 +25,7 @@ class RtpEndPoint : public SdpEndPoint
 {
 public:
   RtpEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
-               const std::map<std::string, KmsMediaParam> & params)
+               const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
   ~RtpEndPoint() throw ();
 

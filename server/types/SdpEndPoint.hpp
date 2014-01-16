@@ -26,20 +26,23 @@ class SdpEndPoint : public EndPoint
 public:
   SdpEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
                const std::string &type,
-               const std::map<std::string, KmsMediaParam>& params);
+               const std::map<std::string, KmsMediaParam> &params);
   virtual ~SdpEndPoint() throw () = 0;
 
   void generateOffer (std::string &_return);
   void processAnswer (std::string &_return, const std::string &answer);
   void processOffer (std::string &_return, const std::string &offer);
-  void getLocalSessionDescription (std::string &_return) throw (KmsMediaServerException);
-  void getRemoteSessionDescription (std::string &_return) throw (KmsMediaServerException);
+  void getLocalSessionDescription (std::string &_return) throw (
+    KmsMediaServerException);
+  void getRemoteSessionDescription (std::string &_return) throw (
+    KmsMediaServerException);
   void subscribe (std::string &_return, const std::string &eventType,
                   const std::string &handlerAddress,
                   const int32_t handlerPort) throw (KmsMediaServerException);
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
-               const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+               const std::map<std::string, KmsMediaParam> &params) throw (
+                 KmsMediaServerException);
 
 private:
 

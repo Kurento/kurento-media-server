@@ -32,16 +32,20 @@ class MediaElement : public MediaObjectParent,
 public:
   MediaElement (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
                 const std::string &elementType,
-                const std::map<std::string, KmsMediaParam>& params);
+                const std::map<std::string, KmsMediaParam> &params);
   virtual ~MediaElement() throw () = 0;
 
   void getMediaSrcs (std::vector < std::shared_ptr<MediaSrc> > &_return);
   void getMediaSinks (std::vector < std::shared_ptr<MediaSink> > &_return);
-  void getMediaSrcsByMediaType (std::vector < std::shared_ptr<MediaSrc> > &_return, const KmsMediaType::type mediaType);
-  void getMediaSinksByMediaType (std::vector < std::shared_ptr<MediaSink> > &_return, const KmsMediaType::type mediaType);
+  void getMediaSrcsByMediaType (std::vector < std::shared_ptr<MediaSrc> >
+                                &_return, const KmsMediaType::type mediaType);
+  void getMediaSinksByMediaType (std::vector < std::shared_ptr<MediaSink> >
+                                 &_return, const KmsMediaType::type mediaType);
 
-  void connect (std::shared_ptr<MediaElement> sink) throw (KmsMediaServerException);
-  void connect (std::shared_ptr<MediaElement> sink, const KmsMediaType::type mediaType) throw (KmsMediaServerException);
+  void connect (std::shared_ptr<MediaElement> sink) throw (
+    KmsMediaServerException);
+  void connect (std::shared_ptr<MediaElement> sink,
+                const KmsMediaType::type mediaType) throw (KmsMediaServerException);
 
 protected:
   GstElement *element;

@@ -32,18 +32,21 @@ public:
   ~MediaSet ();
 
   void reg (std::shared_ptr<MediaObjectImpl> mediaObject);
-  void keepAlive (const KmsMediaObjectRef &mediaObject) throw (KmsMediaServerException);
+  void keepAlive (const KmsMediaObjectRef &mediaObject) throw (
+    KmsMediaServerException);
   void unreg (const KmsMediaObjectRef &mediaObject, bool force = true);
   void unreg (const KmsMediaObjectId &id, bool force = true);
   int size();
 
   template <class T>
-  std::shared_ptr<T> getMediaObject (const KmsMediaObjectRef &mediaObject) throw (KmsMediaServerException);
+  std::shared_ptr<T> getMediaObject (const KmsMediaObjectRef &mediaObject) throw (
+    KmsMediaServerException);
 
 private:
   Glib::Threads::RecMutex mutex;
   std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> > mediaObjectsMap;
-  std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> > childrenMap;
+  std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >
+      childrenMap;
   std::map<KmsMediaObjectId, std::shared_ptr<AutoReleaseData>> mediaObjectsAlive;
 
   Glib::ThreadPool threadPool;

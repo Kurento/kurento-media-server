@@ -26,8 +26,8 @@ class GStreamerFilter : public Filter
 {
 public:
   GStreamerFilter (MediaSet &mediaSet,
-                         std::shared_ptr<MediaPipeline> parent,
-                         const std::map<std::string, KmsMediaParam>& params);
+                   std::shared_ptr<MediaPipeline> parent,
+                   const std::map<std::string, KmsMediaParam> &params);
 
   ~GStreamerFilter() throw ();
 

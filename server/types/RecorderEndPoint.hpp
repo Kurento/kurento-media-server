@@ -26,13 +26,13 @@ class RecorderEndPoint : public UriEndPoint
 {
 public:
   RecorderEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
-                    const std::map<std::string, KmsMediaParam>& params)
+                    const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
   ~RecorderEndPoint() throw ();
 
 private:
   void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri,
-    KmsMediaProfile profile);
+             KmsMediaProfile profile);
 
   class StaticConstructor
   {

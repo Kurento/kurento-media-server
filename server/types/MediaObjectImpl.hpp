@@ -28,23 +28,30 @@ namespace kurento
 class MediaObjectImpl : public KmsMediaObjectRef
 {
 public:
-  MediaObjectImpl (const std::map<std::string, KmsMediaParam>& params = emptyParams);
-  MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, const std::map<std::string, KmsMediaParam>& params = emptyParams);
+  MediaObjectImpl (const std::map<std::string, KmsMediaParam> &params =
+                     emptyParams);
+  MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent,
+                   const std::map<std::string, KmsMediaParam> &params = emptyParams);
   virtual ~MediaObjectImpl() throw () = 0;
 
   bool getExcludeFromGC ();
 
   std::shared_ptr<MediaObjectImpl> getParent () throw (KmsMediaServerException);
-  virtual void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
-                       const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
-  virtual void subscribe (std::string &_return, const std::string &eventType, const std::string &handlerAddress,
+  virtual void invoke (KmsMediaInvocationReturn &_return,
+                       const std::string &command,
+                       const std::map<std::string, KmsMediaParam> &params) throw (
+                         KmsMediaServerException);
+  virtual void subscribe (std::string &_return, const std::string &eventType,
+                          const std::string &handlerAddress,
                           const int32_t handlerPort) throw (KmsMediaServerException);
-  virtual void unsubscribe (const std::string &callbackToken) throw (KmsMediaServerException);
+  virtual void unsubscribe (const std::string &callbackToken) throw (
+    KmsMediaServerException);
 
   virtual void subscribeError (std::string &_return,
                                const std::string &handlerAddress,
                                const int32_t handlerPort) throw (KmsMediaServerException);
-  virtual void unsubscribeError (const std::string &callbackToken) throw (KmsMediaServerException);
+  virtual void unsubscribeError (const std::string &callbackToken) throw (
+    KmsMediaServerException);
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;
@@ -56,15 +63,17 @@ protected:
   static std::map<std::string, KmsMediaParam> emptyParams;
   MediaHandlerManager mediaHandlerManager;
 
-  void sendEvent (const std::string &eventType, const KmsMediaEventData &eventData = defaultKmsMediaEventData);
+  void sendEvent (const std::string &eventType,
+                  const KmsMediaEventData &eventData = defaultKmsMediaEventData);
   void sendError (const std::string &errorType, const std::string &description,
                   int32_t errorCode);
 
 private:
   bool excludeFromGC = false;
-  int32_t garbageCollectorPeriod = g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD;
+  int32_t garbageCollectorPeriod =
+    g_KmsMediaServer_constants.DEFAULT_GARBAGE_COLLECTOR_PERIOD;
 
-  void init (const std::map<std::string, KmsMediaParam>& params);
+  void init (const std::map<std::string, KmsMediaParam> &params);
   void sendError (const std::shared_ptr<KmsMediaError> &error);
 
   static KmsMediaEventData defaultKmsMediaEventData;

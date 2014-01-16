@@ -28,7 +28,7 @@ class UriEndPoint : public EndPoint
 public:
   UriEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
                const std::string &type,
-               const std::map<std::string, KmsMediaParam>& params);
+               const std::map<std::string, KmsMediaParam> &params);
   virtual ~UriEndPoint() throw ();
 
   std::string getUri ();
@@ -38,7 +38,8 @@ public:
 
   void invoke (KmsMediaInvocationReturn &_return,
                const std::string &command,
-               const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
+               const std::map<std::string, KmsMediaParam> &params) throw (
+                 KmsMediaServerException);
 
 private:
   class StaticConstructor

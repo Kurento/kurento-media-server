@@ -26,20 +26,20 @@ class FaceOverlayFilter : public Filter
 {
 public:
   FaceOverlayFilter (MediaSet &mediaSet,
-                         std::shared_ptr<MediaPipeline> parent,
-                         const std::map<std::string, KmsMediaParam>& params);
+                     std::shared_ptr<MediaPipeline> parent,
+                     const std::map<std::string, KmsMediaParam> &params);
 
   ~FaceOverlayFilter() throw ();
 
   GstElement *faceOverlay;
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
-               const std::map<std::string, KmsMediaParam> & params)
-               throw (KmsMediaServerException);
+               const std::map<std::string, KmsMediaParam> &params)
+  throw (KmsMediaServerException);
 
 private:
 
-  void setImageOverlay(KmsMediaFaceOverlayImage image);
+  void setImageOverlay (KmsMediaFaceOverlayImage image);
 
   class StaticConstructor
   {

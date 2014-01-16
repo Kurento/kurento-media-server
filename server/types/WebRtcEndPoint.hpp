@@ -25,7 +25,7 @@ class WebRtcEndPoint : public SdpEndPoint
 {
 public:
   WebRtcEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
-                  const std::map<std::string, KmsMediaParam>& params);
+                  const std::map<std::string, KmsMediaParam> &params);
   ~WebRtcEndPoint() throw ();
 
 private:

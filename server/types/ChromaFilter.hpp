@@ -26,21 +26,21 @@ class ChromaFilter : public Filter
 {
 public:
   ChromaFilter (MediaSet &mediaSet,
-                         std::shared_ptr<MediaPipeline> parent,
-                         const std::map<std::string, KmsMediaParam>& params);
+                std::shared_ptr<MediaPipeline> parent,
+                const std::map<std::string, KmsMediaParam> &params);
 
   ~ChromaFilter() throw ();
 
-   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
-                const std::map<std::string, KmsMediaParam> & params)
-                throw (KmsMediaServerException);
+  void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
+               const std::map<std::string, KmsMediaParam> &params)
+  throw (KmsMediaServerException);
 
 private:
   gulong bus_handler_id;
 
   GstElement *chroma;
 
-  void setBackground(KmsMediaChromaBackgroundImage backgroundImage);
+  void setBackground (KmsMediaChromaBackgroundImage backgroundImage);
 
   class StaticConstructor
   {

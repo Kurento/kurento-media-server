@@ -32,13 +32,17 @@ class MediaPipeline : public MediaObjectParent,
 {
 
 public:
-  MediaPipeline (MediaSet &mediaSet, const std::map<std::string, KmsMediaParam>& params = emptyParams) throw (KmsMediaServerException);
+  MediaPipeline (MediaSet &mediaSet,
+                 const std::map<std::string, KmsMediaParam> &params = emptyParams) throw (
+                   KmsMediaServerException);
   ~MediaPipeline() throw();
 
-  std::shared_ptr<MediaElement> createMediaElement (const std::string &elementType,
-      const std::map<std::string, KmsMediaParam>& params = emptyParams)
+  std::shared_ptr<MediaElement> createMediaElement (const std::string
+      &elementType,
+      const std::map<std::string, KmsMediaParam> &params = emptyParams)
   throw (KmsMediaServerException);
-  std::shared_ptr<Mixer> createMediaMixer (const std::string &mixerType, const std::map < std::string,
+  std::shared_ptr<Mixer> createMediaMixer (const std::string &mixerType,
+      const std::map < std::string,
       KmsMediaParam > & params = emptyParams)
   throw (KmsMediaServerException);
 
@@ -55,7 +59,8 @@ private:
 
   static StaticConstructor staticConstructor;
 
-  friend void media_pipeline_receive_message (GstBus *bus, GstMessage *message, gpointer data);
+  friend void media_pipeline_receive_message (GstBus *bus, GstMessage *message,
+      gpointer data);
 };
 
 } // kurento

@@ -33,78 +33,112 @@ public:
   int32_t getVersion ();
 
   /* MediaObject */
-  void keepAlive (const KmsMediaObjectRef &mediaObjectRef) throw (KmsMediaServerException);
-  void release (const KmsMediaObjectRef &mediaObjectRef) throw (KmsMediaServerException);
-  void subscribeEvent (std::string &_return, const KmsMediaObjectRef &mediaObjectRef,
-                       const std::string &eventType, const std::string &handlerAddress,
+  void keepAlive (const KmsMediaObjectRef &mediaObjectRef) throw (
+    KmsMediaServerException);
+  void release (const KmsMediaObjectRef &mediaObjectRef) throw (
+    KmsMediaServerException);
+  void subscribeEvent (std::string &_return,
+                       const KmsMediaObjectRef &mediaObjectRef, const std::string &eventType,
+                       const std::string &handlerAddress,
                        const int32_t handlerPort) throw (KmsMediaServerException);
-  void unsubscribeEvent (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
+  void unsubscribeEvent (const KmsMediaObjectRef &mediaObjectRef,
+                         const std::string &callbackToken)
   throw (KmsMediaServerException);
-  void subscribeError (std::string &_return, const KmsMediaObjectRef &mediaObjectRef,
+  void subscribeError (std::string &_return,
+                       const KmsMediaObjectRef &mediaObjectRef,
                        const std::string &handlerAddress, const int32_t handlerPort)
   throw (KmsMediaServerException);
-  void unsubscribeError (const KmsMediaObjectRef &mediaObjectRef, const std::string &callbackToken)
+  void unsubscribeError (const KmsMediaObjectRef &mediaObjectRef,
+                         const std::string &callbackToken)
   throw (KmsMediaServerException);
-  void invoke (KmsMediaInvocationReturn &_return, const KmsMediaObjectRef &mediaObjectRef, const std::string &command,
-               const std::map<std::string, KmsMediaParam> & params) throw (KmsMediaServerException);
-  void getParent (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaObjectRef)
+  void invoke (KmsMediaInvocationReturn &_return,
+               const KmsMediaObjectRef &mediaObjectRef, const std::string &command,
+               const std::map<std::string, KmsMediaParam> &params) throw (
+                 KmsMediaServerException);
+  void getParent (KmsMediaObjectRef &_return,
+                  const KmsMediaObjectRef &mediaObjectRef)
   throw (KmsMediaServerException);
-  void getMediaPipeline (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaObjectRef)
+  void getMediaPipeline (KmsMediaObjectRef &_return,
+                         const KmsMediaObjectRef &mediaObjectRef)
   throw (KmsMediaServerException);
 
   /* MediaPileline */
-  void createMediaPipeline (KmsMediaObjectRef &_return) throw (KmsMediaServerException);
-  void createMediaPipelineWithParams (KmsMediaObjectRef &_return, const std::map<std::string, KmsMediaParam>& params)
+  void createMediaPipeline (KmsMediaObjectRef &_return) throw (
+    KmsMediaServerException);
+  void createMediaPipelineWithParams (KmsMediaObjectRef &_return,
+                                      const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
-  void createMediaElement (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
+  void createMediaElement (KmsMediaObjectRef &_return,
+                           const KmsMediaObjectRef &mediaPipeline,
                            const std::string &elementType) throw (KmsMediaServerException);
-  void createMediaElementWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
-                                     const std::string &elementType, const std::map<std::string, KmsMediaParam>& params)
+  void createMediaElementWithParams (KmsMediaObjectRef &_return,
+                                     const KmsMediaObjectRef &mediaPipeline,
+                                     const std::string &elementType,
+                                     const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
-  void createMediaMixer (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
+  void createMediaMixer (KmsMediaObjectRef &_return,
+                         const KmsMediaObjectRef &mediaPipeline,
                          const std::string &mixerType) throw (KmsMediaServerException);
-  void createMediaMixerWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPipeline,
-                                   const std::string &mixerType, const std::map<std::string, KmsMediaParam>& params)
+  void createMediaMixerWithParams (KmsMediaObjectRef &_return,
+                                   const KmsMediaObjectRef &mediaPipeline,
+                                   const std::string &mixerType,
+                                   const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
 
   /* MediaElement */
-  void getMediaSrcs (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement)
+  void getMediaSrcs (std::vector<KmsMediaObjectRef> &_return,
+                     const KmsMediaObjectRef &mediaElement)
   throw (KmsMediaServerException);
-  void getMediaSinks (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement)
+  void getMediaSinks (std::vector<KmsMediaObjectRef> &_return,
+                      const KmsMediaObjectRef &mediaElement)
   throw (KmsMediaServerException);
-  void getMediaSrcsByMediaType (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+  void getMediaSrcsByMediaType (std::vector<KmsMediaObjectRef> &_return,
+                                const KmsMediaObjectRef &mediaElement,
                                 const KmsMediaType::type mediaType) throw (KmsMediaServerException);
-  void getMediaSinksByMediaType (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+  void getMediaSinksByMediaType (std::vector<KmsMediaObjectRef> &_return,
+                                 const KmsMediaObjectRef &mediaElement,
                                  const KmsMediaType::type mediaType) throw (KmsMediaServerException);
-  void getMediaSrcsByFullDescription (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+  void getMediaSrcsByFullDescription (std::vector<KmsMediaObjectRef> &_return,
+                                      const KmsMediaObjectRef &mediaElement,
                                       const KmsMediaType::type mediaType, const std::string &description)
   throw (KmsMediaServerException);
-  void getMediaSinksByFullDescription (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaElement,
+  void getMediaSinksByFullDescription (std::vector<KmsMediaObjectRef> &_return,
+                                       const KmsMediaObjectRef &mediaElement,
                                        const KmsMediaType::type mediaType, const std::string &description)
   throw (KmsMediaServerException);
-  void connectElements (const KmsMediaObjectRef &srcMediaElement, const KmsMediaObjectRef &sinkMediaElement)
+  void connectElements (const KmsMediaObjectRef &srcMediaElement,
+                        const KmsMediaObjectRef &sinkMediaElement)
   throw (KmsMediaServerException);
-  void connectElementsByMediaType (const KmsMediaObjectRef &srcMediaElement, const KmsMediaObjectRef &sinkMediaElement,
+  void connectElementsByMediaType (const KmsMediaObjectRef &srcMediaElement,
+                                   const KmsMediaObjectRef &sinkMediaElement,
                                    const KmsMediaType::type mediaType) throw (KmsMediaServerException);
-  void connectElementsByFullDescription (const KmsMediaObjectRef &srcMediaElement, const KmsMediaObjectRef &sinkMediaElement,
+  void connectElementsByFullDescription (const KmsMediaObjectRef &srcMediaElement,
+                                         const KmsMediaObjectRef &sinkMediaElement,
                                          const KmsMediaType::type mediaType, const std::string &mediaDescription)
   throw (KmsMediaServerException);
 
   /* MediaPad */
-  void getMediaElement (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaPadRef) throw (KmsMediaServerException);
+  void getMediaElement (KmsMediaObjectRef &_return,
+                        const KmsMediaObjectRef &mediaPadRef) throw (KmsMediaServerException);
 
   /* MediaSrc */
-  void connect (const KmsMediaObjectRef &mediaSrc, const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException);
-  void disconnect (const KmsMediaObjectRef &mediaSrc, const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException);
-  void getConnectedSinks (std::vector<KmsMediaObjectRef> & _return, const KmsMediaObjectRef &mediaSrc) throw (KmsMediaServerException);
+  void connect (const KmsMediaObjectRef &mediaSrc,
+                const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException);
+  void disconnect (const KmsMediaObjectRef &mediaSrc,
+                   const KmsMediaObjectRef &mediaSink) throw (KmsMediaServerException);
+  void getConnectedSinks (std::vector<KmsMediaObjectRef> &_return,
+                          const KmsMediaObjectRef &mediaSrc) throw (KmsMediaServerException);
 
   /* MediaSink */
-  void getConnectedSrc (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mediaSinkRef) throw (KmsMediaServerException);
+  void getConnectedSrc (KmsMediaObjectRef &_return,
+                        const KmsMediaObjectRef &mediaSinkRef) throw (KmsMediaServerException);
 
   /* Mixer */
-  void createMixerEndPoint (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer) throw (KmsMediaServerException);
-  void createMixerEndPointWithParams (KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer,
-                                      const std::map<std::string, KmsMediaParam>& params)
+  void createMixerEndPoint (KmsMediaObjectRef &_return,
+                            const KmsMediaObjectRef &mixer) throw (KmsMediaServerException);
+  void createMixerEndPointWithParams (KmsMediaObjectRef &_return,
+                                      const KmsMediaObjectRef &mixer,
+                                      const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
 
 private:

@@ -49,10 +49,13 @@ public:
 
 private:
   Glib::Threads::RecMutex mutex;
-  std::map < std::string /*callbackToken*/, std::shared_ptr<MediaHandler >> handlersMap;
-  std::map < std::string /*eventType*/, std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> >> eventTypesMap;
+  std::map < std::string /*callbackToken*/,
+      std::shared_ptr<MediaHandler >> handlersMap;
+  std::map < std::string /*eventType*/,
+      std::shared_ptr<std::set<std::shared_ptr<MediaHandler>> >> eventTypesMap;
 
-  std::map < std::string /*callbackToken*/, std::shared_ptr<MediaHandler >> errorHandlersMap;
+  std::map < std::string /*callbackToken*/,
+      std::shared_ptr<MediaHandler >> errorHandlersMap;
   GThreadPool *threadPool;
 
   class StaticConstructor

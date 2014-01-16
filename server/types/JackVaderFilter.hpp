@@ -25,7 +25,7 @@ class JackVaderFilter : public Filter
 {
 public:
   JackVaderFilter (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
-                   const std::map<std::string, KmsMediaParam>& params);
+                   const std::map<std::string, KmsMediaParam> &params);
   ~JackVaderFilter() throw ();
 
 private:

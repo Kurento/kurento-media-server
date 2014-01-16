@@ -25,7 +25,7 @@ class ZBarFilter : public Filter
 {
 public:
   ZBarFilter (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
-              const std::map<std::string, KmsMediaParam> & params)
+              const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
   ~ZBarFilter() throw ();
 
@@ -55,7 +55,8 @@ private:
 
   static StaticConstructor staticConstructor;
 
-  friend void zbar_receive_message (GstBus *bus, GstMessage *message, gpointer element);
+  friend void zbar_receive_message (GstBus *bus, GstMessage *message,
+                                    gpointer element);
 };
 
 } // kurento

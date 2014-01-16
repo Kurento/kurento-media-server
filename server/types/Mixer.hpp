@@ -28,7 +28,7 @@ class Mixer : public MediaObjectImpl,
 {
 public:
   Mixer (std::shared_ptr<MediaPipeline> parent, const std::string &mixerType,
-         const std::map<std::string, KmsMediaParam>& params);
+         const std::map<std::string, KmsMediaParam> &params);
   virtual ~Mixer() throw () = 0;
 
   std::shared_ptr<MixerEndPoint> createMixerEndPoint ();

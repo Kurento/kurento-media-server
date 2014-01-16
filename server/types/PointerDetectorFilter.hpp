@@ -27,13 +27,13 @@ class PointerDetectorFilter : public Filter
 public:
   PointerDetectorFilter (MediaSet &mediaSet,
                          std::shared_ptr<MediaPipeline> parent,
-                         const std::map<std::string, KmsMediaParam>& params);
+                         const std::map<std::string, KmsMediaParam> &params);
 
   ~PointerDetectorFilter() throw ();
 
-   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
-                const std::map<std::string, KmsMediaParam> & params)
-                throw (KmsMediaServerException);
+  void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
+               const std::map<std::string, KmsMediaParam> &params)
+  throw (KmsMediaServerException);
 
 private:
 
@@ -42,13 +42,13 @@ private:
   GstElement *pointerDetector;
 
   void raiseEvent (const std::string &type, const std::string &windowID);
-  void addWindow(KmsMediaPointerDetectorWindow windowInfo);
-  void removeWindow(std::string id);
+  void addWindow (KmsMediaPointerDetectorWindow windowInfo);
+  void removeWindow (std::string id);
   void clearWindows();
   void subscribe (std::string &_return, const std::string &eventType,
                   const std::string &handlerAddress,
                   const int32_t handlerPort)
-                  throw (KmsMediaServerException);
+  throw (KmsMediaServerException);
 
   class StaticConstructor
   {
@@ -58,7 +58,8 @@ private:
 
   static StaticConstructor staticConstructor;
 
-  friend void pointerDetector_receive_message (GstBus *bus, GstMessage *message, gpointer element);
+  friend void pointerDetector_receive_message (GstBus *bus, GstMessage *message,
+      gpointer element);
 };
 
 } // kurento

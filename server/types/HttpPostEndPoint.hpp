@@ -25,7 +25,7 @@ class HttpPostEndPoint : public HttpEndPoint
 {
 public:
   HttpPostEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
-                const std::map<std::string, KmsMediaParam>& params)
+                    const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
   ~HttpPostEndPoint() throw ();
 

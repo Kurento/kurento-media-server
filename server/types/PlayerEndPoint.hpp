@@ -25,12 +25,13 @@ class PlayerEndPoint : public UriEndPoint
 {
 public:
   PlayerEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
-                  const std::map<std::string, KmsMediaParam>& params)
+                  const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
   ~PlayerEndPoint() throw ();
 
   void subscribe (std::string &_return, const std::string &eventType,
-                  const std::string &handlerAddress, const int32_t handlerPort) throw (KmsMediaServerException);
+                  const std::string &handlerAddress,
+                  const int32_t handlerPort) throw (KmsMediaServerException);
 
 private:
   void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
