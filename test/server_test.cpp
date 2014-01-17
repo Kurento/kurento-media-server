@@ -218,14 +218,6 @@ ClientHandler::check_auto_released_media_pipeline ()
   BOOST_REQUIRE_NO_THROW (client->keepAlive (moB) );
   g_usleep ( AUTO_RELEASE_INTERVAL * G_USEC_PER_SEC);
 
-  try {
-    client->keepAlive (moA);
-    BOOST_FAIL ("Use an auto released MediaObject must throw a KmsMediaServerException");
-  } catch (const KmsMediaServerException &e) {
-    BOOST_CHECK_EQUAL (g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_NOT_FOUND,
-                       e.errorCode);
-  }
-
   BOOST_REQUIRE_NO_THROW (client->keepAlive (moB) );
   BOOST_REQUIRE_NO_THROW (client->keepAlive (mediaPipeline) );
 
