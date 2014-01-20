@@ -34,6 +34,7 @@
 #include "KmsMediaFaceOverlayFilterType_constants.h"
 #include "KmsMediaGStreamerFilterType_constants.h"
 #include "KmsMediaChromaFilterType_constants.h"
+#include "KmsMediaPointerDetector2FilterType_constants.h"
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
@@ -97,6 +98,7 @@ protected:
   void check_face_overlay_filter();
   void check_gstreamer_filter();
   void check_chroma_filter();
+  void check_pointer_detector2_filter ();
 };
 
 void
@@ -919,6 +921,91 @@ ClientHandler::check_chroma_filter()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_pointer_detector2_filter ()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef pointerDetector2Filter = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaParam param;
+  KmsMediaPointerDetector2ConstructorParams constructorParams;
+  KmsMediaPointerDetectorWindowSet windowSet;
+  KmsMediaPointerDetectorWindow window;
+  KmsMediaInvocationReturn ret;
+  std::string name;
+
+  gint32 numElements = 5;
+
+  //create window layouts
+  for (int i = 0; i < numElements ; i++) {
+    KmsMediaPointerDetectorWindow aux;
+    aux.topRightCornerX = i * 3;
+    aux.topRightCornerY = i * 4;
+    aux.width = i * 5;
+    aux.height = i * 6;
+    aux.id = "window" + std::to_string (i);
+    windowSet.windows.insert (aux);
+  }
+
+  constructorParams.windowSet = windowSet;
+  constructorParams.colorCalibrationRegion.point.x = 20;
+  constructorParams.colorCalibrationRegion.point.y = 30;
+  constructorParams.colorCalibrationRegion.width = 20;
+  constructorParams.colorCalibrationRegion.height = 20;
+
+  //marshalling data
+  createStructParam (param, constructorParams,
+                     g_KmsMediaPointerDetector2FilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaPointerDetector2FilterType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE]
+    = param;
+
+  //create elements
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElementWithParams (pointerDetector2Filter, mediaPipeline,
+                                        g_KmsMediaPointerDetector2FilterType_constants.TYPE_NAME,
+                                        params);
+
+  params.clear();
+
+  //test functions
+  //add new Window
+  window.topRightCornerX = 15;
+  window.topRightCornerY = 15;
+  window.width = 15;
+  window.height = 15;
+  window.id = "new";
+  window.activeOverlayImageUri = "/tmp/image.png";
+  window.overlayTransparency = 0.2;
+  window.inactiveOverlayImageUri = "/tmp/image2.png";
+
+  //marshalling data
+  createStructParam (param, window,
+                     g_KmsMediaPointerDetector2FilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW);
+  params[g_KmsMediaPointerDetector2FilterType_constants.ADD_NEW_WINDOW_PARAM_WINDOW]
+    = param;
+
+  BOOST_REQUIRE_NO_THROW (client->invoke (ret, pointerDetector2Filter,
+                                          g_KmsMediaPointerDetector2FilterType_constants.ADD_NEW_WINDOW, params);)
+  //remove window
+  name = "new";
+  setStringParam (params,
+                  g_KmsMediaPointerDetector2FilterType_constants.REMOVE_WINDOW_PARAM_WINDOW_ID,
+                  name);
+  client->invoke (ret, pointerDetector2Filter,
+                  g_KmsMediaPointerDetector2FilterType_constants.REMOVE_WINDOW, params);
+
+  params.clear();
+  client->invoke (ret, pointerDetector2Filter,
+                  g_KmsMediaPointerDetector2FilterType_constants.TRACK_COLOR_FROM_CALIBRATION_REGION,
+                  params);
+  //clear windows
+  client->invoke (ret, pointerDetector2Filter,
+                  g_KmsMediaPointerDetector2FilterType_constants.CLEAR_WINDOWS, emptyParams);
+
+  client->release (mediaPipeline);
+}
+
+
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
@@ -957,6 +1044,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_face_overlay_filter ();
   check_gstreamer_filter ();
   check_chroma_filter ();
+  check_pointer_detector2_filter ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
