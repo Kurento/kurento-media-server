@@ -32,7 +32,7 @@ public:
 
 private:
   void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri,
-             KmsMediaProfile profile);
+             KmsMediaProfile profile, bool stopOnEOS);
 
   class StaticConstructor
   {

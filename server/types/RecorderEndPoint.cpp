@@ -23,6 +23,8 @@
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
 
+#define STOP_ON_EOS_DEFAULT false
+
 #define GST_CAT_DEFAULT kurento_recorder_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoRecorderEndPoint"
@@ -33,10 +35,12 @@ namespace kurento
 void
 RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent,
                         const std::string &uri,
-                        KmsMediaProfile profile)
+                        KmsMediaProfile profile,
+                        bool stopOnEOS)
 {
   element = gst_element_factory_make ("recorderendpoint", NULL);
 
+  g_object_set ( G_OBJECT (element), "accept-eos", stopOnEOS, NULL);
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 
   switch (profile.mediaMuxer) {
@@ -69,6 +73,7 @@ throw (KmsMediaServerException)
   KmsMediaUriEndPointConstructorParams uriEpParams;
   KmsMediaRecoderEndPointConstructorParams recorderParams;
   KmsMediaProfile profile;
+  bool stopOnEOS = STOP_ON_EOS_DEFAULT;
 
   p = getParam (params,
                 g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
@@ -84,9 +89,10 @@ throw (KmsMediaServerException)
   }
 
   unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
-  //unmarshal KmsMediaRecoderEndPointConstructorParams
+
   p = getParam (params,
                 g_KmsMediaRecorderEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+
   profile.mediaMuxer = KmsMediaMuxer::WEBM;
 
   if (p != NULL) {
@@ -95,9 +101,13 @@ throw (KmsMediaServerException)
     if (recorderParams.__isset.profileType) {
       profile = recorderParams.profileType;
     }
+
+    if (recorderParams.__isset.stopOnEOS) {
+      stopOnEOS = recorderParams.stopOnEOS;
+    }
   }
 
-  init (parent, uriEpParams.uri, profile);
+  init (parent, uriEpParams.uri, profile, stopOnEOS);
 }
 
 static void
