@@ -29,21 +29,6 @@ namespace kurento
 {
 
 void
-HttpGetEndPoint::subscribe (std::string &_return, const std::string &eventType,
-                            const std::string &handlerAddress,
-                            const int32_t handlerPort)
-throw (KmsMediaServerException)
-{
-  if (g_KmsMediaHttpGetEndPointType_constants.EVENT_EOS_DETECTED.compare (
-        eventType) == 0)
-    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
-                                         handlerPort);
-  else {
-    HttpEndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
-  }
-}
-
-void
 HttpGetEndPoint::init (bool terminateOnEOS, KmsMediaProfile profile)
 throw (KmsMediaServerException)
 {

@@ -29,10 +29,6 @@ public:
   throw (KmsMediaServerException);
   ~HttpGetEndPoint() throw ();
 
-  void subscribe (std::string &_return, const std::string &eventType,
-                  const std::string &handlerAddress, const int32_t handlerPort)
-  throw (KmsMediaServerException);
-
 private:
   void init (bool terminateOnEOS, KmsMediaProfile profile)
   throw (KmsMediaServerException);
