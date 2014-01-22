@@ -29,6 +29,10 @@ public:
   throw (KmsMediaServerException);
   ~HttpPostEndPoint() throw ();
 
+  void subscribe (std::string &_return, const std::string &eventType,
+                  const std::string &handlerAddress, const int32_t handlerPort)
+  throw (KmsMediaServerException);
+
 private:
   class StaticConstructor
   {
@@ -37,6 +41,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend void http_post_ep_eos (GstElement *player, HttpPostEndPoint *self);
 };
 
 } // kurento

@@ -26,6 +26,27 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+void
+http_post_ep_eos (GstElement *player, HttpPostEndPoint *self)
+{
+  self->sendEvent (g_KmsMediaHttpPostEndPointType_constants.EVENT_EOS);
+}
+
+void
+HttpPostEndPoint::subscribe (std::string &_return, const std::string &eventType,
+                             const std::string &handlerAddress,
+                             const int32_t handlerPort)
+throw (KmsMediaServerException)
+{
+  if (g_KmsMediaHttpPostEndPointType_constants.EVENT_EOS.compare (
+        eventType) == 0)
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  else {
+    HttpEndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
+  }
+}
+
 HttpPostEndPoint::HttpPostEndPoint (MediaSet &mediaSet,
                                     std::shared_ptr<MediaPipeline> parent,
                                     const std::map<std::string, KmsMediaParam> &params)
@@ -36,6 +57,7 @@ throw (KmsMediaServerException)
 {
   /* Do not accept EOS */
   g_object_set ( G_OBJECT (element), "accept-eos", false, NULL);
+  g_signal_connect (element, "eos", G_CALLBACK (http_post_ep_eos), this);
 
   register_end_point();
 
