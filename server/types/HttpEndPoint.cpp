@@ -35,6 +35,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoHttpEndPoint"
 
 #define DISCONNECTION_TIMEOUT 2 /* seconds */
+#define FACTORY_NAME "httpendpoint"
 
 using apache::thrift::transport::TMemoryBuffer;
 using apache::thrift::protocol::TBinaryProtocol;
@@ -277,8 +278,6 @@ HttpEndPoint::init (std::shared_ptr<MediaPipeline> parent,
                     guint disconnectionTimeout)
 throw (KmsMediaServerException)
 {
-  element = gst_element_factory_make ("httpendpoint", NULL);
-
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
@@ -327,7 +326,7 @@ HttpEndPoint::HttpEndPoint (MediaSet &mediaSet,
                             const std::string &type,
                             const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
-  : EndPoint (mediaSet, parent, type, params)
+  : EndPoint (mediaSet, parent, type, params, FACTORY_NAME)
 {
   const KmsMediaParam *p;
   KmsMediaHttpEndPointConstructorParams httpEpParams;

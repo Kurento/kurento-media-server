@@ -28,7 +28,8 @@ class UriEndPoint : public EndPoint
 public:
   UriEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
                const std::string &type,
-               const std::map<std::string, KmsMediaParam> &params);
+               const std::map<std::string, KmsMediaParam> &params,
+               const std::string &factoryName);
   virtual ~UriEndPoint() throw ();
 
   std::string getUri ();

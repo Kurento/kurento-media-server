@@ -224,8 +224,6 @@ GStreamerFilter::GStreamerFilter (
 
   GST_DEBUG ("Command %s", command.c_str() );
 
-  element = gst_element_factory_make ("filterelement", NULL);
-
   g_object_set (element, "filter-factory", command.c_str(), NULL);
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);

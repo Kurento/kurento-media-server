@@ -22,14 +22,14 @@
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
+#define FACTORY_NAME "rtpendpoint"
+
 namespace kurento
 {
 
 void
 RtpEndPoint::init (std::shared_ptr<MediaPipeline> parent)
 {
-  element = gst_element_factory_make ("rtpendpoint", NULL);
-
   g_object_set (element, "pattern-sdp", sdpPattern, NULL);
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
@@ -41,7 +41,7 @@ RtpEndPoint::RtpEndPoint (MediaSet &mediaSet,
                           const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
   : SdpEndPoint (mediaSet, parent,
-                 g_KmsMediaRtpEndPointType_constants.TYPE_NAME, params)
+                 g_KmsMediaRtpEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
 {
   init (parent);
 }

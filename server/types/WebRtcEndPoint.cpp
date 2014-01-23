@@ -24,6 +24,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoWebRtcEndPoint"
 
+#define FACTORY_NAME "webrtcendpoint"
+
 namespace kurento
 {
 
@@ -31,9 +33,8 @@ WebRtcEndPoint::WebRtcEndPoint (MediaSet &mediaSet,
                                 std::shared_ptr<MediaPipeline> parent,
                                 const std::map<std::string, KmsMediaParam> &params)
   : SdpEndPoint (mediaSet, parent,
-                 g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME, params)
+                 g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
 {
-  element = gst_element_factory_make ("webrtcendpoint", NULL);
   g_object_set (element, "pattern-sdp", sdpPattern, NULL);
 
   //set properties

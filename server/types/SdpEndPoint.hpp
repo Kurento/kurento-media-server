@@ -26,7 +26,8 @@ class SdpEndPoint : public EndPoint
 public:
   SdpEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
                const std::string &type,
-               const std::map<std::string, KmsMediaParam> &params);
+               const std::map<std::string, KmsMediaParam> &params,
+               const std::string &factoryName);
   virtual ~SdpEndPoint() throw () = 0;
 
   void generateOffer (std::string &_return);

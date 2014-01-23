@@ -15,13 +15,15 @@
 
 #include "Filter.hpp"
 
+#define FACTORY_NAME "filterelement"
+
 namespace kurento
 {
 
 Filter::Filter (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
                 const std::string &filterType,
                 const std::map<std::string, KmsMediaParam> &params)
-  : MediaElement (mediaSet, parent, filterType, params)
+  : MediaElement (mediaSet, parent, filterType, params, FACTORY_NAME)
 {
 }
 

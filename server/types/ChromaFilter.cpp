@@ -55,8 +55,6 @@ ChromaFilter::ChromaFilter (
     throw except;
   }
 
-  element = gst_element_factory_make ("filterelement", NULL);
-
   g_object_set (element, "filter-factory", "chroma", NULL);
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
@@ -132,7 +130,8 @@ throw (KmsMediaServerException)
       unmarshalStruct (backgroundImage, p->data);
       setBackground (backgroundImage);
     }
-  } else if (g_KmsMediaChromaFilterType_constants.UNSET_BACKGROUND.compare (command) == 0) {
+  } else if (g_KmsMediaChromaFilterType_constants.UNSET_BACKGROUND.compare (
+               command) == 0) {
     unsetBackground ();
   }
 }

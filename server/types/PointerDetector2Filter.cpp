@@ -89,8 +89,6 @@ PointerDetector2Filter::PointerDetector2Filter (
   KmsMediaPointerDetectorWindowSet windowSet;
   GstStructure *calibrationArea;
 
-  element = gst_element_factory_make ("filterelement", NULL);
-
   g_object_set (element, "filter-factory", "pointerdetector2", NULL);
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);

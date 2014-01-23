@@ -27,10 +27,13 @@ namespace kurento
 MediaElement::MediaElement (MediaSet &mediaSet,
                             std::shared_ptr<MediaObjectImpl> parent,
                             const std::string &elementType,
-                            const std::map<std::string, KmsMediaParam> &params)
+                            const std::map<std::string, KmsMediaParam> &params,
+                            const std::string &factoryName)
   : MediaObjectParent (mediaSet, parent, params),
     KmsMediaElement()
 {
+  element = gst_element_factory_make (factoryName.c_str(), NULL);
+
   this->elementType = elementType;
   this->objectType.__set_element (*this);
 }

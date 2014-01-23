@@ -32,7 +32,8 @@ class MediaElement : public MediaObjectParent,
 public:
   MediaElement (MediaSet &mediaSet, std::shared_ptr<MediaObjectImpl> parent,
                 const std::string &elementType,
-                const std::map<std::string, KmsMediaParam> &params);
+                const std::map<std::string, KmsMediaParam> &params,
+                const std::string &factoryName);
   virtual ~MediaElement() throw () = 0;
 
   void getMediaSrcs (std::vector < std::shared_ptr<MediaSrc> > &_return);

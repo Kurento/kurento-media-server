@@ -29,6 +29,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoRecorderEndPoint"
 
+#define FACTORY_NAME "recorderendpoint"
+
 namespace kurento
 {
 
@@ -38,8 +40,6 @@ RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent,
                         KmsMediaProfile profile,
                         bool stopOnEOS)
 {
-  element = gst_element_factory_make ("recorderendpoint", NULL);
-
   g_object_set ( G_OBJECT (element), "accept-eos", stopOnEOS, NULL);
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 
@@ -67,7 +67,7 @@ RecorderEndPoint::RecorderEndPoint (MediaSet &mediaSet,
                                     const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
   : UriEndPoint (mediaSet, parent,
-                 g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params)
+                 g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
 {
   const KmsMediaParam *p;
   KmsMediaUriEndPointConstructorParams uriEpParams;

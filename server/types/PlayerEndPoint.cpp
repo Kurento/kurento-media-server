@@ -27,6 +27,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPlayerEndPoint"
 
+#define FACTORY_NAME "playerendpoint"
+
 namespace kurento
 {
 
@@ -54,8 +56,6 @@ void
 PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent,
                       const std::string &uri)
 {
-  element = gst_element_factory_make ("playerendpoint", NULL);
-
   g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 
   g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);
@@ -74,7 +74,7 @@ PlayerEndPoint::PlayerEndPoint (MediaSet &mediaSet,
                                 const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
   : UriEndPoint (mediaSet, parent,
-                 g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params)
+                 g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
 {
   const KmsMediaParam *p;
   KmsMediaUriEndPointConstructorParams uriEpParams;
