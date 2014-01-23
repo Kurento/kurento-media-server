@@ -21,14 +21,8 @@
 #include "KmsMediaErrorCodes_constants.h"
 #include "KmsMediaSessionEndPointType_constants.h"
 
-#include "KmsMediaHttpGetEndPointType_constants.h"
-#include "KmsMediaHttpGetEndPointType_types.h"
-
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
-
-#include "protocol/TBinaryProtocol.h"
-#include "transport/TBufferTransports.h"
 
 #define GST_CAT_DEFAULT kurento_http_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -36,9 +30,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define DISCONNECTION_TIMEOUT 2 /* seconds */
 #define FACTORY_NAME "httpendpoint"
-
-using apache::thrift::transport::TMemoryBuffer;
-using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {

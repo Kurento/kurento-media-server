@@ -22,17 +22,11 @@
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
-#include "protocol/TBinaryProtocol.h"
-#include "transport/TBufferTransports.h"
-
 #define GST_CAT_DEFAULT kurento_pointer_detector_filter
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPointerDetectorFilter"
 
 #define WINDOWS_LAYOUT "windows-layout"
-
-using apache::thrift::transport::TMemoryBuffer;
-using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {

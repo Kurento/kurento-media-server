@@ -21,15 +21,9 @@
 #include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
 
-#include "protocol/TBinaryProtocol.h"
-#include "transport/TBufferTransports.h"
-
 #define GST_CAT_DEFAULT kurento_uri_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoUriEndPoint"
-
-using apache::thrift::transport::TMemoryBuffer;
-using apache::thrift::protocol::TBinaryProtocol;
 
 namespace kurento
 {
