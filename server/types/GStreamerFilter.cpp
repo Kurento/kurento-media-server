@@ -46,7 +46,7 @@ GStreamerFilter::setCommandProperties (string rest_token)
   gint i;
   GObjectClass *elementClass;
 
-  regex = g_regex_new ("([a-zA-Z0-9\\- ]*=[ ]*[a-zA-Z0-9\\-]+)",
+  regex = g_regex_new ("([a-zA-Z0-9\\- ]*=[ ]*[a-zA-Z0-9\\-\\/\",=]+)",
                        G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED, NULL);
   elements = g_regex_split (regex, rest_token.c_str(),
                             G_REGEX_MATCH_NOTEMPTY_ATSTART);
@@ -168,6 +168,23 @@ GStreamerFilter::setCommandProperties (string rest_token)
           GST_ERROR ("Enum value not found");
         }
       }
+    } else if ( G_PARAM_SPEC_VALUE_TYPE (pspec) == GST_TYPE_CAPS) {
+      GstCaps *caps = gst_caps_from_string ( (elements[2] + 1) );
+
+      g_object_set (G_OBJECT (this->filter), elements[1], caps, NULL);
+      GST_DEBUG ("Setting %s = %" GST_PTR_FORMAT " as %s", elements[1], caps,
+                 g_type_name (G_PARAM_SPEC_VALUE_TYPE (pspec) ) );
+      gst_caps_unref (caps);
+    } else if ( G_PARAM_SPEC_VALUE_TYPE (pspec) == GST_TYPE_STRUCTURE) {
+      GstStructure *st = gst_structure_new_from_string ( (elements[2] + 1) );
+
+      g_object_set (G_OBJECT (this->filter), elements[1], st, NULL);
+      GST_DEBUG ("Setting %s = %" GST_PTR_FORMAT " as %s", elements[1], st,
+                 g_type_name (G_PARAM_SPEC_VALUE_TYPE (pspec) ) );
+      gst_structure_free (st);
+    } else {
+      GST_DEBUG ("Unknown param %s = %s as type %s", elements[1],
+                 (elements[2] + 1), g_type_name (G_PARAM_SPEC_VALUE_TYPE (pspec) ) );
     }
 
     g_strfreev (elements);
