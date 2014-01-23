@@ -34,6 +34,12 @@ using apache::thrift::protocol::TBinaryProtocol;
 namespace kurento
 {
 
+typedef enum {
+  KMS_URI_END_POINT_STATE_STOP,
+  KMS_URI_END_POINT_STATE_START,
+  KMS_URI_END_POINT_STATE_PAUSE
+} KmsUriEndPointState;
+
 UriEndPoint::UriEndPoint (MediaSet &mediaSet,
                           std::shared_ptr<MediaPipeline> parent,
                           const std::string &type,
@@ -83,19 +89,19 @@ UriEndPoint::getUri ()
 void
 UriEndPoint::start ()
 {
-  g_object_set (G_OBJECT (element), "state", 1 /* start */, NULL);
+  g_object_set (G_OBJECT (element), "state", KMS_URI_END_POINT_STATE_START, NULL);
 }
 
 void
 UriEndPoint::pause ()
 {
-  g_object_set (G_OBJECT (element), "state", 2 /* pause */, NULL);
+  g_object_set (G_OBJECT (element), "state", KMS_URI_END_POINT_STATE_PAUSE, NULL);
 }
 
 void
 UriEndPoint::stop ()
 {
-  g_object_set (G_OBJECT (element), "state", 0 /* stop */, NULL);
+  g_object_set (G_OBJECT (element), "state", KMS_URI_END_POINT_STATE_STOP, NULL);
 }
 
 void
