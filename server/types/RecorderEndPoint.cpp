@@ -15,9 +15,7 @@
 
 #include "RecorderEndPoint.hpp"
 
-#include "KmsMediaUriEndPointType_constants.h"
 #include "KmsMediaRecorderEndPointType_constants.h"
-#include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
 #include "utils/utils.hpp"
@@ -36,12 +34,10 @@ namespace kurento
 
 void
 RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent,
-                        const std::string &uri,
                         KmsMediaProfile profile,
                         bool stopOnEOS)
 {
   g_object_set ( G_OBJECT (element), "accept-eos", stopOnEOS, NULL);
-  g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
 
   switch (profile.mediaMuxer) {
   case KmsMediaMuxer::WEBM:
@@ -70,25 +66,9 @@ throw (KmsMediaServerException)
                  g_KmsMediaRecorderEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
 {
   const KmsMediaParam *p;
-  KmsMediaUriEndPointConstructorParams uriEpParams;
   KmsMediaRecoderEndPointConstructorParams recorderParams;
   KmsMediaProfile profile;
   bool stopOnEOS = STOP_ON_EOS_DEFAULT;
-
-  p = getParam (params,
-                g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-
-  if (p == NULL) {
-    KmsMediaServerException except;
-
-    createKmsMediaServerException (except,
-                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-                                   "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE +
-                                   "' not found");
-    throw except;
-  }
-
-  unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
 
   p = getParam (params,
                 g_KmsMediaRecorderEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
@@ -107,7 +87,7 @@ throw (KmsMediaServerException)
     }
   }
 
-  init (parent, uriEpParams.uri, profile, stopOnEOS);
+  init (parent, profile, stopOnEOS);
 }
 
 static void

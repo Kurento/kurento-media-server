@@ -39,8 +39,28 @@ UriEndPoint::UriEndPoint (MediaSet &mediaSet,
                           const std::string &type,
                           const std::map<std::string, KmsMediaParam> &params,
                           const std::string &factoryName)
+throw (KmsMediaServerException)
   : EndPoint (mediaSet, parent, type, params, factoryName)
 {
+  KmsMediaUriEndPointConstructorParams uriEpParams;
+  const KmsMediaParam *p;
+
+  p = getParam (params,
+                g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+
+  if (p == NULL) {
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+                                   "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE +
+                                   "' not found");
+    throw except;
+  }
+
+  unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
+
+  g_object_set (G_OBJECT (element), "uri", uriEpParams.uri.c_str(), NULL);
 }
 
 UriEndPoint::~UriEndPoint() throw ()

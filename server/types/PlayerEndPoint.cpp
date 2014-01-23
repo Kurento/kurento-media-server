@@ -15,12 +15,7 @@
 
 #include "PlayerEndPoint.hpp"
 
-#include "KmsMediaUriEndPointType_constants.h"
 #include "KmsMediaPlayerEndPointType_constants.h"
-#include "KmsMediaDataType_constants.h"
-#include "KmsMediaErrorCodes_constants.h"
-
-#include "utils/utils.hpp"
 #include "utils/marshalling.hpp"
 
 #define GST_CAT_DEFAULT kurento_player_end_point
@@ -52,12 +47,13 @@ player_invalid_media (GstElement *player, PlayerEndPoint *self)
                    g_KmsMediaErrorCodes_constants.MEDIA_ERROR);
 }
 
-void
-PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent,
-                      const std::string &uri)
+PlayerEndPoint::PlayerEndPoint (MediaSet &mediaSet,
+                                std::shared_ptr<MediaPipeline> parent,
+                                const std::map<std::string, KmsMediaParam> &params)
+throw (KmsMediaServerException)
+  : UriEndPoint (mediaSet, parent,
+                 g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
 {
-  g_object_set (G_OBJECT (element), "uri", uri.c_str(), NULL);
-
   g_signal_connect (element, "eos", G_CALLBACK (player_eos), this);
   g_signal_connect (element, "invalid-uri", G_CALLBACK (player_invalid_uri),
                     this);
@@ -67,34 +63,6 @@ PlayerEndPoint::init (std::shared_ptr<MediaPipeline> parent,
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);
-}
-
-PlayerEndPoint::PlayerEndPoint (MediaSet &mediaSet,
-                                std::shared_ptr<MediaPipeline> parent,
-                                const std::map<std::string, KmsMediaParam> &params)
-throw (KmsMediaServerException)
-  : UriEndPoint (mediaSet, parent,
-                 g_KmsMediaPlayerEndPointType_constants.TYPE_NAME, params, FACTORY_NAME)
-{
-  const KmsMediaParam *p;
-  KmsMediaUriEndPointConstructorParams uriEpParams;
-
-  p = getParam (params,
-                g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
-
-  if (p == NULL) {
-    KmsMediaServerException except;
-
-    createKmsMediaServerException (except,
-                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
-                                   "Param '" + g_KmsMediaUriEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE +
-                                   "' not found");
-    throw except;
-  }
-
-  unmarshalKmsMediaUriEndPointConstructorParams (uriEpParams, p->data);
-
-  init (parent, uriEpParams.uri);
 }
 
 PlayerEndPoint::~PlayerEndPoint() throw ()

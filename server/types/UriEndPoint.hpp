@@ -29,7 +29,8 @@ public:
   UriEndPoint (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
                const std::string &type,
                const std::map<std::string, KmsMediaParam> &params,
-               const std::string &factoryName);
+               const std::string &factoryName)
+  throw (KmsMediaServerException);
   virtual ~UriEndPoint() throw ();
 
   std::string getUri ();

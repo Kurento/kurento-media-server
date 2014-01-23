@@ -34,7 +34,6 @@ public:
                   const int32_t handlerPort) throw (KmsMediaServerException);
 
 private:
-  void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri);
 
   class StaticConstructor
   {

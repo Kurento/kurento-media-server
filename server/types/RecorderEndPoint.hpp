@@ -31,8 +31,8 @@ public:
   ~RecorderEndPoint() throw ();
 
 private:
-  void init (std::shared_ptr<MediaPipeline> parent, const std::string &uri,
-             KmsMediaProfile profile, bool stopOnEOS);
+  void init (std::shared_ptr<MediaPipeline> parent, KmsMediaProfile profile,
+             bool stopOnEOS);
 
   class StaticConstructor
   {
