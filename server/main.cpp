@@ -392,7 +392,7 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
   char **messages = (char **) NULL;
   int i, trace_size = 0;
 
-  g_print ("Got signal %d", sig);
+  g_print ("Got signal %d\n", sig);
 
   /* Do something useful with siginfo_t */
   if (sig == SIGSEGV) {
@@ -432,7 +432,7 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
     g_strfreev (strs);
 
     if (system (syscom) == -1) {
-      g_printerr ("Error calling addr2line");
+      g_printerr ("Error calling addr2line\n");
     }
   }
 
