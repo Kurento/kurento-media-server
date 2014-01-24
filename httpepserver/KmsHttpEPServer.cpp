@@ -861,6 +861,10 @@ kms_http_ep_server_options_handler (KmsHttpEPServer *self, SoupMessage *msg,
   /* TODO: Provide a configuration file containing all allowed domains */
   soup_message_headers_append (msg->response_headers,
                                "Access-Control-Allow-Origin", "*");
+
+  /* Next header is required by chrome to work */
+  soup_message_headers_append (msg->response_headers,
+                               "Access-Control-Allow-Headers", "Content-Type");
 }
 
 static void
