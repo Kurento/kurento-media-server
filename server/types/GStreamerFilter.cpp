@@ -136,6 +136,18 @@ GStreamerFilter::setCommandProperties (string rest_token)
       g_object_set (G_OBJECT (this->filter), elements[1], aux, NULL);
       GST_DEBUG ("Setting %s = %s as %s", elements[1], elements[2] + 1,
                  g_type_name (G_PARAM_SPEC_VALUE_TYPE (pspec) ) );
+    } else if ( G_PARAM_SPEC_VALUE_TYPE (pspec) == G_TYPE_INT64) {
+      gint64 aux;
+      sscanf (elements[2] + 1, "%" G_GINT64_FORMAT, &aux);
+      g_object_set (G_OBJECT (this->filter), elements[1], aux, NULL);
+      GST_DEBUG ("Setting %s = %s as %s", elements[1], elements[2] + 1,
+                 g_type_name (G_PARAM_SPEC_VALUE_TYPE (pspec) ) );
+    } else if ( G_PARAM_SPEC_VALUE_TYPE (pspec) == G_TYPE_UINT64) {
+      guint64 aux;
+      sscanf (elements[2] + 1, "%" G_GUINT64_FORMAT, &aux);
+      g_object_set (G_OBJECT (this->filter), elements[1], aux, NULL);
+      GST_DEBUG ("Setting %s = %s as %s", elements[1], elements[2] + 1,
+                 g_type_name (G_PARAM_SPEC_VALUE_TYPE (pspec) ) );
     } else if ( G_TYPE_IS_ENUM (G_PARAM_SPEC_VALUE_TYPE (pspec) ) ) {
       GEnumValue *value;
       GEnumClass *enumClass;
