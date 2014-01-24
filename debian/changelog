@@ -1,4 +1,71 @@
-kurento (3.0.4) UNRELEASED; urgency=low
+kurento (3.0.5) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development version
+
+  [ David Fernandez ]
+  * gstreamer: Add gstreamer filter to the server
+
+  [ Miguel París Díaz ]
+  * MediaSet: create AutoReleaseData only if needed
+  * MediaSet: use G_SOURCE_CONTINUE instead of TRUE
+
+  [ Jose Antonio Santos Cadenas ]
+  * GStreamerFilter: Do not unreference GParamSpec object
+  * Update plugins repository with bugfixes, specially for recording webrtc
+
+  [ David Fernandez ]
+  * Create tests to check if server fails with unexpected parameters
+  * chroma: Add chromaFilter to media server
+
+  [ Santiago Gala ]
+  * Fix dependency on thrift
+
+  [ Miguel París Díaz ]
+  * MediaSet: rename methods
+
+  [ Santiago Carot-Nemesio ]
+  * Split HttpEndPoint class into HttpGetEndPoint and HttpPostEndPoint classes
+
+  [ Jose Antonio Santos Cadenas ]
+  * Fix hook to improve astyle parameters
+  * Format cpp files with new astyle rules
+  * Update pre-commit hook to make it work in hpp files
+  * Format hpp files according to new astyle rules
+
+  [ David Fernandez ]
+  * faceoverlay: Implement clear method for the overlay image
+
+  [ Miguel París Díaz ]
+  * MediaObjectImpl: Change constructor paratemers for new GC
+  * MediaObjectImpl: add state attr
+  * Use unregChilds flag
+  * MediaSet: implement GC related in KmsMediaObject interface
+  * MediaServerServiceHandler: Register parent again when it is obtained
+
+  [ David Fernandez ]
+  * chroma: Implement clear method for the background image
+
+  [ Santiago Carot-Nemesio ]
+  * Workaround to prevent http end point test failing when soup server can not start
+  * HttpGetEndPoint: Remove deprecated signal
+  * RecorderEndPoint: Provide the new stopOnEOS parameter to the contructor method
+  * HttpPostEndPoint: Raise EOS event
+
+  [ David Fernandez ]
+  * pointerDetector2: Add pointerDetector2 to the media server
+  * GStreamerFilter: Add more parameter types
+
+  [ Jose Antonio Santos Cadenas ]
+  * main: Print \n at the end of the string
+  * GstreamerFilter: Add support for int64 and uint64 parameters type
+  * Update plugins submodule
+  * Update plugins with bugfixes in pointerdetector
+  * Prepare release 3.0.5
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 24 Jan 2014 22:43:09 +0100
+
+kurento (3.0.4) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
   * Prepare for next development version
