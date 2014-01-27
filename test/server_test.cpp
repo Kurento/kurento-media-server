@@ -599,11 +599,22 @@ ClientHandler::check_http_post_end_point ()
   KmsMediaObjectRef httpEp = KmsMediaObjectRef();
   KmsMediaInvocationReturn ret;
   std::string url;
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaHttpPostEndPointConstructorParams constructorParams;
+  KmsMediaParam param;
+
+  constructorParams.useEncodedMedia = TRUE;
+  constructorParams.__isset.useEncodedMedia = TRUE;
+  createStructParam (param, constructorParams,
+                     g_KmsMediaHttpPostEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+  params[g_KmsMediaHttpPostEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE] =
+    param;
 
   client->createMediaPipeline (mediaPipeline);
 
-  client->createMediaElement (httpEp, mediaPipeline,
-                              g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME);
+  client->createMediaElementWithParams (httpEp, mediaPipeline,
+                                        g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME,
+                                        params);
 
   client->invoke (ret, httpEp, g_KmsMediaHttpEndPointType_constants.GET_URL,
                   emptyParams);

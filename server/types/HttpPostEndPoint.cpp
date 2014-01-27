@@ -17,11 +17,14 @@
 #include "KmsMediaHttpPostEndPointType_constants.h"
 
 #include "utils/utils.hpp"
+#include "utils/marshalling.hpp"
 #include "KmsMediaErrorCodes_constants.h"
 
 #define GST_CAT_DEFAULT kurento_http_post_end_point
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoHttpPostEndPoint"
+
+#define USE_ENCODED_MEDIA "use-encoded-media"
 
 namespace kurento
 {
@@ -55,6 +58,9 @@ throw (KmsMediaServerException)
                   g_KmsMediaHttpPostEndPointType_constants.TYPE_NAME,
                   params)
 {
+  const KmsMediaParam *p;
+  KmsMediaHttpPostEndPointConstructorParams constructorParams;
+
   /* Do not accept EOS */
   g_object_set ( G_OBJECT (element), "accept-eos", false, NULL);
   g_signal_connect (element, "eos", G_CALLBACK (http_post_ep_eos), this);
@@ -69,6 +75,21 @@ throw (KmsMediaServerException)
                                    "Cannot register HttpGetEndPoint");
     throw except;
   }
+
+  p = getParam (params,
+                g_KmsMediaHttpPostEndPointType_constants.CONSTRUCTOR_PARAMS_DATA_TYPE);
+
+  if (p != NULL) {
+    unmarshalStruct (constructorParams, p->data);
+
+    if (constructorParams.__isset.useEncodedMedia) {
+      if (constructorParams.useEncodedMedia) {
+        g_object_set (G_OBJECT (element), USE_ENCODED_MEDIA,
+                      constructorParams.useEncodedMedia, NULL);
+      }
+    }
+  }
+
 }
 
 HttpPostEndPoint::~HttpPostEndPoint() throw ()
