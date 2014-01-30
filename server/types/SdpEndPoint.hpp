@@ -54,6 +54,9 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend void send_event (SdpEndPoint *self, guint type, bool local,
+                          const std::string &eventType);
 };
 
 } // kurento

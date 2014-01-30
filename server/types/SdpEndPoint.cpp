@@ -29,6 +29,56 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+void
+send_event (SdpEndPoint *self, guint type, bool local,
+            const std::string &eventType)
+{
+  KmsMediaTransmissionData mdata;
+  KmsMediaEventData eventData;
+
+  switch (type) {
+  case KmsMediaType::type::AUDIO:
+    mdata.__set_media (KmsMediaType::type::AUDIO);
+    break;
+
+  case KmsMediaType::type::VIDEO:
+    mdata.__set_media (KmsMediaType::type::VIDEO);
+    break;
+
+  default:
+    GST_WARNING ("Unsupported media type %u", type);
+    return;
+  }
+
+  if (local) {
+    mdata.__set_source (KmsMediaSource::type::LOCAL);
+  } else {
+    mdata.__set_source (KmsMediaSource::type::REMOTE);
+  }
+
+  /* marshalling data */
+  createStructParam (eventData, mdata,
+                     g_KmsMediaSdpEndPointType_constants.EVENT_MEDIA_TRANSMISSION_DATA_TYPE);
+
+  self->sendEvent (eventType, eventData);
+}
+
+static void
+media_start_cb (GstElement *element, guint type, bool local,
+                SdpEndPoint *self)
+{
+  send_event (self, type, local,
+              g_KmsMediaSdpEndPointType_constants.EVENT_MEDIA_TRANSMISSION_START);
+}
+
+static void
+media_stop_cb (GstElement *element, guint type, bool local,
+               SdpEndPoint *self)
+{
+  send_event (self, type, local,
+              g_KmsMediaSdpEndPointType_constants.EVENT_MEDIA_TRANSMISSION_STOP);
+}
+
 SdpEndPoint::SdpEndPoint (MediaSet &mediaSet,
                           std::shared_ptr<MediaObjectImpl> parent,
                           const std::string &type,
@@ -36,6 +86,8 @@ SdpEndPoint::SdpEndPoint (MediaSet &mediaSet,
                           const std::string &factoryName)
   : EndPoint (mediaSet, parent, type, params, factoryName)
 {
+  g_signal_connect (element, "media-start", G_CALLBACK (media_start_cb), this);
+  g_signal_connect (element, "media-stop", G_CALLBACK (media_stop_cb), this);
 }
 
 SdpEndPoint::~SdpEndPoint() throw ()
@@ -253,15 +305,25 @@ SdpEndPoint::subscribe (std::string &_return, const std::string &eventType,
 throw (KmsMediaServerException)
 {
   if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_START ==
-      eventType)
+      eventType) {
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
-  else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE
-           ==
-           eventType)
+  } else if (g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE
+             ==
+             eventType) {
     mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
                                          handlerPort);
-  else {
+  } else if (g_KmsMediaSdpEndPointType_constants.EVENT_MEDIA_TRANSMISSION_START
+             ==
+             eventType) {
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  } else if (g_KmsMediaSdpEndPointType_constants.EVENT_MEDIA_TRANSMISSION_STOP
+             ==
+             eventType) {
+    mediaHandlerManager.addMediaHandler (_return, eventType, handlerAddress,
+                                         handlerPort);
+  } else {
     EndPoint::subscribe (_return, eventType, handlerAddress, handlerPort);
   }
 }
