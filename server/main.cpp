@@ -149,13 +149,15 @@ read_entire_file (const gchar *file_name)
   fseek (fp, 0, SEEK_END);
   f_size = ftell (fp);
   fseek (fp, 0, SEEK_SET);
-  data = (gchar *) g_malloc0 (f_size);
+  data = (gchar *) g_malloc0 (f_size + 1);
 
   if (fread (data, 1, f_size, fp) != (size_t) f_size) {
     GST_ERROR ("Error reading file");
   }
 
   fclose (fp);
+
+  data[f_size] = '\0';
 
   return data;
 }
