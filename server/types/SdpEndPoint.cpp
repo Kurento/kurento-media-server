@@ -35,6 +35,7 @@ send_event (SdpEndPoint *self, guint type, bool local,
 {
   KmsMediaTransmissionData mdata;
   KmsMediaEventData eventData;
+  bool end_session = false;
 
   switch (type) {
   case KmsMediaType::type::AUDIO:
@@ -61,6 +62,23 @@ send_event (SdpEndPoint *self, guint type, bool local,
                      g_KmsMediaSdpEndPointType_constants.EVENT_MEDIA_TRANSMISSION_DATA_TYPE);
 
   self->sendEvent (eventType, eventData);
+
+  self->mutex.lock();
+
+  if (eventType ==
+      g_KmsMediaSdpEndPointType_constants.EVENT_MEDIA_TRANSMISSION_START) {
+    self->ssrcs++;
+  } else {
+    self->ssrcs--;
+  }
+
+  end_session = (self->ssrcs <= 0);
+  self->mutex.unlock();
+
+  if (end_session) {
+    self->sendEvent (
+      g_KmsMediaSessionEndPointType_constants.EVENT_MEDIA_SESSION_COMPLETE);
+  }
 }
 
 static void
@@ -86,6 +104,7 @@ SdpEndPoint::SdpEndPoint (MediaSet &mediaSet,
                           const std::string &factoryName)
   : EndPoint (mediaSet, parent, type, params, factoryName)
 {
+  ssrcs = 0;
   g_signal_connect (element, "media-start", G_CALLBACK (media_start_cb), this);
   g_signal_connect (element, "media-stop", G_CALLBACK (media_stop_cb), this);
 }

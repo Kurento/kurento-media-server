@@ -57,6 +57,9 @@ private:
 
   friend void send_event (SdpEndPoint *self, guint type, bool local,
                           const std::string &eventType);
+
+  guint ssrcs;
+  Glib::RecMutex mutex;
 };
 
 } // kurento
