@@ -35,6 +35,7 @@
 #include "KmsMediaGStreamerFilterType_constants.h"
 #include "KmsMediaChromaFilterType_constants.h"
 #include "KmsMediaPointerDetector2FilterType_constants.h"
+#include "KmsMediaMainMixerType_constants.h"
 
 #include "utils/marshalling.hpp"
 #include "utils/utils.hpp"
@@ -99,6 +100,7 @@ protected:
   void check_gstreamer_filter();
   void check_chroma_filter();
   void check_pointer_detector2_filter ();
+  void check_main_mixer ();
 };
 
 void
@@ -1025,6 +1027,55 @@ ClientHandler::check_pointer_detector2_filter ()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_main_mixer()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef mainMixer = KmsMediaObjectRef();
+  KmsMediaObjectRef mixerEndPoint1 = KmsMediaObjectRef();
+  KmsMediaObjectRef mixerEndPoint2 = KmsMediaObjectRef();
+  KmsMediaObjectRef mixerEndPoint3 = KmsMediaObjectRef();
+  std::map<std::string, KmsMediaParam> params;
+  KmsMediaParam param;
+
+  KmsMediaInvocationReturn ret;
+
+//create elements
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaMixer (mainMixer, mediaPipeline,
+                            g_KmsMediaMainMixerType_constants.TYPE_NAME);
+  client->createMixerEndPoint (mixerEndPoint1, mainMixer);
+  client->createMixerEndPoint (mixerEndPoint2, mainMixer);
+  client->createMixerEndPoint (mixerEndPoint3, mainMixer);
+
+  createStructParam (param, mixerEndPoint1,
+                     g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER);
+  params[g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER]
+    = param;
+  client->invoke (ret, mainMixer,
+                  g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT, params);
+
+  params.clear();
+  createStructParam (param, mixerEndPoint2,
+                     g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER);
+  params[g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER]
+    = param;
+  client->invoke (ret, mainMixer,
+                  g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT, params);
+
+  params.clear();
+  createStructParam (param, mixerEndPoint3,
+                     g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER);
+  params[g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER]
+    = param;
+  client->invoke (ret, mainMixer,
+                  g_KmsMediaMainMixerType_constants.SET_MAIN_END_POINT, params);
+
+  client->invoke (ret, mainMixer,
+                  g_KmsMediaMainMixerType_constants.UNSET_MAIN_END_POINT, emptyParams);
+
+  client->release (mediaPipeline);
+}
 
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
@@ -1065,6 +1116,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_gstreamer_filter ();
   check_chroma_filter ();
   check_pointer_detector2_filter ();
+  check_main_mixer ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

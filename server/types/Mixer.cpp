@@ -18,26 +18,49 @@
 namespace kurento
 {
 
-Mixer::Mixer (std::shared_ptr<MediaPipeline> parent,
+GstElement *
+Mixer::getMixer()
+{
+  return this->element;
+}
+
+GstElement *
+Mixer::getPipeline()
+{
+  return this->pipeline;
+}
+
+Mixer::Mixer (MediaSet &mediaSet,
+              std::shared_ptr<MediaPipeline> parent,
               const std::string &mixerType,
-              const std::map<std::string, KmsMediaParam> &params)
-  : MediaObjectImpl (parent, params),
+              const std::map<std::string, KmsMediaParam> &params,
+              const std::string &factoryName)
+  : MediaObjectParent (mediaSet, parent, params),
     KmsMediaMixer()
 {
+  element = gst_element_factory_make (factoryName.c_str(), NULL);
+  pipeline = parent->pipeline;
+  g_object_ref (element);
+  gst_bin_add (GST_BIN (parent->pipeline), element);
+  gst_element_sync_state_with_parent (element);
   this->mixerType = mixerType;
   this->objectType.__set_mixer (*this);
 }
 
 Mixer::~Mixer() throw ()
 {
-
+  gst_bin_remove (GST_BIN (std::dynamic_pointer_cast<MediaPipeline>
+                           (parent)->pipeline ), element);
+  gst_element_set_state (element, GST_STATE_NULL);
+  g_object_unref (element);
 }
 
 std::shared_ptr<MixerEndPoint>
 Mixer::createMixerEndPoint ()
 {
-  GST_WARNING ("TODO: implement");
-  return NULL;
+  std::shared_ptr<MixerEndPoint> mixerEndPoint (new MixerEndPoint (getMediaSet(),
+      shared_from_this(), emptyParams) );
+  return mixerEndPoint;
 }
 
 } // kurento

@@ -22,16 +22,25 @@
 namespace kurento
 {
 
-class Mixer : public MediaObjectImpl,
+class Mixer : public MediaObjectParent,
   public KmsMediaMixer,
   public std::enable_shared_from_this<Mixer>
 {
 public:
-  Mixer (std::shared_ptr<MediaPipeline> parent, const std::string &mixerType,
-         const std::map<std::string, KmsMediaParam> &params);
-  virtual ~Mixer() throw () = 0;
+  Mixer (MediaSet &mediaSet, std::shared_ptr<MediaPipeline> parent,
+         const std::string &mixerType,
+         const std::map<std::string, KmsMediaParam> &params,
+         const std::string &factoryName);
+  virtual ~Mixer() throw ();
 
   std::shared_ptr<MixerEndPoint> createMixerEndPoint ();
+
+  GstElement *getMixer ();
+  GstElement *getPipeline ();
+protected:
+  GstElement *element;
+  GstElement *pipeline;
+  std::shared_ptr<MediaPipeline> pare;
 };
 
 } // kurento

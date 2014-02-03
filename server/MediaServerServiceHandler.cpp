@@ -1011,7 +1011,7 @@ MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return,
 
   try {
     m = mediaSet.getMediaObject<Mixer> (mixer);
-    mixerEndPoint = m->createMixerEndPoint();
+    mixerEndPoint = m->createMixerEndPoint ();
     mediaSet.reg (mixerEndPoint);
 
     _return = *mixerEndPoint;

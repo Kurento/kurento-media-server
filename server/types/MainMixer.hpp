@@ -13,25 +13,34 @@
  *
  */
 
-#ifndef __MIXER_END_POINT_HPP__
-#define __MIXER_END_POINT_HPP__
+#ifndef __MAIN_MIXER_HPP__
+#define __MAIN_MIXER_HPP__
 
-#include "EndPoint.hpp"
+#include "Mixer.hpp"
+#include "KmsMediaMainMixerType_constants.h"
+#include "MixerEndPoint.hpp"
 
 namespace kurento
 {
 
-class MixerEndPoint : public EndPoint
+class MainMixer : public Mixer
 {
 public:
-  MixerEndPoint (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
-                 const std::map<std::string, KmsMediaParam> &params = emptyParams);
-  virtual ~MixerEndPoint() throw ();
+  MainMixer (MediaSet &mediaSet,
+             std::shared_ptr<MediaPipeline> parent,
+             const std::map<std::string, KmsMediaParam> &params);
 
-  int getHandlerId ();
+  virtual ~MainMixer() throw ();
+
+  void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
+               const std::map< std::string, KmsMediaParam > &params)
+  throw (KmsMediaServerException);
+
 private:
-  std::shared_ptr<Mixer> mixer;
-  int handlerId;
+  GstElement *mainMixer;
+
+  void setMainMixer (std::shared_ptr<MixerEndPoint> &mixerEndPoint);
+  void unsetMainMixer ();
 
   class StaticConstructor
   {
@@ -44,4 +53,4 @@ private:
 
 } // kurento
 
-#endif /* __MIXER_END_POINT_HPP__ */
+#endif /* __MAIN_MIXER_HPP__ */

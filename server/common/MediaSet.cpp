@@ -445,6 +445,9 @@ MediaSet::getMediaObject<SdpEndPoint> (const KmsMediaObjectRef &mediaObject);
 template std::shared_ptr<Filter>
 MediaSet::getMediaObject<Filter> (const KmsMediaObjectRef &mediaObject);
 
+template std::shared_ptr<MixerEndPoint>
+MediaSet::getMediaObject<MixerEndPoint> (const KmsMediaObjectRef &mediaObject);
+
 template <class T> std::shared_ptr<T>
 MediaSet::getMediaObject (const KmsMediaObjectRef &mediaObject)
 throw (KmsMediaServerException)

@@ -49,6 +49,9 @@
 #include "ChromaFilter.hpp"
 #include "KmsMediaErrorCodes_constants.h"
 
+#include "KmsMediaMainMixerType_constants.h"
+#include "MainMixer.hpp"
+
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaPipeline"
@@ -201,13 +204,23 @@ MediaPipeline::createMediaMixer (const std::string &mixerType,
                                  const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
 {
-  KmsMediaServerException except;
+  std::shared_ptr<Mixer> mixer;
 
-  GST_WARNING ("TODO: complete");
-  createKmsMediaServerException (except,
-                                 g_KmsMediaErrorCodes_constants.NOT_IMPLEMENTED,
-                                 "Not implemented");
-  throw except;
+  if (g_KmsMediaMainMixerType_constants.TYPE_NAME.compare (
+        mixerType) == 0) {
+    mixer = std::shared_ptr<MainMixer> (new MainMixer (
+                                          getMediaSet(), shared_from_this (), params) );
+  } else {
+    KmsMediaServerException except;
+
+    createKmsMediaServerException (except,
+                                   g_KmsMediaErrorCodes_constants.MEDIA_OBJECT_TYPE_NOT_FOUND,
+                                   "There is not any media mixer type " + mixerType);
+    throw except;
+  }
+
+  registerChild (mixer);
+  return mixer;
 }
 
 MediaPipeline::StaticConstructor MediaPipeline::staticConstructor;
