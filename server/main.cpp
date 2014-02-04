@@ -461,6 +461,21 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
   Glib::Thread::create (ss, true);
 }
 
+static void
+check_if_plugins_are_available ()
+{
+  GstPlugin *plugin = gst_plugin_load_by_name ("kurento");
+
+  if (plugin == NULL) {
+    g_printerr ("Kurento plugin not found, try adding the plugins route with "
+                "--gst-plugin-path parameter. See help (--help-gst) "
+                "for more info\n");
+    exit (1);
+  }
+
+  g_clear_object (&plugin);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -483,6 +498,8 @@ main (int argc, char **argv)
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
+
+  check_if_plugins_are_available ();
 
   /* Install our signal handler */
   sa.sa_sigaction = bt_sighandler;
