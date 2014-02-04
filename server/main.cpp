@@ -15,6 +15,7 @@
 
 #include <signal.h>
 #include <execinfo.h>
+#include <config.h>
 
 #include "MediaServerServiceHandler.hpp"
 
@@ -37,6 +38,8 @@
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaServer"
+
+#define ENV_VAR "GST_PLUGIN_PATH"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -482,6 +485,18 @@ main (int argc, char **argv)
   GError *error = NULL;
   GOptionContext *context;
   struct sigaction sa;
+  gchar *oldEnv, *newEnv;
+
+  oldEnv = getenv (ENV_VAR);
+
+  if (oldEnv == NULL) {
+    newEnv = g_strdup_printf ("%s", PLUGIN_PATH);
+  } else {
+    newEnv = g_strdup_printf ("%s:%s", oldEnv, PLUGIN_PATH);
+  }
+
+  setenv (ENV_VAR, newEnv, 1);
+  g_free (newEnv);
 
   context = g_option_context_new ("");
   g_option_context_add_main_entries (context, entries, NULL);

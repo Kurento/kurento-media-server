@@ -4,4 +4,6 @@
 /* Version */
 #cmakedefine KMSC_VERSION "@KMSC_VERSION@"
 
+#cmakedefine PLUGIN_PATH "@PLUGIN_PATH@"
+
 #endif /* __KMSC_CONFIG_H__ */
