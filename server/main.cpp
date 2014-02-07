@@ -34,6 +34,7 @@
 #include <boost/filesystem.hpp>
 #include <version.hpp>
 #include "httpendpointserver.hpp"
+#include <ModuleLoader.hpp>
 
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -65,6 +66,8 @@ gint stunServerPort;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create (true);
 static TNonblockingServer *p_server = NULL;
+
+std::map <std::string, KurentoModule *> modules;
 
 static gchar *conf_file;
 
@@ -532,6 +535,8 @@ main (int argc, char **argv)
   } else {
     load_config ( (std::string) conf_file);
   }
+
+  modules = load_modules();
 
   /* Start Http End Point Server */
   GST_DEBUG ("Starting Http end point server.");
