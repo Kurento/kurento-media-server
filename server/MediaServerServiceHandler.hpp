@@ -20,6 +20,7 @@
 #include "types/MediaHandler.hpp"
 #include "common/MediaSet.hpp"
 #include "common/ConcurrentMap.hpp"
+#include <module.hpp>
 
 namespace kurento
 {
@@ -27,7 +28,7 @@ namespace kurento
 class MediaServerServiceHandler: public KmsMediaServerServiceIf
 {
 public:
-  MediaServerServiceHandler ();
+  MediaServerServiceHandler (std::map <std::string, KurentoModule *> &modules);
   ~MediaServerServiceHandler ();
 
   int32_t getVersion ();
@@ -143,6 +144,7 @@ public:
 
 private:
   MediaSet mediaSet;
+  std::map <std::string, KurentoModule *> &modules;
 
 private:
   class StaticConstructor

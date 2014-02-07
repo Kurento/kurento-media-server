@@ -14,6 +14,7 @@
  */
 
 #include "MediaPipeline.hpp"
+#include <module.hpp>
 
 #include "utils/utils.hpp"
 #include "KmsMediaDataType_constants.h"
@@ -104,11 +105,12 @@ MediaPipeline::init ()
   this->unregChilds = false;
 }
 
-MediaPipeline::MediaPipeline (MediaSet &mediaSet,
+MediaPipeline::MediaPipeline (std::map <std::string, KurentoModule *> &modules,
+                              MediaSet &mediaSet,
                               const std::map < std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)
   : MediaObjectParent (mediaSet, params, true),
-    KmsMediaPipeline ()
+    KmsMediaPipeline (), modules (modules)
 {
   init ();
 }
@@ -128,9 +130,20 @@ MediaPipeline::createMediaElement (const std::string &elementType,
 throw (KmsMediaServerException)
 {
   std::shared_ptr<MediaElement> element;
+  KurentoModule *module = NULL;
 
-  if (g_KmsMediaPlayerEndPointType_constants.TYPE_NAME.compare (
-        elementType) == 0) {
+  try {
+    module = modules.at (elementType);
+  } catch (std::out_of_range) {
+  }
+
+  if (module != NULL && module->type == KURENTO_MODULE_ELEMENT) {
+    std::shared_ptr<MediaObjectImpl> obj = module->create_object (getMediaSet(),
+                                           shared_from_this (),
+                                           params);
+    element = std::dynamic_pointer_cast<MediaElement> (obj);
+  } else if (g_KmsMediaPlayerEndPointType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
     element = std::shared_ptr<PlayerEndPoint> (new PlayerEndPoint (
                 getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaRecorderEndPointType_constants.TYPE_NAME.compare (

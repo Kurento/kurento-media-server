@@ -31,7 +31,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaServerServiceHandler::MediaServerServiceHandler ()
+MediaServerServiceHandler::MediaServerServiceHandler (
+  std::map <std::string, KurentoModule *> &modules) : modules (modules)
 {
 }
 
@@ -347,7 +348,8 @@ throw (KmsMediaServerException)
   GST_TRACE ("createMediaPipeline");
 
   try {
-    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet) );
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (modules,
+                    mediaSet) );
     GST_DEBUG ("createMediaPipeline id: %" G_GINT64_FORMAT ", token: %s",
                mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.reg (mediaPipeline);
@@ -378,8 +380,8 @@ throw (KmsMediaServerException)
   GST_TRACE ("createMediaPipelineWithParams");
 
   try {
-    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (mediaSet,
-                    params) );
+    mediaPipeline = std::shared_ptr<MediaPipeline> (new MediaPipeline (modules,
+                    mediaSet, params) );
     GST_DEBUG ("createMediaPipelineWithParams id: %" G_GINT64_FORMAT ", token: %s",
                mediaPipeline->id, mediaPipeline->token.c_str() );
     mediaSet.reg (mediaPipeline);

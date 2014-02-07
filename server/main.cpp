@@ -83,7 +83,7 @@ static void
 create_media_server_service ()
 {
   shared_ptr < MediaServerServiceHandler >
-  handler (new MediaServerServiceHandler () );
+  handler (new MediaServerServiceHandler (modules) );
   shared_ptr < TProcessor >
   processor (new KmsMediaServerServiceProcessor (handler) );
   shared_ptr < TProtocolFactory >

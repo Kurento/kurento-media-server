@@ -19,6 +19,7 @@
 #include "MediaObjectParent.hpp"
 #include "MediaHandler.hpp"
 #include <common/MediaSet.hpp>
+#include <module.hpp>
 
 namespace kurento
 {
@@ -32,7 +33,8 @@ class MediaPipeline : public MediaObjectParent,
 {
 
 public:
-  MediaPipeline (MediaSet &mediaSet,
+  MediaPipeline (std::map<std::string, KurentoModule *> &modules,
+                 MediaSet &mediaSet,
                  const std::map<std::string, KmsMediaParam> &params = emptyParams) throw (
                    KmsMediaServerException);
   ~MediaPipeline() throw();
@@ -53,6 +55,8 @@ public:
   GstElement *pipeline;
 
 private:
+  std::map <std::string, KurentoModule *> &modules;
+
   void init ();
 
   class StaticConstructor

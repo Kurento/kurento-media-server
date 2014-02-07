@@ -101,6 +101,7 @@ protected:
   void check_chroma_filter();
   void check_pointer_detector2_filter ();
   void check_dispatcher_mixer ();
+  void check_sample_module ();
 };
 
 void
@@ -1077,6 +1078,19 @@ ClientHandler::check_dispatcher_mixer ()
   client->release (mediaPipeline);
 }
 
+void
+ClientHandler::check_sample_module ()
+{
+  KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
+  KmsMediaObjectRef sample = KmsMediaObjectRef();
+
+  client->createMediaPipeline (mediaPipeline);
+  client->createMediaElement (sample, mediaPipeline, "ExampleModuleFilter");
+
+  client->release (sample);
+  client->release (mediaPipeline);
+}
+
 BOOST_FIXTURE_TEST_SUITE ( server_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_test )
@@ -1117,6 +1131,7 @@ BOOST_AUTO_TEST_CASE ( server_test )
   check_chroma_filter ();
   check_pointer_detector2_filter ();
   check_dispatcher_mixer ();
+  check_sample_module ();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
