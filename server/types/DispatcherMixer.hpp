@@ -17,20 +17,20 @@
 #define __MAIN_MIXER_HPP__
 
 #include "Mixer.hpp"
-#include "KmsMediaMainMixerType_constants.h"
+#include "KmsMediaDispatcherMixerType_constants.h"
 #include "MixerEndPoint.hpp"
 
 namespace kurento
 {
 
-class MainMixer : public Mixer
+class DispatcherMixer : public Mixer
 {
 public:
-  MainMixer (MediaSet &mediaSet,
-             std::shared_ptr<MediaPipeline> parent,
-             const std::map<std::string, KmsMediaParam> &params);
+  DispatcherMixer (MediaSet &mediaSet,
+                   std::shared_ptr<MediaPipeline> parent,
+                   const std::map<std::string, KmsMediaParam> &params);
 
-  virtual ~MainMixer() throw ();
+  virtual ~DispatcherMixer() throw ();
 
   void invoke (KmsMediaInvocationReturn &_return, const std::string &command,
                const std::map< std::string, KmsMediaParam > &params)

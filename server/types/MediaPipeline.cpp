@@ -49,8 +49,8 @@
 #include "ChromaFilter.hpp"
 #include "KmsMediaErrorCodes_constants.h"
 
-#include "KmsMediaMainMixerType_constants.h"
-#include "MainMixer.hpp"
+#include "KmsMediaDispatcherMixerType_constants.h"
+#include "DispatcherMixer.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -206,10 +206,10 @@ throw (KmsMediaServerException)
 {
   std::shared_ptr<Mixer> mixer;
 
-  if (g_KmsMediaMainMixerType_constants.TYPE_NAME.compare (
+  if (g_KmsMediaDispatcherMixerType_constants.TYPE_NAME.compare (
         mixerType) == 0) {
-    mixer = std::shared_ptr<MainMixer> (new MainMixer (
-                                          getMediaSet(), shared_from_this (), params) );
+    mixer = std::shared_ptr<DispatcherMixer> (new DispatcherMixer (
+              getMediaSet(), shared_from_this (), params) );
   } else {
     KmsMediaServerException except;
 
