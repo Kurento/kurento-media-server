@@ -36,9 +36,6 @@ MixerEndPoint::MixerEndPoint (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
   : EndPoint (mediaSet, parent, g_KmsMediaMixerEndPointType_constants.TYPE_NAME,
               params, FACTORY_NAME)
 {
-  g_object_ref (element);
-  gst_bin_add (GST_BIN ( parent->getPipeline()->pipeline ), element);
-  gst_element_sync_state_with_parent (element);
   mixer = parent;
   g_signal_emit_by_name (mixer->getMixer(), "handle-port", element, &handlerId);
 }
@@ -46,8 +43,6 @@ MixerEndPoint::MixerEndPoint (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
 MixerEndPoint::~MixerEndPoint() throw ()
 {
   g_signal_emit_by_name (mixer->getMixer(), "unhandle-port", handlerId);
-  gst_element_set_state (element, GST_STATE_NULL);
-  g_object_unref (element);
 }
 
 

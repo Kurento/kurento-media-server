@@ -36,9 +36,6 @@ FaceOverlayFilter::FaceOverlayFilter (
             params)
 {
   g_object_set (element, "filter-factory", "faceoverlay", NULL);
-  g_object_ref (element);
-  gst_bin_add (GST_BIN (parent->pipeline), element);
-  gst_element_sync_state_with_parent (element);
 
   GstElement *faceOverlay;
 
@@ -50,10 +47,6 @@ FaceOverlayFilter::FaceOverlayFilter (
 
 FaceOverlayFilter::~FaceOverlayFilter() throw ()
 {
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline>
-                            (parent)->pipeline), element);
-  gst_element_set_state (element, GST_STATE_NULL);
-  g_object_unref (element);
 }
 
 void

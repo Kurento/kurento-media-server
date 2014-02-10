@@ -56,9 +56,7 @@ ChromaFilter::ChromaFilter (
   }
 
   g_object_set (element, "filter-factory", "chroma", NULL);
-  g_object_ref (element);
-  gst_bin_add (GST_BIN (parent->pipeline), element);
-  gst_element_sync_state_with_parent (element);
+
   g_object_get (G_OBJECT (element), "filter", &chroma, NULL);
   this->chroma = chroma;
 
@@ -93,10 +91,6 @@ ChromaFilter::ChromaFilter (
 
 ChromaFilter::~ChromaFilter() throw ()
 {
-  gst_bin_remove (GST_BIN (std::dynamic_pointer_cast<MediaPipeline>
-                           (parent)->pipeline ), element);
-  gst_element_set_state (element, GST_STATE_NULL);
-  g_object_unref (element);
 }
 
 void

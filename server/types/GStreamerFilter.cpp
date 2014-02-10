@@ -225,9 +225,6 @@ GStreamerFilter::GStreamerFilter (
   GST_DEBUG ("Command %s", command.c_str() );
 
   g_object_set (element, "filter-factory", command.c_str(), NULL);
-  g_object_ref (element);
-  gst_bin_add (GST_BIN (parent->pipeline), element);
-  gst_element_sync_state_with_parent (element);
 
   g_object_get (G_OBJECT (element), "filter", &gstreamerFilter, NULL);
 
@@ -258,10 +255,6 @@ GStreamerFilter::GStreamerFilter (
 
 GStreamerFilter::~GStreamerFilter() throw ()
 {
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline>
-                            (parent)->pipeline), element);
-  gst_element_set_state (element, GST_STATE_NULL);
-  g_object_unref (element);
 }
 
 GStreamerFilter::StaticConstructor GStreamerFilter::staticConstructor;

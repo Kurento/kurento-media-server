@@ -76,18 +76,10 @@ throw (KmsMediaServerException)
                     this);
   g_signal_connect (element, "invalid-media", G_CALLBACK (player_invalid_media),
                     this);
-
-  g_object_ref (element);
-  gst_bin_add (GST_BIN (parent->pipeline), element);
-  gst_element_sync_state_with_parent (element);
 }
 
 PlayerEndPoint::~PlayerEndPoint() throw ()
 {
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline>
-                            (parent)->pipeline), element);
-  gst_element_set_state (element, GST_STATE_NULL);
-  g_object_unref (element);
 }
 
 void

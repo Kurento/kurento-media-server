@@ -36,10 +36,17 @@ MediaElement::MediaElement (MediaSet &mediaSet,
 
   this->elementType = elementType;
   this->objectType.__set_element (*this);
+
+  g_object_ref (element);
+  gst_bin_add (GST_BIN ( getPipeline()->pipeline ), element);
+  gst_element_sync_state_with_parent (element);
 }
 
 MediaElement::~MediaElement () throw ()
 {
+  gst_bin_remove (GST_BIN ( getPipeline()->pipeline ), element);
+  gst_element_set_state (element, GST_STATE_NULL);
+  g_object_unref (element);
 }
 
 std::shared_ptr<MediaSrc>

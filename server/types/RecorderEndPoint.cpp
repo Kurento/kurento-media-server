@@ -37,6 +37,8 @@ RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent,
                         KmsMediaProfile profile,
                         bool stopOnEOS)
 {
+  g_object_ref (element);
+
   g_object_set ( G_OBJECT (element), "accept-eos", stopOnEOS, NULL);
 
   switch (profile.mediaMuxer) {
@@ -52,10 +54,6 @@ RecorderEndPoint::init (std::shared_ptr<MediaPipeline> parent,
     GST_INFO ("Set MP4 profile");
     break;
   }
-
-  g_object_ref (element);
-  gst_bin_add (GST_BIN (parent->pipeline), element);
-  gst_element_sync_state_with_parent (element);
 }
 
 RecorderEndPoint::RecorderEndPoint (MediaSet &mediaSet,
@@ -93,14 +91,7 @@ throw (KmsMediaServerException)
 static void
 dispose_element (GstElement *element)
 {
-  GstObject *pipe;
-
   GST_TRACE_OBJECT (element, "Disposing");
-  pipe = GST_OBJECT_PARENT (element);
-
-  if (pipe != NULL) {
-    gst_bin_remove (GST_BIN (pipe), element);
-  }
 
   gst_element_set_state (element, GST_STATE_NULL);
   g_object_unref (element);

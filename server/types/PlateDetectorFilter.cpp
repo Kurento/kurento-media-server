@@ -72,9 +72,6 @@ PlateDetectorFilter::PlateDetectorFilter (
   GstBus *bus;
 
   g_object_set (element, "filter-factory", "platedetector", NULL);
-  g_object_ref (element);
-  gst_bin_add (GST_BIN (parent->pipeline), element);
-  gst_element_sync_state_with_parent (element);
 
   bus = gst_pipeline_get_bus (GST_PIPELINE (parent->pipeline) );
   bus_handler_id = g_signal_connect (bus, "message",
@@ -93,11 +90,6 @@ PlateDetectorFilter::~PlateDetectorFilter() throw ()
                                         std::dynamic_pointer_cast<MediaPipeline> (parent)->pipeline ) );
   g_signal_handler_disconnect (bus, bus_handler_id);
   g_object_unref (bus);
-
-  gst_bin_remove (GST_BIN ( std::dynamic_pointer_cast<MediaPipeline>
-                            (parent)->pipeline ), element);
-  gst_element_set_state (element, GST_STATE_NULL);
-  g_object_unref (element);
 }
 
 void
