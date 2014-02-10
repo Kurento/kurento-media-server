@@ -48,6 +48,10 @@ public:
   void connect (std::shared_ptr<MediaElement> sink,
                 const KmsMediaType::type mediaType) throw (KmsMediaServerException);
 
+  std::shared_ptr<MediaPipeline> getPipeline () {
+    return parent->getPipeline();
+  }
+
 protected:
   GstElement *element;
 

@@ -30,6 +30,8 @@ typedef enum {
   UNREF
 } State;
 
+class MediaPipeline;
+
 class MediaObjectImpl : public KmsMediaObjectRef
 {
 public:
@@ -56,6 +58,8 @@ public:
                                const int32_t handlerPort) throw (KmsMediaServerException);
   virtual void unsubscribeError (const std::string &callbackToken) throw (
     KmsMediaServerException);
+
+  virtual std::shared_ptr<MediaPipeline> getPipeline () = 0;
 
 public:
   std::shared_ptr<MediaObjectImpl> parent;

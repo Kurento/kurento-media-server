@@ -46,6 +46,10 @@ public:
       KmsMediaParam > & params = emptyParams)
   throw (KmsMediaServerException);
 
+  std::shared_ptr<MediaPipeline> getPipeline() {
+    return shared_from_this();
+  };
+
   GstElement *pipeline;
 
 private:

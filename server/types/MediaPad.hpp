@@ -36,6 +36,10 @@ public:
 
   std::shared_ptr<MediaElement> getMediaElement ();
 
+  std::shared_ptr<MediaPipeline> getPipeline () {
+    return parent->getPipeline();
+  }
+
 protected:
   GstElement *getElement ();
 

@@ -37,7 +37,7 @@ MixerEndPoint::MixerEndPoint (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
               params, FACTORY_NAME)
 {
   g_object_ref (element);
-  gst_bin_add (GST_BIN ( parent->getPipeline() ), element);
+  gst_bin_add (GST_BIN ( parent->getPipeline()->pipeline ), element);
   gst_element_sync_state_with_parent (element);
   mixer = parent;
   g_signal_emit_by_name (mixer->getMixer(), "handle-port", element, &handlerId);

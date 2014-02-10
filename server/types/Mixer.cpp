@@ -24,12 +24,6 @@ Mixer::getMixer()
   return this->element;
 }
 
-GstElement *
-Mixer::getPipeline()
-{
-  return this->pipeline;
-}
-
 Mixer::Mixer (MediaSet &mediaSet,
               std::shared_ptr<MediaPipeline> parent,
               const std::string &mixerType,
@@ -39,7 +33,6 @@ Mixer::Mixer (MediaSet &mediaSet,
     KmsMediaMixer()
 {
   element = gst_element_factory_make (factoryName.c_str(), NULL);
-  pipeline = parent->pipeline;
   g_object_ref (element);
   gst_bin_add (GST_BIN (parent->pipeline), element);
   gst_element_sync_state_with_parent (element);

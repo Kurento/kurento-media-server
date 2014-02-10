@@ -313,11 +313,7 @@ throw (KmsMediaServerException)
   try {
     mo = mediaSet.getMediaObject<MediaObjectImpl> (mediaObjectRef);
 
-    if (std::dynamic_pointer_cast<MediaPipeline> (mo) ) {
-      mediaPipeline = mo;
-    } else {
-      mediaPipeline = mo->getParent ();
-    }
+    mediaPipeline = mo->getPipeline ();
 
     mediaSet.reg (mediaPipeline);
     _return = *mediaPipeline;

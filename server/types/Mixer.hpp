@@ -35,11 +35,13 @@ public:
 
   std::shared_ptr<MixerEndPoint> createMixerEndPoint ();
 
+  std::shared_ptr<MediaPipeline> getPipeline () {
+    return parent->getPipeline();
+  }
+
   GstElement *getMixer ();
-  GstElement *getPipeline ();
 protected:
   GstElement *element;
-  GstElement *pipeline;
   std::shared_ptr<MediaPipeline> pare;
 };
 
