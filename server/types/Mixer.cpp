@@ -48,12 +48,12 @@ Mixer::~Mixer() throw ()
   g_object_unref (element);
 }
 
-std::shared_ptr<MixerEndPoint>
-Mixer::createMixerEndPoint ()
+std::shared_ptr<MixerPort>
+Mixer::createMixerPort ()
 {
-  std::shared_ptr<MixerEndPoint> mixerEndPoint (new MixerEndPoint (getMediaSet(),
-      shared_from_this(), emptyParams) );
-  return mixerEndPoint;
+  std::shared_ptr<MixerPort> mixerPort (new MixerPort (getMediaSet(),
+                                        shared_from_this(), emptyParams) );
+  return mixerPort;
 }
 
 } // kurento

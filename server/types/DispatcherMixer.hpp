@@ -18,7 +18,7 @@
 
 #include "Mixer.hpp"
 #include "KmsMediaDispatcherMixerType_constants.h"
-#include "MixerEndPoint.hpp"
+#include "MixerPort.hpp"
 
 namespace kurento
 {
@@ -39,7 +39,7 @@ public:
 private:
   GstElement *mainMixer;
 
-  void setMainMixer (std::shared_ptr<MixerEndPoint> &mixerEndPoint);
+  void setMainMixer (std::shared_ptr<MixerPort> &mixerPort);
   void unsetMainMixer ();
 
   class StaticConstructor

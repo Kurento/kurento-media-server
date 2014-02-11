@@ -13,42 +13,42 @@
  *
  */
 
-#include "MixerEndPoint.hpp"
+#include "MixerPort.hpp"
 #include "Mixer.hpp"
-#include "KmsMediaMixerEndPointType_constants.h"
+#include "KmsMediaMixerPortType_constants.h"
 
 #define FACTORY_NAME "mixerendpoint"
 
-#define GST_CAT_DEFAULT kurento_mixer_end_point
+#define GST_CAT_DEFAULT kurento_mixer_port
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoMixerEndPoint"
+#define GST_DEFAULT_NAME "KurentoMixerPort"
 
 namespace kurento
 {
 int
-MixerEndPoint::getHandlerId()
+MixerPort::getHandlerId()
 {
   return this->handlerId;
 }
 
-MixerEndPoint::MixerEndPoint (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
-                              const std::map<std::string, KmsMediaParam> &params)
-  : EndPoint (mediaSet, parent, g_KmsMediaMixerEndPointType_constants.TYPE_NAME,
+MixerPort::MixerPort (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
+                      const std::map<std::string, KmsMediaParam> &params)
+  : EndPoint (mediaSet, parent, g_KmsMediaMixerPortType_constants.TYPE_NAME,
               params, FACTORY_NAME)
 {
   mixer = parent;
   g_signal_emit_by_name (mixer->getMixer(), "handle-port", element, &handlerId);
 }
 
-MixerEndPoint::~MixerEndPoint() throw ()
+MixerPort::~MixerPort() throw ()
 {
   g_signal_emit_by_name (mixer->getMixer(), "unhandle-port", handlerId);
 }
 
 
-MixerEndPoint::StaticConstructor MixerEndPoint::staticConstructor;
+MixerPort::StaticConstructor MixerPort::staticConstructor;
 
-MixerEndPoint::StaticConstructor::StaticConstructor()
+MixerPort::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);

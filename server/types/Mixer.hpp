@@ -17,7 +17,7 @@
 #define __MIXER_HPP__
 
 #include "MediaPipeline.hpp"
-#include "MixerEndPoint.hpp"
+#include "MixerPort.hpp"
 
 namespace kurento
 {
@@ -33,7 +33,7 @@ public:
          const std::string &factoryName);
   virtual ~Mixer() throw ();
 
-  std::shared_ptr<MixerEndPoint> createMixerEndPoint ();
+  std::shared_ptr<MixerPort> createMixerPort ();
 
   std::shared_ptr<MediaPipeline> getPipeline () {
     return parent->getPipeline();

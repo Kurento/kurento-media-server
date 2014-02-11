@@ -999,40 +999,40 @@ MediaServerServiceHandler::getConnectedSrc (KmsMediaObjectRef &_return,
 /* Mixer */
 
 void
-MediaServerServiceHandler::createMixerEndPoint (KmsMediaObjectRef &_return,
+MediaServerServiceHandler::createMixerPort (KmsMediaObjectRef &_return,
     const KmsMediaObjectRef &mixer) throw (KmsMediaServerException)
 {
   std::shared_ptr<Mixer> m;
-  std::shared_ptr<MixerEndPoint> mixerEndPoint;
+  std::shared_ptr<MixerPort> mixerPort;
 
-  GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT, mixer.id);
+  GST_TRACE ("createMixerPort mixer: %" G_GINT64_FORMAT, mixer.id);
 
   try {
     m = mediaSet.getMediaObject<Mixer> (mixer);
-    mixerEndPoint = m->createMixerEndPoint ();
-    mediaSet.reg (mixerEndPoint);
+    mixerPort = m->createMixerPort ();
+    mediaSet.reg (mixerPort);
 
-    _return = *mixerEndPoint;
+    _return = *mixerPort;
   } catch (const KmsMediaServerException &e) {
-    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT
+    GST_TRACE ("createMixerPort mixer: %" G_GINT64_FORMAT
                " throws KmsMediaServerException(%s)", mixer.id, e.description.c_str () );
     throw e;
   } catch (...) {
     KmsMediaServerException except;
 
-    GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT
+    GST_TRACE ("createMixerPort mixer: %" G_GINT64_FORMAT
                " throws KmsMediaServerException", mixer.id);
     createKmsMediaServerException (except,
                                    g_KmsMediaErrorCodes_constants.UNEXPECTED_ERROR,
-                                   "Unexpected error in createMixerEndPoint");
+                                   "Unexpected error in createMixerPort");
     throw except;
   }
 
-  GST_TRACE ("createMixerEndPoint mixer: %" G_GINT64_FORMAT " done", mixer.id);
+  GST_TRACE ("createMixerPort mixer: %" G_GINT64_FORMAT " done", mixer.id);
 }
 
 void
-MediaServerServiceHandler::createMixerEndPointWithParams (
+MediaServerServiceHandler::createMixerPortWithParams (
   KmsMediaObjectRef &_return, const KmsMediaObjectRef &mixer,
   const std::map<std::string, KmsMediaParam> &params)
 throw (KmsMediaServerException)

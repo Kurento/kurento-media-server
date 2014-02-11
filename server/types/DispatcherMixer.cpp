@@ -45,9 +45,9 @@ DispatcherMixer::~DispatcherMixer() throw ()
 }
 
 void
-DispatcherMixer::setMainMixer (std::shared_ptr<MixerEndPoint> &mixerEndPoint)
+DispatcherMixer::setMainMixer (std::shared_ptr<MixerPort> &mixerPort)
 {
-  int id = mixerEndPoint->getHandlerId();
+  int id = mixerPort->getHandlerId();
   g_object_set (G_OBJECT (element), MAIN_END_POINT, id, NULL);
 }
 
@@ -66,16 +66,16 @@ throw (KmsMediaServerException)
   if (g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT.compare (
         command) == 0) {
     const KmsMediaParam *p;
-    std::shared_ptr<MixerEndPoint> mep;
-    KmsMediaObjectRef mixerEndPoint;
+    std::shared_ptr<MixerPort> mp;
+    KmsMediaObjectRef mixerPort;
 
     p = getParam (params,
                   g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER);
 
     if (p != NULL) {
-      unmarshalStruct (mixerEndPoint, p->data);
-      mep = getMediaSet().getMediaObject<MixerEndPoint> (mixerEndPoint);
-      setMainMixer (mep);
+      unmarshalStruct (mixerPort, p->data);
+      mp = getMediaSet().getMediaObject<MixerPort> (mixerPort);
+      setMainMixer (mp);
     }
   } else if (
     g_KmsMediaDispatcherMixerType_constants.UNSET_MAIN_END_POINT.compare (

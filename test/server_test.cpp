@@ -1033,9 +1033,9 @@ ClientHandler::check_dispatcher_mixer ()
 {
   KmsMediaObjectRef mediaPipeline = KmsMediaObjectRef();
   KmsMediaObjectRef dispatcherMixer = KmsMediaObjectRef();
-  KmsMediaObjectRef mixerEndPoint1 = KmsMediaObjectRef();
-  KmsMediaObjectRef mixerEndPoint2 = KmsMediaObjectRef();
-  KmsMediaObjectRef mixerEndPoint3 = KmsMediaObjectRef();
+  KmsMediaObjectRef mixerPort1 = KmsMediaObjectRef();
+  KmsMediaObjectRef mixerPort2 = KmsMediaObjectRef();
+  KmsMediaObjectRef mixerPort3 = KmsMediaObjectRef();
   std::map<std::string, KmsMediaParam> params;
   KmsMediaParam param;
 
@@ -1045,11 +1045,11 @@ ClientHandler::check_dispatcher_mixer ()
   client->createMediaPipeline (mediaPipeline);
   client->createMediaMixer (dispatcherMixer, mediaPipeline,
                             g_KmsMediaDispatcherMixerType_constants.TYPE_NAME);
-  client->createMixerEndPoint (mixerEndPoint1, dispatcherMixer);
-  client->createMixerEndPoint (mixerEndPoint2, dispatcherMixer);
-  client->createMixerEndPoint (mixerEndPoint3, dispatcherMixer);
+  client->createMixerPort (mixerPort1, dispatcherMixer);
+  client->createMixerPort (mixerPort2, dispatcherMixer);
+  client->createMixerPort (mixerPort3, dispatcherMixer);
 
-  createStructParam (param, mixerEndPoint1,
+  createStructParam (param, mixerPort1,
                      g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER);
   params[g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER]
     = param;
@@ -1057,7 +1057,7 @@ ClientHandler::check_dispatcher_mixer ()
                   g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT, params);
 
   params.clear();
-  createStructParam (param, mixerEndPoint2,
+  createStructParam (param, mixerPort2,
                      g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER);
   params[g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER]
     = param;
@@ -1065,7 +1065,7 @@ ClientHandler::check_dispatcher_mixer ()
                   g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT, params);
 
   params.clear();
-  createStructParam (param, mixerEndPoint3,
+  createStructParam (param, mixerPort3,
                      g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER);
   params[g_KmsMediaDispatcherMixerType_constants.SET_MAIN_END_POINT_PARAM_MIXER]
     = param;

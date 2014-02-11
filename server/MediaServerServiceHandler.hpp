@@ -135,11 +135,11 @@ public:
                         const KmsMediaObjectRef &mediaSinkRef) throw (KmsMediaServerException);
 
   /* Mixer */
-  void createMixerEndPoint (KmsMediaObjectRef &_return,
-                            const KmsMediaObjectRef &mixer) throw (KmsMediaServerException);
-  void createMixerEndPointWithParams (KmsMediaObjectRef &_return,
-                                      const KmsMediaObjectRef &mixer,
-                                      const std::map<std::string, KmsMediaParam> &params)
+  void createMixerPort (KmsMediaObjectRef &_return,
+                        const KmsMediaObjectRef &mixer) throw (KmsMediaServerException);
+  void createMixerPortWithParams (KmsMediaObjectRef &_return,
+                                  const KmsMediaObjectRef &mixer,
+                                  const std::map<std::string, KmsMediaParam> &params)
   throw (KmsMediaServerException);
 
 private:

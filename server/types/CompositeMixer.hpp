@@ -17,7 +17,7 @@
 #define __COMPOSITE_MIXER_HPP__
 
 #include "Mixer.hpp"
-#include "MixerEndPoint.hpp"
+#include "MixerPort.hpp"
 
 namespace kurento
 {

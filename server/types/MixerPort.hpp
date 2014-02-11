@@ -13,20 +13,20 @@
  *
  */
 
-#ifndef __MIXER_END_POINT_HPP__
-#define __MIXER_END_POINT_HPP__
+#ifndef __MIXER_PORT_HPP__
+#define __MIXER_PORT_HPP__
 
 #include "EndPoint.hpp"
 
 namespace kurento
 {
 
-class MixerEndPoint : public EndPoint
+class MixerPort : public EndPoint
 {
 public:
-  MixerEndPoint (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
-                 const std::map<std::string, KmsMediaParam> &params = emptyParams);
-  virtual ~MixerEndPoint() throw ();
+  MixerPort (MediaSet &mediaSet, std::shared_ptr<Mixer> parent,
+             const std::map<std::string, KmsMediaParam> &params = emptyParams);
+  virtual ~MixerPort() throw ();
 
   int getHandlerId ();
 private:
@@ -44,4 +44,4 @@ private:
 
 } // kurento
 
-#endif /* __MIXER_END_POINT_HPP__ */
+#endif /* __MIXER_PORT_HPP__ */
