@@ -101,6 +101,42 @@ error:
   return false;
 }
 
+static void
+load_modules_from_dir (std::string &location,
+                       std::map<std::string, KurentoModule *> &modules)
+{
+  DIR *dir;
+  struct dirent *ent;
+  std::string name;
+
+  GST_TRACE ("Looking for modules in %s", location.c_str() );
+
+  dir = opendir (location.c_str() );
+
+  if (dir == NULL) {
+    GST_ERROR ("Unable to load modules from: %s", location.c_str() );
+    return;
+  }
+
+  /* print all the files and directories within directory */
+  while ( (ent = readdir (dir) ) != NULL) {
+    name = ent->d_name;
+
+    if (ent->d_type == DT_REG) {
+      std::string name = location + "/" + ent->d_name;
+      load_module (name, modules);
+    } else if (ent->d_type == DT_DIR && "." != name && ".." != name) {
+      std::string dirName = location + "/" + ent->d_name;
+
+      load_modules_from_dir (dirName, modules);
+    } else if (ent->d_type == DT_LNK) {
+      // TODO: Follow sym link and try to load plugins
+    }
+  }
+
+  closedir (dir);
+}
+
 std::map<std::string, KurentoModule *>
 load_modules ()
 {
@@ -111,29 +147,7 @@ load_modules ()
   locations = split (modulesPath, ':');
 
   for (std::string location : locations) {
-    DIR *dir;
-    struct dirent *ent;
-
-    dir = opendir (location.c_str() );
-
-    if (dir == NULL) {
-      GST_ERROR ("Unable to load modules from: %s", location.c_str() );
-      continue;
-    }
-
-    /* print all the files and directories within directory */
-    while ( (ent = readdir (dir) ) != NULL) {
-      if (ent->d_type == DT_REG) {
-        std::string name = location + "/" + ent->d_name;
-        load_module (name, modules);
-      } else if (ent->d_type == DT_DIR) {
-        // TODO: look for plugins in subdirectory
-      } else if (ent->d_type == DT_LNK) {
-        // TODO: Follow sym link and try to load plugins
-      }
-    }
-
-    closedir (dir);
+    load_modules_from_dir (location, modules);
   }
 
   return modules;
