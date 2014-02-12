@@ -7,3 +7,4 @@ include_directories(example ${GSTREAMER_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/server
 install(TARGETS example LIBRARY DESTINATION lib/kurento/modules)
 
 add_subdirectory(player)
+add_subdirectory(recorder)
