@@ -34,8 +34,6 @@
 #include "PointerDetectorFilter.hpp"
 #include "KmsMediaPointerDetector2FilterType_constants.h"
 #include "PointerDetector2Filter.hpp"
-#include "KmsMediaWebRtcEndPointType_constants.h"
-#include "WebRtcEndPoint.hpp"
 #include "KmsMediaPlateDetectorFilterType_constants.h"
 #include "PlateDetectorFilter.hpp"
 #include "KmsMediaFaceOverlayFilterType_constants.h"
@@ -166,10 +164,6 @@ throw (KmsMediaServerException)
   } else if (g_KmsMediaPlateDetectorFilterType_constants.TYPE_NAME.compare (
                elementType) == 0) {
     element = std::shared_ptr<PlateDetectorFilter> (new PlateDetectorFilter (
-                getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaWebRtcEndPointType_constants.TYPE_NAME.compare (
-               elementType) == 0) {
-    element = std::shared_ptr<WebRtcEndPoint> (new WebRtcEndPoint (
                 getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaFaceOverlayFilterType_constants.TYPE_NAME.compare (
                elementType) == 0) {

@@ -8,3 +8,4 @@ install(TARGETS example LIBRARY DESTINATION lib/kurento/modules)
 
 add_subdirectory(player)
 add_subdirectory(recorder)
+add_subdirectory(webrtc)
