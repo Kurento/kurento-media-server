@@ -40,8 +40,6 @@
 #include "FaceOverlayFilter.hpp"
 #include "KmsMediaGStreamerFilterType_constants.h"
 #include "GStreamerFilter.hpp"
-#include "KmsMediaChromaFilterType_constants.h"
-#include "ChromaFilter.hpp"
 #include "KmsMediaErrorCodes_constants.h"
 
 #include "KmsMediaDispatcherMixerType_constants.h"
@@ -172,10 +170,6 @@ throw (KmsMediaServerException)
   } else if (g_KmsMediaGStreamerFilterType_constants.TYPE_NAME.compare (
                elementType) == 0) {
     element = std::shared_ptr<GStreamerFilter> (new GStreamerFilter (
-                getMediaSet(), shared_from_this (), params) );
-  } else if (g_KmsMediaChromaFilterType_constants.TYPE_NAME.compare (
-               elementType) == 0) {
-    element = std::shared_ptr<ChromaFilter> (new ChromaFilter (
                 getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaPointerDetector2FilterType_constants.TYPE_NAME.compare (
                elementType) == 0) {
