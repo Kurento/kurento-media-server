@@ -24,6 +24,8 @@
 #include "HttpGetEndPoint.hpp"
 #include "KmsMediaHttpPostEndPointType_constants.h"
 #include "HttpPostEndPoint.hpp"
+#include "KmsMediaFaceOverlayFilterType_constants.h"
+#include "FaceOverlayFilter.hpp"
 #include "KmsMediaGStreamerFilterType_constants.h"
 #include "GStreamerFilter.hpp"
 #include "KmsMediaErrorCodes_constants.h"
@@ -129,6 +131,10 @@ throw (KmsMediaServerException)
                elementType) == 0) {
     element = std::shared_ptr<HttpGetEndPoint> (new HttpGetEndPoint (getMediaSet(),
               shared_from_this (), params) );
+  } else if (g_KmsMediaFaceOverlayFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
+    element = std::shared_ptr<FaceOverlayFilter> (new FaceOverlayFilter (
+                getMediaSet(), shared_from_this (), params) );
   } else if (g_KmsMediaGStreamerFilterType_constants.TYPE_NAME.compare (
                elementType) == 0) {
     element = std::shared_ptr<GStreamerFilter> (new GStreamerFilter (
