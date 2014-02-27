@@ -24,6 +24,8 @@
 #include "HttpGetEndPoint.hpp"
 #include "KmsMediaHttpPostEndPointType_constants.h"
 #include "HttpPostEndPoint.hpp"
+#include "KmsMediaZBarFilterType_constants.h"
+#include "ZBarFilter.hpp"
 #include "KmsMediaJackVaderFilterType_constants.h"
 #include "JackVaderFilter.hpp"
 #include "KmsMediaPointerDetectorFilterType_constants.h"
@@ -139,6 +141,10 @@ throw (KmsMediaServerException)
                elementType) == 0) {
     element = std::shared_ptr<HttpGetEndPoint> (new HttpGetEndPoint (getMediaSet(),
               shared_from_this (), params) );
+  } else if (g_KmsMediaZBarFilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
+    element = std::shared_ptr<ZBarFilter> (new ZBarFilter (getMediaSet(),
+                                           shared_from_this (), params) );
   } else if (g_KmsMediaJackVaderFilterType_constants.TYPE_NAME.compare (
                elementType) == 0) {
     element = std::shared_ptr<JackVaderFilter> (new JackVaderFilter (
