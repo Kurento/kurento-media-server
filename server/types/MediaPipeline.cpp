@@ -24,6 +24,8 @@
 #include "HttpGetEndPoint.hpp"
 #include "KmsMediaHttpPostEndPointType_constants.h"
 #include "HttpPostEndPoint.hpp"
+#include "KmsMediaPointerDetector2FilterType_constants.h"
+#include "PointerDetector2Filter.hpp"
 #include "KmsMediaPlateDetectorFilterType_constants.h"
 #include "PlateDetectorFilter.hpp"
 #include "KmsMediaFaceOverlayFilterType_constants.h"
@@ -144,6 +146,10 @@ throw (KmsMediaServerException)
   } else if (g_KmsMediaGStreamerFilterType_constants.TYPE_NAME.compare (
                elementType) == 0) {
     element = std::shared_ptr<GStreamerFilter> (new GStreamerFilter (
+                getMediaSet(), shared_from_this (), params) );
+  } else if (g_KmsMediaPointerDetector2FilterType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
+    element = std::shared_ptr<PointerDetector2Filter> (new PointerDetector2Filter (
                 getMediaSet(), shared_from_this (), params) );
   } else {
     KmsMediaServerException except;
