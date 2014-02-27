@@ -20,6 +20,8 @@
 #include "KmsMediaDataType_constants.h"
 #include "KmsMediaErrorCodes_constants.h"
 
+#include "KmsMediaHttpGetEndPointType_constants.h"
+#include "HttpGetEndPoint.hpp"
 #include "KmsMediaHttpPostEndPointType_constants.h"
 #include "HttpPostEndPoint.hpp"
 #include "KmsMediaErrorCodes_constants.h"
@@ -121,6 +123,10 @@ throw (KmsMediaServerException)
     element = std::shared_ptr<HttpPostEndPoint> (new HttpPostEndPoint (
                 getMediaSet(),
                 shared_from_this (), params) );
+  } else if (g_KmsMediaHttpGetEndPointType_constants.TYPE_NAME.compare (
+               elementType) == 0) {
+    element = std::shared_ptr<HttpGetEndPoint> (new HttpGetEndPoint (getMediaSet(),
+              shared_from_this (), params) );
   } else {
     KmsMediaServerException except;
 
