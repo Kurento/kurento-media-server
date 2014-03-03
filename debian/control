@@ -8,6 +8,7 @@ Build-Depends:
  debhelper,
  gnutls-bin,
  gtk-doc-tools,
+ libsigc++-2.0-dev,
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
@@ -27,6 +28,7 @@ Build-Depends:
  tesseract-ocr-dev,
  tesseract-ocr-eng,
  thrift-compiler,
+ libjsoncpp-dev,
  uuid-dev
 Standards-Version: 3.9.4
 

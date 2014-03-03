@@ -14,9 +14,9 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 			${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit)
 	endif(NOT EXISTS "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit")
 else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
-	set(KMSC_MAJOR_VERSION 3)
+	set(KMSC_MAJOR_VERSION 4)
 	set(KMSC_MINOR_VERSION 0)
-	set(KMSC_PATCH_VERSION 6-dev)
+	set(KMSC_PATCH_VERSION 0-dev)
 	set(KMSC_VERSION
 		${KMSC_MAJOR_VERSION}.${KMSC_MINOR_VERSION}.${KMSC_PATCH_VERSION})
 endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
@@ -54,6 +54,8 @@ pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.37)
 pkg_check_modules(UUID REQUIRED uuid>=2.20.0)
 pkg_check_modules(GMODULE REQUIRED gmodule-2.0>=2.38)
+pkg_check_modules(JSONCPP REQUIRED jsoncpp>=0.6.0)
+pkg_check_modules(SIGCPP REQUIRED sigc++-2.0>=2.0.10)
 
 include(ExternalProject)
 
@@ -63,7 +65,9 @@ add_subdirectory(kms-interface)
 
 add_subdirectory(httpepserver)
 
-add_subdirectory(modules)
+# add_subdirectory(modules)
+
+add_subdirectory(jsonrpc)
 
 add_subdirectory(server)
 
@@ -71,33 +75,34 @@ add_subdirectory(test)
 
 enable_testing()
 
-add_test(utils_test test/utils_test)
-add_test(media_handler_test test/media_handler_test)
-
+# add_test(utils_test test/utils_test)
+# add_test(media_handler_test test/media_handler_test)
+#
 if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
-add_test(server_test test/server_test)
-set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
-set_property(TEST server_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins")
-
-add_test(http_ep_server_test test/http_ep_server_test)
-set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
-
-add_test(server_unexpected_test test/server_unexpected_test)
-set_tests_properties(server_unexpected_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+#  add_test(server_test test/server_test)
+#  set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+#   set_property(TEST server_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins")
+#
+# add_test(http_ep_server_test test/http_ep_server_test)
+# set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+#
+# add_test(server_unexpected_test test/server_unexpected_test)
+# set_tests_properties(server_unexpected_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+ add_test(server_json_test test/server_json_test)
+ set_tests_properties(server_json_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+ set_property(TEST server_json_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins")
 endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
-
-# Temporally disabled
-if (0)
-if (DEFINED MEMORY_TEST)
-  message("Memory test active")
-  add_test(server_memory_test test/server_memory_test)
-  set_tests_properties(server_memory_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
-endif()
-
-endif ()
+#
+# # Temporally disabled
+# if (0)
+# if (DEFINED MEMORY_TEST)
+#   message("Memory test active")
+#   add_test(server_memory_test test/server_memory_test)
+#   set_tests_properties(server_memory_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+# endif()
+#
+# endif ()
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
-
-
 
 
 set(CPACK_GENERATOR "DEB;TGZ;STGZ")

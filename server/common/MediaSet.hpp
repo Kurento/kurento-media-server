@@ -19,16 +19,21 @@
 #include "types/MediaObjectImpl.hpp"
 
 #include <glibmm.h>
+#include <set>
+#include <memory>
 
 namespace kurento
 {
 
 typedef struct _KeepAliveData KeepAliveData;
 
+class MediaObjectNotFound
+{
+};
+
 class MediaSet
 {
 public:
-  MediaSet () {};
   ~MediaSet ();
 
   /**
@@ -36,41 +41,40 @@ public:
    * register it in the MediaSet only if it is not into yet.
    */
   void reg (std::shared_ptr<MediaObjectImpl> mediaObject);
-  void keepAlive (const KmsMediaObjectRef &mediaObject) throw (
-    KmsMediaServerException);
+  void keepAlive (const uint64_t &mediaObjectRef);
 
   /**
    * Set the state of the MediaObject as unreferenced and
    * unregister it, and release it if possible.
    */
-  void unreg (const KmsMediaObjectRef &mediaObject, bool force = true);
-  void unreg (const KmsMediaObjectId &id, bool force = true);
+  void unreg (const uint64_t &mediaObjectRef, bool force = true);
   int size();
 
-  template <class T>
-  std::shared_ptr<T> getMediaObject (const KmsMediaObjectRef &mediaObject) throw (
-    KmsMediaServerException);
+  std::shared_ptr<MediaObjectImpl> getMediaObject (const uint64_t
+      &mediaObjectRef);
+
+  static std::shared_ptr<MediaSet> getMediaSet();
 
 private:
+  MediaSet () {};
+
   Glib::Threads::RecMutex mutex;
-  std::map<KmsMediaObjectId, std::shared_ptr<MediaObjectImpl> >
+  std::map<uint64_t, std::shared_ptr<MediaObjectImpl> >
   mediaObjectsRefMap, mediaObjectsUnrefMap;
-  std::map<KmsMediaObjectId, std::shared_ptr<std::set<KmsMediaObjectId>> >
+  std::map<uint64_t, std::shared_ptr<std::set<uint64_t>> >
       childrenRefMap, childrenUnrefMap;
-  std::map<KmsMediaObjectId, std::shared_ptr<KeepAliveData>> mediaObjectsAlive;
+  std::map<uint64_t, std::shared_ptr<KeepAliveData>> mediaObjectsAlive;
 
   Glib::ThreadPool threadPool;
 
-  bool canBeAutoreleased (const KmsMediaObjectRef &mediaObject);
-  void removeAutoRelease (const KmsMediaObjectId &id);
+  void removeAutoRelease (const uint64_t &mediaObjectRef);
 
-  std::shared_ptr<MediaObjectImpl> mediaObjectToRef (const KmsMediaObjectId &id);
-  std::shared_ptr<MediaObjectImpl> mediaObjectToUnref (const KmsMediaObjectId
-      &id);
+  std::shared_ptr<MediaObjectImpl> mediaObjectToRef (const uint64_t
+      &mediaObjectRef);
+  std::shared_ptr<MediaObjectImpl> mediaObjectToUnref (const uint64_t
+      &mediaObjectRef);
   void releaseMediaObject (std::shared_ptr<MediaObjectImpl> mo);
-  void unregRecursive (const KmsMediaObjectRef &mediaObject, bool force = true,
-                       bool rec = false);
-  void unregRecursive (const KmsMediaObjectId &id, bool force = true,
+  void unregRecursive (const uint64_t &mediaObjectRef, bool force = true,
                        bool rec = false);
 
   class StaticConstructor

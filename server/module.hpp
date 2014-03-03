@@ -26,7 +26,6 @@ namespace kurento
 class MediaPipeline;
 class MediaSet;
 class MediaObjectImpl;
-class KmsMediaParam;
 }
 
 extern "C" {
@@ -40,8 +39,7 @@ extern "C" {
 
   typedef std::shared_ptr<kurento::MediaObjectImpl> (*create_object_func) (
     kurento::MediaSet &mediaSet,
-    std::shared_ptr< kurento::MediaPipeline > parent,
-    const std::map< std::string, kurento::KmsMediaParam > &params);
+    std::shared_ptr< kurento::MediaPipeline > parent);
 
   typedef std::string (*get_name_func) ();
 

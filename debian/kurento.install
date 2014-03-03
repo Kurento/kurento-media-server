@@ -1,6 +1,5 @@
 debian/tmp/etc/*/*
 debian/tmp/usr/bin/kurento
-debian/tmp/usr/lib/kurento/modules/*.so
 debian/tmp/usr/lib/gst-kurento-plugins/lib*.so
 debian/tmp/usr/lib/kms-dtls-plugins/lib*.so
 debian/tmp/usr/share/doc/kurento/README.md
