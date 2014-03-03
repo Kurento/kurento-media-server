@@ -44,9 +44,6 @@ public:
 
 private:
 
-  Json::Reader reader;
-  Json::FastWriter writer;
-
   std::map<std::string, Method> methods;
   bool process (const Json::Value &msg, Json::Value &_response);
   bool checkProtocol (const Json::Value &root, Json::Value &error);

@@ -126,6 +126,8 @@ Handler::process (const std::string &msg, std::string &_responseMsg)
   Json::Value request;
   Json::Value error;
   bool parse = false;
+  Json::Reader reader;
+  Json::FastWriter writer;
 
   parse = reader.parse (msg, request);
 
