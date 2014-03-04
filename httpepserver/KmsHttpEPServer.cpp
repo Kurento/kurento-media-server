@@ -22,6 +22,7 @@
 
 #include "KmsHttpEPServer.h"
 #include "KmsHttpPost.h"
+#include "KmsHttpLoop.h"
 #include "kms-enumtypes.h"
 #include "kms-marshal.h"
 
@@ -57,6 +58,7 @@ struct _KmsHttpEPServerPrivate {
   gchar *iface;
   gint port;
   GRand *rand;
+  KmsHttpLoop *loop;
 };
 
 static GType http_t = G_TYPE_INVALID;
@@ -157,7 +159,7 @@ get_address ()
 }
 
 static void
-remove_timeout (GstElement *httpep)
+kms_http_ep_server_remove_timeout (KmsHttpEPServer *self, GstElement *httpep)
 {
   guint *timeout_id;
 
@@ -169,7 +171,7 @@ remove_timeout (GstElement *httpep)
   }
 
   GST_DEBUG ("Remove timeout %d", *timeout_id);
-  g_source_remove (*timeout_id);
+  kms_http_loop_remove (self->priv->loop, *timeout_id);
   g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, NULL, NULL);
 }
 
@@ -251,7 +253,7 @@ destroy_sample_data (gpointer data)
 }
 
 static GstFlowReturn
-new_sample_handler (GstElement *httpep, gpointer data)
+new_sample_handler (GstElement *httpep, KmsHttpLoop *loop)
 {
   GstSample *sample = NULL;
   struct sample_data *sdata;
@@ -269,8 +271,8 @@ new_sample_handler (GstElement *httpep, gpointer data)
   sdata->httpep = GST_ELEMENT (gst_object_ref (httpep) );
 
   /* Write buffer in the main context thread */
-  g_idle_add_full (G_PRIORITY_HIGH_IDLE, send_buffer_cb, sdata,
-                   destroy_sample_data);
+  kms_http_loop_idle_add_full (loop, G_PRIORITY_HIGH_IDLE, send_buffer_cb,
+                               sdata, destroy_sample_data);
 
   gst_sample_unref (sample);
   return GST_FLOW_OK;
@@ -306,10 +308,10 @@ get_recv_eos_cb (gpointer data)
 }
 
 static void
-get_recv_eos (GstElement *httpep, gpointer data)
+get_recv_eos (GstElement *httpep, KmsHttpLoop *loop)
 {
-  g_idle_add_full (G_PRIORITY_HIGH_IDLE, get_recv_eos_cb,
-                   gst_object_ref (httpep), gst_object_unref);
+  kms_http_loop_idle_add_full (loop, G_PRIORITY_HIGH_IDLE, get_recv_eos_cb,
+                               gst_object_ref (httpep), gst_object_unref);
 }
 
 static void
@@ -337,7 +339,7 @@ emit_expiration_signal_cb (gpointer user_data)
   httpep = (GstElement *) g_hash_table_lookup (serv->priv->handlers, path);
 
   if (httpep != NULL) {
-    remove_timeout (httpep);
+    kms_http_ep_server_remove_timeout (serv, httpep);
   }
 
   return FALSE;
@@ -352,6 +354,7 @@ destroy_guint (guint *id)
 static void
 emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
 {
+  KmsHttpEPServer *serv;
   double t_timeout;
   SoupDate *now;
   guint *timeout, *id;
@@ -364,10 +367,14 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
   t_timeout = difftime (soup_date_to_time_t (now) + *timeout,
                         soup_date_to_time_t (now) );
 
+  serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
+         KEY_HTTP_EP_SERVER);
   id = g_slice_new (guint);
-  *id = g_timeout_add_full (G_PRIORITY_DEFAULT, t_timeout * 1000,
-                            emit_expiration_signal_cb,
-                            g_object_ref (G_OBJECT (msg) ), g_object_unref);
+  *id = kms_http_loop_timeout_add_full (serv->priv->loop,
+                                        G_PRIORITY_DEFAULT, t_timeout * 1000,
+                                        emit_expiration_signal_cb,
+                                        g_object_ref (G_OBJECT (msg) ),
+                                        g_object_unref);
   g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, id,
                           (GDestroyNotify) destroy_guint);
 }
@@ -418,7 +425,7 @@ msg_add_finished_property (SoupMessage *msg)
 }
 
 static void
-install_http_get_signals (GstElement *httpep)
+install_http_get_signals (GstElement *httpep, KmsHttpLoop *loop)
 {
   gulong *handlerid;
 
@@ -427,8 +434,11 @@ install_http_get_signals (GstElement *httpep)
 
   if (handlerid == NULL) {
     handlerid = g_slice_new (gulong);
-    *handlerid = g_signal_connect (httpep, "new-sample",
-                                   G_CALLBACK (new_sample_handler), NULL);
+    *handlerid = g_signal_connect_data (httpep, "new-sample",
+                                        G_CALLBACK (new_sample_handler),
+                                        g_object_ref (loop),
+                                        (GClosureNotify) g_object_unref,
+                                        (GConnectFlags) 0);
     GST_DEBUG ("Installing new-sample signal with id %lu from %p ",
                *handlerid, (gpointer) httpep);
     g_object_set_data_full (G_OBJECT (httpep), KEY_NEW_SAMPLE_HANDLER_ID,
@@ -440,8 +450,11 @@ install_http_get_signals (GstElement *httpep)
 
   if (handlerid == NULL) {
     handlerid = g_slice_new (gulong);
-    *handlerid = g_signal_connect (httpep, "eos", G_CALLBACK (get_recv_eos),
-                                   NULL);
+    *handlerid = g_signal_connect_data (httpep, "eos",
+                                        G_CALLBACK (get_recv_eos),
+                                        g_object_ref (loop),
+                                        (GClosureNotify) g_object_unref,
+                                        (GConnectFlags) 0);
     GST_DEBUG ("Installing eos signal with id %lu from %p ",
                *handlerid, (gpointer) httpep);
     g_object_set_data_full (G_OBJECT (httpep), KEY_EOS_HANDLER_ID, handlerid,
@@ -640,7 +653,7 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
   g_object_set_data_full (G_OBJECT (msg), KEY_FINISHED_HANDLER_ID, handlerid,
                           (GDestroyNotify) destroy_ulong);
 
-  install_http_get_signals (httpep);
+  install_http_get_signals (httpep, self->priv->loop);
 
   /* allow media stream to flow in HttpEndPoint pipeline */
   g_object_set (G_OBJECT (httpep), "start", TRUE, NULL);
@@ -892,7 +905,7 @@ got_headers_handler (SoupMessage *msg, gpointer data)
     return;
   }
 
-  remove_timeout (httpep);
+  kms_http_ep_server_remove_timeout (self, httpep);
 
   /* Bind message life cicle to this httpendpoint */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE,
@@ -934,9 +947,13 @@ static void
 kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
 {
   SoupSocket *listener;
+  GMainContext *ctx;
 
+  g_object_get (self->priv->loop, "context", &ctx, NULL);
   self->priv->server = soup_server_new (SOUP_SERVER_PORT, self->priv->port,
-                                        SOUP_SERVER_INTERFACE, addr, NULL);
+                                        SOUP_SERVER_INTERFACE, addr,
+                                        SOUP_SERVER_ASYNC_CONTEXT, ctx, NULL);
+  g_main_context_unref (ctx);
 
   /* Connect server signals handlers */
   g_signal_connect (self->priv->server, "request-started",
@@ -1119,7 +1136,7 @@ kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
   uninstall_http_get_signals (httpep);
   uninstall_http_post_signals (httpep);
 
-  remove_timeout (httpep);
+  kms_http_ep_server_remove_timeout (self, httpep);
 
   /* Cancel current transtacion */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE, NULL, NULL);
@@ -1160,6 +1177,10 @@ kms_http_ep_server_finalize (GObject *obj)
     kms_http_ep_server_remove_handlers (self);
     g_hash_table_unref (self->priv->handlers);
     self->priv->handlers = NULL;
+  }
+
+  if (self->priv->loop) {
+    g_clear_object (&self->priv->loop);
   }
 
   if (self->priv->rand != NULL) {
@@ -1335,6 +1356,7 @@ kms_http_ep_server_init (KmsHttpEPServer *self)
                          g_free, g_object_unref);
 
   self->priv->rand = g_rand_new();
+  self->priv->loop = kms_http_loop_new ();
 }
 
 /* Virtual public methods */
