@@ -1,3 +1,84 @@
+kurento (4.0.0) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Change to next development version
+
+  [ Santiago Carot-Nemesio ]
+  * Create media element just once using inheritance chain
+  * Initialize UriEndPoint parameters in class contructor, not in children classes
+  * UriEndPoint: Remove magic numbers
+  * Remove unneeded include statements
+
+  [ David Fernandez ]
+  * playerendpoint: Add encoded media parameter to media server
+
+  [ Jose Antonio Santos Cadenas ]
+  * Fix memory problem
+
+  [ David Fernandez ]
+  * httppostendpoint: Add encoded media parameter to media server
+  * Add more tests with unexpected values
+
+  [ Santiago Carot-Nemesio ]
+  * SdpEndPoint: Propagate the media transmission start/stop signals to applications
+  * SdpEndPoint: Propagate missing EVENT_MEDIA_SESSION_COMPLETE signal
+
+  [ Jose Antonio Santos Cadenas ]
+  * main: Add check to notice the user that kurento plugins are not found
+  * main: Add default plugin path
+
+  [ David Fernandez ]
+  * Add MainMixer to the server
+  * Change the name MainMixer for Dispatcher
+
+  [ Jose Antonio Santos Cadenas ]
+  * Fix getMediaPipeline method. It was not working for MixerEndPoints
+  * Generify in MediaElement the gstreamer element management
+  * Create infrastructure for loading plugins
+  * Allow pipeline to create elements from plugins
+  * ModuleLoader: Recurse subdirectories looking for modules
+
+  [ David Fernandez ]
+  * Add CompositeMixer classes to media server
+  * Add CrowdDetectorFilter classes to media server
+  * Replace MixerEndPoint name with MixerPort name
+
+  [ Jose Antonio Santos Cadenas ]
+  * Make PlayerEndPoint a module
+  * Make RecorderEndPoint a module
+  * Make WebRtcEndPoint a module
+  * Make ChromaFilter a module
+  * Make RtpEndPoint a module
+  * Make ZBarFilter a module
+  * Make JackVaderFilter a module
+  * Make PointerDetector a module
+  * Make PointerDetector2Filter a module
+  * Make PlateDetectorFilter a module
+  * Make FaceOverlayFilter a module
+  * Make GStreamerFilter a module
+  * Make HttpGetEndPoint a module
+  * Revert "Make HttpGetEndPoint a module"
+  * Revert "Make GStreamerFilter a module"
+  * Revert "Make FaceOverlayFilter a module"
+  * Revert "Make PlateDetectorFilter a module"
+  * Revert "Make PointerDetector2Filter a module"
+  * Revert "Make PointerDetector a module"
+  * Revert "Make JackVaderFilter a module"
+  * Revert "Make ZBarFilter a module"
+  * Revert "Make RtpEndPoint a module"
+  * Revert "Make ChromaFilter a module"
+  * Revert "Make WebRtcEndPoint a module"
+  * Revert "Make RecorderEndPoint a module"
+  * Revert "Make PlayerEndPoint a module"
+  * Change interface from thrift to jsonrpc over thrift transport
+  * Fix race condition using independent reader and writers for each call
+  * Add MixerPort to model
+  * DispatcherMixer: Add setSource and removeSource methods
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 04 Mar 2014 17:14:24 +0100
+
 kurento (3.0.5) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
