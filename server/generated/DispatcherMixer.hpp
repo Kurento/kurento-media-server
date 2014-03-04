@@ -13,6 +13,7 @@
 namespace kurento {
 
 class MediaPipeline;
+class MixerPort;
 
 class DispatcherMixer : public virtual MediaMixer {
 
@@ -20,6 +21,9 @@ public:
 
   DispatcherMixer () {};
   virtual ~DispatcherMixer () {};
+
+  virtual void setSource (std::shared_ptr<MixerPort> source) {throw "Not implemented";};
+  virtual void removeSource () {throw "Not implemented";};
 
   virtual std::string connect(const std::string &eventType, std::shared_ptr<EventHandler> handler);
 

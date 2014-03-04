@@ -30,6 +30,9 @@ public:
                        int garbagePeriod);
   virtual ~DispatcherMixerImpl() throw () {};
 
+  virtual void setSource (std::shared_ptr<MixerPort> source);
+  virtual void removeSource ();
+
 private:
 
   class StaticConstructor

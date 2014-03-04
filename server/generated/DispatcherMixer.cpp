@@ -3,17 +3,123 @@
 #include <memory>
 
 #include "MediaPipeline.hpp"
+#include "MixerPort.hpp"
 #include "DispatcherMixer.hpp"
 #include <JsonSerializer.hpp>
 
 namespace kurento {
 
+std::shared_ptr<MediaObject> DispatcherMixer::Factory::createObject (const Json::Value &params)
+{
+  std::shared_ptr<MediaPipeline> mediaPipeline;
+  int garbagePeriod = 0;
+
+  if (!params.isMember ("mediaPipeline")) {
+    /* param 'mediaPipeline' not present, raise exception */
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              "'mediaPipeline' parameter is requiered");
+    throw e;
+  } else {
+    JsonSerializer s(false);
+    s.JsonValue = params;
+    s.SerializeNVP(mediaPipeline);
+  }
+
+  if (!params.isMember ("garbagePeriod")) {
+    /* param 'garbagePeriod' not present, using default */
+    garbagePeriod = 120;
+  } else {
+    JsonSerializer s(false);
+    s.JsonValue = params;
+    s.SerializeNVP(garbagePeriod);
+  }
+
+  return createObject (mediaPipeline, garbagePeriod);
+}
+
+DispatcherMixer::Factory::StaticConstructor DispatcherMixer::Factory::staticConstructor;
+
+DispatcherMixer::Factory::StaticConstructor::StaticConstructor()
+{
+  if (objectRegistrar) {
+    std::shared_ptr <Factory> factory (new DispatcherMixer::Factory());
+
+    objectRegistrar->registerFactory(factory);
+  }
+}
 
 void
 DispatcherMixer::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     const std::string &methodName, const Json::Value &params,
     Json::Value &response)
 {
+  if (methodName == "setSource" && params.size() == 1) {
+    Json::Value aux;
+    std::shared_ptr<MixerPort> source;
+
+    if (!params.isMember ("source")) {
+      /* param 'source' not present, raise exception */
+      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "'source' parameter is requiered");
+      throw e;
+    } else {
+      std::shared_ptr<MediaObject> obj;
+
+      aux = params["source"];
+
+      if (!aux.isString ()) {
+        /* param 'source' has invalid type value, raise exception */
+        JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "'source' parameter should be a string");
+        throw e;
+      }
+
+      try {
+        obj = MixerPort::Factory::getObject (aux.asString ());
+      } catch (JsonRpc::CallException &ex) {
+        JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "'source' object not found: "+ ex.getMessage());
+        throw e;
+      }
+
+      source = std::dynamic_pointer_cast<MixerPort> (obj);
+
+      if (!source) {
+        JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "'source' object has a invalid type");
+        throw e;
+      }
+    }
+
+    // TODO: Implement method setSource
+    std::shared_ptr<DispatcherMixer> finalObj;
+    finalObj = std::dynamic_pointer_cast<DispatcherMixer> (obj);
+    if (!finalObj) {
+      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "Object not found or has incorrect type");
+      throw e;
+    }
+
+    finalObj->setSource (source);
+    return;
+  }
+
+  if (methodName == "removeSource" && params.size() == 0) {
+    Json::Value aux;
+
+    // TODO: Implement method removeSource
+    std::shared_ptr<DispatcherMixer> finalObj;
+    finalObj = std::dynamic_pointer_cast<DispatcherMixer> (obj);
+    if (!finalObj) {
+      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "Object not found or has incorrect type");
+      throw e;
+    }
+
+    finalObj->removeSource ();
+    return;
+  }
+
   MediaMixer::Invoker::invoke(obj, methodName, params, response);
 }
 
