@@ -42,6 +42,10 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define ENV_VAR "GST_PLUGIN_PATH"
 
+Glib::Mutex mutex;
+Glib::Cond cond;
+bool finish = FALSE;
+
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
@@ -468,6 +472,19 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
 }
 
 static void
+http_server_stop_cb (KmsHttpEPServer *self, GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("Http server could not be stopped. Reason: %s", err->message);
+  }
+
+  mutex.lock();
+  finish = TRUE;
+  cond.signal();
+  mutex.unlock();
+}
+
+static void
 check_if_plugins_are_available ()
 {
   GstPlugin *plugin = gst_plugin_load_by_name ("kurento");
@@ -554,7 +571,19 @@ main (int argc, char **argv)
   loop->run ();
 
   /* Stop Http End Point Server and destroy it */
-  kms_http_ep_server_stop (httpepserver);
+  kms_http_ep_server_stop (httpepserver, http_server_stop_cb);
+
+  /* TODO: Improve this to with a more sophisticated method to start
+   * and stop services. */
+  /* Wait until server has stopped */
+  mutex.lock();
+
+  while (!finish) {
+    cond.wait (mutex);
+  }
+
+  mutex.unlock();
+
   g_object_unref (G_OBJECT (httpepserver) );
 
   return 0;
