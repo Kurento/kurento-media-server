@@ -35,6 +35,10 @@ public:
 
 private:
 
+  int signalEOS;
+  int signalInvalidURI;
+  int signalInvalidMedia;
+
   std::function<void() > eosLambda;
   std::function<void() > invalidUriLambda;
   std::function<void() > invalidMediaLambda;

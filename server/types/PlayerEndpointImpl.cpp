@@ -64,17 +64,22 @@ PlayerEndpointImpl::PlayerEndpointImpl (bool useEncodedMedia,
     signalError (error);
   };
 
-  g_signal_connect (element, "eos", G_CALLBACK (adaptor_function), &eosLambda);
-  g_signal_connect (element, "invalid-uri", G_CALLBACK (adaptor_function),
-                    &invalidUriLambda);
-  g_signal_connect (element, "invalid-media", G_CALLBACK (adaptor_function),
-                    &invalidMediaLambda);
+  signalEOS = g_signal_connect (element, "eos", G_CALLBACK (adaptor_function),
+                                  &eosLambda);
+  signalInvalidURI = g_signal_connect (element, "invalid-uri",
+                                       G_CALLBACK (adaptor_function),
+                                       &invalidUriLambda);
+  signalInvalidMedia = g_signal_connect (element, "invalid-media",
+                                         G_CALLBACK (adaptor_function),
+                                         &invalidMediaLambda);
 }
 
 PlayerEndpointImpl::~PlayerEndpointImpl()
 {
+  g_signal_handler_disconnect (element, signalEOS);
+  g_signal_handler_disconnect (element, signalInvalidMedia);
+  g_signal_handler_disconnect (element, signalInvalidURI);
 }
-
 
 void
 PlayerEndpointImpl::play ()
