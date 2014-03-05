@@ -136,7 +136,21 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
 
-  // TODO: Perform more tests
+  /* Notification */
+  request.removeMember ("id");
+  request["method"] = "release";
+  params.clear();
+  params["object"] = objId;
+
+  params["operationParams"] = operationParams;
+  request["params"] = params;
+
+  req_str = writer.write (request);
+  response_str.clear();
+
+  client->invokeJsonRpc (response_str, req_str);
+
+  BOOST_CHECK (response_str == "");
 }
 
 

@@ -92,7 +92,19 @@ Handler::process (const Json::Value &msg, Json::Value &_response)
 
     try {
       method (msg[JSON_RPC_PARAMS], response);
-      _response[JSON_RPC_RESULT] = response;
+
+      if (!msg.isMember (JSON_RPC_ID) || msg[JSON_RPC_ID] == Json::Value::null) {
+        if (response != Json::Value::null) {
+          throw JsonRpc::CallException (ErrorCode::SERVER_ERROR_INIT,
+                                        "Ignoring response because of a notification request",
+                                        response);
+        }
+
+        _response = Json::Value::null;
+      } else {
+        _response[JSON_RPC_RESULT] = response;
+      }
+
       return true;
     } catch (CallException &e) {
       Json::Value error;
@@ -157,13 +169,20 @@ Handler::process (const std::string &msg, std::string &_responseMsg)
       }
     }
 
-    _responseMsg = writer.write (response);
+    if (response != Json::Value::null) {
+      _responseMsg = writer.write (response);
+    }
+
     return true;
   } else {
     bool ret;
 
     ret = process (request, response);
-    _responseMsg = writer.write (response);
+
+    if (response != Json::Value::null) {
+      _responseMsg = writer.write (response);
+    }
+
     return ret;
   }
 }
