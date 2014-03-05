@@ -46,6 +46,7 @@ G_BEGIN_DECLS
     KmsHttpLoopClass                       \
   )                                        \
 )
+
 typedef struct _KmsHttpLoop KmsHttpLoop;
 typedef struct _KmsHttpLoopClass KmsHttpLoopClass;
 typedef struct _KmsHttpLoopPrivate KmsHttpLoopPrivate;
@@ -80,6 +81,11 @@ guint kms_http_loop_timeout_add_full (KmsHttpLoop *self, gint priority, guint in
   GSourceFunc function, gpointer data, GDestroyNotify notify);
 
 gboolean kms_http_loop_remove (KmsHttpLoop *self, guint source_id);
+
+#define KMS_HTTP_LOOP_IS_CURRENT_THREAD(loop) \
+  kms_http_loop_is_current_thread(loop)
+
+gboolean kms_http_loop_is_current_thread (KmsHttpLoop *self);
 
 G_END_DECLS
 #endif

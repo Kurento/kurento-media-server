@@ -1200,7 +1200,7 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
       g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
                    HTTPEPSERVER_UNEXPECTED_ERROR,
                    "No httpendpoint factory found");
-      goto end;
+      goto error;
     }
 
     http_t = gst_element_factory_get_element_type (http_f);
@@ -1210,7 +1210,7 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
                  HTTPEPSERVER_UNEXPECTED_ERROR,
                  "Element is not an httpendpoint");
-    goto end;
+    goto error;
   }
 
   tdata = g_slice_new (struct tmp_register_data);
@@ -1221,12 +1221,17 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
   tdata->notify = notify;
   tdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
 
-  kms_http_loop_idle_add_full (self->priv->loop, G_PRIORITY_HIGH_IDLE,
-                               (GSourceFunc) register_end_point_cb, tdata,
-                               (GDestroyNotify) destroy_tmp_register_data);
+  if (KMS_HTTP_LOOP_IS_CURRENT_THREAD (self->priv->loop) ) {
+    register_end_point_cb (tdata);
+    destroy_tmp_register_data (tdata);
+  } else
+    kms_http_loop_idle_add_full (self->priv->loop, G_PRIORITY_HIGH_IDLE,
+                                 (GSourceFunc) register_end_point_cb, tdata,
+                                 (GDestroyNotify) destroy_tmp_register_data);
+
   return;
 
-end:
+error:
 
   if (cb != NULL) {
     cb (self, NULL, gerr, user_data);

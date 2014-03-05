@@ -299,3 +299,9 @@ kms_http_loop_remove (KmsHttpLoop *self, guint source_id)
   g_source_destroy (source);
   return TRUE;
 }
+
+gboolean
+kms_http_loop_is_current_thread (KmsHttpLoop *self)
+{
+  return (g_thread_self() == self->priv->thread);
+}
