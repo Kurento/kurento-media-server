@@ -211,18 +211,18 @@ send_buffer_cb (gpointer data)
   if (msg == NULL || msg_has_finished (msg) ) {
     GST_WARNING ("Client has closed underlaying HTTP connection. "
                  "Buffer won't be sent");
-    return FALSE;
+    return G_SOURCE_REMOVE;
   }
 
   buffer = gst_sample_get_buffer (sdata->sample);
 
   if (buffer == NULL) {
-    return FALSE;
+    return G_SOURCE_REMOVE;
   }
 
   if (!gst_buffer_map (buffer, &info, GST_MAP_READ) ) {
     GST_WARNING ("Could not get buffer map");
-    return FALSE;
+    return G_SOURCE_REMOVE;
   }
 
   httpepserver = KMS_HTTP_EP_SERVER (g_object_get_data (G_OBJECT (msg),
@@ -231,9 +231,9 @@ send_buffer_cb (gpointer data)
   soup_message_body_append (msg->response_body, SOUP_MEMORY_COPY,
                             info.data, info.size);
   soup_server_unpause_message (httpepserver->priv->server, msg);
-
   gst_buffer_unmap (buffer, &info);
-  return FALSE;
+
+  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -291,7 +291,7 @@ get_recv_eos_cb (gpointer data)
 
   if (msg == NULL) {
     GST_WARNING ("Could not send EOS in %" GST_PTR_FORMAT, (gpointer) httpep);
-    return FALSE;
+    return G_SOURCE_REMOVE;
   }
 
   GST_DEBUG ("EOS received in %" GST_PTR_FORMAT, (gpointer) httpep);
@@ -304,7 +304,7 @@ get_recv_eos_cb (gpointer data)
          KEY_HTTP_EP_SERVER);
   g_signal_emit (G_OBJECT (serv), obj_signals[URL_EXPIRED], 0, path);
 
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -342,7 +342,7 @@ emit_expiration_signal_cb (gpointer user_data)
     kms_http_ep_server_remove_timeout (serv, httpep);
   }
 
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 static void
