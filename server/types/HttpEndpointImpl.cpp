@@ -86,6 +86,17 @@ session_terminated_adaptor_function (KmsHttpEPServer *server, const gchar *uri,
   (*handler) (uri);
 }
 
+static void
+register_end_point_adaptor_function (KmsHttpEPServer *self, const gchar *uri,
+                                     GError *err, gpointer data)
+{
+  auto handler =
+    reinterpret_cast<std::function<void (const gchar *uri, GError *err) >*>
+    (data);
+
+  (*handler) (uri, err);
+}
+
 struct MainLoopData {
   gpointer data;
   GSourceFunc func;
@@ -122,12 +133,19 @@ operate_in_main_loop_context (std::function<void () > &func)
 void
 HttpEndpointImpl::register_end_point ()
 {
-  std::function<void() > initEndPoint = [&] () {
-    std::string uri;
-    const gchar *url;
-    gchar *c_uri;
+  Glib::Mutex mutex;
+  Glib::Cond cond;
+  bool done = FALSE;
+
+  std::function <void (const gchar *, GError *err) > aux = [&] (const gchar * uri,
+  GError * err) {
     gchar *addr;
     guint port;
+
+    if (err != NULL) {
+      GST_ERROR ("Can not register end point: %s", err->message);
+      goto do_signal;
+    }
 
     actionRequestedHandlerId = g_signal_connect (httpepserver,
                                "action-requested",
@@ -140,29 +158,29 @@ HttpEndpointImpl::register_end_point ()
                                             G_CALLBACK (session_terminated_adaptor_function),
                                             &sessionTerminatedLambda);
 
-    url = kms_http_ep_server_register_end_point (httpepserver, element,
-          disconnectionTimeout);
-
-    if (url == NULL) {
-      return;
-    }
-
     g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port",
-                  &port,
-                  NULL);
-    c_uri = g_strdup_printf ("http://%s:%d%s", addr, port, url);
-    uri = c_uri;
+                  &port, NULL);
 
-    g_free (addr);
-    g_free (c_uri);
-
-    this->url = uri;
+    url = g_strdup_printf ("http://%s:%d%s", addr, port, uri);
     urlSet = true;
 
-    return;
+do_signal:
+    mutex.lock ();
+    done = TRUE;
+    cond.signal();
+    mutex.unlock ();
   };
 
-  operate_in_main_loop_context (initEndPoint);
+  kms_http_ep_server_register_end_point (httpepserver, element,
+                                         disconnectionTimeout, register_end_point_adaptor_function,
+                                         &aux, NULL);
+  mutex.lock ();
+
+  while (!done) {
+    cond.wait (mutex);
+  }
+
+  mutex.unlock ();
 }
 
 bool

@@ -108,6 +108,15 @@ struct tmp_data {
   KmsHttpEPServer *server;
 };
 
+struct tmp_register_data {
+  KmsHttpEPRegisterCallback function;
+  gpointer data;
+  GDestroyNotify notify;
+  GstElement *endpoint;
+  guint timeout;
+  KmsHttpEPServer *server;
+};
+
 struct sample_data {
   GstElement *httpep;
   GstSample *sample;
@@ -705,6 +714,24 @@ kms_http_ep_server_remove_handlers (KmsHttpEPServer *self)
 }
 
 static void
+destroy_tmp_register_data (struct tmp_register_data *tdata)
+{
+  if (tdata->notify != NULL) {
+    tdata->notify (tdata->data);
+  }
+
+  if (tdata->endpoint != NULL) {
+    gst_object_unref (tdata->endpoint);
+  }
+
+  if (tdata->server != NULL) {
+    g_object_unref (tdata->server);
+  }
+
+  g_slice_free (struct tmp_register_data, tdata);
+}
+
+static void
 destroy_tmp_data (struct tmp_data *tdata)
 {
   if (tdata->server != NULL) {
@@ -1067,8 +1094,10 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
     break;
   }
 
-  if (tdata->cb != NULL)
+  if (tdata->cb != NULL) {
     tdata->cb (tdata->server, gerr, tdata->data);
+  }
+
   g_clear_error (&gerr);
   destroy_tmp_data (tdata);
 }
@@ -1117,13 +1146,49 @@ add_guint_param (GstElement *httpep, const gchar *name, guint val)
                           (GDestroyNotify) destroy_guint);
 }
 
-static const gchar *
-kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
-    GstElement *endpoint, guint timeout)
+static gboolean
+register_end_point_cb (struct tmp_register_data *tdata)
 {
-  gchar *url;
-  uuid_t uuid;
+  GError *gerr = NULL;
   gchar *uuid_str;
+  gchar *uri;
+  uuid_t uuid;
+
+  uuid_str = (gchar *) g_malloc (UUID_STR_SIZE);
+  uuid_generate (uuid);
+  uuid_unparse (uuid, uuid_str);
+
+  /* Create URI from uuid string and add it to list of handlers */
+  uri = g_strdup_printf ("/%s", uuid_str);
+  g_free (uuid_str);
+
+  if (!kms_http_ep_server_register_handler (tdata->server, uri,
+      tdata->endpoint) ) {
+    g_free (uri);
+    uri = NULL;
+    g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+                 HTTPEPSERVER_UNEXPECTED_ERROR,
+                 "Could not register httpendpoint");
+  } else {
+    add_guint_param (tdata->endpoint, KEY_PARAM_TIMEOUT, tdata->timeout);
+  }
+
+  if (tdata->function != NULL) {
+    tdata->function (tdata->server, uri, gerr, tdata->data);
+  }
+
+  g_clear_error (&gerr);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
+    GstElement *endpoint, guint timeout, KmsHttpEPRegisterCallback cb,
+    gpointer user_data, GDestroyNotify notify)
+{
+  struct tmp_register_data *tdata;
+  GError *gerr = NULL;
 
   /* Check whether this is really an httpendpoint element */
   if (http_t == G_TYPE_INVALID) {
@@ -1132,35 +1197,46 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
     http_f = gst_element_factory_find ("httpendpoint");
 
     if (http_f == NULL) {
-      GST_ERROR ("No httpendpoint factory found");
-      return NULL;
+      g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+                   HTTPEPSERVER_UNEXPECTED_ERROR,
+                   "No httpendpoint factory found");
+      goto end;
     }
 
     http_t = gst_element_factory_get_element_type (http_f);
   }
 
   if (!KMS_IS_EXPECTED_TYPE (endpoint, http_t) ) {
-    GST_ERROR ("Element %s is not an httpendpoint",
-               GST_ELEMENT_NAME (endpoint) );
-    return NULL;
+    g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+                 HTTPEPSERVER_UNEXPECTED_ERROR,
+                 "Element is not an httpendpoint");
+    goto end;
   }
 
-  uuid_str = (gchar *) g_malloc (UUID_STR_SIZE);
-  uuid_generate (uuid);
-  uuid_unparse (uuid, uuid_str);
+  tdata = g_slice_new (struct tmp_register_data);
+  tdata->endpoint = GST_ELEMENT ( gst_object_ref (endpoint) );
+  tdata->timeout = timeout;
+  tdata->function = cb;
+  tdata->data = user_data;
+  tdata->notify = notify;
+  tdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
 
-  /* Create URL from uuid string and add it to list of handlers */
-  url = g_strdup_printf ("/%s", uuid_str);
-  g_free (uuid_str);
+  kms_http_loop_idle_add_full (self->priv->loop, G_PRIORITY_HIGH_IDLE,
+                               (GSourceFunc) register_end_point_cb, tdata,
+                               (GDestroyNotify) destroy_tmp_register_data);
+  return;
 
-  if (!kms_http_ep_server_register_handler (self, url, endpoint) ) {
-    g_free (url);
-    return NULL;
+end:
+
+  if (cb != NULL) {
+    cb (self, NULL, gerr, user_data);
   }
 
-  add_guint_param (endpoint, KEY_PARAM_TIMEOUT, timeout);
+  if (notify != NULL) {
+    notify (user_data);
+  }
 
-  return url;
+  g_clear_error (&gerr);
 }
 
 static gboolean
@@ -1443,14 +1519,17 @@ kms_http_ep_server_stop (KmsHttpEPServer *self,
   KMS_HTTP_EP_SERVER_GET_CLASS (self)->stop (self, stop_cb, user_data, notify);
 }
 
-const gchar *
+void
 kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
-                                       GstElement *endpoint, guint timeout)
+                                       GstElement *endpoint, guint timeout,
+                                       KmsHttpEPRegisterCallback cb,
+                                       gpointer user_data,
+                                       GDestroyNotify notify)
 {
-  g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), NULL);
+  g_return_if_fail (KMS_IS_HTTP_EP_SERVER (self) );
 
   return KMS_HTTP_EP_SERVER_GET_CLASS (self)->register_end_point (self,
-         endpoint, timeout);
+         endpoint, timeout, cb, user_data, notify);
 }
 
 gboolean
