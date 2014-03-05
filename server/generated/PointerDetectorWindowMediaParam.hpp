@@ -111,19 +111,6 @@ public:
     return _isSetImage;
   };
 
-  void setInactiveImage (std::string inactiveImage) {
-    this->inactiveImage = inactiveImage;
-    _isSetInactiveImage = true;
-  };
-
-  const std::string& getInactiveImage () {
-    return inactiveImage;
-  };
-
-  bool isSetInactiveImage () {
-    return _isSetInactiveImage;
-  };
-
 private:
   std::string id;
   int height;
@@ -136,8 +123,6 @@ private:
   bool _isSetImageTransparency = false;
   std::string image;
   bool _isSetImage = false;
-  std::string inactiveImage;
-  bool _isSetInactiveImage = false;
 
   PointerDetectorWindowMediaParam() {};
 

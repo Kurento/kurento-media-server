@@ -99,4 +99,8 @@ Serialize(std::shared_ptr<kurento::WindowParam>& object, JsonSerializer& s)
     s.Serialize("height", object->height);
   }
 
+  if (!s.IsWriter) {
+
+  }
+
 }

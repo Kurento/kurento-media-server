@@ -52,9 +52,9 @@ get_structure_from_window (std::shared_ptr<PointerDetectorWindowMediaParam>
                        "id", G_TYPE_STRING, window->getId().c_str(),
                        NULL);
 
-  if (window->isSetInactiveImage() ) {
+  if (window->isSetImage() ) {
     gst_structure_set (buttonsLayoutAux, "inactive_uri",
-                       G_TYPE_STRING, window->getInactiveImage().c_str(), NULL);
+                       G_TYPE_STRING, window->getImage().c_str(), NULL);
   }
 
   if (window->isSetImageTransparency() ) {
@@ -62,9 +62,9 @@ get_structure_from_window (std::shared_ptr<PointerDetectorWindowMediaParam>
                        G_TYPE_DOUBLE, double (window->getImageTransparency() ), NULL);
   }
 
-  if (window->isSetImage() ) {
+  if (window->isSetActiveImage() ) {
     gst_structure_set (buttonsLayoutAux, "active_uri",
-                       G_TYPE_STRING, window->getImage().c_str(), NULL);
+                       G_TYPE_STRING, window->getActiveImage().c_str(), NULL);
   }
 
   return buttonsLayoutAux;

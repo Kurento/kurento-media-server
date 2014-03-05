@@ -110,6 +110,7 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
     }
 
     activeImage = aux.asString ();
+    _isSetActiveImage = true;
   }
 
   if (value.isMember ("imageTransparency")) {
@@ -123,6 +124,7 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
     }
 
     imageTransparency = aux.asDouble ();
+    _isSetImageTransparency = true;
   }
 
   if (value.isMember ("image")) {
@@ -136,19 +138,7 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
     }
 
     image = aux.asString ();
-  }
-
-  if (value.isMember ("inactiveImage")) {
-    aux = value["inactiveImage"];
-
-    if (!aux.isString ()) {
-      /* param 'inactiveImage' has invalid type value, raise exception */
-      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                "'inactiveImage' parameter should be a string");
-      throw e;
-    }
-
-    inactiveImage = aux.asString ();
+    _isSetImage = true;
   }
 
 }
@@ -171,7 +161,22 @@ Serialize(std::shared_ptr<kurento::PointerDetectorWindowMediaParam>& object, Jso
     s.Serialize("activeImage", object->activeImage);
     s.Serialize("imageTransparency", object->imageTransparency);
     s.Serialize("image", object->image);
-    s.Serialize("inactiveImage", object->inactiveImage);
+  }
+
+  if (!s.IsWriter) {
+
+    if (s.JsonValue.isMember("activeImage")) {
+      object->_isSetActiveImage = true;
+    }
+
+    if (s.JsonValue.isMember("imageTransparency")) {
+      object->_isSetImageTransparency = true;
+    }
+
+    if (s.JsonValue.isMember("image")) {
+      object->_isSetImage = true;
+    }
+
   }
 
 }
