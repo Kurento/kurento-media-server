@@ -456,7 +456,7 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
 }
 
 static void
-http_server_start_cb (KmsHttpEPServer *self, GError *err)
+http_server_start_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
 {
   if (err != NULL) {
     GST_ERROR ("Http server could not start. Reason: %s", err->message);
@@ -472,7 +472,7 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err)
 }
 
 static void
-http_server_stop_cb (KmsHttpEPServer *self, GError *err)
+http_server_stop_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
 {
   if (err != NULL) {
     GST_ERROR ("Http server could not be stopped. Reason: %s", err->message);
@@ -566,12 +566,12 @@ main (int argc, char **argv)
                    httpEPServerAnnouncedAddress.c_str (),
                    NULL);
 
-  kms_http_ep_server_start (httpepserver, http_server_start_cb);
+  kms_http_ep_server_start (httpepserver, http_server_start_cb, NULL, NULL);
 
   loop->run ();
 
   /* Stop Http End Point Server and destroy it */
-  kms_http_ep_server_stop (httpepserver, http_server_stop_cb);
+  kms_http_ep_server_stop (httpepserver, http_server_stop_cb, NULL, NULL);
 
   /* TODO: Improve this to with a more sophisticated method to start
    * and stop services. */

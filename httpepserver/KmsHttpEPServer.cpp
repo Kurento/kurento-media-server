@@ -103,6 +103,8 @@ static guint obj_signals[LAST_SIGNAL] = { 0 };
 
 struct tmp_data {
   KmsHttpEPServerNotifyCallback cb;
+  GDestroyNotify notify;
+  gpointer data;
   KmsHttpEPServer *server;
 };
 
@@ -709,6 +711,10 @@ destroy_tmp_data (struct tmp_data *tdata)
     g_object_unref (tdata->server);
   }
 
+  if (tdata->notify != NULL) {
+    tdata->notify (tdata->data);
+  }
+
   g_slice_free (struct tmp_data, tdata);
 }
 
@@ -731,8 +737,8 @@ stop_http_ep_server_cb (struct tmp_data *tdata)
 
 end:
 
-  if (tdata->cb) {
-    tdata->cb (tdata->server, gerr);
+  if (tdata->cb != NULL) {
+    tdata->cb (tdata->server, gerr, tdata->data);
   }
 
   if (gerr != NULL) {
@@ -744,12 +750,15 @@ end:
 
 static void
 kms_http_ep_server_stop_impl (KmsHttpEPServer *self,
-                              KmsHttpEPServerNotifyCallback stop_cb)
+                              KmsHttpEPServerNotifyCallback stop_cb,
+                              gpointer user_data, GDestroyNotify notify)
 {
   struct tmp_data *tdata;
 
   tdata = g_slice_new (struct tmp_data);
   tdata->cb = stop_cb;
+  tdata->notify = notify;
+  tdata->data = user_data;
   tdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
 
   kms_http_loop_idle_add_full (self->priv->loop, G_PRIORITY_HIGH_IDLE,
@@ -1030,13 +1039,13 @@ kms_http_ep_server_create_server (KmsHttpEPServer *self, SoupAddress *addr)
 static void
 soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
 {
-  struct tmp_data *rdata = (struct tmp_data *) user_data;
+  struct tmp_data *tdata = (struct tmp_data *) user_data;
   GError *gerr = NULL;
 
   switch (status) {
   case SOUP_STATUS_OK:
     GST_DEBUG ("Domain name resolved");
-    kms_http_ep_server_create_server (rdata->server, addr);
+    kms_http_ep_server_create_server (tdata->server, addr);
     break;
 
   case SOUP_STATUS_CANCELLED:
@@ -1058,22 +1067,18 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
     break;
   }
 
-  rdata->cb (rdata->server, gerr);
-
-  g_object_unref (rdata->server);
-
-  if (gerr != NULL) {
-    g_error_free (gerr);
-  }
-
-  g_slice_free (struct tmp_data, rdata);
+  if (tdata->cb != NULL)
+    tdata->cb (tdata->server, gerr, tdata->data);
+  g_clear_error (&gerr);
+  destroy_tmp_data (tdata);
 }
 
 static void
 kms_http_ep_server_start_impl (KmsHttpEPServer *self,
-                               KmsHttpEPServerNotifyCallback start_cb)
+                               KmsHttpEPServerNotifyCallback start_cb,
+                               gpointer user_data, GDestroyNotify notify)
 {
-  struct tmp_data *rdata;
+  struct tmp_data *tdata;
   SoupAddress *addr = NULL;
 
   if (self->priv->server != NULL) {
@@ -1083,20 +1088,22 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
 
   if (self->priv->iface == NULL) {
     kms_http_ep_server_create_server (self, NULL);
-    start_cb (self, NULL);
+    start_cb (self, NULL, user_data);
     return;
   }
 
-  rdata = g_slice_new (struct tmp_data);
-  rdata->cb = start_cb;
-  rdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
+  tdata = g_slice_new (struct tmp_data);
+  tdata->cb = start_cb;
+  tdata->notify = notify;
+  tdata->data = user_data;
+  tdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
 
   addr = soup_address_new (self->priv->iface, self->priv->port);
 
   soup_address_resolve_async (addr, NULL,
                               NULL /* FIXME: Add cancellable support */,
                               (SoupAddressCallback) soup_address_callback,
-                              rdata);
+                              tdata);
 }
 
 static void
@@ -1418,20 +1425,22 @@ kms_http_ep_server_new (const char *optname1, ...)
 
 void
 kms_http_ep_server_start (KmsHttpEPServer *self,
-                          KmsHttpEPServerNotifyCallback start_cb)
+                          KmsHttpEPServerNotifyCallback start_cb,
+                          gpointer user_data, GDestroyNotify notify)
 {
   g_return_if_fail (KMS_IS_HTTP_EP_SERVER (self) );
 
-  KMS_HTTP_EP_SERVER_GET_CLASS (self)->start (self, start_cb);
+  KMS_HTTP_EP_SERVER_GET_CLASS (self)->start (self, start_cb, user_data, notify);
 }
 
 void
 kms_http_ep_server_stop (KmsHttpEPServer *self,
-                         KmsHttpEPServerNotifyCallback stop_cb)
+                         KmsHttpEPServerNotifyCallback stop_cb,
+                         gpointer user_data, GDestroyNotify notify)
 {
   g_return_if_fail (KMS_IS_HTTP_EP_SERVER (self) );
 
-  KMS_HTTP_EP_SERVER_GET_CLASS (self)->stop (self, stop_cb);
+  KMS_HTTP_EP_SERVER_GET_CLASS (self)->stop (self, stop_cb, user_data, notify);
 }
 
 const gchar *

@@ -81,7 +81,7 @@ typedef struct _KmsHttpEPServerClass KmsHttpEPServerClass;
 typedef struct _KmsHttpEPServerPrivate KmsHttpEPServerPrivate;
 
 typedef void (*KmsHttpEPServerNotifyCallback) (KmsHttpEPServer * self,
-    GError * err);
+    GError * err, gpointer user_data);
 
 struct _KmsHttpEPServer
 {
@@ -98,8 +98,10 @@ struct _KmsHttpEPServerClass
   GObjectClass parent_class;
 
   /* public virtual methods */
-  void (*start) (KmsHttpEPServer * self, KmsHttpEPServerNotifyCallback);
-  void (*stop) (KmsHttpEPServer * self, KmsHttpEPServerNotifyCallback);
+  void (*start) (KmsHttpEPServer * self, KmsHttpEPServerNotifyCallback cb,
+    gpointer user_data, GDestroyNotify notify);
+  void (*stop) (KmsHttpEPServer * self, KmsHttpEPServerNotifyCallback cb,
+    gpointer user_data, GDestroyNotify notify);
   const gchar *(*register_end_point) (KmsHttpEPServer * self,
       GstElement * endpoint, guint timeout);
   gboolean (*unregister_end_point) (KmsHttpEPServer * self, const gchar *);
@@ -117,9 +119,11 @@ GType kms_http_ep_server_get_type (void);
 /* Virtual public methods */
 KmsHttpEPServer *kms_http_ep_server_new (const char *optname1, ...);
 void kms_http_ep_server_start (KmsHttpEPServer * self,
-    KmsHttpEPServerNotifyCallback start_cb);
+    KmsHttpEPServerNotifyCallback start_cb, gpointer user_data,
+    GDestroyNotify notify);
 void kms_http_ep_server_stop (KmsHttpEPServer * self,
-    KmsHttpEPServerNotifyCallback stop_cb);
+    KmsHttpEPServerNotifyCallback stop_cb, gpointer user_data,
+    GDestroyNotify notify);
 const gchar *kms_http_ep_server_register_end_point (KmsHttpEPServer * self,
     GstElement * endpoint, guint timeout);
 gboolean kms_http_ep_server_unregister_end_point (KmsHttpEPServer * self,
