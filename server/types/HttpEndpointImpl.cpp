@@ -45,7 +45,7 @@ getUriFromUrl (std::string url)
   /* skip first 7 characters in the url regarding the protocol "http://" */
   if (url.size() < 7) {
     GST_ERROR ("Invalid URL %s", url.c_str() );
-    return NULL;
+    return "";
   }
 
   for ( guint i = 7; i < url.size(); i++) {
@@ -266,9 +266,17 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
 HttpEndpointImpl::~HttpEndpointImpl()
 {
   std::function <void() > aux = [&] () {
-    g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
-    g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
-    g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+    if (actionRequestedHandlerId > 0) {
+      g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
+    }
+
+    if (urlExpiredHandlerId > 0) {
+      g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
+    }
+
+    if (urlRemovedHandlerId > 0) {
+      g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+    }
 
     std::string uri = getUriFromUrl (url);
 
