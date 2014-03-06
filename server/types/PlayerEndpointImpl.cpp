@@ -65,7 +65,7 @@ PlayerEndpointImpl::PlayerEndpointImpl (bool useEncodedMedia,
   };
 
   signalEOS = g_signal_connect (element, "eos", G_CALLBACK (adaptor_function),
-                                  &eosLambda);
+                                &eosLambda);
   signalInvalidURI = g_signal_connect (element, "invalid-uri",
                                        G_CALLBACK (adaptor_function),
                                        &invalidUriLambda);
