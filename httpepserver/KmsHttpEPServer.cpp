@@ -117,6 +117,14 @@ struct tmp_register_data {
   KmsHttpEPServer *server;
 };
 
+struct tmp_unregister_data {
+  KmsHttpEPServerNotifyCallback cb;
+  GDestroyNotify notify;
+  gpointer data;
+  gchar *uri;
+  KmsHttpEPServer *server;
+};
+
 struct sample_data {
   GstElement *httpep;
   GstSample *sample;
@@ -714,6 +722,22 @@ kms_http_ep_server_remove_handlers (KmsHttpEPServer *self)
 }
 
 static void
+destroy_tmp_unregister_data (struct tmp_unregister_data *tdata)
+{
+  if (tdata->server != NULL) {
+    g_object_unref (tdata->server);
+  }
+
+  if (tdata->notify != NULL) {
+    tdata->notify (tdata->data);
+  }
+
+  g_free (tdata->uri);
+
+  g_slice_free (struct tmp_unregister_data, tdata);
+}
+
+static void
 destroy_tmp_register_data (struct tmp_register_data *tdata)
 {
   if (tdata->notify != NULL) {
@@ -1245,34 +1269,80 @@ error:
 }
 
 static gboolean
-kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
-    const gchar *uri)
+unregister_end_point_cb (struct tmp_unregister_data *tdata)
 {
   GstElement *httpep;
+  GError *gerr = NULL;
 
-  GST_DEBUG ("Unregister uri: %s", uri);
+  GST_DEBUG ("Unregister uri: %s", tdata->uri);
 
-  if (self->priv->handlers == NULL) {
-    return FALSE;
+  if (tdata->server->priv->handlers == NULL) {
+    g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+                 HTTPEPSERVER_UNEXPECTED_ERROR,
+                 "handlers list is NULL");
+    goto error;
   }
 
-  if (!g_hash_table_contains (self->priv->handlers, uri) ) {
-    GST_DEBUG ("Uri %s is not registered", uri);
-    return FALSE;
+  if (!g_hash_table_contains (tdata->server->priv->handlers, tdata->uri) ) {
+    g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
+                 HTTPEPSERVER_UNEXPECTED_ERROR,
+                 "uri not registered");
+    goto error;
   }
 
-  httpep = (GstElement *) g_hash_table_lookup (self->priv->handlers, uri);
+  httpep = (GstElement *) g_hash_table_lookup (tdata->server->priv->handlers,
+           tdata->uri);
   uninstall_http_get_signals (httpep);
   uninstall_http_post_signals (httpep);
 
-  kms_http_ep_server_remove_timeout (self, httpep);
+  kms_http_ep_server_remove_timeout (tdata->server, httpep);
 
   /* Cancel current transtacion */
   g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE, NULL, NULL);
 
-  g_hash_table_remove (self->priv->handlers, uri);
-  emit_removed_url_signal ( (gpointer) uri, self);
-  return TRUE;
+  g_hash_table_remove (tdata->server->priv->handlers, tdata->uri);
+
+  if (tdata->cb != NULL) {
+    tdata->cb (tdata->server, gerr, tdata->data);
+  }
+
+  emit_removed_url_signal ( (gpointer) tdata->uri, tdata->server);
+
+  return G_SOURCE_REMOVE;
+
+error:
+
+  if (tdata->cb != NULL) {
+    tdata->cb (tdata->server, gerr, tdata->data);
+  }
+
+  g_clear_error (&gerr);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+kms_http_ep_server_unregister_end_point_impl (KmsHttpEPServer *self,
+    const gchar *uri, KmsHttpEPServerNotifyCallback cb, gpointer user_data,
+    GDestroyNotify notify)
+{
+  struct tmp_unregister_data *tdata;
+
+  tdata = g_slice_new (struct tmp_unregister_data);
+  tdata->cb = cb;
+  tdata->data = user_data;
+  tdata->notify = notify;
+  tdata->uri = g_strdup (uri);
+  tdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
+
+  if (KMS_HTTP_LOOP_IS_CURRENT_THREAD (self->priv->loop) ) {
+    unregister_end_point_cb (tdata);
+    destroy_tmp_unregister_data (tdata);
+  } else {
+    kms_http_loop_idle_add_full (self->priv->loop, G_PRIORITY_HIGH_IDLE,
+                                 (GSourceFunc) unregister_end_point_cb, tdata,
+                                 (GDestroyNotify) destroy_tmp_unregister_data);
+  }
 }
 
 static void
@@ -1537,11 +1607,13 @@ kms_http_ep_server_register_end_point (KmsHttpEPServer *self,
          endpoint, timeout, cb, user_data, notify);
 }
 
-gboolean
+void
 kms_http_ep_server_unregister_end_point (KmsHttpEPServer *self,
-    const gchar *uri)
+    const gchar *uri, KmsHttpEPServerNotifyCallback cb, gpointer user_data,
+    GDestroyNotify notify)
 {
-  g_return_val_if_fail (KMS_IS_HTTP_EP_SERVER (self), FALSE);
+  g_return_if_fail (KMS_IS_HTTP_EP_SERVER (self) );
 
-  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->unregister_end_point (self, uri);
+  return KMS_HTTP_EP_SERVER_GET_CLASS (self)->unregister_end_point (self, uri,
+         cb, user_data, notify);
 }

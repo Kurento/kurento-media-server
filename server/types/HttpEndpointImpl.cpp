@@ -97,37 +97,12 @@ register_end_point_adaptor_function (KmsHttpEPServer *self, const gchar *uri,
   (*handler) (uri, err);
 }
 
-struct MainLoopData {
-  gpointer data;
-  GSourceFunc func;
-  GDestroyNotify destroy;
-  Glib::Mutex *mutex;
-};
-
-static gboolean
-main_loop_wrapper_func (gpointer data)
-{
-  auto func = reinterpret_cast<std::function<void() >*> (data);
-
-  (*func) ();
-
-  return G_SOURCE_REMOVE;
-}
-
 static void
-operate_in_main_loop_context (std::function<void () > &func)
+unregister_end_point_adaptor_function (KmsHttpEPServer *self, GError *err,
+                                       gpointer data)
 {
-  Glib::Mutex mutex;
-
-  std::function <void () > handler = [&] () {
-    func ();
-    mutex.unlock();
-  };
-
-  mutex.lock ();
-  g_idle_add_full (G_PRIORITY_HIGH_IDLE, main_loop_wrapper_func, &handler,
-                   NULL);
-  mutex.lock ();
+  auto handler = reinterpret_cast<std::function<void (GError *err) >*> (data);
+  (*handler) (err);
 }
 
 void
@@ -252,6 +227,24 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
 
     GST_DEBUG ("Session terminated URI %s", uriStr.c_str() );
 
+    if (actionRequestedHandlerId > 0) {
+      g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
+      actionRequestedHandlerId = 0;
+    }
+
+    if (urlExpiredHandlerId > 0) {
+      g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
+      urlExpiredHandlerId = 0;
+    }
+
+    if (urlRemovedHandlerId > 0) {
+      g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+      urlRemovedHandlerId = 0;
+    }
+
+    url = "";
+    urlSet = false;
+
     if (!g_atomic_int_compare_and_exchange (& (sessionStarted), 1, 0) ) {
       return;
     }
@@ -265,27 +258,48 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
 
 HttpEndpointImpl::~HttpEndpointImpl()
 {
-  std::function <void() > aux = [&] () {
-    if (actionRequestedHandlerId > 0) {
-      g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
+  if (actionRequestedHandlerId > 0) {
+    g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
+  }
+
+  if (urlExpiredHandlerId > 0) {
+    g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
+  }
+
+  if (urlRemovedHandlerId > 0) {
+    g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+  }
+
+  if (!urlSet) {
+    return;
+  }
+
+  std::string uri = getUriFromUrl (url);
+  Glib::Cond cond;
+  Glib::Mutex mutex;
+  bool finish = FALSE;
+
+  std::function <void (GError *err) > aux = [&] (GError * err) {
+    if (err != NULL) {
+      GST_ERROR ("Could not unregister uri %s: %s", uri.c_str(), err->message);
     }
 
-    if (urlExpiredHandlerId > 0) {
-      g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
-    }
-
-    if (urlRemovedHandlerId > 0) {
-      g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
-    }
-
-    std::string uri = getUriFromUrl (url);
-
-    if (!uri.empty() ) {
-      kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str() );
-    }
+    mutex.lock ();
+    finish = TRUE;
+    cond.signal();
+    mutex.unlock ();
   };
 
-  operate_in_main_loop_context (aux);
+  kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str(),
+      unregister_end_point_adaptor_function, &aux, NULL);
+
+  mutex.lock ();
+
+  while (!finish) {
+    cond.wait (mutex);
+  }
+
+  mutex.unlock ();
 }
 
 std::string
