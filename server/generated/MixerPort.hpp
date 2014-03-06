@@ -12,7 +12,7 @@
 
 namespace kurento {
 
-class MediaMixer;
+class Hub;
 
 class MixerPort : public virtual MediaElement {
 
@@ -37,7 +37,7 @@ public:
 
   private:
 
-    std::shared_ptr<MediaObject> createObject (std::shared_ptr<MediaMixer> mediaMixer, int garbagePeriod);
+    std::shared_ptr<MediaObject> createObject (std::shared_ptr<Hub> hub, int garbagePeriod);
 
     class StaticConstructor
     {

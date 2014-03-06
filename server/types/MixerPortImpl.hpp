@@ -17,7 +17,7 @@
 #define __MIXER_PORT_IMPL_HPP__
 
 #include "MediaElementImpl.hpp"
-#include "MediaMixerImpl.hpp"
+#include "HubImpl.hpp"
 #include <generated/MixerPort.hpp>
 
 namespace kurento
@@ -34,7 +34,7 @@ public:
   }
 
 private:
-  std::shared_ptr<MediaMixerImpl> mixer;
+  std::shared_ptr<HubImpl> mixer;
   int handlerId;
 
   class StaticConstructor

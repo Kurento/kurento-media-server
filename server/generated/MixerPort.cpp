@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "MediaMixer.hpp"
+#include "Hub.hpp"
 #include "MixerPort.hpp"
 #include <JsonSerializer.hpp>
 
@@ -10,18 +10,18 @@ namespace kurento {
 
 std::shared_ptr<MediaObject> MixerPort::Factory::createObject (const Json::Value &params)
 {
-  std::shared_ptr<MediaMixer> mediaMixer;
+  std::shared_ptr<Hub> hub;
   int garbagePeriod = 0;
 
-  if (!params.isMember ("mediaMixer")) {
-    /* param 'mediaMixer' not present, raise exception */
+  if (!params.isMember ("hub")) {
+    /* param 'hub' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'mediaMixer' parameter is requiered");
+                              "'hub' parameter is requiered");
     throw e;
   } else {
     JsonSerializer s(false);
     s.JsonValue = params;
-    s.SerializeNVP(mediaMixer);
+    s.SerializeNVP(hub);
   }
 
   if (!params.isMember ("garbagePeriod")) {
@@ -33,7 +33,7 @@ std::shared_ptr<MediaObject> MixerPort::Factory::createObject (const Json::Value
     s.SerializeNVP(garbagePeriod);
   }
 
-  return createObject (mediaMixer, garbagePeriod);
+  return createObject (hub, garbagePeriod);
 }
 
 MixerPort::Factory::StaticConstructor MixerPort::Factory::staticConstructor;

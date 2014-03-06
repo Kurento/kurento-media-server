@@ -13,30 +13,25 @@
  *
  */
 
-#ifndef __MEDIA_MIXER_IMPL_HPP__
-#define __MEDIA_MIXER_IMPL_HPP__
+#ifndef __DISPATCHER_IMPL_HPP__
+#define __DISPATCHER_IMPL_HPP__
 
-#include "MediaObjectImpl.hpp"
-#include <gst/gst.h>
-#include <generated/MediaMixer.hpp>
+#include "HubImpl.hpp"
+#include <generated/Dispatcher.hpp>
 
 namespace kurento
 {
 
-class MediaMixerImpl : public virtual MediaMixer, public MediaObjectImpl,
-  public std::enable_shared_from_this<MediaMixerImpl>
+class DispatcherImpl : public virtual Dispatcher,
+  public HubImpl
 {
 public:
-  MediaMixerImpl (const std::string &factoryName,
-                  std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
-  virtual ~MediaMixerImpl() throw ();
+  DispatcherImpl (std::shared_ptr<MediaObjectImpl> parent,
+                  int garbagePeriod);
+  virtual ~DispatcherImpl() throw () {};
 
-  GstElement *getGstreamerElement() {
-    return element;
-  };
-
-protected:
-  GstElement *element;
+  virtual void setSource (std::shared_ptr<MixerPort> source);
+  virtual void removeSource ();
 
 private:
 
@@ -51,4 +46,4 @@ private:
 
 } /* kurento */
 
-#endif /* __MEDIA_MIXER_IMPL_HPP__ */
+#endif /* __DISPATCHER_IMPL_HPP__ */

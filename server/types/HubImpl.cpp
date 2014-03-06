@@ -13,19 +13,19 @@
  *
  */
 
-#include "MediaMixerImpl.hpp"
+#include "HubImpl.hpp"
 #include "MediaPipelineImpl.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_mixer_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoMediaMixerImpl"
+#define GST_DEFAULT_NAME "KurentoHubImpl"
 
 namespace kurento
 {
 
-MediaMixerImpl::MediaMixerImpl (const std::string &factoryName,
-                                std::shared_ptr<MediaObjectImpl> parent,
-                                int garbagePeriod) :
+HubImpl::HubImpl (const std::string &factoryName,
+                  std::shared_ptr<MediaObjectImpl> parent,
+                  int garbagePeriod) :
   MediaObjectImpl (parent, garbagePeriod)
 {
   std::shared_ptr<MediaPipelineImpl> pipe;
@@ -39,7 +39,7 @@ MediaMixerImpl::MediaMixerImpl (const std::string &factoryName,
   gst_element_sync_state_with_parent (element);
 }
 
-MediaMixerImpl::~MediaMixerImpl()
+HubImpl::~HubImpl()
 {
   std::shared_ptr<MediaPipelineImpl> pipe;
 
@@ -50,9 +50,9 @@ MediaMixerImpl::~MediaMixerImpl()
   g_object_unref (element);
 }
 
-MediaMixerImpl::StaticConstructor MediaMixerImpl::staticConstructor;
+HubImpl::StaticConstructor HubImpl::staticConstructor;
 
-MediaMixerImpl::StaticConstructor::StaticConstructor()
+HubImpl::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);

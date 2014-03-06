@@ -3,14 +3,14 @@
 #include <memory>
 
 #include "MediaPipeline.hpp"
-#include "MediaMixer.hpp"
+#include "Hub.hpp"
 #include <JsonSerializer.hpp>
 
 namespace kurento {
 
 
 void
-MediaMixer::Invoker::invoke (std::shared_ptr<MediaObject> obj,
+Hub::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     const std::string &methodName, const Json::Value &params,
     Json::Value &response)
 {
@@ -18,7 +18,7 @@ MediaMixer::Invoker::invoke (std::shared_ptr<MediaObject> obj,
 }
 
 std::string
-MediaMixer::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
+Hub::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
 {
   return MediaObject::connect (eventType, handler);
 }
@@ -26,17 +26,17 @@ MediaMixer::connect(const std::string &eventType, std::shared_ptr<EventHandler> 
 } /* kurento */
 
 void
-Serialize(std::shared_ptr<kurento::MediaMixer> &object, JsonSerializer &serializer)
+Serialize(std::shared_ptr<kurento::Hub> &object, JsonSerializer &serializer)
 {
   if (!serializer.IsWriter) {
     try {
       std::shared_ptr<kurento::MediaObject> aux;
-      aux = kurento::MediaMixer::Factory::getObject (serializer.JsonValue.asString ());
-      object = std::dynamic_pointer_cast<kurento::MediaMixer> (aux);
+      aux = kurento::Hub::Factory::getObject (serializer.JsonValue.asString ());
+      object = std::dynamic_pointer_cast<kurento::Hub> (aux);
       return;
     } catch (kurento::JsonRpc::CallException &ex) {
       kurento::JsonRpc::CallException e (kurento::JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'MediaMixer' object not found: "+ ex.getMessage());
+                              "'Hub' object not found: "+ ex.getMessage());
       throw e;
     }
   }
@@ -47,7 +47,7 @@ Serialize(std::shared_ptr<kurento::MediaMixer> &object, JsonSerializer &serializ
 }
 
 void
-Serialize(kurento::MediaMixer &object, JsonSerializer &serializer)
+Serialize(kurento::Hub &object, JsonSerializer &serializer)
 {
   void Serialize(kurento::MediaObject &object, JsonSerializer &serializer);
   try {

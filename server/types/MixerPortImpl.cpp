@@ -28,7 +28,7 @@ MixerPortImpl::MixerPortImpl (std::shared_ptr< MediaObjectImpl > parent,
                               int garbagePeriod) :
   MediaElementImpl (FACTORY_NAME, parent, garbagePeriod)
 {
-  mixer = std::dynamic_pointer_cast<MediaMixerImpl> (parent);
+  mixer = std::dynamic_pointer_cast<HubImpl> (parent);
   g_signal_emit_by_name (mixer->getGstreamerElement(), "handle-port", element,
                          &handlerId);
 }
@@ -41,11 +41,11 @@ MixerPortImpl::~MixerPortImpl()
 
 
 std::shared_ptr<MediaObject>
-MixerPort::Factory::createObject (std::shared_ptr<MediaMixer> mediaMixer,
+MixerPort::Factory::createObject (std::shared_ptr<Hub> hub,
                                   int garbagePeriod)
 {
   std::shared_ptr<MediaObject> object (new MixerPortImpl (
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaMixer),
+                                         std::dynamic_pointer_cast<MediaObjectImpl> (hub),
                                          garbagePeriod) );
 
   return object;

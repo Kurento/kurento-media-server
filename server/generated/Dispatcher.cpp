@@ -4,12 +4,12 @@
 
 #include "MediaPipeline.hpp"
 #include "MixerPort.hpp"
-#include "DispatcherMixer.hpp"
+#include "Dispatcher.hpp"
 #include <JsonSerializer.hpp>
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> DispatcherMixer::Factory::createObject (const Json::Value &params)
+std::shared_ptr<MediaObject> Dispatcher::Factory::createObject (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   int garbagePeriod = 0;
@@ -37,19 +37,19 @@ std::shared_ptr<MediaObject> DispatcherMixer::Factory::createObject (const Json:
   return createObject (mediaPipeline, garbagePeriod);
 }
 
-DispatcherMixer::Factory::StaticConstructor DispatcherMixer::Factory::staticConstructor;
+Dispatcher::Factory::StaticConstructor Dispatcher::Factory::staticConstructor;
 
-DispatcherMixer::Factory::StaticConstructor::StaticConstructor()
+Dispatcher::Factory::StaticConstructor::StaticConstructor()
 {
   if (objectRegistrar) {
-    std::shared_ptr <Factory> factory (new DispatcherMixer::Factory());
+    std::shared_ptr <Factory> factory (new Dispatcher::Factory());
 
     objectRegistrar->registerFactory(factory);
   }
 }
 
 void
-DispatcherMixer::Invoker::invoke (std::shared_ptr<MediaObject> obj,
+Dispatcher::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     const std::string &methodName, const Json::Value &params,
     Json::Value &response)
 {
@@ -92,8 +92,8 @@ DispatcherMixer::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     }
 
     // TODO: Implement method setSource
-    std::shared_ptr<DispatcherMixer> finalObj;
-    finalObj = std::dynamic_pointer_cast<DispatcherMixer> (obj);
+    std::shared_ptr<Dispatcher> finalObj;
+    finalObj = std::dynamic_pointer_cast<Dispatcher> (obj);
     if (!finalObj) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "Object not found or has incorrect type");
@@ -108,8 +108,8 @@ DispatcherMixer::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     Json::Value aux;
 
     // TODO: Implement method removeSource
-    std::shared_ptr<DispatcherMixer> finalObj;
-    finalObj = std::dynamic_pointer_cast<DispatcherMixer> (obj);
+    std::shared_ptr<Dispatcher> finalObj;
+    finalObj = std::dynamic_pointer_cast<Dispatcher> (obj);
     if (!finalObj) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "Object not found or has incorrect type");
@@ -120,44 +120,44 @@ DispatcherMixer::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     return;
   }
 
-  MediaMixer::Invoker::invoke(obj, methodName, params, response);
+  Hub::Invoker::invoke(obj, methodName, params, response);
 }
 
 std::string
-DispatcherMixer::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
+Dispatcher::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
 {
-  return MediaMixer::connect (eventType, handler);
+  return Hub::connect (eventType, handler);
 }
 
 } /* kurento */
 
 void
-Serialize(std::shared_ptr<kurento::DispatcherMixer> &object, JsonSerializer &serializer)
+Serialize(std::shared_ptr<kurento::Dispatcher> &object, JsonSerializer &serializer)
 {
   if (!serializer.IsWriter) {
     try {
       std::shared_ptr<kurento::MediaObject> aux;
-      aux = kurento::DispatcherMixer::Factory::getObject (serializer.JsonValue.asString ());
-      object = std::dynamic_pointer_cast<kurento::DispatcherMixer> (aux);
+      aux = kurento::Dispatcher::Factory::getObject (serializer.JsonValue.asString ());
+      object = std::dynamic_pointer_cast<kurento::Dispatcher> (aux);
       return;
     } catch (kurento::JsonRpc::CallException &ex) {
       kurento::JsonRpc::CallException e (kurento::JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'DispatcherMixer' object not found: "+ ex.getMessage());
+                              "'Dispatcher' object not found: "+ ex.getMessage());
       throw e;
     }
   }
-  std::shared_ptr<kurento::MediaMixer> aux = std::dynamic_pointer_cast<kurento::MediaMixer> (object);
+  std::shared_ptr<kurento::Hub> aux = std::dynamic_pointer_cast<kurento::Hub> (object);
 
-  void Serialize(std::shared_ptr<kurento::MediaMixer> &object, JsonSerializer &serializer);
+  void Serialize(std::shared_ptr<kurento::Hub> &object, JsonSerializer &serializer);
   Serialize(aux, serializer);
 }
 
 void
-Serialize(kurento::DispatcherMixer &object, JsonSerializer &serializer)
+Serialize(kurento::Dispatcher &object, JsonSerializer &serializer)
 {
-  void Serialize(kurento::MediaMixer &object, JsonSerializer &serializer);
+  void Serialize(kurento::Hub &object, JsonSerializer &serializer);
   try {
-    Serialize(dynamic_cast<kurento::MediaMixer &> (object), serializer);
+    Serialize(dynamic_cast<kurento::Hub &> (object), serializer);
   } catch (std::bad_cast) {
   }
 }

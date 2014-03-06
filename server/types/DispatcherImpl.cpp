@@ -13,13 +13,13 @@
  *
  */
 
-#include "DispatcherMixerImpl.hpp"
+#include "DispatcherImpl.hpp"
 #include "MediaPipelineImpl.hpp"
 #include "MixerPortImpl.hpp"
 
 #define GST_CAT_DEFAULT kurento_dispatcher_mixer_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoDispatcherMixerImpl"
+#define GST_DEFAULT_NAME "KurentoDispatcherImpl"
 
 #define FACTORY_NAME "mainmixer"
 #define MAIN_END_POINT "main"
@@ -28,15 +28,15 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-DispatcherMixerImpl::DispatcherMixerImpl (
+DispatcherImpl::DispatcherImpl (
   std::shared_ptr<MediaObjectImpl> parent,
   int garbagePeriod) :
-  MediaMixerImpl (FACTORY_NAME, parent, garbagePeriod)
+  HubImpl (FACTORY_NAME, parent, garbagePeriod)
 {
 }
 
 void
-DispatcherMixerImpl::setSource (std::shared_ptr<MixerPort> source)
+DispatcherImpl::setSource (std::shared_ptr<MixerPort> source)
 {
   std::shared_ptr<MixerPortImpl> mixerPort =
     std::dynamic_pointer_cast<MixerPortImpl> (source);
@@ -46,24 +46,24 @@ DispatcherMixerImpl::setSource (std::shared_ptr<MixerPort> source)
 }
 
 void
-DispatcherMixerImpl::removeSource ()
+DispatcherImpl::removeSource ()
 {
   g_object_set (G_OBJECT (element), MAIN_END_POINT, MAIN_PORT_DEFAULT, NULL);
 }
 
 std::shared_ptr<MediaObject>
-DispatcherMixer::Factory::createObject (std::shared_ptr<MediaPipeline> parent,
-                                        int garbagePeriod)
+Dispatcher::Factory::createObject (std::shared_ptr<MediaPipeline> parent,
+                                   int garbagePeriod)
 {
-  std::shared_ptr <MediaObject> obj (new DispatcherMixerImpl (
+  std::shared_ptr <MediaObject> obj (new DispatcherImpl (
                                        std::dynamic_pointer_cast<MediaObjectImpl> (parent), garbagePeriod) );
 
   return obj;
 }
 
-DispatcherMixerImpl::StaticConstructor DispatcherMixerImpl::staticConstructor;
+DispatcherImpl::StaticConstructor DispatcherImpl::staticConstructor;
 
-DispatcherMixerImpl::StaticConstructor::StaticConstructor()
+DispatcherImpl::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
