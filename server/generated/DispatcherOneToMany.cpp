@@ -4,12 +4,12 @@
 
 #include "MediaPipeline.hpp"
 #include "MixerPort.hpp"
-#include "Dispatcher.hpp"
+#include "DispatcherOneToMany.hpp"
 #include <JsonSerializer.hpp>
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> Dispatcher::Factory::createObject (const Json::Value &params)
+std::shared_ptr<MediaObject> DispatcherOneToMany::Factory::createObject (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   int garbagePeriod = 0;
@@ -37,19 +37,19 @@ std::shared_ptr<MediaObject> Dispatcher::Factory::createObject (const Json::Valu
   return createObject (mediaPipeline, garbagePeriod);
 }
 
-Dispatcher::Factory::StaticConstructor Dispatcher::Factory::staticConstructor;
+DispatcherOneToMany::Factory::StaticConstructor DispatcherOneToMany::Factory::staticConstructor;
 
-Dispatcher::Factory::StaticConstructor::StaticConstructor()
+DispatcherOneToMany::Factory::StaticConstructor::StaticConstructor()
 {
   if (objectRegistrar) {
-    std::shared_ptr <Factory> factory (new Dispatcher::Factory());
+    std::shared_ptr <Factory> factory (new DispatcherOneToMany::Factory());
 
     objectRegistrar->registerFactory(factory);
   }
 }
 
 void
-Dispatcher::Invoker::invoke (std::shared_ptr<MediaObject> obj,
+DispatcherOneToMany::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     const std::string &methodName, const Json::Value &params,
     Json::Value &response)
 {
@@ -92,8 +92,8 @@ Dispatcher::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     }
 
     // TODO: Implement method setSource
-    std::shared_ptr<Dispatcher> finalObj;
-    finalObj = std::dynamic_pointer_cast<Dispatcher> (obj);
+    std::shared_ptr<DispatcherOneToMany> finalObj;
+    finalObj = std::dynamic_pointer_cast<DispatcherOneToMany> (obj);
     if (!finalObj) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "Object not found or has incorrect type");
@@ -108,8 +108,8 @@ Dispatcher::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     Json::Value aux;
 
     // TODO: Implement method removeSource
-    std::shared_ptr<Dispatcher> finalObj;
-    finalObj = std::dynamic_pointer_cast<Dispatcher> (obj);
+    std::shared_ptr<DispatcherOneToMany> finalObj;
+    finalObj = std::dynamic_pointer_cast<DispatcherOneToMany> (obj);
     if (!finalObj) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "Object not found or has incorrect type");
@@ -124,7 +124,7 @@ Dispatcher::Invoker::invoke (std::shared_ptr<MediaObject> obj,
 }
 
 std::string
-Dispatcher::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
+DispatcherOneToMany::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
 {
   return Hub::connect (eventType, handler);
 }
@@ -132,17 +132,17 @@ Dispatcher::connect(const std::string &eventType, std::shared_ptr<EventHandler> 
 } /* kurento */
 
 void
-Serialize(std::shared_ptr<kurento::Dispatcher> &object, JsonSerializer &serializer)
+Serialize(std::shared_ptr<kurento::DispatcherOneToMany> &object, JsonSerializer &serializer)
 {
   if (!serializer.IsWriter) {
     try {
       std::shared_ptr<kurento::MediaObject> aux;
-      aux = kurento::Dispatcher::Factory::getObject (serializer.JsonValue.asString ());
-      object = std::dynamic_pointer_cast<kurento::Dispatcher> (aux);
+      aux = kurento::DispatcherOneToMany::Factory::getObject (serializer.JsonValue.asString ());
+      object = std::dynamic_pointer_cast<kurento::DispatcherOneToMany> (aux);
       return;
     } catch (kurento::JsonRpc::CallException &ex) {
       kurento::JsonRpc::CallException e (kurento::JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'Dispatcher' object not found: "+ ex.getMessage());
+                              "'DispatcherOneToMany' object not found: "+ ex.getMessage());
       throw e;
     }
   }
@@ -153,7 +153,7 @@ Serialize(std::shared_ptr<kurento::Dispatcher> &object, JsonSerializer &serializ
 }
 
 void
-Serialize(kurento::Dispatcher &object, JsonSerializer &serializer)
+Serialize(kurento::DispatcherOneToMany &object, JsonSerializer &serializer)
 {
   void Serialize(kurento::Hub &object, JsonSerializer &serializer);
   try {

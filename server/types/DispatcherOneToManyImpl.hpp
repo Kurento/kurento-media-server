@@ -13,22 +13,22 @@
  *
  */
 
-#ifndef __DISPATCHER_IMPL_HPP__
-#define __DISPATCHER_IMPL_HPP__
+#ifndef __DISPATCHER_ONE_TO_MANY_IMPL_HPP__
+#define __DISPATCHER_ONE_TO_MANY_IMPL_HPP__
 
 #include "HubImpl.hpp"
-#include <generated/Dispatcher.hpp>
+#include <generated/DispatcherOneToMany.hpp>
 
 namespace kurento
 {
 
-class DispatcherImpl : public virtual Dispatcher,
+class DispatcherOneToManyImpl : public virtual DispatcherOneToMany,
   public HubImpl
 {
 public:
-  DispatcherImpl (std::shared_ptr<MediaObjectImpl> parent,
-                  int garbagePeriod);
-  virtual ~DispatcherImpl() throw () {};
+  DispatcherOneToManyImpl (std::shared_ptr<MediaObjectImpl> parent,
+                           int garbagePeriod);
+  virtual ~DispatcherOneToManyImpl() throw () {};
 
   virtual void setSource (std::shared_ptr<MixerPort> source);
   virtual void removeSource ();
@@ -46,4 +46,4 @@ private:
 
 } /* kurento */
 
-#endif /* __DISPATCHER_IMPL_HPP__ */
+#endif /* __DISPATCHER_ONE_TO_MANY_IMPL_HPP__ */
