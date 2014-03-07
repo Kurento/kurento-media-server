@@ -37,7 +37,9 @@ struct _KmsHttpLoopPrivate {
   GRecMutex rmutex;
   GMainLoop *loop;
   GMainContext *context;
+  GCond cond;
   GMutex mutex;
+  gboolean initialized;
 };
 
 #define KMS_HTTP_LOOP_LOCK(elem) \
@@ -79,6 +81,9 @@ loop_thread_init (gpointer data)
   KMS_HTTP_LOOP_UNLOCK (self);
 
   /* unlock main process because context is already initialized */
+  g_mutex_lock (&self->priv->mutex);
+  self->priv->initialized = TRUE;
+  g_cond_signal (&self->priv->cond);
   g_mutex_unlock (&self->priv->mutex);
 
   if (!g_main_context_acquire (context) ) {
@@ -88,10 +93,10 @@ loop_thread_init (gpointer data)
 
   GST_DEBUG ("Running main loop");
   g_main_loop_run (loop);
+  g_main_context_release (context);
 
 end:
   GST_DEBUG ("Thread finished");
-  g_main_context_release (context);
   g_main_context_unref (context);
   g_main_loop_unref (loop);
 
@@ -158,7 +163,9 @@ kms_http_loop_finalize (GObject *obj)
 
   GST_DEBUG_OBJECT (obj, "Finalize");
 
+  g_rec_mutex_clear (&self->priv->rmutex);
   g_mutex_clear (&self->priv->mutex);
+  g_cond_clear (&self->priv->cond);
 
   G_OBJECT_CLASS (kms_http_loop_parent_class)->finalize (obj);
 }
@@ -190,13 +197,17 @@ kms_http_loop_init (KmsHttpLoop *self)
 {
   self->priv = KMS_HTTP_LOOP_GET_PRIVATE (self);
   g_rec_mutex_init (&self->priv->rmutex);
+  g_cond_init (&self->priv->cond);
   g_mutex_init (&self->priv->mutex);
-
-  g_mutex_lock (&self->priv->mutex);
 
   self->priv->thread = g_thread_new ("KmsHttpLoop", loop_thread_init, self);
 
   g_mutex_lock (&self->priv->mutex);
+
+  while (!self->priv->initialized) {
+    g_cond_wait (&self->priv->cond, &self->priv->mutex);
+  }
+
   g_mutex_unlock (&self->priv->mutex);
 }
 
