@@ -29,7 +29,8 @@ Build-Depends:
  tesseract-ocr-eng,
  thrift-compiler,
  libjsoncpp-dev,
- uuid-dev
+ uuid-dev,
+ libsctp-dev
 Standards-Version: 3.9.4
 
 
