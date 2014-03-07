@@ -5,7 +5,6 @@
 
 namespace kurento {
 
-
 PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Value &value) {
   Json::Value aux;
 
@@ -17,9 +16,11 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'id' parameter should be a string");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(id);
     }
-
-    id = aux.asString ();
   } else {
     /* Requiered property 'id' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -35,9 +36,11 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'height' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(height);
     }
-
-    height = aux.asInt ();
   } else {
     /* Requiered property 'height' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -53,9 +56,11 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'width' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(width);
     }
-
-    width = aux.asInt ();
   } else {
     /* Requiered property 'width' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -71,9 +76,11 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'upperRightX' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(upperRightX);
     }
-
-    upperRightX = aux.asInt ();
   } else {
     /* Requiered property 'upperRightX' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -89,9 +96,11 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'upperRightY' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(upperRightY);
     }
-
-    upperRightY = aux.asInt ();
   } else {
     /* Requiered property 'upperRightY' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -107,10 +116,12 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'activeImage' parameter should be a string");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(activeImage);
+      _isSetActiveImage = true;
     }
-
-    activeImage = aux.asString ();
-    _isSetActiveImage = true;
   }
 
   if (value.isMember ("imageTransparency")) {
@@ -121,10 +132,12 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'imageTransparency' parameter should be a double");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(imageTransparency);
+      _isSetImageTransparency = true;
     }
-
-    imageTransparency = aux.asDouble ();
-    _isSetImageTransparency = true;
   }
 
   if (value.isMember ("image")) {
@@ -135,10 +148,12 @@ PointerDetectorWindowMediaParam::PointerDetectorWindowMediaParam (const Json::Va
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'image' parameter should be a string");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(image);
+      _isSetImage = true;
     }
-
-    image = aux.asString ();
-    _isSetImage = true;
   }
 
 }

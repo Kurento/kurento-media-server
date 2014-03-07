@@ -5,7 +5,6 @@
 
 namespace kurento {
 
-
 WindowParam::WindowParam (const Json::Value &value) {
   Json::Value aux;
 
@@ -17,9 +16,11 @@ WindowParam::WindowParam (const Json::Value &value) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'topRightCornerX' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(topRightCornerX);
     }
-
-    topRightCornerX = aux.asInt ();
   } else {
     /* Requiered property 'topRightCornerX' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -35,9 +36,11 @@ WindowParam::WindowParam (const Json::Value &value) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'topRightCornerY' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(topRightCornerY);
     }
-
-    topRightCornerY = aux.asInt ();
   } else {
     /* Requiered property 'topRightCornerY' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -53,9 +56,11 @@ WindowParam::WindowParam (const Json::Value &value) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'width' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(width);
     }
-
-    width = aux.asInt ();
   } else {
     /* Requiered property 'width' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -71,9 +76,11 @@ WindowParam::WindowParam (const Json::Value &value) {
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'height' parameter should be a integer");
       throw e;
+    } else {
+      JsonSerializer s(false);
+      s.JsonValue = value;
+      s.SerializeNVP(height);
     }
-
-    height = aux.asInt ();
   } else {
     /* Requiered property 'height' not present, raise exception */
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,

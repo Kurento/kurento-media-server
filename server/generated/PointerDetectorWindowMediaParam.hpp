@@ -32,11 +32,11 @@ public:
 
   PointerDetectorWindowMediaParam (const Json::Value &value);
 
-  void setId (std::string id) {
+  void setId (const std::string& id) {
     this->id = id;
   };
 
-  const std::string& getId () {
+  std::string getId () {
     return id;
   };
 
@@ -72,12 +72,12 @@ public:
     return upperRightY;
   };
 
-  void setActiveImage (std::string activeImage) {
+  void setActiveImage (const std::string& activeImage) {
     this->activeImage = activeImage;
     _isSetActiveImage = true;
   };
 
-  const std::string& getActiveImage () {
+  std::string getActiveImage () {
     return activeImage;
   };
 
@@ -98,12 +98,12 @@ public:
     return _isSetImageTransparency;
   };
 
-  void setImage (std::string image) {
+  void setImage (const std::string& image) {
     this->image = image;
     _isSetImage = true;
   };
 
-  const std::string& getImage () {
+  std::string getImage () {
     return image;
   };
 
