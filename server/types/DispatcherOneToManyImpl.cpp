@@ -21,7 +21,7 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoDispatcherOneToManyImpl"
 
-#define FACTORY_NAME "mainmixer"
+#define FACTORY_NAME "dispatcheronetomany"
 #define MAIN_END_POINT "main"
 #define MAIN_PORT_DEFAULT (-1)
 
