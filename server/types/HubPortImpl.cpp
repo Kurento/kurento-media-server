@@ -35,8 +35,8 @@ HubPortImpl::HubPortImpl (std::shared_ptr< MediaObjectImpl > parent,
 
 HubPortImpl::~HubPortImpl()
 {
-  g_signal_emit_by_name (mixer->getGstreamerElement(), "unhandle-port", element,
-                         &handlerId);
+  g_signal_emit_by_name (mixer->getGstreamerElement(), "unhandle-port",
+                         handlerId);
 }
 
 
