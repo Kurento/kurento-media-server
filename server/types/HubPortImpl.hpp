@@ -13,21 +13,21 @@
  *
  */
 
-#ifndef __MIXER_PORT_IMPL_HPP__
-#define __MIXER_PORT_IMPL_HPP__
+#ifndef __HUB_PORT_IMPL_HPP__
+#define __HUB_PORT_IMPL_HPP__
 
 #include "MediaElementImpl.hpp"
 #include "HubImpl.hpp"
-#include <generated/MixerPort.hpp>
+#include <generated/HubPort.hpp>
 
 namespace kurento
 {
 
-class MixerPortImpl: public virtual MixerPort, public MediaElementImpl
+class HubPortImpl: public virtual HubPort, public MediaElementImpl
 {
 public:
-  MixerPortImpl (std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
-  virtual ~MixerPortImpl() throw ();
+  HubPortImpl (std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+  virtual ~HubPortImpl() throw ();
 
   int getHandlerId () {
     return handlerId;

@@ -3,12 +3,12 @@
 #include <memory>
 
 #include "Hub.hpp"
-#include "MixerPort.hpp"
+#include "HubPort.hpp"
 #include <JsonSerializer.hpp>
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> MixerPort::Factory::createObject (const Json::Value &params)
+std::shared_ptr<MediaObject> HubPort::Factory::createObject (const Json::Value &params)
 {
   std::shared_ptr<Hub> hub;
   int garbagePeriod = 0;
@@ -36,19 +36,19 @@ std::shared_ptr<MediaObject> MixerPort::Factory::createObject (const Json::Value
   return createObject (hub, garbagePeriod);
 }
 
-MixerPort::Factory::StaticConstructor MixerPort::Factory::staticConstructor;
+HubPort::Factory::StaticConstructor HubPort::Factory::staticConstructor;
 
-MixerPort::Factory::StaticConstructor::StaticConstructor()
+HubPort::Factory::StaticConstructor::StaticConstructor()
 {
   if (objectRegistrar) {
-    std::shared_ptr <Factory> factory (new MixerPort::Factory());
+    std::shared_ptr <Factory> factory (new HubPort::Factory());
 
     objectRegistrar->registerFactory(factory);
   }
 }
 
 void
-MixerPort::Invoker::invoke (std::shared_ptr<MediaObject> obj,
+HubPort::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     const std::string &methodName, const Json::Value &params,
     Json::Value &response)
 {
@@ -56,7 +56,7 @@ MixerPort::Invoker::invoke (std::shared_ptr<MediaObject> obj,
 }
 
 std::string
-MixerPort::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
+HubPort::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
 {
   return MediaElement::connect (eventType, handler);
 }
@@ -64,17 +64,17 @@ MixerPort::connect(const std::string &eventType, std::shared_ptr<EventHandler> h
 } /* kurento */
 
 void
-Serialize(std::shared_ptr<kurento::MixerPort> &object, JsonSerializer &serializer)
+Serialize(std::shared_ptr<kurento::HubPort> &object, JsonSerializer &serializer)
 {
   if (!serializer.IsWriter) {
     try {
       std::shared_ptr<kurento::MediaObject> aux;
-      aux = kurento::MixerPort::Factory::getObject (serializer.JsonValue.asString ());
-      object = std::dynamic_pointer_cast<kurento::MixerPort> (aux);
+      aux = kurento::HubPort::Factory::getObject (serializer.JsonValue.asString ());
+      object = std::dynamic_pointer_cast<kurento::HubPort> (aux);
       return;
     } catch (kurento::JsonRpc::CallException &ex) {
       kurento::JsonRpc::CallException e (kurento::JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'MixerPort' object not found: "+ ex.getMessage());
+                              "'HubPort' object not found: "+ ex.getMessage());
       throw e;
     }
   }
@@ -85,7 +85,7 @@ Serialize(std::shared_ptr<kurento::MixerPort> &object, JsonSerializer &serialize
 }
 
 void
-Serialize(kurento::MixerPort &object, JsonSerializer &serializer)
+Serialize(kurento::HubPort &object, JsonSerializer &serializer)
 {
   void Serialize(kurento::MediaElement &object, JsonSerializer &serializer);
   try {

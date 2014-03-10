@@ -13,7 +13,7 @@
 namespace kurento {
 
 class MediaPipeline;
-class MixerPort;
+class HubPort;
 
 class DispatcherOneToMany : public virtual Hub {
 
@@ -22,7 +22,7 @@ public:
   DispatcherOneToMany () {};
   virtual ~DispatcherOneToMany () {};
 
-  virtual void setSource (std::shared_ptr<MixerPort> source) {throw "Not implemented";};
+  virtual void setSource (std::shared_ptr<HubPort> source) {throw "Not implemented";};
   virtual void removeSource () {throw "Not implemented";};
 
   virtual std::string connect(const std::string &eventType, std::shared_ptr<EventHandler> handler);

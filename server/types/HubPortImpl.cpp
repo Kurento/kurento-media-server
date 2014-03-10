@@ -13,19 +13,19 @@
  *
  */
 
-#include "MixerPortImpl.hpp"
+#include "HubPortImpl.hpp"
 
-#define GST_CAT_DEFAULT kurento_filter_impl
+#define GST_CAT_DEFAULT kurento_hub_port_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoMixerPortImpl"
+#define GST_DEFAULT_NAME "KurentoHubPortImpl"
 
 #define FACTORY_NAME "mixerport"
 
 namespace kurento
 {
 
-MixerPortImpl::MixerPortImpl (std::shared_ptr< MediaObjectImpl > parent,
-                              int garbagePeriod) :
+HubPortImpl::HubPortImpl (std::shared_ptr< MediaObjectImpl > parent,
+                          int garbagePeriod) :
   MediaElementImpl (FACTORY_NAME, parent, garbagePeriod)
 {
   mixer = std::dynamic_pointer_cast<HubImpl> (parent);
@@ -33,7 +33,7 @@ MixerPortImpl::MixerPortImpl (std::shared_ptr< MediaObjectImpl > parent,
                          &handlerId);
 }
 
-MixerPortImpl::~MixerPortImpl()
+HubPortImpl::~HubPortImpl()
 {
   g_signal_emit_by_name (mixer->getGstreamerElement(), "unhandle-port", element,
                          &handlerId);
@@ -41,19 +41,19 @@ MixerPortImpl::~MixerPortImpl()
 
 
 std::shared_ptr<MediaObject>
-MixerPort::Factory::createObject (std::shared_ptr<Hub> hub,
-                                  int garbagePeriod)
+HubPort::Factory::createObject (std::shared_ptr<Hub> hub,
+                                int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new MixerPortImpl (
+  std::shared_ptr<MediaObject> object (new HubPortImpl (
                                          std::dynamic_pointer_cast<MediaObjectImpl> (hub),
                                          garbagePeriod) );
 
   return object;
 }
 
-MixerPortImpl::StaticConstructor MixerPortImpl::staticConstructor;
+HubPortImpl::StaticConstructor HubPortImpl::staticConstructor;
 
-MixerPortImpl::StaticConstructor::StaticConstructor()
+HubPortImpl::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);

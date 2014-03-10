@@ -15,7 +15,7 @@
 
 #include "DispatcherOneToManyImpl.hpp"
 #include "MediaPipelineImpl.hpp"
-#include "MixerPortImpl.hpp"
+#include "HubPortImpl.hpp"
 
 #define GST_CAT_DEFAULT kurento_dispatcher_one_to_many_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -36,10 +36,10 @@ DispatcherOneToManyImpl::DispatcherOneToManyImpl (
 }
 
 void
-DispatcherOneToManyImpl::setSource (std::shared_ptr<MixerPort> source)
+DispatcherOneToManyImpl::setSource (std::shared_ptr<HubPort> source)
 {
-  std::shared_ptr<MixerPortImpl> mixerPort =
-    std::dynamic_pointer_cast<MixerPortImpl> (source);
+  std::shared_ptr<HubPortImpl> mixerPort =
+    std::dynamic_pointer_cast<HubPortImpl> (source);
   int id = mixerPort->getHandlerId();
 
   g_object_set (G_OBJECT (element), MAIN_END_POINT, id, NULL);

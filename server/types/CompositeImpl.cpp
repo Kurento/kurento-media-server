@@ -15,7 +15,7 @@
 
 #include "CompositeImpl.hpp"
 #include "MediaPipelineImpl.hpp"
-#include "MixerPortImpl.hpp"
+#include "HubPortImpl.hpp"
 
 #define GST_CAT_DEFAULT kurento_composite_mixer_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);

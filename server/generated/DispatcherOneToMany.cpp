@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "MediaPipeline.hpp"
-#include "MixerPort.hpp"
+#include "HubPort.hpp"
 #include "DispatcherOneToMany.hpp"
 #include <JsonSerializer.hpp>
 
@@ -55,7 +55,7 @@ DispatcherOneToMany::Invoker::invoke (std::shared_ptr<MediaObject> obj,
 {
   if (methodName == "setSource" && params.size() == 1) {
     Json::Value aux;
-    std::shared_ptr<MixerPort> source;
+    std::shared_ptr<HubPort> source;
 
     if (!params.isMember ("source")) {
       /* param 'source' not present, raise exception */
@@ -75,14 +75,14 @@ DispatcherOneToMany::Invoker::invoke (std::shared_ptr<MediaObject> obj,
       }
 
       try {
-        obj = MixerPort::Factory::getObject (aux.asString ());
+        obj = HubPort::Factory::getObject (aux.asString ());
       } catch (JsonRpc::CallException &ex) {
         JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 "'source' object not found: "+ ex.getMessage());
         throw e;
       }
 
-      source = std::dynamic_pointer_cast<MixerPort> (obj);
+      source = std::dynamic_pointer_cast<HubPort> (obj);
 
       if (!source) {
         JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,

@@ -30,7 +30,7 @@ public:
                            int garbagePeriod);
   virtual ~DispatcherOneToManyImpl() throw () {};
 
-  virtual void setSource (std::shared_ptr<MixerPort> source);
+  virtual void setSource (std::shared_ptr<HubPort> source);
   virtual void removeSource ();
 
 private:
