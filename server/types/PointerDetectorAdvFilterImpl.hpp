@@ -34,7 +34,7 @@ public:
 
   void addWindow (std::shared_ptr<PointerDetectorWindowMediaParam> window);
   void clearWindows ();
-  void trackcolourFromCalibrationRegion ();
+  void trackColorFromCalibrationRegion ();
   void removeWindow (const std::string &windowId);
 
 private:

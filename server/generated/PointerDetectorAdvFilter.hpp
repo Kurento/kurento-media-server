@@ -30,7 +30,7 @@ public:
 
   virtual void addWindow (std::shared_ptr<PointerDetectorWindowMediaParam> window) {throw "Not implemented";};
   virtual void clearWindows () {throw "Not implemented";};
-  virtual void trackcolourFromCalibrationRegion () {throw "Not implemented";};
+  virtual void trackColorFromCalibrationRegion () {throw "Not implemented";};
   virtual void removeWindow (const std::string& windowId) {throw "Not implemented";};
 
   virtual std::string connect(const std::string &eventType, std::shared_ptr<EventHandler> handler);

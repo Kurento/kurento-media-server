@@ -127,10 +127,10 @@ PointerDetectorAdvFilter::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     return;
   }
 
-  if (methodName == "trackcolourFromCalibrationRegion" && params.size() == 0) {
+  if (methodName == "trackColorFromCalibrationRegion" && params.size() == 0) {
     Json::Value aux;
 
-    // TODO: Implement method trackcolourFromCalibrationRegion
+    // TODO: Implement method trackColorFromCalibrationRegion
     std::shared_ptr<PointerDetectorAdvFilter> finalObj;
     finalObj = std::dynamic_pointer_cast<PointerDetectorAdvFilter> (obj);
     if (!finalObj) {
@@ -139,7 +139,7 @@ PointerDetectorAdvFilter::Invoker::invoke (std::shared_ptr<MediaObject> obj,
       throw e;
     }
 
-    finalObj->trackcolourFromCalibrationRegion ();
+    finalObj->trackColorFromCalibrationRegion ();
     return;
   }
 

@@ -217,7 +217,7 @@ PointerDetectorAdvFilterImpl::clearWindows ()
 }
 
 void
-PointerDetectorAdvFilterImpl::trackcolourFromCalibrationRegion ()
+PointerDetectorAdvFilterImpl::trackColorFromCalibrationRegion ()
 {
   g_signal_emit_by_name (pointerDetector, CALIBRATE_COLOR, NULL);
 }
