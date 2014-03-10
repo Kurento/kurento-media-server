@@ -1,3 +1,42 @@
+kurento (4.1.0) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * PlayerEndpointImpl: Fix identation
+  * Fix names of mixer elements
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpLoop: Add internal loop class
+  * KmsHttpEPServer: Integrate main loop
+  * KmsHttpEPServer: Use proper macros for returning from g_source callbacks
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add Composite
+  * Add libsctp-dev as debian build dependency
+  * Rename Dispatcher to DispatcherOneToMany
+  * Update plugins with renames of elements
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpEPServer: Make stop server callback execute in internal thread
+  * KmsHttpEPServer: Provide user data to callbacks
+  * KmsHttpEPServer: Execute register function from internal loop
+  * KmsHttpEPServer: Execute callbacks in next loop iteration if it is not the same thread
+  * HttpEndpointImpl: small fixes
+  * KmsHttpEPServer: Make unregister operation in internal thread
+  * KmsHttpLoop: Synchronize thread execution using condition variables
+
+  [ Jose Antonio Santos Cadenas ]
+  * Regenerate code with new templates
+  * Add support for CrowdDetectorFilter
+  * PointerDetectorAdv: Fix typo in method name
+  * Ignore garbage collector until it is supported by clients
+  * Rename MixerPort to HubPort
+  * Prepare release 4.1.0
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 10 Mar 2014 21:56:32 +0100
+
 kurento (4.0.0) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
