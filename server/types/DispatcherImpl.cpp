@@ -13,6 +13,8 @@
  *
  */
 
+#include <KurentoException.hpp>
+
 #include "DispatcherImpl.hpp"
 #include "MediaPipelineImpl.hpp"
 #include "HubPortImpl.hpp"
@@ -43,6 +45,27 @@ Dispatcher::Factory::createObject (std::shared_ptr<MediaPipeline>
 
   return obj;
 }
+
+void
+DispatcherImpl::connect (std::shared_ptr<HubPort> source,
+                         std::shared_ptr<HubPort> sink)
+{
+  std::shared_ptr<HubPortImpl> sourcePort =
+    std::dynamic_pointer_cast<HubPortImpl> (source);
+  std::shared_ptr<HubPortImpl> sinkPort =
+    std::dynamic_pointer_cast<HubPortImpl> (sink);
+  bool connected;
+
+  g_signal_emit_by_name (G_OBJECT (element), "connect",
+                         sourcePort->getHandlerId(),
+                         sinkPort->getHandlerId(),
+                         &connected);
+
+  if (!connected) {
+    throw KurentoException ("Can not connect ports");
+  }
+}
+
 
 DispatcherImpl::StaticConstructor
 DispatcherImpl::staticConstructor;

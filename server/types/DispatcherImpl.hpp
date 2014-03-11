@@ -30,6 +30,9 @@ public:
                   int garbagePeriod);
   virtual ~DispatcherImpl() throw () {};
 
+  virtual void connect (std::shared_ptr<HubPort> source,
+                        std::shared_ptr<HubPort> sink);
+
 private:
 
   class StaticConstructor
