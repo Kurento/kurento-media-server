@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "MediaSink.hpp"
-#include "MediaSink.hpp"
 #include "MediaSource.hpp"
 #include <JsonSerializer.hpp>
 

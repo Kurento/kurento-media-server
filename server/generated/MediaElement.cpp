@@ -4,17 +4,7 @@
 
 #include "MediaSource.hpp"
 #include "MediaType.hpp"
-#include "MediaSource.hpp"
-#include "MediaType.hpp"
-#include "MediaSource.hpp"
 #include "MediaSink.hpp"
-#include "MediaType.hpp"
-#include "MediaSink.hpp"
-#include "MediaType.hpp"
-#include "MediaSink.hpp"
-#include "MediaType.hpp"
-#include "MediaElement.hpp"
-#include "MediaType.hpp"
 #include "MediaElement.hpp"
 #include "MediaElement.hpp"
 #include <JsonSerializer.hpp>

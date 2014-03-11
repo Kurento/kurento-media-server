@@ -5,7 +5,6 @@
 #include "MediaPipeline.hpp"
 #include "WindowParam.hpp"
 #include "PointerDetectorWindowMediaParam.hpp"
-#include "PointerDetectorWindowMediaParam.hpp"
 #include "PointerDetectorAdvFilter.hpp"
 #include <JsonSerializer.hpp>
 

@@ -14,17 +14,7 @@ namespace kurento {
 
 class MediaSource;
 class MediaType;
-class MediaSource;
-class MediaType;
-class MediaSource;
 class MediaSink;
-class MediaType;
-class MediaSink;
-class MediaType;
-class MediaSink;
-class MediaType;
-class MediaElement;
-class MediaType;
 class MediaElement;
 
 class MediaElement : public virtual MediaObject {

@@ -19,7 +19,6 @@ namespace kurento {
 class MediaPipeline;
 class WindowParam;
 class PointerDetectorWindowMediaParam;
-class PointerDetectorWindowMediaParam;
 
 class PointerDetectorAdvFilter : public virtual Filter {
 

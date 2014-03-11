@@ -13,7 +13,6 @@
 namespace kurento {
 
 class MediaSource;
-class MediaSource;
 
 class MediaSink : public virtual MediaPad {
 
