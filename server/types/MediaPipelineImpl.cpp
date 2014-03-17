@@ -40,15 +40,22 @@ MediaPipelineImpl::MediaPipelineImpl (int garbagePeriod) :
     switch (message->type) {
     case GST_MESSAGE_ERROR: {
       GError *err = NULL;
+      gchar *debug = NULL;
 
       GST_ERROR ("Error on bus: %" GST_PTR_FORMAT, message);
       gst_debug_bin_to_dot_file_with_ts (GST_BIN (pipeline),
                                          GST_DEBUG_GRAPH_SHOW_ALL, "error");
-      gst_message_parse_error (message, &err, NULL);
+      gst_message_parse_error (message, &err, &debug);
       std::string errorMessage (err->message);
+
+      if (debug != NULL) {
+        errorMessage += " -> " + std::string (debug);
+      }
+
       Error error (shared_from_this(), errorMessage , 0,
                    "UNEXPECTED_PIPELINE_ERROR");
       g_error_free (err);
+      g_free (debug);
       signalError (error);
       break;
     }
