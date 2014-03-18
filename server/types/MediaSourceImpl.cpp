@@ -176,7 +176,8 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
 
     GST_DEBUG ("Put connection off until agnostic bin is created for pad %s",
                getPadName() );
-    tmp = create_tmp_data (shared_from_this(), mediaSinkImpl);
+    tmp = create_tmp_data (std::dynamic_pointer_cast<MediaSourceImpl>
+                           (shared_from_this() ), mediaSinkImpl);
     tmp->handler = g_signal_connect_data (getGstreamerElement(),
                                           "agnosticbin-added",
                                           G_CALLBACK (agnosticbin_added_cb),
@@ -190,7 +191,8 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
   g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked),
                     getGstreamerElement() );
 
-  ret = mediaSinkImpl->linkPad (shared_from_this(), pad);
+  ret = mediaSinkImpl->linkPad (
+          std::dynamic_pointer_cast <MediaSourceImpl> (shared_from_this() ), pad);
 
   if (ret) {
     connectedSinks.push_back (std::weak_ptr<MediaSinkImpl> (mediaSinkImpl) );
@@ -241,7 +243,8 @@ MediaSourceImpl::disconnect (MediaSinkImpl *mediaSink)
 
   mutex.lock();
 
-  mediaSink->unlink (shared_from_this(), NULL);
+  mediaSink->unlink (std::dynamic_pointer_cast<MediaSourceImpl>
+                     (shared_from_this() ), NULL);
 
   mutex.unlock();
 }

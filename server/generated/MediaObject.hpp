@@ -16,7 +16,7 @@ namespace kurento {
 
 class MediaPipeline;
 
-class MediaObject {
+class MediaObject : public std::enable_shared_from_this<MediaObject>    {
 
 public:
 

@@ -25,8 +25,7 @@
 namespace kurento
 {
 
-class MediaPipelineImpl : public virtual MediaPipeline, public MediaObjectImpl,
-  public std::enable_shared_from_this<MediaPipeline>
+class MediaPipelineImpl : public virtual MediaPipeline, public MediaObjectImpl
 {
 public:
   MediaPipelineImpl (int garbageCollectorPeriod);
@@ -37,7 +36,7 @@ public:
   }
 
   std::shared_ptr<MediaPipeline> getMediaPipeline() {
-    return shared_from_this();
+    return std::dynamic_pointer_cast <MediaPipeline> (shared_from_this() );
   }
 
   GstElement *getPipeline() {

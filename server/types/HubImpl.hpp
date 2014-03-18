@@ -23,8 +23,7 @@
 namespace kurento
 {
 
-class HubImpl : public virtual Hub, public MediaObjectImpl,
-  public std::enable_shared_from_this<HubImpl>
+class HubImpl : public virtual Hub, public MediaObjectImpl
 {
 public:
   HubImpl (const std::string &factoryName,

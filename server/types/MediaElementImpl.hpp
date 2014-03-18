@@ -29,8 +29,7 @@
 namespace kurento
 {
 
-class MediaElementImpl : public virtual MediaElement, public MediaObjectImpl,
-  public std::enable_shared_from_this<MediaElementImpl>
+class MediaElementImpl : public virtual MediaElement, public MediaObjectImpl
 {
 public:
   MediaElementImpl (const std::string &factoryName,

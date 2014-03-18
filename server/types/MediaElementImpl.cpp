@@ -67,7 +67,8 @@ MediaElementImpl::getOrCreateAudioMediaSrc()
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::AUDIO) );
 
     locked = std::shared_ptr<MediaSourceImpl> (
-               new  MediaSourceImpl (mediaType, "", shared_from_this() ) );
+               new  MediaSourceImpl (mediaType, "",
+                                     std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
     audioMediaSrc = std::weak_ptr<MediaSourceImpl> (locked);
 
     MediaSet::getMediaSet()->reg (locked);
@@ -94,7 +95,8 @@ MediaElementImpl::getOrCreateVideoMediaSrc()
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::VIDEO) );
 
     locked = std::shared_ptr<MediaSourceImpl> (
-               new  MediaSourceImpl (mediaType, "", shared_from_this() ) );
+               new  MediaSourceImpl (mediaType, "",
+                                     std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
     videoMediaSrc = std::weak_ptr<MediaSourceImpl> (locked);
 
     MediaSet::getMediaSet()->reg (locked);
@@ -121,8 +123,8 @@ MediaElementImpl::getOrCreateAudioMediaSink()
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::AUDIO) );
 
     locked = std::shared_ptr<MediaSinkImpl> (
-               new  MediaSinkImpl (mediaType, "", shared_from_this() ) );
-
+               new  MediaSinkImpl (mediaType, "",
+                                   std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
     audioMediaSink = std::weak_ptr<MediaSinkImpl> (locked);
 
     MediaSet::getMediaSet()->reg (locked);
@@ -149,8 +151,8 @@ MediaElementImpl::getOrCreateVideoMediaSink()
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::VIDEO) );
 
     locked = std::shared_ptr<MediaSinkImpl> (
-               new  MediaSinkImpl (mediaType, "", shared_from_this() ) );
-
+               new  MediaSinkImpl (mediaType, "",
+                                   std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
     videoMediaSink = std::weak_ptr<MediaSinkImpl> (locked);
 
     MediaSet::getMediaSet()->reg (locked);

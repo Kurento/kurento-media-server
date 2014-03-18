@@ -26,8 +26,7 @@ namespace kurento
 
 class MediaSinkImpl;
 
-class MediaSourceImpl : public virtual MediaSource, public MediaPadImpl,
-  public std::enable_shared_from_this<MediaSourceImpl>
+class MediaSourceImpl : public virtual MediaSource, public MediaPadImpl
 {
 public:
   MediaSourceImpl (std::shared_ptr<MediaType> mediaType,
