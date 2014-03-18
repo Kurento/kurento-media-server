@@ -40,15 +40,12 @@ HubPortImpl::~HubPortImpl()
 }
 
 
-std::shared_ptr<MediaObject>
+MediaObject *
 HubPort::Factory::createObject (std::shared_ptr<Hub> hub,
                                 int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new HubPortImpl (
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (hub),
-                                         garbagePeriod) );
-
-  return object;
+  return new HubPortImpl (std::dynamic_pointer_cast<MediaObjectImpl> (hub),
+                          garbagePeriod);
 }
 
 HubPortImpl::StaticConstructor HubPortImpl::staticConstructor;

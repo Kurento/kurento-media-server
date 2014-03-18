@@ -54,17 +54,14 @@ HttpPostEndpointImpl::HttpPostEndpointImpl (
   g_object_set (G_OBJECT (element), USE_ENCODED_MEDIA, useEncodedMedia, NULL);
 }
 
-std::shared_ptr< MediaObject >
+MediaObject  *
 HttpPostEndpoint::Factory::createObject (
   std::shared_ptr< MediaPipeline > mediaPipeline, int disconnectionTimeout,
   bool useEncodedMedia, int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new HttpPostEndpointImpl (
-                                         useEncodedMedia, disconnectionTimeout,
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new HttpPostEndpointImpl (useEncodedMedia, disconnectionTimeout,
+                                   std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+                                   garbagePeriod);
 }
 
 } /* kurento */

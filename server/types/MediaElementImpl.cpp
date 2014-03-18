@@ -66,12 +66,13 @@ MediaElementImpl::getOrCreateAudioMediaSrc()
   if (locked.get() == NULL) {
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::AUDIO) );
 
-    locked = std::shared_ptr<MediaSourceImpl> (
-               new  MediaSourceImpl (mediaType, "",
-                                     std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
-    audioMediaSrc = std::weak_ptr<MediaSourceImpl> (locked);
+    MediaSourceImpl *source = new  MediaSourceImpl (mediaType, "",
+        std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) );
 
-    MediaSet::getMediaSet()->reg (locked);
+    locked = std::dynamic_pointer_cast<MediaSourceImpl>
+             (MediaSet::getMediaSet()->ref (source) );
+
+    audioMediaSrc = std::weak_ptr<MediaSourceImpl> (locked);
   }
 
   mutex.unlock();
@@ -94,12 +95,13 @@ MediaElementImpl::getOrCreateVideoMediaSrc()
   if (locked.get() == NULL) {
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::VIDEO) );
 
-    locked = std::shared_ptr<MediaSourceImpl> (
-               new  MediaSourceImpl (mediaType, "",
-                                     std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
-    videoMediaSrc = std::weak_ptr<MediaSourceImpl> (locked);
+    MediaSourceImpl *source = new  MediaSourceImpl (mediaType, "",
+        std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) );
 
-    MediaSet::getMediaSet()->reg (locked);
+    locked = std::dynamic_pointer_cast<MediaSourceImpl>
+             (MediaSet::getMediaSet()->ref (source) );
+
+    videoMediaSrc = std::weak_ptr<MediaSourceImpl> (locked);
   }
 
   mutex.unlock();
@@ -122,12 +124,13 @@ MediaElementImpl::getOrCreateAudioMediaSink()
   if (locked.get() == NULL) {
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::AUDIO) );
 
-    locked = std::shared_ptr<MediaSinkImpl> (
-               new  MediaSinkImpl (mediaType, "",
-                                   std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
-    audioMediaSink = std::weak_ptr<MediaSinkImpl> (locked);
+    MediaSinkImpl *sink = new  MediaSinkImpl (mediaType, "",
+        std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) );
 
-    MediaSet::getMediaSet()->reg (locked);
+    locked = std::dynamic_pointer_cast<MediaSinkImpl>
+             (MediaSet::getMediaSet()->ref (sink) );
+
+    audioMediaSink = std::weak_ptr<MediaSinkImpl> (locked);
   }
 
   mutex.unlock();
@@ -150,12 +153,13 @@ MediaElementImpl::getOrCreateVideoMediaSink()
   if (locked.get() == NULL) {
     std::shared_ptr<MediaType> mediaType (new MediaType (MediaType::VIDEO) );
 
-    locked = std::shared_ptr<MediaSinkImpl> (
-               new  MediaSinkImpl (mediaType, "",
-                                   std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) ) );
-    videoMediaSink = std::weak_ptr<MediaSinkImpl> (locked);
+    MediaSinkImpl *sink = new  MediaSinkImpl (mediaType, "",
+        std::dynamic_pointer_cast <MediaElementImpl> (shared_from_this() ) );
 
-    MediaSet::getMediaSet()->reg (locked);
+    locked = std::dynamic_pointer_cast<MediaSinkImpl>
+             (MediaSet::getMediaSet()->ref (sink) );
+
+    videoMediaSink = std::weak_ptr<MediaSinkImpl> (locked);
   }
 
   mutex.unlock();

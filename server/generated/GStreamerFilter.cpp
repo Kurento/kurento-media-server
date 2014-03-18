@@ -8,7 +8,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> GStreamerFilter::Factory::createObject (const Json::Value &params)
+MediaObject * GStreamerFilter::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::string command;

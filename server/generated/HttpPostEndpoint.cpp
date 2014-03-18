@@ -8,7 +8,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> HttpPostEndpoint::Factory::createObject (const Json::Value &params)
+MediaObject * HttpPostEndpoint::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   int disconnectionTimeout = 0;

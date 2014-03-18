@@ -47,15 +47,13 @@ WebRtcEndpointImpl::WebRtcEndpointImpl (
   }
 }
 
-std::shared_ptr< MediaObject >
+MediaObject *
 WebRtcEndpoint::Factory::createObject (
   std::shared_ptr< MediaPipeline > mediaPipeline, int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new WebRtcEndpointImpl (
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new WebRtcEndpointImpl (std::dynamic_pointer_cast<MediaObjectImpl>
+                                 (mediaPipeline),
+                                 garbagePeriod);
 }
 
 } /* kurento */

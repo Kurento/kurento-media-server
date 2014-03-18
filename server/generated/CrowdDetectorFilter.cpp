@@ -9,7 +9,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> CrowdDetectorFilter::Factory::createObject (const Json::Value &params)
+MediaObject * CrowdDetectorFilter::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::vector<std::shared_ptr<RegionOfInterest>> rois;

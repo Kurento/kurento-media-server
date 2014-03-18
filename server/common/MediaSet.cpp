@@ -17,6 +17,7 @@
 
 #include "utils/utils.hpp"
 #include <gst/gst.h>
+#include <KurentoException.hpp>
 
 #define GST_CAT_DEFAULT kurento_media_set
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -24,12 +25,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 namespace kurento
 {
-
-struct _KeepAliveData {
-  guint timeoutId;
-  MediaSet *mediaSet;
-  uint64_t objectId;
-};
 
 std::shared_ptr< MediaSet >
 MediaSet::getMediaSet()
@@ -39,370 +34,274 @@ MediaSet::getMediaSet()
   return mediaSet;
 }
 
-
-static gboolean
-keep_alive_time_out (gpointer dataPointer)
-{
-  KeepAliveData *data = (KeepAliveData *) dataPointer;
-
-  GST_TRACE ("Auto unreg MediaObject %" G_GINT64_FORMAT, data->objectId);
-  data->mediaSet->unreg (data->objectId, false);
-
-  return G_SOURCE_CONTINUE;
-}
-
-class ObjectReleasing
-{
-public:
-  ~ObjectReleasing () {
-    Glib::RefPtr<Glib::TimeoutSource> timeout;
-    gint wait_times = 1;
-
-    while (object && !object.unique() ) {
-      GST_DEBUG ("Object reference %" G_GINT64_FORMAT " is not unique, "
-                 "waiting %d ms", object->getId(), wait_times * 50);
-      g_usleep (wait_times++ * 50000);
-    }
-
-    GST_DEBUG ("Destroying object %" G_GINT64_FORMAT, object->getId() );
-
-    object.reset();
-  }
-
-  std::shared_ptr <MediaObjectImpl> object;
-};
-
-static void
-eraseFromChildren (std::shared_ptr<MediaObjectImpl> mo,
-                   std::map<uint64_t, std::shared_ptr<std::set<uint64_t>> >
-                   &childrenMap)
-{
-  std::shared_ptr<MediaObjectImpl> parent =
-    std::dynamic_pointer_cast<MediaObjectImpl> (mo->getParent() );
-
-  if (parent == NULL) {
-    return;
-  }
-
-  auto it = childrenMap.find (parent->getId() );
-
-  if (it != childrenMap.end() ) {
-    std::shared_ptr<std::set<uint64_t>> children;
-
-    children = it->second;
-    children->erase (mo->getId() );
-  }
-}
-
-static void
-insertIntoChildren (std::shared_ptr<MediaObjectImpl> mo,
-                    std::map<uint64_t, std::shared_ptr<std::set<uint64_t>> >
-                    &childrenMap)
-{
-  std::shared_ptr<std::set<uint64_t>> children;
-  std::shared_ptr<MediaObjectImpl> parent;
-
-  if (mo->getParent() == NULL) {
-    return;
-  }
-
-  parent = std::dynamic_pointer_cast<MediaObjectImpl> (mo->getParent() );
-
-  auto it = childrenMap.find (parent->getId() );
-
-  if (it != childrenMap.end() ) {
-    children = it->second;
-  } else {
-    children = std::shared_ptr<std::set<uint64_t>> (new
-               std::set<uint64_t>() );
-    childrenMap[parent->getId()] = children;
-  }
-
-  children->insert (mo->getId() );
-}
-
 MediaSet::~MediaSet ()
 {
-  threadPool.shutdown (true);
+  childrenMap.clear();
+  sessionMap.clear();
+}
+
+std::shared_ptr<MediaObjectImpl>
+MediaSet::ref (MediaObjectImpl *mediaObjectPtr)
+{
+  Monitor monitor (mutex);
+
+  std::shared_ptr<MediaObjectImpl> mediaObject;
+
+  if (mediaObjectPtr == NULL) {
+    throw KurentoException ("Invalid object");
+  }
+
+  try {
+    mediaObject = std::dynamic_pointer_cast<MediaObjectImpl>
+                  (mediaObjectPtr->shared_from_this() );
+  } catch (std::bad_weak_ptr e) {
+    mediaObject =  std::shared_ptr<MediaObjectImpl> (mediaObjectPtr,
+                   std::bind (
+                     &MediaSet::releasePointer,
+                     this,
+                     std::placeholders::_1) );
+  }
+
+  objectsMap[mediaObject->getId()] = std::weak_ptr<MediaObjectImpl> (mediaObject);
+
+  if (mediaObject->getParent() ) {
+    std::shared_ptr<MediaObjectImpl> parent = std::dynamic_pointer_cast
+        <MediaObjectImpl> (mediaObject->getParent() );
+
+    ref (parent.get() );
+    childrenMap[parent->getId()][mediaObject->getId()] = mediaObject;
+  }
+
+  return mediaObject;
 }
 
 void
-MediaSet::keepAlive (const uint64_t &mediaObject)
+MediaSet::ref (const std::string &sessionId,
+               std::shared_ptr<MediaObjectImpl> mediaObject)
 {
-  std::shared_ptr<MediaObjectImpl> mo;
-  std::shared_ptr<KeepAliveData> data;
-  std::map<uint64_t, std::shared_ptr<KeepAliveData>>::iterator it;
+  Monitor monitor (mutex);
 
-  /* Check that object exists and it is not exluded from GC */
-  mo = getMediaObject (mediaObject);
+  if (mediaObject->getParent() ) {
+    ref (sessionId,
+         std::dynamic_pointer_cast<MediaObjectImpl> (mediaObject->getParent() ) );
+  }
 
-  if (mo->getGarbagePeriod () == 0 ) {
-    GST_DEBUG ("MediaObject %" G_GINT64_FORMAT " is excluded from GC",
-               mediaObject);
+  sessionMap[sessionId][mediaObject->getId()] = mediaObject;
+  reverseSessionMap[mediaObject->getId()].insert (sessionId);
+  ref (mediaObject.get() );
+}
+
+void
+MediaSet::keepAliveSession (const std::string &sessionId)
+{
+  // TODO:
+}
+
+void
+MediaSet::releaseSession (const std::string &sessionId)
+{
+  // TODO
+}
+
+void
+MediaSet::unrefSession (const std::string &sessionId)
+{
+  // TODO
+}
+
+void
+MediaSet::unref (const std::string &sessionId,
+                 std::shared_ptr< MediaObjectImpl > mediaObject)
+{
+  Monitor monitor (mutex);
+
+  auto it = sessionMap.find (sessionId);
+
+  if (it == sessionMap.end() ) {
     return;
   }
 
-  mutex.lock();
-  it = mediaObjectsAlive.find (mediaObject);
+  auto it2 = it->second.find (mediaObject->getId() );
 
-  if (it != mediaObjectsAlive.end() ) {
-    data = it->second;
-
-    if (data->timeoutId != 0) {
-      g_source_remove (data->timeoutId);
-    }
-
-    data->timeoutId = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
-                      mo->getGarbagePeriod() * 2, keep_alive_time_out,
-                      (gpointer) data.get (), NULL);
-  }
-
-  mutex.unlock();
-}
-
-void
-MediaSet::reg (std::shared_ptr<MediaObjectImpl> mediaObject)
-{
-  std::shared_ptr<MediaObjectImpl> mo;
-
-  mutex.lock();
-
-  mo = mediaObjectToRef (mediaObject->getId() );
-
-  if (mo != NULL) {
-    if (mediaObject.get () != mo.get () ) {
-      GST_ERROR ("There is another MediaObject registered "
-                 "with the same id (%" G_GINT64_FORMAT ")", mo->getId() );
-    } else {
-      GST_DEBUG ("MediaObject %" G_GINT64_FORMAT " is already in the MediaSet",
-                 mo->getId() );
-    }
-
-    mutex.unlock();
+  if (it2 == it->second.end() ) {
     return;
   }
 
-  mediaObject->setState (MediaObjectImpl::REF);
-  insertIntoChildren (mediaObject, childrenRefMap);
-  mediaObjectsRefMap[mediaObject->getId()] = mediaObject;
+  it->second.erase (it2);
 
-  if (mediaObject->getGarbagePeriod () != 0) {
-    std::shared_ptr<KeepAliveData> data;
-
-    data = std::shared_ptr<KeepAliveData> (new KeepAliveData() );
-    data->mediaSet = this;
-    data->objectId = mediaObject->getId();
-
-    mediaObjectsAlive[mediaObject->getId()] = data;
-    keepAlive (mediaObject->getId() );
+  if (it->second.size() == 0) {
+    sessionMap.erase (it);
   }
 
-  mutex.unlock();
-}
+  auto it3 = reverseSessionMap.find (mediaObject->getId() );
 
-void
-MediaSet::removeAutoRelease (const uint64_t &id)
-{
-  std::shared_ptr<KeepAliveData> data;
-  std::map<uint64_t, std::shared_ptr<KeepAliveData>>::iterator it;
+  if (it3 != reverseSessionMap.end() ) {
+    it3->second.erase (sessionId);
 
-  mutex.lock();
-  it = mediaObjectsAlive.find (id);
+    auto childrenIt = childrenMap.find (mediaObject->getId() );
 
-  if (it != mediaObjectsAlive.end() ) {
-    data = it->second;
+    if (childrenIt != childrenMap.end() ) {
+      auto childMap = childrenIt->second;
 
-    if (data->timeoutId != 0) {
-      g_source_remove (data->timeoutId);
-    }
-  }
-
-  mutex.unlock();
-}
-
-void
-MediaSet::releaseMediaObject (std::shared_ptr<MediaObjectImpl> mo)
-{
-  ObjectReleasing *obj = new ObjectReleasing();
-
-  obj->object = mo;
-  mo.reset();
-
-  threadPool.push ([obj] () {
-    delete obj;
-  } );
-}
-
-void
-MediaSet::unreg (const uint64_t &id, bool force)
-{
-  unregRecursive (id, force);
-}
-
-void
-MediaSet::unregRecursive (const uint64_t &id, bool force, bool rec)
-{
-  std::shared_ptr<MediaObjectImpl> mo;
-  std::shared_ptr<MediaObjectImpl> parent;
-
-  mutex.lock();
-
-  mo = mediaObjectToUnref (id);
-
-  if (mo == NULL) {
-    mutex.unlock();
-    return;
-  }
-
-  auto childrenRefMapIt = childrenRefMap.find (id);
-
-  if (childrenRefMapIt != childrenRefMap.end() ) {
-    std::shared_ptr<std::set<uint64_t>> childrenRef =
-                                       childrenRefMapIt->second;
-
-    if (force || mo->getUnregChilds () ) {
-      childrenRefMap.erase (id);
-
-      for (auto it = childrenRef->begin(); it != childrenRef->end(); it++) {
-        unregRecursive (*it, force, true);
+      for (auto child : childMap) {
+        unref (sessionId, child.second);
       }
-    } else if (!childrenRef->empty () ) {
-      GST_DEBUG ("MediaObject %" G_GINT64_FORMAT
-                 " has children and not is forcing, so it will not be removed.", id);
-      mutex.unlock();
-      return;
+    }
+
+    if (it3->second.size() == 0) {
+      std::shared_ptr<MediaObjectImpl> parent;
+      // Object has been removed from all the sessions, remove it from childrenMap
+      childrenMap.erase (mediaObject->getId() );
+
+      parent = std::dynamic_pointer_cast<MediaObjectImpl> (mediaObject->getParent() );
+
+      if (parent) {
+        childrenMap[parent->getId()].erase (mediaObject->getId() );
+      }
     }
   }
+}
 
-  parent = std::dynamic_pointer_cast<MediaObjectImpl> (mo->getParent() );
+void
+MediaSet::unref (const std::string &sessionId,
+                 const std::string &mediaObjectRef)
+{
+  std::shared_ptr <MediaObjectImpl> object;
 
-  if (!rec) {
-    if (parent != NULL
-        && parent->getState () == MediaObjectImpl::UNREF) {
-      unregRecursive (parent->getId(), force);
-    }
-  }
-
-  if (!force && mo->getGarbagePeriod () == 0 ) {
-    mutex.unlock();
+  try {
+    object = getMediaObject (mediaObjectRef);
+  } catch (KurentoException e) {
     return;
   }
 
-  auto childrenUnrefMapIt = childrenUnrefMap.find (id);
-
-  if (childrenUnrefMapIt != childrenUnrefMap.end() ) {
-    std::shared_ptr<std::set<uint64_t>> childrenUnref =
-                                       childrenUnrefMapIt->second;
-    childrenUnrefMap.erase (id);
-
-    for (auto it = childrenUnref->begin(); it != childrenUnref->end(); it++) {
-      unregRecursive (*it, true, true);
-    }
-  }
-
-  mediaObjectsUnrefMap.erase (id);
-  removeAutoRelease (mo->getId() );
-  mediaObjectsAlive.erase (mo->getId() );
-
-  GST_TRACE ("Release MediaObject %" G_GINT64_FORMAT, id);
-
-  mutex.unlock();
-
-  releaseMediaObject (mo);
+  unref (sessionId, object);
 }
 
-int
-MediaSet::size ()
+void
+MediaSet::unref (const std::string &sessionId, const uint64_t &mediaObjectRef)
 {
-  int size;
+  std::shared_ptr <MediaObjectImpl> object;
 
+  try {
+    object = getMediaObject (mediaObjectRef);
+  } catch (KurentoException e) {
+    return;
+  }
+
+  unref (sessionId, object);
+}
+
+void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
+{
+  GST_DEBUG ("Releasing media object %s", mediaObject->getIdStr().c_str() );
   mutex.lock();
-  size = mediaObjectsRefMap.size();
+  objectsMap.erase (mediaObject->getId() );
   mutex.unlock();
 
-  return size;
+  threadPool.push ( [mediaObject] () {
+    GST_DEBUG ("Detroying %s", mediaObject->getIdStr().c_str() );
+    delete mediaObject;
+  });
 }
 
-std::shared_ptr<MediaObjectImpl>
-MediaSet::mediaObjectToRef (const uint64_t &id)
+void MediaSet::release (std::shared_ptr< MediaObjectImpl > mediaObject)
 {
-  std::shared_ptr<MediaObjectImpl> mo = NULL;
+  Monitor monitor (mutex);
 
+  auto it = reverseSessionMap.find (mediaObject->getId() );
+
+  if (it == reverseSessionMap.end() ) {
+    /* Already released */
+    return;
+  }
+
+  auto sessions = it->second;
+
+  for (auto it2 : sessions) {
+    unref (it2, mediaObject);
+  }
+
+  objectsMap.erase (mediaObject->getId() );
+}
+
+void MediaSet::release (const std::string &mediaObjectRef)
+{
+  try {
+    std::shared_ptr< MediaObjectImpl > obj = getMediaObject (mediaObjectRef);
+
+    release (obj);
+  } catch (...) {
+    /* Do not raise exception if it is already released*/
+  }
+}
+
+void MediaSet::release (const uint64_t &mediaObjectRef)
+{
+  try {
+    std::shared_ptr< MediaObjectImpl > obj = getMediaObject (mediaObjectRef);
+
+    release (obj);
+  } catch (...) {
+    /* Do not raise exception if it is already released*/
+  }
+}
+
+std::shared_ptr< MediaObjectImpl >
+MediaSet::getMediaObject (const std::string &mediaObjectRef)
+{
+  uint64_t objectRef;
+
+  try {
+#if __WORDSIZE == 64
+    objectRef = std::stoul (mediaObjectRef);
+#else
+    objectRef = std::stoull (mediaObjectRef);
+#endif
+  } catch (...) {
+    throw KurentoException ("Invalid object reference");
+  }
+
+  return getMediaObject (objectRef);
+}
+
+std::shared_ptr< MediaObjectImpl >
+MediaSet::getMediaObject (const uint64_t &mediaObjectRef)
+{
+  std::shared_ptr <MediaObjectImpl> objectLocked;
+  Monitor monitor (mutex);
+
+  auto it = objectsMap.find (mediaObjectRef);
+
+  if (it == objectsMap.end() ) {
+    throw KurentoException ("Object not found");
+  }
+
+  try {
+    objectLocked = it->second.lock();
+  } catch (...) {
+    throw KurentoException ("Object not found");
+  }
+
+  if (!objectLocked) {
+    throw KurentoException ("Object not found");
+  }
+
+  return objectLocked;
+}
+
+MediaSet::Monitor::Monitor (Glib::Threads::RecMutex &mutex) : mutex (mutex)
+{
   mutex.lock();
-
-  auto refIf = mediaObjectsRefMap.find (id);
-
-  if (refIf != mediaObjectsRefMap.end () ) {
-    mo = refIf->second;
-  } else {
-    auto unrefIt = mediaObjectsUnrefMap.find (id);
-
-    if (unrefIt != mediaObjectsUnrefMap.end () ) {
-      mo = unrefIt->second;
-
-      GST_TRACE ("MediaObject %" G_GINT64_FORMAT " to REF state", mo->getId() );
-      mo->setState (MediaObjectImpl::REF);
-
-      eraseFromChildren (mo, childrenUnrefMap);
-      insertIntoChildren (mo, childrenRefMap);
-
-      mediaObjectsUnrefMap.erase (id);
-      mediaObjectsRefMap[id] = mo;
-    }
-  }
-
-  mutex.unlock();
-
-  return mo;
 }
 
-std::shared_ptr<MediaObjectImpl>
-MediaSet::mediaObjectToUnref (const uint64_t &id)
+MediaSet::Monitor::~Monitor()
 {
-  std::shared_ptr<MediaObjectImpl> mo = NULL;
-
-  mutex.lock();
-
-  auto unrefIt = mediaObjectsUnrefMap.find (id);
-
-  if (unrefIt != mediaObjectsUnrefMap.end () ) {
-    mo = unrefIt->second;
-  } else {
-    auto refIt = mediaObjectsRefMap.find (id);
-
-    if (refIt != mediaObjectsRefMap.end () ) {
-      mo = refIt->second;
-
-      GST_TRACE ("MediaObject %" G_GINT64_FORMAT " to UNREF state", mo->getId() );
-      mo->setState (MediaObjectImpl::REF);
-
-      eraseFromChildren (mo, childrenRefMap);
-      insertIntoChildren (mo, childrenUnrefMap);
-
-      mediaObjectsRefMap.erase (id);
-      mediaObjectsUnrefMap[id] = mo;
-      removeAutoRelease (id);
-    }
-  }
-
   mutex.unlock();
-
-  return mo;
 }
 
-std::shared_ptr<MediaObjectImpl>
-MediaSet::getMediaObject (const uint64_t &mediaObject)
+void MediaSet::deleter (MediaObjectImpl *mo)
 {
-  std::shared_ptr<MediaObjectImpl> mo;
-
-  mo = mediaObjectToRef (mediaObject);
-
-  if (mo == NULL) {
-    MediaObjectNotFound except;
-    throw except;
-  }
-
-  return mo;
+  GST_ERROR ("Deleting");
 }
 
 MediaSet::StaticConstructor MediaSet::staticConstructor;

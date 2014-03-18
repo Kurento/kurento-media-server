@@ -9,7 +9,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> ChromaFilter::Factory::createObject (const Json::Value &params)
+MediaObject * ChromaFilter::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::shared_ptr<WindowParam> window;

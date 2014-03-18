@@ -29,16 +29,15 @@ public:
   public:
     Factory () {};
 
-    virtual std::shared_ptr<MediaObject> createObject (const Json::Value
-        &params);
-
     virtual std::string getName () {
       return "HttpGetEndpoint";
     };
 
   private:
 
-    std::shared_ptr<MediaObject> createObject (std::shared_ptr<MediaPipeline> mediaPipeline, bool terminateOnEOS, std::shared_ptr<MediaProfileSpecType> mediaProfile, int disconnectionTimeout, int garbagePeriod);
+    virtual MediaObject * createObjectPointer (const Json::Value &params);
+
+    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, bool terminateOnEOS, std::shared_ptr<MediaProfileSpecType> mediaProfile, int disconnectionTimeout, int garbagePeriod);
 
     class StaticConstructor
     {

@@ -35,15 +35,12 @@ DispatcherImpl::DispatcherImpl (
 {
 }
 
-std::shared_ptr<MediaObject>
-Dispatcher::Factory::createObject (std::shared_ptr<MediaPipeline>
-                                   parent,
+MediaObject *
+Dispatcher::Factory::createObject (std::shared_ptr<MediaPipeline> parent,
                                    int garbagePeriod)
 {
-  std::shared_ptr <MediaObject> obj (new DispatcherImpl (
-                                       std::dynamic_pointer_cast<MediaObjectImpl> (parent), garbagePeriod) );
-
-  return obj;
+  return new DispatcherImpl (
+           std::dynamic_pointer_cast<MediaObjectImpl> (parent), garbagePeriod);
 }
 
 void

@@ -28,11 +28,6 @@ class MediaObjectImpl : public virtual MediaObject
 {
 
 public:
-  typedef enum {
-    REF,
-    UNREF
-  } State;
-
   MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
   MediaObjectImpl (int garbagePeriod);
 
@@ -56,13 +51,6 @@ public:
     return garbagePeriod;
   }
 
-  State getState () {
-    return state;
-  }
-  void setState (State state) {
-    this->state = state;
-  }
-
   virtual bool getUnregChilds() {
     return true;
   };
@@ -70,7 +58,6 @@ public:
   std::string getIdStr ();
 
 private:
-  State state = REF;
   std::shared_ptr<MediaObjectImpl> parent;
   int garbagePeriod;
   guint64 id = createId();

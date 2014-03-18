@@ -8,7 +8,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> JackVaderFilter::Factory::createObject (const Json::Value &params)
+MediaObject * JackVaderFilter::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   int garbagePeriod = 0;

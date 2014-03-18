@@ -59,16 +59,14 @@ GStreamerFilterImpl::GStreamerFilterImpl (
   }
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 GStreamerFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
   const std::string &command, int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new GStreamerFilterImpl (command,
-                                       std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                       garbagePeriod) );
-
-  return object;
+  return new GStreamerFilterImpl (command,
+                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+                                  garbagePeriod);
 }
 
 void

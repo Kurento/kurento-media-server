@@ -98,19 +98,15 @@ RecorderEndpointImpl::record ()
   start();
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 RecorderEndpoint::Factory::createObject (std::shared_ptr<MediaPipeline>
     mediaPipeline, const std::string &uri,
     std::shared_ptr<MediaProfileSpecType> mediaProfile, bool stopOnEndOfStream,
     int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> obj (
-    new RecorderEndpointImpl (mediaProfile,
-                              stopOnEndOfStream, uri,
-                              std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                              garbagePeriod) );
-
-  return obj;
+  return new RecorderEndpointImpl (mediaProfile, stopOnEndOfStream, uri,
+                                   std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+                                   garbagePeriod);
 }
 
 

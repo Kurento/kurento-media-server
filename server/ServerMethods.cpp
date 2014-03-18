@@ -80,7 +80,8 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
     obj = MediaObject::Factory::getObject (params["object"].asString () );
     objImpl = std::dynamic_pointer_cast<MediaObjectImpl> (obj);
 
-    MediaSet::getMediaSet()->keepAlive (objImpl->getId() );
+    // TODO: keep alive should be implemented by session
+    //MediaSet::getMediaSet()->keepAlive (objImpl->getId() );
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -132,7 +133,7 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
     obj = MediaObject::Factory::getObject (params["object"].asString () );
     objImpl = std::dynamic_pointer_cast<MediaObjectImpl> (obj);
 
-    MediaSet::getMediaSet()->unreg (objImpl->getId(), true);
+    MediaSet::getMediaSet()->release (objImpl);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -389,7 +390,7 @@ ServerMethods::create (const Json::Value &params,
       object = std::dynamic_pointer_cast<MediaObjectImpl> (
                  factory->createObject (params["constructorParams"]) );
 
-      MediaSet::getMediaSet()->reg (object);
+      MediaSet::getMediaSet()->ref ("default_sesion", object);
       response = object->getIdStr();
     } catch (KurentoException &ex) {
       Json::Value data;

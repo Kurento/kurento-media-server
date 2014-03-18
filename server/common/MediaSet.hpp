@@ -19,7 +19,8 @@
 #include "types/MediaObjectImpl.hpp"
 
 #include <glibmm.h>
-#include <set>
+#include <unordered_set>
+#include <map>
 #include <memory>
 
 namespace kurento
@@ -36,46 +37,51 @@ class MediaSet
 public:
   ~MediaSet ();
 
-  /**
-   * Set the state of the MediaObject as referenced and
-   * register it in the MediaSet only if it is not into yet.
-   */
-  void reg (std::shared_ptr<MediaObjectImpl> mediaObject);
-  void keepAlive (const uint64_t &mediaObjectRef);
+  void ref (const std::string &sessionId,
+            std::shared_ptr<MediaObjectImpl> mediaObject);
+  std::shared_ptr<MediaObjectImpl> ref (MediaObjectImpl *mediaObject);
 
-  /**
-   * Set the state of the MediaObject as unreferenced and
-   * unregister it, and release it if possible.
-   */
-  void unreg (const uint64_t &mediaObjectRef, bool force = true);
-  int size();
+  void unref (const std::string &sessionId,
+              std::shared_ptr<MediaObjectImpl> mediaObject);
+  void unref (const std::string &sessionId, const std::string &mediaObjectRef);
+  void unref (const std::string &sessionId, const uint64_t &mediaObjectRef);
 
+  void releaseSession (const std::string &sessionId);
+  void unrefSession (const std::string &sessionId);
+  void keepAliveSession (const std::string &sessionId);
+
+  void release (std::shared_ptr<MediaObjectImpl> mediaObject);
+  void release (const std::string &mediaObjectRef);
+  void release (const uint64_t &mediaObjectRef);
+
+  std::shared_ptr<MediaObjectImpl> getMediaObject (const std::string
+      &mediaObjectRef);
   std::shared_ptr<MediaObjectImpl> getMediaObject (const uint64_t
       &mediaObjectRef);
 
   static std::shared_ptr<MediaSet> getMediaSet();
 
+  static void deleter (MediaObjectImpl *mo);
+
 private:
+
+  void releasePointer (MediaObjectImpl *obj);
+
   MediaSet () {};
 
   Glib::Threads::RecMutex mutex;
-  std::map<uint64_t, std::shared_ptr<MediaObjectImpl> >
-  mediaObjectsRefMap, mediaObjectsUnrefMap;
-  std::map<uint64_t, std::shared_ptr<std::set<uint64_t>> >
-      childrenRefMap, childrenUnrefMap;
-  std::map<uint64_t, std::shared_ptr<KeepAliveData>> mediaObjectsAlive;
+
+  std::map<uint64_t, std::weak_ptr <MediaObjectImpl>> objectsMap;
+
+  std::map<uint64_t, std::map <uint64_t, std::shared_ptr <MediaObjectImpl>>>
+  childrenMap;
+
+  std::map<std::string, std::map <uint64_t, std::shared_ptr<MediaObjectImpl>>>
+  sessionMap;
+
+  std::map<uint64_t, std::unordered_set<std::string>> reverseSessionMap;
 
   Glib::ThreadPool threadPool;
-
-  void removeAutoRelease (const uint64_t &mediaObjectRef);
-
-  std::shared_ptr<MediaObjectImpl> mediaObjectToRef (const uint64_t
-      &mediaObjectRef);
-  std::shared_ptr<MediaObjectImpl> mediaObjectToUnref (const uint64_t
-      &mediaObjectRef);
-  void releaseMediaObject (std::shared_ptr<MediaObjectImpl> mo);
-  void unregRecursive (const uint64_t &mediaObjectRef, bool force = true,
-                       bool rec = false);
 
   class StaticConstructor
   {
@@ -84,6 +90,15 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  class Monitor
+  {
+  public:
+    Glib::Threads::RecMutex &mutex;
+
+    Monitor (Glib::Threads::RecMutex &mutex);
+    ~Monitor ();
+  };
 };
 
 } // kurento

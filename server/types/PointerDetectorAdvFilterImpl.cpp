@@ -254,19 +254,16 @@ PointerDetectorAdvFilterImpl::removeWindow (const std::string &windowId)
   gst_structure_free (buttonsLayout);
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 PointerDetectorAdvFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
   std::shared_ptr<WindowParam> calibrationRegion,
   const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>> &windows,
   int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new PointerDetectorAdvFilterImpl (
-                                         calibrationRegion, windows,
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new PointerDetectorAdvFilterImpl (calibrationRegion, windows,
+         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+         garbagePeriod);
 }
 
 PointerDetectorAdvFilterImpl::StaticConstructor

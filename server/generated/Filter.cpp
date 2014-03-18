@@ -7,7 +7,6 @@
 
 namespace kurento {
 
-
 void
 Filter::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     const std::string &methodName, const Json::Value &params,

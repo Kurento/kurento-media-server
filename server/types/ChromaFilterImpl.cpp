@@ -72,17 +72,15 @@ ChromaFilterImpl::unsetBackground ()
   g_object_set (G_OBJECT (chroma), SET_BACKGROUND_URI, NULL, NULL);
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 ChromaFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
   std::shared_ptr<WindowParam> window, const std::string &backgroundImage,
   int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new ChromaFilterImpl (
-                                         window, backgroundImage,
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline), garbagePeriod) );
-
-  return object;
+  return new ChromaFilterImpl (window, backgroundImage,
+                               std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+                               garbagePeriod);
 }
 
 ChromaFilterImpl::StaticConstructor ChromaFilterImpl::staticConstructor;

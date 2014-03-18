@@ -107,15 +107,13 @@ ZBarFilterImpl::barcodeDetected (guint64 ts, std::string &type,
   }
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 ZBarFilter::Factory::createObject (std::shared_ptr<MediaPipeline> mediaPipeline,
                                    int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new ZBarFilterImpl (
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new ZBarFilterImpl (std::dynamic_pointer_cast<MediaObjectImpl>
+                             (mediaPipeline),
+                             garbagePeriod);
 }
 
 ZBarFilterImpl::~ZBarFilterImpl()

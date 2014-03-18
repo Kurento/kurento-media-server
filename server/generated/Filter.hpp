@@ -27,16 +27,15 @@ public:
   public:
     Factory () {};
 
-    virtual std::shared_ptr<MediaObject> createObject (const Json::Value
-        &params);
-
     virtual std::string getName () {
       return "Filter";
     };
 
   private:
 
-    std::shared_ptr<MediaObject> createObject (int garbagePeriod);
+    virtual MediaObject * createObjectPointer (const Json::Value &params);
+
+    MediaObject * createObject (int garbagePeriod);
 
     class StaticConstructor
     {

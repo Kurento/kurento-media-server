@@ -10,7 +10,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> PointerDetectorAdvFilter::Factory::createObject (const Json::Value &params)
+MediaObject * PointerDetectorAdvFilter::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::shared_ptr<WindowParam> calibrationRegion;

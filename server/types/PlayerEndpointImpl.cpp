@@ -87,17 +87,14 @@ PlayerEndpointImpl::play ()
   start();
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 PlayerEndpoint::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline, const std::string &uri,
   bool useEncodedMedia, int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> obj (
-    new PlayerEndpointImpl (useEncodedMedia, uri,
-                            std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                            garbagePeriod) );
-
-  return obj;
+  return  new PlayerEndpointImpl (useEncodedMedia, uri,
+                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+                                  garbagePeriod);
 }
 
 

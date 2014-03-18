@@ -48,18 +48,16 @@ HttpGetEndpointImpl::HttpGetEndpointImpl (
   }
 }
 
-std::shared_ptr< MediaObject >
+MediaObject *
 HttpGetEndpoint::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline, bool terminateOnEOS,
   std::shared_ptr<MediaProfileSpecType> mediaProfile, int disconnectionTimeout,
   int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new HttpGetEndpointImpl (
-                                         terminateOnEOS, mediaProfile, disconnectionTimeout,
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new HttpGetEndpointImpl (terminateOnEOS, mediaProfile,
+                                  disconnectionTimeout,
+                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+                                  garbagePeriod);
 }
 
 } /* kurento */

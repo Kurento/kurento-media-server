@@ -40,16 +40,15 @@ public:
   public:
     Factory () {};
 
-    virtual std::shared_ptr<MediaObject> createObject (const Json::Value
-        &params);
-
     virtual std::string getName () {
       return "PointerDetectorFilter";
     };
 
   private:
 
-    std::shared_ptr<MediaObject> createObject (std::shared_ptr<MediaPipeline> mediaPipeline, const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>>& windows, int garbagePeriod);
+    virtual MediaObject * createObjectPointer (const Json::Value &params);
+
+    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>>& windows, int garbagePeriod);
 
     class StaticConstructor
     {

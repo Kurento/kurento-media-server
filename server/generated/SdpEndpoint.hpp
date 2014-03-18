@@ -33,14 +33,13 @@ public:
   public:
     Factory () {};
 
-    virtual std::shared_ptr<MediaObject> createObject (const Json::Value
-        &params);
-
     virtual std::string getName () {
       return "SdpEndpoint";
     };
 
   private:
+
+    virtual MediaObject * createObjectPointer (const Json::Value &params);
 
 
     class StaticConstructor

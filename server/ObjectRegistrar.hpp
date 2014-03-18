@@ -31,12 +31,14 @@ public:
   Factory() {};
   virtual ~Factory() {};
 
-  virtual std::shared_ptr<MediaObject> createObject (const Json::Value
-      &params) = 0;
+  std::shared_ptr<MediaObject> createObject (const Json::Value &params);
 
   static std::shared_ptr<MediaObject> getObject (const std::string &id);
 
   virtual std::string getName() = 0;
+
+protected:
+  virtual MediaObject *createObjectPointer (const Json::Value &params) = 0;
 };
 
 class ObjectRegistrar

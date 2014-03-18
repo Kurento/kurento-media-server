@@ -70,6 +70,13 @@ Factory::getObject (const std::string &id)
   return std::dynamic_pointer_cast <MediaObject> (obj);
 }
 
+std::shared_ptr< MediaObject >
+Factory::createObject (const Json::Value &params)
+{
+  return MediaSet::getMediaSet()->ref (dynamic_cast <MediaObjectImpl *>
+                                       (createObjectPointer (params) ) );
+}
+
 std::shared_ptr<ObjectRegistrar> objectRegistrar (new ObjectRegistrar() );
 
 } /* kurento */

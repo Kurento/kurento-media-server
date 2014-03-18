@@ -32,16 +32,15 @@ public:
   public:
     Factory () {};
 
-    virtual std::shared_ptr<MediaObject> createObject (const Json::Value
-        &params);
-
     virtual std::string getName () {
       return "ChromaFilter";
     };
 
   private:
 
-    std::shared_ptr<MediaObject> createObject (std::shared_ptr<MediaPipeline> mediaPipeline, std::shared_ptr<WindowParam> window, const std::string& backgroundImage, int garbagePeriod);
+    virtual MediaObject * createObjectPointer (const Json::Value &params);
+
+    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, std::shared_ptr<WindowParam> window, const std::string& backgroundImage, int garbagePeriod);
 
     class StaticConstructor
     {

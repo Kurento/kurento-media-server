@@ -8,7 +8,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> RtpEndpoint::Factory::createObject (const Json::Value &params)
+MediaObject * RtpEndpoint::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   int garbagePeriod = 0;

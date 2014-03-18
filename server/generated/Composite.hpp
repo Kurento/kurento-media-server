@@ -28,16 +28,15 @@ public:
   public:
     Factory () {};
 
-    virtual std::shared_ptr<MediaObject> createObject (const Json::Value
-        &params);
-
     virtual std::string getName () {
       return "Composite";
     };
 
   private:
 
-    std::shared_ptr<MediaObject> createObject (std::shared_ptr<MediaPipeline> mediaPipeline, int garbagePeriod);
+    virtual MediaObject * createObjectPointer (const Json::Value &params);
+
+    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, int garbagePeriod);
 
     class StaticConstructor
     {

@@ -8,7 +8,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> PlayerEndpoint::Factory::createObject (const Json::Value &params)
+MediaObject * PlayerEndpoint::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::string uri;

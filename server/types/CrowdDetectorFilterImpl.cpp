@@ -98,18 +98,15 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
   g_object_unref (crowdDetector);
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 CrowdDetectorFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
   const std::vector<std::shared_ptr<RegionOfInterest>> &rois,
   int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new CrowdDetectorFilterImpl (
-                                         rois,
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new CrowdDetectorFilterImpl (rois,
+                                      std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+                                      garbagePeriod);
 }
 
 CrowdDetectorFilterImpl::StaticConstructor

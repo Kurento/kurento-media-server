@@ -82,11 +82,10 @@ MediaPipelineImpl::~MediaPipelineImpl ()
   g_object_unref (pipeline);
 }
 
-std::shared_ptr< MediaObject >
+MediaObject *
 MediaPipeline::Factory::createObject (int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> pipe (new MediaPipelineImpl (garbagePeriod) );
-  return pipe;
+  return new MediaPipelineImpl (garbagePeriod);
 }
 
 } /* kurento */

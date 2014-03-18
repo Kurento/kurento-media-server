@@ -42,16 +42,14 @@ JackVaderFilterImpl::JackVaderFilterImpl (
   g_object_unref (filter);
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 JackVaderFilter::Factory::createObject (std::shared_ptr<MediaPipeline>
                                         mediaPipeline,
                                         int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new JackVaderFilterImpl (
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new JackVaderFilterImpl (std::dynamic_pointer_cast<MediaObjectImpl>
+                                  (mediaPipeline),
+                                  garbagePeriod);
 }
 
 JackVaderFilterImpl::StaticConstructor JackVaderFilterImpl::staticConstructor;

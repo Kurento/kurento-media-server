@@ -33,15 +33,12 @@ CompositeImpl::CompositeImpl (
 {
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 Composite::Factory::createObject (std::shared_ptr<MediaPipeline> parent,
                                   int garbagePeriod)
 {
-  std::shared_ptr <MediaObject> obj (new CompositeImpl (
-                                       std::dynamic_pointer_cast<MediaObjectImpl> (parent),
-                                       garbagePeriod) );
-
-  return obj;
+  return new CompositeImpl (std::dynamic_pointer_cast<MediaObjectImpl> (parent),
+                            garbagePeriod);
 }
 
 CompositeImpl::StaticConstructor CompositeImpl::staticConstructor;

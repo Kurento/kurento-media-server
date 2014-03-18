@@ -9,7 +9,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> HttpGetEndpoint::Factory::createObject (const Json::Value &params)
+MediaObject * HttpGetEndpoint::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   bool terminateOnEOS = false;

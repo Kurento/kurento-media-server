@@ -28,15 +28,13 @@ RtpEndpointImpl::RtpEndpointImpl (
   g_object_set (element, "pattern-sdp", sdpPattern, NULL);
 }
 
-std::shared_ptr< MediaObject >
+MediaObject *
 RtpEndpoint::Factory::createObject (
   std::shared_ptr< MediaPipeline > mediaPipeline, int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new RtpEndpointImpl (
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new RtpEndpointImpl (
+           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
+           garbagePeriod);
 }
 
 } /* kurento */

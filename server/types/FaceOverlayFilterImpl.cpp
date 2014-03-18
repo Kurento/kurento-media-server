@@ -72,16 +72,13 @@ FaceOverlayFilterImpl::setOverlayedImage (const std::string &uri,
   gst_structure_free (imageSt);
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 FaceOverlayFilter::Factory::createObject (std::shared_ptr<MediaPipeline>
     mediaPipeline,
     int garbagePeriod)
 {
-  std::shared_ptr<MediaObject> object (new FaceOverlayFilterImpl (
-                                         std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                         garbagePeriod) );
-
-  return object;
+  return new FaceOverlayFilterImpl (
+           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline), garbagePeriod);
 }
 
 FaceOverlayFilterImpl::StaticConstructor

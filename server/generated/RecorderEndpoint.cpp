@@ -9,7 +9,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> RecorderEndpoint::Factory::createObject (const Json::Value &params)
+MediaObject * RecorderEndpoint::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::string uri;

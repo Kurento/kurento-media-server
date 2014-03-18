@@ -8,7 +8,7 @@
 
 namespace kurento {
 
-std::shared_ptr<MediaObject> HubPort::Factory::createObject (const Json::Value &params)
+MediaObject * HubPort::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<Hub> hub;
   int garbagePeriod = 0;

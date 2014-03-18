@@ -51,15 +51,13 @@ DispatcherOneToManyImpl::removeSource ()
   g_object_set (G_OBJECT (element), MAIN_END_POINT, MAIN_PORT_DEFAULT, NULL);
 }
 
-std::shared_ptr<MediaObject>
+MediaObject *
 DispatcherOneToMany::Factory::createObject (std::shared_ptr<MediaPipeline>
     parent,
     int garbagePeriod)
 {
-  std::shared_ptr <MediaObject> obj (new DispatcherOneToManyImpl (
-                                       std::dynamic_pointer_cast<MediaObjectImpl> (parent), garbagePeriod) );
-
-  return obj;
+  return new DispatcherOneToManyImpl (
+           std::dynamic_pointer_cast<MediaObjectImpl> (parent), garbagePeriod);
 }
 
 DispatcherOneToManyImpl::StaticConstructor
