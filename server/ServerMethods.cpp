@@ -20,6 +20,7 @@
 #include <string>
 #include <EventHandler.hpp>
 #include <KurentoException.hpp>
+#include "utils/utils.hpp"
 
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -45,6 +46,9 @@ ServerMethods::ServerMethods()
   handler.addMethod ("release", std::bind (&ServerMethods::release,
                      this, std::placeholders::_1,
                      std::placeholders::_2) );
+  handler.addMethod ("unref", std::bind (&ServerMethods::unref,
+                                         this, std::placeholders::_1,
+                                         std::placeholders::_2) );
   handler.addMethod ("keepAlive", std::bind (&ServerMethods::keepAlive,
                      this, std::placeholders::_1,
                      std::placeholders::_2) );
@@ -68,20 +72,14 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
     throw e;
   }
 
-  if (!params["object"].isString() ) {
+  if (!params["sessionId"].isString() ) {
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'object' parameter should be a string");
+                              "'sessionId' parameter should be a string");
     throw e;
   }
 
   try {
-    std::shared_ptr<MediaObjectImpl> objImpl;
-
-    obj = MediaObject::Factory::getObject (params["object"].asString () );
-    objImpl = std::dynamic_pointer_cast<MediaObjectImpl> (obj);
-
-    // TODO: keep alive should be implemented by session
-    //MediaSet::getMediaSet()->keepAlive (objImpl->getId() );
+    MediaSet::getMediaSet()->keepAliveSession (params["sessionId"].asString () );
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -128,12 +126,61 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
   }
 
   try {
-    std::shared_ptr<MediaObjectImpl> objImpl;
+    MediaSet::getMediaSet()->release (params["object"].asString () );
+  } catch (KurentoException &ex) {
+    Json::Value data;
+    data["code"] = ex.getCode();
+    data["message"] = ex.getMessage();
 
-    obj = MediaObject::Factory::getObject (params["object"].asString () );
-    objImpl = std::dynamic_pointer_cast<MediaObjectImpl> (obj);
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              ex.what(), data);
+    throw e;
+  } catch (JsonRpc::CallException ) {
+    throw;
+  } catch (std::string &ex) {
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              "Unexpected error: " + ex);
+    throw e;
+  } catch (std::exception &ex) {
+    std::string message = "Unexpected exception: ";
 
-    MediaSet::getMediaSet()->release (objImpl);
+    message.append (ex.what() );
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT, message);
+    throw e;
+  } catch (...) {
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              "Unexpected exception");
+    throw e;
+  }
+}
+
+void
+ServerMethods::unref (const Json::Value &params, Json::Value &response)
+{
+  std::shared_ptr<MediaObject> obj;
+  std::string subscription;
+
+  if (params == Json::Value::null) {
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              "'params' is requiered");
+    throw e;
+  }
+
+  if (!params["object"].isString() ) {
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              "'object' parameter should be a string");
+    throw e;
+  }
+
+  if (!params["sessionId"].isString() ) {
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              "'sessionId' parameter should be a string");
+    throw e;
+  }
+
+  try {
+    MediaSet::getMediaSet()->unref (params["sessionId"].asString (),
+                                    params["object"].asString () );
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -191,6 +238,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   std::string ip;
   int port;
   std::string handlerId;
+  std::string sessionId;
 
   if (params == Json::Value::null) {
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -228,10 +276,18 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     throw e;
   }
 
+  if (params.isMember ("sessionId") && params["sessionId"].isString() ) {
+    sessionId = params["sessionId"].asString();
+  } else {
+    generateUUID (sessionId);
+  }
+
   try {
     std::shared_ptr<EventHandler> handler (new EventHandler (ip, port) );
 
     obj = MediaObject::Factory::getObject (params["object"].asString () );
+    MediaSet::getMediaSet()->ref (sessionId,
+                                  std::dynamic_pointer_cast<MediaObjectImpl> (obj) );
     handlerId = obj->connect (eventType, handler);
 
     if (handlerId == "") {
@@ -266,13 +322,15 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     throw e;
   }
 
-  response = handlerId;
+  response["sessionId"] = sessionId;
+  response["value"] = handlerId;
 }
 
 void
 ServerMethods::invoke (const Json::Value &params, Json::Value &response)
 {
   std::shared_ptr<MediaObject> obj;
+  std::string sessionId;
 
   if (params == Json::Value::null) {
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -312,7 +370,15 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
     throw e;
   }
 
+  if (params.isMember ("sessionId") && params["sessionId"].isString() ) {
+    sessionId = params["sessionId"].asString();
+  } else {
+    generateUUID (sessionId);
+  }
+
   obj = MediaPipeline::Factory::getObject (params["object"].asString () );
+  MediaSet::getMediaSet()->ref (sessionId,
+                                std::dynamic_pointer_cast<MediaObjectImpl> (obj) );
 
   if (!obj) {
     KurentoException e ("object not found");
@@ -320,8 +386,13 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
   }
 
   try {
+    Json::Value value;
+
     obj->getInvoker().invoke (obj, params["operation"].asString(),
-                              params["operationParams"], response);
+                              params["operationParams"], value);
+
+    response["value"] = value;
+    response["sessionId"] = sessionId;
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -355,6 +426,7 @@ ServerMethods::create (const Json::Value &params,
 {
   std::string type;
   std::shared_ptr<Factory> factory;
+  std::string sessionId;
 
   if (params == Json::Value::null) {
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
@@ -374,6 +446,12 @@ ServerMethods::create (const Json::Value &params,
     throw e;
   }
 
+  if (params.isMember ("sessionId") && params["sessionId"].isString() ) {
+    sessionId = params["sessionId"].asString();
+  } else {
+    generateUUID (sessionId);
+  }
+
   type = params["type"].asString();
 
   if (!objectRegistrar) {
@@ -389,9 +467,17 @@ ServerMethods::create (const Json::Value &params,
 
       object = std::dynamic_pointer_cast<MediaObjectImpl> (
                  factory->createObject (params["constructorParams"]) );
+      MediaSet::getMediaSet()->ref (sessionId, object);
 
-      MediaSet::getMediaSet()->ref ("default_sesion", object);
-      response = object->getIdStr();
+      try {
+        object->getMediaPipeline();
+      } catch (...) {
+        GST_ERROR ("Error getting pipeline");
+      }
+
+      MediaSet::getMediaSet()->ref (sessionId, object);
+      response["value"] = object->getIdStr();
+      response["sessionId"] = sessionId;
     } catch (KurentoException &ex) {
       Json::Value data;
       data["code"] = ex.getCode();

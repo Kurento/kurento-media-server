@@ -85,8 +85,10 @@ ClientHandler::check_create_pipeline_call()
   request["method"] = "create";
 
   params["type"] = "MediaPipeline";
+  params["sessionId"] = "123456";
 
   request["params"] = params;
+  request["sessionId"] = "sessionId";
 
   req_str = writer.write (request);
 
@@ -96,13 +98,16 @@ ClientHandler::check_create_pipeline_call()
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
-  BOOST_CHECK (response["result"].isString() );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("value") );
+  BOOST_CHECK (response["result"]["value"].isString() );
 
-  pipeId = response["result"].asString();
+  pipeId = response["result"]["value"].asString();
 
   params["type"] = "WebRtcEndpoint";
   constructorParams ["mediaPipeline"] = pipeId;
   params["constructorParams"] = constructorParams;
+  params["sessionId"] = "123456";
 
   request["params"] = params;
 
@@ -115,14 +120,17 @@ ClientHandler::check_create_pipeline_call()
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
-  BOOST_CHECK (response["result"].isString() );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("value") );
+  BOOST_CHECK (response["result"]["value"].isString() );
 
-  objId = response["result"].asString();
+  objId = response["result"]["value"].asString();
 
   request["method"] = "invoke";
   params.clear();
   params["object"] = objId;
   params["operation"] = "getMediaSrcs";
+  params["sessionId"] = "123456";
 
   params["operationParams"] = operationParams;
   request["params"] = params;
@@ -141,6 +149,7 @@ ClientHandler::check_create_pipeline_call()
   request["method"] = "release";
   params.clear();
   params["object"] = objId;
+  params["sessionId"] = "123456";
 
   params["operationParams"] = operationParams;
   request["params"] = params;
