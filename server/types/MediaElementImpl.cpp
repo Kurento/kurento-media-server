@@ -191,7 +191,8 @@ std::vector<std::shared_ptr<MediaSink>>
 
 std::vector<std::shared_ptr<MediaSource>>
                                        MediaElementImpl::getMediaSrcs (
-                                           std::shared_ptr<MediaType> mediaType, const std::string &description)
+                                           std::shared_ptr<MediaType> mediaType,
+                                           const std::string &description)
 {
   if (description == "")  {
     return getMediaSrcs (mediaType);
@@ -204,7 +205,8 @@ std::vector<std::shared_ptr<MediaSource>>
 
 std::vector<std::shared_ptr<MediaSink>>
                                      MediaElementImpl::getMediaSinks (
-                                       std::shared_ptr<MediaType> mediaType, const std::string &description)
+                                       std::shared_ptr<MediaType> mediaType,
+                                       const std::string &description)
 {
   if (description == "")  {
     return getMediaSinks (mediaType);
