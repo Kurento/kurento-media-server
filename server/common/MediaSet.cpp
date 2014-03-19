@@ -264,9 +264,9 @@ MediaSet::unref (const std::string &sessionId, const uint64_t &mediaObjectRef)
 
 void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
 {
-  mutex.lock();
+  Monitor monitor (mutex);
+
   objectsMap.erase (mediaObject->getId() );
-  mutex.unlock();
 
   threadPool.push ( [mediaObject] () {
     GST_DEBUG ("Destroying %s", mediaObject->getIdStr().c_str() );
