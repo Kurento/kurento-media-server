@@ -317,10 +317,13 @@ get_recv_eos_cb (gpointer data)
 
   uri = soup_message_get_uri (msg);
   path = soup_uri_get_path (uri);
-  soup_message_body_complete (msg->response_body);
 
   serv = (KmsHttpEPServer *) g_object_get_data (G_OBJECT (msg),
          KEY_HTTP_EP_SERVER);
+
+  /* Force to remove message reference */
+  g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE, NULL, NULL);
+
   g_signal_emit (G_OBJECT (serv), obj_signals[URL_EXPIRED], 0, path);
 
   return G_SOURCE_REMOVE;
