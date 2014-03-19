@@ -49,11 +49,7 @@ Factory::getObject (const std::string &id)
 {
   std::shared_ptr<MediaObjectImpl> obj;
 
-  try {
-    obj = MediaSet::getMediaSet()->getMediaObject (id);
-  } catch (MediaObjectNotFound) {
-    throw KurentoException ("Invalid object reference");
-  }
+  obj = MediaSet::getMediaSet()->getMediaObject (id);
 
   return std::dynamic_pointer_cast <MediaObject> (obj);
 }

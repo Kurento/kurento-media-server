@@ -28,10 +28,6 @@ namespace kurento
 
 typedef struct _KeepAliveData KeepAliveData;
 
-class MediaObjectNotFound
-{
-};
-
 class MediaSet
 {
 public:
