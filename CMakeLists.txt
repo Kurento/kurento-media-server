@@ -47,7 +47,7 @@ set(LIB_PREFIX "lib")
 find_package(PkgConfig)
 
 pkg_check_modules(GLIB2 REQUIRED glib-2.0>=2.38)
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.2.0)
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.2.3)
 pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0>=1.2.0)
 pkg_check_modules(THRIFT REQUIRED thrift-nb=0.9.0)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
