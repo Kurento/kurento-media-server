@@ -32,6 +32,16 @@ public:
                        std::shared_ptr< MediaObjectImpl > mediaPipeline,
                        int garbagePeriod);
   virtual ~HttpGetEndpointImpl() {};
+
+private:
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } /* kurento */

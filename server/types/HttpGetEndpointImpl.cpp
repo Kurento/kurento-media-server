@@ -18,6 +18,10 @@
 #include <generated/MediaProfileSpecType.hpp>
 #include <KurentoException.hpp>
 
+#define GST_CAT_DEFAULT kurento_http_get_endpoint_impl
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "HttpGetEndpointImpl"
+
 namespace kurento
 {
 HttpGetEndpointImpl::HttpGetEndpointImpl (
@@ -58,6 +62,14 @@ HttpGetEndpoint::Factory::createObject (
                                   disconnectionTimeout,
                                   std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
                                   garbagePeriod);
+}
+
+HttpGetEndpointImpl::StaticConstructor HttpGetEndpointImpl::staticConstructor;
+
+HttpGetEndpointImpl::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 }
 
 } /* kurento */
