@@ -65,6 +65,8 @@ public:
 
 private:
 
+  class SessionTimeout;
+
   void releasePointer (MediaObjectImpl *obj);
 
   MediaSet () {};
@@ -78,6 +80,8 @@ private:
 
   std::map<std::string, std::map <uint64_t, std::shared_ptr<MediaObjectImpl>>>
   sessionMap;
+
+  std::map<std::string, std::shared_ptr<SessionTimeout>> sessionTimeoutData;
 
   std::map<uint64_t, std::unordered_set<std::string>> reverseSessionMap;
 

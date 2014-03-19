@@ -23,8 +23,46 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSet"
 
+#define COLLECTOR_INTERVAL 240
+
 namespace kurento
 {
+
+class MediaSet::SessionTimeout
+{
+public:
+  SessionTimeout (MediaSet &mediaSet,
+                  const std::string &sessionId) : mediaSet (mediaSet) {
+    this->sessionId = sessionId;
+
+    start();
+  }
+
+  virtual ~SessionTimeout() {
+    conn.disconnect();
+  };
+
+  void restart() {
+    conn.disconnect();
+    start();
+  };
+
+private:
+  bool removeSession() {
+    GST_WARNING ("Timeout on session: %s", sessionId.c_str() );
+    mediaSet.unrefSession (sessionId);
+    return false;
+  };
+
+  void start() {
+    conn = Glib::signal_timeout().connect_seconds (
+             sigc::mem_fun (*this, &SessionTimeout::removeSession), COLLECTOR_INTERVAL);
+  };
+
+  sigc::connection conn;
+  MediaSet &mediaSet;
+  std::string sessionId;
+};
 
 std::shared_ptr< MediaSet >
 MediaSet::getMediaSet()
@@ -81,6 +119,8 @@ MediaSet::ref (const std::string &sessionId,
 {
   Monitor monitor (mutex);
 
+  keepAliveSession (sessionId);
+
   if (mediaObject->getParent() ) {
     ref (sessionId,
          std::dynamic_pointer_cast<MediaObjectImpl> (mediaObject->getParent() ) );
@@ -94,7 +134,19 @@ MediaSet::ref (const std::string &sessionId,
 void
 MediaSet::keepAliveSession (const std::string &sessionId)
 {
-  // TODO:
+  Monitor monitor (mutex);
+  std::shared_ptr<SessionTimeout> data;
+
+  auto it = sessionTimeoutData.find (sessionId);
+
+  if (it == sessionTimeoutData.end() ) {
+    data = std::shared_ptr<SessionTimeout> (new SessionTimeout (*this,
+                                            sessionId) );
+    sessionTimeoutData[sessionId] = data;
+  } else {
+    data = it->second;
+    data->restart();
+  }
 }
 
 void
@@ -106,7 +158,20 @@ MediaSet::releaseSession (const std::string &sessionId)
 void
 MediaSet::unrefSession (const std::string &sessionId)
 {
-  // TODO
+  Monitor monitor (mutex);
+
+  auto it = sessionMap.find (sessionId);
+
+  if (it != sessionMap.end() ) {
+    auto objects = it->second;
+
+    for (auto it2 : objects) {
+      unref (sessionId, it2.second);
+    }
+  }
+
+  sessionMap.erase (sessionId);
+  sessionTimeoutData.erase (sessionId);
 }
 
 void
@@ -114,6 +179,10 @@ MediaSet::unref (const std::string &sessionId,
                  std::shared_ptr< MediaObjectImpl > mediaObject)
 {
   Monitor monitor (mutex);
+
+  if (!mediaObject) {
+    return;
+  }
 
   auto it = sessionMap.find (sessionId);
 
@@ -130,13 +199,15 @@ MediaSet::unref (const std::string &sessionId,
   it->second.erase (it2);
 
   if (it->second.size() == 0) {
-    sessionMap.erase (it);
+    unrefSession (sessionId);
   }
 
   auto it3 = reverseSessionMap.find (mediaObject->getId() );
 
   if (it3 != reverseSessionMap.end() ) {
-    it3->second.erase (sessionId);
+    auto sessions = it3->second;
+
+    sessions.erase (sessionId);
 
     auto childrenIt = childrenMap.find (mediaObject->getId() );
 
@@ -148,7 +219,7 @@ MediaSet::unref (const std::string &sessionId,
       }
     }
 
-    if (it3->second.size() == 0) {
+    if (sessions.size() == 0) {
       std::shared_ptr<MediaObjectImpl> parent;
       // Object has been removed from all the sessions, remove it from childrenMap
       childrenMap.erase (mediaObject->getId() );
