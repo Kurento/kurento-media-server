@@ -219,9 +219,15 @@ ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
     throw e;
   }
 
+  if (!params.isMember ("subscription") ) {
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              "'subscription' parameter is required");
+    throw e;
+  }
+
   if (!params["subscription"].isString() ) {
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'object' parameter should be a string");
+                              "'subscription' parameter should be a string");
     throw e;
   }
 
