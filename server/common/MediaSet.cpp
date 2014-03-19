@@ -64,16 +64,25 @@ private:
   std::string sessionId;
 };
 
-std::shared_ptr< MediaSet >
+MediaSet &
 MediaSet::getMediaSet()
 {
-  static std::shared_ptr<MediaSet> mediaSet (new MediaSet() );
+  static MediaSet mediaSet;
 
   return mediaSet;
 }
 
 MediaSet::~MediaSet ()
 {
+  Monitor monitor (mutex);
+
+  terminated = true;
+
+  if (!objectsMap.empty() ) {
+    std::cerr << "Waning: Still " + std::to_string (objectsMap.size() ) +
+              " object/s alive" << std::endl;
+  }
+
   childrenMap.clear();
   sessionMap.clear();
 }
@@ -93,11 +102,10 @@ MediaSet::ref (MediaObjectImpl *mediaObjectPtr)
     mediaObject = std::dynamic_pointer_cast<MediaObjectImpl>
                   (mediaObjectPtr->shared_from_this() );
   } catch (std::bad_weak_ptr e) {
-    mediaObject =  std::shared_ptr<MediaObjectImpl> (mediaObjectPtr,
-                   std::bind (
-                     &MediaSet::releasePointer,
-                     this,
-                     std::placeholders::_1) );
+    mediaObject =  std::shared_ptr<MediaObjectImpl> (mediaObjectPtr, [] (
+    MediaObjectImpl * obj) {
+      MediaSet::getMediaSet().releasePointer (obj);
+    });
   }
 
   objectsMap[mediaObject->getId()] = std::weak_ptr<MediaObjectImpl> (mediaObject);
@@ -268,10 +276,16 @@ void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
 
   objectsMap.erase (mediaObject->getId() );
 
-  threadPool.push ( [mediaObject] () {
-    GST_DEBUG ("Destroying %s", mediaObject->getIdStr().c_str() );
+  if (!terminated) {
+    threadPool.push ( [mediaObject] () {
+      GST_DEBUG ("Destroying %s", mediaObject->getIdStr().c_str() );
+      delete mediaObject;
+    });
+  } else {
+    GST_DEBUG ("Thread pool finished, destroying on the same thread %s",
+               mediaObject->getIdStr().c_str() );
     delete mediaObject;
-  });
+  }
 }
 
 void MediaSet::release (std::shared_ptr< MediaObjectImpl > mediaObject)

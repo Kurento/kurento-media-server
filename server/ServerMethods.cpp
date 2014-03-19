@@ -79,7 +79,7 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
   }
 
   try {
-    MediaSet::getMediaSet()->keepAliveSession (params["sessionId"].asString () );
+    MediaSet::getMediaSet().keepAliveSession (params["sessionId"].asString () );
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -110,7 +110,7 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
   }
 
   try {
-    MediaSet::getMediaSet()->release (params["object"].asString () );
+    MediaSet::getMediaSet().release (params["object"].asString () );
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -147,8 +147,8 @@ ServerMethods::unref (const Json::Value &params, Json::Value &response)
   }
 
   try {
-    MediaSet::getMediaSet()->unref (params["sessionId"].asString (),
-                                    params["object"].asString () );
+    MediaSet::getMediaSet().unref (params["sessionId"].asString (),
+                                   params["object"].asString () );
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -243,7 +243,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   try {
     std::shared_ptr<EventHandler> handler (new EventHandler (ip, port) );
 
-    obj = MediaSet::getMediaSet()->getMediaObject (sessionId,
+    obj = MediaSet::getMediaSet().getMediaObject (sessionId,
           params["object"].asString () );
     handlerId = obj->connect (eventType, handler);
 
@@ -320,7 +320,7 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
   try {
     Json::Value value;
 
-    obj = MediaSet::getMediaSet()->getMediaObject (sessionId,
+    obj = MediaSet::getMediaSet().getMediaObject (sessionId,
           params["object"].asString () );
 
     if (!obj) {
@@ -390,7 +390,7 @@ ServerMethods::create (const Json::Value &params,
 
       object = std::dynamic_pointer_cast<MediaObjectImpl> (
                  factory->createObject (params["constructorParams"]) );
-      MediaSet::getMediaSet()->ref (sessionId, object);
+      MediaSet::getMediaSet().ref (sessionId, object);
 
       try {
         object->getMediaPipeline();
@@ -398,7 +398,7 @@ ServerMethods::create (const Json::Value &params,
         GST_ERROR ("Error getting pipeline");
       }
 
-      MediaSet::getMediaSet()->ref (sessionId, object);
+      MediaSet::getMediaSet().ref (sessionId, object);
       response["value"] = object->getIdStr();
       response["sessionId"] = sessionId;
     } catch (KurentoException &ex) {

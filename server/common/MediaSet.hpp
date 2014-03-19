@@ -59,7 +59,7 @@ public:
   std::shared_ptr<MediaObjectImpl> getMediaObject (
     const std::string &sessionId, const uint64_t &mediaObjectRef);
 
-  static std::shared_ptr<MediaSet> getMediaSet();
+  static MediaSet &getMediaSet();
 
   static void deleter (MediaObjectImpl *mo);
 
@@ -86,6 +86,8 @@ private:
   std::map<uint64_t, std::unordered_set<std::string>> reverseSessionMap;
 
   Glib::ThreadPool threadPool;
+
+  bool terminated = false;
 
   class StaticConstructor
   {
