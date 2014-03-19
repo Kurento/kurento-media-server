@@ -120,8 +120,32 @@ Handler::process (const Json::Value &msg, Json::Value &_response)
       }
 
       _response[JSON_RPC_ERROR] = error;
-      return false;
+    } catch (std::string &e) {
+      Json::Value error;
+
+      error[JSON_RPC_ERROR_CODE] = INTERNAL_ERROR;
+      error[JSON_RPC_ERROR_MESSAGE] =
+        std::string ("Unexpected error while processing method: ") + e;
+
+      _response[JSON_RPC_ERROR] = error;
+    } catch (std::exception &e) {
+      Json::Value error;
+
+      error[JSON_RPC_ERROR_CODE] = INTERNAL_ERROR;
+      error[JSON_RPC_ERROR_MESSAGE] =
+        std::string ("Unexpected error while processing method: ") + e.what();
+
+      _response[JSON_RPC_ERROR] = error;
+    } catch (...) {
+      Json::Value error;
+
+      error[JSON_RPC_ERROR_CODE] = INTERNAL_ERROR;
+      error[JSON_RPC_ERROR_MESSAGE] = "Unexpected error while processing method";
+
+      _response[JSON_RPC_ERROR] = error;
     }
+
+    return false;
   }
 
   error[JSON_RPC_ERROR_CODE] = METHOD_NOT_FOUND;

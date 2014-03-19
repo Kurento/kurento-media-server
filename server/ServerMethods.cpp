@@ -88,22 +88,6 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                               ex.what(), data);
     throw e;
-  } catch (JsonRpc::CallException ) {
-    throw;
-  } catch (std::string &ex) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected error: " + ex);
-    throw e;
-  } catch (std::exception &ex) {
-    std::string message = "Unexpected exception: ";
-
-    message.append (ex.what() );
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT, message);
-    throw e;
-  } catch (...) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected exception");
-    throw e;
   }
 }
 
@@ -134,22 +118,6 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
 
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                               ex.what(), data);
-    throw e;
-  } catch (JsonRpc::CallException ) {
-    throw;
-  } catch (std::string &ex) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected error: " + ex);
-    throw e;
-  } catch (std::exception &ex) {
-    std::string message = "Unexpected exception: ";
-
-    message.append (ex.what() );
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT, message);
-    throw e;
-  } catch (...) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected exception");
     throw e;
   }
 }
@@ -188,22 +156,6 @@ ServerMethods::unref (const Json::Value &params, Json::Value &response)
 
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                               ex.what(), data);
-    throw e;
-  } catch (JsonRpc::CallException ) {
-    throw;
-  } catch (std::string &ex) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected error: " + ex);
-    throw e;
-  } catch (std::exception &ex) {
-    std::string message = "Unexpected exception: ";
-
-    message.append (ex.what() );
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT, message);
-    throw e;
-  } catch (...) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected exception");
     throw e;
   }
 }
@@ -309,22 +261,6 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                               ex.what(), data);
     throw e;
-  } catch (JsonRpc::CallException ) {
-    throw;
-  } catch (std::string &ex) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected error: " + ex);
-    throw e;
-  } catch (std::exception &ex) {
-    std::string message = "Unexpected exception: ";
-
-    message.append (ex.what() );
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT, message);
-    throw e;
-  } catch (...) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected exception");
-    throw e;
   }
 
   response["sessionId"] = sessionId;
@@ -404,22 +340,6 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
     JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                               ex.what(), data);
     throw e;
-  } catch (JsonRpc::CallException ) {
-    throw;
-  } catch (std::string &ex) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected error: " + ex);
-    throw e;
-  } catch (std::exception &ex) {
-    std::string message = "Unexpected exception: ";
-
-    message.append (ex.what() );
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT, message);
-    throw e;
-  } catch (...) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Unexpected exception");
-    throw e;
   }
 }
 
@@ -488,22 +408,6 @@ ServerMethods::create (const Json::Value &params,
 
       JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                 ex.what(), data);
-      throw e;
-    } catch (JsonRpc::CallException ) {
-      throw;
-    } catch (std::string &ex) {
-      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                "Unexpected error: " + ex);
-      throw e;
-    } catch (std::exception &ex) {
-      std::string message = "Unexpected exception: ";
-
-      message.append (ex.what() );
-      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT, message);
-      throw e;
-    } catch (...) {
-      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                "Unexpected exception");
       throw e;
     }
   } else {
