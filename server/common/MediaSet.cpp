@@ -264,13 +264,12 @@ MediaSet::unref (const std::string &sessionId, const uint64_t &mediaObjectRef)
 
 void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
 {
-  GST_DEBUG ("Releasing media object %s", mediaObject->getIdStr().c_str() );
   mutex.lock();
   objectsMap.erase (mediaObject->getId() );
   mutex.unlock();
 
   threadPool.push ( [mediaObject] () {
-    GST_DEBUG ("Detroying %s", mediaObject->getIdStr().c_str() );
+    GST_DEBUG ("Destroying %s", mediaObject->getIdStr().c_str() );
     delete mediaObject;
   });
 }
