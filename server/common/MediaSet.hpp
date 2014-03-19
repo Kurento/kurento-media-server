@@ -54,6 +54,10 @@ public:
       &mediaObjectRef);
   std::shared_ptr<MediaObjectImpl> getMediaObject (const uint64_t
       &mediaObjectRef);
+  std::shared_ptr<MediaObjectImpl> getMediaObject (
+    const std::string &sessionId, const std::string &mediaObjectRef);
+  std::shared_ptr<MediaObjectImpl> getMediaObject (
+    const std::string &sessionId, const uint64_t &mediaObjectRef);
 
   static std::shared_ptr<MediaSet> getMediaSet();
 

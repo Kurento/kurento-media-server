@@ -291,9 +291,8 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   try {
     std::shared_ptr<EventHandler> handler (new EventHandler (ip, port) );
 
-    obj = MediaObject::Factory::getObject (params["object"].asString () );
-    MediaSet::getMediaSet()->ref (sessionId,
-                                  std::dynamic_pointer_cast<MediaObjectImpl> (obj) );
+    obj = MediaSet::getMediaSet()->getMediaObject (sessionId,
+          params["object"].asString () );
     handlerId = obj->connect (eventType, handler);
 
     if (handlerId == "") {
@@ -382,17 +381,15 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
     generateUUID (sessionId);
   }
 
-  obj = MediaPipeline::Factory::getObject (params["object"].asString () );
-  MediaSet::getMediaSet()->ref (sessionId,
-                                std::dynamic_pointer_cast<MediaObjectImpl> (obj) );
-
-  if (!obj) {
-    KurentoException e ("object not found");
-    throw e;
-  }
-
   try {
     Json::Value value;
+
+    obj = MediaSet::getMediaSet()->getMediaObject (sessionId,
+          params["object"].asString () );
+
+    if (!obj) {
+      throw KurentoException ("Object not found");
+    }
 
     obj->getInvoker().invoke (obj, params["operation"].asString(),
                               params["operationParams"], value);

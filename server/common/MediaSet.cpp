@@ -359,6 +359,26 @@ MediaSet::getMediaObject (const uint64_t &mediaObjectRef)
   return objectLocked;
 }
 
+std::shared_ptr< MediaObjectImpl >
+MediaSet::getMediaObject (const std::string &sessionId,
+                          const std::string &mediaObjectRef)
+{
+  std::shared_ptr< MediaObjectImpl > obj = getMediaObject (mediaObjectRef);
+
+  ref (sessionId, obj);
+  return obj;
+}
+
+std::shared_ptr< MediaObjectImpl >
+MediaSet::getMediaObject (const std::string &sessionId,
+                          const uint64_t &mediaObjectRef)
+{
+  std::shared_ptr< MediaObjectImpl > obj = getMediaObject (mediaObjectRef);
+
+  ref (sessionId, obj);
+  return obj;
+}
+
 MediaSet::Monitor::Monitor (Glib::Threads::RecMutex &mutex) : mutex (mutex)
 {
   mutex.lock();
