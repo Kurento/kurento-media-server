@@ -35,6 +35,7 @@ public:
   virtual std::string getUrl ();
 
 protected:
+  void unregister_end_point ();
   void register_end_point ();
   bool is_registered();
 

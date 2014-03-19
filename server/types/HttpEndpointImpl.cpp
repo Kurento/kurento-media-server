@@ -44,7 +44,6 @@ getUriFromUrl (std::string url)
 
   /* skip first 7 characters in the url regarding the protocol "http://" */
   if (url.size() < 7) {
-    GST_ERROR ("Invalid URL %s", url.c_str() );
     return "";
   }
 
@@ -103,6 +102,44 @@ unregister_end_point_adaptor_function (KmsHttpEPServer *self, GError *err,
 {
   auto handler = reinterpret_cast<std::function<void (GError *err) >*> (data);
   (*handler) (err);
+}
+
+void
+HttpEndpointImpl::unregister_end_point ()
+{
+  std::string uri = getUriFromUrl (url);
+  Glib::Cond cond;
+  Glib::Mutex mutex;
+  bool finish = FALSE;
+
+  if (!urlSet) {
+    return;
+  }
+
+  std::function <void (GError *err) > aux = [&] (GError * err) {
+    if (err != NULL) {
+      GST_ERROR ("Could not unregister uri %s: %s", uri.c_str(), err->message);
+    }
+
+    url = "";
+    urlSet = false;
+
+    mutex.lock ();
+    finish = TRUE;
+    cond.signal();
+    mutex.unlock ();
+  };
+
+  kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str(),
+      unregister_end_point_adaptor_function, &aux, NULL);
+
+  mutex.lock ();
+
+  while (!finish) {
+    cond.wait (mutex);
+  }
+
+  mutex.unlock ();
 }
 
 void
@@ -242,8 +279,7 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
       urlRemovedHandlerId = 0;
     }
 
-    url = "";
-    urlSet = false;
+    unregister_end_point ();
 
     if (!g_atomic_int_compare_and_exchange (& (sessionStarted), 1, 0) ) {
       return;
@@ -270,36 +306,7 @@ HttpEndpointImpl::~HttpEndpointImpl()
     g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
   }
 
-  if (!urlSet) {
-    return;
-  }
-
-  std::string uri = getUriFromUrl (url);
-  Glib::Cond cond;
-  Glib::Mutex mutex;
-  bool finish = FALSE;
-
-  std::function <void (GError *err) > aux = [&] (GError * err) {
-    if (err != NULL) {
-      GST_ERROR ("Could not unregister uri %s: %s", uri.c_str(), err->message);
-    }
-
-    mutex.lock ();
-    finish = TRUE;
-    cond.signal();
-    mutex.unlock ();
-  };
-
-  kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str(),
-      unregister_end_point_adaptor_function, &aux, NULL);
-
-  mutex.lock ();
-
-  while (!finish) {
-    cond.wait (mutex);
-  }
-
-  mutex.unlock ();
+  unregister_end_point ();
 }
 
 std::string
