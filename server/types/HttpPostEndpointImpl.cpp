@@ -19,6 +19,10 @@
 
 #define USE_ENCODED_MEDIA "use-encoded-media"
 
+#define GST_CAT_DEFAULT kurento_http_post_endpoint_impl
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "HttpPOSTEndpointImpl"
+
 namespace kurento
 {
 
@@ -62,6 +66,14 @@ HttpPostEndpoint::Factory::createObject (
   return new HttpPostEndpointImpl (useEncodedMedia, disconnectionTimeout,
                                    std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
                                    garbagePeriod);
+}
+
+HttpPostEndpointImpl::StaticConstructor HttpPostEndpointImpl::staticConstructor;
+
+HttpPostEndpointImpl::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 }
 
 } /* kurento */

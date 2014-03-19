@@ -33,6 +33,15 @@ public:
   virtual ~HttpPostEndpointImpl() {};
 private:
   std::function<void() > eosLambda;
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
+
 };
 
 } /* kurento */
