@@ -1,5 +1,6 @@
-set (SOURCE_FILES JsonRpcHandler.cpp)
-set (HEADER_FILES JsonRpcHandler.hpp JsonRpcException.hpp JsonSerializer.hpp)
+set (SOURCE_FILES JsonRpcHandler.cpp JsonRpcUtils.cpp)
+set (HEADER_FILES JsonRpcHandler.hpp JsonRpcException.hpp JsonSerializer.hpp
+      JsonRpcUtils.hpp)
 
 add_library(jsonrpc ${SOURCE_FILES})
 

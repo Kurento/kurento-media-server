@@ -21,10 +21,15 @@
 #include <EventHandler.hpp>
 #include <KurentoException.hpp>
 #include "utils/utils.hpp"
+#include <JsonRpcUtils.hpp>
 
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoServerMethods"
+
+#define SESSION_ID "SessionId"
+#define OBJECT "object"
+#define SUBSCRIPTION "subscription"
 
 namespace kurento
 {
@@ -54,6 +59,15 @@ ServerMethods::ServerMethods()
                      std::placeholders::_2) );
 }
 
+static void
+requireParams (const Json::Value &params)
+{
+  if (params == Json::Value::null) {
+    throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                  "'params' is requiered");
+  }
+}
+
 void
 ServerMethods::process (const std::string &request, std::string &response)
 {
@@ -65,21 +79,14 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
 {
   std::shared_ptr<MediaObject> obj;
   std::string subscription;
+  std::string sessionId;
 
-  if (params == Json::Value::null) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'params' is requiered");
-    throw e;
-  }
+  requireParams (params);
 
-  if (!params["sessionId"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'sessionId' parameter should be a string");
-    throw e;
-  }
+  JsonRpc::getValue (params, SESSION_ID, sessionId);
 
   try {
-    MediaSet::getMediaSet().keepAliveSession (params["sessionId"].asString () );
+    MediaSet::getMediaSet().keepAliveSession (sessionId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -96,21 +103,14 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
 {
   std::shared_ptr<MediaObject> obj;
   std::string subscription;
+  std::string objectId;
 
-  if (params == Json::Value::null) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'params' is requiered");
-    throw e;
-  }
+  requireParams (params);
 
-  if (!params["object"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'object' parameter should be a string");
-    throw e;
-  }
+  JsonRpc::getValue (params, OBJECT, objectId);
 
   try {
-    MediaSet::getMediaSet().release (params["object"].asString () );
+    MediaSet::getMediaSet().release (objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -127,28 +127,16 @@ ServerMethods::unref (const Json::Value &params, Json::Value &response)
 {
   std::shared_ptr<MediaObject> obj;
   std::string subscription;
+  std::string objectId;
+  std::string sessionId;
 
-  if (params == Json::Value::null) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'params' is requiered");
-    throw e;
-  }
+  requireParams (params);
 
-  if (!params["object"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'object' parameter should be a string");
-    throw e;
-  }
-
-  if (!params["sessionId"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'sessionId' parameter should be a string");
-    throw e;
-  }
+  JsonRpc::getValue (params, OBJECT, objectId);
+  JsonRpc::getValue (params, OBJECT, sessionId);
 
   try {
-    MediaSet::getMediaSet().unref (params["sessionId"].asString (),
-                                   params["object"].asString () );
+    MediaSet::getMediaSet().unref (sessionId, objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -165,25 +153,9 @@ ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
 {
   std::string subscription;
 
-  if (params == Json::Value::null) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'params' is requiered");
-    throw e;
-  }
+  requireParams (params);
 
-  if (!params.isMember ("subscription") ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'subscription' parameter is required");
-    throw e;
-  }
-
-  if (!params["subscription"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'subscription' parameter should be a string");
-    throw e;
-  }
-
-  subscription = params["subscription"].asString();
+  JsonRpc::getValue (params, SUBSCRIPTION, subscription);
 
   eventHandlers.erase (subscription);
 }
@@ -197,54 +169,25 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   int port;
   std::string handlerId;
   std::string sessionId;
+  std::string objectId;
 
-  if (params == Json::Value::null) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'params' is requiered");
-    throw e;
-  }
+  requireParams (params);
 
-  if (!params["type"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'type' parameter should be a string");
-    throw e;
-  }
+  JsonRpc::getValue (params, "type", eventType);
+  JsonRpc::getValue (params, "ip", ip);
+  JsonRpc::getValue (params, "port", port);
+  JsonRpc::getValue (params, OBJECT, objectId);
 
-  eventType = params["type"].asString();
-
-  if (!params["ip"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'ip' parameter should be a string");
-    throw e;
-  }
-
-  ip = params["ip"].asString();
-
-  if (!params["port"].isInt() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'port' parameter should be a int");
-    throw e;
-  }
-
-  port = params["port"].asInt();
-
-  if (!params["object"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'object' parameter should be a string");
-    throw e;
-  }
-
-  if (params.isMember ("sessionId") && params["sessionId"].isString() ) {
-    sessionId = params["sessionId"].asString();
-  } else {
+  try {
+    JsonRpc::getValue (params, SESSION_ID, sessionId);
+  } catch (JsonRpc::CallException e) {
     generateUUID (sessionId);
   }
 
   try {
     std::shared_ptr<EventHandler> handler (new EventHandler (ip, port) );
 
-    obj = MediaSet::getMediaSet().getMediaObject (sessionId,
-          params["object"].asString () );
+    obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
     handlerId = obj->connect (eventType, handler);
 
     if (handlerId == "") {
@@ -272,63 +215,37 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
 {
   std::shared_ptr<MediaObject> obj;
   std::string sessionId;
+  std::string operation;
+  Json::Value operationParams;
+  std::string objectId;
 
-  if (params == Json::Value::null) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'params' is requiered");
-    throw e;
+  requireParams (params);
+
+  JsonRpc::getValue (params, "operation", operation);
+  JsonRpc::getValue (params, OBJECT, objectId);
+
+  try {
+    JsonRpc::getValue (params, "operationParams", operationParams);
+  } catch (JsonRpc::CallException e) {
+    /* operationParams is optional at this point */
   }
 
-  if (!params.isMember ("operation") ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'operation' parameter is requiered");
-    throw e;
-  }
-
-  if (!params["operation"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'operation' parameter should be a string");
-    throw e;
-  }
-
-  if (params.isMember ("operationParams") ) {
-    if (!params["operationParams"].isObject() ) {
-      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                "'operation' parameter should be a string");
-      throw e;
-    }
-  }
-
-  if (!params.isMember ("object") ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'object' parameter is requiered");
-    throw e;
-  }
-
-  if (!params["object"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'object' parameter should be a string");
-    throw e;
-  }
-
-  if (params.isMember ("sessionId") && params["sessionId"].isString() ) {
-    sessionId = params["sessionId"].asString();
-  } else {
+  try {
+    JsonRpc::getValue (params, SESSION_ID, sessionId);
+  } catch (JsonRpc::CallException e) {
     generateUUID (sessionId);
   }
 
   try {
     Json::Value value;
 
-    obj = MediaSet::getMediaSet().getMediaObject (sessionId,
-          params["object"].asString () );
+    obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
 
     if (!obj) {
       throw KurentoException ("Object not found");
     }
 
-    obj->getInvoker().invoke (obj, params["operation"].asString(),
-                              params["operationParams"], value);
+    obj->getInvoker().invoke (obj, operation, operationParams, value);
 
     response["value"] = value;
     response["sessionId"] = sessionId;
@@ -351,31 +268,15 @@ ServerMethods::create (const Json::Value &params,
   std::shared_ptr<Factory> factory;
   std::string sessionId;
 
-  if (params == Json::Value::null) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'params' is requiered");
-    throw e;
-  }
+  requireParams (params);
 
-  if (!params.isMember ("type") ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'type' parameter is requiered");
-    throw e;
-  }
+  JsonRpc::getValue (params, "type", type);
 
-  if (!params["type"].isString() ) {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "'type' parameter should be a string");
-    throw e;
-  }
-
-  if (params.isMember ("sessionId") && params["sessionId"].isString() ) {
-    sessionId = params["sessionId"].asString();
-  } else {
+  try {
+    JsonRpc::getValue (params, SESSION_ID, sessionId);
+  } catch (JsonRpc::CallException e) {
     generateUUID (sessionId);
   }
-
-  type = params["type"].asString();
 
   if (!objectRegistrar) {
     KurentoException e ("Class '" + type + "' does not exist");
