@@ -194,41 +194,28 @@ MediaSet::unref (const std::string &sessionId,
 
   auto it = sessionMap.find (sessionId);
 
-  if (it == sessionMap.end() ) {
-    return;
-  }
+  if (it != sessionMap.end() ) {
+    auto it2 = it->second.find (mediaObject->getId() );
 
-  auto it2 = it->second.find (mediaObject->getId() );
+    if (it2 == it->second.end() ) {
+      return;
+    }
 
-  if (it2 == it->second.end() ) {
-    return;
-  }
+    it->second.erase (it2);
 
-  it->second.erase (it2);
-
-  if (it->second.size() == 0) {
-    unrefSession (sessionId);
+    if (it->second.size() == 0) {
+      unrefSession (sessionId);
+    }
   }
 
   auto it3 = reverseSessionMap.find (mediaObject->getId() );
 
   if (it3 != reverseSessionMap.end() ) {
-    auto sessions = it3->second;
+    it3->second.erase (sessionId);
 
-    sessions.erase (sessionId);
-
-    auto childrenIt = childrenMap.find (mediaObject->getId() );
-
-    if (childrenIt != childrenMap.end() ) {
-      auto childMap = childrenIt->second;
-
-      for (auto child : childMap) {
-        unref (sessionId, child.second);
-      }
-    }
-
-    if (sessions.size() == 0) {
+    if (it3->second.size() == 0) {
       std::shared_ptr<MediaObjectImpl> parent;
+
       // Object has been removed from all the sessions, remove it from childrenMap
       childrenMap.erase (mediaObject->getId() );
 
@@ -236,6 +223,16 @@ MediaSet::unref (const std::string &sessionId,
 
       if (parent) {
         childrenMap[parent->getId()].erase (mediaObject->getId() );
+      }
+
+      auto childrenIt = childrenMap.find (mediaObject->getId() );
+
+      if (childrenIt != childrenMap.end() ) {
+        auto childMap = childrenIt->second;
+
+        for (auto child : childMap) {
+          unref (sessionId, child.second);
+        }
       }
     }
   }
