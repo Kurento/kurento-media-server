@@ -27,7 +27,7 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoServerMethods"
 
-#define SESSION_ID "SessionId"
+#define SESSION_ID "sessionId"
 #define OBJECT "object"
 #define SUBSCRIPTION "subscription"
 
