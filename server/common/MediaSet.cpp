@@ -19,6 +19,21 @@
 #include <gst/gst.h>
 #include <KurentoException.hpp>
 
+/* This is included to avoid problems with slots and lamdas */
+#include <type_traits>
+#include <sigc++/sigc++.h>
+namespace sigc
+{
+template <typename Functor>
+struct functor_trait<Functor, false> {
+  typedef decltype (::sigc::mem_fun (std::declval<Functor &> (),
+                                     &Functor::operator() ) ) _intermediate;
+
+  typedef typename _intermediate::result_type result_type;
+  typedef Functor functor_type;
+};
+}
+
 #define GST_CAT_DEFAULT kurento_media_set
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSet"
@@ -39,29 +54,49 @@ public:
   }
 
   virtual ~SessionTimeout() {
-    conn.disconnect();
+    stop ();
   };
 
   void restart() {
-    conn.disconnect();
-    start();
+    stop ();
+    start ();
   };
 
 private:
+
   bool removeSession() {
     GST_WARNING ("Timeout on session: %s", sessionId.c_str() );
     mediaSet.unrefSession (sessionId);
     return false;
   };
 
+  void stop() {
+    mediaSet.executeOnMainLoop ([&] {
+      conn.disconnect();
+      timeout_source->destroy();
+      timeout_source.reset();
+    });
+  }
+
   void start() {
-    conn = Glib::signal_timeout().connect_seconds (
-             sigc::mem_fun (*this, &SessionTimeout::removeSession), COLLECTOR_INTERVAL);
+    timeout_source = Glib::TimeoutSource::create (COLLECTOR_INTERVAL * 1000);
+    auto it = mediaSet.sessionTimeoutData.find (sessionId);
+
+    if (it != mediaSet.sessionTimeoutData.end() ) {
+      std::shared_ptr<SessionTimeout> sessionTimeout =  it->second;
+      conn = timeout_source->connect ([sessionTimeout] () -> bool {
+        GST_WARNING ("Timeout on session: %s", sessionTimeout->sessionId.c_str() );
+        sessionTimeout->mediaSet.unrefSession (sessionTimeout->sessionId);
+        return false;
+      });
+      timeout_source->attach (mediaSet.context);
+    }
   };
 
-  sigc::connection conn;
+  Glib::RefPtr<Glib::TimeoutSource> timeout_source;
   MediaSet &mediaSet;
   std::string sessionId;
+  sigc::connection conn;
 };
 
 MediaSet &
@@ -72,6 +107,18 @@ MediaSet::getMediaSet()
   return mediaSet;
 }
 
+MediaSet::MediaSet()
+{
+  context = Glib::MainContext::create();
+  loop = Glib::MainLoop::create (context, true);
+
+  thread = Glib::Thread::create ([&] () {
+    context->acquire();
+    loop->run();
+    GST_DEBUG ("Main loop thread stopped");
+  });
+}
+
 MediaSet::~MediaSet ()
 {
   Monitor monitor (mutex);
@@ -79,12 +126,86 @@ MediaSet::~MediaSet ()
   terminated = true;
 
   if (!objectsMap.empty() ) {
-    std::cerr << "Waning: Still " + std::to_string (objectsMap.size() ) +
+    std::cerr << "Warning: Still " + std::to_string (objectsMap.size() ) +
               " object/s alive" << std::endl;
+  }
+
+  if (!sessionMap.empty() ) {
+    std::cerr << "Warning: Still " + std::to_string (sessionMap.size() ) +
+              " session/s alive" << std::endl;
+  }
+
+  if (!sessionTimeoutData.empty() ) {
+    std::cerr << "Warning: Still " + std::to_string (sessionTimeoutData.size() ) +
+              " session/s with timeout" << std::endl;
   }
 
   childrenMap.clear();
   sessionMap.clear();
+  sessionTimeoutData.clear();
+
+  if (Glib::Thread::self() != thread) {
+    Glib::RefPtr<Glib::IdleSource> source = Glib::IdleSource::create ();
+    source->connect (sigc::mem_fun (*this, &MediaSet::finishLoop) );
+    source->attach (context);
+
+    thread->join();
+  } else {
+    finishLoop();
+  }
+
+  threadPool.shutdown (true);
+}
+
+void
+MediaSet::executeOnMainLoop (std::function<void () > func, bool force)
+{
+  if (terminated || !loop->is_running() ) {
+    if (force) {
+      func ();
+    }
+
+    return;
+  }
+
+  if (Glib::Thread::self() == thread) {
+    func ();
+  } else {
+    Glib::Threads::Cond cond;
+    Glib::Threads::Mutex mutex;
+    Glib::Threads::Mutex::Lock lock (mutex);
+    bool done = false;
+    Glib::RefPtr<Glib::IdleSource> source = Glib::IdleSource::create ();
+
+
+    source->connect ([&] ()->bool {
+      Glib::Threads::Mutex::Lock lock (mutex);
+
+      try {
+        func ();
+      } catch (...) {
+      }
+
+      done = true;
+      cond.signal();
+
+      return false;
+    });
+
+    source->attach (context);
+
+    while (!done) {
+      cond.wait (mutex);
+    }
+  }
+}
+
+bool
+MediaSet::finishLoop ()
+{
+  loop->quit();
+
+  return false;
 }
 
 std::shared_ptr<MediaObjectImpl>
@@ -104,7 +225,11 @@ MediaSet::ref (MediaObjectImpl *mediaObjectPtr)
   } catch (std::bad_weak_ptr e) {
     mediaObject =  std::shared_ptr<MediaObjectImpl> (mediaObjectPtr, [] (
     MediaObjectImpl * obj) {
-      MediaSet::getMediaSet().releasePointer (obj);
+      if (!MediaSet::getMediaSet().terminated) {
+        MediaSet::getMediaSet().releasePointer (obj);
+      } else {
+        delete obj;
+      }
     });
   }
 
@@ -148,6 +273,7 @@ MediaSet::keepAliveSession (const std::string &sessionId)
   auto it = sessionTimeoutData.find (sessionId);
 
   if (it == sessionTimeoutData.end() ) {
+    GST_DEBUG ("Creating session: %s", sessionId.c_str() );
     data = std::shared_ptr<SessionTimeout> (new SessionTimeout (*this,
                                             sessionId) );
     sessionTimeoutData[sessionId] = data;
@@ -213,7 +339,7 @@ MediaSet::unref (const std::string &sessionId,
   if (it3 != reverseSessionMap.end() ) {
     it3->second.erase (sessionId);
 
-    if (it3->second.size() == 0) {
+    if (it3->second.empty() ) {
       std::shared_ptr<MediaObjectImpl> parent;
 
       // Object has been removed from all the sessions, remove it from childrenMap

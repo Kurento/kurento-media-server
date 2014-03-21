@@ -67,9 +67,16 @@ private:
 
   class SessionTimeout;
 
+  bool finishLoop ();
+  void executeOnMainLoop (std::function<void () > func, bool force = false);
+
+  Glib::RefPtr<Glib::MainContext> context;
+  Glib::RefPtr<Glib::MainLoop> loop;
+  Glib::Thread *thread;
+
   void releasePointer (MediaObjectImpl *obj);
 
-  MediaSet () {};
+  MediaSet ();
 
   Glib::Threads::RecMutex mutex;
 
