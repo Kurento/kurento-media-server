@@ -67,6 +67,7 @@ private:
 
   bool finishLoop ();
   void executeOnMainLoop (std::function<void () > func, bool force = false);
+  void keepAliveSession (const std::string &sessionId, bool create);
 
   Glib::RefPtr<Glib::MainContext> context;
   Glib::RefPtr<Glib::MainLoop> loop;

@@ -220,7 +220,7 @@ MediaSet::ref (const std::string &sessionId,
 {
   Monitor monitor (mutex);
 
-  keepAliveSession (sessionId);
+  keepAliveSession (sessionId, true);
 
   if (mediaObject->getParent() ) {
     ref (sessionId,
@@ -235,12 +235,22 @@ MediaSet::ref (const std::string &sessionId,
 void
 MediaSet::keepAliveSession (const std::string &sessionId)
 {
+  keepAliveSession (sessionId, false);
+}
+
+void
+MediaSet::keepAliveSession (const std::string &sessionId, bool create)
+{
   Monitor monitor (mutex);;
 
   auto it = sessionInUse.find (sessionId);
 
   if (it == sessionInUse.end() ) {
-    sessionInUse[sessionId] = true;
+    if (create) {
+      sessionInUse[sessionId] = true;
+    } else {
+      throw KurentoException ("Invalid session");
+    }
   } else {
     it->second = true;
   }
