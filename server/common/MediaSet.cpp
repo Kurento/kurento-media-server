@@ -38,66 +38,10 @@ struct functor_trait<Functor, false> {
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSet"
 
-#define COLLECTOR_INTERVAL 240
+#define COLLECTOR_INTERVAL 240000
 
 namespace kurento
 {
-
-class MediaSet::SessionTimeout
-{
-public:
-  SessionTimeout (MediaSet &mediaSet,
-                  const std::string &sessionId) : mediaSet (mediaSet) {
-    this->sessionId = sessionId;
-
-    start();
-  }
-
-  virtual ~SessionTimeout() {
-    stop ();
-  };
-
-  void restart() {
-    stop ();
-    start ();
-  };
-
-private:
-
-  bool removeSession() {
-    GST_WARNING ("Timeout on session: %s", sessionId.c_str() );
-    mediaSet.unrefSession (sessionId);
-    return false;
-  };
-
-  void stop() {
-    mediaSet.executeOnMainLoop ([&] {
-      conn.disconnect();
-      timeout_source->destroy();
-      timeout_source.reset();
-    });
-  }
-
-  void start() {
-    timeout_source = Glib::TimeoutSource::create (COLLECTOR_INTERVAL * 1000);
-    auto it = mediaSet.sessionTimeoutData.find (sessionId);
-
-    if (it != mediaSet.sessionTimeoutData.end() ) {
-      std::shared_ptr<SessionTimeout> sessionTimeout =  it->second;
-      conn = timeout_source->connect ([sessionTimeout] () -> bool {
-        GST_WARNING ("Timeout on session: %s", sessionTimeout->sessionId.c_str() );
-        sessionTimeout->mediaSet.unrefSession (sessionTimeout->sessionId);
-        return false;
-      });
-      timeout_source->attach (mediaSet.context);
-    }
-  };
-
-  Glib::RefPtr<Glib::TimeoutSource> timeout_source;
-  MediaSet &mediaSet;
-  std::string sessionId;
-  sigc::connection conn;
-};
 
 MediaSet &
 MediaSet::getMediaSet()
@@ -109,6 +53,8 @@ MediaSet::getMediaSet()
 
 MediaSet::MediaSet()
 {
+  Glib::RefPtr<Glib::TimeoutSource> timeout;
+
   context = Glib::MainContext::create();
   loop = Glib::MainLoop::create (context, true);
 
@@ -117,6 +63,29 @@ MediaSet::MediaSet()
     loop->run();
     GST_DEBUG ("Main loop thread stopped");
   });
+
+  timeout = Glib::TimeoutSource::create (COLLECTOR_INTERVAL);
+  timeout->connect ( [&] () -> bool {
+    Glib::Threads::RecMutex::Lock lock (mutex);
+    auto sessions = sessionInUse;
+
+    lock.release();
+
+    GST_DEBUG ("Running garbage collector");
+
+    for (auto it : sessions) {
+      if (it.second) {
+        lock.acquire();
+        sessionInUse[it.first] = false;
+        lock.release();
+      } else {
+        GST_WARNING ("Session timeout: %s", it.first.c_str() );
+        unrefSession (it.first);
+      }
+    }
+    return true;
+  });
+  timeout->attach (context);
 }
 
 MediaSet::~MediaSet ()
@@ -135,14 +104,13 @@ MediaSet::~MediaSet ()
               " session/s alive" << std::endl;
   }
 
-  if (!sessionTimeoutData.empty() ) {
-    std::cerr << "Warning: Still " + std::to_string (sessionTimeoutData.size() ) +
+  if (!sessionInUse.empty() ) {
+    std::cerr << "Warning: Still " + std::to_string (sessionInUse.size() ) +
               " session/s with timeout" << std::endl;
   }
 
   childrenMap.clear();
   sessionMap.clear();
-  sessionTimeoutData.clear();
 
   if (Glib::Thread::self() != thread) {
     Glib::RefPtr<Glib::IdleSource> source = Glib::IdleSource::create ();
@@ -267,19 +235,14 @@ MediaSet::ref (const std::string &sessionId,
 void
 MediaSet::keepAliveSession (const std::string &sessionId)
 {
-  Monitor monitor (mutex);
-  std::shared_ptr<SessionTimeout> data;
+  Monitor monitor (mutex);;
 
-  auto it = sessionTimeoutData.find (sessionId);
+  auto it = sessionInUse.find (sessionId);
 
-  if (it == sessionTimeoutData.end() ) {
-    GST_DEBUG ("Creating session: %s", sessionId.c_str() );
-    data = std::shared_ptr<SessionTimeout> (new SessionTimeout (*this,
-                                            sessionId) );
-    sessionTimeoutData[sessionId] = data;
+  if (it == sessionInUse.end() ) {
+    sessionInUse[sessionId] = true;
   } else {
-    data = it->second;
-    data->restart();
+    it->second = true;
   }
 }
 
@@ -305,7 +268,7 @@ MediaSet::unrefSession (const std::string &sessionId)
   }
 
   sessionMap.erase (sessionId);
-  sessionTimeoutData.erase (sessionId);
+  sessionInUse.erase (sessionId);
 }
 
 void

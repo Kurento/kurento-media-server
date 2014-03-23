@@ -65,8 +65,6 @@ public:
 
 private:
 
-  class SessionTimeout;
-
   bool finishLoop ();
   void executeOnMainLoop (std::function<void () > func, bool force = false);
 
@@ -88,7 +86,7 @@ private:
   std::map<std::string, std::map <uint64_t, std::shared_ptr<MediaObjectImpl>>>
   sessionMap;
 
-  std::map<std::string, std::shared_ptr<SessionTimeout>> sessionTimeoutData;
+  std::map<std::string, bool> sessionInUse;
 
   std::map<uint64_t, std::unordered_set<std::string>> reverseSessionMap;
 
