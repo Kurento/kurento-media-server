@@ -259,7 +259,20 @@ MediaSet::keepAliveSession (const std::string &sessionId, bool create)
 void
 MediaSet::releaseSession (const std::string &sessionId)
 {
-  // TODO
+  Monitor monitor (mutex);
+
+  auto it = sessionMap.find (sessionId);
+
+  if (it != sessionMap.end() ) {
+    auto objects = it->second;
+
+    for (auto it2 : objects) {
+      release (it2.second);
+    }
+  }
+
+  sessionMap.erase (sessionId);
+  sessionInUse.erase (sessionId);
 }
 
 void
