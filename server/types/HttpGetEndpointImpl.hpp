@@ -29,8 +29,7 @@ public:
   HttpGetEndpointImpl (bool terminateOnEOS,
                        std::shared_ptr<MediaProfileSpecType> mediaProfile,
                        int disconnectionTimeout,
-                       std::shared_ptr< MediaObjectImpl > mediaPipeline,
-                       int garbagePeriod);
+                       std::shared_ptr< MediaObjectImpl > mediaPipeline);
   virtual ~HttpGetEndpointImpl() {};
 
 private:

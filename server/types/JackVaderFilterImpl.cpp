@@ -26,8 +26,8 @@ namespace kurento
 {
 
 JackVaderFilterImpl::JackVaderFilterImpl (
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   GstElement *filter = NULL;
 
@@ -44,12 +44,10 @@ JackVaderFilterImpl::JackVaderFilterImpl (
 
 MediaObject *
 JackVaderFilter::Factory::createObject (std::shared_ptr<MediaPipeline>
-                                        mediaPipeline,
-                                        int garbagePeriod)
+                                        mediaPipeline)
 {
   return new JackVaderFilterImpl (std::dynamic_pointer_cast<MediaObjectImpl>
-                                  (mediaPipeline),
-                                  garbagePeriod);
+                                  (mediaPipeline) );
 }
 
 JackVaderFilterImpl::StaticConstructor JackVaderFilterImpl::staticConstructor;

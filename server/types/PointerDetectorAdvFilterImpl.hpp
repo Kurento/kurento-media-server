@@ -29,7 +29,7 @@ public:
 
   PointerDetectorAdvFilterImpl (std::shared_ptr<WindowParam> calibrationRegion,
                                 const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>> &window,
-                                std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+                                std::shared_ptr<MediaObjectImpl> parent);
   virtual ~PointerDetectorAdvFilterImpl() throw ();
 
   void addWindow (std::shared_ptr<PointerDetectorWindowMediaParam> window);

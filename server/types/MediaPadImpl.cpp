@@ -22,7 +22,7 @@ namespace kurento
 MediaPadImpl::MediaPadImpl (std::shared_ptr< MediaType > mediaType,
                             const std::string &mediaDescription,
                             std::shared_ptr< MediaObjectImpl > parent) :
-  MediaObjectImpl (parent, 0),
+  MediaObjectImpl (parent),
   mediaType (mediaType),
   mediaDescription (mediaDescription)
 {

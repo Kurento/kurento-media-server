@@ -26,7 +26,7 @@ namespace kurento
 class HubPortImpl: public virtual HubPort, public MediaElementImpl
 {
 public:
-  HubPortImpl (std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+  HubPortImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~HubPortImpl() throw ();
 
   int getHandlerId () {

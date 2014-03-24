@@ -35,10 +35,8 @@ RecorderEndpointImpl::RecorderEndpointImpl (
   std::shared_ptr<MediaProfileSpecType> mediaProfile,
   bool stopOnEndOfStream,
   const std::string &uri,
-  std::shared_ptr< MediaObjectImpl > parent,
-  int garbagePeriod) :
-  UriEndpointImpl (uri, FACTORY_NAME,
-                   parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  UriEndpointImpl (uri, FACTORY_NAME, parent)
 {
   g_object_ref (getGstreamerElement() );
 
@@ -101,12 +99,10 @@ RecorderEndpointImpl::record ()
 MediaObject *
 RecorderEndpoint::Factory::createObject (std::shared_ptr<MediaPipeline>
     mediaPipeline, const std::string &uri,
-    std::shared_ptr<MediaProfileSpecType> mediaProfile, bool stopOnEndOfStream,
-    int garbagePeriod)
+    std::shared_ptr<MediaProfileSpecType> mediaProfile, bool stopOnEndOfStream)
 {
   return new RecorderEndpointImpl (mediaProfile, stopOnEndOfStream, uri,
-                                   std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                   garbagePeriod);
+                                   std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 

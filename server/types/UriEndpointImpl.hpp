@@ -26,8 +26,7 @@ class UriEndpointImpl: public virtual UriEndpoint, public EndpointImpl
 {
 public:
   UriEndpointImpl (const std::string &uri, const std::string &factoryName,
-                   std::shared_ptr< MediaObjectImpl > parent,
-                   int garbagePeriod);
+                   std::shared_ptr< MediaObjectImpl > parent);
   virtual ~UriEndpointImpl() throw () {};
 
   std::string getUri ();

@@ -28,8 +28,7 @@ class HttpPostEndpointImpl : public virtual HttpPostEndpoint,
 {
 public:
   HttpPostEndpointImpl (bool useEncodedMedia, int disconnectionTimeout,
-                        std::shared_ptr< MediaObjectImpl > mediaPipeline,
-                        int garbagePeriod);
+                        std::shared_ptr< MediaObjectImpl > mediaPipeline);
   virtual ~HttpPostEndpointImpl() {};
 private:
   std::function<void() > eosLambda;

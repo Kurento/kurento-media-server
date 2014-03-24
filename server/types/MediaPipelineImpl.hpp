@@ -28,7 +28,7 @@ namespace kurento
 class MediaPipelineImpl : public virtual MediaPipeline, public MediaObjectImpl
 {
 public:
-  MediaPipelineImpl (int garbageCollectorPeriod);
+  MediaPipelineImpl ();
   virtual ~MediaPipelineImpl();
 
   bool getUnregChilds () {

@@ -27,8 +27,7 @@ bus_message_adaptor (GstBus *bus, GstMessage *message, gpointer data)
   (*func) (message);
 }
 
-MediaPipelineImpl::MediaPipelineImpl (int garbagePeriod) :
-  MediaObjectImpl (garbagePeriod)
+MediaPipelineImpl::MediaPipelineImpl () : MediaObjectImpl ()
 {
   GstBus *bus;
 
@@ -83,9 +82,9 @@ MediaPipelineImpl::~MediaPipelineImpl ()
 }
 
 MediaObject *
-MediaPipeline::Factory::createObject (int garbagePeriod)
+MediaPipeline::Factory::createObject ()
 {
-  return new MediaPipelineImpl (garbagePeriod);
+  return new MediaPipelineImpl ();
 }
 
 } /* kurento */

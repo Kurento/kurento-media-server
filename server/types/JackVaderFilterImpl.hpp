@@ -25,8 +25,7 @@ namespace kurento
 class JackVaderFilterImpl: public virtual JackVaderFilter, public FilterImpl
 {
 public:
-  JackVaderFilterImpl (std::shared_ptr<MediaObjectImpl> parent,
-                       int garbagePeriod);
+  JackVaderFilterImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~JackVaderFilterImpl() throw () {};
 
 private:

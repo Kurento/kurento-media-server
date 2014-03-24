@@ -14,7 +14,6 @@ MediaObject * ChromaFilter::Factory::createObjectPointer (const Json::Value &par
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::shared_ptr<WindowParam> window;
   std::string backgroundImage;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -46,16 +45,7 @@ MediaObject * ChromaFilter::Factory::createObjectPointer (const Json::Value &par
     s.SerializeNVP(backgroundImage);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, window, backgroundImage, garbagePeriod);
+  return createObject (mediaPipeline, window, backgroundImage);
 }
 
 ChromaFilter::Factory::StaticConstructor ChromaFilter::Factory::staticConstructor;

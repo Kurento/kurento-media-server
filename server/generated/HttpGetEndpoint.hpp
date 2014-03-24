@@ -37,7 +37,7 @@ public:
 
     virtual MediaObject * createObjectPointer (const Json::Value &params);
 
-    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, bool terminateOnEOS, std::shared_ptr<MediaProfileSpecType> mediaProfile, int disconnectionTimeout, int garbagePeriod);
+    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, bool terminateOnEOS, std::shared_ptr<MediaProfileSpecType> mediaProfile, int disconnectionTimeout);
 
     class StaticConstructor
     {

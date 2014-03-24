@@ -26,8 +26,7 @@ class CompositeImpl : public virtual Composite,
   public HubImpl
 {
 public:
-  CompositeImpl (std::shared_ptr<MediaObjectImpl> parent,
-                 int garbagePeriod);
+  CompositeImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~CompositeImpl() throw () {};
 
 private:

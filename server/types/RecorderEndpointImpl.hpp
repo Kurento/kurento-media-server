@@ -28,8 +28,7 @@ class RecorderEndpointImpl: public virtual RecorderEndpoint,
 public:
   RecorderEndpointImpl (std::shared_ptr<MediaProfileSpecType> mediaProfile,
                         bool stopOnEndOfStream, const std::string &uri,
-                        std::shared_ptr< MediaObjectImpl > parent,
-                        int garbagePeriod);
+                        std::shared_ptr< MediaObjectImpl > parent);
   virtual ~RecorderEndpointImpl() throw ();
 
   void record();

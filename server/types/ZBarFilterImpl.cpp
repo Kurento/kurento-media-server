@@ -35,8 +35,8 @@ bus_message_adaptor (GstBus *bus, GstMessage *message, gpointer data)
 }
 
 ZBarFilterImpl::ZBarFilterImpl (
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   GstBus *bus;
   std::shared_ptr<MediaPipelineImpl> pipe;
@@ -108,12 +108,10 @@ ZBarFilterImpl::barcodeDetected (guint64 ts, std::string &type,
 }
 
 MediaObject *
-ZBarFilter::Factory::createObject (std::shared_ptr<MediaPipeline> mediaPipeline,
-                                   int garbagePeriod)
+ZBarFilter::Factory::createObject (std::shared_ptr<MediaPipeline> mediaPipeline)
 {
   return new ZBarFilterImpl (std::dynamic_pointer_cast<MediaObjectImpl>
-                             (mediaPipeline),
-                             garbagePeriod);
+                             (mediaPipeline) );
 }
 
 ZBarFilterImpl::~ZBarFilterImpl()

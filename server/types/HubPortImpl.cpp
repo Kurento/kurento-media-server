@@ -24,9 +24,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-HubPortImpl::HubPortImpl (std::shared_ptr< MediaObjectImpl > parent,
-                          int garbagePeriod) :
-  MediaElementImpl (FACTORY_NAME, parent, garbagePeriod)
+HubPortImpl::HubPortImpl (std::shared_ptr< MediaObjectImpl > parent) :
+  MediaElementImpl (FACTORY_NAME, parent)
 {
   mixer = std::dynamic_pointer_cast<HubImpl> (parent);
   g_signal_emit_by_name (mixer->getGstreamerElement(), "handle-port", element,
@@ -39,13 +38,10 @@ HubPortImpl::~HubPortImpl()
                          handlerId);
 }
 
-
 MediaObject *
-HubPort::Factory::createObject (std::shared_ptr<Hub> hub,
-                                int garbagePeriod)
+HubPort::Factory::createObject (std::shared_ptr<Hub> hub)
 {
-  return new HubPortImpl (std::dynamic_pointer_cast<MediaObjectImpl> (hub),
-                          garbagePeriod);
+  return new HubPortImpl (std::dynamic_pointer_cast<MediaObjectImpl> (hub) );
 }
 
 HubPortImpl::StaticConstructor HubPortImpl::staticConstructor;

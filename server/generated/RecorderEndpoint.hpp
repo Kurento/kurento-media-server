@@ -39,7 +39,7 @@ public:
 
     virtual MediaObject * createObjectPointer (const Json::Value &params);
 
-    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, const std::string& uri, std::shared_ptr<MediaProfileSpecType> mediaProfile, bool stopOnEndOfStream, int garbagePeriod);
+    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, const std::string& uri, std::shared_ptr<MediaProfileSpecType> mediaProfile, bool stopOnEndOfStream);
 
     class StaticConstructor
     {

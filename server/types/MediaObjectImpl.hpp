@@ -28,8 +28,8 @@ class MediaObjectImpl : public virtual MediaObject
 {
 
 public:
-  MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
-  MediaObjectImpl (int garbagePeriod);
+  MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent);
+  MediaObjectImpl ();
 
   guint64 getId() {
     return id;
@@ -47,19 +47,10 @@ public:
     // TODO:
   }
 
-  int getGarbagePeriod() {
-    return garbagePeriod;
-  }
-
-  virtual bool getUnregChilds() {
-    return true;
-  };
-
   std::string getIdStr ();
 
 private:
   std::shared_ptr<MediaObjectImpl> parent;
-  int garbagePeriod;
   guint64 id = createId();
 
   static guint64 createId();

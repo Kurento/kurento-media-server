@@ -26,8 +26,8 @@ namespace kurento
 {
 
 FaceOverlayFilterImpl::FaceOverlayFilterImpl (
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   g_object_set (element, "filter-factory", "faceoverlay", NULL);
 
@@ -74,11 +74,10 @@ FaceOverlayFilterImpl::setOverlayedImage (const std::string &uri,
 
 MediaObject *
 FaceOverlayFilter::Factory::createObject (std::shared_ptr<MediaPipeline>
-    mediaPipeline,
-    int garbagePeriod)
+    mediaPipeline)
 {
   return new FaceOverlayFilterImpl (
-           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline), garbagePeriod);
+           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 FaceOverlayFilterImpl::StaticConstructor

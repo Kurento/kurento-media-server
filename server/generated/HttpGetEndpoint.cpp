@@ -15,7 +15,6 @@ MediaObject * HttpGetEndpoint::Factory::createObjectPointer (const Json::Value &
   bool terminateOnEOS = false;
   std::shared_ptr<MediaProfileSpecType> mediaProfile;
   int disconnectionTimeout = 0;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -55,16 +54,7 @@ MediaObject * HttpGetEndpoint::Factory::createObjectPointer (const Json::Value &
     s.SerializeNVP(disconnectionTimeout);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, terminateOnEOS, mediaProfile, disconnectionTimeout, garbagePeriod);
+  return createObject (mediaPipeline, terminateOnEOS, mediaProfile, disconnectionTimeout);
 }
 
 HttpGetEndpoint::Factory::StaticConstructor HttpGetEndpoint::Factory::staticConstructor;

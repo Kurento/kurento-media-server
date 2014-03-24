@@ -13,7 +13,6 @@ MediaObject * PlayerEndpoint::Factory::createObjectPointer (const Json::Value &p
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::string uri;
   bool useEncodedMedia = false;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -46,16 +45,7 @@ MediaObject * PlayerEndpoint::Factory::createObjectPointer (const Json::Value &p
     s.SerializeNVP(useEncodedMedia);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, uri, useEncodedMedia, garbagePeriod);
+  return createObject (mediaPipeline, uri, useEncodedMedia);
 }
 
 PlayerEndpoint::Factory::StaticConstructor PlayerEndpoint::Factory::staticConstructor;

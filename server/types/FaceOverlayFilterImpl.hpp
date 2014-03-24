@@ -25,8 +25,7 @@ namespace kurento
 class FaceOverlayFilterImpl: public virtual FaceOverlayFilter, public FilterImpl
 {
 public:
-  FaceOverlayFilterImpl (std::shared_ptr<MediaObjectImpl> parent,
-                         int garbagePeriod);
+  FaceOverlayFilterImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~FaceOverlayFilterImpl() throw () {};
 
   virtual void unsetOverlayedImage ();

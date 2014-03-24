@@ -12,7 +12,6 @@ MediaObject * GStreamerFilter::Factory::createObjectPointer (const Json::Value &
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::string command;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -36,16 +35,7 @@ MediaObject * GStreamerFilter::Factory::createObjectPointer (const Json::Value &
     s.SerializeNVP(command);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, command, garbagePeriod);
+  return createObject (mediaPipeline, command);
 }
 
 GStreamerFilter::Factory::StaticConstructor GStreamerFilter::Factory::staticConstructor;

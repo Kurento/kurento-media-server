@@ -29,9 +29,8 @@ namespace kurento
 {
 
 DispatcherOneToManyImpl::DispatcherOneToManyImpl (
-  std::shared_ptr<MediaObjectImpl> parent,
-  int garbagePeriod) :
-  HubImpl (FACTORY_NAME, parent, garbagePeriod)
+  std::shared_ptr<MediaObjectImpl> parent) :
+  HubImpl (FACTORY_NAME, parent)
 {
 }
 
@@ -53,11 +52,10 @@ DispatcherOneToManyImpl::removeSource ()
 
 MediaObject *
 DispatcherOneToMany::Factory::createObject (std::shared_ptr<MediaPipeline>
-    parent,
-    int garbagePeriod)
+    parent)
 {
   return new DispatcherOneToManyImpl (
-           std::dynamic_pointer_cast<MediaObjectImpl> (parent), garbagePeriod);
+           std::dynamic_pointer_cast<MediaObjectImpl> (parent) );
 }
 
 DispatcherOneToManyImpl::StaticConstructor

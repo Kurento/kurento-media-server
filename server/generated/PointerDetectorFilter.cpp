@@ -13,7 +13,6 @@ MediaObject * PointerDetectorFilter::Factory::createObjectPointer (const Json::V
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>> windows;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -34,16 +33,7 @@ MediaObject * PointerDetectorFilter::Factory::createObjectPointer (const Json::V
     s.SerializeNVP(windows);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, windows, garbagePeriod);
+  return createObject (mediaPipeline, windows);
 }
 
 PointerDetectorFilter::Factory::StaticConstructor PointerDetectorFilter::Factory::staticConstructor;

@@ -50,7 +50,7 @@ public:
 
     virtual MediaObject * createObjectPointer (const Json::Value &params);
 
-    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, std::shared_ptr<WindowParam> calibrationRegion, const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>>& windows, int garbagePeriod);
+    MediaObject * createObject (std::shared_ptr<MediaPipeline> mediaPipeline, std::shared_ptr<WindowParam> calibrationRegion, const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>>& windows);
 
     class StaticConstructor
     {

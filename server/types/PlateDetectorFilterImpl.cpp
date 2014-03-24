@@ -36,8 +36,8 @@ bus_message_adaptor (GstBus *bus, GstMessage *message, gpointer data)
 }
 
 PlateDetectorFilterImpl::PlateDetectorFilterImpl (
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   GstBus *bus;
   std::shared_ptr<MediaPipelineImpl> pipe;
@@ -108,11 +108,10 @@ PlateDetectorFilterImpl::~PlateDetectorFilterImpl()
 
 MediaObject *
 PlateDetectorFilter::Factory::createObject (std::shared_ptr<MediaPipeline>
-    mediaPipeline,
-    int garbagePeriod)
+    mediaPipeline)
 {
   return new PlateDetectorFilterImpl (
-           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline), garbagePeriod);
+           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 PlateDetectorFilterImpl::StaticConstructor

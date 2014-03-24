@@ -22,8 +22,8 @@
 namespace kurento
 {
 WebRtcEndpointImpl::WebRtcEndpointImpl (
-  std::shared_ptr< MediaObjectImpl > mediaPipeline, int garbagePeriod) :
-  SdpEndpointImpl (FACTORY_NAME, mediaPipeline, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > mediaPipeline) :
+  SdpEndpointImpl (FACTORY_NAME, mediaPipeline)
 {
   g_object_set (element, "pattern-sdp", sdpPattern, NULL);
 
@@ -49,11 +49,10 @@ WebRtcEndpointImpl::WebRtcEndpointImpl (
 
 MediaObject *
 WebRtcEndpoint::Factory::createObject (
-  std::shared_ptr< MediaPipeline > mediaPipeline, int garbagePeriod)
+  std::shared_ptr< MediaPipeline > mediaPipeline)
 {
   return new WebRtcEndpointImpl (std::dynamic_pointer_cast<MediaObjectImpl>
-                                 (mediaPipeline),
-                                 garbagePeriod);
+                                 (mediaPipeline) );
 }
 
 } /* kurento */

@@ -27,7 +27,7 @@ class HubImpl : public virtual Hub, public MediaObjectImpl
 {
 public:
   HubImpl (const std::string &factoryName,
-           std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+           std::shared_ptr<MediaObjectImpl> parent);
   virtual ~HubImpl() throw ();
 
   GstElement *getGstreamerElement() {

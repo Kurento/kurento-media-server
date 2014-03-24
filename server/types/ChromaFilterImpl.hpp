@@ -27,8 +27,7 @@ class ChromaFilterImpl: public virtual ChromaFilter, public FilterImpl
 public:
   ChromaFilterImpl (std::shared_ptr<WindowParam> window,
                     const std::string &backgroundImage,
-                    std::shared_ptr<MediaObjectImpl> parent,
-                    int garbagePeriod);
+                    std::shared_ptr<MediaObjectImpl> parent);
   virtual ~ChromaFilterImpl() throw () {};
 
   void setBackground (const std::string &uri);

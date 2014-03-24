@@ -26,8 +26,7 @@ class SdpEndpointImpl: public virtual SdpEndpoint, public SessionEndpointImpl
 {
 public:
   SdpEndpointImpl (const std::string &factoryName,
-                   std::shared_ptr< MediaObjectImpl > parent,
-                   int garbagePeriod);
+                   std::shared_ptr< MediaObjectImpl > parent);
   virtual ~SdpEndpointImpl() throw () {};
 
   std::string generateOffer ();

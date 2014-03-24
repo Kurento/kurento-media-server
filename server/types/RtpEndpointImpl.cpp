@@ -22,19 +22,18 @@
 namespace kurento
 {
 RtpEndpointImpl::RtpEndpointImpl (
-  std::shared_ptr< MediaObjectImpl > mediaPipeline, int garbagePeriod) :
-  SdpEndpointImpl (FACTORY_NAME, mediaPipeline, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > mediaPipeline) :
+  SdpEndpointImpl (FACTORY_NAME, mediaPipeline)
 {
   g_object_set (element, "pattern-sdp", sdpPattern, NULL);
 }
 
 MediaObject *
 RtpEndpoint::Factory::createObject (
-  std::shared_ptr< MediaPipeline > mediaPipeline, int garbagePeriod)
+  std::shared_ptr< MediaPipeline > mediaPipeline)
 {
   return new RtpEndpointImpl (
-           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-           garbagePeriod);
+           std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 } /* kurento */

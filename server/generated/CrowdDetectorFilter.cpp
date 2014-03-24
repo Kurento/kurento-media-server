@@ -13,7 +13,6 @@ MediaObject * CrowdDetectorFilter::Factory::createObjectPointer (const Json::Val
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
   std::vector<std::shared_ptr<RegionOfInterest>> rois;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -37,16 +36,7 @@ MediaObject * CrowdDetectorFilter::Factory::createObjectPointer (const Json::Val
     s.SerializeNVP(rois);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, rois, garbagePeriod);
+  return createObject (mediaPipeline, rois);
 }
 
 CrowdDetectorFilter::Factory::StaticConstructor CrowdDetectorFilter::Factory::staticConstructor;

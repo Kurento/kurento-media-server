@@ -11,7 +11,6 @@ namespace kurento {
 MediaObject * HubPort::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<Hub> hub;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("hub")) {
     /* param 'hub' not present, raise exception */
@@ -24,16 +23,7 @@ MediaObject * HubPort::Factory::createObjectPointer (const Json::Value &params)
     s.SerializeNVP(hub);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (hub, garbagePeriod);
+  return createObject (hub);
 }
 
 HubPort::Factory::StaticConstructor HubPort::Factory::staticConstructor;

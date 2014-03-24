@@ -33,7 +33,7 @@ class MediaElementImpl : public virtual MediaElement, public MediaObjectImpl
 {
 public:
   MediaElementImpl (const std::string &factoryName,
-                    std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+                    std::shared_ptr<MediaObjectImpl> parent);
   virtual ~MediaElementImpl() throw ();
 
   virtual std::vector<std::shared_ptr<MediaSource>> getMediaSrcs ();

@@ -39,7 +39,7 @@ public:
 
     virtual MediaObject * createObjectPointer (const Json::Value &params);
 
-    MediaObject * createObject (const std::string& uri, int garbagePeriod);
+    MediaObject * createObject (const std::string& uri);
 
     class StaticConstructor
     {

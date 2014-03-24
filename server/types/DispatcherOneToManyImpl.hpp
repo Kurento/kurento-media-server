@@ -26,8 +26,7 @@ class DispatcherOneToManyImpl : public virtual DispatcherOneToMany,
   public HubImpl
 {
 public:
-  DispatcherOneToManyImpl (std::shared_ptr<MediaObjectImpl> parent,
-                           int garbagePeriod);
+  DispatcherOneToManyImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~DispatcherOneToManyImpl() throw () {};
 
   virtual void setSource (std::shared_ptr<HubPort> source);

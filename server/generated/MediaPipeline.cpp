@@ -9,18 +9,8 @@ namespace kurento {
 
 MediaObject * MediaPipeline::Factory::createObjectPointer (const Json::Value &params)
 {
-  int garbagePeriod = 0;
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (garbagePeriod);
+  return createObject ();
 }
 
 MediaPipeline::Factory::StaticConstructor MediaPipeline::Factory::staticConstructor;

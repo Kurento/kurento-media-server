@@ -36,8 +36,8 @@ adaptor_function (GstElement *player, gpointer data)
 
 HttpPostEndpointImpl::HttpPostEndpointImpl (
   bool useEncodedMedia, int disconnectionTimeout,
-  std::shared_ptr< MediaObjectImpl > mediaPipeline, int garbagePeriod) :
-  HttpEndpointImpl (disconnectionTimeout, mediaPipeline, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > mediaPipeline) :
+  HttpEndpointImpl (disconnectionTimeout, mediaPipeline)
 {
   eosLambda = [&] () {
     EndOfStream event (shared_from_this(), EndOfStream::getName() );
@@ -61,11 +61,10 @@ HttpPostEndpointImpl::HttpPostEndpointImpl (
 MediaObject  *
 HttpPostEndpoint::Factory::createObject (
   std::shared_ptr< MediaPipeline > mediaPipeline, int disconnectionTimeout,
-  bool useEncodedMedia, int garbagePeriod)
+  bool useEncodedMedia)
 {
   return new HttpPostEndpointImpl (useEncodedMedia, disconnectionTimeout,
-                                   std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                   garbagePeriod);
+                                   std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 HttpPostEndpointImpl::StaticConstructor HttpPostEndpointImpl::staticConstructor;

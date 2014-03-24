@@ -27,8 +27,8 @@ namespace kurento
 
 GStreamerFilterImpl::GStreamerFilterImpl (
   const std::string &commandLine,
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   std::string command, rest_token;
 
@@ -62,11 +62,10 @@ GStreamerFilterImpl::GStreamerFilterImpl (
 MediaObject *
 GStreamerFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
-  const std::string &command, int garbagePeriod)
+  const std::string &command)
 {
   return new GStreamerFilterImpl (command,
-                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                  garbagePeriod);
+                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 void

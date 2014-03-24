@@ -11,7 +11,6 @@ namespace kurento {
 MediaObject * PlateDetectorFilter::Factory::createObjectPointer (const Json::Value &params)
 {
   std::shared_ptr<MediaPipeline> mediaPipeline;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -24,16 +23,7 @@ MediaObject * PlateDetectorFilter::Factory::createObjectPointer (const Json::Val
     s.SerializeNVP(mediaPipeline);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, garbagePeriod);
+  return createObject (mediaPipeline);
 }
 
 PlateDetectorFilter::Factory::StaticConstructor PlateDetectorFilter::Factory::staticConstructor;

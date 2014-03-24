@@ -25,7 +25,7 @@ namespace kurento
 class FilterImpl: public virtual Filter, public MediaElementImpl
 {
 public:
-  FilterImpl (std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+  FilterImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~FilterImpl() throw () {};
 
 private:

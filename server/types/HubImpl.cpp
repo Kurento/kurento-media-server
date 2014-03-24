@@ -24,9 +24,8 @@ namespace kurento
 {
 
 HubImpl::HubImpl (const std::string &factoryName,
-                  std::shared_ptr<MediaObjectImpl> parent,
-                  int garbagePeriod) :
-  MediaObjectImpl (parent, garbagePeriod)
+                  std::shared_ptr<MediaObjectImpl> parent) :
+  MediaObjectImpl (parent)
 {
   std::shared_ptr<MediaPipelineImpl> pipe;
 

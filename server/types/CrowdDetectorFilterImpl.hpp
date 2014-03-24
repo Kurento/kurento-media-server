@@ -28,8 +28,7 @@ class CrowdDetectorFilterImpl: public virtual CrowdDetectorFilter,
 public:
   CrowdDetectorFilterImpl (const
                            std::vector<std::shared_ptr<RegionOfInterest>> &rois,
-                           std::shared_ptr<MediaObjectImpl> parent,
-                           int garbagePeriod);
+                           std::shared_ptr<MediaObjectImpl> parent);
   virtual ~CrowdDetectorFilterImpl() throw () {};
 
 private:

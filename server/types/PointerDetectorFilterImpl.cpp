@@ -72,8 +72,8 @@ get_structure_from_window (std::shared_ptr<PointerDetectorWindowMediaParam>
 
 PointerDetectorFilterImpl::PointerDetectorFilterImpl (
   const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>> &windows,
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   GstBus *bus;
   std::shared_ptr<MediaPipelineImpl> pipe;
@@ -225,12 +225,10 @@ PointerDetectorFilterImpl::removeWindow (const std::string &windowId)
 MediaObject *
 PointerDetectorFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
-  const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>> &windows,
-  int garbagePeriod)
+  const std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>> &windows)
 {
   return new PointerDetectorFilterImpl (
-           windows, std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-           garbagePeriod);
+           windows, std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 PointerDetectorFilterImpl::StaticConstructor

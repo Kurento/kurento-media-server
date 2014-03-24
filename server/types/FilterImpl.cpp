@@ -24,9 +24,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-FilterImpl::FilterImpl (std::shared_ptr< MediaObjectImpl > parent,
-                        int garbagePeriod) :
-  MediaElementImpl (FACTORY_NAME, parent, garbagePeriod)
+FilterImpl::FilterImpl (std::shared_ptr< MediaObjectImpl > parent) :
+  MediaElementImpl (FACTORY_NAME, parent)
 {
 }
 

@@ -15,7 +15,6 @@ MediaObject * RecorderEndpoint::Factory::createObjectPointer (const Json::Value 
   std::string uri;
   std::shared_ptr<MediaProfileSpecType> mediaProfile;
   bool stopOnEndOfStream = false;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -57,16 +56,7 @@ MediaObject * RecorderEndpoint::Factory::createObjectPointer (const Json::Value 
     s.SerializeNVP(stopOnEndOfStream);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, uri, mediaProfile, stopOnEndOfStream, garbagePeriod);
+  return createObject (mediaPipeline, uri, mediaProfile, stopOnEndOfStream);
 }
 
 RecorderEndpoint::Factory::StaticConstructor RecorderEndpoint::Factory::staticConstructor;

@@ -203,9 +203,8 @@ HttpEndpointImpl::is_registered()
 
 
 HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
-                                    std::shared_ptr< MediaObjectImpl > parent,
-                                    int garbagePeriod) :
-  SessionEndpointImpl (FACTORY_NAME, parent, garbagePeriod)
+                                    std::shared_ptr< MediaObjectImpl > parent) :
+  SessionEndpointImpl (FACTORY_NAME, parent)
 {
   this->disconnectionTimeout = disconnectionTimeout;
 

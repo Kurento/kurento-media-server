@@ -42,17 +42,12 @@ MediaObjectImpl::createId()
   return ret;
 }
 
-MediaObjectImpl::MediaObjectImpl (int garbagePeriod)
+MediaObjectImpl::MediaObjectImpl ()
 {
-  // TODO: Ignore gargabe period until it is supported by clients
-  this->garbagePeriod = 0;
 }
 
-MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent,
-                                  int garbagePeriod)
+MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent)
 {
-  // TODO: Ignore gargabe period until it is supported by clients
-  this->garbagePeriod = 0;
   this->parent = parent;
 
   signalError.connect ([parent] (Error error) {

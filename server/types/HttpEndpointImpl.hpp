@@ -28,8 +28,7 @@ class HttpEndpointImpl: public virtual HttpEndpoint, public SessionEndpointImpl
 {
 public:
   HttpEndpointImpl (int disconnectionTimeout,
-                    std::shared_ptr< MediaObjectImpl > parent,
-                    int garbagePeriod);
+                    std::shared_ptr< MediaObjectImpl > parent);
   virtual ~HttpEndpointImpl() throw ();
 
   virtual std::string getUrl ();

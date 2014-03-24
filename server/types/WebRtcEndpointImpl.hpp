@@ -25,8 +25,7 @@ namespace kurento
 class WebRtcEndpointImpl : public virtual WebRtcEndpoint, public SdpEndpointImpl
 {
 public:
-  WebRtcEndpointImpl (std::shared_ptr< MediaObjectImpl > mediaPipeline,
-                      int garbagePeriod);
+  WebRtcEndpointImpl (std::shared_ptr< MediaObjectImpl > mediaPipeline);
   virtual ~WebRtcEndpointImpl() {};
 };
 

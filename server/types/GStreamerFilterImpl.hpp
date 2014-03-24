@@ -26,7 +26,7 @@ class GStreamerFilterImpl: public virtual GStreamerFilter, public FilterImpl
 {
 public:
   GStreamerFilterImpl (const std::string &command,
-                       std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+                       std::shared_ptr<MediaObjectImpl> parent);
   virtual ~GStreamerFilterImpl() throw () {};
 
 private:

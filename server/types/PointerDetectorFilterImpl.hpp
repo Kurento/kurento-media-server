@@ -28,7 +28,7 @@ class PointerDetectorFilterImpl: public virtual PointerDetectorFilter,
 public:
   PointerDetectorFilterImpl (const
                              std::vector<std::shared_ptr<PointerDetectorWindowMediaParam>> &
-                             windows, std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+                             windows, std::shared_ptr<MediaObjectImpl> parent);
   virtual ~PointerDetectorFilterImpl() throw () {};
 
   void addWindow (std::shared_ptr<PointerDetectorWindowMediaParam> window);

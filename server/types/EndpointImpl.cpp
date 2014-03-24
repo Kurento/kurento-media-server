@@ -23,10 +23,8 @@ namespace kurento
 {
 
 EndpointImpl::EndpointImpl (const std::string &factoryName,
-                            std::shared_ptr< MediaObjectImpl > parent,
-                            int garbagePeriod) :
-  MediaElementImpl (factoryName, parent,
-                    garbagePeriod)
+                            std::shared_ptr< MediaObjectImpl > parent) :
+  MediaElementImpl (factoryName, parent)
 {
 }
 

@@ -36,7 +36,7 @@ public:
 
     virtual MediaObject * createObjectPointer (const Json::Value &params);
 
-    MediaObject * createObject (std::shared_ptr<Hub> hub, int garbagePeriod);
+    MediaObject * createObject (std::shared_ptr<Hub> hub);
 
     class StaticConstructor
     {

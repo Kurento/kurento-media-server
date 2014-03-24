@@ -26,8 +26,7 @@ class EndpointImpl: public virtual Endpoint, public MediaElementImpl
 {
 public:
   EndpointImpl (const std::string &factoryName,
-                std::shared_ptr< MediaObjectImpl > parent,
-                int garbagePeriod);
+                std::shared_ptr< MediaObjectImpl > parent);
   virtual ~EndpointImpl() throw () {};
 
 private:

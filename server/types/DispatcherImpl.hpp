@@ -26,8 +26,7 @@ class DispatcherImpl : public virtual Dispatcher,
   public HubImpl
 {
 public:
-  DispatcherImpl (std::shared_ptr<MediaObjectImpl> parent,
-                  int garbagePeriod);
+  DispatcherImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~DispatcherImpl() throw () {};
 
   virtual void connect (std::shared_ptr<HubPort> source,

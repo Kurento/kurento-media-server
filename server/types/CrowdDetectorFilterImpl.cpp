@@ -58,8 +58,8 @@ get_structure_from_roi (std::shared_ptr<RegionOfInterest> roi)
 
 CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
   const std::vector<std::shared_ptr<RegionOfInterest>> &rois,
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   GstBus *bus;
   std::shared_ptr<MediaPipelineImpl> pipe;
@@ -101,12 +101,10 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
 MediaObject *
 CrowdDetectorFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
-  const std::vector<std::shared_ptr<RegionOfInterest>> &rois,
-  int garbagePeriod)
+  const std::vector<std::shared_ptr<RegionOfInterest>> &rois)
 {
   return new CrowdDetectorFilterImpl (rois,
-                                      std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                      garbagePeriod);
+                                      std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 CrowdDetectorFilterImpl::StaticConstructor

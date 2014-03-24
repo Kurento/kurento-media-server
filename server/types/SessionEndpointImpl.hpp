@@ -26,8 +26,7 @@ class SessionEndpointImpl: public virtual SessionEndpoint, public EndpointImpl
 {
 public:
   SessionEndpointImpl (const std::string &factoryName,
-                       std::shared_ptr< MediaObjectImpl > parent,
-                       int garbagePeriod);
+                       std::shared_ptr< MediaObjectImpl > parent);
   virtual ~SessionEndpointImpl() throw () {};
 
 private:

@@ -26,8 +26,7 @@ class PlateDetectorFilterImpl: public virtual PlateDetectorFilter,
   public FilterImpl
 {
 public:
-  PlateDetectorFilterImpl (std::shared_ptr<MediaObjectImpl> parent,
-                           int garbagePeriod);
+  PlateDetectorFilterImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~PlateDetectorFilterImpl() throw ();
 
 private:

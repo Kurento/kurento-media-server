@@ -35,10 +35,8 @@ adaptor_function (GstElement *player, gpointer data)
 
 PlayerEndpointImpl::PlayerEndpointImpl (bool useEncodedMedia,
                                         const std::string &uri,
-                                        std::shared_ptr< MediaObjectImpl > parent,
-                                        int garbagePeriod) :
-  UriEndpointImpl (uri, FACTORY_NAME,
-                   parent, garbagePeriod)
+                                        std::shared_ptr< MediaObjectImpl > parent) :
+  UriEndpointImpl (uri, FACTORY_NAME, parent)
 {
   GstElement *element = getGstreamerElement();
 
@@ -90,11 +88,10 @@ PlayerEndpointImpl::play ()
 MediaObject *
 PlayerEndpoint::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline, const std::string &uri,
-  bool useEncodedMedia, int garbagePeriod)
+  bool useEncodedMedia)
 {
   return  new PlayerEndpointImpl (useEncodedMedia, uri,
-                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                  garbagePeriod);
+                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 

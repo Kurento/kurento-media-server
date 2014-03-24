@@ -25,7 +25,7 @@ namespace kurento
 class ZBarFilterImpl: public virtual ZBarFilter, public FilterImpl
 {
 public:
-  ZBarFilterImpl (std::shared_ptr<MediaObjectImpl> parent, int garbagePeriod);
+  ZBarFilterImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~ZBarFilterImpl() throw ();
 
 private:

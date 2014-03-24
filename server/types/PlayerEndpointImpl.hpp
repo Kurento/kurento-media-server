@@ -27,8 +27,7 @@ class PlayerEndpointImpl: public virtual PlayerEndpoint, public UriEndpointImpl
 {
 public:
   PlayerEndpointImpl (bool useEncodedMedia, const std::string &uri,
-                      std::shared_ptr< MediaObjectImpl > parent,
-                      int garbagePeriod);
+                      std::shared_ptr< MediaObjectImpl > parent);
   virtual ~PlayerEndpointImpl() throw ();
 
   void play();

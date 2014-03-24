@@ -30,8 +30,8 @@ namespace kurento
 
 ChromaFilterImpl::ChromaFilterImpl (
   std::shared_ptr<WindowParam> window, const std::string &backgroundImage,
-  std::shared_ptr< MediaObjectImpl > parent, int garbagePeriod) :
-  FilterImpl (parent, garbagePeriod)
+  std::shared_ptr< MediaObjectImpl > parent) :
+  FilterImpl (parent)
 {
   GstStructure *aux;
 
@@ -75,12 +75,10 @@ ChromaFilterImpl::unsetBackground ()
 MediaObject *
 ChromaFilter::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline,
-  std::shared_ptr<WindowParam> window, const std::string &backgroundImage,
-  int garbagePeriod)
+  std::shared_ptr<WindowParam> window, const std::string &backgroundImage)
 {
   return new ChromaFilterImpl (window, backgroundImage,
-                               std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                               garbagePeriod);
+                               std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 ChromaFilterImpl::StaticConstructor ChromaFilterImpl::staticConstructor;

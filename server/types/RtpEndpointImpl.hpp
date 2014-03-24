@@ -25,8 +25,7 @@ namespace kurento
 class RtpEndpointImpl : public virtual RtpEndpoint, public SdpEndpointImpl
 {
 public:
-  RtpEndpointImpl (std::shared_ptr< MediaObjectImpl > mediaPipeline,
-                   int garbagePeriod);
+  RtpEndpointImpl (std::shared_ptr< MediaObjectImpl > mediaPipeline);
   virtual ~RtpEndpointImpl() {};
 };
 

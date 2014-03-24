@@ -13,7 +13,6 @@ MediaObject * HttpPostEndpoint::Factory::createObjectPointer (const Json::Value 
   std::shared_ptr<MediaPipeline> mediaPipeline;
   int disconnectionTimeout = 0;
   bool useEncodedMedia = false;
-  int garbagePeriod = 0;
 
   if (!params.isMember ("mediaPipeline")) {
     /* param 'mediaPipeline' not present, raise exception */
@@ -44,16 +43,7 @@ MediaObject * HttpPostEndpoint::Factory::createObjectPointer (const Json::Value 
     s.SerializeNVP(useEncodedMedia);
   }
 
-  if (!params.isMember ("garbagePeriod")) {
-    /* param 'garbagePeriod' not present, using default */
-    garbagePeriod = 120;
-  } else {
-    JsonSerializer s(false);
-    s.JsonValue = params;
-    s.SerializeNVP(garbagePeriod);
-  }
-
-  return createObject (mediaPipeline, disconnectionTimeout, useEncodedMedia, garbagePeriod);
+  return createObject (mediaPipeline, disconnectionTimeout, useEncodedMedia);
 }
 
 HttpPostEndpoint::Factory::StaticConstructor HttpPostEndpoint::Factory::staticConstructor;

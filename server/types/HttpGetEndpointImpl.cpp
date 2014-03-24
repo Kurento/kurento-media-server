@@ -26,9 +26,8 @@ namespace kurento
 {
 HttpGetEndpointImpl::HttpGetEndpointImpl (
   bool terminateOnEOS, std::shared_ptr<MediaProfileSpecType> mediaProfile,
-  int disconnectionTimeout, std::shared_ptr< MediaObjectImpl > mediaPipeline,
-  int garbagePeriod) :
-  HttpEndpointImpl (disconnectionTimeout, mediaPipeline, garbagePeriod)
+  int disconnectionTimeout, std::shared_ptr< MediaObjectImpl > mediaPipeline) :
+  HttpEndpointImpl (disconnectionTimeout, mediaPipeline)
 {
   g_object_set ( G_OBJECT (element), "accept-eos", terminateOnEOS,
                  NULL);
@@ -55,13 +54,11 @@ HttpGetEndpointImpl::HttpGetEndpointImpl (
 MediaObject *
 HttpGetEndpoint::Factory::createObject (
   std::shared_ptr<MediaPipeline> mediaPipeline, bool terminateOnEOS,
-  std::shared_ptr<MediaProfileSpecType> mediaProfile, int disconnectionTimeout,
-  int garbagePeriod)
+  std::shared_ptr<MediaProfileSpecType> mediaProfile, int disconnectionTimeout)
 {
   return new HttpGetEndpointImpl (terminateOnEOS, mediaProfile,
                                   disconnectionTimeout,
-                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline),
-                                  garbagePeriod);
+                                  std::dynamic_pointer_cast<MediaObjectImpl> (mediaPipeline) );
 }
 
 HttpGetEndpointImpl::StaticConstructor HttpGetEndpointImpl::staticConstructor;
