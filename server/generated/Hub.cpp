@@ -2,7 +2,6 @@
 
 #include <memory>
 
-#include "MediaPipeline.hpp"
 #include "Hub.hpp"
 #include <JsonSerializer.hpp>
 

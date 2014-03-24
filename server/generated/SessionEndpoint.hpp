@@ -42,7 +42,6 @@ public:
 
     virtual MediaObject * createObjectPointer (const Json::Value &params);
 
-    MediaObject * createObject ();
 
     class StaticConstructor
     {
