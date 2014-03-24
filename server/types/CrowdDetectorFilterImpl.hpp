@@ -29,11 +29,14 @@ public:
   CrowdDetectorFilterImpl (const
                            std::vector<std::shared_ptr<RegionOfInterest>> &rois,
                            std::shared_ptr<MediaObjectImpl> parent);
-  virtual ~CrowdDetectorFilterImpl() throw () {};
+  virtual ~CrowdDetectorFilterImpl() throw ();
 
 private:
 
   GstElement *crowdDetector;
+  gulong bus_handler_id;
+
+  std::function<void (GstMessage *) > busMessageLambda;
 
   class StaticConstructor
   {

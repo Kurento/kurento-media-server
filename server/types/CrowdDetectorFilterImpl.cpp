@@ -30,6 +30,15 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+static void
+bus_message_adaptor (GstBus *bus, GstMessage *message, gpointer data)
+{
+  auto func = reinterpret_cast<std::function<void (GstMessage *message) >*>
+              (data);
+
+  (*func) (message);
+}
+
 static GstStructure *
 get_structure_from_roi (std::shared_ptr<RegionOfInterest> roi)
 {
@@ -123,8 +132,105 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
   g_object_set (G_OBJECT (crowdDetector), ROIS_PARAM, roisStructure, NULL);
   gst_structure_free (roisStructure);
 
+  busMessageLambda = [&] (GstMessage * message) {
+    const GstStructure *st;
+    gchar *roiID;
+    const gchar *type;
+    std::string roiIDStr, typeStr;
+
+    if (GST_MESSAGE_SRC (message) != GST_OBJECT (crowdDetector) ||
+        GST_MESSAGE_TYPE (message) != GST_MESSAGE_ELEMENT) {
+      return;
+    }
+
+    st = gst_message_get_structure (message);
+    type = gst_structure_get_name (st);
+
+    if (!gst_structure_get (st, "roi", G_TYPE_STRING , &roiID, NULL) ) {
+      GST_WARNING ("The message does not contain the roi ID");
+      return;
+    }
+
+    roiIDStr = roiID;
+    typeStr = type;
+
+    g_free (roiID);
+
+    if (typeStr == "fluidity-event") {
+
+      double fluidity_percentage;
+      int fluidity_level;
+
+      if (! (gst_structure_get (st, "fluidity_percentage", G_TYPE_DOUBLE,
+                                &fluidity_percentage, NULL) ) ) {
+        GST_WARNING ("The message does not contain the fluidity percentage");
+        return;
+      }
+
+      if (! (gst_structure_get (st, "fluidity_level", G_TYPE_INT,
+                                &fluidity_level, NULL) ) ) {
+        GST_WARNING ("The message does not contain the fluidity level");
+        return;
+      }
+
+      // TODO: FluidityEvent event (roiIDStr, shared_from_this(),
+      //                            FluidityEvent::getName() );
+      // TODO: signalFluidityEvent (event);
+    } else if (typeStr == "occupancy-event") {
+
+      double occupancy_percentage;
+      int occupancy_level;
+
+      if (! (gst_structure_get (st, "occupancy_percentage", G_TYPE_DOUBLE,
+                                &occupancy_percentage, NULL) ) ) {
+        GST_WARNING ("The message does not contain the occupancy percentage");
+        return;
+      }
+
+      if (! (gst_structure_get (st, "occupancy_level", G_TYPE_INT,
+                                &occupancy_level, NULL) ) ) {
+        GST_WARNING ("The message does not contain the occupancy level");
+        return;
+      }
+
+      // TODO: OccupancyEvent event (roiIDStr, shared_from_this(),
+      //                             OccupancyEvent::getName() );
+      // TODO: signalOccupancyEvent (event);
+    } else if (typeStr == "direction-event") {
+
+      double direction_angle;
+
+      if (! (gst_structure_get (st, "direction_angle", G_TYPE_DOUBLE,
+                                &direction_angle, NULL) ) ) {
+        GST_WARNING ("The message does not contain the direction angle");
+        return;
+      }
+
+      // TODO: DirectionEvent event (roiIDStr, shared_from_this(),
+      //                            DirectionEvent::getName() );
+      // TODO: signalDirectionEvent (event);
+    } else {
+      GST_WARNING ("The message does not have the correct name");
+    }
+  };
+
+  bus_handler_id = g_signal_connect (bus, "message",
+                                     G_CALLBACK (bus_message_adaptor),
+                                     &busMessageLambda);
+  g_object_unref (bus);
+
   // There is no need to reference crowddetector because its life cycle is the same as the filter life cycle
   g_object_unref (crowdDetector);
+}
+
+CrowdDetectorFilterImpl::~CrowdDetectorFilterImpl()
+{
+  std::shared_ptr<MediaPipelineImpl> pipe;
+
+  pipe = std::dynamic_pointer_cast<MediaPipelineImpl> (getMediaPipeline() );
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipe->getPipeline() ) );
+  g_signal_handler_disconnect (bus, bus_handler_id);
+  g_object_unref (bus);
 }
 
 MediaObject *
