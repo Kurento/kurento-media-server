@@ -17,6 +17,7 @@
 #include <generated/MediaPipeline.hpp>
 #include <generated/RegionOfInterest.hpp>
 #include <generated/Point.hpp>
+#include <generated/RegionOfInterestConfig.hpp>
 #include "MediaPipelineImpl.hpp"
 #include <KurentoException.hpp>
 
@@ -32,7 +33,8 @@ namespace kurento
 static GstStructure *
 get_structure_from_roi (std::shared_ptr<RegionOfInterest> roi)
 {
-  GstStructure *roiStructure;
+  GstStructure *roiStructure, *configRoiSt;
+  std::shared_ptr<RegionOfInterestConfig> config;
   int pointCount = 0;
 
   roiStructure = gst_structure_new_empty (roi->getId().c_str() );
@@ -52,6 +54,32 @@ get_structure_from_roi (std::shared_ptr<RegionOfInterest> roi)
 
     gst_structure_free (pointSt);
   }
+
+  config = roi->getRegionOfInterestConfig();
+  configRoiSt = gst_structure_new ("config",
+                                   "id", G_TYPE_STRING, roi->getId().c_str(),
+                                   "occupancy_level_min", G_TYPE_INT, config->getOccupancyLevelMin(),
+                                   "occupancy_level_med", G_TYPE_INT, config->getOccupancyLevelMed(),
+                                   "occupancy_level_max", G_TYPE_INT, config->getOccupancyLevelMax(),
+                                   "occupancy_num_frames_to_event", G_TYPE_INT,
+                                   config->getOccupancyNumFramesToEvent(),
+                                   "fluidity_level_min", G_TYPE_INT, config->getFluidityLevelMin(),
+                                   "fluidity_level_med", G_TYPE_INT, config->getFluidityLevelMed(),
+                                   "fluidity_level_max", G_TYPE_INT, config->getFluidityLevelMax(),
+                                   "fluidity_num_frames_to_event", G_TYPE_INT,
+                                   config->getFluidityNumFramesToEvent(),
+                                   "send_optical_flow_event", G_TYPE_BOOLEAN, config->getSendOpticalFlowEvent(),
+                                   "optical_flow_num_frames_to_event", G_TYPE_INT,
+                                   config->getOpticalFlowNumFramesToEvent(),
+                                   "optical_flow_num_frames_to_reset", G_TYPE_INT,
+                                   config->getOpticalFlowNumFramesToReset(),
+                                   "optical_flow_angle_offset", G_TYPE_INT, config->getOpticalFlowAngleOffset(),
+                                   NULL);
+  gst_structure_set (roiStructure,
+                     "config", GST_TYPE_STRUCTURE, configRoiSt,
+                     NULL);
+
+  gst_structure_free (configRoiSt);
 
   return roiStructure;
 }

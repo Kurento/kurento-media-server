@@ -18,14 +18,17 @@ void Serialize(std::shared_ptr<kurento::RegionOfInterest>& object, JsonSerialize
 namespace kurento {
 class Point;
 
+class RegionOfInterestConfig;
+
 
 class RegionOfInterest
 {
 
 public:
 
-  RegionOfInterest (const std::vector<std::shared_ptr<Point>>& points, const std::string& id){
+  RegionOfInterest (const std::vector<std::shared_ptr<Point>>& points, std::shared_ptr<RegionOfInterestConfig> regionOfInterestConfig, const std::string& id){
     this->points = points;
+    this->regionOfInterestConfig = regionOfInterestConfig;
     this->id = id;
   };
 
@@ -39,6 +42,14 @@ public:
     return points;
   };
 
+  void setRegionOfInterestConfig (std::shared_ptr<RegionOfInterestConfig> regionOfInterestConfig) {
+    this->regionOfInterestConfig = regionOfInterestConfig;
+  };
+
+  std::shared_ptr<RegionOfInterestConfig> getRegionOfInterestConfig () {
+    return regionOfInterestConfig;
+  };
+
   void setId (const std::string& id) {
     this->id = id;
   };
@@ -49,6 +60,7 @@ public:
 
 private:
   std::vector<std::shared_ptr<Point>> points;
+  std::shared_ptr<RegionOfInterestConfig> regionOfInterestConfig;
   std::string id;
 
   RegionOfInterest() {};
