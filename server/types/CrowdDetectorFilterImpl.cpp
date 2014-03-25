@@ -75,7 +75,8 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
 
   if (crowdDetector == NULL) {
     g_object_unref (bus);
-    throw KurentoException ("Media Object not available");
+    throw KurentoException (MEDIA_OBJECT_NOT_AVAILABLE,
+                            "Media Object not available");
   }
 
   roisStructure = gst_structure_new_empty  ("Rois");

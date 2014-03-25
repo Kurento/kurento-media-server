@@ -57,7 +57,7 @@ DispatcherImpl::connect (std::shared_ptr<HubPort> source,
                          &connected);
 
   if (!connected) {
-    throw KurentoException ("Can not connect ports");
+    throw KurentoException (CONNECT_ERROR, "Can not connect ports");
   }
 }
 

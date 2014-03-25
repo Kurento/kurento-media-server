@@ -49,7 +49,8 @@ PlateDetectorFilterImpl::PlateDetectorFilterImpl (
   g_object_get (G_OBJECT (element), "filter", &plateDetector, NULL);
 
   if (plateDetector == NULL) {
-    throw KurentoException ("Media Object not available");
+    throw KurentoException (MEDIA_OBJECT_NOT_AVAILABLE,
+                            "Media Object not available");
   }
 
   // There is no need to reference platedetector because its life cycle is the same as the filter life cycle

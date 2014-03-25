@@ -40,7 +40,8 @@ ChromaFilterImpl::ChromaFilterImpl (
   g_object_get (G_OBJECT (element), "filter", &chroma, NULL);
 
   if (chroma == NULL) {
-    throw KurentoException ("Media Object not available");
+    throw KurentoException (MEDIA_OBJECT_NOT_AVAILABLE,
+                            "Media Object not available");
   }
 
   aux = gst_structure_new ("calibration_area",

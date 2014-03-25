@@ -205,7 +205,7 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
   mutex.unlock();
 
   if (!ret) {
-    throw KurentoException ("Cannot link pads");
+    throw KurentoException (CONNECT_ERROR, "Cannot link pads");
   }
 }
 

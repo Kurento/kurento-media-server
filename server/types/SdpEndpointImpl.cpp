@@ -33,7 +33,7 @@ str_to_sdp (const std::string &sdpStr)
   result = gst_sdp_message_new (&sdp);
 
   if (result != GST_SDP_OK) {
-    throw KurentoException ("Error creating SDP message");
+    throw KurentoException (SDP_CREATE_ERROR, "Error creating SDP message");
   }
 
   result = gst_sdp_message_parse_buffer ( (const guint8 *) sdpStr.c_str (), -1,
@@ -42,7 +42,7 @@ str_to_sdp (const std::string &sdpStr)
   if (result != GST_SDP_OK) {
 
     gst_sdp_message_free (sdp);
-    throw KurentoException ("Error parsing SDP");
+    throw KurentoException (SDP_PARSE_ERROR, "Error parsing SDP");
   }
 
   return sdp;
@@ -81,7 +81,8 @@ SdpEndpointImpl::generateOffer()
   g_signal_emit_by_name (element, "generate-offer", &offer);
 
   if (offer == NULL) {
-    throw KurentoException ("Error generating offer");
+    throw KurentoException (SDP_END_POINT_GENERATE_OFFER_ERROR,
+                            "Error generating offer");
   }
 
   sdp_to_str (offerStr, offer);
@@ -103,7 +104,7 @@ SdpEndpointImpl::getLocalSessionDescriptor()
   }
 
   if (localSdp == NULL) {
-    throw KurentoException ("No local SDP");
+    throw KurentoException (SDP_END_POINT_NO_LOCAL_SDP_ERROR, "No local SDP");
   }
 
   sdp_to_str (localSdpStr, localSdp);
@@ -125,7 +126,7 @@ SdpEndpointImpl::getRemoteSessionDescriptor()
   }
 
   if (remoteSdp == NULL) {
-    throw KurentoException ("No remote SDP");
+    throw KurentoException (SDP_END_POINT_NO_REMOTE_SDP_ERROR, "No remote SDP");
   }
 
   sdp_to_str (remoteSdpStr, remoteSdp);;
@@ -161,7 +162,8 @@ SdpEndpointImpl::processOffer (const std::string &offer)
   gst_sdp_message_free (offerSdp);
 
   if (result == NULL) {
-    throw KurentoException ("Error processing offer");
+    throw KurentoException (SDP_END_POINT_PROCESS_OFFER_ERROR,
+                            "Error processing offer");
   }
 
   sdp_to_str (offerSdpStr, result);

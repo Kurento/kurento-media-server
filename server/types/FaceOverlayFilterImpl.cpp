@@ -34,7 +34,8 @@ FaceOverlayFilterImpl::FaceOverlayFilterImpl (
   g_object_get (G_OBJECT (element), "filter", &faceOverlay, NULL);
 
   if (faceOverlay == NULL) {
-    throw KurentoException ("Media Object not available");
+    throw KurentoException (MEDIA_OBJECT_NOT_AVAILABLE,
+                            "Media Object not available");
   }
 
   g_object_unref (faceOverlay);

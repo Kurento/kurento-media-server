@@ -191,7 +191,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     handlerId = obj->connect (eventType, handler);
 
     if (handlerId == "") {
-      KurentoException e ("event not found");
+      KurentoException e (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
       throw e;
     }
 
@@ -242,7 +242,7 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
     obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
 
     if (!obj) {
-      throw KurentoException ("Object not found");
+      throw KurentoException (MEDIA_OBJECT_NOT_FOUND, "Object not found");
     }
 
     obj->getInvoker().invoke (obj, operation, operationParams, value);
@@ -279,7 +279,8 @@ ServerMethods::create (const Json::Value &params,
   }
 
   if (!objectRegistrar) {
-    KurentoException e ("Class '" + type + "' does not exist");
+    KurentoException e (MEDIA_OBJECT_TYPE_NOT_FOUND,
+                        "Class '" + type + "' does not exist");
     throw e;
   }
 

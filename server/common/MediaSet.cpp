@@ -184,7 +184,7 @@ MediaSet::ref (MediaObjectImpl *mediaObjectPtr)
   std::shared_ptr<MediaObjectImpl> mediaObject;
 
   if (mediaObjectPtr == NULL) {
-    throw KurentoException ("Invalid object");
+    throw KurentoException (MEDIA_OBJECT_NOT_FOUND, "Invalid object");
   }
 
   try {
@@ -249,7 +249,7 @@ MediaSet::keepAliveSession (const std::string &sessionId, bool create)
     if (create) {
       sessionInUse[sessionId] = true;
     } else {
-      throw KurentoException ("Invalid session");
+      throw KurentoException (INVALID_SESSION, "Invalid session");
     }
   } else {
     it->second = true;
@@ -451,7 +451,8 @@ MediaSet::getMediaObject (const std::string &mediaObjectRef)
     objectRef = std::stoull (mediaObjectRef);
 #endif
   } catch (...) {
-    throw KurentoException ("Invalid object reference");
+    throw KurentoException (MEDIA_OBJECT_NOT_FOUND,
+                            "Invalid object reference");
   }
 
   return getMediaObject (objectRef);
@@ -466,17 +467,17 @@ MediaSet::getMediaObject (const uint64_t &mediaObjectRef)
   auto it = objectsMap.find (mediaObjectRef);
 
   if (it == objectsMap.end() ) {
-    throw KurentoException ("Object not found");
+    throw KurentoException (MEDIA_OBJECT_NOT_FOUND, "Object not found");
   }
 
   try {
     objectLocked = it->second.lock();
   } catch (...) {
-    throw KurentoException ("Object not found");
+    throw KurentoException (MEDIA_OBJECT_NOT_FOUND, "Object not found");
   }
 
   if (!objectLocked) {
-    throw KurentoException ("Object not found");
+    throw KurentoException (MEDIA_OBJECT_NOT_FOUND, "Object not found");
   }
 
   return objectLocked;
