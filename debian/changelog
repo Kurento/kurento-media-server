@@ -1,3 +1,68 @@
+kurento (4.2.0) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * Generated: Remove duplicated includes an forward declarations
+  * Add dispatcher hub
+
+  [ Santiago Carot-Nemesio ]
+  * DispatcherImpl: Implement connect method
+
+  [ Jose Antonio Santos Cadenas ]
+  * MediaPipelineImpl: Add debug information (if available) to error events
+  * Move enable_shared_from_this inheritance to MediaObject
+  * MediaSet: Rework to support sessions
+  * Implement methods to allow using sesions from rpcs
+  * ObjectRegistrar: Simplify code, now MediaSet accepts strings as id
+  * MediaElementImpl: Make lines shorter
+  * Update plugins to enable dispatcher functionality
+  * Require gstreamer version 1.2.3
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpEPServer: Unref message without exptecting client to unregister the httpendpoint
+  * HttpEndpointImpl: Unregister httpendpoint when either urlexpired or urlremoved signal is emitted
+  * HttpPostEndpointImpl: Enable debug traces
+
+  [ Jose Antonio Santos Cadenas ]
+  * ServerMethods: Fix error message when suscription parameter is missing
+  * MediaSet: Implement session autorelease
+  * MediaSet: Remove unused exception
+  * MediaSet: Improve logs
+  * MediaSet: Use monitor instead of locks
+  * Use MediaSet to get and reference objects automatically
+  * Unify exception management on RpcHandler
+  * Improve objects release at server shutdown
+
+  [ Santiago Carot-Nemesio ]
+  * HttpGetEndpointImpl: Enable debug traces
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add library to get parameters from json in a generic way
+  * MediaSet: Fix unref function
+  * MediaSet: Use an own loop to session timeout callbacks
+  * ServerMethods: Fix sessionId parameter name
+  * MediaSet: Simplify garbage collector
+  * MediaSet: Make keepAliveSession raise exception if session does not exist
+  * MediaSet: Implement release session
+  * Remove garbagePeriod from object constructors
+  * Remove constructors for abstract objects
+  * KurentoException: Require error code
+
+  [ David Fernandez ]
+  * CrowdDetector: Add RegionOfInterestConfig to crowddetector structure
+  * CrowdDetector: add events for crowddetector
+
+  [ Francisco Rivero ]
+  * crowddetector: C++ implementation
+
+  [ Jose Antonio Santos Cadenas ]
+  * CrowdDetectorFiter: Raise events
+  * Prepare release 4.2.0
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 25 Mar 2014 22:47:10 +0100
+
 kurento (4.1.0) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
