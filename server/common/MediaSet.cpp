@@ -328,9 +328,6 @@ MediaSet::unref (const std::string &sessionId,
     if (it3->second.empty() ) {
       std::shared_ptr<MediaObjectImpl> parent;
 
-      // Object has been removed from all the sessions, remove it from childrenMap
-      childrenMap.erase (mediaObject->getId() );
-
       parent = std::dynamic_pointer_cast<MediaObjectImpl> (mediaObject->getParent() );
 
       if (parent) {
@@ -346,6 +343,8 @@ MediaSet::unref (const std::string &sessionId,
           unref (sessionId, child.second);
         }
       }
+
+      childrenMap.erase (mediaObject->getId() );
     }
   }
 }
