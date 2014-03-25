@@ -9,6 +9,11 @@
 #include <memory>
 #include <vector>
 #include "Filter.hpp"
+#include "CrowdDetectorFluidity.hpp"
+#include "CrowdDetectorOccupancy.hpp"
+#include "CrowdDetectorDirection.hpp"
+#include <sigc++/sigc++.h>
+#include <EventHandler.hpp>
 
 namespace kurento {
 
@@ -23,6 +28,10 @@ public:
   virtual ~CrowdDetectorFilter () {};
 
   virtual std::string connect(const std::string &eventType, std::shared_ptr<EventHandler> handler);
+
+  sigc::signal<void, CrowdDetectorFluidity> signalCrowdDetectorFluidity;
+  sigc::signal<void, CrowdDetectorOccupancy> signalCrowdDetectorOccupancy;
+  sigc::signal<void, CrowdDetectorDirection> signalCrowdDetectorDirection;
 
   class Factory : public virtual kurento::Factory
   {

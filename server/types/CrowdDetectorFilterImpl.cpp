@@ -20,6 +20,9 @@
 #include <generated/RegionOfInterestConfig.hpp>
 #include "MediaPipelineImpl.hpp"
 #include <KurentoException.hpp>
+#include <CrowdDetectorFluidity.hpp>
+#include <CrowdDetectorOccupancy.hpp>
+#include <CrowdDetectorDirection.hpp>
 
 #define GST_CAT_DEFAULT kurento_crowd_detector_filter_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -173,9 +176,10 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
         return;
       }
 
-      // TODO: FluidityEvent event (roiIDStr, shared_from_this(),
-      //                            FluidityEvent::getName() );
-      // TODO: signalFluidityEvent (event);
+      CrowdDetectorFluidity event (fluidity_percentage, fluidity_level, roiID,
+                                   shared_from_this(),
+                                   CrowdDetectorFluidity::getName() );
+      signalCrowdDetectorFluidity (event);
     } else if (typeStr == "occupancy-event") {
 
       double occupancy_percentage;
@@ -193,9 +197,10 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
         return;
       }
 
-      // TODO: OccupancyEvent event (roiIDStr, shared_from_this(),
-      //                             OccupancyEvent::getName() );
-      // TODO: signalOccupancyEvent (event);
+      CrowdDetectorOccupancy event (occupancy_level, occupancy_percentage,
+                                    roiID, shared_from_this(),
+                                    CrowdDetectorOccupancy::getName() );
+      signalCrowdDetectorOccupancy (event);
     } else if (typeStr == "direction-event") {
 
       double direction_angle;
@@ -206,9 +211,9 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
         return;
       }
 
-      // TODO: DirectionEvent event (roiIDStr, shared_from_this(),
-      //                            DirectionEvent::getName() );
-      // TODO: signalDirectionEvent (event);
+      CrowdDetectorDirection event (direction_angle, roiID, shared_from_this(),
+                                    CrowdDetectorDirection::getName() );
+      signalCrowdDetectorDirection (event);
     } else {
       GST_WARNING ("The message does not have the correct name");
     }

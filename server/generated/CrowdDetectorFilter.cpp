@@ -61,6 +61,45 @@ CrowdDetectorFilter::Invoker::invoke (std::shared_ptr<MediaObject> obj,
 std::string
 CrowdDetectorFilter::connect(const std::string &eventType, std::shared_ptr<EventHandler> handler)
 {
+  if ("CrowdDetectorFluidity" == eventType) {
+    sigc::connection conn = signalCrowdDetectorFluidity.connect ([&, handler] (CrowdDetectorFluidity event) {
+      JsonSerializer s (true);
+
+      s.Serialize ("data", event);
+      s.Serialize ("object", this);
+      s.JsonValue["type"] = "CrowdDetectorFluidity";
+      s.JsonValue["subscription"] = handler->getId();
+      handler->sendEvent(s.JsonValue);
+    });
+    handler->setConnection (conn);
+    return handler->getId();
+  }
+  if ("CrowdDetectorOccupancy" == eventType) {
+    sigc::connection conn = signalCrowdDetectorOccupancy.connect ([&, handler] (CrowdDetectorOccupancy event) {
+      JsonSerializer s (true);
+
+      s.Serialize ("data", event);
+      s.Serialize ("object", this);
+      s.JsonValue["type"] = "CrowdDetectorOccupancy";
+      s.JsonValue["subscription"] = handler->getId();
+      handler->sendEvent(s.JsonValue);
+    });
+    handler->setConnection (conn);
+    return handler->getId();
+  }
+  if ("CrowdDetectorDirection" == eventType) {
+    sigc::connection conn = signalCrowdDetectorDirection.connect ([&, handler] (CrowdDetectorDirection event) {
+      JsonSerializer s (true);
+
+      s.Serialize ("data", event);
+      s.Serialize ("object", this);
+      s.JsonValue["type"] = "CrowdDetectorDirection";
+      s.JsonValue["subscription"] = handler->getId();
+      handler->sendEvent(s.JsonValue);
+    });
+    handler->setConnection (conn);
+    return handler->getId();
+  }
   return Filter::connect (eventType, handler);
 }
 
