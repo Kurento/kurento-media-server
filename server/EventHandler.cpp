@@ -33,8 +33,9 @@ using namespace ::apache::thrift::protocol;
 namespace kurento
 {
 
-EventHandler::EventHandler (const std::string &ip, int port) : ip (ip),
-  port (port)
+EventHandler::EventHandler (const std::string &sessionId, const std::string &ip,
+                            int port) :
+  ip (ip), port (port), sessionId (sessionId)
 {
   generateUUID (id);
 }
@@ -44,7 +45,6 @@ EventHandler::~EventHandler()
   std::cout << "Disconnect event handler" << std::endl;
   conn.disconnect();
 }
-
 
 void
 EventHandler::sendEvent (Json::Value &value) const
@@ -58,12 +58,16 @@ EventHandler::sendEvent (Json::Value &value) const
     try {
       Json::FastWriter writer;
       Json::Value rpc;
+      Json::Value event;
 
       transport->open();
 
+      event ["value"] = value;
+      event ["sessionId"] = sessionId;
+
       rpc [JSON_RPC_PROTO] = JSON_RPC_PROTO_VERSION;
       rpc [JSON_RPC_METHOD] = "onEvent";
-      rpc [JSON_RPC_PARAMS] = value;
+      rpc [JSON_RPC_PARAMS] = event;
 
       GST_DEBUG ("Sending event: %s", writer.write (rpc).c_str() );
       client.eventJsonRpc (writer.write (rpc) );

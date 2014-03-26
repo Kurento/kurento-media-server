@@ -185,7 +185,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   }
 
   try {
-    std::shared_ptr<EventHandler> handler (new EventHandler (ip, port) );
+    std::shared_ptr<EventHandler> handler (new EventHandler (sessionId, ip, port) );
 
     obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
     handlerId = obj->connect (eventType, handler);

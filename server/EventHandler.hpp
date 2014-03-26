@@ -27,7 +27,7 @@ namespace kurento
 class EventHandler
 {
 public:
-  EventHandler (const std::string &ip, int port);
+  EventHandler (const std::string &sessionId, const std::string &ip, int port);
 
   virtual ~EventHandler();
 
@@ -47,6 +47,7 @@ private:
   std::string ip;
   int port;
   std::string id;
+  std::string sessionId;
 
   class StaticConstructor
   {
