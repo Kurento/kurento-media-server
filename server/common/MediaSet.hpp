@@ -42,6 +42,11 @@ public:
   void unref (const std::string &sessionId, const std::string &mediaObjectRef);
   void unref (const std::string &sessionId, const uint64_t &mediaObjectRef);
 
+  void addEventHandler (const std::string &sessionId,
+                        std::shared_ptr<EventHandler> handler);
+  void removeEventHandler (const std::string &sessionId,
+                           const std::string &handlerId);
+
   void releaseSession (const std::string &sessionId);
   void unrefSession (const std::string &sessionId);
   void keepAliveSession (const std::string &sessionId);
@@ -88,6 +93,8 @@ private:
   sessionMap;
 
   std::map<std::string, bool> sessionInUse;
+  std::map<std::string, std::map<std::string, std::shared_ptr<EventHandler>>>
+  eventHandler;
 
   std::map<uint64_t, std::unordered_set<std::string>> reverseSessionMap;
 

@@ -152,12 +152,14 @@ void
 ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
 {
   std::string subscription;
+  std::string sessionId;
 
   requireParams (params);
 
   JsonRpc::getValue (params, SUBSCRIPTION, subscription);
+  JsonRpc::getValue (params, SESSION_ID, sessionId);
 
-  eventHandlers.erase (subscription);
+  MediaSet::getMediaSet().removeEventHandler (sessionId, subscription);
 }
 
 void
@@ -185,7 +187,8 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   }
 
   try {
-    std::shared_ptr<EventHandler> handler (new EventHandler (sessionId, ip, port) );
+    std::shared_ptr<EventHandler> handler (new EventHandler (sessionId, objectId,
+                                           ip, port) );
 
     obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
     handlerId = obj->connect (eventType, handler);
@@ -195,7 +198,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
       throw e;
     }
 
-    eventHandlers[handlerId] = handler;
+    MediaSet::getMediaSet().addEventHandler (sessionId, handler);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();

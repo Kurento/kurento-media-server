@@ -20,6 +20,7 @@
 #include "thrift/protocol/TBinaryProtocol.h"
 #include <JsonRpcConstants.hpp>
 #include <gst/gst.h>
+#include "common/MediaSet.hpp"
 
 #include "KmsMediaHandlerService.h"
 
@@ -33,17 +34,25 @@ using namespace ::apache::thrift::protocol;
 namespace kurento
 {
 
-EventHandler::EventHandler (const std::string &sessionId, const std::string &ip,
+EventHandler::EventHandler (const std::string &sessionId,
+                            const std::string &objectId, const std::string &ip,
                             int port) :
-  ip (ip), port (port), sessionId (sessionId)
+  ip (ip), port (port), sessionId (sessionId), objectId (objectId)
 {
   generateUUID (id);
 }
 
 EventHandler::~EventHandler()
 {
-  std::cout << "Disconnect event handler" << std::endl;
-  conn.disconnect();
+  GST_INFO ("Disconnect event handler %s", id.c_str() );
+
+  try {
+    MediaSet::getMediaSet().getMediaObject (objectId);
+
+    conn.disconnect();
+  } catch (...) {
+    GST_ERROR ("Object %s already released", objectId.c_str() );
+  }
 }
 
 void

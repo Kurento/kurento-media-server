@@ -22,6 +22,7 @@
 /* This is included to avoid problems with slots and lamdas */
 #include <type_traits>
 #include <sigc++/sigc++.h>
+#include <event2/event_struct.h>
 namespace sigc
 {
 template <typename Functor>
@@ -273,6 +274,7 @@ MediaSet::releaseSession (const std::string &sessionId)
 
   sessionMap.erase (sessionId);
   sessionInUse.erase (sessionId);
+  eventHandler.erase (sessionId);
 }
 
 void
@@ -292,6 +294,7 @@ MediaSet::unrefSession (const std::string &sessionId)
 
   sessionMap.erase (sessionId);
   sessionInUse.erase (sessionId);
+  eventHandler.erase (sessionId);
 }
 
 void
@@ -500,6 +503,24 @@ MediaSet::getMediaObject (const std::string &sessionId,
 
   ref (sessionId, obj);
   return obj;
+}
+
+void
+MediaSet::addEventHandler (const std::string &sessionId,
+                           std::shared_ptr<EventHandler> handler)
+{
+  eventHandler[sessionId][handler->getId()] = handler;
+}
+
+void
+MediaSet::removeEventHandler (const std::string &sessionId,
+                              const std::string &handlerId)
+{
+  auto it = eventHandler.find (sessionId);
+
+  if (it != eventHandler.end() ) {
+    it->second.erase (handlerId);
+  }
 }
 
 MediaSet::Monitor::Monitor (Glib::Threads::RecMutex &mutex) : mutex (mutex)

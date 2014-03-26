@@ -42,7 +42,6 @@ private:
   void keepAlive (const Json::Value &params, Json::Value &response);
 
   JsonRpc::Handler handler;
-  std::map<std::string, std::shared_ptr<EventHandler>> eventHandlers;
 
   class StaticConstructor
   {
