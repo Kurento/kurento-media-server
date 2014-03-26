@@ -641,6 +641,21 @@ uninstall_http_post_signals (GstElement *httpep)
 }
 
 static void
+add_access_control_headers (SoupMessage *msg)
+{
+  soup_message_headers_append (msg->response_headers, "Allow", "GET, POST");
+
+  /* We allow access from all domains. This is generally not appropriate */
+  /* TODO: Provide a configuration file containing all allowed domains */
+  soup_message_headers_append (msg->response_headers,
+                               "Access-Control-Allow-Origin", "*");
+
+  /* Next header is required by chrome to work */
+  soup_message_headers_append (msg->response_headers,
+                               "Access-Control-Allow-Headers", "Content-Type");
+}
+
+static void
 kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
                                 GstElement *httpep)
 {
@@ -666,6 +681,8 @@ kms_http_ep_server_get_handler (KmsHttpEPServer *self, SoupMessage *msg,
 
   soup_message_headers_set_encoding (msg->response_headers,
                                      SOUP_ENCODING_CHUNKED);
+
+  add_access_control_headers (msg);
 
   msg_add_finished_property (msg);
 
@@ -970,18 +987,9 @@ static void
 kms_http_ep_server_options_handler (KmsHttpEPServer *self, SoupMessage *msg,
                                     GstElement *httpep)
 {
-  soup_message_headers_append (msg->response_headers, "Allow", "GET, POST");
-
   soup_message_set_status (msg, SOUP_STATUS_OK);
 
-  /* We allow access from all domains. This is generally not appropriate */
-  /* TODO: Provide a configuration file containing all allowed domains */
-  soup_message_headers_append (msg->response_headers,
-                               "Access-Control-Allow-Origin", "*");
-
-  /* Next header is required by chrome to work */
-  soup_message_headers_append (msg->response_headers,
-                               "Access-Control-Allow-Headers", "Content-Type");
+  add_access_control_headers (msg);
 }
 
 static void
