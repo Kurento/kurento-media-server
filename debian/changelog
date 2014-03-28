@@ -1,3 +1,17 @@
+kurento (4.2.1) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * MediaSet: Do not erase element from children map before unref its children
+  * Send sessionId on events
+  * HttpEPServer: Add Access-Control-Allow headers on all requests
+  * Modify management of event handlers
+  * Update plugins to last release version
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 28 Mar 2014 14:49:56 +0100
+
 kurento (4.2.0) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
