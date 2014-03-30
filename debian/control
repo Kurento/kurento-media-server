@@ -5,7 +5,7 @@ Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
 Build-Depends:
  autoconf,
  cmake,
- debhelper,
+ debhelper (>= 7.0.50),
  gnutls-bin,
  gtk-doc-tools,
  libsigc++-2.0-dev,
@@ -56,3 +56,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, kurento
 Description: Development files for Kurento Streaming Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
+
+Package: kurento-dbg
+Architecture: any
+Depends: ${misc:Depends},
+ kurento (= ${binary:Version})
+Description: Debugging symbols for kurento Streaming Media Server

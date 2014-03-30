@@ -7,3 +7,7 @@ override_dh_auto_configure:
 	export FINAL_INSTALL_DIR=/usr
 	dh_auto_configure -- -DSYSCONF_INSTALL_DIR=/etc -DDISABLE_NETWORK_TESTS=1
 
+.PHONY: override_dh_strip
+
+override_dh_strip:
+	dh_strip --dbg-package=kurento-dbg
