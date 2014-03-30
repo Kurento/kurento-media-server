@@ -176,10 +176,13 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
         return;
       }
 
-      CrowdDetectorFluidity event (fluidity_percentage, fluidity_level, roiID,
-                                   shared_from_this(),
-                                   CrowdDetectorFluidity::getName() );
-      signalCrowdDetectorFluidity (event);
+      try {
+        CrowdDetectorFluidity event (fluidity_percentage, fluidity_level, roiID,
+                                     shared_from_this(),
+                                     CrowdDetectorFluidity::getName() );
+        signalCrowdDetectorFluidity (event);
+      } catch (std::bad_weak_ptr &e) {
+      }
     } else if (typeStr == "occupancy-event") {
 
       double occupancy_percentage;
@@ -197,10 +200,13 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
         return;
       }
 
-      CrowdDetectorOccupancy event (occupancy_level, occupancy_percentage,
-                                    roiID, shared_from_this(),
-                                    CrowdDetectorOccupancy::getName() );
-      signalCrowdDetectorOccupancy (event);
+      try {
+        CrowdDetectorOccupancy event (occupancy_level, occupancy_percentage,
+                                      roiID, shared_from_this(),
+                                      CrowdDetectorOccupancy::getName() );
+        signalCrowdDetectorOccupancy (event);
+      } catch (std::bad_weak_ptr &e) {
+      }
     } else if (typeStr == "direction-event") {
 
       double direction_angle;
@@ -211,9 +217,12 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
         return;
       }
 
-      CrowdDetectorDirection event (direction_angle, roiID, shared_from_this(),
-                                    CrowdDetectorDirection::getName() );
-      signalCrowdDetectorDirection (event);
+      try {
+        CrowdDetectorDirection event (direction_angle, roiID, shared_from_this(),
+                                      CrowdDetectorDirection::getName() );
+        signalCrowdDetectorDirection (event);
+      } catch (std::bad_weak_ptr &e) {
+      }
     } else {
       GST_WARNING ("The message does not have the correct name");
     }

@@ -102,8 +102,11 @@ ZBarFilterImpl::barcodeDetected (guint64 ts, std::string &type,
     lastType = type;
     lastTs = ts;
 
-    CodeFound event (type, symbol, shared_from_this(), CodeFound::getName() );
-    signalCodeFound (event);
+    try {
+      CodeFound event (type, symbol, shared_from_this(), CodeFound::getName() );
+      signalCodeFound (event);
+    } catch (std::bad_weak_ptr &e) {
+    }
   }
 }
 

@@ -51,11 +51,16 @@ MediaPipelineImpl::MediaPipelineImpl () : MediaObjectImpl ()
         errorMessage += " -> " + std::string (debug);
       }
 
-      Error error (shared_from_this(), errorMessage , 0,
-                   "UNEXPECTED_PIPELINE_ERROR");
+      try {
+        Error error (shared_from_this(), errorMessage , 0,
+                     "UNEXPECTED_PIPELINE_ERROR");
+
+        signalError (error);
+      } catch (std::bad_weak_ptr &e) {
+      }
+
       g_error_free (err);
       g_free (debug);
-      signalError (error);
       break;
     }
 

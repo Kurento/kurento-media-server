@@ -43,23 +43,32 @@ PlayerEndpointImpl::PlayerEndpointImpl (bool useEncodedMedia,
   g_object_set (G_OBJECT (element), "use-encoded-media", useEncodedMedia, NULL);
 
   eosLambda = [&] () {
-    EndOfStream event (shared_from_this(), EndOfStream::getName() );
+    try {
+      EndOfStream event (shared_from_this(), EndOfStream::getName() );
 
-    signalEndOfStream (event);
+      signalEndOfStream (event);
+    } catch (std::bad_weak_ptr &e) {
+    }
   };
 
   invalidUriLambda = [&] () {
-    /* TODO: Define error codes and types*/
-    Error error (shared_from_this(), "Invalid Uri", 0, "INVALID_URI");
+    try {
+      /* TODO: Define error codes and types*/
+      Error error (shared_from_this(), "Invalid Uri", 0, "INVALID_URI");
 
-    signalError (error);
+      signalError (error);
+    } catch (std::bad_weak_ptr &e) {
+    }
   };
 
   invalidMediaLambda = [&] () {
-    /* TODO: Define error codes and types*/
-    Error error (shared_from_this(), "Invalid Media", 0, "INVALID_MEDIA");
+    try {
+      /* TODO: Define error codes and types*/
+      Error error (shared_from_this(), "Invalid Media", 0, "INVALID_MEDIA");
 
-    signalError (error);
+      signalError (error);
+    } catch (std::bad_weak_ptr &e) {
+    }
   };
 
   signalEOS = g_signal_connect (element, "eos", G_CALLBACK (adaptor_function),

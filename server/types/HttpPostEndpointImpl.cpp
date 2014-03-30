@@ -40,9 +40,12 @@ HttpPostEndpointImpl::HttpPostEndpointImpl (
   HttpEndpointImpl (disconnectionTimeout, mediaPipeline)
 {
   eosLambda = [&] () {
-    EndOfStream event (shared_from_this(), EndOfStream::getName() );
+    try {
+      EndOfStream event (shared_from_this(), EndOfStream::getName() );
 
-    signalEndOfStream (event);
+      signalEndOfStream (event);
+    } catch (std::bad_weak_ptr &e) {
+    }
   };
 
   /* Do not accept EOS */

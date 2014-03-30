@@ -84,8 +84,11 @@ PlateDetectorFilterImpl::PlateDetectorFilterImpl (
     plateNumberStr = plateNumber;
     typeStr = type;
 
-    PlateDetected event (plateNumberStr, shared_from_this(), typeStr);
-    signalPlateDetected (event);
+    try {
+      PlateDetected event (plateNumberStr, shared_from_this(), typeStr);
+      signalPlateDetected (event);
+    } catch (std::bad_weak_ptr &e) {
+    }
 
     g_free (plateNumber);
   };

@@ -157,13 +157,19 @@ PointerDetectorAdvFilterImpl::PointerDetectorAdvFilterImpl (
     g_free (windowID);
 
     if (typeStr == "window-in") {
-      WindowIn event (windowIDStr, shared_from_this(), WindowIn::getName() );
+      try {
+        WindowIn event (windowIDStr, shared_from_this(), WindowIn::getName() );
 
-      signalWindowIn (event);
+        signalWindowIn (event);
+      } catch (std::bad_weak_ptr &e) {
+      }
     } else if (typeStr == "window-out") {
-      WindowOut event (windowIDStr, shared_from_this(), WindowOut::getName() );
+      try {
+        WindowOut event (windowIDStr, shared_from_this(), WindowOut::getName() );
 
-      signalWindowOut (event);
+        signalWindowOut (event);
+      } catch (std::bad_weak_ptr &e) {
+      }
     }
   };
 

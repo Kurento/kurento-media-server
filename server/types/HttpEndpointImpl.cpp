@@ -233,16 +233,23 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
 
     if (action == KMS_HTTP_END_POINT_ACTION_UNDEFINED) {
       std::string errorMessage = "Invalid or unexpected request received";
-      Error error (shared_from_this(), "Invalid Uri", 0, "INVALID_URI");
 
-      GST_ERROR ("%s", errorMessage.c_str() );
+      try {
+        Error error (shared_from_this(), "Invalid Uri", 0, "INVALID_URI");
 
-      signalError (error);
+        GST_ERROR ("%s", errorMessage.c_str() );
+
+        signalError (error);
+      } catch (std::bad_weak_ptr &e) {
+      }
     } else {
-      MediaSessionStarted event (shared_from_this(),
-                                 MediaSessionStarted::getName() );
+      try {
+        MediaSessionStarted event (shared_from_this(),
+                                   MediaSessionStarted::getName() );
 
-      signalMediaSessionStarted (event);
+        signalMediaSessionStarted (event);
+      } catch (std::bad_weak_ptr &e) {
+      }
     }
   };
 
@@ -284,10 +291,13 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
       return;
     }
 
-    MediaSessionTerminated event (shared_from_this(),
-                                  MediaSessionTerminated::getName() );
+    try {
+      MediaSessionTerminated event (shared_from_this(),
+                                    MediaSessionTerminated::getName() );
 
-    signalMediaSessionTerminated (event);
+      signalMediaSessionTerminated (event);
+    } catch (std::bad_weak_ptr &e) {
+    }
   };
 }
 
