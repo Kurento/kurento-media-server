@@ -14,6 +14,9 @@ DAEMON_OPTS=""
 
 export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:/usr/lib/gst-kurento-plugins:/usr/lib/kms-dtls-plugins
 
+#enable core dump
+ulimit -c unlimited
+
 # Next line enables debug for some kurento classes it can be modified to change
 # log level and logged tags
 export GST_DEBUG=2,*media_server*:5,*Kurento*:5,KurentoMediaServerServiceHandler:7
