@@ -15,6 +15,10 @@
 
 #include "MediaPipelineImpl.hpp"
 
+#define GST_CAT_DEFAULT kurento_media_pipeline_impl
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_DEFAULT_NAME "KurentoMediaPipelineImpl"
+
 namespace kurento
 {
 
@@ -90,6 +94,14 @@ MediaObject *
 MediaPipeline::Factory::createObject ()
 {
   return new MediaPipelineImpl ();
+}
+
+MediaPipelineImpl::StaticConstructor MediaPipelineImpl::staticConstructor;
+
+MediaPipelineImpl::StaticConstructor::StaticConstructor()
+{
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 }
 
 } /* kurento */

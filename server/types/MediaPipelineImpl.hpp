@@ -47,6 +47,14 @@ private:
   GstElement *pipeline;
 
   std::function <void (GstMessage *message) > busMessageLambda;
+
+  class StaticConstructor
+  {
+  public:
+    StaticConstructor();
+  };
+
+  static StaticConstructor staticConstructor;
 };
 
 } /* kurento */
