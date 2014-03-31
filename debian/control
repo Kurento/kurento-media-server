@@ -52,7 +52,7 @@ Description: Streaming Media Server
 
 Package: kurento-dev
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, kurento
+Depends: ${misc:Depends}, kurento
 Description: Development files for Kurento Streaming Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
