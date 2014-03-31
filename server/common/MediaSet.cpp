@@ -35,6 +35,8 @@ struct functor_trait<Functor, false> {
 };
 }
 
+using namespace Glib::Threads;
+
 #define GST_CAT_DEFAULT kurento_media_set
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSet"
@@ -91,7 +93,7 @@ MediaSet::MediaSet()
 
 MediaSet::~MediaSet ()
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   terminated = true;
 
@@ -180,7 +182,7 @@ MediaSet::finishLoop ()
 std::shared_ptr<MediaObjectImpl>
 MediaSet::ref (MediaObjectImpl *mediaObjectPtr)
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   std::shared_ptr<MediaObjectImpl> mediaObject;
 
@@ -219,7 +221,7 @@ void
 MediaSet::ref (const std::string &sessionId,
                std::shared_ptr<MediaObjectImpl> mediaObject)
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   keepAliveSession (sessionId, true);
 
@@ -242,7 +244,7 @@ MediaSet::keepAliveSession (const std::string &sessionId)
 void
 MediaSet::keepAliveSession (const std::string &sessionId, bool create)
 {
-  Monitor monitor (mutex);;
+  RecMutex::Lock lock (mutex);
 
   auto it = sessionInUse.find (sessionId);
 
@@ -260,7 +262,7 @@ MediaSet::keepAliveSession (const std::string &sessionId, bool create)
 void
 MediaSet::releaseSession (const std::string &sessionId)
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   auto it = sessionMap.find (sessionId);
 
@@ -280,7 +282,7 @@ MediaSet::releaseSession (const std::string &sessionId)
 void
 MediaSet::unrefSession (const std::string &sessionId)
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   auto it = sessionMap.find (sessionId);
 
@@ -301,7 +303,7 @@ void
 MediaSet::unref (const std::string &sessionId,
                  std::shared_ptr< MediaObjectImpl > mediaObject)
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   if (!mediaObject) {
     return;
@@ -383,7 +385,7 @@ MediaSet::unref (const std::string &sessionId, const uint64_t &mediaObjectRef)
 
 void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   objectsMap.erase (mediaObject->getId() );
 
@@ -401,7 +403,7 @@ void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
 
 void MediaSet::release (std::shared_ptr< MediaObjectImpl > mediaObject)
 {
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   auto it = reverseSessionMap.find (mediaObject->getId() );
 
@@ -464,7 +466,7 @@ std::shared_ptr< MediaObjectImpl >
 MediaSet::getMediaObject (const uint64_t &mediaObjectRef)
 {
   std::shared_ptr <MediaObjectImpl> objectLocked;
-  Monitor monitor (mutex);
+  RecMutex::Lock lock (mutex);
 
   auto it = objectsMap.find (mediaObjectRef);
 
@@ -521,16 +523,6 @@ MediaSet::removeEventHandler (const std::string &sessionId,
   if (it != eventHandler.end() ) {
     it->second.erase (handlerId);
   }
-}
-
-MediaSet::Monitor::Monitor (Glib::Threads::RecMutex &mutex) : mutex (mutex)
-{
-  mutex.lock();
-}
-
-MediaSet::Monitor::~Monitor()
-{
-  mutex.unlock();
 }
 
 void MediaSet::deleter (MediaObjectImpl *mo)

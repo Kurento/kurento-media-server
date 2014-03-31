@@ -109,15 +109,6 @@ private:
   };
 
   static StaticConstructor staticConstructor;
-
-  class Monitor
-  {
-  public:
-    Glib::Threads::RecMutex &mutex;
-
-    Monitor (Glib::Threads::RecMutex &mutex);
-    ~Monitor ();
-  };
 };
 
 } // kurento
