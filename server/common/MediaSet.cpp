@@ -386,14 +386,20 @@ MediaSet::unref (const std::string &sessionId, const uint64_t &mediaObjectRef)
 void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
 {
   RecMutex::Lock lock (mutex);
+  std::shared_ptr <kurento::MediaObjectImpl > newShared;
 
   objectsMap.erase (mediaObject->getId() );
 
+  newShared = std::shared_ptr<MediaObjectImpl> (mediaObject);
+
   if (!terminated) {
     lock.release();
-    threadPool.push ( [mediaObject] () {
+    threadPool.push ( [mediaObject, newShared] () {
+      while (newShared.use_count() != 1) {
+        g_usleep (500000);
+      }
+
       GST_DEBUG ("Destroying %s", mediaObject->getIdStr().c_str() );
-      delete mediaObject;
     });
   } else {
     lock.release();
