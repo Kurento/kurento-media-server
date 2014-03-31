@@ -390,11 +390,13 @@ void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
   objectsMap.erase (mediaObject->getId() );
 
   if (!terminated) {
+    lock.release();
     threadPool.push ( [mediaObject] () {
       GST_DEBUG ("Destroying %s", mediaObject->getIdStr().c_str() );
       delete mediaObject;
     });
   } else {
+    lock.release();
     GST_DEBUG ("Thread pool finished, destroying on the same thread %s",
                mediaObject->getIdStr().c_str() );
     delete mediaObject;
