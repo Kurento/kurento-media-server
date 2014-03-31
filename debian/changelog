@@ -1,3 +1,33 @@
+kurento (4.2.2) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * Update plugins
+  * Fix program abnormal termination
+  * Enable core dump creation
+  * Create package with debuging symbols
+  * Fix warning in debian package creation
+  * Fix kurento dependency for kurento-dev package
+  * MediaPipeline: Enable gstreamer debug
+  * MediaPipeline: Dot not raise error events if it is an stream error
+  * MediaSet: Change Monitor by Glib Lock class
+  * MediaSet: Release lock before adding tasks to threadPool
+  * MediaSet: Minor fix, use namespace to make lines shorter
+
+  [ Santiago Carot-Nemesio ]
+  * MediaSinkImpl: block peer pad before unlinking
+
+  [ David Fernandez ]
+  * PointerDetectorFilter: Add disconnect signals in destructor
+
+  [ Jose Antonio Santos Cadenas ]
+  * MediaSet: Create a shared_ptr to avoid bad_weak_ptr exception while element is waiting for a thread
+  * Prepare release 4.2.2
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 31 Mar 2014 17:51:16 +0200
+
 kurento (4.2.1) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
