@@ -55,12 +55,17 @@ MediaPipelineImpl::MediaPipelineImpl () : MediaObjectImpl ()
         errorMessage += " -> " + std::string (debug);
       }
 
-      try {
-        Error error (shared_from_this(), errorMessage , 0,
-                     "UNEXPECTED_PIPELINE_ERROR");
+      if (err->code == GST_STREAM_ERROR_FAILED && err->domain == GST_STREAM_ERROR) {
+        // FIXME: Remove this hack
+        GST_ERROR ("Not raising stream error, media will probably continue without problems");
+      } else {
+        try {
+          Error error (shared_from_this(), errorMessage , 0,
+                       "UNEXPECTED_PIPELINE_ERROR");
 
-        signalError (error);
-      } catch (std::bad_weak_ptr &e) {
+          signalError (error);
+        } catch (std::bad_weak_ptr &e) {
+        }
       }
 
       g_error_free (err);
