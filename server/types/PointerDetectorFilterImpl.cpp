@@ -165,6 +165,16 @@ PointerDetectorFilterImpl::PointerDetectorFilterImpl (
   g_object_unref (pointerDetector);
 }
 
+PointerDetectorFilterImpl::~PointerDetectorFilterImpl()
+{
+  std::shared_ptr<MediaPipelineImpl> pipe;
+
+  pipe = std::dynamic_pointer_cast<MediaPipelineImpl> (getMediaPipeline() );
+  GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipe->getPipeline() ) );
+  g_signal_handler_disconnect (bus, bus_handler_id);
+  g_object_unref (bus);
+}
+
 void
 PointerDetectorFilterImpl::addWindow (
   std::shared_ptr<PointerDetectorWindowMediaParam> window)
