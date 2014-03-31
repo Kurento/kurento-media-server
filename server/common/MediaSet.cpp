@@ -69,7 +69,7 @@ MediaSet::MediaSet()
 
   timeout = Glib::TimeoutSource::create (COLLECTOR_INTERVAL);
   timeout->connect ( [&] () -> bool {
-    Glib::Threads::RecMutex::Lock lock (mutex);
+    RecMutex::Lock lock (mutex);
     auto sessions = sessionInUse;
 
     lock.release();
@@ -144,13 +144,13 @@ MediaSet::executeOnMainLoop (std::function<void () > func, bool force)
   } else {
     Glib::Threads::Cond cond;
     Glib::Threads::Mutex mutex;
-    Glib::Threads::Mutex::Lock lock (mutex);
+    Mutex::Lock lock (mutex);
     bool done = false;
     Glib::RefPtr<Glib::IdleSource> source = Glib::IdleSource::create ();
 
 
     source->connect ([&] ()->bool {
-      Glib::Threads::Mutex::Lock lock (mutex);
+      Mutex::Lock lock (mutex);
 
       try {
         func ();
