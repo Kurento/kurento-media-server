@@ -16,6 +16,7 @@
 #include <signal.h>
 #include <execinfo.h>
 #include <config.h>
+#include <setjmp.h>
 
 #include "MediaServerServiceHandler.hpp"
 
@@ -59,6 +60,8 @@ using namespace boost::filesystem;
 using ::kurento::MediaServerServiceHandler;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
+
+sigjmp_buf saved_env;
 
 static std::string serverAddress, httpEPServerAddress,
        httpEPServerAnnouncedAddress;
@@ -359,36 +362,6 @@ load_config (const std::string &file_name)
   GST_INFO ("Configuration loaded successfully");
 }
 
-static void
-initialiseExecutableName (char *exe, int size)
-{
-  char link[1024];
-  int len;
-  snprintf (link, sizeof (link), "/proc/%d/exe", getpid () );
-  len = readlink (link, exe, size);
-
-  if (len == -1) {
-    g_printerr ("ERROR GETTING NAME\n");
-    exit (1);
-  }
-
-  exe[len] = '\0';
-}
-
-static const char *
-getExecutableName ()
-{
-  static char *exe = NULL;
-  static char aux[1024];
-
-  if (exe == NULL) {
-    initialiseExecutableName (aux, sizeof (aux) );
-    exe = aux;
-  }
-
-  return exe;
-}
-
 static bool
 quit_loop ()
 {
@@ -398,18 +371,22 @@ quit_loop ()
 }
 
 static void
-bt_sighandler (int sig, siginfo_t *info, gpointer data)
+sighandler (int sig, siginfo_t *info, gpointer data)
 {
-  void *trace[35];
-  char **messages = (char **) NULL;
-  int i, trace_size = 0;
-
   g_print ("Got signal %d\n", sig);
 
   /* Do something useful with siginfo_t */
   if (sig == SIGSEGV) {
     g_printerr ("Got signal %d, faulty address is %p\n", sig,
                 (gpointer) info->si_addr);
+
+    /* Generate a child to make a coredump */
+    if (fork () == 0) {
+      abort ();
+    } else {
+      g_printerr ("Restarting program\n");
+      siglongjmp (saved_env, TRUE);
+    }
   } else if (sig == SIGKILL || sig == SIGINT) {
     /* since we connect to a signal handler, asynchronous management might */
     /* might happen so we need to set an idle handler to exit the main loop */
@@ -418,34 +395,6 @@ bt_sighandler (int sig, siginfo_t *info, gpointer data)
     idle_source->connect (sigc::ptr_fun (&quit_loop) );
     idle_source->attach (loop->get_context() );
     return;
-  }
-
-  trace_size = backtrace (trace, 35);
-  /* overwrite sigaction with caller's address */
-  messages = backtrace_symbols (trace, trace_size);
-  /* skip first stack frame (points here) */
-  g_print ("\t[bt] Execution path:\n");
-
-  for (i = 1; i < trace_size; ++i) {
-    g_print ("\t[bt] #%d %s\n", i, messages[i]);
-    char syscom[256];
-    gchar **strs;
-    const gchar *exe;
-    strs = g_strsplit (messages[i], "(", 2);
-
-    if (strs[1] == NULL) {
-      exe = getExecutableName ();
-    } else {
-      exe = strs[0];
-    }
-
-    sprintf (syscom, "echo -n \"\t[bt]\t\t\"; addr2line %p -s -e %s",
-             trace[i], exe);
-    g_strfreev (strs);
-
-    if (system (syscom) == -1) {
-      g_printerr ("Error calling addr2line\n");
-    }
   }
 
   if (sig == SIGPIPE) {
@@ -537,7 +486,7 @@ main (int argc, char **argv)
   check_if_plugins_are_available ();
 
   /* Install our signal handler */
-  sa.sa_sigaction = bt_sighandler;
+  sa.sa_sigaction = sighandler;
   sigemptyset (&sa.sa_mask);
   sa.sa_flags = SA_RESTART | SA_SIGINFO;
   sigaction (SIGSEGV, &sa, NULL);
@@ -545,6 +494,7 @@ main (int argc, char **argv)
   sigaction (SIGINT, &sa, NULL);
   sigaction (SIGKILL, &sa, NULL);
   Glib::thread_init ();
+
   GST_INFO ("Kmsc version: %s", get_version () );
 
   if (!conf_file) {
@@ -557,6 +507,7 @@ main (int argc, char **argv)
 
   /* Start Http End Point Server */
   GST_DEBUG ("Starting Http end point server.");
+
   httpepserver = kms_http_ep_server_new (
                    KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
                    KMS_HTTP_EP_SERVER_INTERFACE,
@@ -567,6 +518,10 @@ main (int argc, char **argv)
                    NULL);
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb, NULL, NULL);
+
+  if (sigsetjmp (saved_env, TRUE) ) {
+    GST_INFO ("Relaunching server");
+  }
 
   loop->run ();
 
