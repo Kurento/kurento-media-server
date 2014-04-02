@@ -278,8 +278,7 @@ MediaSinkImpl::unlinkUnchecked (GstPad *sink)
       cmutex.unlock ();
     };
 
-    gst_pad_add_probe (peer, (GstPadProbeType) (GST_PAD_PROBE_TYPE_IDLE |
-                       GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM),
+    gst_pad_add_probe (peer, (GstPadProbeType) (GST_PAD_PROBE_TYPE_BLOCKING),
                        pad_blocked_adaptor, &blockedLambda, NULL);
 
     cmutex.lock ();
