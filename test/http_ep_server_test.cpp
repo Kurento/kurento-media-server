@@ -302,7 +302,7 @@ url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 }
 
 static void
-t1_unregistered_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
+unregistered_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
 {
   gchar *uri = (gchar *) user_data;
 
@@ -321,7 +321,7 @@ action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
   GST_DEBUG ("Action %d requested on %s", action, uri);
   BOOST_CHECK ( action == KMS_HTTP_END_POINT_ACTION_GET );
 
-  kms_http_ep_server_unregister_end_point (httpepserver, uri, t1_unregistered_cb,
+  kms_http_ep_server_unregister_end_point (httpepserver, uri, unregistered_cb,
       g_strdup (uri), g_free);
 }
 
@@ -372,7 +372,6 @@ BOOST_AUTO_TEST_CASE ( register_http_end_point_test )
   GST_DEBUG ("Test finished");
 }
 
-#if 0
 /********************************************/
 /* Functions and variables used for tests 2 */
 /********************************************/
@@ -394,12 +393,12 @@ t2_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
 
   BOOST_CHECK_EQUAL (*expected, status_code);
 
-  if (++counted == urls_registered) {
-    g_main_loop_quit (loop);
-  }
-
   soup_uri_free (uri);
   g_free (method);
+
+  if (++counted == urls_registered) {
+    finish_test_case ();
+  }
 }
 
 static void
@@ -410,7 +409,8 @@ t2_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
 
   /* We unregister httpendpoints when they have already a pending request */
   /* so as to check we don't miss memory leaks */
-  BOOST_CHECK (kms_http_ep_server_unregister_end_point (httpepserver, uri) );
+  kms_http_ep_server_unregister_end_point (httpepserver, uri, unregistered_cb,
+      g_strdup (uri), g_free);
 }
 
 static void
@@ -420,20 +420,31 @@ t2_url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 }
 
 static void
-t2_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+t2_registered_callbacks (GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("Error: %s, code %d", err->message, err->code);
+    BOOST_ERROR ( "Error registering http end points" );
+    finish_test_case ();
+  } else {
+    session_cb = t2_http_req_callback;
+    g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_200);
+  }
+}
+
+static void
+t2_http_server_start_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
 {
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
-    g_main_loop_quit (loop);
-    BOOST_FAIL ( "Http server could not start" );
-    return;
+    BOOST_ERROR ( "Http server could not start" );
+    finish_test_case ();
+  } else {
+    g_object_get (G_OBJECT (self), KMS_HTTP_EP_SERVER_PORT, &port,
+                  KMS_HTTP_EP_SERVER_INTERFACE, &host, NULL);
+    register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS,
+                              t2_registered_callbacks);
   }
-
-  register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS);
-
-  session_cb = t2_http_req_callback;
-
-  g_idle_add ( (GSourceFunc) checking_registered_urls, &expected_200);
 }
 
 BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
@@ -447,17 +458,13 @@ BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
   g_signal_connect (httpepserver, "action-requested",
                     G_CALLBACK (t2_action_requested_cb), NULL);
 
-  kms_http_ep_server_start (httpepserver, t2_http_server_start_cb);
+  kms_http_ep_server_start (httpepserver, t2_http_server_start_cb, NULL, NULL);
 
   g_main_loop_run (loop);
 
   GST_DEBUG ("Test finished");
-
-  /* Stop Http End Point Server and destroy it */
-  kms_http_ep_server_stop (httpepserver);
-  tear_down_test_case ();
 }
-
+#if 0
 /********************************************/
 /* Functions and variables used for tests 3 */
 /********************************************/
