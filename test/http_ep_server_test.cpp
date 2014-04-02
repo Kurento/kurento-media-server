@@ -31,9 +31,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define HTTP_POST "POST"
 #define HTTP_OPTIONS "OPTIONS"
 
-#define DEFAULT_PORT 9091
-#define DEFAULT_HOST "localhost"
-
 #define KMS_HTTP_EP_SERVER_TEST_ERROR \
   g_quark_from_static_string("kms-http-ep-server-test-error-quark")
 
@@ -48,6 +45,9 @@ static guint counted;
 
 static SoupKnownStatusCode expected_200 = SOUP_STATUS_OK;
 static SoupKnownStatusCode expected_404 = SOUP_STATUS_NOT_FOUND;
+
+static guint port;
+static gchar *host;
 
 SoupSessionCallback session_cb;
 
@@ -68,6 +68,8 @@ init_test_case ()
   urls_registered = 0;
   signal_count = 0;
   counted = 0;
+  port = 0;
+  host = NULL;
 
   setenv ("GST_PLUGIN_PATH", "./plugins", TRUE);
   gst_init (NULL, NULL);
@@ -81,17 +83,21 @@ init_test_case ()
             MAX_REGISTERED_HTTP_END_POINTS, NULL);
 
   /* Start Http End Point Server */
-  httpepserver = kms_http_ep_server_new (KMS_HTTP_EP_SERVER_PORT, DEFAULT_PORT,
-                                         KMS_HTTP_EP_SERVER_INTERFACE, DEFAULT_HOST, NULL);
+  httpepserver = kms_http_ep_server_new (NULL);
 }
 
 static void
 tear_down_test_case ()
 {
-  g_object_unref (G_OBJECT (httpepserver) );
-  g_object_unref (G_OBJECT (session) );
+  if (host != NULL) {
+    g_free (host);
+  }
+
   g_hash_table_destroy (urls);
+
+  g_object_unref (G_OBJECT (session) );
   g_main_loop_unref (loop);
+  g_object_unref (G_OBJECT (httpepserver) );
 }
 
 static gboolean
@@ -265,7 +271,7 @@ send_get_request (const gchar *uri, GstElement *endpoint, gpointer data)
   SoupMessage *msg;
   gchar *url;
 
-  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
+  url = g_strdup_printf ("http://%s:%d%s", host, port, uri);
 
   GST_INFO ("Send " HTTP_GET " %s", url);
   msg = soup_message_new (HTTP_GET, url);
@@ -1212,6 +1218,8 @@ t4_http_server_start_cb (KmsHttpEPServer *self, GError *err,
     BOOST_ERROR ( "Http server could not start" );
     finish_test_case ();
   } else {
+    g_object_get (G_OBJECT (self), KMS_HTTP_EP_SERVER_PORT, &port,
+                  KMS_HTTP_EP_SERVER_INTERFACE, &host, NULL);
     register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS,
                               t4_registered_callbacks);
   }
