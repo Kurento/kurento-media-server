@@ -1209,7 +1209,7 @@ register_end_point_cb (struct tmp_register_data *tdata)
   }
 
   if (tdata->function != NULL) {
-    tdata->function (tdata->server, uri, gerr, tdata->data);
+    tdata->function (tdata->server, uri, tdata->endpoint, gerr, tdata->data);
   }
 
   g_clear_error (&gerr);
@@ -1269,7 +1269,7 @@ kms_http_ep_server_register_end_point_impl (KmsHttpEPServer *self,
 error:
 
   if (cb != NULL) {
-    cb (self, NULL, gerr, user_data);
+    cb (self, NULL, endpoint, gerr, user_data);
   }
 
   if (notify != NULL) {

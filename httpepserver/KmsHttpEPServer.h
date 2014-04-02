@@ -83,7 +83,7 @@ typedef struct _KmsHttpEPServerPrivate KmsHttpEPServerPrivate;
 typedef void (*KmsHttpEPServerNotifyCallback) (KmsHttpEPServer * self,
     GError * err, gpointer user_data);
 typedef void (*KmsHttpEPRegisterCallback) (KmsHttpEPServer * self,
-    const gchar *uri, GError * err, gpointer data);
+    const gchar *uri, GstElement *e, GError * err, gpointer data);
 
 struct _KmsHttpEPServer
 {

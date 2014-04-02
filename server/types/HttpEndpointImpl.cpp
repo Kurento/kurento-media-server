@@ -87,7 +87,7 @@ session_terminated_adaptor_function (KmsHttpEPServer *server, const gchar *uri,
 
 static void
 register_end_point_adaptor_function (KmsHttpEPServer *self, const gchar *uri,
-                                     GError *err, gpointer data)
+                                     GstElement *e, GError *err, gpointer data)
 {
   auto handler =
     reinterpret_cast<std::function<void (const gchar *uri, GError *err) >*>
