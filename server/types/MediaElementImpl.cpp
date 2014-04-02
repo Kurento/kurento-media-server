@@ -45,8 +45,9 @@ MediaElementImpl::~MediaElementImpl()
 
   pipe = std::dynamic_pointer_cast<MediaPipelineImpl> (getMediaPipeline() );
 
-  gst_bin_remove (GST_BIN ( pipe->getPipeline() ), element);
+  gst_element_set_locked_state (element, TRUE);
   gst_element_set_state (element, GST_STATE_NULL);
+  gst_bin_remove (GST_BIN ( pipe->getPipeline() ), element);
   g_object_unref (element);
 }
 
