@@ -83,8 +83,8 @@ if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 #  set_tests_properties(server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 #   set_property(TEST server_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins")
 #
-# add_test(http_ep_server_test test/http_ep_server_test)
-# set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+ add_test(http_ep_server_test test/http_ep_server_test)
+ set_tests_properties(http_ep_server_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
 #
 # add_test(server_unexpected_test test/server_unexpected_test)
 # set_tests_properties(server_unexpected_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
