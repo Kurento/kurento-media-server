@@ -263,7 +263,7 @@ MediaSinkImpl::unlinkUnchecked (GstPad *sink)
     Glib::Cond cond;
     Glib::Mutex cmutex;
     bool blocked = FALSE;
-    std::function <void (GstPad *pad, GstPadProbeInfo *info) >
+    std::function <void (GstPad *, GstPadProbeInfo *) >
     blockedLambda = [&] (GstPad * pad, GstPadProbeInfo * info) {
       GST_DEBUG ("Peer pad blocked %" GST_PTR_FORMAT, pad);
 
@@ -279,8 +279,8 @@ MediaSinkImpl::unlinkUnchecked (GstPad *sink)
     };
 
     gst_pad_add_probe (peer, (GstPadProbeType) (GST_PAD_PROBE_TYPE_IDLE |
-                       GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM), pad_blocked_adaptor, &blockedLambda,
-                       NULL);
+                       GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM),
+                       pad_blocked_adaptor, &blockedLambda, NULL);
 
     cmutex.lock ();
 
