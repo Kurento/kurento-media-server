@@ -42,7 +42,7 @@ private:
   void removeSink (MediaSinkImpl *mediaSink);
   void disconnect (MediaSinkImpl *mediaSink);
 
-  Glib::RecMutex mutex;
+  Glib::Threads::RecMutex mutex;
 
   const gchar *getPadName ();
 

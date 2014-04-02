@@ -22,6 +22,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSourceImpl"
 
+using namespace Glib::Threads;
+
 namespace kurento
 {
 
@@ -64,15 +66,15 @@ gboolean
 link_media_elements (std::shared_ptr<MediaSourceImpl> src,
                      std::shared_ptr<MediaSinkImpl> sink)
 {
+  RecMutex::Lock lock (src->mutex);
   bool ret = FALSE;
   GstPad *pad;
 
-  src->mutex.lock ();
   pad = gst_element_get_request_pad (src->getGstreamerElement(),
                                      src->getPadName() );
 
   if (pad == NULL) {
-    goto end;
+    return FALSE;
   }
 
   GST_WARNING ("Connecting pad %s", src->getPadName() );
@@ -90,8 +92,6 @@ link_media_elements (std::shared_ptr<MediaSourceImpl> src,
 
   gst_object_unref (pad);
 
-end:
-  src->mutex.unlock ();
   return ret;
 }
 
@@ -125,7 +125,7 @@ MediaSourceImpl::MediaSourceImpl (std::shared_ptr<MediaType> mediaType,
 
 MediaSourceImpl::~MediaSourceImpl()
 {
-  mutex.lock();
+  Glib::Threads::RecMutex::Lock lock (mutex);
 
   for (auto it = connectedSinks.begin(); it != connectedSinks.end(); it++) {
     try {
@@ -142,8 +142,6 @@ MediaSourceImpl::~MediaSourceImpl()
                    G_GUINT64_FORMAT, getId() );
     }
   }
-
-  mutex.unlock();
 }
 
 const gchar *
@@ -159,6 +157,7 @@ MediaSourceImpl::getPadName ()
 void
 MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
 {
+  RecMutex::Lock lock (mutex);
   std::shared_ptr<MediaSinkImpl> mediaSinkImpl =
     std::dynamic_pointer_cast<MediaSinkImpl> (mediaSink);
   GstPad *pad;
@@ -166,8 +165,6 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
 
   GST_INFO ("connect %" G_GUINT64_FORMAT " to %" G_GUINT64_FORMAT, this->getId(),
             mediaSinkImpl->getId() );
-
-  mutex.lock();
 
   pad = gst_element_get_request_pad (getGstreamerElement(), getPadName() );
 
@@ -183,8 +180,6 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
                                           G_CALLBACK (agnosticbin_added_cb),
                                           tmp, destroy_tmp_data,
                                           (GConnectFlags) 0);
-
-    mutex.unlock();
     return;
   }
 
@@ -202,8 +197,6 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
 
   g_object_unref (pad);
 
-  mutex.unlock();
-
   if (!ret) {
     throw KurentoException (CONNECT_ERROR, "Cannot link pads");
   }
@@ -212,10 +205,9 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
 void
 MediaSourceImpl::removeSink (MediaSinkImpl *mediaSink)
 {
+  RecMutex::Lock lock (mutex);
   std::shared_ptr<MediaSinkImpl> sinkLocked;
   std::vector< std::weak_ptr<MediaSinkImpl> >::iterator it;
-
-  mutex.lock();
 
   it = connectedSinks.begin();
 
@@ -231,33 +223,28 @@ MediaSourceImpl::removeSink (MediaSinkImpl *mediaSink)
       it++;
     }
   }
-
-  mutex.unlock();
 }
 
 void
 MediaSourceImpl::disconnect (MediaSinkImpl *mediaSink)
 {
+  RecMutex::Lock lock (mutex);
+
   GST_INFO ("disconnect %" G_GUINT64_FORMAT " from %" G_GUINT64_FORMAT,
             this->getId(), mediaSink->getId() );
 
-  mutex.lock();
-
   mediaSink->unlink (std::dynamic_pointer_cast<MediaSourceImpl>
                      (shared_from_this() ), NULL);
-
-  mutex.unlock();
 }
 
 std::vector < std::shared_ptr<MediaSink> >
-MediaSourceImpl:: getConnectedSinks ()
+MediaSourceImpl::getConnectedSinks ()
 {
+  RecMutex::Lock lock (mutex);
   std::vector < std::shared_ptr<MediaSink> > sinks;
 
   std::shared_ptr<MediaSinkImpl> sinkLocked;
   std::vector< std::weak_ptr<MediaSinkImpl> >::iterator it;
-
-  mutex.lock();
 
   for ( it = connectedSinks.begin() ; it != connectedSinks.end(); ++it) {
     try {
@@ -269,8 +256,6 @@ MediaSourceImpl:: getConnectedSinks ()
       sinks.push_back (std::dynamic_pointer_cast<MediaSink> (sinkLocked) );
     }
   }
-
-  mutex.unlock();
 
   return sinks;
 }

@@ -46,7 +46,7 @@ private:
 
   std::weak_ptr <MediaSourceImpl> connectedSrc;
 
-  Glib::RecMutex mutex;
+  Glib::Threads::RecMutex mutex;
 
   class StaticConstructor
   {

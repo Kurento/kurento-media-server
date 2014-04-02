@@ -21,6 +21,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaSinkImpl"
 
+using namespace Glib::Threads;
+
 namespace kurento
 {
 
@@ -122,11 +124,10 @@ src_unlinked (GstPad *pad, GstPad *peer, GstElement *filter)
 bool
 MediaSinkImpl::linkPad (std::shared_ptr<MediaSourceImpl> mediaSrc, GstPad *src)
 {
+  RecMutex::Lock lock (mutex);
   std::shared_ptr<MediaSourceImpl> connectedSrcLocked;
   GstPad *sink;
   bool ret = false;
-
-  mutex.lock();
 
   try {
     connectedSrcLocked = connectedSrc.lock();
@@ -206,17 +207,14 @@ end:
 
   g_object_unref (sink);
 
-  mutex.unlock();
-
   return ret;
 }
 
 void
 MediaSinkImpl::unlink (std::shared_ptr<MediaSourceImpl> mediaSrc, GstPad *sink)
 {
+  RecMutex::Lock lock (mutex);
   std::shared_ptr<MediaSourceImpl> connectedSrcLocked;
-
-  mutex.lock();
 
   try {
     connectedSrcLocked = connectedSrc.lock();
@@ -227,8 +225,6 @@ MediaSinkImpl::unlink (std::shared_ptr<MediaSourceImpl> mediaSrc, GstPad *sink)
     unlinkUnchecked (sink);
     connectedSrcLocked->removeSink (this);
   }
-
-  mutex.unlock();
 }
 
 static GstPadProbeReturn
