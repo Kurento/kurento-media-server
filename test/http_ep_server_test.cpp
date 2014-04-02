@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE ( locked_get_request_http_end_point_test )
 
   GST_DEBUG ("Test finished");
 }
-#if 0
+
 /********************************************/
 /* Functions and variables used for tests 3 */
 /********************************************/
@@ -482,29 +482,50 @@ t3_http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
   GST_DEBUG ("%s %s status code: %d", method, soup_uri_get_path (uri),
              status_code);
 
-  if (++counted == urls_registered) {
-    g_main_loop_quit (loop);
-  }
-
   soup_uri_free (uri);
   g_free (method);
+
+  if (++counted == urls_registered) {
+    finish_test_case ();
+  }
 }
 
 static void
-t3_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+t3_registered_callbacks (GError *err)
+{
+  if (err != NULL) {
+    GST_ERROR ("Error: %s, code %d", err->message, err->code);
+    BOOST_ERROR ( "Error registering http end points" );
+    finish_test_case ();
+  } else {
+    session_cb = t3_http_req_callback;
+    g_idle_add ( (GSourceFunc) checking_registered_urls, NULL);
+  }
+}
+
+static void
+t3_stop_server_callback (KmsHttpEPServer *self, GError *err, gpointer user_data)
+{
+  if (err != NULL) {
+    GST_ERROR ("Error: %s", err->message);
+  } else {
+    GST_DEBUG ("Server stopped");
+  }
+}
+
+static void
+t3_http_server_start_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
 {
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
-    g_main_loop_quit (loop);
-    BOOST_FAIL ( "Http server could not start" );
-    return;
+    BOOST_ERROR ( "Http server could not start" );
+    finish_test_case ();
+  } else {
+    g_object_get (G_OBJECT (self), KMS_HTTP_EP_SERVER_PORT, &port,
+                  KMS_HTTP_EP_SERVER_INTERFACE, &host, NULL);
+    register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS,
+                              t3_registered_callbacks);
   }
-
-  register_http_end_points (MAX_REGISTERED_HTTP_END_POINTS);
-
-  session_cb = t3_http_req_callback;
-
-  g_idle_add ( (GSourceFunc) checking_registered_urls, NULL);
 }
 
 static void
@@ -515,13 +536,14 @@ t3_action_requested_cb (KmsHttpEPServer *server, const gchar *uri,
 
   /* Stop Http End Point Server and destroy it */
   GST_DEBUG ("Stopping http end point server");
-  kms_http_ep_server_stop (httpepserver);
+  kms_http_ep_server_stop (httpepserver, t3_stop_server_callback, NULL, NULL);
 }
 
 static void
 t3_url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
 {
   GST_DEBUG ("URL %s removed", url);
+  g_hash_table_remove (urls, url);
 }
 
 BOOST_AUTO_TEST_CASE ( shutdown_http_end_point_test )
@@ -535,15 +557,14 @@ BOOST_AUTO_TEST_CASE ( shutdown_http_end_point_test )
   g_signal_connect (httpepserver, "action-requested",
                     G_CALLBACK (t3_action_requested_cb), NULL);
 
-  kms_http_ep_server_start (httpepserver, t3_http_server_start_cb);
+  kms_http_ep_server_start (httpepserver, t3_http_server_start_cb, NULL, NULL);
 
   g_main_loop_run (loop);
 
   GST_DEBUG ("Test finished");
-
-  tear_down_test_case ();
 }
 
+#if 0
 /********************************************/
 /* Functions and variables used for test 5  */
 /********************************************/
