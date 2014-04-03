@@ -305,11 +305,7 @@ MediaSinkImpl::unlinkUnchecked (GstPad *sink)
   }
 
   if (sink == NULL) {
-    GstElement *elem;
-
-    elem = gst_pad_get_parent_element (sinkPad);
-    gst_element_release_request_pad (elem, sinkPad);
-    g_object_unref (elem);
+    gst_element_release_request_pad (getGstreamerElement(), sinkPad);
     g_object_unref (sinkPad);
   }
 }
