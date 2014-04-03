@@ -718,24 +718,41 @@ kms_http_ep_server_post_handler (KmsHttpEPServer *self, SoupMessage *msg,
 }
 
 static void
-emit_removed_url_signal (gpointer data, gpointer user_data)
+emit_removed_url_signal (KmsHttpEPServer *self, gchar *uri)
 {
-  KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (user_data);
-  gchar *uri = (gchar *) data;
-
   GST_DEBUG ("Emit signal for uri %s", uri);
   g_signal_emit (G_OBJECT (self), obj_signals[URL_REMOVED], 0, uri);
 }
 
 static void
-kms_http_ep_server_remove_handlers (KmsHttpEPServer *self)
+kms_http_ep_server_clean_http_end_point (KmsHttpEPServer *self,
+    GstElement *httpep)
 {
-  GList *keys;
+  uninstall_http_get_signals (httpep);
+  uninstall_http_post_signals (httpep);
+
+  kms_http_ep_server_remove_timeout (self, httpep);
+
+  /* Cancel current transtacion */
+  g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE, NULL, NULL);
+}
+
+static void
+remove_http_end_point_cb (gpointer key, gpointer value, gpointer user_data)
+{
+  KmsHttpEPServer *self = KMS_HTTP_EP_SERVER (user_data);
+  GstElement *httpep = GST_ELEMENT (value);
+
+  kms_http_ep_server_clean_http_end_point (self, httpep);
 
   /* Emit removed url signal for each key */
-  keys = g_hash_table_get_keys (self->priv->handlers);
-  g_list_foreach (keys, (GFunc) emit_removed_url_signal, self);
-  g_list_free (keys);
+  emit_removed_url_signal (self, (gchar *) key);
+}
+
+static void
+kms_http_ep_server_remove_handlers (KmsHttpEPServer *self)
+{
+  g_hash_table_foreach (self->priv->handlers, remove_http_end_point_cb, self);
 
   /* Remove handlers */
   g_hash_table_remove_all (self->priv->handlers);
@@ -1303,13 +1320,10 @@ unregister_end_point_cb (struct tmp_unregister_data *tdata)
 
   httpep = (GstElement *) g_hash_table_lookup (tdata->server->priv->handlers,
            tdata->uri);
-  uninstall_http_get_signals (httpep);
-  uninstall_http_post_signals (httpep);
 
-  kms_http_ep_server_remove_timeout (tdata->server, httpep);
-
-  /* Cancel current transtacion */
-  g_object_set_data_full (G_OBJECT (httpep), KEY_MESSAGE, NULL, NULL);
+  if (httpep != NULL) {
+    kms_http_ep_server_clean_http_end_point (tdata->server, httpep);
+  }
 
   g_hash_table_remove (tdata->server->priv->handlers, tdata->uri);
 
@@ -1317,7 +1331,7 @@ unregister_end_point_cb (struct tmp_unregister_data *tdata)
     tdata->cb (tdata->server, gerr, tdata->data);
   }
 
-  emit_removed_url_signal ( (gpointer) tdata->uri, tdata->server);
+  emit_removed_url_signal (tdata->server, tdata->uri);
 
   return G_SOURCE_REMOVE;
 
