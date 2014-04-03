@@ -76,11 +76,9 @@ remove_from_parent (GstElement *element)
     return;
   }
 
-  gst_object_ref (element);
-  gst_bin_remove (parent, element);
+  gst_element_set_locked_state (element, TRUE);
   gst_element_set_state (element, GST_STATE_NULL);
-
-  gst_object_unref (element);
+  gst_bin_remove (parent, element);
 }
 
 static void
