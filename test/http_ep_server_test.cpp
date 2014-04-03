@@ -834,8 +834,7 @@ BOOST_AUTO_TEST_CASE ( expired_cookie_http_end_point_test )
 
   tear_down_test_case ();
 }
-
-
+#endif
 /**********************************/
 /*           POST tests           */
 /**********************************/
@@ -923,36 +922,6 @@ static const gchar *body6 =
   "------WebKitFormBoundaryaxGqVIPtg0lAjCrV--\r\n";
 
 static void
-check_test_finish ()
-{
-  if (++cases_counted != use_cases) {
-    return;
-  }
-
-  GST_INFO ("Finishing test");
-  g_main_loop_quit (loop);
-}
-
-static GstElement *
-register_http_endpoint ()
-{
-  GstElement *httpep;
-  const gchar *uri;
-
-  httpep = gst_element_factory_make ("httpendpoint", NULL);
-  BOOST_CHECK ( httpep != NULL );
-
-  uri = kms_http_ep_server_register_end_point (httpepserver, httpep,
-        DISCONNECTION_TIMEOUT);
-  BOOST_CHECK (uri != NULL);
-
-  g_object_set_data_full (G_OBJECT (httpep), TEST_PARAM_URI,
-                          g_strndup (uri, strlen (uri) ), g_free);
-
-  return httpep;
-}
-
-static void
 unregister_http_endpoint (GstElement *httpep)
 {
   gchar *uri;
@@ -960,7 +929,7 @@ unregister_http_endpoint (GstElement *httpep)
   uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
   BOOST_CHECK (uri != NULL);
 
-  BOOST_CHECK (kms_http_ep_server_unregister_end_point (httpepserver, uri) );
+  kms_http_ep_server_unregister_end_point (httpepserver, uri, NULL, NULL, NULL);
 }
 
 static void
@@ -972,8 +941,6 @@ http_post_req_expected_failed (SoupSession *session, SoupMessage *msg,
   BOOST_CHECK (msg->status_code == SOUP_STATUS_NOT_ACCEPTABLE);
 
   unregister_http_endpoint (httpep);
-
-  check_test_finish ();
 }
 
 static void
@@ -984,21 +951,27 @@ http_post_req (SoupSession *session, SoupMessage *msg, gpointer data)
   BOOST_CHECK (msg->status_code == SOUP_STATUS_OK);
 
   unregister_http_endpoint (httpep);
-
-  check_test_finish ();
 }
 
 static void
-send_malformed_post_request ()
+malformed_post_register_cb (KmsHttpEPServer *self, const gchar *uri,
+                            GstElement *e, GError *err, gpointer data)
 {
-  GstElement *httpep;
   SoupMessage *msg;
-  gchar *url, *uri;
+  gchar *url;
 
-  httpep = register_http_endpoint ();
-  uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    BOOST_ERROR ( "Could not register end point" );
+    gst_object_unref (e);
+    return;
+  }
 
-  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
+  GST_DEBUG ("Registered uri: %s", uri);
+  g_hash_table_insert (urls, (gpointer *) g_strdup (uri), e);
+
+  g_object_set_data_full (G_OBJECT (e), TEST_PARAM_URI, g_strdup (uri), g_free);
+  url = g_strdup_printf ("http://%s:%d%s", host, port, uri);
 
   GST_INFO ("Send " HTTP_POST " %s", url);
 
@@ -1006,24 +979,47 @@ send_malformed_post_request ()
   soup_message_headers_set_content_type (msg->request_headers,
                                          "multipart/form-data",
                                          NULL);
-  soup_session_queue_message (session, msg,
-                              http_post_req_expected_failed, httpep);
+  soup_session_queue_message (session, msg, http_post_req_expected_failed, e);
 
   g_free (url);
 }
 
 static void
-send_post_request (const gchar *body)
+send_malformed_post_request ()
 {
   GstElement *httpep;
+
+  httpep = gst_element_factory_make ("httpendpoint", NULL);
+  BOOST_CHECK ( httpep != NULL );
+
+  if (httpep == NULL) {
+    return;
+  }
+
+  kms_http_ep_server_register_end_point (httpepserver, httpep,
+                                         DISCONNECTION_TIMEOUT, malformed_post_register_cb, NULL, NULL);
+}
+
+static void
+post_register_cb (KmsHttpEPServer *self, const gchar *uri, GstElement *e,
+                  GError *err, gpointer data)
+{
+  gchar *url, *body = (gchar *) data;
   GHashTable *params;
   SoupMessage *msg;
-  gchar *url, *uri;
 
-  httpep = register_http_endpoint ();
-  uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    BOOST_ERROR ( "Could not register end point" );
+    gst_object_unref (e);
+    return;
+  }
 
-  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
+  GST_DEBUG ("Registered uri: %s", uri);
+  g_hash_table_insert (urls, (gpointer *) g_strdup (uri), e);
+
+  g_object_set_data_full (G_OBJECT (e), TEST_PARAM_URI, g_strdup (uri), g_free);
+  url = g_strdup_printf ("http://%s:%d%s", host, port, uri);
   params = g_hash_table_new_full (g_str_hash,  g_str_equal, g_free, g_free);
   g_hash_table_insert (params,
                        g_strdup_printf ("%s", "boundary"),
@@ -1037,22 +1033,31 @@ send_post_request (const gchar *body)
   soup_message_headers_set_content_type (msg->request_headers,
                                          "multipart/form-data",
                                          params);
-  soup_session_queue_message (session, msg, http_post_req, httpep);
+  soup_session_queue_message (session, msg, http_post_req, e);
 
   g_free (url);
   g_hash_table_unref (params);
 }
 
 static void
-post_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+send_post_request (const gchar *body)
 {
-  if (err != NULL) {
-    GST_ERROR ("%s, code %d", err->message, err->code);
-    g_main_loop_quit (loop);
-    BOOST_FAIL ( "Http server could not start" );
+  GstElement *httpep;
+
+  httpep = gst_element_factory_make ("httpendpoint", NULL);
+  BOOST_CHECK ( httpep != NULL );
+
+  if (httpep == NULL) {
     return;
   }
 
+  kms_http_ep_server_register_end_point (httpepserver, httpep,
+                                         DISCONNECTION_TIMEOUT, post_register_cb, (gpointer) body, NULL);
+}
+
+static void
+post_make_test ()
+{
   send_malformed_post_request ();
   send_post_request (body1);
   send_post_request (body2);
@@ -1062,23 +1067,56 @@ post_http_server_start_cb (KmsHttpEPServer *self, GError *err)
   send_post_request (body6);
 }
 
+static void
+post_http_server_start_cb (KmsHttpEPServer *self, GError *err,
+                           gpointer user_data)
+{
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    BOOST_ERROR ( "Http server could not start" );
+    finish_test_case ();
+  } else {
+    g_object_get (G_OBJECT (self), KMS_HTTP_EP_SERVER_PORT, &port,
+                  KMS_HTTP_EP_SERVER_INTERFACE, &host, NULL);
+    post_make_test ();
+  }
+}
+
+static void
+check_test_finish ()
+{
+  if (++cases_counted != use_cases) {
+    return;
+  }
+
+  finish_test_case ();
+}
+
+static void
+post_url_removed_cb (KmsHttpEPServer *server, const gchar *url, gpointer data)
+{
+  GST_DEBUG ("URL %s removed", url);
+  g_hash_table_remove (urls, url);
+  check_test_finish ();
+}
+
 BOOST_AUTO_TEST_CASE ( post_http_end_point_test )
 {
   init_test_case ();
 
   GST_INFO ("Running post_http_end_point_test");
 
-  kms_http_ep_server_start (httpepserver, post_http_server_start_cb);
+  kms_http_ep_server_start (httpepserver, post_http_server_start_cb, NULL, NULL);
+
+  g_signal_connect (httpepserver, "url-removed", G_CALLBACK (post_url_removed_cb),
+                    NULL);
 
   g_main_loop_run (loop);
 
   GST_DEBUG ("Test finished");
-
-  /* Stop Http End Point Server and destroy it */
-  kms_http_ep_server_stop (httpepserver);
-  tear_down_test_case ();
 }
 
+#if 0
 /**********************************/
 /*         Options tests          */
 /**********************************/
