@@ -1363,10 +1363,7 @@ kms_http_ep_server_dispose (GObject *obj)
 
   GST_DEBUG_OBJECT (self, "dispose");
 
-  if (self->priv->server) {
-    soup_server_disconnect (self->priv->server);
-    g_clear_object (&self->priv->server);
-  }
+  kms_http_ep_server_remove_handlers (self);
 
   /* Chain up to the parent class */
   G_OBJECT_CLASS (kms_http_ep_server_parent_class)->dispose (obj);
@@ -1383,14 +1380,18 @@ kms_http_ep_server_finalize (GObject *obj)
 
   g_free (self->priv->announcedAddr);
 
+  if (self->priv->loop) {
+    g_clear_object (&self->priv->loop);
+  }
+
   if (self->priv->handlers != NULL) {
-    kms_http_ep_server_remove_handlers (self);
     g_hash_table_unref (self->priv->handlers);
     self->priv->handlers = NULL;
   }
 
-  if (self->priv->loop) {
-    g_clear_object (&self->priv->loop);
+  if (self->priv->server != NULL) {
+    soup_server_disconnect (self->priv->server);
+    g_clear_object (&self->priv->server);
   }
 
   if (self->priv->rand != NULL) {
