@@ -228,14 +228,27 @@ MediaSinkImpl::unlink (std::shared_ptr<MediaSourceImpl> mediaSrc, GstPad *sink)
 static GstPadProbeReturn
 pad_blocked_adaptor (GstPad *pad, GstPadProbeInfo *info, gpointer data)
 {
+  gboolean processed = FALSE;
+
   auto handler =
     reinterpret_cast < std::function < void (GstPad * pad,
         GstPadProbeInfo * info) > * > (data);
 
+  GST_OBJECT_LOCK (pad);
+
+  processed = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (pad), "processed") );
+
+  if (processed) {
+    return GST_PAD_PROBE_REMOVE;
+  }
+
+  g_object_set_data (G_OBJECT (pad), "processed", GINT_TO_POINTER (TRUE) );
+  GST_OBJECT_UNLOCK (pad);
+
   (*handler) (pad, info);
 
   /* Drop everithing so as to avoid broken pipe errors on an unlinked pad */
-  return GST_PAD_PROBE_DROP;
+  return GST_PAD_PROBE_REMOVE;
 }
 
 void
@@ -258,22 +271,23 @@ MediaSinkImpl::unlinkUnchecked (GstPad *sink)
   peer = gst_pad_get_peer (sinkPad);
 
   if (peer != NULL) {
-    Glib::Cond cond;
-    Glib::Mutex cmutex;
+    Glib::Threads::Cond cond;
+    Glib::Threads::Mutex cmutex;
     bool blocked = FALSE;
     std::function <void (GstPad *, GstPadProbeInfo *) >
     blockedLambda = [&] (GstPad * pad, GstPadProbeInfo * info) {
+      Glib::Threads::Mutex::Lock lock (cmutex);
+
       GST_DEBUG ("Peer pad blocked %" GST_PTR_FORMAT, pad);
 
-      cmutex.lock ();
-
-      if (!blocked) {
-        gst_pad_unlink (pad, sinkPad);
+      if (blocked) {
+        return;
       }
 
+      gst_pad_unlink (pad, sinkPad);
       blocked = TRUE;
+
       cond.signal();
-      cmutex.unlock ();
     };
 
     gst_pad_add_probe (peer, (GstPadProbeType) (GST_PAD_PROBE_TYPE_BLOCKING),
