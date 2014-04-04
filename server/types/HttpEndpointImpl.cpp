@@ -175,6 +175,7 @@ HttpEndpointImpl::register_end_point ()
 
     url = g_strdup_printf ("http://%s:%d%s", addr, port, uri);
     urlSet = true;
+    g_free (addr);
 
 do_signal:
     mutex.lock ();
