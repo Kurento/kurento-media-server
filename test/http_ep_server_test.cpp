@@ -1116,7 +1116,6 @@ BOOST_AUTO_TEST_CASE ( post_http_end_point_test )
   GST_DEBUG ("Test finished");
 }
 
-#if 0
 /**********************************/
 /*         Options tests          */
 /**********************************/
@@ -1127,19 +1126,6 @@ BOOST_AUTO_TEST_CASE ( post_http_end_point_test )
 static GstElement *get_pipeline;
 static GstElement *get_http;
 const gchar *allow_expected = "GET, POST";
-
-static void
-options_register_http_endpoint (GstElement *httpep)
-{
-  const gchar *uri;
-
-  uri = kms_http_ep_server_register_end_point (httpepserver, httpep,
-        DISCONNECTION_TIMEOUT);
-  BOOST_CHECK (uri != NULL);
-
-  g_object_set_data_full (G_OBJECT (httpep), TEST_PARAM_URI,
-                          g_strndup (uri, strlen (uri) ), g_free);
-}
 
 static void
 create_get_pipeline ()
@@ -1169,8 +1155,6 @@ create_get_pipeline ()
   g_object_get (G_OBJECT (get_http), "http-method", &method, NULL);
   GST_INFO ("Http end point configured as %d", method);
   BOOST_CHECK (method == KMS_HTTP_END_POINT_METHOD_GET);
-
-  options_register_http_endpoint (get_http);
 }
 
 static void
@@ -1186,7 +1170,7 @@ http_options_req (SoupSession *session, SoupMessage *msg, gpointer data)
 
   BOOST_CHECK (g_strcmp0 (method, expected) == 0);
 
-  g_main_loop_quit (loop);
+  finish_test_case ();
 }
 
 static void
@@ -1197,7 +1181,7 @@ send_option_request (GstElement *httpep, const gchar *expected)
 
   uri = (gchar *) g_object_get_data (G_OBJECT (httpep), TEST_PARAM_URI);
 
-  url = g_strdup_printf ("http://%s:%d%s", DEFAULT_HOST, DEFAULT_PORT, uri);
+  url = g_strdup_printf ("http://%s:%d%s", host, port, uri);
 
   GST_INFO ("Send " HTTP_OPTIONS " %s", url);
 
@@ -1210,17 +1194,35 @@ send_option_request (GstElement *httpep, const gchar *expected)
 }
 
 static void
-options_http_server_start_cb (KmsHttpEPServer *self, GError *err)
+options_registered_http_end_point (KmsHttpEPServer *self,
+                                   const gchar *uri, GstElement *e, GError *err, gpointer data)
 {
   if (err != NULL) {
     GST_ERROR ("%s, code %d", err->message, err->code);
-    g_main_loop_quit (loop);
-    BOOST_FAIL ( "Http server could not start" );
+    BOOST_ERROR ( "Could not register end point" );
+    finish_test_case ();
     return;
   }
 
-  create_get_pipeline ();
+  g_object_set_data_full (G_OBJECT (get_http), TEST_PARAM_URI,
+                          g_strndup (uri, strlen (uri) ), g_free);
   send_option_request (get_http, allow_expected);
+}
+
+static void
+options_http_server_start_cb (KmsHttpEPServer *self, GError *err, gpointer data)
+{
+  if (err != NULL) {
+    GST_ERROR ("%s, code %d", err->message, err->code);
+    BOOST_ERROR ( "Http server could not start" );
+    finish_test_case ();
+  } else {
+    g_object_get (G_OBJECT (self), KMS_HTTP_EP_SERVER_PORT, &port,
+                  KMS_HTTP_EP_SERVER_INTERFACE, &host, NULL);
+    create_get_pipeline ();
+    kms_http_ep_server_register_end_point (httpepserver, get_http,
+                                           DISCONNECTION_TIMEOUT, options_registered_http_end_point, NULL, NULL);
+  }
 }
 
 BOOST_AUTO_TEST_CASE ( options_http_end_point_test )
@@ -1229,7 +1231,8 @@ BOOST_AUTO_TEST_CASE ( options_http_end_point_test )
 
   GST_INFO ("Running options_http_end_point_test");
 
-  kms_http_ep_server_start (httpepserver, options_http_server_start_cb);
+  kms_http_ep_server_start (httpepserver, options_http_server_start_cb, NULL,
+                            NULL);
 
   g_main_loop_run (loop);
 
@@ -1237,12 +1240,8 @@ BOOST_AUTO_TEST_CASE ( options_http_end_point_test )
 
   gst_element_set_state (get_pipeline, GST_STATE_NULL);
   gst_object_unref (GST_OBJECT (get_pipeline) );
-
-  /* Stop Http End Point Server and destroy it */
-  kms_http_ep_server_stop (httpepserver);
-  tear_down_test_case ();
 }
-#endif
+
 /********************************************/
 /* Functions and variables used for test 4  */
 /********************************************/
