@@ -57,11 +57,12 @@ enum {
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
 static gboolean
-quit_main_loop (GMainLoop *loop)
+quit_main_loop (KmsHttpLoop *self)
 {
   GST_DEBUG ("Exiting main loop");
 
-  g_main_loop_quit (loop);
+  g_main_loop_quit (self->priv->loop);
+  g_main_context_release (self->priv->context);
 
   return G_SOURCE_REMOVE;
 }
@@ -93,12 +94,9 @@ loop_thread_init (gpointer data)
 
   GST_DEBUG ("Running main loop");
   g_main_loop_run (loop);
-  g_main_context_release (context);
 
 end:
   GST_DEBUG ("Thread finished");
-  g_main_context_unref (context);
-  g_main_loop_unref (loop);
 
   return NULL;
 }
@@ -138,14 +136,14 @@ kms_http_loop_dispose (GObject *obj)
       GThread *aux = self->priv->thread;
 
       kms_http_loop_idle_add (self, (GSourceFunc) quit_main_loop,
-                              self->priv->loop);
+                              self);
       self->priv->thread = NULL;
       KMS_HTTP_LOOP_UNLOCK (self);
       g_thread_join (aux);
       KMS_HTTP_LOOP_LOCK (self);
     } else {
       /* self thread does not need to wait for itself */
-      quit_main_loop (self->priv->loop);
+      quit_main_loop (self);
       g_thread_unref (self->priv->thread);
       self->priv->thread = NULL;
     }
@@ -162,6 +160,14 @@ kms_http_loop_finalize (GObject *obj)
   KmsHttpLoop *self = KMS_HTTP_LOOP (obj);
 
   GST_DEBUG_OBJECT (obj, "Finalize");
+
+  if (self->priv->context != NULL) {
+    g_main_context_unref (self->priv->context);
+  }
+
+  if (self->priv->loop != NULL) {
+    g_main_loop_unref (self->priv->loop);
+  }
 
   g_rec_mutex_clear (&self->priv->rmutex);
   g_mutex_clear (&self->priv->mutex);
@@ -196,6 +202,8 @@ static void
 kms_http_loop_init (KmsHttpLoop *self)
 {
   self->priv = KMS_HTTP_LOOP_GET_PRIVATE (self);
+  self->priv->context = NULL;
+  self->priv->loop = NULL;
   g_rec_mutex_init (&self->priv->rmutex);
   g_cond_init (&self->priv->cond);
   g_mutex_init (&self->priv->mutex);
