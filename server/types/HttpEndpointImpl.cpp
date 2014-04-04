@@ -153,6 +153,7 @@ HttpEndpointImpl::register_end_point ()
   GError * err) {
     gchar *addr;
     guint port;
+    gchar *url_tmp;
 
     if (err != NULL) {
       GST_ERROR ("Can not register end point: %s", err->message);
@@ -173,7 +174,9 @@ HttpEndpointImpl::register_end_point ()
     g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port",
                   &port, NULL);
 
-    url = g_strdup_printf ("http://%s:%d%s", addr, port, uri);
+    url_tmp = g_strdup_printf ("http://%s:%d%s", addr, port, uri);
+    url = std::string (url_tmp);
+    g_free (url_tmp);
     urlSet = true;
     g_free (addr);
 
