@@ -28,6 +28,7 @@ namespace kurento
 {
 
 struct tmp_data {
+  GMutex mutex;
   std::weak_ptr<MediaSourceImpl> src;
   std::weak_ptr<MediaSinkImpl> sink;
   gulong handler;
@@ -38,6 +39,7 @@ destroy_tmp_data (gpointer data, GClosure *closure)
 {
   struct tmp_data *tmp = (struct tmp_data *) data;
 
+  g_mutex_clear (&tmp->mutex);
   g_slice_free (struct tmp_data, tmp);
 }
 
@@ -48,6 +50,8 @@ create_tmp_data (std::shared_ptr<MediaSourceImpl> src,
   struct tmp_data *tmp;
 
   tmp = g_slice_new0 (struct tmp_data);
+
+  g_mutex_init (&tmp->mutex);
 
   tmp->src = std::weak_ptr<MediaSourceImpl> (src);
   tmp->sink = std::weak_ptr<MediaSinkImpl> (sink);
@@ -96,6 +100,19 @@ link_media_elements (std::shared_ptr<MediaSourceImpl> src,
 }
 
 static void
+disconnect_handler (GstElement *element, struct tmp_data *data)
+{
+  g_mutex_lock (&data->mutex);
+
+  if (data->handler != 0) {
+    g_signal_handler_disconnect (element, data->handler);
+    data->handler = 0;
+  }
+
+  g_mutex_unlock (&data->mutex);
+}
+
+static void
 agnosticbin_added_cb (GstElement *element, gpointer data)
 {
   struct tmp_data *tmp = (struct tmp_data *) data;
@@ -107,11 +124,12 @@ agnosticbin_added_cb (GstElement *element, gpointer data)
     sink = tmp->sink.lock();
 
     if (src && sink && link_media_elements (src, sink) ) {
-      g_signal_handler_disconnect (element, tmp->handler);
+      disconnect_handler (element, tmp);
     }
   } catch (const std::bad_weak_ptr &e) {
     GST_WARNING ("Removed before connecting");
-    g_signal_handler_disconnect (element, tmp->handler);
+
+    disconnect_handler (element, tmp);
   }
 }
 
