@@ -83,8 +83,9 @@ link_media_elements (std::shared_ptr<MediaSourceImpl> src,
 
   GST_WARNING ("Connecting pad %s", src->getPadName() );
 
-  g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked),
-                    src->getGstreamerElement() );
+  g_signal_connect_data (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked),
+                         g_object_ref (src->getGstreamerElement() ),
+                         (GClosureNotify) g_object_unref, (GConnectFlags) 0);
 
   if (sink->linkPad (src, pad) ) {
     src->connectedSinks.push_back (std::weak_ptr<MediaSinkImpl> (sink) );
@@ -201,8 +202,9 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
     return;
   }
 
-  g_signal_connect (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked),
-                    getGstreamerElement() );
+  g_signal_connect_data (G_OBJECT (pad), "unlinked", G_CALLBACK (pad_unlinked),
+                         g_object_ref (getGstreamerElement() ),
+                         (GClosureNotify) g_object_unref, (GConnectFlags) 0);
 
   ret = mediaSinkImpl->linkPad (
           std::dynamic_pointer_cast <MediaSourceImpl> (shared_from_this() ), pad);
