@@ -574,7 +574,6 @@ main (int argc, char **argv)
   sigaction (SIGPIPE, &sa, NULL);
   sigaction (SIGINT, &sa, NULL);
   sigaction (SIGKILL, &sa, NULL);
-  Glib::thread_init ();
 
   GST_INFO ("Kmsc version: %s", get_version () );
 
