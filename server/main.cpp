@@ -13,10 +13,8 @@
  *
  */
 
-#include <signal.h>
-#include <execinfo.h>
+#include <sys/signalfd.h>
 #include <config.h>
-#include <setjmp.h>
 
 #include "MediaServerServiceHandler.hpp"
 
@@ -64,8 +62,6 @@ using ::kurento::MediaServerServiceHandler;
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
 
-sigjmp_buf saved_env;
-
 static std::string serverAddress, httpEPServerAddress,
        httpEPServerAnnouncedAddress;
 static gint serverServicePort, httpEPServerServicePort;
@@ -74,7 +70,7 @@ KmsHttpEPServer *httpepserver;
 std::string stunServerAddress, pemCertificate;
 gint stunServerPort;
 
-Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create (true);
+Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create ();
 static TNonblockingServer *p_server = NULL;
 
 std::map <std::string, KurentoModule *> modules;
@@ -89,6 +85,8 @@ static GOptionEntry entries[] = {
   },
   {NULL}
 };
+
+Glib::RefPtr<Glib::IOChannel> channel;
 
 static void
 create_media_server_service ()
@@ -418,45 +416,102 @@ load_config (const std::string &file_name)
 }
 
 static bool
-quit_loop ()
+signal_handler (Glib::IOCondition cond)
 {
-  loop->quit ();
+  static unsigned int __terminated = 0;
+  struct signalfd_siginfo si;
+  gsize bytes_read, count = sizeof (si);
+  Glib::IOStatus status;
 
-  return FALSE;
+  if (cond & (Glib::IO_NVAL | Glib::IO_ERR | Glib::IO_HUP) ) {
+    return false;
+  }
+
+  /* Read signal info */
+  status = channel->read ( (char *) &si, count, bytes_read);
+
+  switch (status) {
+  case Glib::IO_STATUS_ERROR:
+    GST_ERROR ("Error occurred.");
+    return false;
+
+  case Glib::IO_STATUS_EOF:
+    GST_DEBUG ("End of file.");
+    return false;
+
+  case Glib::IO_STATUS_AGAIN:
+    GST_DEBUG ("Resource temporarily unavailable.");
+    return false;
+
+  case Glib::IO_STATUS_NORMAL:
+    if (bytes_read != count) {
+      GST_DEBUG ("Could not read siginfo structure");
+      return false;
+    }
+
+    break;
+  }
+
+  /* Manage signal */
+  switch (si.ssi_signo) {
+  case SIGINT:
+  case SIGTERM:
+    if (__terminated == 0) {
+      GST_DEBUG ("Terminating.");
+      loop->quit ();
+    }
+
+    __terminated = 1;
+    break;
+
+  case SIGPIPE:
+    GST_DEBUG ("Ignore sigpipe signal");
+    return false;
+
+  case SIGSEGV:
+    GST_DEBUG ("Segmentation fault. Aborting process execution");
+    abort ();
+
+  default:
+    break;
+  }
+
+  return true;
 }
 
-static void
-sighandler (int sig, siginfo_t *info, gpointer data)
+static Glib::RefPtr<Glib::IOSource>
+setup_signalfd ()
 {
-  g_print ("Got signal %d\n", sig);
+  Glib::RefPtr<Glib::IOSource> source;
+  sigset_t mask;
+  int fd;
 
-  /* Do something useful with siginfo_t */
-  if (sig == SIGSEGV) {
-    g_printerr ("Got signal %d, faulty address is %p\n", sig,
-                (gpointer) info->si_addr);
+  sigemptyset (&mask);
+  sigaddset (&mask, SIGINT);
+  sigaddset (&mask, SIGTERM);
+  sigaddset (&mask, SIGSEGV);
+  sigaddset (&mask, SIGPIPE);
 
-    /* Generate a child to make a coredump */
-    if (fork () == 0) {
-      abort ();
-    } else {
-      g_printerr ("Restarting program\n");
-      siglongjmp (saved_env, TRUE);
-    }
-  } else if (sig == SIGKILL || sig == SIGINT) {
-    /* since we connect to a signal handler, asynchronous management might */
-    /* might happen so we need to set an idle handler to exit the main loop */
-    /* in the mainloop context. */
-    Glib::RefPtr<Glib::IdleSource> idle_source = Glib::IdleSource::create ();
-    idle_source->connect (sigc::ptr_fun (&quit_loop) );
-    idle_source->attach (loop->get_context() );
-    return;
+  if (sigprocmask (SIG_BLOCK, &mask, NULL) < 0) {
+    throw "Failed to set signal mask";
   }
 
-  if (sig == SIGPIPE) {
-    GST_DEBUG ("Ignore sigpipe");
-  } else {
-    exit (sig);
+  fd = signalfd (-1, &mask, 0);
+
+  if (fd < 0) {
+    throw "Failed to create signal descriptor";
   }
+
+  channel = Glib::IOChannel::create_from_fd (fd);
+  channel->set_close_on_unref (true);
+  channel->set_encoding ("");
+  channel->set_buffered (false);
+
+  source = channel->create_watch (Glib::IO_IN | Glib::IO_HUP | Glib::IO_ERR |
+                                  Glib::IO_NVAL);
+  source->connect (sigc::ptr_fun (&signal_handler) );
+
+  return source;
 }
 
 static void
@@ -532,10 +587,12 @@ check_if_plugins_are_available ()
 int
 main (int argc, char **argv)
 {
+  Glib::RefPtr<Glib::Source> source;
   GError *error = NULL;
   GOptionContext *context;
-  struct sigaction sa;
   gchar *oldEnv, *newEnv;
+
+  Glib::init();
 
   oldEnv = getenv (ENV_VAR);
 
@@ -567,13 +624,8 @@ main (int argc, char **argv)
   check_if_plugins_are_available ();
 
   /* Install our signal handler */
-  sa.sa_sigaction = sighandler;
-  sigemptyset (&sa.sa_mask);
-  sa.sa_flags = SA_RESTART | SA_SIGINFO;
-  sigaction (SIGSEGV, &sa, NULL);
-  sigaction (SIGPIPE, &sa, NULL);
-  sigaction (SIGINT, &sa, NULL);
-  sigaction (SIGKILL, &sa, NULL);
+  source = setup_signalfd();
+  source->attach (Glib::MainContext::get_default() );
 
   GST_INFO ("Kmsc version: %s", get_version () );
 
@@ -599,11 +651,9 @@ main (int argc, char **argv)
 
   kms_http_ep_server_start (httpepserver, http_server_start_cb, NULL, NULL);
 
-  if (sigsetjmp (saved_env, TRUE) ) {
-    GST_INFO ("Relaunching server");
-  }
-
   loop->run ();
+
+  source->destroy();
 
   /* Stop Http End Point Server and destroy it */
   kms_http_ep_server_stop (httpepserver, http_server_stop_cb, NULL, NULL);
