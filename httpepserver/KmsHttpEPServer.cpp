@@ -399,6 +399,7 @@ emit_expiration_signal (SoupMessage *msg, GstElement *httpep)
                                         g_object_unref);
   g_object_set_data_full (G_OBJECT (httpep), KEY_TIMEOUT_ID, id,
                           (GDestroyNotify) destroy_guint);
+  soup_date_free (now);
 }
 
 static void
