@@ -1,3 +1,63 @@
+kurento (4.2.3) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * Restart server on segmentation fault and create a coredump
+  * Use exception save lock
+  * MediaSinkImpl: Codding style changes
+  * MediaSinkImpl: Use BLOCKING probe instead of BLOCKING_DOWNSTREAM | IDLE
+  * MediaElementImpl: Set the element state to NULL before removing from pipe
+  * MediaSinkImpl: Set element state to NULL before removing it from pipe
+
+  [ Santiago Carot-Nemesio ]
+  * KmsHttpEPServer: Provide the endpoint in callbacks
+  * KmsHttpEPServer: Remove handlers before disconnecting underlaying socket
+  * KmsHttpEPServer: Fix race condition
+
+  [ Jose Antonio Santos Cadenas ]
+  * MediaSinkImpl: Remove probe once pad is unlinked
+  * MediaSinkImpl: Simplify code
+  * Revert "MediaPipeline: Dot not raise error events if it is an stream error"
+  * Update plugins
+  * Add valgrind.supp file
+  * HttpEndpointImpl: fix memory leak
+  * KmsHttpLoop: Fix bad read while disposing kmsloop
+  * HttpEndpointImpl: Fix memory leak
+
+  [ David Fernandez ]
+  * Add generation of pem certificate if it is not defined in config file
+
+  [ Santiago Carot-Nemesio ]
+  * http_ep_server_test: Enable cookie test
+  * http_ep_server_test: Do not use default host and port for each test
+  * http_ep_server_test: Adapted test 1
+  * http_ep_server_test: Adapted test 2
+  * http_ep_server_test: Adapted test 3
+  * http_ep_server_test: Enable POST tests
+  * http_ep_server_test: Enable OPTIONS test
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugins submodule
+  * KmsHttpLoop: Thread should hold its own reference of context and loop
+
+  [ David Fernandez ]
+  * MediaSinkImpl: Release mutex to avoid deadlocks
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugins submodule
+
+  [ Santiago Carot-Nemesio ]
+  * main: thread_init() is deprecated and no longer has any effect
+  * main: Improve signal management
+
+  [ David Fernandez ]
+  * MediaSourceImpl: Disconnect the signal only if the id is not 0
+  * MediaSourceImpl: Add destroy function in signal connect
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 08 Apr 2014 09:51:54 +0200
+
 kurento (4.2.2) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
