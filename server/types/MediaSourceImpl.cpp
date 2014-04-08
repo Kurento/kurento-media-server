@@ -39,6 +39,8 @@ destroy_tmp_data (gpointer data, GClosure *closure)
 {
   struct tmp_data *tmp = (struct tmp_data *) data;
 
+  tmp->src.reset();
+  tmp->sink.reset();
   g_mutex_clear (&tmp->mutex);
   g_slice_free (struct tmp_data, tmp);
 }
