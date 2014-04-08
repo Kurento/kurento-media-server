@@ -58,8 +58,10 @@ EventHandler::~EventHandler()
 void
 EventHandler::sendEvent (Json::Value &value) const
 {
-  pool.push ([ = ] () {
-    boost::shared_ptr<TSocket> socket (new TSocket (ip, port) );
+  std::shared_ptr <const EventHandler> handler = shared_from_this();
+
+  pool.push ([handler, value] () {
+    boost::shared_ptr<TSocket> socket (new TSocket (handler->ip, handler->port) );
     boost::shared_ptr<TTransport> transport (new TFramedTransport (socket) );
     boost::shared_ptr<TBinaryProtocol> protocol (new TBinaryProtocol (transport) );
     KmsMediaHandlerServiceClient client (protocol);
@@ -72,7 +74,7 @@ EventHandler::sendEvent (Json::Value &value) const
       transport->open();
 
       event ["value"] = value;
-      event ["sessionId"] = sessionId;
+      event ["sessionId"] = handler->sessionId;
 
       rpc [JSON_RPC_PROTO] = JSON_RPC_PROTO_VERSION;
       rpc [JSON_RPC_METHOD] = "onEvent";
@@ -84,10 +86,10 @@ EventHandler::sendEvent (Json::Value &value) const
       transport->close();
     } catch (std::exception &e) {
       GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
-                   id.c_str(), ip.c_str(), port);
+                   handler->id.c_str(), handler->ip.c_str(), handler->port);
     } catch (...) {
       GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
-                   id.c_str(), ip.c_str(), port);
+                   handler->id.c_str(), handler->ip.c_str(), handler->port);
     }
   });
 }

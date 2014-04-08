@@ -16,6 +16,7 @@
 #ifndef __EVENT_HANDLER_HPP__
 #define __EVENT_HANDLER_HPP__
 
+#include <memory>
 #include <sigc++/sigc++.h>
 #include <string>
 #include <json/json.h>
@@ -24,7 +25,7 @@
 namespace kurento
 {
 
-class EventHandler
+class EventHandler : public std::enable_shared_from_this<EventHandler>
 {
 public:
   EventHandler (const std::string &sessionId, const std::string &objectId,
