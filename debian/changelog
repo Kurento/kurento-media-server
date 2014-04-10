@@ -1,3 +1,23 @@
+kurento (4.2.4) testing; urgency=low
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+
+  [ David Fernandez ]
+  * KmsHttpEPServer: Fix memory leak
+
+  [ Jose Antonio Santos Cadenas ]
+  * EventHandler: Avoid a non-valid access to memory
+  * MediaSourceImpl: fix memory leak
+  * valgrind: suppress errors calling lookup_by_name
+  * Update plugins version
+  * MediaSet: Remove ugly hack
+  * PlayerEndpoint: Stop player before release it
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Thu, 10 Apr 2014 15:32:32 +0200
+
 kurento (4.2.3) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
