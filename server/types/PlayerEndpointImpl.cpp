@@ -86,6 +86,7 @@ PlayerEndpointImpl::~PlayerEndpointImpl()
   g_signal_handler_disconnect (element, signalEOS);
   g_signal_handler_disconnect (element, signalInvalidMedia);
   g_signal_handler_disconnect (element, signalInvalidURI);
+  stop();
 }
 
 void
