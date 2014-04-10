@@ -42,6 +42,20 @@
    ...
 }
 {
+   Glib dns lookup
+   Memcheck:Param
+   sendmsg(mmsg[0].msg_hdr)
+   fun:sendmmsg
+   fun:__libc_res_nsend
+   fun:__libc_res_nquery
+   fun:__libc_res_nsearch
+   fun:_nss_dns_gethostbyname4_r
+   fun:gaih_inet
+   fun:getaddrinfo
+   fun:do_lookup_by_name
+   ...
+}
+{
    Add ServerMethod
    Memcheck:Leak
    fun:_Znwm
