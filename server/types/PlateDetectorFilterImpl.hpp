@@ -29,6 +29,8 @@ public:
   PlateDetectorFilterImpl (std::shared_ptr<MediaObjectImpl> parent);
   virtual ~PlateDetectorFilterImpl() throw ();
 
+  void setPlateWidthPercentage (int plateWidth);
+
 private:
 
   gulong bus_handler_id;

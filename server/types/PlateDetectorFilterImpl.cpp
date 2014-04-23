@@ -22,6 +22,7 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoPlateDetectorFilterImpl"
 
+#define PLATE_WIDTH_PERCENTAGE "plate-width-percentage"
 
 namespace kurento
 {
@@ -108,6 +109,12 @@ PlateDetectorFilterImpl::~PlateDetectorFilterImpl()
   GstBus *bus = gst_pipeline_get_bus (GST_PIPELINE (pipe->getPipeline() ) );
   g_signal_handler_disconnect (bus, bus_handler_id);
   g_object_unref (bus);
+}
+
+void PlateDetectorFilterImpl::setPlateWidthPercentage (int plateWidth)
+{
+  g_object_set (G_OBJECT (plateDetector), PLATE_WIDTH_PERCENTAGE, plateWidth,
+                NULL);
 }
 
 MediaObject *
