@@ -24,6 +24,8 @@ public:
   PlateDetectorFilter () {};
   virtual ~PlateDetectorFilter () {};
 
+  virtual void setPlateWidthPercentage (int plateWidth) {throw "Not implemented";};
+
   virtual std::string connect(const std::string &eventType, std::shared_ptr<EventHandler> handler);
 
   sigc::signal<void, PlateDetected> signalPlateDetected;

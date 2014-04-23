@@ -42,6 +42,41 @@ PlateDetectorFilter::Invoker::invoke (std::shared_ptr<MediaObject> obj,
     const std::string &methodName, const Json::Value &params,
     Json::Value &response)
 {
+  if (methodName == "setPlateWidthPercentage" && params.size() == 1) {
+    Json::Value aux;
+    int plateWidth;
+
+    if (!params.isMember ("plateWidth")) {
+      /* param 'plateWidth' not present, raise exception */
+      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "'plateWidth' parameter is requiered");
+      throw e;
+    } else {
+      aux = params["plateWidth"];
+
+      if (!aux.isInt ()) {
+        /* param 'plateWidth' has invalid type value, raise exception */
+        JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "'plateWidth' parameter should be a integer");
+        throw e;
+      }
+
+      plateWidth = aux.asInt ();
+    }
+
+    // TODO: Implement method setPlateWidthPercentage
+    std::shared_ptr<PlateDetectorFilter> finalObj;
+    finalObj = std::dynamic_pointer_cast<PlateDetectorFilter> (obj);
+    if (!finalObj) {
+      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                "Object not found or has incorrect type");
+      throw e;
+    }
+
+    finalObj->setPlateWidthPercentage (plateWidth);
+    return;
+  }
+
   Filter::Invoker::invoke(obj, methodName, params, response);
 }
 
