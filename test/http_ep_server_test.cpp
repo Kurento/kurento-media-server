@@ -43,8 +43,13 @@ static guint urls_registered;
 static guint signal_count;
 static guint counted;
 
+#ifdef SOUP_VERSION_2_44
+static SoupStatus expected_200 = SOUP_STATUS_OK;
+static SoupStatus expected_404 = SOUP_STATUS_NOT_FOUND;
+#else
 static SoupKnownStatusCode expected_200 = SOUP_STATUS_OK;
 static SoupKnownStatusCode expected_404 = SOUP_STATUS_NOT_FOUND;
+#endif
 
 static guint port;
 static gchar *host;
@@ -243,7 +248,11 @@ register_http_end_points (guint n, continue_cb cb)
 static void
 http_req_callback (SoupSession *session, SoupMessage *msg, gpointer data)
 {
+#ifdef SOUP_VERSION_2_44
+  SoupStatus *expected = (SoupStatus *) data;
+#else
   SoupKnownStatusCode *expected = (SoupKnownStatusCode *) data;
+#endif
   guint status_code;
   gchar *method;
   SoupURI *uri;
