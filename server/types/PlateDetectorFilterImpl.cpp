@@ -111,9 +111,11 @@ PlateDetectorFilterImpl::~PlateDetectorFilterImpl()
   g_object_unref (bus);
 }
 
-void PlateDetectorFilterImpl::setPlateWidthPercentage (int plateWidth)
+void PlateDetectorFilterImpl::setPlateWidthPercentage (float
+    plateWidthPercentage)
 {
-  g_object_set (G_OBJECT (plateDetector), PLATE_WIDTH_PERCENTAGE, plateWidth,
+  g_object_set (G_OBJECT (plateDetector), PLATE_WIDTH_PERCENTAGE,
+                plateWidthPercentage,
                 NULL);
 }
 
