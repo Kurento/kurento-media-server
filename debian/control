@@ -30,7 +30,8 @@ Build-Depends:
  thrift-compiler,
  libjsoncpp-dev,
  uuid-dev,
- libsctp-dev
+ libsctp-dev,
+ ktool-rom-processor (>= 1.1.0)
 Standards-Version: 3.9.4
 
 

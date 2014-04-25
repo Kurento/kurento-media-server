@@ -17,7 +17,7 @@
 #define __PLATE_DETECTOR_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/PlateDetectorFilter.hpp>
+#include <PlateDetectorFilter.hpp>
 
 namespace kurento
 {

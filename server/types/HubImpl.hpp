@@ -18,7 +18,7 @@
 
 #include "MediaObjectImpl.hpp"
 #include <gst/gst.h>
-#include <generated/Hub.hpp>
+#include <Hub.hpp>
 
 namespace kurento
 {

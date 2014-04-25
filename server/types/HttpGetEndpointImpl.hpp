@@ -17,7 +17,7 @@
 #define __HTTP_GET_ENDPOINT_IMPL_HPP__
 
 #include "HttpEndpointImpl.hpp"
-#include <generated/HttpGetEndpoint.hpp>
+#include <HttpGetEndpoint.hpp>
 
 namespace kurento
 {

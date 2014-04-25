@@ -17,7 +17,7 @@
 #define __SESSION_ENDPOINT_IMPL_HPP__
 
 #include "EndpointImpl.hpp"
-#include <generated/SessionEndpoint.hpp>
+#include <SessionEndpoint.hpp>
 
 namespace kurento
 {

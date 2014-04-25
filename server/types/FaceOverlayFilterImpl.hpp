@@ -17,7 +17,7 @@
 #define __FACE_OVERLAY_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/FaceOverlayFilter.hpp>
+#include <FaceOverlayFilter.hpp>
 
 namespace kurento
 {

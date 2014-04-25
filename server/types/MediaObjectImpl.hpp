@@ -19,7 +19,7 @@
 #include <gst/gst.h>
 #include <memory>
 
-#include <generated/MediaObject.hpp>
+#include <MediaObject.hpp>
 
 namespace kurento
 {

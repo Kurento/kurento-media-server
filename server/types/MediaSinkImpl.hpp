@@ -17,7 +17,7 @@
 #define __MEDIA_SINK_IMPL_HPP__
 
 #include "MediaPadImpl.hpp"
-#include <generated/MediaSink.hpp>
+#include <MediaSink.hpp>
 
 #include <glibmm.h>
 

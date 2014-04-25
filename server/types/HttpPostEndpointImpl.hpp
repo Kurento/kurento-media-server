@@ -17,7 +17,7 @@
 #define __HTTP_POST_ENDPOINT_IMPL_HPP__
 
 #include "HttpEndpointImpl.hpp"
-#include <generated/HttpPostEndpoint.hpp>
+#include <HttpPostEndpoint.hpp>
 #include <functional>
 
 namespace kurento

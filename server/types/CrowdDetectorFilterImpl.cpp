@@ -14,10 +14,10 @@
  */
 
 #include "CrowdDetectorFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
-#include <generated/RegionOfInterest.hpp>
-#include <generated/Point.hpp>
-#include <generated/RegionOfInterestConfig.hpp>
+#include <MediaPipeline.hpp>
+#include <RegionOfInterest.hpp>
+#include <Point.hpp>
+#include <RegionOfInterestConfig.hpp>
 #include "MediaPipelineImpl.hpp"
 #include <KurentoException.hpp>
 #include <CrowdDetectorFluidity.hpp>

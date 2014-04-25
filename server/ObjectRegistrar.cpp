@@ -14,7 +14,7 @@
  */
 
 #include "ObjectRegistrar.hpp"
-#include <generated/MediaObject.hpp>
+#include <MediaObject.hpp>
 #include <common/MediaSet.hpp>
 #include <KurentoException.hpp>
 

@@ -17,7 +17,7 @@
 #define __Z_BAR_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/ZBarFilter.hpp>
+#include <ZBarFilter.hpp>
 
 namespace kurento
 {

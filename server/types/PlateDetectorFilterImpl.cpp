@@ -14,7 +14,7 @@
  */
 
 #include "PlateDetectorFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 #include "MediaPipelineImpl.hpp"
 #include <KurentoException.hpp>
 

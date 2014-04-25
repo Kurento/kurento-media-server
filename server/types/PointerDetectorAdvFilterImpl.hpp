@@ -17,7 +17,7 @@
 #define __POINTER_DETECTOR_ADV_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/PointerDetectorAdvFilter.hpp>
+#include <PointerDetectorAdvFilter.hpp>
 
 namespace kurento
 {

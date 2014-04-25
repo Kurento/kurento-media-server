@@ -17,8 +17,8 @@
 #define __MEDIA_PAD_IMPL_HPP__
 
 #include "MediaObjectImpl.hpp"
-#include <generated/MediaPad.hpp>
-#include <generated/MediaType.hpp>
+#include <MediaPad.hpp>
+#include <MediaType.hpp>
 
 namespace kurento
 {

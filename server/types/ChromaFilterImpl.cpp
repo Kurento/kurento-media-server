@@ -14,8 +14,8 @@
  */
 
 #include "ChromaFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
-#include <generated/WindowParam.hpp>
+#include <MediaPipeline.hpp>
+#include <WindowParam.hpp>
 #include <KurentoException.hpp>
 
 #define GST_CAT_DEFAULT kurento_chroma_filter_impl

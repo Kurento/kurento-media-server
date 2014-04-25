@@ -20,7 +20,7 @@
 #include "jsoncpp/json/json.h"
 #include <memory>
 
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 
 namespace kurento
 {

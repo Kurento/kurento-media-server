@@ -17,7 +17,7 @@
 #define __DISPATCHER_IMPL_HPP__
 
 #include "HubImpl.hpp"
-#include <generated/Dispatcher.hpp>
+#include <Dispatcher.hpp>
 
 namespace kurento
 {

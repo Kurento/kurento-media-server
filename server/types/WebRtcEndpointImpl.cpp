@@ -14,7 +14,7 @@
  */
 
 #include "WebRtcEndpointImpl.hpp"
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 #include <media_config.hpp>
 
 #define FACTORY_NAME "webrtcendpoint"

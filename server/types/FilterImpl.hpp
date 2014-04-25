@@ -17,7 +17,7 @@
 #define __FILTER_IMPL_HPP__
 
 #include "MediaElementImpl.hpp"
-#include <generated/Filter.hpp>
+#include <Filter.hpp>
 
 namespace kurento
 {

@@ -17,7 +17,7 @@
 #define __MEDIA_SOURCE_IMPL_HPP__
 
 #include "MediaPadImpl.hpp"
-#include <generated/MediaSource.hpp>
+#include <MediaSource.hpp>
 
 #include <glibmm.h>
 

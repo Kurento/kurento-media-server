@@ -17,7 +17,7 @@
 #define __JACK_VADER_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/JackVaderFilter.hpp>
+#include <JackVaderFilter.hpp>
 
 namespace kurento
 {

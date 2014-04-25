@@ -14,7 +14,7 @@
  */
 
 #include "FaceOverlayFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 #include <KurentoException.hpp>
 
 #define GST_CAT_DEFAULT kurento_face_overlay_filter_impl

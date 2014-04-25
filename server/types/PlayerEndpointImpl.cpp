@@ -14,7 +14,7 @@
  */
 
 #include "PlayerEndpointImpl.hpp"
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 
 #define GST_CAT_DEFAULT kurento_player_endpoint_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);

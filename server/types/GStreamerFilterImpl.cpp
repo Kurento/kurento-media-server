@@ -14,7 +14,7 @@
  */
 
 #include "GStreamerFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 #include <stdio.h>
 
 #define GST_CAT_DEFAULT kurento_gstreamer_filter_impl

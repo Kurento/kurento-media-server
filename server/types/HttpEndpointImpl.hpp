@@ -17,7 +17,7 @@
 #define __HTTP_ENDPOINT_IMPL_HPP__
 
 #include "SessionEndpointImpl.hpp"
-#include <generated/HttpEndpoint.hpp>
+#include <HttpEndpoint.hpp>
 #include "httpendpointserver.hpp"
 #include <httpendpointserver.hpp>
 

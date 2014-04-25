@@ -21,6 +21,8 @@ else(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 		${KMSC_MAJOR_VERSION}.${KMSC_MINOR_VERSION}.${KMSC_PATCH_VERSION})
 endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 
+add_subdirectory(kms-interface-rom)
+
 set (GSTREAMER_PLUGINS_DIR ${CMAKE_BINARY_DIR}/plugins)
 
 set(PLUGIN_PATH "${CMAKE_INSTALL_PREFIX}/lib/gst-kurento-plugins:${CMAKE_INSTALL_PREFIX}/lib/kms-dtls-plugins")

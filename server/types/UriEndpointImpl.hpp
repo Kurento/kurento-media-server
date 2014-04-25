@@ -17,7 +17,7 @@
 #define __URI_ENDPOINT_IMPL_HPP__
 
 #include "EndpointImpl.hpp"
-#include <generated/UriEndpoint.hpp>
+#include <UriEndpoint.hpp>
 
 namespace kurento
 {

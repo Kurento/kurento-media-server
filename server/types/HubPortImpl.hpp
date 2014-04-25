@@ -18,7 +18,7 @@
 
 #include "MediaElementImpl.hpp"
 #include "HubImpl.hpp"
-#include <generated/HubPort.hpp>
+#include <HubPort.hpp>
 
 namespace kurento
 {

@@ -17,7 +17,7 @@
 #define __DISPATCHER_ONE_TO_MANY_IMPL_HPP__
 
 #include "HubImpl.hpp"
-#include <generated/DispatcherOneToMany.hpp>
+#include <DispatcherOneToMany.hpp>
 
 namespace kurento
 {

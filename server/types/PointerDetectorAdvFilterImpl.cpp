@@ -14,9 +14,9 @@
  */
 
 #include "PointerDetectorAdvFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
-#include <generated/WindowParam.hpp>
-#include <generated/PointerDetectorWindowMediaParam.hpp>
+#include <MediaPipeline.hpp>
+#include <WindowParam.hpp>
+#include <PointerDetectorWindowMediaParam.hpp>
 #include "MediaPipelineImpl.hpp"
 #include <KurentoException.hpp>
 

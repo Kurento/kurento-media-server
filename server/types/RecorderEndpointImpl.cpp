@@ -14,8 +14,8 @@
  */
 
 #include "RecorderEndpointImpl.hpp"
-#include <generated/MediaProfileSpecType.hpp>
-#include <generated/MediaPipeline.hpp>
+#include <MediaProfileSpecType.hpp>
+#include <MediaPipeline.hpp>
 
 #define GST_CAT_DEFAULT kurento_recorder_endpoint_impl
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);

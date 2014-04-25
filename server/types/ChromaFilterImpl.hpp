@@ -17,7 +17,7 @@
 #define __CHROMA_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/ChromaFilter.hpp>
+#include <ChromaFilter.hpp>
 
 namespace kurento
 {

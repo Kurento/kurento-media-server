@@ -3,7 +3,7 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 aux_source_directory("common" COMMON)
 aux_source_directory("types" TYPES)
 aux_source_directory("utils" UTILS)
-aux_source_directory("generated" GENERATED_CODE)
+aux_source_directory(${CMAKE_BINARY_DIR}/rom-cpp GENERATED_CODE)
 
 SET(KMSC_SOURCE main.cpp version.cpp MediaServerServiceHandler.cpp
               ModuleLoader.cpp ServerMethods.cpp ObjectRegistrar.cpp
@@ -40,7 +40,7 @@ include_directories(kurento ${GMODULE_INCLUDE_DIRS})
 include_directories(kurento ${JSONCPP_INCLUDE_DIRS})
 include_directories(kurento ${SIGCPP_INCLUDE_DIRS})
 include_directories(kurento ${CMAKE_SOURCE_DIR}/jsonrpc)
-include_directories(kurento ${CMAKE_SOURCE_DIR}/server/generated)
 include_directories(kurento ${CMAKE_SOURCE_DIR}/server/types)
+include_directories(kurento ${CMAKE_BINARY_DIR}/rom-cpp)
 
 install(TARGETS kurento RUNTIME DESTINATION bin)

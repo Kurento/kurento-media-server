@@ -17,7 +17,7 @@
 #define __CROWD_DETECTOR_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/CrowdDetectorFilter.hpp>
+#include <CrowdDetectorFilter.hpp>
 
 namespace kurento
 {

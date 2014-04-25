@@ -17,7 +17,7 @@
 #define __SDP_ENDPOINT_IMPL_HPP__
 
 #include "SessionEndpointImpl.hpp"
-#include <generated/SdpEndpoint.hpp>
+#include <SdpEndpoint.hpp>
 
 namespace kurento
 {

@@ -17,7 +17,7 @@
 #define __ENDPOINT_IMPL_HPP__
 
 #include "MediaElementImpl.hpp"
-#include <generated/Endpoint.hpp>
+#include <Endpoint.hpp>
 
 namespace kurento
 {

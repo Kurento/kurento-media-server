@@ -17,7 +17,7 @@
 #define __GSTREAMER_FILTER_IMPL_HPP__
 
 #include "FilterImpl.hpp"
-#include <generated/GStreamerFilter.hpp>
+#include <GStreamerFilter.hpp>
 
 namespace kurento
 {

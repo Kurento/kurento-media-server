@@ -17,7 +17,7 @@
 #define __COMPOSITE_IMPL_HPP__
 
 #include "HubImpl.hpp"
-#include <generated/Composite.hpp>
+#include <Composite.hpp>
 
 namespace kurento
 {

@@ -22,7 +22,7 @@
 #include <gst/gst.h>
 #include <glibmm.h>
 
-#include <generated/MediaElement.hpp>
+#include <MediaElement.hpp>
 #include "MediaSourceImpl.hpp"
 #include "MediaSinkImpl.hpp"
 

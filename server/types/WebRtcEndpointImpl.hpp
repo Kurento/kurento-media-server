@@ -17,7 +17,7 @@
 #define __WEB_RTC_ENDPOINT_IMPL_HPP__
 
 #include "SdpEndpointImpl.hpp"
-#include <generated/WebRtcEndpoint.hpp>
+#include <WebRtcEndpoint.hpp>
 
 namespace kurento
 {

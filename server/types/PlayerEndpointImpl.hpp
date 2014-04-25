@@ -17,7 +17,7 @@
 #define __PLAYER_ENDPOINT_IMPL_HPP__
 
 #include "UriEndpointImpl.hpp"
-#include <generated/PlayerEndpoint.hpp>
+#include <PlayerEndpoint.hpp>
 #include <functional>
 
 namespace kurento

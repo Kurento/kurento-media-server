@@ -14,7 +14,7 @@
  */
 
 #include "ZBarFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 #include <MediaPipelineImpl.hpp>
 
 #define GST_CAT_DEFAULT kurento_z_bar_filter_impl

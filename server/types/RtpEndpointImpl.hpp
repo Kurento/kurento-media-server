@@ -17,7 +17,7 @@
 #define __RTP_ENDPOINT_IMPL_HPP__
 
 #include "SdpEndpointImpl.hpp"
-#include <generated/RtpEndpoint.hpp>
+#include <RtpEndpoint.hpp>
 
 namespace kurento
 {

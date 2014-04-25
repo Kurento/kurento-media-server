@@ -14,7 +14,7 @@
  */
 
 #include "JackVaderFilterImpl.hpp"
-#include <generated/MediaPipeline.hpp>
+#include <MediaPipeline.hpp>
 #include <KurentoException.hpp>
 
 #define GST_CAT_DEFAULT kurento_jack_vader_filter_impl

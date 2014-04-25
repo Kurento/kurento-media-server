@@ -17,7 +17,7 @@
 #define __RECORDER_ENDPOINT_IMPL_HPP__
 
 #include "UriEndpointImpl.hpp"
-#include <generated/RecorderEndpoint.hpp>
+#include <RecorderEndpoint.hpp>
 
 namespace kurento
 {

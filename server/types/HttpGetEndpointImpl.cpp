@@ -14,8 +14,8 @@
  */
 
 #include "HttpGetEndpointImpl.hpp"
-#include <generated/MediaPipeline.hpp>
-#include <generated/MediaProfileSpecType.hpp>
+#include <MediaPipeline.hpp>
+#include <MediaProfileSpecType.hpp>
 #include <KurentoException.hpp>
 
 #define GST_CAT_DEFAULT kurento_http_get_endpoint_impl
