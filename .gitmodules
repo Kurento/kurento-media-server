@@ -4,3 +4,6 @@
 [submodule "gst-kurento-plugins"]
 	path = gst-kurento-plugins
 	url = ../gst-kurento-plugins
+[submodule "kms-interface-rom"]
+	path = kms-interface-rom
+	url = ../kms-interface-rom
