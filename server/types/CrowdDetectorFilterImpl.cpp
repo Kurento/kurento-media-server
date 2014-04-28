@@ -177,7 +177,7 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
       }
 
       try {
-        CrowdDetectorFluidity event (fluidity_percentage, fluidity_level, roiID,
+        CrowdDetectorFluidity event (fluidity_percentage, fluidity_level, roiIDStr,
                                      shared_from_this(),
                                      CrowdDetectorFluidity::getName() );
         signalCrowdDetectorFluidity (event);
@@ -202,7 +202,7 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
 
       try {
         CrowdDetectorOccupancy event (occupancy_level, occupancy_percentage,
-                                      roiID, shared_from_this(),
+                                      roiIDStr, shared_from_this(),
                                       CrowdDetectorOccupancy::getName() );
         signalCrowdDetectorOccupancy (event);
       } catch (std::bad_weak_ptr &e) {
@@ -218,7 +218,7 @@ CrowdDetectorFilterImpl::CrowdDetectorFilterImpl (
       }
 
       try {
-        CrowdDetectorDirection event (direction_angle, roiID, shared_from_this(),
+        CrowdDetectorDirection event (direction_angle, roiIDStr, shared_from_this(),
                                       CrowdDetectorDirection::getName() );
         signalCrowdDetectorDirection (event);
       } catch (std::bad_weak_ptr &e) {
