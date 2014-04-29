@@ -60,6 +60,9 @@ ServerMethods::ServerMethods()
   handler.addMethod ("keepAlive", std::bind (&ServerMethods::keepAlive,
                      this, std::placeholders::_1,
                      std::placeholders::_2) );
+  handler.addMethod ("describe", std::bind (&ServerMethods::describe,
+                     this, std::placeholders::_1,
+                     std::placeholders::_2) );
 }
 
 static void
@@ -75,6 +78,42 @@ void
 ServerMethods::process (const std::string &request, std::string &response)
 {
   handler.process (request, response);
+}
+
+void
+ServerMethods::describe (const Json::Value &params, Json::Value &response)
+{
+  std::shared_ptr<MediaObjectImpl> obj;
+  std::string subscription;
+  std::string sessionId;
+  std::string objectId;
+
+  requireParams (params);
+
+  try {
+    JsonRpc::getValue (params, SESSION_ID, sessionId);
+  } catch (JsonRpc::CallException e) {
+    generateUUID (sessionId);
+  }
+
+  JsonRpc::getValue (params, OBJECT, objectId);
+
+  try {
+    obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
+
+
+  } catch (KurentoException &ex) {
+    Json::Value data;
+    data["code"] = ex.getCode();
+    data["message"] = ex.getMessage();
+
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              ex.what(), data);
+    throw e;
+  }
+
+  response["sessionId"] = sessionId;
+  response["type"] = obj->getType ();
 }
 
 void

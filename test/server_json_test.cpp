@@ -159,6 +159,23 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
 
+  request["method"] = "describe";
+  params.clear();
+  params["object"] = objId;
+  params["sessionId"] = "12345";
+  request["params"] = params;
+
+  req_str = writer.write (request);
+  response_str.clear();
+
+  client->invokeJsonRpc (response_str, req_str);
+  BOOST_CHECK (reader.parse (response_str, response) == true);
+
+  BOOST_CHECK (!response.isMember ("error") );
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isMember ("type") );
+  BOOST_CHECK (response["result"]["type"].asString () == "WebRtcEndpoint" );
+
   /* Notification */
   request.removeMember ("id");
   request["method"] = "release";

@@ -41,6 +41,7 @@ private:
   void ref (const Json::Value &params, Json::Value &response);
   void unref (const Json::Value &params, Json::Value &response);
   void keepAlive (const Json::Value &params, Json::Value &response);
+  void describe (const Json::Value &params, Json::Value &response);
 
   JsonRpc::Handler handler;
 
