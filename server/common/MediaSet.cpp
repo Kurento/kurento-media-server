@@ -236,6 +236,23 @@ MediaSet::ref (const std::string &sessionId,
 }
 
 void
+MediaSet::ref (const std::string &sessionId,
+               const std::string &mediaObjectRef)
+{
+  std::shared_ptr <MediaObjectImpl> object = getMediaObject (mediaObjectRef);
+
+  ref (sessionId, object);
+}
+
+void
+MediaSet::ref (const std::string &sessionId, const uint64_t &mediaObjectRef)
+{
+  std::shared_ptr <MediaObjectImpl> object = getMediaObject (mediaObjectRef);
+
+  ref (sessionId, object);
+}
+
+void
 MediaSet::keepAliveSession (const std::string &sessionId)
 {
   keepAliveSession (sessionId, false);

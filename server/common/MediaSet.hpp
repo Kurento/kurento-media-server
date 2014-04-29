@@ -35,6 +35,8 @@ public:
 
   void ref (const std::string &sessionId,
             std::shared_ptr<MediaObjectImpl> mediaObject);
+  void ref (const std::string &sessionId, const std::string &mediaObjectRef);
+  void ref (const std::string &sessionId, const uint64_t &mediaObjectRef);
   std::shared_ptr<MediaObjectImpl> ref (MediaObjectImpl *mediaObject);
 
   void unref (const std::string &sessionId,

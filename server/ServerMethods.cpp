@@ -51,6 +51,9 @@ ServerMethods::ServerMethods()
   handler.addMethod ("release", std::bind (&ServerMethods::release,
                      this, std::placeholders::_1,
                      std::placeholders::_2) );
+  handler.addMethod ("ref", std::bind (&ServerMethods::ref,
+                                       this, std::placeholders::_1,
+                                       std::placeholders::_2) );
   handler.addMethod ("unref", std::bind (&ServerMethods::unref,
                                          this, std::placeholders::_1,
                                          std::placeholders::_2) );
@@ -111,6 +114,31 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
 
   try {
     MediaSet::getMediaSet().release (objectId);
+  } catch (KurentoException &ex) {
+    Json::Value data;
+    data["code"] = ex.getCode();
+    data["message"] = ex.getMessage();
+
+    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                              ex.what(), data);
+    throw e;
+  }
+}
+
+void
+ServerMethods::ref (const Json::Value &params, Json::Value &response)
+{
+  std::shared_ptr<MediaObject> obj;
+  std::string objectId;
+  std::string sessionId;
+
+  requireParams (params);
+
+  JsonRpc::getValue (params, OBJECT, objectId);
+  JsonRpc::getValue (params, OBJECT, sessionId);
+
+  try {
+    MediaSet::getMediaSet().ref (sessionId, objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();

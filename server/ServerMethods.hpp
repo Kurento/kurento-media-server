@@ -38,6 +38,7 @@ private:
   void subscribe (const Json::Value &params, Json::Value &response);
   void unsubscribe (const Json::Value &params, Json::Value &response);
   void release (const Json::Value &params, Json::Value &response);
+  void ref (const Json::Value &params, Json::Value &response);
   void unref (const Json::Value &params, Json::Value &response);
   void keepAlive (const Json::Value &params, Json::Value &response);
 
