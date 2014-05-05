@@ -1,3 +1,31 @@
+kurento (4.2.5) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * Update submodules
+
+  [ David Fernandez ]
+  * PlateDetectorFilter: Update generated code for PlateDetectorFilter
+  * PlateDetectorFilterImpl: configure widthPlate parameter
+
+  [ Jose Antonio Santos Cadenas ]
+  * Fix compilation problems with new version of soup library
+  * Add kms-interface-rom as a submodule
+  * Autogenerate rom model source
+
+  [ David Fernandez ]
+  * PlateDetectorFilterImpl: Change param from int to float
+  * CrowdDetectorFilterImpl: Fix error creating events
+
+  [ Jose Antonio Santos Cadenas ]
+  * ServerMethods: Add ref method to server api
+  * ServerMethods: Add describe method
+  * Prepera release 4.2.5
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 05 May 2014 12:10:15 +0200
+
 kurento (4.2.4) testing; urgency=low
 
   [ Jose Antonio Santos Cadenas ]
