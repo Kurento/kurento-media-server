@@ -51,6 +51,11 @@ get_structure_from_roi (std::shared_ptr<RegionOfInterest> roi)
 
   roiStructure = gst_structure_new_empty (roi->getId().c_str() );
 
+  if (roiStructure == NULL) {
+    throw KurentoException (MEDIA_OBJECT_ILLEGAL_PARAM_ERROR,
+                            "Invalid roi name");
+  }
+
   for (std::shared_ptr<Point> point : roi->getPoints() ) {
     GstStructure *pointSt;
     std::string name = "point" + std::to_string (pointCount ++);
