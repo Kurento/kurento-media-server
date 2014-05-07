@@ -48,9 +48,6 @@ using ::Glib::KeyFileFlags;
 
 static Service *service;
 
-static std::string serverAddress, httpEPServerAddress,
-       httpEPServerAnnouncedAddress;
-static gint serverServicePort, httpEPServerServicePort;
 GstSDPMessage *sdpPattern;
 KmsHttpEPServer *httpepserver;
 std::string stunServerAddress, pemCertificate;
@@ -77,34 +74,6 @@ check_port (int port)
   if (port <= 0 || port > G_MAXUSHORT) {
     throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid value");
   }
-}
-
-static void
-set_default_media_server_config ()
-{
-  GST_WARNING ("Setting default configuration for media server. "
-               "Using IP address: %s, port: %d. "
-               "No codecs support will be available with default configuration.",
-               MEDIA_SERVER_ADDRESS, MEDIA_SERVER_SERVICE_PORT);
-
-  serverAddress = MEDIA_SERVER_ADDRESS;
-  serverServicePort = MEDIA_SERVER_SERVICE_PORT;
-}
-
-static void
-set_default_http_ep_server_config ()
-{
-  httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
-  GST_WARNING ("Setting default configuration for http end point server. "
-               "Using IP address: %s, port: %d. ",
-               httpEPServerAddress.c_str (), httpEPServerServicePort);
-}
-
-static void
-set_default_config ()
-{
-  set_default_media_server_config ();
-  set_default_http_ep_server_config();
 }
 
 static gchar *
@@ -296,22 +265,16 @@ load_config (const std::string &file_name)
 
   GST_INFO ("Reading configuration from: %s", file_name.c_str () );
 
-  /* Try to load configuration file */
   try {
-    if (!configFile.load_from_file (file_name,
-                                    KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
-                                    KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS) ) {
-      GST_WARNING ("Can not load configuration file %s", file_name.c_str () );
-      set_default_config ();
-      return;
-    }
+    configFile.load_from_file (file_name,
+                               KeyFileFlags::KEY_FILE_KEEP_COMMENTS |
+                               KeyFileFlags::KEY_FILE_KEEP_TRANSLATIONS);
   } catch (const Glib::Error &ex) {
     GST_ERROR ("Error loading configuration: %s", ex.what ().c_str () );
-    set_default_config ();
-    return;
+    throw ex;
   }
 
-  /* parse options so as to configure servers */
+  /* parse options so as to configure services */
   configure_kurento_media_server (configFile, file_name);
   configure_web_rtc_end_point (configFile, file_name);
 
