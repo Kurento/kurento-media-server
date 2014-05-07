@@ -41,6 +41,8 @@ using namespace apache::thrift::transport;
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "server_test_base"
 
+#define MEDIA_SERVER_ADDRESS "localhost"
+#define MEDIA_SERVER_SERVICE_PORT 9090
 #define MAX_RETRIES 5
 
 G_LOCK_DEFINE (mutex);
