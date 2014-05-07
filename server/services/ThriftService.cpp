@@ -74,6 +74,8 @@ ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
                  DEFAULT_PORT);
     port = DEFAULT_PORT;
   }
+
+  httpService = new HttpService (confFile);
 }
 
 void ThriftService::start_thrift()
@@ -98,24 +100,28 @@ void ThriftService::start_thrift()
   throw Glib::Thread::Exit ();
 }
 
-void ThriftService::start (std::function<void (GError *err) > func)
+void ThriftService::start ()
 {
   GST_DEBUG ("Starting service...");
 
-  try {
-    /* Created thread not used for joining because of a bug in thrift */
-    thread = Glib::Thread::create (std::bind  (&ThriftService::start_thrift, this),
-                                   true);
-    func (NULL);
-  } catch (Glib::ThreadError &err) {
-    func (err.gobj() );
-  }
+  httpService->start();
+
+  /* Created thread not used for joining because of a bug in thrift */
+  thread = Glib::Thread::create (std::bind  (&ThriftService::start_thrift, this),
+                                 true);
 }
 
-void ThriftService::stop (std::function<void (GError *err) > func)
+void ThriftService::stop ()
 {
-  // TODO
-  GST_DEBUG ("stop service");
+  GST_DEBUG ("stopping service...");
+
+  httpService->stop();
+}
+
+ThriftService::~ThriftService()
+{
+  GST_DEBUG ("Destroying ThriftService");
+  delete httpService;
 }
 
 ThriftService::StaticConstructor ThriftService::staticConstructor;

@@ -13,23 +13,29 @@
  *
  */
 
-#ifndef __RABBITMQ_SERVICE_HPP__
-#define __RABBITMQ_SERVICE_HPP__
+#ifndef __HTTP_SERVICE_HPP__
+#define __HTTP_SERVICE_HPP__
 
+#include <KmsHttpEPServer.h>
 #include "Service.hpp"
 
 namespace kurento
 {
 
-class RabbitMQService: public Service
+class HttpService: public Service
 {
 public:
-  RabbitMQService (Glib::KeyFile &confFile);
-  virtual ~RabbitMQService() throw () {};
+  HttpService (Glib::KeyFile &confFile);
+  virtual ~HttpService() throw ();
   virtual void start ();
   virtual void stop ();
 
 private:
+  int port;
+  std::string address;
+  std::string announcedAddr;
+  KmsHttpEPServer *server;
+
   class StaticConstructor
   {
   public:
@@ -41,4 +47,4 @@ private:
 
 } /* kurento */
 
-#endif /* __RABBITMQ_SERVICE_HPP__ */
+#endif /* __HTTP_SERVICE_HPP__ */

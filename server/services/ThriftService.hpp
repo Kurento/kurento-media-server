@@ -17,6 +17,7 @@
 #define __THRIFT_SERVICE_HPP__
 
 #include "Service.hpp"
+#include "HttpService.hpp"
 #include <server/TNonblockingServer.h>
 
 namespace kurento
@@ -26,14 +27,16 @@ class ThriftService: public Service
 {
 public:
   ThriftService (Glib::KeyFile &confFile);
-  virtual ~ThriftService() throw () {};
-  virtual void start (std::function<void (GError *err) > func);
-  virtual void stop (std::function<void (GError *err) > func);
+  virtual ~ThriftService() throw ();
+  virtual void start ();
+  virtual void stop ();
 
 private:
   int port;
   std::string address;
   apache::thrift::server::TNonblockingServer *server;
+  HttpService *httpService;
+
   Glib::Thread *thread;
 
   void start_thrift ();

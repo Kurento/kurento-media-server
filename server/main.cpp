@@ -38,10 +38,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define CERTTOOL_TEMPLATE "autoCerttool.tmpl"
 #define CERT_KEY_PEM_FILE "autoCertkey.pem"
 
-Glib::Mutex mutex;
-Glib::Cond cond;
-bool finish = FALSE;
-
 using namespace ::kurento;
 
 using boost::shared_ptr;
@@ -199,41 +195,6 @@ configure_kurento_media_server (KeyFile &configFile,
   service = ServiceFactory::create_service (configFile);
 }
 
-static void
-configure_http_ep_server (KeyFile &configFile)
-{
-  gint port;
-
-  try {
-    httpEPServerAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
-                          HTTP_EP_SERVER_ADDRESS_KEY);
-  } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
-    GST_WARNING ("Http end point server will be listening to all interfaces");
-  }
-
-  try {
-    port = configFile.get_integer (HTTP_EP_SERVER_GROUP,
-                                   HTTP_EP_SERVER_SERVICE_PORT_KEY);
-    check_port (port);
-    httpEPServerServicePort = port;
-  } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
-    GST_WARNING ("Setting default port %d to http end point server",
-                 HTTP_EP_SERVER_SERVICE_PORT);
-    httpEPServerServicePort = HTTP_EP_SERVER_SERVICE_PORT;
-  }
-
-  try {
-    httpEPServerAnnouncedAddress = configFile.get_string (HTTP_EP_SERVER_GROUP,
-                                   HTTP_EP_SERVER_ANNOUNCED_ADDRESS_KEY);
-  } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
-    GST_WARNING ("Http end point server will choose any available "
-                 "IP address to compose URLs");
-  }
-}
-
 static gchar *
 generate_certkey_pem_file (const gchar *dir)
 {
@@ -352,7 +313,6 @@ load_config (const std::string &file_name)
 
   /* parse options so as to configure servers */
   configure_kurento_media_server (configFile, file_name);
-  configure_http_ep_server (configFile);
   configure_web_rtc_end_point (configFile, file_name);
 
   GST_INFO ("Configuration loaded successfully");
@@ -484,41 +444,6 @@ deleteCertificate ()
 }
 
 static void
-http_server_start_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
-{
-  if (err != NULL) {
-    GST_ERROR ("Http server could not start. Reason: %s", err->message);
-    loop->quit ();
-    return;
-  }
-
-  GST_DEBUG ("HttpEPServer started. Setting up thrift server service.");
-
-  std::function <void (GError *err) > aux = [&] (GError * err) {
-    if (err != NULL) {
-      GST_ERROR ("Service could not start. (%s)", err->message);
-    } else {
-      GST_INFO ("Service successfully started");
-    }
-  };
-
-  service->start (aux);
-}
-
-static void
-http_server_stop_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
-{
-  if (err != NULL) {
-    GST_ERROR ("Http server could not be stopped. Reason: %s", err->message);
-  }
-
-  mutex.lock();
-  finish = TRUE;
-  cond.signal();
-  mutex.unlock();
-}
-
-static void
 check_if_plugins_are_available ()
 {
   GstPlugin *plugin = gst_plugin_load_by_name ("kurento");
@@ -584,38 +509,16 @@ main (int argc, char **argv)
     load_config ( (std::string) conf_file);
   }
 
-  /* Start Http End Point Server */
-  GST_DEBUG ("Starting Http end point server.");
-
-  httpepserver = kms_http_ep_server_new (
-                   KMS_HTTP_EP_SERVER_PORT, httpEPServerServicePort,
-                   KMS_HTTP_EP_SERVER_INTERFACE,
-                   (httpEPServerAddress.empty() ) ? NULL : httpEPServerAddress.c_str (),
-                   KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
-                   (httpEPServerAnnouncedAddress.empty() ) ? NULL :
-                   httpEPServerAnnouncedAddress.c_str (),
-                   NULL);
-
-  kms_http_ep_server_start (httpepserver, http_server_start_cb, NULL, NULL);
+  /* Start service */
+  service->start ();
 
   loop->run ();
 
   source->destroy();
 
-  /* Stop Http End Point Server and destroy it */
-  kms_http_ep_server_stop (httpepserver, http_server_stop_cb, NULL, NULL);
-
   deleteCertificate ();
-  /* TODO: Improve this to with a more sophisticated method to start
-   * and stop services. */
-  /* Wait until server has stopped */
-  mutex.lock();
 
-  while (!finish) {
-    cond.wait (mutex);
-  }
-
-  mutex.unlock();
+  service->stop();
 
   g_object_unref (G_OBJECT (httpepserver) );
   delete service;
