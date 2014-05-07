@@ -28,7 +28,7 @@
 #include <glib/gstdio.h>
 
 #include "services/Service.hpp"
-#include "services/ThriftService.hpp"
+#include "services/ServiceFactory.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -196,7 +196,7 @@ configure_kurento_media_server (KeyFile &configFile,
     GST_WARNING ("Wrong codec configuration, communication won't be possible");
   }
 
-  service = new ThriftService (configFile);
+  service = ServiceFactory::create_service (configFile);
 }
 
 static void
