@@ -26,8 +26,8 @@ class Service
 public:
   Service (Glib::KeyFile &confFile);
   virtual ~Service() throw () {};
-  virtual void start() = 0;
-  virtual void stop() = 0;
+  virtual void start (std::function<void (GError *err) > func) = 0;
+  virtual void stop (std::function<void (GError *err) > func) = 0;
 
 private:
   class StaticConstructor

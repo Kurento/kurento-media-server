@@ -23,13 +23,13 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-void ThriftService::start()
+void ThriftService::start (std::function<void (GError *err) > func)
 {
   // TODO:
   GST_DEBUG ("start service");
 }
 
-void ThriftService::stop()
+void ThriftService::stop (std::function<void (GError *err) > func)
 {
   // TODO
   GST_DEBUG ("stop service");

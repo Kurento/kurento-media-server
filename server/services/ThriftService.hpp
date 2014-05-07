@@ -26,8 +26,8 @@ class ThriftService: public Service
 public:
   ThriftService (Glib::KeyFile &confFile);
   virtual ~ThriftService() throw () {};
-  virtual void start();
-  virtual void stop();
+  virtual void start (std::function<void (GError *err) > func);
+  virtual void stop (std::function<void (GError *err) > func);
 
 private:
   class StaticConstructor

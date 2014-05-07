@@ -23,13 +23,13 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-void RabbitMQService::start()
+void RabbitMQService::start (std::function<void (GError *err) > func)
 {
   // TODO:
   GST_DEBUG ("start service");
 }
 
-void RabbitMQService::stop()
+void RabbitMQService::stop (std::function<void (GError *err) > func)
 {
   // TODO
   GST_DEBUG ("stop service");

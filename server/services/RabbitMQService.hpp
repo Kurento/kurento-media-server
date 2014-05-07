@@ -26,8 +26,8 @@ class RabbitMQService: public Service
 public:
   RabbitMQService (Glib::KeyFile &confFile);
   virtual ~RabbitMQService() throw () {};
-  virtual void start();
-  virtual void stop();
+  virtual void start (std::function<void (GError *err) > func);
+  virtual void stop (std::function<void (GError *err) > func);
 
 private:
   class StaticConstructor
