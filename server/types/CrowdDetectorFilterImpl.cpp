@@ -16,7 +16,7 @@
 #include "CrowdDetectorFilterImpl.hpp"
 #include <MediaPipeline.hpp>
 #include <RegionOfInterest.hpp>
-#include <Point.hpp>
+#include <RelativePoint.hpp>
 #include <RegionOfInterestConfig.hpp>
 #include "MediaPipelineImpl.hpp"
 #include <KurentoException.hpp>
@@ -56,13 +56,13 @@ get_structure_from_roi (std::shared_ptr<RegionOfInterest> roi)
                             "Invalid roi name");
   }
 
-  for (std::shared_ptr<Point> point : roi->getPoints() ) {
+  for (std::shared_ptr<RelativePoint> point : roi->getPoints() ) {
     GstStructure *pointSt;
     std::string name = "point" + std::to_string (pointCount ++);
 
     pointSt = gst_structure_new (name.c_str(),
-                                 "x", G_TYPE_INT, point->getX(),
-                                 "y", G_TYPE_INT, point->getY(),
+                                 "x", G_TYPE_FLOAT, point->getX(),
+                                 "y", G_TYPE_FLOAT, point->getY(),
                                  NULL);
 
     gst_structure_set (roiStructure,
