@@ -16,15 +16,6 @@
 #include <sys/signalfd.h>
 #include <config.h>
 
-#include "MediaServerServiceHandler.hpp"
-
-#include <protocol/TBinaryProtocol.h>
-#include <transport/TServerSocket.h>
-#include <transport/TBufferTransports.h>
-#include <server/TNonblockingServer.h>
-#include <concurrency/PosixThreadFactory.h>
-#include <concurrency/ThreadManager.h>
-
 #include "media_config.hpp"
 
 #include <glibmm.h>
@@ -35,6 +26,9 @@
 #include "httpendpointserver.hpp"
 #include <ModuleLoader.hpp>
 #include <glib/gstdio.h>
+
+#include "services/Service.hpp"
+#include "services/ThriftService.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -48,19 +42,15 @@ Glib::Mutex mutex;
 Glib::Cond cond;
 bool finish = FALSE;
 
-using namespace ::apache::thrift;
-using namespace ::apache::thrift::protocol;
-using namespace ::apache::thrift::transport;
-using namespace ::apache::thrift::server;
-using namespace ::apache::thrift::concurrency;
-
 using namespace ::kurento;
 
 using boost::shared_ptr;
 using namespace boost::filesystem;
-using ::kurento::MediaServerServiceHandler;
+
 using ::Glib::KeyFile;
 using ::Glib::KeyFileFlags;
+
+static Service *service;
 
 static std::string serverAddress, httpEPServerAddress,
        httpEPServerAnnouncedAddress;
@@ -84,30 +74,6 @@ static GOptionEntry entries[] = {
 };
 
 Glib::RefPtr<Glib::IOChannel> channel;
-
-static void
-create_media_server_service ()
-{
-  shared_ptr < MediaServerServiceHandler >
-  handler (new MediaServerServiceHandler () );
-  shared_ptr < TProcessor >
-  processor (new KmsMediaServerServiceProcessor (handler) );
-  shared_ptr < TProtocolFactory >
-  protocolFactory (new TBinaryProtocolFactory () );
-  shared_ptr < PosixThreadFactory > threadFactory (new PosixThreadFactory () );
-  shared_ptr < ThreadManager > threadManager =
-    ThreadManager::newSimpleThreadManager (15);
-  threadManager->threadFactory (threadFactory);
-  threadManager->start ();
-  TNonblockingServer server (processor, protocolFactory, serverServicePort,
-                             threadManager);
-
-  GST_INFO ("Starting MediaServerService");
-  kill (getppid(), SIGCONT);
-  server.serve ();
-  GST_INFO ("MediaServerService stopped finishing thread");
-  throw Glib::Thread::Exit ();
-}
 
 static void
 check_port (int port)
@@ -219,29 +185,7 @@ static void
 configure_kurento_media_server (KeyFile &configFile,
                                 const std::string &file_name)
 {
-  gint port;
   gchar *sdpMessageText = NULL;
-
-  try {
-    serverAddress = configFile.get_string (SERVER_GROUP,
-                                           MEDIA_SERVER_ADDRESS_KEY);
-  } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
-    GST_WARNING ("Setting default address %s to media server",
-                 MEDIA_SERVER_ADDRESS);
-    serverAddress = MEDIA_SERVER_ADDRESS;
-  }
-
-  try {
-    port = configFile.get_integer (SERVER_GROUP, MEDIA_SERVER_SERVICE_PORT_KEY);
-    check_port (port);
-    serverServicePort = port;
-  } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
-    GST_WARNING ("Setting default port %d to media server",
-                 MEDIA_SERVER_SERVICE_PORT);
-    serverServicePort = MEDIA_SERVER_SERVICE_PORT;
-  }
 
   try {
     sdpPattern = load_sdp_pattern (configFile, file_name);
@@ -251,6 +195,8 @@ configure_kurento_media_server (KeyFile &configFile,
     GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Wrong codec configuration, communication won't be possible");
   }
+
+  service = new ThriftService (configFile);
 }
 
 static void
@@ -548,9 +494,15 @@ http_server_start_cb (KmsHttpEPServer *self, GError *err, gpointer user_data)
 
   GST_DEBUG ("HttpEPServer started. Setting up thrift server service.");
 
-  /* Created thread not used for joining because of a bug in thrift */
-  sigc::slot < void >ss = sigc::ptr_fun (&create_media_server_service);
-  Glib::Thread::create (ss, true);
+  std::function <void (GError *err) > aux = [&] (GError * err) {
+    if (err != NULL) {
+      GST_ERROR ("Service could not start. (%s)", err->message);
+    } else {
+      GST_INFO ("Service successfully started");
+    }
+  };
+
+  service->start (aux);
 }
 
 static void
@@ -590,6 +542,9 @@ main (int argc, char **argv)
   gchar *oldEnv, *newEnv;
 
   Glib::init();
+  gst_init (&argc, &argv);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   oldEnv = getenv (ENV_VAR);
 
@@ -602,23 +557,20 @@ main (int argc, char **argv)
   setenv (ENV_VAR, newEnv, 1);
   g_free (newEnv);
 
+  check_if_plugins_are_available ();
+
   context = g_option_context_new ("");
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_add_group (context, gst_init_get_option_group () );
 
   if (!g_option_context_parse (context, &argc, &argv, &error) ) {
+    // TODO: Free context
     g_printerr ("option parsing failed: %s\n", error->message);
     g_error_free (error);
     exit (1);
   }
 
   g_option_context_free (context);
-
-  gst_init (&argc, &argv);
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-                           GST_DEFAULT_NAME);
-
-  check_if_plugins_are_available ();
 
   /* Install our signal handler */
   source = setup_signalfd();
@@ -666,6 +618,7 @@ main (int argc, char **argv)
   mutex.unlock();
 
   g_object_unref (G_OBJECT (httpepserver) );
+  delete service;
 
   return 0;
 }

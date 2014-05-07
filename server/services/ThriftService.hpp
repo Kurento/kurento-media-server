@@ -17,6 +17,7 @@
 #define __THRIFT_SERVICE_HPP__
 
 #include "Service.hpp"
+#include <server/TNonblockingServer.h>
 
 namespace kurento
 {
@@ -30,6 +31,13 @@ public:
   virtual void stop (std::function<void (GError *err) > func);
 
 private:
+  int port;
+  std::string address;
+  apache::thrift::server::TNonblockingServer *server;
+  Glib::Thread *thread;
+
+  void start_thrift ();
+
   class StaticConstructor
   {
   public:

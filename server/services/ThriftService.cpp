@@ -16,17 +16,100 @@
 #include <gst/gst.h>
 #include "ThriftService.hpp"
 
+#include <protocol/TBinaryProtocol.h>
+#include <transport/TServerSocket.h>
+#include <transport/TBufferTransports.h>
+#include <concurrency/PosixThreadFactory.h>
+#include <concurrency/ThreadManager.h>
+
+#include <MediaServerServiceHandler.hpp>
+
 #define GST_CAT_DEFAULT kurento_thrift_service
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoThriftService"
 
+#define THRIFT_GROUP "Thrift"
+#define THRIFT_SERVER_ADDRESS "serverAddress"
+#define THRIFT_SERVER_SERVICE_PORT "serverPort"
+
+#define DEFAULT_ADDRESS "localhost"
+#define DEFAULT_PORT 9090
+
+using namespace ::apache::thrift;
+using namespace ::apache::thrift::protocol;
+using namespace ::apache::thrift::transport;
+using namespace ::apache::thrift::server;
+using namespace ::apache::thrift::concurrency;
+
+using boost::shared_ptr;
+
 namespace kurento
 {
 
+static void
+check_port (int port)
+{
+  if (port <= 0 || port > G_MAXUSHORT) {
+    throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid value");
+  }
+}
+
+ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
+{
+  try {
+    address = confFile.get_string (THRIFT_GROUP, THRIFT_SERVER_ADDRESS);
+  } catch (const Glib::KeyFileError &err) {
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default address %s to media server",
+                 DEFAULT_ADDRESS);
+    address = DEFAULT_ADDRESS;
+  }
+
+  try {
+    port = confFile.get_integer (THRIFT_GROUP, THRIFT_SERVER_SERVICE_PORT);
+    check_port (port);
+  } catch (const Glib::KeyFileError &err) {
+    GST_ERROR ("%s", err.what ().c_str () );
+    GST_WARNING ("Setting default port %d to media server",
+                 DEFAULT_PORT);
+    port = DEFAULT_PORT;
+  }
+}
+
+void ThriftService::start_thrift()
+{
+  shared_ptr < MediaServerServiceHandler > handler (new
+      MediaServerServiceHandler () );
+  shared_ptr < TProcessor > processor (new KmsMediaServerServiceProcessor (
+                                         handler) );
+  shared_ptr < TProtocolFactory > protocolFactory (new
+      TBinaryProtocolFactory () );
+  shared_ptr < PosixThreadFactory > threadFactory (new PosixThreadFactory () );
+  shared_ptr < ThreadManager > threadManager =
+    ThreadManager::newSimpleThreadManager (15);
+  threadManager->threadFactory (threadFactory);
+  threadManager->start ();
+  TNonblockingServer server (processor, protocolFactory, port, threadManager);
+
+  GST_INFO ("Starting MediaServerService");
+  kill (getppid(), SIGCONT);
+  server.serve ();
+  GST_INFO ("MediaServerService stopped finishing thread");
+  throw Glib::Thread::Exit ();
+}
+
 void ThriftService::start (std::function<void (GError *err) > func)
 {
-  // TODO:
-  GST_DEBUG ("start service");
+  GST_DEBUG ("Starting service...");
+
+  try {
+    /* Created thread not used for joining because of a bug in thrift */
+    thread = Glib::Thread::create (std::bind  (&ThriftService::start_thrift, this),
+                                   true);
+    func (NULL);
+  } catch (Glib::ThreadError &err) {
+    func (err.gobj() );
+  }
 }
 
 void ThriftService::stop (std::function<void (GError *err) > func)
