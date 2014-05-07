@@ -24,8 +24,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-MediaServerServiceHandler::MediaServerServiceHandler (
-  std::map <std::string, KurentoModule *> &modules) : modules (modules)
+MediaServerServiceHandler::MediaServerServiceHandler ()
 {
 }
 

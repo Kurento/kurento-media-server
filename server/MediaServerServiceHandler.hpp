@@ -28,14 +28,11 @@ namespace kurento
 class MediaServerServiceHandler: public KmsMediaServerServiceIf
 {
 public:
-  MediaServerServiceHandler (std::map <std::string, KurentoModule *> &modules);
+  MediaServerServiceHandler ();
   ~MediaServerServiceHandler ();
 
   /* JsonRPC */
   void invokeJsonRpc (std::string &_return, const std::string &request);
-
-private:
-  std::map <std::string, KurentoModule *> &modules;
 
 private:
 
