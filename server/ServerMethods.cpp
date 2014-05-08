@@ -174,7 +174,7 @@ ServerMethods::ref (const Json::Value &params, Json::Value &response)
   requireParams (params);
 
   JsonRpc::getValue (params, OBJECT, objectId);
-  JsonRpc::getValue (params, OBJECT, sessionId);
+  JsonRpc::getValue (params, SESSION_ID, sessionId);
 
   try {
     MediaSet::getMediaSet().ref (sessionId, objectId);
@@ -200,7 +200,7 @@ ServerMethods::unref (const Json::Value &params, Json::Value &response)
   requireParams (params);
 
   JsonRpc::getValue (params, OBJECT, objectId);
-  JsonRpc::getValue (params, OBJECT, sessionId);
+  JsonRpc::getValue (params, SESSION_ID, sessionId);
 
   try {
     MediaSet::getMediaSet().unref (sessionId, objectId);
