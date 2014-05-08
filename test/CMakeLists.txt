@@ -52,8 +52,6 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 # include_directories(media_handler_test ${UUID_INCLUDE_DIRS})
 # include_directories(media_handler_test ${CMAKE_SOURCE_DIR}/server)
 #
-# add_definitions(-DBOOST_TEST_DYN_LINK)
-#
 #
 # set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
 # set(CXXFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
@@ -85,7 +83,6 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 # include_directories(server_test ${KMSIFACE_INCLUDE_DIR})
 # include_directories(server_test ${CMAKE_SOURCE_DIR}/server)
 #
-# add_definitions(-DBOOST_TEST_DYN_LINK)
 #
 # # Temporally disabled
 # if (0)
@@ -110,7 +107,6 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 # include_directories(server_memory_test ${KMSIFACE_INCLUDE_DIR})
 # include_directories(server_memory_test ${CMAKE_SOURCE_DIR}/server)
 #
-# add_definitions(-DBOOST_TEST_DYN_LINK)
 # endif ()
 
 
@@ -137,7 +133,6 @@ include_directories(http_ep_server_test ${GLIBMM_INCLUDE_DIRS})
 include_directories(http_ep_server_test ${LIBSOUP_INCLUDE_DIRS})
 include_directories(http_ep_server_test ${CMAKE_SOURCE_DIR}/server)
 
-add_definitions(-DBOOST_TEST_DYN_LINK)
 #
 #
 # set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
@@ -201,5 +196,3 @@ include_directories(server_json_test ${UUID_INCLUDE_DIRS})
 include_directories(server_json_test ${KMSIFACE_INCLUDE_DIR})
 include_directories(server_json_test ${JSONCPP_INCLUDE_DIR})
 include_directories(server_json_test ${CMAKE_SOURCE_DIR}/server)
-
-add_definitions(-DBOOST_TEST_DYN_LINK)
