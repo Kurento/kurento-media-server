@@ -93,6 +93,10 @@ if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
  add_test(server_json_test test/server_json_test)
  set_tests_properties(server_json_test PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
  set_property(TEST server_json_test APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins")
+
+ add_test(server_json_session test/server_json_session)
+ set_tests_properties(server_json_session PROPERTIES ENVIRONMENT "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf")
+ set_property(TEST server_json_session APPEND PROPERTY ENVIRONMENT "TESSDATA_PREFIX=${CMAKE_BINARY_DIR}/plugins/${CMAKE_INSTALL_PREFIX}/share/gst-kurento-plugins")
 endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 #
 # # Temporally disabled

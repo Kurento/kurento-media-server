@@ -196,3 +196,31 @@ include_directories(server_json_test ${UUID_INCLUDE_DIRS})
 include_directories(server_json_test ${KMSIFACE_INCLUDE_DIR})
 include_directories(server_json_test ${JSONCPP_INCLUDE_DIR})
 include_directories(server_json_test ${CMAKE_SOURCE_DIR}/server)
+
+
+set(SERVER_JSON_SESSION_TEST_SOURCE server_test_base.cpp server_json_session.cpp)
+
+add_executable(server_json_session ${SERVER_JSON_SESSION_TEST_SOURCE})
+add_dependencies(server_json_session kmsiface)
+add_dependencies(server_json_session kurento)
+
+target_link_libraries(server_json_session
+                      ${Boost_FILESYSTEM_LIBRARY}
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      )
+target_link_libraries(server_json_session ${EVENT_LIBRARIES})
+target_link_libraries(server_json_session kmsiface ${THRIFT_LIBRARIES})
+target_link_libraries(server_json_session ${GSTREAMER_LIBRARIES})
+target_link_libraries(server_json_session ${GLIBMM_LIBRARIES})
+target_link_libraries(server_json_session ${UUID_LIBRARIES})
+target_link_libraries(server_json_session ${GLIB2_LIBRARIES} -lpthread)
+target_link_libraries(server_json_session ${JSONCPP_LIBRARIES})
+
+include_directories(server_json_session ${THRIFT_INCLUDE_DIRS})
+include_directories(server_json_session ${GSTREAMER_INCLUDE_DIRS})
+include_directories(server_json_session ${GLIBMM_INCLUDE_DIRS})
+include_directories(server_json_session ${UUID_INCLUDE_DIRS})
+include_directories(server_json_session ${KMSIFACE_INCLUDE_DIR})
+include_directories(server_json_session ${JSONCPP_INCLUDE_DIR})
+include_directories(server_json_session ${CMAKE_SOURCE_DIR}/server)
