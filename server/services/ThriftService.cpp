@@ -78,7 +78,7 @@ ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
   httpService = new HttpService (confFile);
 }
 
-void ThriftService::start_thrift()
+void ThriftService::serve()
 {
   shared_ptr < MediaServerServiceHandler > handler (new
       MediaServerServiceHandler () );
@@ -91,12 +91,13 @@ void ThriftService::start_thrift()
     ThreadManager::newSimpleThreadManager (15);
   threadManager->threadFactory (threadFactory);
   threadManager->start ();
-  TNonblockingServer server (processor, protocolFactory, port, threadManager);
+  server = new apache::thrift::server::TNonblockingServer (processor,
+      protocolFactory, port, threadManager);
 
-  GST_INFO ("Starting MediaServerService");
+  GST_INFO ("Starting thrift server");
   kill (getppid(), SIGCONT);
-  server.serve ();
-  GST_INFO ("MediaServerService stopped finishing thread");
+  server->serve ();
+  GST_INFO ("Thrift server stopped");
   throw Glib::Thread::Exit ();
 }
 
@@ -105,22 +106,22 @@ void ThriftService::start ()
   GST_DEBUG ("Starting service...");
 
   httpService->start();
-
-  /* Created thread not used for joining because of a bug in thrift */
-  thread = Glib::Thread::create (std::bind  (&ThriftService::start_thrift, this),
-                                 true);
+  thread = Glib::Thread::create (std::bind  (&ThriftService::serve, this), true);
 }
 
 void ThriftService::stop ()
 {
   GST_DEBUG ("stopping service...");
 
+  server->stop();
   httpService->stop();
+  thread->join();
 }
 
 ThriftService::~ThriftService()
 {
   GST_DEBUG ("Destroying ThriftService");
+  delete server;
   delete httpService;
 }
 

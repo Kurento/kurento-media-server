@@ -36,10 +36,9 @@ private:
   std::string address;
   apache::thrift::server::TNonblockingServer *server;
   HttpService *httpService;
-
   Glib::Thread *thread;
 
-  void start_thrift ();
+  void serve ();
 
   class StaticConstructor
   {
