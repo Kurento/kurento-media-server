@@ -161,7 +161,15 @@ configure_kurento_media_server (KeyFile &configFile,
     GST_WARNING ("Wrong codec configuration, communication won't be possible");
   }
 
-  service = ServiceFactory::create_service (configFile);
+  try {
+    service = ServiceFactory::create_service (configFile);
+  } catch (std::exception &e) {
+    GST_ERROR ("Error creating service: %s", e.what() );
+    exit (1);
+  } catch (Glib::Exception &e) {
+    GST_ERROR ("Error creating service: %s", e.what().c_str() );
+    exit (1);
+  }
 }
 
 static gchar *
