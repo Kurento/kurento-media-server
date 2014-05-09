@@ -17,7 +17,7 @@
 #define __RABBITMQ_SERVICE_HPP__
 
 #include "Service.hpp"
-#include <amqp.h>
+#include "RabbitMQConnection.hpp"
 
 namespace kurento
 {
@@ -31,8 +31,10 @@ public:
   virtual void stop ();
 
 private:
-  void create_connection ();
   bool processMessages (Glib::IOCondition cond);
+
+  std::string address;
+  int port;
 
   class StaticConstructor
   {
@@ -40,11 +42,7 @@ private:
     StaticConstructor();
   };
 
-  std::string address;
-  int port;
-
-  amqp_connection_state_t conn;
-  amqp_socket_t *socket;
+  std::shared_ptr <RabbitMQConnection> connection;
   Glib::RefPtr<Glib::IOSource> source;
 
   static StaticConstructor staticConstructor;
