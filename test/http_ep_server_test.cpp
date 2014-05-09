@@ -76,7 +76,6 @@ init_test_case ()
   port = 0;
   host = NULL;
 
-  setenv ("GST_PLUGIN_PATH", "./plugins", TRUE);
   gst_init (NULL, NULL);
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,

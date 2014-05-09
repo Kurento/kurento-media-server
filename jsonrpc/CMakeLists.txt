@@ -8,7 +8,3 @@ set_target_properties(jsonrpc PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
 
 include_directories(jsonrpc ${JSONCPP_INCLUDE_DIRS})
 target_link_libraries(jsonrpc ${JSONCPP_LIBRARIES})
-
-INSTALL(TARGETS jsonrpc
-                        ARCHIVE DESTINATION lib
-                        PUBLIC_HEADER DESTINATION include)

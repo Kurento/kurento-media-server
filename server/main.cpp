@@ -438,9 +438,6 @@ main (int argc, char **argv)
   gchar *oldEnv, *newEnv;
 
   Glib::init();
-  gst_init (&argc, &argv);
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-                           GST_DEFAULT_NAME);
 
   oldEnv = getenv (ENV_VAR);
 
@@ -452,6 +449,10 @@ main (int argc, char **argv)
 
   setenv (ENV_VAR, newEnv, 1);
   g_free (newEnv);
+
+  gst_init (&argc, &argv);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
 
   check_if_plugins_are_available ();
 

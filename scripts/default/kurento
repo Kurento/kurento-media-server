@@ -12,7 +12,7 @@ START_DAEMON=true
 # Additional options that are passed to the Daemon.
 DAEMON_OPTS=""
 
-export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:/usr/lib/gst-kurento-plugins:/usr/lib/kms-dtls-plugins
+unset GST_PLUGIN_PATH
 
 #enable core dump
 ulimit -c unlimited

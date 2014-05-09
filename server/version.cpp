@@ -19,5 +19,5 @@
 const char *
 get_version ()
 {
-  return KMSC_VERSION;
+  return PROJECT_VERSION;
 }

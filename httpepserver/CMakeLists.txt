@@ -63,8 +63,3 @@ target_link_libraries(kmshttpep
   ${GIO_LIBRARIES}
   ${NICE_LIBRARIES}
 )
-
-INSTALL(TARGETS kmshttpep
-  ARCHIVE DESTINATION lib
-  PUBLIC_HEADER DESTINATION include
-)

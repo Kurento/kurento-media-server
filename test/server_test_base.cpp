@@ -59,9 +59,10 @@ int
 start_server_test ()
 {
   pid_t childpid = -1;
-  gchar *conf_file, *conf_file_param;
+  gchar *conf_file, *conf_file_param, *binary_dir;
 
   conf_file = getenv ("MEDIA_SERVER_CONF_FILE");
+  binary_dir = getenv ("SERVER_DIR");
 
   if (conf_file == NULL) {
     return -1;
@@ -75,7 +76,7 @@ start_server_test ()
 
   if (childpid >= 0) {
     if (childpid == 0) {
-      execl ("./server/kurento", "kurento", conf_file_param,
+      execl (binary_dir, "kurento", conf_file_param,
              "--gst-plugin-path=./plugins", NULL);
     } else {
       G_LOCK (mutex);

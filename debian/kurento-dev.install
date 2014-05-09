@@ -1,4 +1,1 @@
-debian/tmp/usr/include/*
-debian/tmp/usr/lib/libkms*.a
-debian/tmp/usr/lib/gst-kurento-plugins/lib*.la
-debian/tmp/usr/lib/kms-dtls-plugins/lib*.la
+
