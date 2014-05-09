@@ -483,7 +483,6 @@ main (int argc, char **argv)
 
   service->stop();
 
-  g_object_unref (G_OBJECT (httpepserver) );
   delete service;
 
   return 0;

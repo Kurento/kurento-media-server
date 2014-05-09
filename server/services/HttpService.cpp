@@ -173,6 +173,10 @@ HttpService::~HttpService()
 {
   GST_DEBUG ("Destroying HttpService");
   g_object_unref (G_OBJECT (server) );
+
+  /* FIXME: Do not use an extern variable. Develop a proper register and
+   * unregister mechanism instead. */
+  g_object_unref (G_OBJECT (httpepserver) );
 }
 
 HttpService::StaticConstructor HttpService::staticConstructor;
