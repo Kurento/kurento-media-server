@@ -14,7 +14,7 @@
  */
 
 #include <gst/gst.h>
-#include "ThriftService.hpp"
+#include "Service.hpp"
 
 #define GST_CAT_DEFAULT kurento_service
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
