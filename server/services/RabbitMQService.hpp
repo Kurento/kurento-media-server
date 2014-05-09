@@ -17,6 +17,7 @@
 #define __RABBITMQ_SERVICE_HPP__
 
 #include "Service.hpp"
+#include <amqp.h>
 
 namespace kurento
 {
@@ -25,16 +26,26 @@ class RabbitMQService: public Service
 {
 public:
   RabbitMQService (Glib::KeyFile &confFile);
-  virtual ~RabbitMQService() throw () {};
+  virtual ~RabbitMQService() throw ();
   virtual void start ();
   virtual void stop ();
 
 private:
+  void create_connection ();
+  bool processMessages (Glib::IOCondition cond);
+
   class StaticConstructor
   {
   public:
     StaticConstructor();
   };
+
+  std::string address;
+  int port;
+
+  amqp_connection_state_t conn;
+  amqp_socket_t *socket;
+  Glib::RefPtr<Glib::IOSource> source;
 
   static StaticConstructor staticConstructor;
 };

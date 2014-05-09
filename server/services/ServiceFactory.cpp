@@ -16,6 +16,7 @@
 #include <gst/gst.h>
 #include "ServiceFactory.hpp"
 #include "ThriftService.hpp"
+#include "RabbitMQService.hpp"
 
 #define GST_CAT_DEFAULT kurento_service_factory
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -35,10 +36,12 @@ Service *ServiceFactory::create_service (Glib::KeyFile &confFile)
 
   if (service == "Thrift") {
     return new ThriftService (confFile);
+  } else if (service == "RabbitMQ") {
+    return new RabbitMQService (confFile);
   }
 
   throw Glib::OptionError (Glib::OptionError::UNKNOWN_OPTION,
-                           "Service not found");
+                           "Service " + service + " not found");
 }
 
 ServiceFactory::StaticConstructor ServiceFactory::staticConstructor;
