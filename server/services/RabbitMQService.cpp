@@ -60,6 +60,9 @@ check_port (int port)
 
 RabbitMQService::RabbitMQService (Glib::KeyFile &confFile) : Service (confFile)
 {
+  std::string address;
+  int port;
+
   try {
     address = confFile.get_string (RABBITMQ_GROUP, RABBITMQ_SERVER_ADDRESS);
   } catch (const Glib::KeyFileError &err) {
@@ -78,75 +81,28 @@ RabbitMQService::RabbitMQService (Glib::KeyFile &confFile) : Service (confFile)
                  RABBITMQ_SERVER_PORT_DEFAULT);
     port = RABBITMQ_SERVER_PORT_DEFAULT;
   }
+
+  setConfig (address, port);
 }
 
 RabbitMQService::~RabbitMQService()
 {
 }
 
-bool
-RabbitMQService::processMessages (Glib::IOCondition cond)
+void
+RabbitMQService::processMessage (const std::string &message)
 {
-  struct timeval timeout;
-
-  if (cond & (Glib::IO_NVAL | Glib::IO_ERR | Glib::IO_HUP) ) {
-    return false;
-  }
-
-  timeout.tv_sec = 0;
-  timeout.tv_usec = 0;
-
-  try {
-    connection->readMessage (&timeout, [] (const std::string & message) {
-      GST_DEBUG ("Message: >%s<", message.c_str() );
-    });
-  } catch (RabbitMQTimeoutException &e) {
-  } catch (RabbitMQException &e) {
-    GST_ERROR ("%s", e.what() );
-  }
-
-  return true;
+  GST_DEBUG ("Message: >%s<", message.c_str() );
 }
 
 void RabbitMQService::start ()
 {
-  Glib::RefPtr<Glib::IOChannel> channel;
-  int fd;
-
-  connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
-                 address, port) );
-  connection->declareQueue (PIPELINE_CREATION);
-  connection->declareExchange (PIPELINE_CREATION,
-                               RabbitMQConnection::EXCHANGE_TYPE_FANOUT);
-  connection->bindQueue (PIPELINE_CREATION, PIPELINE_CREATION);
-  connection->consumeQueue (PIPELINE_CREATION, "");
-
-  fd = connection->getFd();
-
-  channel = Glib::IOChannel::create_from_fd (fd);
-  channel->set_close_on_unref (false);
-  channel->set_encoding ("");
-  channel->set_buffered (false);
-
-  source = channel->create_watch (Glib::IO_IN | Glib::IO_HUP | Glib::IO_ERR |
-                                  Glib::IO_NVAL);
-
-  // TODO: Investigate why std::bind cannot be used here
-  source->connect ([this] (Glib::IOCondition cond) -> bool {
-    return processMessages (cond);
-  });
-
-  source->attach (Glib::MainContext::get_default() );
+  listenQueue (PIPELINE_CREATION);
 }
 
 void RabbitMQService::stop ()
 {
-  if (!connection) {
-    return;
-  }
-
-  connection.reset ();
-  source->destroy();
+  stopListen();
   GST_DEBUG ("stop service");
 }
 

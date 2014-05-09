@@ -13,27 +13,37 @@
  *
  */
 
-#ifndef __RABBITMQ_SERVICE_HPP__
-#define __RABBITMQ_SERVICE_HPP__
+#ifndef __RABBITMQ_LISTENER_HPP__
+#define __RABBITMQ_LISTENER_HPP__
 
-#include "Service.hpp"
-#include "RabbitMQListener.hpp"
+#include "RabbitMQConnection.hpp"
 
 namespace kurento
 {
 
-class RabbitMQService: private RabbitMQListener, public Service
+class RabbitMQListener
 {
 public:
-  RabbitMQService (Glib::KeyFile &confFile);
-  virtual ~RabbitMQService() throw ();
-  virtual void start ();
-  virtual void stop ();
+  RabbitMQListener () {};
+  RabbitMQListener (const std::string &address, int port);
+  virtual ~RabbitMQListener() throw ();
+
+  void setConfig (const std::string &address, int port);
+  void listenQueue (const std::string &queue);
+  void stopListen ();
 
 protected:
-  virtual void processMessage (const std::string &message);
+  virtual void processMessage (const std::string &message) = 0;
 
 private:
+  bool readMessages (Glib::IOCondition cond);
+
+  std::shared_ptr <RabbitMQConnection> connection;
+  Glib::RefPtr<Glib::IOSource> source;
+
+  std::string address;
+  int port;
+
   class StaticConstructor
   {
   public:
@@ -45,4 +55,4 @@ private:
 
 } /* kurento */
 
-#endif /* __RABBITMQ_SERVICE_HPP__ */
+#endif /* __RABBITMQ_LISTENER_HPP__ */
