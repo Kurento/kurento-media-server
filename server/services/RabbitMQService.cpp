@@ -82,6 +82,9 @@ RabbitMQService::RabbitMQService (Glib::KeyFile &confFile) : Service (confFile)
     port = RABBITMQ_SERVER_PORT_DEFAULT;
   }
 
+  this->address = address;
+  this->port = port;
+
   setConfig (address, port);
 }
 
@@ -92,7 +95,11 @@ RabbitMQService::~RabbitMQService()
 void
 RabbitMQService::processMessage (const std::string &message)
 {
-  GST_DEBUG ("Message: >%s<", message.c_str() );
+  std::shared_ptr<RabbitMQPipeline> pipeline (new RabbitMQPipeline (address,
+      port) );
+
+  pipelines.push_back (pipeline);
+  pipeline->startRequest (message);
 }
 
 void RabbitMQService::start ()
