@@ -17,6 +17,7 @@
 #define __RABBITMQ_SERVICE_HPP__
 
 #include "Service.hpp"
+#include "HttpService.hpp"
 #include "RabbitMQListener.hpp"
 #include "RabbitMQPipeline.hpp"
 
@@ -40,6 +41,8 @@ private:
 
   std::string address;
   int port;
+
+  std::shared_ptr<HttpService> httpService;
 
   class StaticConstructor
   {

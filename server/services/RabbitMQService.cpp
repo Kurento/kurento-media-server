@@ -86,6 +86,7 @@ RabbitMQService::RabbitMQService (Glib::KeyFile &confFile) : Service (confFile)
   this->port = port;
 
   setConfig (address, port);
+  httpService = std::shared_ptr<HttpService> (new HttpService (confFile) );
 }
 
 RabbitMQService::~RabbitMQService()
@@ -105,12 +106,14 @@ RabbitMQService::processMessage (const std::string &message,
 
 void RabbitMQService::start ()
 {
+  httpService->start();
   listenQueue (PIPELINE_CREATION);
 }
 
 void RabbitMQService::stop ()
 {
   stopListen();
+  httpService->stop();
   GST_DEBUG ("stop service");
 }
 
