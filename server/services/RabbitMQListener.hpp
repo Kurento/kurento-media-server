@@ -33,7 +33,8 @@ public:
   void stopListen ();
 
 protected:
-  virtual void processMessage (const std::string &message) = 0;
+  virtual void processMessage (const std::string &message,
+                               std::string &_response) = 0;
 
 private:
   bool readMessages (Glib::IOCondition cond);

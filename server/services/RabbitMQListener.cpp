@@ -63,9 +63,10 @@ RabbitMQListener::readMessages (Glib::IOCondition cond)
   timeout.tv_usec = 0;
 
   try {
-    connection->readMessage (&timeout, [this] (const std::string & message) {
+    connection->readMessage (&timeout, [this] (const std::string & message,
+    std::string & _response) {
       try {
-        processMessage (message);
+        processMessage (message, _response);
       } catch (std::exception &e) {
         GST_ERROR ("Error processing message: %s", e.what() );
       }

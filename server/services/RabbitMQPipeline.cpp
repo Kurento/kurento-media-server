@@ -49,18 +49,24 @@ RabbitMQPipeline::~RabbitMQPipeline()
 }
 
 void
-RabbitMQPipeline::processMessage (const std::string &message)
+RabbitMQPipeline::processMessage (const std::string &message,
+                                  std::string &_response)
 {
   GST_DEBUG ("Message: >%s<", message.c_str() );
+  process (message, _response);
+  GST_DEBUG ("Response: >%s<", _response.c_str() );
 }
 
 void
-RabbitMQPipeline::startRequest (const std::string &request)
+RabbitMQPipeline::startRequest (const std::string &request,
+                                std::string &_response)
 {
   std::string queue = "TODO: create pipeline";
 
   GST_DEBUG ("Message: >%s<", request.c_str() );
+  process (request, _response);
   // TODO process message and generate a queue to listen messages
+  GST_DEBUG ("Response: >%s<", _response.c_str() );
 
   listenQueue (queue);
 }

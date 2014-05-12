@@ -17,20 +17,22 @@
 #define __RABBITMQ_PIPELINE_HPP__
 
 #include "RabbitMQListener.hpp"
+#include <ServerMethods.hpp>
 
 namespace kurento
 {
 
-class RabbitMQPipeline: private RabbitMQListener
+class RabbitMQPipeline: private RabbitMQListener, private ServerMethods
 {
 public:
   RabbitMQPipeline (const std::string &address, const int port);
   virtual ~RabbitMQPipeline() throw ();
-  virtual void startRequest (const std::string &request);
+  virtual void startRequest (const std::string &request, std::string &_response);
   virtual void stop ();
 
 protected:
-  virtual void processMessage (const std::string &message);
+  virtual void processMessage (const std::string &message,
+                               std::string &_response);
 
 private:
   class StaticConstructor

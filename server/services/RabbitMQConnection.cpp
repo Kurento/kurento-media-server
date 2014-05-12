@@ -177,7 +177,7 @@ RabbitMQConnection::consumeQueue (const std::string &queue_name,
 
 void
 RabbitMQConnection::readMessage (struct timeval *timeout,
-                                 std::function <void (const std::string &) > process)
+                                 std::function <void (const std::string &, std::string &) > process)
 {
   amqp_envelope_t envelope;
 
@@ -185,15 +185,73 @@ RabbitMQConnection::readMessage (struct timeval *timeout,
                       "Reading message");
 
   try {
+    std::string response;
     std::string message (reinterpret_cast<char const *>
                          (envelope.message.body.bytes), envelope.message.body.len );
-    process (message);
+
+    process (message, response);
+
+    amqp_basic_ack (conn, 1, envelope.delivery_tag, /* multiple */ false);
+
+    try {
+      if (envelope.message.properties.reply_to.len > 0) {
+        sendReply (envelope, amqp_cstring_bytes (response.c_str() ) );
+      }
+    } catch (std::exception &e) {
+      GST_ERROR ("Error sending reply: %s", e.what() );
+    }
+
   } catch (...) {
     GST_WARNING ("Error processing message");
+    amqp_basic_reject (conn, 1, envelope.delivery_tag, /* requeue */ true);
   }
 
-  amqp_basic_ack (conn, 1, envelope.delivery_tag, /* multiple */ false);
   amqp_destroy_envelope (&envelope);
+}
+
+void
+RabbitMQConnection::sendReply (const amqp_envelope_t &envelope,
+                               const amqp_bytes_t &reply)
+{
+  std::string replyTo ( (char *) envelope.message.properties.reply_to.bytes,
+                        envelope.message.properties.reply_to.len);
+
+  sendMessage (reply, amqp_empty_bytes, envelope.message.properties.reply_to,
+               envelope.message.properties.correlation_id);
+}
+
+void
+RabbitMQConnection::sendMessage (const std::string &message,
+                                 const std::string &exchange, const std::string &routingKey)
+{
+  sendMessage (amqp_cstring_bytes (message.c_str() ),
+               amqp_cstring_bytes (exchange.c_str() ),
+               amqp_cstring_bytes (routingKey.c_str() ) );
+}
+
+void
+RabbitMQConnection::sendMessage (const amqp_bytes_t &message,
+                                 const amqp_bytes_t &exchange, const amqp_bytes_t &routingKey,
+                                 const amqp_bytes_t &correlationID)
+{
+  amqp_basic_properties_t props;
+  int ret;
+
+  props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
+  props.content_type = amqp_cstring_bytes ("text/plain");
+  props.delivery_mode = 2; /* persistent delivery mode */
+
+  if (correlationID.len > 0) {
+    props._flags |= AMQP_BASIC_CORRELATION_ID_FLAG;
+    props.correlation_id = correlationID;
+  }
+
+  ret = amqp_basic_publish (conn, 1, exchange,
+                            routingKey, /* mandatory */ false, /* inmediate */ false, &props, message);
+
+  if (ret != AMQP_STATUS_OK) {
+    GST_ERROR ("Error ret value: %d", ret);
+  }
 }
 
 RabbitMQConnection::StaticConstructor RabbitMQConnection::staticConstructor;

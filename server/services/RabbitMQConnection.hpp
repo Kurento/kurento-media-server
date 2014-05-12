@@ -63,12 +63,19 @@ public:
                   const std::string &exchange_name);
   void consumeQueue (const std::string &queue_name, const std::string &tag);
   void readMessage (struct timeval *timeout,
-                    std::function <void (const std::string &) > process);
+                    std::function <void (const std::string &, std::string &) > process);
+  void sendMessage (const std::string &message, const std::string &exchange,
+                    const std::string &routingKey);
 
   static const std::string EXCHANGE_TYPE_DIRECT;
   static const std::string EXCHANGE_TYPE_FANOUT;
   static const std::string EXCHANGE_TYPE_TOPIC;
 private:
+
+  void sendMessage (const amqp_bytes_t &message, const amqp_bytes_t &exchange,
+                    const amqp_bytes_t &routingKey,
+                    const amqp_bytes_t &correlationID = amqp_empty_bytes);
+  void sendReply (const amqp_envelope_t &envelope, const amqp_bytes_t &message);
 
   amqp_connection_state_t conn;
   amqp_socket_t *socket;

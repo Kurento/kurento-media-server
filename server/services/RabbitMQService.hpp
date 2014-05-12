@@ -32,7 +32,8 @@ public:
   virtual void stop ();
 
 protected:
-  virtual void processMessage (const std::string &message);
+  virtual void processMessage (const std::string &message,
+                               std::string &_response);
 
 private:
   std::list <std::shared_ptr<RabbitMQPipeline>> pipelines;
