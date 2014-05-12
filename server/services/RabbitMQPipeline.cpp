@@ -36,7 +36,10 @@ struct functor_trait<Functor, false> {
 };
 }
 
-#define PIPELINE_QUEUE_PREFIX "media_pipeline_"
+// #define PIPELINE_QUEUE_PREFIX "media_pipeline_"
+#define PIPELINE_QUEUE_PREFIX ""
+// #define EVENT_EXCHANGE_PREFIX "events_"
+#define EVENT_EXCHANGE_PREFIX "e_"
 
 namespace kurento
 {
@@ -66,8 +69,6 @@ RabbitMQPipeline::startRequest (const std::string &request,
   Json::Value responseJson;
   Json::Reader reader;
 
-  std::string queue;
-
   GST_DEBUG ("Message: >%s<", request.c_str() );
   process (request, _response);
 
@@ -76,8 +77,11 @@ RabbitMQPipeline::startRequest (const std::string &request,
   if (responseJson.isObject() && responseJson.isMember ("result")
       && responseJson["result"].isObject()
       && responseJson["result"].isMember ("value") ) {
-    queue = /*PIPELINE_QUEUE_PREFIX + */responseJson["result"]["value"].asString();
-    listenQueue (queue);
+    std::string id = responseJson["result"]["value"].asString();
+
+    listenQueue (PIPELINE_QUEUE_PREFIX + id);
+    getConnection()->declareExchange (EVENT_EXCHANGE_PREFIX + id,
+                                      RabbitMQConnection::EXCHANGE_TYPE_FANOUT);
   }
 
   GST_DEBUG ("Response: >%s<", _response.c_str() );

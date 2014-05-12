@@ -36,6 +36,10 @@ protected:
   virtual void processMessage (const std::string &message,
                                std::string &_response) = 0;
 
+  std::shared_ptr <RabbitMQConnection> getConnection () {
+    return connection;
+  }
+
 private:
   bool readMessages (Glib::IOCondition cond);
 
