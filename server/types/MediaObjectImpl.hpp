@@ -31,10 +31,6 @@ public:
   MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent);
   MediaObjectImpl ();
 
-  guint64 getId() {
-    return id;
-  }
-
   virtual std::shared_ptr<MediaPipeline> getMediaPipeline() {
     return getParent()->getMediaPipeline();
   }
@@ -47,13 +43,13 @@ public:
     // TODO:
   }
 
-  std::string getIdStr ();
+  std::string getId ();
 
 private:
   std::shared_ptr<MediaObjectImpl> parent;
-  guint64 id = createId();
+  std::string id = createId();
 
-  static guint64 createId();
+  static std::string createId();
 };
 
 } /* kurento */

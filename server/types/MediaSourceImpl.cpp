@@ -159,8 +159,8 @@ MediaSourceImpl::~MediaSourceImpl()
         connectedSinkLocked->unlinkUnchecked (NULL);
       }
     } catch (const std::bad_weak_ptr &e) {
-      GST_WARNING ("Got invalid reference while releasing MediaSrc %"
-                   G_GUINT64_FORMAT, getId() );
+      GST_WARNING ("Got invalid reference while releasing MediaSrc %s",
+                   getId().c_str() );
     }
   }
 }
@@ -184,8 +184,8 @@ MediaSourceImpl::connect (std::shared_ptr<MediaSink> mediaSink)
   GstPad *pad;
   bool ret;
 
-  GST_INFO ("connect %" G_GUINT64_FORMAT " to %" G_GUINT64_FORMAT, this->getId(),
-            mediaSinkImpl->getId() );
+  GST_INFO ("connect %s to %s", this->getId().c_str(),
+            mediaSinkImpl->getId().c_str() );
 
   pad = gst_element_get_request_pad (getGstreamerElement(), getPadName() );
 
@@ -252,8 +252,8 @@ MediaSourceImpl::disconnect (MediaSinkImpl *mediaSink)
 {
   RecMutex::Lock lock (mutex);
 
-  GST_INFO ("disconnect %" G_GUINT64_FORMAT " from %" G_GUINT64_FORMAT,
-            this->getId(), mediaSink->getId() );
+  GST_INFO ("disconnect %s from %s", this->getId().c_str(),
+            mediaSink->getId().c_str() );
 
   mediaSink->unlink (std::dynamic_pointer_cast<MediaSourceImpl>
                      (shared_from_this() ), NULL);

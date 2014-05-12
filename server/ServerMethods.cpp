@@ -371,7 +371,7 @@ ServerMethods::create (const Json::Value &params,
       }
 
       MediaSet::getMediaSet().ref (sessionId, object);
-      response["value"] = object->getIdStr();
+      response["value"] = object->getId();
       response["sessionId"] = sessionId;
     } catch (KurentoException &ex) {
       Json::Value data;

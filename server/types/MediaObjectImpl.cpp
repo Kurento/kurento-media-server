@@ -18,28 +18,22 @@
 #include <time.h>
 #include <glibmm.h>
 #include <JsonSerializer.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace kurento
 {
 
-guint64
+std::string
 MediaObjectImpl::createId()
 {
-  static Glib::Mutex mutex;
-  static int seed_initiated = 0;
-  uint64_t ret;
+  std::stringstream ss;
+  boost::uuids::uuid uuid = boost::uuids::random_generator() ();
 
-  mutex.lock();
+  ss << uuid;
 
-  if (!seed_initiated) {
-    srand48 (time (NULL) );
-    seed_initiated = 1;
-  }
-
-  ret = lrand48();
-  mutex.unlock();
-
-  return ret;
+  return ss.str();
 }
 
 MediaObjectImpl::MediaObjectImpl ()
@@ -55,9 +49,9 @@ MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent)
   });
 }
 
-std::string MediaObjectImpl::getIdStr ()
+std::string MediaObjectImpl::getId ()
 {
-  return std::to_string (id);
+  return id;
 }
 
 } /* kurento */
@@ -72,7 +66,7 @@ Serialize (std::shared_ptr<MediaObject> &object, JsonSerializer &s)
     objectImpl = std::dynamic_pointer_cast <MediaObjectImpl> (object);
 
     if (objectImpl) {
-      Json::Value v (objectImpl->getIdStr() );
+      Json::Value v (objectImpl->getId() );
 
       s.JsonValue = v;
     }
@@ -87,7 +81,7 @@ Serialize (MediaObject &object, JsonSerializer &s)
   if (s.IsWriter) {
     try {
       MediaObjectImpl &objectImpl = dynamic_cast<MediaObjectImpl &> (object);
-      Json::Value v (objectImpl.getIdStr() );
+      Json::Value v (objectImpl.getId() );
 
       s.JsonValue = v;
     } catch (std::bad_cast &e) {

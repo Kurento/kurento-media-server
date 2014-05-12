@@ -245,14 +245,6 @@ MediaSet::ref (const std::string &sessionId,
 }
 
 void
-MediaSet::ref (const std::string &sessionId, const uint64_t &mediaObjectRef)
-{
-  std::shared_ptr <MediaObjectImpl> object = getMediaObject (mediaObjectRef);
-
-  ref (sessionId, object);
-}
-
-void
 MediaSet::keepAliveSession (const std::string &sessionId)
 {
   keepAliveSession (sessionId, false);
@@ -386,20 +378,6 @@ MediaSet::unref (const std::string &sessionId,
   unref (sessionId, object);
 }
 
-void
-MediaSet::unref (const std::string &sessionId, const uint64_t &mediaObjectRef)
-{
-  std::shared_ptr <MediaObjectImpl> object;
-
-  try {
-    object = getMediaObject (mediaObjectRef);
-  } catch (KurentoException e) {
-    return;
-  }
-
-  unref (sessionId, object);
-}
-
 void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
 {
   RecMutex::Lock lock (mutex);
@@ -409,13 +387,13 @@ void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
   if (!terminated) {
     lock.release();
     threadPool.push ( [mediaObject] () {
-      GST_DEBUG ("Destroying %s", mediaObject->getIdStr().c_str() );
+      GST_DEBUG ("Destroying %s", mediaObject->getId().c_str() );
       delete mediaObject;
     });
   } else {
     lock.release();
     GST_DEBUG ("Thread pool finished, destroying on the same thread %s",
-               mediaObject->getIdStr().c_str() );
+               mediaObject->getId().c_str() );
     delete mediaObject;
   }
 }
@@ -451,38 +429,8 @@ void MediaSet::release (const std::string &mediaObjectRef)
   }
 }
 
-void MediaSet::release (const uint64_t &mediaObjectRef)
-{
-  try {
-    std::shared_ptr< MediaObjectImpl > obj = getMediaObject (mediaObjectRef);
-
-    release (obj);
-  } catch (...) {
-    /* Do not raise exception if it is already released*/
-  }
-}
-
 std::shared_ptr< MediaObjectImpl >
 MediaSet::getMediaObject (const std::string &mediaObjectRef)
-{
-  uint64_t objectRef;
-
-  try {
-#if __WORDSIZE == 64
-    objectRef = std::stoul (mediaObjectRef);
-#else
-    objectRef = std::stoull (mediaObjectRef);
-#endif
-  } catch (...) {
-    throw KurentoException (MEDIA_OBJECT_NOT_FOUND,
-                            "Invalid object reference");
-  }
-
-  return getMediaObject (objectRef);
-}
-
-std::shared_ptr< MediaObjectImpl >
-MediaSet::getMediaObject (const uint64_t &mediaObjectRef)
 {
   std::shared_ptr <MediaObjectImpl> objectLocked;
   RecMutex::Lock lock (mutex);
@@ -509,16 +457,6 @@ MediaSet::getMediaObject (const uint64_t &mediaObjectRef)
 std::shared_ptr< MediaObjectImpl >
 MediaSet::getMediaObject (const std::string &sessionId,
                           const std::string &mediaObjectRef)
-{
-  std::shared_ptr< MediaObjectImpl > obj = getMediaObject (mediaObjectRef);
-
-  ref (sessionId, obj);
-  return obj;
-}
-
-std::shared_ptr< MediaObjectImpl >
-MediaSet::getMediaObject (const std::string &sessionId,
-                          const uint64_t &mediaObjectRef)
 {
   std::shared_ptr< MediaObjectImpl > obj = getMediaObject (mediaObjectRef);
 

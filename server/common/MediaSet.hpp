@@ -36,13 +36,11 @@ public:
   void ref (const std::string &sessionId,
             std::shared_ptr<MediaObjectImpl> mediaObject);
   void ref (const std::string &sessionId, const std::string &mediaObjectRef);
-  void ref (const std::string &sessionId, const uint64_t &mediaObjectRef);
   std::shared_ptr<MediaObjectImpl> ref (MediaObjectImpl *mediaObject);
 
   void unref (const std::string &sessionId,
               std::shared_ptr<MediaObjectImpl> mediaObject);
   void unref (const std::string &sessionId, const std::string &mediaObjectRef);
-  void unref (const std::string &sessionId, const uint64_t &mediaObjectRef);
 
   void addEventHandler (const std::string &sessionId,
                         std::shared_ptr<EventHandler> handler);
@@ -55,16 +53,11 @@ public:
 
   void release (std::shared_ptr<MediaObjectImpl> mediaObject);
   void release (const std::string &mediaObjectRef);
-  void release (const uint64_t &mediaObjectRef);
 
   std::shared_ptr<MediaObjectImpl> getMediaObject (const std::string
       &mediaObjectRef);
-  std::shared_ptr<MediaObjectImpl> getMediaObject (const uint64_t
-      &mediaObjectRef);
   std::shared_ptr<MediaObjectImpl> getMediaObject (
     const std::string &sessionId, const std::string &mediaObjectRef);
-  std::shared_ptr<MediaObjectImpl> getMediaObject (
-    const std::string &sessionId, const uint64_t &mediaObjectRef);
 
   static MediaSet &getMediaSet();
 
@@ -86,19 +79,19 @@ private:
 
   Glib::Threads::RecMutex mutex;
 
-  std::map<uint64_t, std::weak_ptr <MediaObjectImpl>> objectsMap;
+  std::map<std::string, std::weak_ptr <MediaObjectImpl>> objectsMap;
 
-  std::map<uint64_t, std::map <uint64_t, std::shared_ptr <MediaObjectImpl>>>
+  std::map<std::string, std::map <std::string, std::shared_ptr <MediaObjectImpl>>>
   childrenMap;
 
-  std::map<std::string, std::map <uint64_t, std::shared_ptr<MediaObjectImpl>>>
+  std::map<std::string, std::map <std::string, std::shared_ptr<MediaObjectImpl>>>
   sessionMap;
 
   std::map<std::string, bool> sessionInUse;
   std::map<std::string, std::map<std::string, std::shared_ptr<EventHandler>>>
   eventHandler;
 
-  std::map<uint64_t, std::unordered_set<std::string>> reverseSessionMap;
+  std::map<std::string, std::unordered_set<std::string>> reverseSessionMap;
 
   Glib::ThreadPool threadPool;
 
