@@ -14,6 +14,7 @@
  */
 
 #include "MediaObjectImpl.hpp"
+#include "MediaPipelineImpl.hpp"
 #include <stdlib.h>
 #include <time.h>
 #include <glibmm.h>
@@ -33,16 +34,27 @@ MediaObjectImpl::createId()
 
   ss << uuid;
 
-  return ss.str();
+  if (parent) {
+    std::shared_ptr<MediaPipelineImpl> pipeline;
+
+    pipeline = std::dynamic_pointer_cast<MediaPipelineImpl> (getMediaPipeline() );
+    return pipeline->getId() + "/" +
+           ss.str();
+  } else {
+    return ss.str();
+  }
 }
 
 MediaObjectImpl::MediaObjectImpl ()
 {
+  id = createId();
 }
 
 MediaObjectImpl::MediaObjectImpl (std::shared_ptr<MediaObjectImpl> parent)
 {
   this->parent = parent;
+
+  id = createId();
 
   signalError.connect ([parent] (Error error) {
     parent->signalError (error);

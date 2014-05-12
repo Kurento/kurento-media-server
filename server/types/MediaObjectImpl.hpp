@@ -47,9 +47,9 @@ public:
 
 private:
   std::shared_ptr<MediaObjectImpl> parent;
-  std::string id = createId();
+  std::string id;
 
-  static std::string createId();
+  std::string createId();
 };
 
 } /* kurento */
