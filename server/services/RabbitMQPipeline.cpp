@@ -36,6 +36,8 @@ struct functor_trait<Functor, false> {
 };
 }
 
+#define PIPELINE_QUEUE_PREFIX "media_pipeline_"
+
 namespace kurento
 {
 
@@ -61,14 +63,24 @@ void
 RabbitMQPipeline::startRequest (const std::string &request,
                                 std::string &_response)
 {
-  std::string queue = "TODO: create pipeline";
+  Json::Value responseJson;
+  Json::Reader reader;
+
+  std::string queue;
 
   GST_DEBUG ("Message: >%s<", request.c_str() );
   process (request, _response);
-  // TODO process message and generate a queue to listen messages
-  GST_DEBUG ("Response: >%s<", _response.c_str() );
 
-  listenQueue (queue);
+  reader.parse (_response, responseJson);
+
+  if (responseJson.isObject() && responseJson.isMember ("result")
+      && responseJson["result"].isObject()
+      && responseJson["result"].isMember ("value") ) {
+    queue = /*PIPELINE_QUEUE_PREFIX + */responseJson["result"]["value"].asString();
+    listenQueue (queue);
+  }
+
+  GST_DEBUG ("Response: >%s<", _response.c_str() );
 }
 
 void
