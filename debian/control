@@ -31,6 +31,7 @@ Build-Depends:
  libjsoncpp-dev,
  uuid-dev,
  libsctp-dev,
+ librabbitmq-dev,
  ktool-rom-processor (>= 1.1.0)
 Standards-Version: 3.9.4
 
