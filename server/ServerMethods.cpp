@@ -15,7 +15,6 @@
 
 #include <gst/gst.h>
 #include <ServerMethods.hpp>
-#include <types/MediaPipelineImpl.hpp>
 #include <common/MediaSet.hpp>
 #include <string>
 #include <EventHandler.hpp>
