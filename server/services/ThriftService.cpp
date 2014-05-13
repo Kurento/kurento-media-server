@@ -75,7 +75,7 @@ ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
     port = DEFAULT_PORT;
   }
 
-  httpService = new HttpService (confFile);
+  httpService = std::shared_ptr<HttpService> (new HttpService (confFile) );
 }
 
 void ThriftService::serve()
@@ -91,8 +91,9 @@ void ThriftService::serve()
     ThreadManager::newSimpleThreadManager (15);
   threadManager->threadFactory (threadFactory);
   threadManager->start ();
-  server = new apache::thrift::server::TNonblockingServer (processor,
-      protocolFactory, port, threadManager);
+  server = std::shared_ptr<apache::thrift::server::TNonblockingServer>
+           (new apache::thrift::server::TNonblockingServer (processor, protocolFactory,
+               port, threadManager) );
 
   GST_INFO ("Starting thrift server");
   kill (getppid(), SIGCONT);
@@ -121,8 +122,6 @@ void ThriftService::stop ()
 ThriftService::~ThriftService()
 {
   GST_DEBUG ("Destroying ThriftService");
-  delete server;
-  delete httpService;
 }
 
 ThriftService::StaticConstructor ThriftService::staticConstructor;

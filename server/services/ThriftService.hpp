@@ -34,8 +34,8 @@ public:
 private:
   int port;
   std::string address;
-  apache::thrift::server::TNonblockingServer *server;
-  HttpService *httpService;
+  std::shared_ptr<apache::thrift::server::TNonblockingServer> server;
+  std::shared_ptr<HttpService> httpService;
   Glib::Thread *thread;
 
   void serve ();
