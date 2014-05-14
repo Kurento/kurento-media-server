@@ -59,7 +59,8 @@ public:
   int getFd();
   void declareQueue (const std::string &queue_name, bool durable = false,
                      int ttl = -1);
-  void declareExchange (const std::string &queue_name, const std::string &type);
+  void declareExchange (const std::string &queue_name, const std::string &type,
+                        const int ttl);
   void bindQueue (const std::string &queue_name,
                   const std::string &exchange_name);
   void consumeQueue (const std::string &queue_name, const std::string &tag);

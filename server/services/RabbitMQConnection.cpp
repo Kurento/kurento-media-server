@@ -156,13 +156,27 @@ void RabbitMQConnection::declareQueue (const std::string &queue_name,
 }
 
 void RabbitMQConnection::declareExchange (const std::string &exchange_name,
-    const std::string &type)
+    const std::string &type, const int ttl)
 {
   amqp_bytes_t exchange = amqp_cstring_bytes (exchange_name.c_str() );
   amqp_bytes_t exchange_type = amqp_cstring_bytes (type.c_str() );
+  amqp_table_entry_t entries[1];
+  amqp_table_t table;
+
+  table.entries = entries;
+
+  if (ttl > 0) {
+    table.num_entries = 1;
+
+    entries[0].key = amqp_cstring_bytes ("x-expires");
+    entries[0].value.kind = AMQP_FIELD_KIND_I32;
+    entries[0].value.value.i32 = ttl;
+  } else {
+    table.num_entries = 0;
+  }
 
   amqp_exchange_declare (conn, 1, exchange, exchange_type,
-                         /* passive */ false, /* durable */ false, amqp_empty_table);
+                         /* passive */ false, /* durable */ false, table);
   exception_on_error (amqp_get_rpc_reply (conn), "Declaring exchange");
 }
 

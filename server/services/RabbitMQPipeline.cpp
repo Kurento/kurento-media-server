@@ -82,7 +82,8 @@ RabbitMQPipeline::startRequest (const std::string &request,
 
     listenQueue (PIPELINE_QUEUE_PREFIX + id, false, PIPELINE_QUEUE_TTL);
     getConnection()->declareExchange (EVENT_EXCHANGE_PREFIX + id,
-                                      RabbitMQConnection::EXCHANGE_TYPE_FANOUT);
+                                      RabbitMQConnection::EXCHANGE_TYPE_FANOUT,
+                                      PIPELINE_QUEUE_TTL);
   }
 
   GST_DEBUG ("Response: >%s<", _response.c_str() );
