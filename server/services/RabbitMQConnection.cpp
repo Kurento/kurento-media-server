@@ -156,7 +156,7 @@ void RabbitMQConnection::declareQueue (const std::string &queue_name,
 }
 
 void RabbitMQConnection::declareExchange (const std::string &exchange_name,
-    const std::string &type, const int ttl)
+    const std::string &type, bool durable, const int ttl)
 {
   amqp_bytes_t exchange = amqp_cstring_bytes (exchange_name.c_str() );
   amqp_bytes_t exchange_type = amqp_cstring_bytes (type.c_str() );
@@ -176,7 +176,7 @@ void RabbitMQConnection::declareExchange (const std::string &exchange_name,
   }
 
   amqp_exchange_declare (conn, 1, exchange, exchange_type,
-                         /* passive */ false, /* durable */ false, table);
+                         /* passive */ false, durable, table);
   exception_on_error (amqp_get_rpc_reply (conn), "Declaring exchange");
 }
 

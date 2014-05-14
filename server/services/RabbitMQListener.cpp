@@ -89,7 +89,7 @@ void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
                  address, port) );
   connection->declareQueue (queue, durable, ttl);
   connection->declareExchange (queue,
-                               RabbitMQConnection::EXCHANGE_TYPE_DIRECT, ttl);
+                               RabbitMQConnection::EXCHANGE_TYPE_DIRECT, durable, ttl);
   connection->bindQueue (queue, queue);
   connection->consumeQueue (queue, "");
 
