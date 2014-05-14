@@ -15,7 +15,10 @@
 
 #include "MediaServerServiceHandler.hpp"
 #include "KmsMediaServer_constants.h"
+#include <ThriftEventHandler.hpp>
+#include <JsonRpcUtils.hpp>
 #include <gst/gst.h>
+#include <sys/socket.h>
 
 #define GST_CAT_DEFAULT kurento_media_server_service_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -37,8 +40,26 @@ MediaServerServiceHandler::invokeJsonRpc (std::string &_return,
     const std::string &request)
 {
   GST_DEBUG ("Json request: %s", request.c_str() );
-  methods.process (request, _return);
+  process (request, _return);
   GST_DEBUG ("Json response: %s", _return.c_str() );
+}
+
+std::string
+MediaServerServiceHandler::connectEventHandler (std::shared_ptr<MediaObject>
+    obj, const std::string &sessionId, const std::string &eventType,
+    const Json::Value &params)
+{
+  std::shared_ptr <EventHandler> handler;
+  std::string ip;
+  int port;
+
+  JsonRpc::getValue (params, "ip", ip);
+  JsonRpc::getValue (params, "port", port);
+
+  handler = std::shared_ptr <EventHandler> (new ThriftEventHandler (obj,
+            sessionId, ip, port) );
+
+  return ServerMethods::connectEventHandler (obj, sessionId, eventType, handler);
 }
 
 

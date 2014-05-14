@@ -25,7 +25,8 @@
 namespace kurento
 {
 
-class MediaServerServiceHandler: public KmsMediaServerServiceIf
+class MediaServerServiceHandler: public KmsMediaServerServiceIf ,
+  private ServerMethods
 {
 public:
   MediaServerServiceHandler ();
@@ -34,9 +35,13 @@ public:
   /* JsonRPC */
   void invokeJsonRpc (std::string &_return, const std::string &request);
 
-private:
+protected:
 
-  ServerMethods methods;
+  virtual std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+      const std::string &sessionId, const std::string &eventType,
+      const Json::Value &params);
+
+private:
 
   class StaticConstructor
   {

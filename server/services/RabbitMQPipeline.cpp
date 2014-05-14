@@ -89,6 +89,15 @@ RabbitMQPipeline::startRequest (const std::string &request,
   GST_DEBUG ("Response: >%s<", _response.c_str() );
 }
 
+std::string
+RabbitMQPipeline::connectEventHandler (std::shared_ptr< MediaObject > obj,
+                                       const std::string &sessionId, const std::string &eventType,
+                                       const Json::Value &params)
+{
+  // TODO: Implement this
+  return "";
+}
+
 void
 RabbitMQPipeline::stop ()
 {

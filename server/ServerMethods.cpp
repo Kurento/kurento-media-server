@@ -228,13 +228,29 @@ ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
   MediaSet::getMediaSet().removeEventHandler (sessionId, subscription);
 }
 
+std::string
+ServerMethods::connectEventHandler (std::shared_ptr<MediaObject> obj,
+                                    const std::string &sessionId, const std::string &eventType,
+                                    std::shared_ptr<EventHandler> handler)
+{
+  std::string handlerId;
+
+  handlerId = obj->connect (eventType, handler);
+
+  if (handlerId == "") {
+    throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
+  }
+
+  MediaSet::getMediaSet().addEventHandler (sessionId, handler);
+
+  return handlerId;
+}
+
 void
 ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
 {
   std::shared_ptr<MediaObject> obj;
   std::string eventType;
-  std::string ip;
-  int port;
   std::string handlerId;
   std::string sessionId;
   std::string objectId;
@@ -242,8 +258,6 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   requireParams (params);
 
   JsonRpc::getValue (params, "type", eventType);
-  JsonRpc::getValue (params, "ip", ip);
-  JsonRpc::getValue (params, "port", port);
   JsonRpc::getValue (params, OBJECT, objectId);
 
   try {
@@ -253,18 +267,13 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   }
 
   try {
-    std::shared_ptr<EventHandler> handler (new EventHandler (sessionId, objectId,
-                                           ip, port) );
-
     obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
-    handlerId = obj->connect (eventType, handler);
+
+    handlerId = connectEventHandler (obj, sessionId, eventType, params);
 
     if (handlerId == "") {
-      KurentoException e (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
-      throw e;
+      throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
     }
-
-    MediaSet::getMediaSet().addEventHandler (sessionId, handler);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();

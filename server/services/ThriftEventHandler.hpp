@@ -13,40 +13,35 @@
  *
  */
 
-#ifndef __EVENT_HANDLER_HPP__
-#define __EVENT_HANDLER_HPP__
+#ifndef __THRIFT_EVENT_HANDLER_HPP__
+#define __THRIFT_EVENT_HANDLER_HPP__
 
 #include <memory>
-#include <sigc++/sigc++.h>
 #include <string>
 #include <json/json.h>
+#include <glibmm.h>
+#include <EventHandler.hpp>
 
 namespace kurento
 {
 
-class MediaObject;
-
-class EventHandler : public std::enable_shared_from_this<EventHandler>
+class ThriftEventHandler : public EventHandler
 {
 public:
-  EventHandler (std::shared_ptr <MediaObject> object);
+  ThriftEventHandler (std::shared_ptr<MediaObject> obj,
+                      const std::string &sessionId, const std::string &ip,
+                      int port);
 
-  virtual ~EventHandler();
+  virtual ~ThriftEventHandler();
 
-  virtual void sendEvent (Json::Value &value) const = 0;
-
-  std::string getId () const {
-    return id;
-  }
-
-  void setConnection (sigc::connection conn) {
-    this->conn = conn;
-  }
+  virtual void sendEvent (Json::Value &value) const;
 
 private:
-  std::weak_ptr<MediaObject> object;
-  sigc::connection conn;
-  std::string id;
+  static Glib::ThreadPool pool;
+
+  std::string ip;
+  int port;
+  std::string sessionId;
 
   class StaticConstructor
   {
@@ -59,4 +54,4 @@ private:
 
 } /* kurento */
 
-#endif /* __EVENT_HANDLER_HPP__ */
+#endif /* __THRIFT_EVENT_HANDLER_HPP__ */

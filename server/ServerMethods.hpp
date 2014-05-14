@@ -22,6 +22,8 @@
 namespace kurento
 {
 
+class MediaObject;
+
 class ServerMethods
 {
 
@@ -30,6 +32,16 @@ public:
   virtual ~ServerMethods() {};
 
   void process (const std::string &request, std::string &response);
+
+protected:
+
+  virtual std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+      const std::string &sessionId, const std::string &eventType,
+      const Json::Value &params) = 0;
+
+  std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+                                   const std::string &sessioId, const std::string &eventType,
+                                   std::shared_ptr<EventHandler> handler);
 
 private:
 

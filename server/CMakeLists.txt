@@ -43,6 +43,7 @@ include_directories(kurento ${JSONCPP_INCLUDE_DIRS})
 include_directories(kurento ${SIGCPP_INCLUDE_DIRS})
 include_directories(kurento ${CMAKE_SOURCE_DIR}/jsonrpc)
 include_directories(kurento ${CMAKE_SOURCE_DIR}/server/types)
+include_directories(kurento ${CMAKE_SOURCE_DIR}/server/services)
 include_directories(kurento ${CMAKE_BINARY_DIR}/rom-cpp)
 include_directories(kurento ${RABBITMQ_INCLUDE_DIRS})
 

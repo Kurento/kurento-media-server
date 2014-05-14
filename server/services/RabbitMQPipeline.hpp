@@ -34,6 +34,10 @@ protected:
   virtual void processMessage (const std::string &message,
                                std::string &_response);
 
+  virtual std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+      const std::string &sessionId, const std::string &eventType,
+      const Json::Value &params);
+
 private:
   class StaticConstructor
   {

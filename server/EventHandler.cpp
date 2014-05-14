@@ -15,12 +15,7 @@
 
 #include "EventHandler.hpp"
 #include <utils/utils.hpp>
-#include "thrift/transport/TSocket.h"
-#include "thrift/transport/TBufferTransports.h"
-#include "thrift/protocol/TBinaryProtocol.h"
-#include <JsonRpcConstants.hpp>
 #include <gst/gst.h>
-#include "common/MediaSet.hpp"
 
 #include "KmsMediaHandlerService.h"
 
@@ -28,16 +23,11 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoEventHandler"
 
-using namespace ::apache::thrift::transport;
-using namespace ::apache::thrift::protocol;
-
 namespace kurento
 {
 
-EventHandler::EventHandler (const std::string &sessionId,
-                            const std::string &objectId, const std::string &ip,
-                            int port) :
-  ip (ip), port (port), sessionId (sessionId), objectId (objectId)
+EventHandler::EventHandler (std::shared_ptr <MediaObject> object) :
+  object (object)
 {
   generateUUID (id);
 }
@@ -47,54 +37,14 @@ EventHandler::~EventHandler()
   GST_INFO ("Disconnect event handler %s", id.c_str() );
 
   try {
-    MediaSet::getMediaSet().getMediaObject (objectId);
+    std::shared_ptr <MediaObject> obj = object.lock();
 
-    conn.disconnect();
+    if (obj) {
+      conn.disconnect();
+    }
   } catch (...) {
-    GST_ERROR ("Object %s already released", objectId.c_str() );
   }
 }
-
-void
-EventHandler::sendEvent (Json::Value &value) const
-{
-  std::shared_ptr <const EventHandler> handler = shared_from_this();
-
-  pool.push ([handler, value] () {
-    boost::shared_ptr<TSocket> socket (new TSocket (handler->ip, handler->port) );
-    boost::shared_ptr<TTransport> transport (new TFramedTransport (socket) );
-    boost::shared_ptr<TBinaryProtocol> protocol (new TBinaryProtocol (transport) );
-    KmsMediaHandlerServiceClient client (protocol);
-
-    try {
-      Json::FastWriter writer;
-      Json::Value rpc;
-      Json::Value event;
-
-      transport->open();
-
-      event ["value"] = value;
-      event ["sessionId"] = handler->sessionId;
-
-      rpc [JSON_RPC_PROTO] = JSON_RPC_PROTO_VERSION;
-      rpc [JSON_RPC_METHOD] = "onEvent";
-      rpc [JSON_RPC_PARAMS] = event;
-
-      GST_DEBUG ("Sending event: %s", writer.write (rpc).c_str() );
-      client.eventJsonRpc (writer.write (rpc) );
-
-      transport->close();
-    } catch (std::exception &e) {
-      GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
-                   handler->id.c_str(), handler->ip.c_str(), handler->port);
-    } catch (...) {
-      GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
-                   handler->id.c_str(), handler->ip.c_str(), handler->port);
-    }
-  });
-}
-
-Glib::ThreadPool EventHandler::pool;
 
 EventHandler::StaticConstructor::StaticConstructor()
 {
