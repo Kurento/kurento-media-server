@@ -107,7 +107,7 @@ RabbitMQService::processMessage (const std::string &message,
 void RabbitMQService::start ()
 {
   httpService->start();
-  listenQueue (PIPELINE_CREATION);
+  listenQueue (PIPELINE_CREATION, true);
 }
 
 void RabbitMQService::stop ()

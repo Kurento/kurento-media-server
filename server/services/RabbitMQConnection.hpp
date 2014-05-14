@@ -57,7 +57,8 @@ public:
   virtual ~RabbitMQConnection() throw ();
 
   int getFd();
-  void declareQueue (const std::string &queue_name);
+  void declareQueue (const std::string &queue_name, bool durable = false,
+                     int ttl = -1);
   void declareExchange (const std::string &queue_name, const std::string &type);
   void bindQueue (const std::string &queue_name,
                   const std::string &exchange_name);

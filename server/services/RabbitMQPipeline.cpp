@@ -40,6 +40,8 @@ struct functor_trait<Functor, false> {
 #define PIPELINE_QUEUE_PREFIX ""
 #define EVENT_EXCHANGE_PREFIX "event_"
 
+#define PIPELINE_QUEUE_TTL 240000
+
 namespace kurento
 {
 
@@ -78,7 +80,7 @@ RabbitMQPipeline::startRequest (const std::string &request,
       && responseJson["result"].isMember ("value") ) {
     std::string id = responseJson["result"]["value"].asString();
 
-    listenQueue (PIPELINE_QUEUE_PREFIX + id);
+    listenQueue (PIPELINE_QUEUE_PREFIX + id, false, PIPELINE_QUEUE_TTL);
     getConnection()->declareExchange (EVENT_EXCHANGE_PREFIX + id,
                                       RabbitMQConnection::EXCHANGE_TYPE_FANOUT);
   }

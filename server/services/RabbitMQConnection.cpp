@@ -17,6 +17,7 @@
 #include "RabbitMQConnection.hpp"
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
+#include <gst/gst.h>
 
 #define GST_CAT_DEFAULT kurento_rabbitmq_connection
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -129,13 +130,28 @@ RabbitMQConnection::getFd()
   return amqp_socket_get_sockfd (socket);
 }
 
-void RabbitMQConnection::declareQueue (const std::string &queue_name)
+void RabbitMQConnection::declareQueue (const std::string &queue_name,
+                                       bool durable, int ttl)
 {
   amqp_bytes_t queue = amqp_cstring_bytes (queue_name.c_str() );
+  amqp_table_entry_t entries[1];
+  amqp_table_t table;
+
+  table.entries = entries;
+
+  if (ttl > 0) {
+    table.num_entries = 1;
+
+    entries[0].key = amqp_cstring_bytes ("x-expires");
+    entries[0].value.kind = AMQP_FIELD_KIND_I32;
+    entries[0].value.value.i32 = ttl;
+  } else {
+    table.num_entries = 0;
+  }
 
   amqp_queue_declare (conn, 1,
-                      queue, /* passive */ false, /* durable */ false, /* exclusive */
-                      false, /* autodelete */ false, amqp_empty_table);
+                      queue, /* passive */ false, durable, /* exclusive */ false,
+                      /* autodelete */ false, table);
   exception_on_error (amqp_get_rpc_reply (conn), "Declaring queue");
 }
 

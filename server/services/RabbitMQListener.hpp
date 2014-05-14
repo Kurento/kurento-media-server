@@ -29,7 +29,7 @@ public:
   virtual ~RabbitMQListener() throw ();
 
   void setConfig (const std::string &address, int port);
-  void listenQueue (const std::string &queue);
+  void listenQueue (const std::string &queue, bool durable = false, int ttl = -1);
   void stopListen ();
 
 protected:

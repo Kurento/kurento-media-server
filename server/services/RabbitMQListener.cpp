@@ -79,16 +79,17 @@ RabbitMQListener::readMessages (Glib::IOCondition cond)
   return true;
 }
 
-void RabbitMQListener::listenQueue (const std::string &queue)
+void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
+                                    int ttl)
 {
   Glib::RefPtr<Glib::IOChannel> channel;
   int fd;
 
   connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
                  address, port) );
-  connection->declareQueue (queue);
+  connection->declareQueue (queue, durable, ttl);
   connection->declareExchange (queue,
-                               RabbitMQConnection::EXCHANGE_TYPE_FANOUT);
+                               RabbitMQConnection::EXCHANGE_TYPE_DIRECT);
   connection->bindQueue (queue, queue);
   connection->consumeQueue (queue, "");
 
