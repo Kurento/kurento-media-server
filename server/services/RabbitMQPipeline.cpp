@@ -38,8 +38,7 @@ struct functor_trait<Functor, false> {
 
 // #define PIPELINE_QUEUE_PREFIX "media_pipeline_"
 #define PIPELINE_QUEUE_PREFIX ""
-// #define EVENT_EXCHANGE_PREFIX "events_"
-#define EVENT_EXCHANGE_PREFIX "e_"
+#define EVENT_EXCHANGE_PREFIX "event_"
 
 namespace kurento
 {
