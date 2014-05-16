@@ -33,7 +33,7 @@ public:
 
   virtual ~EventHandler();
 
-  virtual void sendEvent (Json::Value &value) const = 0;
+  virtual void sendEvent (Json::Value &value) = 0;
 
   std::string getId () const {
     return id;

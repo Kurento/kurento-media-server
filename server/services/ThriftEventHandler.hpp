@@ -34,7 +34,7 @@ public:
 
   virtual ~ThriftEventHandler();
 
-  virtual void sendEvent (Json::Value &value) const;
+  virtual void sendEvent (Json::Value &value);
 
 private:
   static Glib::ThreadPool pool;

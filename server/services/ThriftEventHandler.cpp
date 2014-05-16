@@ -46,7 +46,7 @@ ThriftEventHandler::~ThriftEventHandler()
 }
 
 void
-ThriftEventHandler::sendEvent (Json::Value &value) const
+ThriftEventHandler::sendEvent (Json::Value &value)
 {
   std::shared_ptr <const ThriftEventHandler> handler =
     std::dynamic_pointer_cast<const ThriftEventHandler> (shared_from_this() );
