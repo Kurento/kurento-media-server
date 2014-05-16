@@ -78,10 +78,10 @@ RabbitMQPipeline::startRequest (const std::string &request,
   if (responseJson.isObject() && responseJson.isMember ("result")
       && responseJson["result"].isObject()
       && responseJson["result"].isMember ("value") ) {
-    std::string id = responseJson["result"]["value"].asString();
+    pipelineId = responseJson["result"]["value"].asString();
 
-    listenQueue (PIPELINE_QUEUE_PREFIX + id, false, PIPELINE_QUEUE_TTL);
-    getConnection()->declareExchange (EVENT_EXCHANGE_PREFIX + id,
+    listenQueue (PIPELINE_QUEUE_PREFIX + pipelineId, false, PIPELINE_QUEUE_TTL);
+    getConnection()->declareExchange (EVENT_EXCHANGE_PREFIX + pipelineId,
                                       RabbitMQConnection::EXCHANGE_TYPE_FANOUT,
                                       false, PIPELINE_QUEUE_TTL);
   }

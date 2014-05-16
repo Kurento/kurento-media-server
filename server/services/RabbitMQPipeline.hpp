@@ -40,6 +40,9 @@ protected:
       const Json::Value &params);
 
 private:
+
+  std::string pipelineId;
+
   class StaticConstructor
   {
   public:
