@@ -88,7 +88,8 @@ exception_on_error (amqp_rpc_reply_t x, const char *context)
   }
 }
 
-RabbitMQConnection::RabbitMQConnection (const std::string &address, int port)
+RabbitMQConnection::RabbitMQConnection (const std::string &address, int port) :
+  address (address), port (port)
 {
   conn = amqp_new_connection();
 

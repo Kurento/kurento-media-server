@@ -56,6 +56,14 @@ public:
   RabbitMQConnection (const std::string &address, int port);
   virtual ~RabbitMQConnection() throw ();
 
+  std::string getAddress() {
+    return address;
+  }
+
+  int getPort () {
+    return port;
+  }
+
   int getFd();
   void declareQueue (const std::string &queue_name, bool durable = false,
                      int ttl = -1);
@@ -78,6 +86,9 @@ private:
                     const amqp_bytes_t &routingKey,
                     const amqp_bytes_t &correlationID = amqp_empty_bytes);
   void sendReply (const amqp_envelope_t &envelope, const amqp_bytes_t &message);
+
+  std::string address;
+  int port;
 
   amqp_connection_state_t conn;
   amqp_socket_t *socket;
