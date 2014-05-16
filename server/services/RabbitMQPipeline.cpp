@@ -16,7 +16,7 @@
 #include <gst/gst.h>
 #include "RabbitMQPipeline.hpp"
 
-#define GST_CAT_DEFAULT kurento_rabbitmq_listener
+#define GST_CAT_DEFAULT kurento_rabbitmq_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoRabbitMQPipeline"
 
