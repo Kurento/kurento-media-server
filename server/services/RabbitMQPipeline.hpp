@@ -41,6 +41,10 @@ protected:
 
 private:
 
+  void destroyHandler (EventHandler *handler);
+
+  std::map <std::string, std::weak_ptr <EventHandler>> handlers;
+  Glib::Threads::Mutex mutex;
   std::string pipelineId;
 
   class StaticConstructor

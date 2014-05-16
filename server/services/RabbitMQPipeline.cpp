@@ -15,6 +15,13 @@
 
 #include <gst/gst.h>
 #include "RabbitMQPipeline.hpp"
+#include "RabbitMQEventHandler.hpp"
+
+#include <MediaObjectImpl.hpp>
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #define GST_CAT_DEFAULT kurento_rabbitmq_pipeline
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -44,6 +51,16 @@ struct functor_trait<Functor, false> {
 
 namespace kurento
 {
+
+static std::string
+generateUUID()
+{
+  std::stringstream ss;
+  boost::uuids::uuid uuid = boost::uuids::random_generator() ();
+
+  ss << uuid;
+  return ss.str();
+}
 
 RabbitMQPipeline::RabbitMQPipeline (const std::string &address, const int port)
 {
@@ -95,8 +112,51 @@ RabbitMQPipeline::connectEventHandler (std::shared_ptr< MediaObject > obj,
                                        const std::string &eventType,
                                        const Json::Value &params)
 {
-  // TODO: Implement this
-  return "";
+  std::string subscriptionId;
+  std::shared_ptr <MediaObjectImpl> object = std::dynamic_pointer_cast
+      <MediaObjectImpl> (obj);
+  std::string eventId = object->getId() + "/" + eventType;
+  std::shared_ptr <EventHandler> handler;
+  Glib::Threads::Mutex::Lock lock (mutex);
+
+  if (handlers.find (eventId) != handlers.end() ) {
+    handler = handlers[eventId].lock();
+  }
+
+  if (!handler) {
+    handler = std::shared_ptr <EventHandler> (new RabbitMQEventHandler (obj,
+              getConnection()->getAddress(), getConnection()->getPort(),
+              EVENT_EXCHANGE_PREFIX + pipelineId, eventId),
+              std::bind (&RabbitMQPipeline::destroyHandler, this, std::placeholders::_1) );
+
+    subscriptionId = ServerMethods::connectEventHandler (obj, sessionId, eventType,
+                     handler);
+    handlers[eventId] = std::weak_ptr <EventHandler> (handler);
+  } else {
+    subscriptionId = generateUUID();
+    registerEventHandler (obj, sessionId, subscriptionId, handler);
+  }
+
+  return subscriptionId;
+}
+
+void RabbitMQPipeline::destroyHandler (EventHandler *handler)
+{
+  RabbitMQEventHandler *rabbitHandler = dynamic_cast <RabbitMQEventHandler *>
+                                        (handler);
+
+  if (rabbitHandler != NULL) {
+    std::string eventId;
+    Glib::Threads::Mutex::Lock lock (mutex);
+
+    eventId = rabbitHandler->getRoutingKey();
+
+    if (handlers.find (eventId) != handlers.end() ) {
+      handlers.erase (eventId);
+    }
+  }
+
+  delete handler;
 }
 
 void
