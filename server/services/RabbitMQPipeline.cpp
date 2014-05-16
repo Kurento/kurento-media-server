@@ -91,7 +91,8 @@ RabbitMQPipeline::startRequest (const std::string &request,
 
 std::string
 RabbitMQPipeline::connectEventHandler (std::shared_ptr< MediaObject > obj,
-                                       const std::string &sessionId, const std::string &eventType,
+                                       const std::string &sessionId,
+                                       const std::string &eventType,
                                        const Json::Value &params)
 {
   // TODO: Implement this

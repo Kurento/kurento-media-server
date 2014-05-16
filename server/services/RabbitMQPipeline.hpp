@@ -27,7 +27,8 @@ class RabbitMQPipeline: private RabbitMQListener, private ServerMethods
 public:
   RabbitMQPipeline (const std::string &address, const int port);
   virtual ~RabbitMQPipeline() throw ();
-  virtual void startRequest (const std::string &request, std::string &_response);
+  virtual void startRequest (const std::string &request,
+                             std::string &_response);
   virtual void stop ();
 
 protected:
