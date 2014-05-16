@@ -43,7 +43,8 @@ protected:
                                    const std::string &sessioId, const std::string &eventType,
                                    std::shared_ptr<EventHandler> handler);
 
-  void registerEventHandler (const std::string &sessionId,
+  void registerEventHandler (std::shared_ptr<MediaObject> obj,
+                             const std::string &sessionId,
                              const  std::string &subscriptionId,
                              std::shared_ptr<EventHandler> handler);
 

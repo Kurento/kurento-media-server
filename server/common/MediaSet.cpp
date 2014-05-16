@@ -361,6 +361,12 @@ MediaSet::unref (const std::string &sessionId,
       childrenMap.erase (mediaObject->getId() );
     }
   }
+
+  auto eventIt = eventHandler.find (sessionId);
+
+  if (eventIt != eventHandler.end() ) {
+    eventIt->second.erase (mediaObject->getId() );
+  }
 }
 
 void
@@ -466,20 +472,29 @@ MediaSet::getMediaObject (const std::string &sessionId,
 
 void
 MediaSet::addEventHandler (const std::string &sessionId,
-                           std::string subscriptionId,
+                           const std::string &objectId,
+                           const std::string &subscriptionId,
                            std::shared_ptr<EventHandler> handler)
 {
-  eventHandler[sessionId][subscriptionId] = handler;
+  RecMutex::Lock lock (mutex);
+
+  eventHandler[sessionId][objectId][subscriptionId] = handler;
 }
 
 void
 MediaSet::removeEventHandler (const std::string &sessionId,
+                              const std::string &objectId,
                               const std::string &handlerId)
 {
+  RecMutex::Lock lock (mutex);
   auto it = eventHandler.find (sessionId);
 
   if (it != eventHandler.end() ) {
-    it->second.erase (handlerId);
+    auto it2 = eventHandler[sessionId].find (objectId);
+
+    if (it2 != eventHandler[sessionId].end() ) {
+      it2->second.erase (handlerId);
+    }
   }
 }
 

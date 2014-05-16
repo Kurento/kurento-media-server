@@ -219,21 +219,28 @@ ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
 {
   std::string subscription;
   std::string sessionId;
+  std::string objectId;
 
   requireParams (params);
 
+  JsonRpc::getValue (params, OBJECT, objectId);
   JsonRpc::getValue (params, SUBSCRIPTION, subscription);
   JsonRpc::getValue (params, SESSION_ID, sessionId);
 
-  MediaSet::getMediaSet().removeEventHandler (sessionId, subscription);
+  MediaSet::getMediaSet().removeEventHandler (sessionId, objectId, subscription);
 }
 
 void
-ServerMethods::registerEventHandler (const std::string &sessionId,
+ServerMethods::registerEventHandler (std::shared_ptr<MediaObject> obj,
+                                     const std::string &sessionId,
                                      const  std::string &subscriptionId,
                                      std::shared_ptr<EventHandler> handler)
 {
-  MediaSet::getMediaSet().addEventHandler (sessionId, subscriptionId, handler);
+  std::shared_ptr <MediaObjectImpl> object = std::dynamic_pointer_cast
+      <MediaObjectImpl> (obj);
+
+  MediaSet::getMediaSet().addEventHandler (sessionId, object->getId(),
+      subscriptionId, handler);
 }
 
 std::string
@@ -249,7 +256,7 @@ ServerMethods::connectEventHandler (std::shared_ptr<MediaObject> obj,
     throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
   }
 
-  registerEventHandler (sessionId, subscriptionId, handler);
+  registerEventHandler (obj, sessionId, subscriptionId, handler);
 
   return subscriptionId;
 }
