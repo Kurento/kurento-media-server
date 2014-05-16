@@ -96,7 +96,6 @@ void ThriftService::serve()
                port, threadManager) );
 
   GST_INFO ("Starting thrift server");
-  kill (getppid(), SIGCONT);
   server->serve ();
   GST_INFO ("Thrift server stopped");
   throw Glib::Thread::Exit ();

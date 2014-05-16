@@ -45,13 +45,19 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define MEDIA_SERVER_SERVICE_PORT 9090
 #define MAX_RETRIES 5
 
-G_LOCK_DEFINE (mutex);
+static GMutex mutex;
+static GCond cond;
+
+static bool started = false;
 
 static void
 sig_handler (int sig)
 {
   if (sig == SIGCONT) {
-    G_UNLOCK (mutex);
+    g_mutex_lock (&mutex);
+    started = true;
+    g_cond_signal (&cond);
+    g_mutex_unlock (&mutex);
   }
 }
 
@@ -71,16 +77,20 @@ start_server_test ()
   conf_file_param = g_strconcat ("--conf-file=", conf_file, NULL);
   signal (SIGCONT, sig_handler);
 
-  G_LOCK (mutex);
   childpid = fork();
 
   if (childpid >= 0) {
     if (childpid == 0) {
       execl (binary_dir, "kurento", conf_file_param,
-             "--gst-plugin-path=./plugins", NULL);
+             "--gst-plugin-path=.", NULL);
     } else {
-      G_LOCK (mutex);
-      G_UNLOCK (mutex);
+      g_mutex_lock (&mutex);
+
+      while (!started) {
+        g_cond_wait (&cond, &mutex);
+      }
+
+      g_mutex_unlock (&mutex);
     }
   } else {
     BOOST_FAIL ("Error executing server");
@@ -95,9 +105,11 @@ stop_server_test (int pid)
   int status;
 
   kill (pid, SIGINT);
-  wait (&status);
-}
 
+  if (pid != waitpid (pid, &status, 0) ) {
+    BOOST_FAIL ("Error waiting for child process");
+  }
+}
 
 F::F()
 {

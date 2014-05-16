@@ -38,5 +38,5 @@ public:
   boost::shared_ptr<kurento::KmsMediaServerServiceClient> client;
 
   F();
-  ~F();
+  virtual ~F();
 };

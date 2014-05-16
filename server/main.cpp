@@ -483,6 +483,7 @@ main (int argc, char **argv)
 
   /* Start service */
   service->start ();
+  kill (getppid(), SIGCONT);
 
   loop->run ();
 

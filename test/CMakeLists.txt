@@ -10,6 +10,7 @@ set (TEST_PROPERTIES
   "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf"
   "TESSDATA_PREFIX=${CMAKE_SOURCE_DIR}/gst-kurento-plugins/src/filters/platedetector"
   "SERVER_DIR=${CMAKE_CURRENT_BINARY_DIR}/../server/kurento"
+  "BOOST_TEST_CATCH_SYSTEM_ERRORS=no"
 )
 
 add_test_program (test_http_ep_server http_ep_server_test.cpp)

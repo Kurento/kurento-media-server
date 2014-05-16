@@ -33,7 +33,7 @@ class ClientHandler : public F
 public:
   ClientHandler() : F() {};
 
-  ~ClientHandler () {}
+  virtual ~ClientHandler () {};
 
 protected:
   void check_create_pipeline_call ();
