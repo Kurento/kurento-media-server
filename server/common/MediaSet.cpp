@@ -466,9 +466,10 @@ MediaSet::getMediaObject (const std::string &sessionId,
 
 void
 MediaSet::addEventHandler (const std::string &sessionId,
+                           std::string subscriptionId,
                            std::shared_ptr<EventHandler> handler)
 {
-  eventHandler[sessionId][handler->getId()] = handler;
+  eventHandler[sessionId][subscriptionId] = handler;
 }
 
 void

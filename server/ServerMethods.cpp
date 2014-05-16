@@ -228,22 +228,30 @@ ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
   MediaSet::getMediaSet().removeEventHandler (sessionId, subscription);
 }
 
+void
+ServerMethods::registerEventHandler (const std::string &sessionId,
+                                     const  std::string &subscriptionId,
+                                     std::shared_ptr<EventHandler> handler)
+{
+  MediaSet::getMediaSet().addEventHandler (sessionId, subscriptionId, handler);
+}
+
 std::string
 ServerMethods::connectEventHandler (std::shared_ptr<MediaObject> obj,
                                     const std::string &sessionId, const std::string &eventType,
                                     std::shared_ptr<EventHandler> handler)
 {
-  std::string handlerId;
+  std::string subscriptionId;
 
-  handlerId = obj->connect (eventType, handler);
+  subscriptionId = obj->connect (eventType, handler);
 
-  if (handlerId == "") {
+  if (subscriptionId == "") {
     throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
   }
 
-  MediaSet::getMediaSet().addEventHandler (sessionId, handler);
+  registerEventHandler (sessionId, subscriptionId, handler);
 
-  return handlerId;
+  return subscriptionId;
 }
 
 void

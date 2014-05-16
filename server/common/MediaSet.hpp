@@ -43,6 +43,7 @@ public:
   void unref (const std::string &sessionId, const std::string &mediaObjectRef);
 
   void addEventHandler (const std::string &sessionId,
+                        std::string subscriptionId,
                         std::shared_ptr<EventHandler> handler);
   void removeEventHandler (const std::string &sessionId,
                            const std::string &handlerId);

@@ -43,6 +43,10 @@ protected:
                                    const std::string &sessioId, const std::string &eventType,
                                    std::shared_ptr<EventHandler> handler);
 
+  void registerEventHandler (const std::string &sessionId,
+                             const  std::string &subscriptionId,
+                             std::shared_ptr<EventHandler> handler);
+
 private:
 
   void create (const Json::Value &params, Json::Value &response);
