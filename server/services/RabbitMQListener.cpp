@@ -113,11 +113,6 @@ void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
 
 void RabbitMQListener::stopListen ()
 {
-  if (!connection) {
-    return;
-  }
-
-  connection.reset ();
   source->destroy();
 }
 
