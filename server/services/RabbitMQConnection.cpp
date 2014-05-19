@@ -40,7 +40,7 @@ exception_on_error (amqp_rpc_reply_t x, const char *context)
 
   case AMQP_RESPONSE_LIBRARY_EXCEPTION:
     if (AMQP_STATUS_TIMEOUT == x.library_error) {
-      throw RabbitMQTimeoutException (ctx + ": Library exception: " +
+      throw RabbitMQTimeoutException (ctx + ": Tiemout exception: " +
                                       amqp_error_string2 (x.library_error) );
     } else {
       throw RabbitMQException (ctx + ": Library exception: " +
