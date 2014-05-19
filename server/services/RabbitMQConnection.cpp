@@ -208,36 +208,18 @@ RabbitMQConnection::consumeQueue (const std::string &queue_name,
 
 void
 RabbitMQConnection::readMessage (struct timeval *timeout,
-                                 std::function <void (const std::string &, std::string &) > process)
+                                 std::function <void (RabbitMQMessage &) > process)
 {
-  amqp_envelope_t envelope;
+  RabbitMQMessage message (shared_from_this () );
 
-  exception_on_error (amqp_consume_message (conn, &envelope, timeout, 0),
+  exception_on_error (amqp_consume_message (conn, &message.envelope, timeout, 0),
                       "Reading message");
 
   try {
-    std::string response;
-    std::string message (reinterpret_cast<char const *>
-                         (envelope.message.body.bytes), envelope.message.body.len );
-
-    process (message, response);
-
-    amqp_basic_ack (conn, 1, envelope.delivery_tag, /* multiple */ false);
-
-    try {
-      if (envelope.message.properties.reply_to.len > 0) {
-        sendReply (envelope, amqp_cstring_bytes (response.c_str() ) );
-      }
-    } catch (std::exception &e) {
-      GST_ERROR ("Error sending reply: %s", e.what() );
-    }
-
+    process (message);
   } catch (...) {
     GST_WARNING ("Error processing message");
-    amqp_basic_reject (conn, 1, envelope.delivery_tag, /* requeue */ true);
   }
-
-  amqp_destroy_envelope (&envelope);
 }
 
 void
@@ -253,11 +235,13 @@ RabbitMQConnection::sendReply (const amqp_envelope_t &envelope,
 
 void
 RabbitMQConnection::sendMessage (const std::string &message,
-                                 const std::string &exchange, const std::string &routingKey)
+                                 const std::string &exchange, const std::string &routingKey,
+                                 const std::string &correlationID)
 {
   sendMessage (amqp_cstring_bytes (message.c_str() ),
                amqp_cstring_bytes (exchange.c_str() ),
-               amqp_cstring_bytes (routingKey.c_str() ) );
+               amqp_cstring_bytes (routingKey.c_str() ),
+               amqp_cstring_bytes (correlationID.c_str() ) );
 }
 
 void
@@ -283,6 +267,54 @@ RabbitMQConnection::sendMessage (const amqp_bytes_t &message,
   if (ret != AMQP_STATUS_OK) {
     GST_ERROR ("Error ret value: %d", ret);
   }
+}
+
+RabbitMQMessage::RabbitMQMessage (std::shared_ptr <RabbitMQConnection>
+                                  connection) : connection (connection)
+{
+
+}
+
+RabbitMQMessage::~RabbitMQMessage()
+{
+  if (!acked) {
+    GST_WARNING ("Rejecting message because it is not acked");
+    amqp_basic_reject (connection->conn, 1,
+                       envelope.delivery_tag, /* requeue */ true);
+  }
+
+  amqp_destroy_envelope (&envelope);
+}
+
+void
+RabbitMQMessage::reply (std::shared_ptr< RabbitMQConnection > conn,
+                        const std::string &response)
+{
+  conn->sendReply (envelope, amqp_cstring_bytes (response.c_str() ) );
+}
+
+void
+RabbitMQMessage::reply (const std::string &response)
+{
+  reply (connection, response);
+}
+
+std::string
+RabbitMQMessage::getData()
+{
+  std::string data (reinterpret_cast<char const *>
+                    (envelope.message.body.bytes), envelope.message.body.len );
+
+  return data;
+}
+
+void
+RabbitMQMessage::ack()
+{
+  amqp_basic_ack (connection->conn, 1,
+                  envelope.delivery_tag, /* multiple */ false);
+
+  acked = true;
 }
 
 RabbitMQConnection::StaticConstructor RabbitMQConnection::staticConstructor;

@@ -25,6 +25,8 @@
 namespace kurento
 {
 
+class RabbitMQMessage;
+
 class RabbitMQException : public std::exception
 {
 
@@ -50,7 +52,8 @@ public:
   virtual ~RabbitMQTimeoutException() {}
 };
 
-class RabbitMQConnection
+class RabbitMQConnection : public
+  std::enable_shared_from_this<RabbitMQConnection>
 {
 public:
   RabbitMQConnection (const std::string &address, int port);
@@ -73,9 +76,9 @@ public:
                   const std::string &exchange_name);
   void consumeQueue (const std::string &queue_name, const std::string &tag);
   void readMessage (struct timeval *timeout,
-                    std::function <void (const std::string &, std::string &) > process);
+                    std::function <void (RabbitMQMessage &) > process);
   void sendMessage (const std::string &message, const std::string &exchange,
-                    const std::string &routingKey);
+                    const std::string &routingKey, const std::string &correlationID = "");
 
   static const std::string EXCHANGE_TYPE_DIRECT;
   static const std::string EXCHANGE_TYPE_FANOUT;
@@ -101,6 +104,29 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend RabbitMQMessage;
+};
+
+class RabbitMQMessage
+{
+public:
+  RabbitMQMessage (std::shared_ptr <RabbitMQConnection> connection);
+  virtual ~RabbitMQMessage() throw ();
+
+  void reply (const std::string &response);
+  void reply (std::shared_ptr <RabbitMQConnection> conn,
+              const std::string &response);
+  std::string getData();
+  void ack();
+
+private:
+
+  bool acked = false;
+  amqp_envelope_t envelope;
+  std::shared_ptr <RabbitMQConnection> connection;
+
+  friend RabbitMQConnection;
 };
 
 } /* kurento */

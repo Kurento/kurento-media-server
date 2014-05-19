@@ -33,8 +33,7 @@ public:
   void stopListen ();
 
 protected:
-  virtual void processMessage (const std::string &message,
-                               std::string &_response) = 0;
+  virtual void processMessage (RabbitMQMessage &message) = 0;
 
   std::shared_ptr <RabbitMQConnection> getConnection () {
     return connection;

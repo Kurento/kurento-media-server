@@ -72,25 +72,32 @@ RabbitMQPipeline::~RabbitMQPipeline()
 }
 
 void
-RabbitMQPipeline::processMessage (const std::string &message,
-                                  std::string &_response)
+RabbitMQPipeline::processMessage (RabbitMQMessage &message)
 {
-  GST_DEBUG ("Message: >%s<", message.c_str() );
-  process (message, _response);
-  GST_DEBUG ("Response: >%s<", _response.c_str() );
+  std::string data = message.getData();
+  std::string response;
+
+  GST_DEBUG ("Message: >%s<", data.c_str() );
+  process (data, response);
+  GST_DEBUG ("Response: >%s<", response.c_str() );
+
+  message.ack();
+  message.reply (response);
 }
 
 void
-RabbitMQPipeline::startRequest (const std::string &request,
-                                std::string &_response)
+RabbitMQPipeline::startRequest (RabbitMQMessage &message)
 {
   Json::Value responseJson;
   Json::Reader reader;
+  std::string response;
+  std::string request = message.getData();
 
   GST_DEBUG ("Message: >%s<", request.c_str() );
-  process (request, _response);
+  process (request, response);
 
-  reader.parse (_response, responseJson);
+  reader.parse (response, responseJson);
+  message.ack();
 
   if (responseJson.isObject() && responseJson.isMember ("result")
       && responseJson["result"].isObject()
@@ -103,7 +110,9 @@ RabbitMQPipeline::startRequest (const std::string &request,
                                       false, PIPELINE_QUEUE_TTL);
   }
 
-  GST_DEBUG ("Response: >%s<", _response.c_str() );
+  message.reply (getConnection(), response);
+
+  GST_DEBUG ("Response: >%s<", response.c_str() );
 }
 
 std::string

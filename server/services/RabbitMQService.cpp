@@ -94,14 +94,13 @@ RabbitMQService::~RabbitMQService()
 }
 
 void
-RabbitMQService::processMessage (const std::string &message,
-                                 std::string &_response)
+RabbitMQService::processMessage (RabbitMQMessage &message)
 {
   std::shared_ptr<RabbitMQPipeline> pipeline (new RabbitMQPipeline (address,
       port) );
 
   pipelines.push_back (pipeline);
-  pipeline->startRequest (message, _response);
+  pipeline->startRequest (message);
 }
 
 void RabbitMQService::start ()
