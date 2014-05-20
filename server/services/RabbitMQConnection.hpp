@@ -124,6 +124,9 @@ public:
               const std::string &response);
   std::string getData();
   void ack();
+  void noRejectOnRelease() {
+    acked = true;
+  }
 
 private:
 
