@@ -25,7 +25,7 @@ namespace kurento
 class HttpService: public Service
 {
 public:
-  HttpService (Glib::KeyFile &confFile);
+  HttpService (Glib::KeyFile &confFile, bool fixedPort = true);
   virtual ~HttpService() throw ();
   virtual void start ();
   virtual void stop ();

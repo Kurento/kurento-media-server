@@ -39,7 +39,8 @@ check_port (int port)
   }
 }
 
-HttpService::HttpService (Glib::KeyFile &confFile) : Service (confFile)
+HttpService::HttpService (Glib::KeyFile &confFile,
+                          bool fixedPort) : Service (confFile)
 {
   try {
     address = confFile.get_string (HTTP_SERVICE_GROUP, HTTP_SERVICE_ADDRESS);
@@ -48,14 +49,19 @@ HttpService::HttpService (Glib::KeyFile &confFile) : Service (confFile)
     GST_WARNING ("Http end point server will be listening to all interfaces");
   }
 
-  try {
-    port = confFile.get_integer (HTTP_SERVICE_GROUP, HTTP_SERVICE_PORT);
-    check_port (port);
-  } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
-    GST_WARNING ("Setting default port %d to http end point server",
-                 DEFAULT_PORT);
-    port = DEFAULT_PORT;
+  if (fixedPort) {
+    try {
+      port = confFile.get_integer (HTTP_SERVICE_GROUP, HTTP_SERVICE_PORT);
+      check_port (port);
+    } catch (const Glib::KeyFileError &err) {
+      GST_ERROR ("%s", err.what ().c_str () );
+      GST_WARNING ("Setting default port %d to http end point server",
+                   DEFAULT_PORT);
+      port = DEFAULT_PORT;
+    }
+  } else {
+    port = 0;
+    GST_INFO ("HttpService will start on any available port");
   }
 
   try {
