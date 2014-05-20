@@ -43,29 +43,13 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define MEDIA_SERVER_ADDRESS "localhost"
 #define MEDIA_SERVER_SERVICE_PORT 9090
-#define MAX_RETRIES 5
-
-static GMutex mutex;
-static GCond cond;
-
-static bool started = false;
-
-static void
-sig_handler (int sig)
-{
-  if (sig == SIGCONT) {
-    g_mutex_lock (&mutex);
-    started = true;
-    g_cond_signal (&cond);
-    g_mutex_unlock (&mutex);
-  }
-}
+#define MAX_RETRIES 100
 
 int
 start_server_test ()
 {
   pid_t childpid = -1;
-  gchar *conf_file, *conf_file_param, *binary_dir;
+  gchar *conf_file, *binary_dir;
 
   conf_file = getenv ("MEDIA_SERVER_CONF_FILE");
   binary_dir = getenv ("SERVER_DIR");
@@ -74,25 +58,14 @@ start_server_test ()
     return -1;
   }
 
-  conf_file_param = g_strconcat ("--conf-file=", conf_file, NULL);
-  signal (SIGCONT, sig_handler);
-
   childpid = fork();
 
-  if (childpid >= 0) {
-    if (childpid == 0) {
-      execl (binary_dir, "kurento", conf_file_param,
-             "--gst-plugin-path=.", NULL);
-    } else {
-      g_mutex_lock (&mutex);
+  if (childpid == 0) {
+    gchar *conf_file_param;
 
-      while (!started) {
-        g_cond_wait (&cond, &mutex);
-      }
-
-      g_mutex_unlock (&mutex);
-    }
-  } else {
+    conf_file_param = g_strconcat ("--conf-file=", conf_file, NULL);
+    execl (binary_dir, "kurento", conf_file_param, "--gst-plugin-path=.", NULL);
+  } else if (childpid < 0) {
     BOOST_FAIL ("Error executing server");
   }
 
