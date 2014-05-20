@@ -80,6 +80,10 @@ public:
   void sendMessage (const std::string &message, const std::string &exchange,
                     const std::string &routingKey, const std::string &correlationID = "");
 
+  void noCloseOnRelease() {
+    closeOnRelease = false;
+  }
+
   static const std::string EXCHANGE_TYPE_DIRECT;
   static const std::string EXCHANGE_TYPE_FANOUT;
   static const std::string EXCHANGE_TYPE_TOPIC;
@@ -93,6 +97,7 @@ private:
   std::string address;
   int port;
 
+  bool closeOnRelease = true;
   amqp_connection_state_t conn;
   amqp_socket_t *socket;
   Glib::RefPtr<Glib::IOSource> source;

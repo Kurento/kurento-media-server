@@ -18,6 +18,7 @@
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
 #include <gst/gst.h>
+#include <unistd.h>
 
 #define GST_CAT_DEFAULT kurento_rabbitmq_connection
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -119,6 +120,12 @@ RabbitMQConnection::~RabbitMQConnection()
   }
 
   /* Errors are ignored during close */
+  if (!closeOnRelease) {
+    int fd = amqp_socket_get_sockfd (socket);
+
+    close (fd);
+  }
+
   amqp_channel_close (conn, 1, AMQP_REPLY_SUCCESS);
   amqp_connection_close (conn, AMQP_REPLY_SUCCESS);
   amqp_destroy_connection (conn);
