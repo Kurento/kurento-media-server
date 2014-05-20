@@ -36,7 +36,8 @@ protected:
   virtual void processMessage (RabbitMQMessage &message);
 
 private:
-  std::list <std::shared_ptr<RabbitMQPipeline>> pipelines;
+  std::list <int> childs;
+  std::shared_ptr<RabbitMQPipeline> pipeline;
 
   std::string address;
   int port;

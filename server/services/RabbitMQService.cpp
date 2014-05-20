@@ -16,6 +16,11 @@
 #include <gst/gst.h>
 #include "RabbitMQService.hpp"
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+
 #define GST_CAT_DEFAULT kurento_rabbitmq_service
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoRabbitMQService"
@@ -96,11 +101,26 @@ RabbitMQService::~RabbitMQService()
 void
 RabbitMQService::processMessage (RabbitMQMessage &message)
 {
-  std::shared_ptr<RabbitMQPipeline> pipeline (new RabbitMQPipeline (confFile,
-      address, port) );
+  int pid = fork();
 
-  pipelines.push_back (pipeline);
-  pipeline->startRequest (message);
+  if (pid < 0) {
+    throw RabbitMQException ("Proccess cannot be forked");
+  } else if (pid == 0) {
+    /* Child process */
+    childs.clear();
+    stopListen();
+    getConnection()->noCloseOnRelease();
+
+    pipeline = std::shared_ptr<RabbitMQPipeline> (new RabbitMQPipeline (confFile,
+               address,
+               port) );
+    pipeline->startRequest (message);
+
+  } else {
+    /* Parend process  */
+    childs.push_back (pid);
+    message.noRejectOnRelease();
+  }
 }
 
 void RabbitMQService::start ()
@@ -112,6 +132,17 @@ void RabbitMQService::stop ()
 {
   stopListen();
   GST_DEBUG ("stop service");
+
+  if (pipeline) {
+    pipeline.reset();
+  }
+
+  for (auto pid : childs) {
+    int status;
+
+    kill (pid, SIGINT);
+    waitpid (pid, &status, 0);
+  }
 }
 
 RabbitMQService::StaticConstructor RabbitMQService::staticConstructor;
