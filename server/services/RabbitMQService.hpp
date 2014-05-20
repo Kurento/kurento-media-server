@@ -41,7 +41,7 @@ private:
   std::string address;
   int port;
 
-  std::shared_ptr<HttpService> httpService;
+  Glib::KeyFile confFile;
 
   class StaticConstructor
   {

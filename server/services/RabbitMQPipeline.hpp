@@ -18,6 +18,7 @@
 
 #include "RabbitMQListener.hpp"
 #include <ServerMethods.hpp>
+#include <HttpService.hpp>
 
 namespace kurento
 {
@@ -25,7 +26,8 @@ namespace kurento
 class RabbitMQPipeline: private RabbitMQListener, private ServerMethods
 {
 public:
-  RabbitMQPipeline (const std::string &address, const int port);
+  RabbitMQPipeline (Glib::KeyFile &confFile, const std::string &address,
+                    const int port);
   virtual ~RabbitMQPipeline() throw ();
   virtual void startRequest (RabbitMQMessage &message);
 
@@ -40,6 +42,7 @@ private:
 
   void destroyHandler (EventHandler *handler);
 
+  std::shared_ptr<HttpService> httpService;
   std::map <std::string, std::weak_ptr <EventHandler>> handlers;
   Glib::Threads::Mutex mutex;
   std::string pipelineId;

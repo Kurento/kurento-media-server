@@ -62,14 +62,19 @@ generateUUID()
   return ss.str();
 }
 
-RabbitMQPipeline::RabbitMQPipeline (const std::string &address, const int port)
+RabbitMQPipeline::RabbitMQPipeline (Glib::KeyFile &confFile,
+                                    const std::string &address, const int port)
 {
+  httpService = std::shared_ptr<HttpService> (new HttpService (
+                  confFile, /* fixedPort */ false) );
+  httpService->start();
   setConfig (address, port);
 }
 
 RabbitMQPipeline::~RabbitMQPipeline()
 {
   stopListen();
+  httpService->stop();
 }
 
 void
