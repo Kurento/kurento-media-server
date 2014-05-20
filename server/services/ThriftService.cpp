@@ -59,7 +59,6 @@ ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
   try {
     address = confFile.get_string (THRIFT_GROUP, THRIFT_SERVER_ADDRESS);
   } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default address %s to media server",
                  DEFAULT_ADDRESS);
     address = DEFAULT_ADDRESS;
@@ -69,7 +68,6 @@ ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
     port = confFile.get_integer (THRIFT_GROUP, THRIFT_SERVER_SERVICE_PORT);
     check_port (port);
   } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default port %d to media server",
                  DEFAULT_PORT);
     port = DEFAULT_PORT;

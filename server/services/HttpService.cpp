@@ -45,7 +45,6 @@ HttpService::HttpService (Glib::KeyFile &confFile,
   try {
     address = confFile.get_string (HTTP_SERVICE_GROUP, HTTP_SERVICE_ADDRESS);
   } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Http end point server will be listening to all interfaces");
   }
 
@@ -54,7 +53,6 @@ HttpService::HttpService (Glib::KeyFile &confFile,
       port = confFile.get_integer (HTTP_SERVICE_GROUP, HTTP_SERVICE_PORT);
       check_port (port);
     } catch (const Glib::KeyFileError &err) {
-      GST_ERROR ("%s", err.what ().c_str () );
       GST_WARNING ("Setting default port %d to http end point server",
                    DEFAULT_PORT);
       port = DEFAULT_PORT;
@@ -68,7 +66,6 @@ HttpService::HttpService (Glib::KeyFile &confFile,
     announcedAddr = confFile.get_string (HTTP_SERVICE_GROUP,
                                          HTTP_SERVICE_ANNOUNCED_ADDRESS);
   } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Http end point server will choose any available "
                  "IP address to compose URLs");
   }

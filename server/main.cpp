@@ -227,7 +227,6 @@ configure_web_rtc_end_point (KeyFile &configFile, const std::string &file_name)
     stunServerAddress = configFile.get_string (WEB_RTC_END_POINT_GROUP,
                         WEB_RTC_END_POINT_STUN_SERVER_ADDRESS_KEY);
   } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default address %s to stun server",
                  STUN_SERVER_ADDRESS);
     stunServerAddress = STUN_SERVER_ADDRESS;
@@ -239,7 +238,6 @@ configure_web_rtc_end_point (KeyFile &configFile, const std::string &file_name)
     check_port (port);
     stunServerPort = port;
   } catch (const Glib::KeyFileError &err) {
-    GST_ERROR ("%s", err.what ().c_str () );
     GST_WARNING ("Setting default port %d to stun server",
                  STUN_SERVER_PORT);
     stunServerPort = STUN_SERVER_PORT;
