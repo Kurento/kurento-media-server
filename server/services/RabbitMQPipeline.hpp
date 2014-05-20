@@ -28,7 +28,6 @@ public:
   RabbitMQPipeline (const std::string &address, const int port);
   virtual ~RabbitMQPipeline() throw ();
   virtual void startRequest (RabbitMQMessage &message);
-  virtual void stop ();
 
 protected:
   virtual void processMessage (RabbitMQMessage &message);

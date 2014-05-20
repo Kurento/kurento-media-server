@@ -69,6 +69,7 @@ RabbitMQPipeline::RabbitMQPipeline (const std::string &address, const int port)
 
 RabbitMQPipeline::~RabbitMQPipeline()
 {
+  stopListen();
 }
 
 void
@@ -166,12 +167,6 @@ void RabbitMQPipeline::destroyHandler (EventHandler *handler)
   }
 
   delete handler;
-}
-
-void
-RabbitMQPipeline::stop ()
-{
-  stopListen();
 }
 
 RabbitMQPipeline::StaticConstructor RabbitMQPipeline::staticConstructor;
