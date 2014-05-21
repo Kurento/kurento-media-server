@@ -460,8 +460,6 @@ main (int argc, char **argv)
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
 
-  check_if_plugins_are_available ();
-
   context = g_option_context_new ("");
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_add_group (context, gst_init_get_option_group () );
@@ -474,6 +472,8 @@ main (int argc, char **argv)
   }
 
   g_option_context_free (context);
+
+  check_if_plugins_are_available ();
 
   /* Install our signal handler */
   source = setup_signalfd();
