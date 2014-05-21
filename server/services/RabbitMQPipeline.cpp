@@ -125,6 +125,11 @@ RabbitMQPipeline::startRequest (RabbitMQMessage &message)
   message.reply (getConnection(), response);
 
   GST_DEBUG ("Response: >%s<", response.c_str() );
+
+  if (MediaSet::getMediaSet().empty() ) {
+    GST_ERROR ("Error creating media pipeline, terminating process");
+    kill (getpid(), SIGINT);
+  }
 }
 
 std::string
