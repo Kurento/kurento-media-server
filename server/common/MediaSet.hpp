@@ -66,6 +66,8 @@ public:
 
   static MediaSet &getMediaSet();
 
+  sigc::signal<void> signalEmpty;
+
 private:
 
   bool finishLoop ();
@@ -77,6 +79,8 @@ private:
   Glib::Thread *thread;
 
   void releasePointer (MediaObjectImpl *obj);
+
+  void checkEmpty ();
 
   MediaSet ();
 

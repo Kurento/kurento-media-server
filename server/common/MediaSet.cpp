@@ -396,6 +396,7 @@ void MediaSet::releasePointer (MediaObjectImpl *mediaObject)
       GST_DEBUG ("Destroying %s", mediaObject->getId().c_str() );
       delete mediaObject;
     });
+    checkEmpty();
   } else {
     lock.release();
     GST_DEBUG ("Thread pool finished, destroying on the same thread %s",
@@ -495,6 +496,16 @@ MediaSet::removeEventHandler (const std::string &sessionId,
     if (it2 != eventHandler[sessionId].end() ) {
       it2->second.erase (handlerId);
     }
+  }
+}
+
+void
+MediaSet::checkEmpty()
+{
+  RecMutex::Lock lock (mutex);
+
+  if ( empty() ) {
+    signalEmpty.emit();
   }
 }
 
