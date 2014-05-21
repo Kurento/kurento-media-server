@@ -18,6 +18,7 @@
 #include "RabbitMQEventHandler.hpp"
 
 #include <MediaObjectImpl.hpp>
+#include <MediaSet.hpp>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -69,6 +70,11 @@ RabbitMQPipeline::RabbitMQPipeline (Glib::KeyFile &confFile,
                   confFile, /* fixedPort */ false) );
   httpService->start();
   setConfig (address, port);
+
+  MediaSet::getMediaSet().signalEmpty.connect ([] () {
+    GST_INFO ("Mediaset is empty, exiting from child process");
+    kill (getpid(), SIGINT);
+  });
 }
 
 RabbitMQPipeline::~RabbitMQPipeline()
