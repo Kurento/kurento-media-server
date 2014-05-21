@@ -13,7 +13,6 @@
  *
  */
 
-#include <sys/signalfd.h>
 #include <config.h>
 
 #include "media_config.hpp"
@@ -29,6 +28,8 @@
 
 #include "services/Service.hpp"
 #include "services/ServiceFactory.hpp"
+
+#include <SignalHandler.hpp>
 
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -290,45 +291,12 @@ load_config (const std::string &file_name)
   GST_INFO ("Configuration loaded successfully");
 }
 
-static bool
-signal_handler (Glib::IOCondition cond)
+static void
+signal_handler (uint32_t signo)
 {
   static unsigned int __terminated = 0;
-  struct signalfd_siginfo si;
-  gsize bytes_read, count = sizeof (si);
-  Glib::IOStatus status;
 
-  if (cond & (Glib::IO_NVAL | Glib::IO_ERR | Glib::IO_HUP) ) {
-    return false;
-  }
-
-  /* Read signal info */
-  status = channel->read ( (char *) &si, count, bytes_read);
-
-  switch (status) {
-  case Glib::IO_STATUS_ERROR:
-    GST_ERROR ("Error occurred.");
-    return false;
-
-  case Glib::IO_STATUS_EOF:
-    GST_DEBUG ("End of file.");
-    return false;
-
-  case Glib::IO_STATUS_AGAIN:
-    GST_DEBUG ("Resource temporarily unavailable.");
-    return false;
-
-  case Glib::IO_STATUS_NORMAL:
-    if (bytes_read != count) {
-      GST_DEBUG ("Could not read siginfo structure");
-      return false;
-    }
-
-    break;
-  }
-
-  /* Manage signal */
-  switch (si.ssi_signo) {
+  switch (signo) {
   case SIGINT:
   case SIGTERM:
     if (__terminated == 0) {
@@ -341,7 +309,7 @@ signal_handler (Glib::IOCondition cond)
 
   case SIGPIPE:
     GST_DEBUG ("Ignore sigpipe signal");
-    return false;
+    break;
 
   case SIGSEGV:
     GST_DEBUG ("Segmentation fault. Aborting process execution");
@@ -350,43 +318,6 @@ signal_handler (Glib::IOCondition cond)
   default:
     break;
   }
-
-  return true;
-}
-
-static Glib::RefPtr<Glib::IOSource>
-setup_signalfd ()
-{
-  Glib::RefPtr<Glib::IOSource> source;
-  sigset_t mask;
-  int fd;
-
-  sigemptyset (&mask);
-  sigaddset (&mask, SIGINT);
-  sigaddset (&mask, SIGTERM);
-  sigaddset (&mask, SIGSEGV);
-  sigaddset (&mask, SIGPIPE);
-
-  if (sigprocmask (SIG_BLOCK, &mask, NULL) < 0) {
-    throw "Failed to set signal mask";
-  }
-
-  fd = signalfd (-1, &mask, 0);
-
-  if (fd < 0) {
-    throw "Failed to create signal descriptor";
-  }
-
-  channel = Glib::IOChannel::create_from_fd (fd);
-  channel->set_close_on_unref (true);
-  channel->set_encoding ("");
-  channel->set_buffered (false);
-
-  source = channel->create_watch (Glib::IO_IN | Glib::IO_HUP | Glib::IO_ERR |
-                                  Glib::IO_NVAL);
-  source->connect (sigc::ptr_fun (&signal_handler) );
-
-  return source;
 }
 
 static void
@@ -438,7 +369,8 @@ check_if_plugins_are_available ()
 int
 main (int argc, char **argv)
 {
-  Glib::RefPtr<Glib::Source> source;
+  sigset_t mask;
+  std::shared_ptr <SignalHandler> signalHandler;
   GError *error = NULL;
   GOptionContext *context;
   gchar *oldEnv, *newEnv;
@@ -476,8 +408,13 @@ main (int argc, char **argv)
   check_if_plugins_are_available ();
 
   /* Install our signal handler */
-  source = setup_signalfd();
-  source->attach (Glib::MainContext::get_default() );
+  sigemptyset (&mask);
+  sigaddset (&mask, SIGINT);
+  sigaddset (&mask, SIGTERM);
+  sigaddset (&mask, SIGSEGV);
+  sigaddset (&mask, SIGPIPE);
+  signalHandler = std::shared_ptr <SignalHandler> (new SignalHandler (mask,
+                  signal_handler) );
 
   GST_INFO ("Kmsc version: %s", get_version () );
 
@@ -492,7 +429,7 @@ main (int argc, char **argv)
 
   loop->run ();
 
-  source->destroy();
+  signalHandler.reset();
 
   deleteCertificate ();
 
