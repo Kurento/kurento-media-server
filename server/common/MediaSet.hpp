@@ -64,8 +64,6 @@ public:
 
   static MediaSet &getMediaSet();
 
-  static void deleter (MediaObjectImpl *mo);
-
 private:
 
   bool finishLoop ();

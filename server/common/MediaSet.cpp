@@ -498,11 +498,6 @@ MediaSet::removeEventHandler (const std::string &sessionId,
   }
 }
 
-void MediaSet::deleter (MediaObjectImpl *mo)
-{
-  GST_ERROR ("Deleting");
-}
-
 MediaSet::StaticConstructor MediaSet::staticConstructor;
 
 MediaSet::StaticConstructor::StaticConstructor()
