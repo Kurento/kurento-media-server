@@ -498,6 +498,12 @@ MediaSet::removeEventHandler (const std::string &sessionId,
   }
 }
 
+bool
+MediaSet::empty()
+{
+  return objectsMap.empty();
+}
+
 MediaSet::StaticConstructor MediaSet::staticConstructor;
 
 MediaSet::StaticConstructor::StaticConstructor()

@@ -62,6 +62,8 @@ public:
   std::shared_ptr<MediaObjectImpl> getMediaObject (
     const std::string &sessionId, const std::string &mediaObjectRef);
 
+  bool empty();
+
   static MediaSet &getMediaSet();
 
 private:
