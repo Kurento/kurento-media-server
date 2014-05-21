@@ -20,6 +20,7 @@
 #include "HttpService.hpp"
 #include "RabbitMQListener.hpp"
 #include "RabbitMQPipeline.hpp"
+#include <SignalHandler.hpp>
 
 namespace kurento
 {
@@ -36,6 +37,8 @@ protected:
   virtual void processMessage (RabbitMQMessage &message);
 
 private:
+  void childSignal (uint32_t signal);
+
   std::list <int> childs;
   std::shared_ptr<RabbitMQPipeline> pipeline;
 
@@ -43,6 +46,8 @@ private:
   int port;
 
   Glib::KeyFile confFile;
+
+  std::shared_ptr <SignalHandler> signalHandler;
 
   class StaticConstructor
   {

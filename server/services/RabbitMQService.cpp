@@ -65,6 +65,7 @@ check_port (int port)
 
 RabbitMQService::RabbitMQService (Glib::KeyFile &confFile) : Service (confFile)
 {
+  sigset_t mask;
   std::string address;
   int port;
 
@@ -90,6 +91,11 @@ RabbitMQService::RabbitMQService (Glib::KeyFile &confFile) : Service (confFile)
 
   setConfig (address, port);
   this->confFile.load_from_data (confFile.to_data() );
+
+  sigemptyset (&mask);
+  sigaddset (&mask, SIGCHLD);
+  signalHandler = std::shared_ptr <SignalHandler> (new SignalHandler (mask,
+                  std::bind (&RabbitMQService::childSignal, this, std::placeholders::_1) ) );
 }
 
 RabbitMQService::~RabbitMQService()
@@ -136,12 +142,25 @@ void RabbitMQService::stop ()
   }
 
   for (auto pid : childs) {
-    int status;
-
+    GST_DEBUG ("Killing child %d", pid);
     kill (pid, SIGINT);
-    waitpid (pid, &status, 0);
   }
 }
+
+void
+RabbitMQService::childSignal (uint32_t signal)
+{
+  int pid;
+  int status;
+
+  pid = waitpid (-1, &status, WNOHANG);
+
+  if (pid > 0) {
+    GST_DEBUG ("Child %d terminated", pid);
+    childs.remove (pid);
+  }
+}
+
 
 RabbitMQService::StaticConstructor RabbitMQService::staticConstructor;
 
