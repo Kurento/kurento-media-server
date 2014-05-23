@@ -40,9 +40,11 @@ function(add_test_program test_name sources)
     DEPENDS ${test_name})
 
   if (EXISTS ${VALGRIND})
+    set (SUPPS " ")
     foreach(SUP ${SUPPRESSIONS})
       set (SUPPS "${SUPPS} --suppressions=${SUP}")
     endforeach()
+    STRING(REGEX REPLACE "^ " "" SUPPS ${SUPPS})
 
     add_custom_target (${test_name}.valgrind
       DEPENDS ${test_name})
@@ -51,7 +53,7 @@ function(add_test_program test_name sources)
       COMMENT "Running valgrind for ${test_name}"
       COMMAND ${TEST_PROPERTIES} CK_DEFAULT_TIMEOUT=360
         G_SLICE=always-malloc ${VALGRIND} -q
-        $(SUPPS)
+        ${SUPPS}
         --tool=memcheck --leak-check=yes --trace-children=yes
         --leak-resolution=high --show-possibly-lost=no
         --num-callers=20
