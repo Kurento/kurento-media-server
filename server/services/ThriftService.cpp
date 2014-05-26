@@ -29,7 +29,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoThriftService"
 
 #define THRIFT_GROUP "Thrift"
-#define THRIFT_SERVER_ADDRESS "serverAddress"
 #define THRIFT_SERVER_SERVICE_PORT "serverPort"
 
 #define DEFAULT_ADDRESS "localhost"
@@ -56,14 +55,6 @@ check_port (int port)
 
 ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
 {
-  try {
-    address = confFile.get_string (THRIFT_GROUP, THRIFT_SERVER_ADDRESS);
-  } catch (const Glib::KeyFileError &err) {
-    GST_WARNING ("Setting default address %s to media server",
-                 DEFAULT_ADDRESS);
-    address = DEFAULT_ADDRESS;
-  }
-
   try {
     port = confFile.get_integer (THRIFT_GROUP, THRIFT_SERVER_SERVICE_PORT);
     check_port (port);

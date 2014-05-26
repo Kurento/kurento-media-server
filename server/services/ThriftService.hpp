@@ -33,7 +33,6 @@ public:
 
 private:
   int port;
-  std::string address;
   std::shared_ptr<apache::thrift::server::TNonblockingServer> server;
   std::shared_ptr<HttpService> httpService;
   Glib::Thread *thread;
