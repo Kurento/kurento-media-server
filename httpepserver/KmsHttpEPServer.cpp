@@ -50,6 +50,8 @@
 #define GST_CAT_DEFAULT kms_http_ep_server_debug_category
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
+#define RESOLV_TIMEOUT 5000 /* 5 seconds */
+
 #define KMS_HTTP_EP_SERVER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KMS_TYPE_HTTP_EP_SERVER, KmsHttpEPServerPrivate))
 struct _KmsHttpEPServerPrivate {
   GHashTable *handlers;
@@ -106,6 +108,7 @@ struct tmp_data {
   GDestroyNotify notify;
   gpointer data;
   KmsHttpEPServer *server;
+  guint id;
 };
 
 struct tmp_register_data {
@@ -796,6 +799,11 @@ destroy_tmp_register_data (struct tmp_register_data *tdata)
 static void
 destroy_tmp_data (struct tmp_data *tdata)
 {
+  if (tdata->id > 0) {
+    /* Remove timeout */
+    kms_http_loop_remove (tdata->server->priv->loop, tdata->id);
+  }
+
   if (tdata->server != NULL) {
     g_object_unref (tdata->server);
   }
@@ -1132,6 +1140,7 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
     g_set_error (&gerr, KMS_HTTP_EP_SERVER_ERROR,
                  HTTPEPSERVER_RESOLVE_CANCELED_ERROR,
                  "Domain name resolution canceled");
+    tdata->id = 0;
     break;
 
   case SOUP_STATUS_CANT_RESOLVE:
@@ -1155,6 +1164,16 @@ soup_address_callback (SoupAddress *addr, guint status, gpointer user_data)
   destroy_tmp_data (tdata);
 }
 
+static gboolean
+cancel_resolution (GCancellable *cancel)
+{
+  GST_WARNING ("Name resolution timed out.");
+
+  g_cancellable_cancel (cancel);
+
+  return G_SOURCE_REMOVE;
+}
+
 static void
 kms_http_ep_server_start_impl (KmsHttpEPServer *self,
                                KmsHttpEPServerNotifyCallback start_cb,
@@ -1162,6 +1181,7 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
 {
   struct tmp_data *tdata;
   SoupAddress *addr = NULL;
+  GCancellable *cancel;
   guint status;
 
   if (self->priv->server != NULL) {
@@ -1175,15 +1195,20 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
     return;
   }
 
+  cancel = g_cancellable_new ();
+
   tdata = g_slice_new (struct tmp_data);
   tdata->cb = start_cb;
   tdata->notify = notify;
   tdata->data = user_data;
   tdata->server = KMS_HTTP_EP_SERVER ( g_object_ref (self) );
+  tdata->id = kms_http_loop_timeout_add_full (self->priv->loop,
+              G_PRIORITY_DEFAULT_IDLE, RESOLV_TIMEOUT, (GSourceFunc) cancel_resolution,
+              cancel, g_object_unref);
 
   addr = soup_address_new (self->priv->iface, self->priv->port);
 
-  status = soup_address_resolve_sync (addr, NULL);
+  status = soup_address_resolve_sync (addr, cancel);
   soup_address_callback (addr, status, tdata);
 }
 
