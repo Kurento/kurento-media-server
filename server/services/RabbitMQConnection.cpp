@@ -163,6 +163,14 @@ void RabbitMQConnection::declareQueue (const std::string &queue_name,
   exception_on_error (amqp_get_rpc_reply (conn), "Declaring queue");
 }
 
+void RabbitMQConnection::deleteQueue (const std::string &queue_name,
+                                      bool ifUnused, bool ifEmpty)
+{
+  amqp_bytes_t queue = amqp_cstring_bytes (queue_name.c_str() );
+
+  amqp_queue_delete (conn, 1, queue, ifUnused, ifEmpty);
+}
+
 void RabbitMQConnection::declareExchange (const std::string &exchange_name,
     const std::string &type, bool durable, const int ttl)
 {
@@ -187,6 +195,15 @@ void RabbitMQConnection::declareExchange (const std::string &exchange_name,
                          /* passive */ false, durable, table);
   exception_on_error (amqp_get_rpc_reply (conn), "Declaring exchange");
 }
+
+void RabbitMQConnection::deleteExchange (const std::string &exchange_name,
+    bool ifUnused)
+{
+  amqp_bytes_t exchange = amqp_cstring_bytes (exchange_name.c_str() );
+
+  amqp_exchange_delete (conn, 1, exchange, ifUnused);
+}
+
 
 void
 RabbitMQConnection::bindQueue (const std::string &queue_name,

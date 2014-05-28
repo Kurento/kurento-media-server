@@ -70,8 +70,11 @@ public:
   int getFd();
   void declareQueue (const std::string &queue_name, bool durable = false,
                      int ttl = -1);
-  void declareExchange (const std::string &queue_name, const std::string &type,
+  void deleteQueue (const std::string &queue_name, bool ifUnused = false,
+                    bool ifEmpty = false);
+  void declareExchange (const std::string &exchange_name, const std::string &type,
                         bool durable = false, const int ttl = -1);
+  void deleteExchange (const std::string &exchange_name, bool ifUnused = false);
   void bindQueue (const std::string &queue_name,
                   const std::string &exchange_name);
   void consumeQueue (const std::string &queue_name, const std::string &tag);

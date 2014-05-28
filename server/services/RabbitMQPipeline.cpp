@@ -80,6 +80,13 @@ RabbitMQPipeline::RabbitMQPipeline (Glib::KeyFile &confFile,
 RabbitMQPipeline::~RabbitMQPipeline()
 {
   stopListen();
+
+  if (!pipelineId.empty() ) {
+    getConnection()->deleteQueue (PIPELINE_QUEUE_PREFIX + pipelineId);
+    getConnection()->deleteExchange (PIPELINE_QUEUE_PREFIX + pipelineId);
+    getConnection()->deleteExchange (EVENT_EXCHANGE_PREFIX + pipelineId);
+  }
+
   httpService->stop();
 }
 
