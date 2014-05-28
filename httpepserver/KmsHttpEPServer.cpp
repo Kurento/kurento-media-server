@@ -1162,6 +1162,7 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
 {
   struct tmp_data *tdata;
   SoupAddress *addr = NULL;
+  guint status;
 
   if (self->priv->server != NULL) {
     GST_WARNING ("Server is already running");
@@ -1182,10 +1183,8 @@ kms_http_ep_server_start_impl (KmsHttpEPServer *self,
 
   addr = soup_address_new (self->priv->iface, self->priv->port);
 
-  soup_address_resolve_async (addr, NULL,
-                              NULL /* FIXME: Add cancellable support */,
-                              (SoupAddressCallback) soup_address_callback,
-                              tdata);
+  status = soup_address_resolve_sync (addr, NULL);
+  soup_address_callback (addr, status, tdata);
 }
 
 static void
