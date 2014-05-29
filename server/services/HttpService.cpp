@@ -119,8 +119,7 @@ void HttpService::start ()
   }
 
   if (error) {
-    /* Http server could not start */
-    throw;
+    throw new HttpServiceException ("Http service could not start");
   }
 }
 
@@ -151,8 +150,7 @@ void HttpService::stop ()
   }
 
   if (error) {
-    /* Http server could not stop */
-    throw;
+    throw new HttpServiceException ("Http service could not stop");
   }
 }
 

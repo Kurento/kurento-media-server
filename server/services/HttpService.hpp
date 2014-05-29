@@ -22,6 +22,21 @@
 namespace kurento
 {
 
+class HttpServiceException : public std::exception
+{
+
+public:
+  HttpServiceException (std::string desc) : desc (desc) {
+  }
+  virtual ~HttpServiceException() {}
+  virtual const char *what() const throw() {
+    return desc.c_str();
+  }
+
+private:
+  std::string desc;
+};
+
 class HttpService: public Service
 {
 public:
