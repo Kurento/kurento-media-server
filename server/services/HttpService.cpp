@@ -94,8 +94,6 @@ http_server_handler_cb (KmsHttpEPServer *self, GError *err, gpointer data)
 
 void HttpService::start ()
 {
-  Glib::Cond cond;
-  Glib::Mutex mutex;
   bool finish = FALSE;
   bool error;
 
@@ -110,21 +108,15 @@ void HttpService::start ()
       GST_INFO ("Service successfully started");
     }
 
-    mutex.lock();
     finish = TRUE;
-    cond.signal();
-    mutex.unlock();
   };
 
   kms_http_ep_server_start (server, http_server_handler_cb, &startHandler, NULL);
 
-  mutex.lock();
-
   while (!finish) {
-    cond.wait (mutex);
+    /* Yeld the execution to next main loop iteration and block until done */
+    g_main_context_iteration (NULL, TRUE);
   }
-
-  mutex.unlock();
 
   if (error) {
     /* Http server could not start */
@@ -134,8 +126,6 @@ void HttpService::start ()
 
 void HttpService::stop ()
 {
-  Glib::Cond cond;
-  Glib::Mutex mutex;
   bool finish = FALSE;
   bool error;
 
@@ -150,21 +140,15 @@ void HttpService::stop ()
       GST_INFO ("Service stopped");
     }
 
-    mutex.lock();
     finish = TRUE;
-    cond.signal();
-    mutex.unlock();
   };
 
   kms_http_ep_server_stop (server, http_server_handler_cb, &stopHandler, NULL);
 
-  mutex.lock();
-
   while (!finish) {
-    cond.wait (mutex);
+    /* Main loop is not running so we set might_block to FALSE */
+    g_main_context_iteration (NULL, FALSE);
   }
-
-  mutex.unlock();
 
   if (error) {
     /* Http server could not stop */
