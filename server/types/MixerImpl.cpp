@@ -46,7 +46,34 @@ MixerImpl::connect (MediaType media,
                     std::shared_ptr<HubPort> source,
                     std::shared_ptr<HubPort> sink)
 {
-  /* TODO */
+  std::shared_ptr<HubPortImpl> sourcePort =
+    std::dynamic_pointer_cast<HubPortImpl> (source);
+  std::shared_ptr<HubPortImpl> sinkPort =
+    std::dynamic_pointer_cast<HubPortImpl> (sink);
+  std::string  action;
+  bool connected;
+
+  switch (media.getValue() ) {
+  case MediaType::AUDIO:
+    action = "connect-audio";
+    break;
+
+  case MediaType::VIDEO:
+    action = "connect-video";
+    break;
+
+  default:
+    throw KurentoException (UNSUPPORTED_MEDIA_TYPE, "Invalid media type");
+  };
+
+  g_signal_emit_by_name (G_OBJECT (element), action.c_str(),
+                         sourcePort->getHandlerId(),
+                         sinkPort->getHandlerId(),
+                         &connected);
+
+  if (!connected) {
+    throw KurentoException (CONNECT_ERROR, "Can not connect video ports");
+  }
 }
 
 void
@@ -54,7 +81,31 @@ MixerImpl::disconnect (MediaType media,
                        std::shared_ptr<HubPort> source,
                        std::shared_ptr<HubPort> sink)
 {
-  /* TODO */
+  std::shared_ptr<HubPortImpl> sourcePort =
+    std::dynamic_pointer_cast<HubPortImpl> (source);
+  std::shared_ptr<HubPortImpl> sinkPort =
+    std::dynamic_pointer_cast<HubPortImpl> (sink);
+  std::string  action;
+  bool connected;
+
+  switch (media.getValue() ) {
+  case MediaType::AUDIO:
+    action = "disconnect-audio";
+    break;
+
+  default:
+    /* Only audio is suppported so far */
+    throw KurentoException (UNSUPPORTED_MEDIA_TYPE, "Invalid media type");
+  };
+
+  g_signal_emit_by_name (G_OBJECT (element), action.c_str(),
+                         sourcePort->getHandlerId(),
+                         sinkPort->getHandlerId(),
+                         &connected);
+
+  if (!connected) {
+    throw KurentoException (CONNECT_ERROR, "Can not connect video ports");
+  }
 }
 
 MixerImpl::StaticConstructor
