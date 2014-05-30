@@ -1,3 +1,114 @@
+kurento (4.3.0) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+
+  [ Santiago Carot-Nemesio ]
+  * Add service class hierarchy
+  * Remove useless code
+  * Provide lambdas to start and stop methods
+  * Start thrift server
+  * Use a factory to instantiate new services
+  * Add HttpService
+  * Do not run if configuration couldn't be read
+  * Remove unneded macros
+  * main: Fix memory leak
+  * ServerMethods: Fix bug getting session id from json requests
+  * CrowdDetectorFilterImpl: Fix bad roi name
+  * Remove repeated statement
+  * Add skelleton files for a new test
+  * Implement test to check unrefs of elements from direfferent sessions
+
+  [ David Fernandez ]
+  * CrowdDetector: Modify filter to accept relative points
+
+  [ Santiago Carot-Nemesio ]
+  * ThriftService: Make the server to terminate gracefully
+  * HttpService: Manage external variable httepserver just in HttpService class
+
+  [ Jose Antonio Santos Cadenas ]
+  * RabbitMQService: Queue system initialization
+  * main: Gracefully catch exceptions and print an error message before exit if service cannot start
+  * rabbitmq: Extract rabbit connection functionality to a separate class
+  * RabbitMQ: Separate common listener code
+  * rabbitmq: Create class to generate a queue to listen pipeline requests
+  * rabbitmq: Generate responses and send back to client
+  * Change object id's from uint64 to string
+  * RabbitMQService: Start HttpService
+  * RabbitMQPipeline: Process pipeline messages
+  * MediaObjectImpl: Generate id using pipelineId
+  * RabbitMQ: Declare event exchange for each pipeline
+  * debian: Add librabbitmq-dev as a build dependency
+
+  [ David Fernandez ]
+  * cmake: Compile plugins from media server
+
+  [ Santiago Carot-Nemesio ]
+  * ServerMethods: Remove useless include
+  * ThriftService: Use shared pointers
+  * Service: Fix erroneous include
+
+  [ Jose Antonio Santos Cadenas ]
+  * RabbitMQ: Change prefix of event exchange
+  * RabbitMQ: Add expiration time to queues
+  * RabbitMQ: Add expiration time to exchanges
+  * RabbitMQ: Add durable configuration for exchange creation
+  * EventHandler: Make different implementations for each transport
+  * Fix tests race conditions
+  * EventHandler: Do not set sendEvent method as const
+  * MediaSet: Separate subscriptionId from handlerId
+  * MediaSet: Improve management of handlers live cycle
+  * RabbitMQConnection: Offer address and port getters
+  * RabbitMQPipeline: Fix log tag
+  * RabbitMQPipeline: Fix identation
+  * RabbitMQPipeline: Store pipelineId
+  * RabbitMQ: Implement EventHandler
+  * RabbitMQConnection: Fix error message for TimeoutException
+  * Change testing synchronization mechanism
+  * RabbitMQListener: Do not destroy connection when stop listening
+  * RabbitMQ: Create a wrapper class for readed messages
+  * main: Do not let children processes to delete temporal files
+  * RabbitMQConnection: Add flag to avoid connection close on destructor
+  * RabbitMQMessage: Add a flag to allow a message not be ack
+  * RabbitMQPipeline: Remove stop method, it is implicit when it is destroyed
+  * HttpService: Allow to listen on any available port even if is configured
+  * RabbitMQ: Start one http server per pipeline
+  * RabbitMQService: Create a child process to handle requests
+  * Remove error messages during services configuration
+
+  [ David Fernandez ]
+  * Fix problem with --help param
+
+  [ Jose Antonio Santos Cadenas ]
+  * Create a generic class to use a MainLoop integrated signal handler
+  * MediaSet: Remove useless method
+  * MediaSet: Add empty method
+  * MediaSet: Notify if mediaset becames empty
+  * RabbitMQPipeline: Exit from child process when mediaset if empty
+  * RabbitMQService: Wait for children state changes
+  * RabbitMQPipeline: Kill child process if pipeline cannot be created
+  * cmake: Set valgrind suppresions correctly
+
+  [ Santiago Carot-Nemesio ]
+  * ThriftService: Remove unused "address" parameter
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugins submodule
+
+  [ Santiago Carot-Nemesio ]
+  * HttpEPServer: Do not use main context to resolve addresses
+  * HttpEPServer: Add timeout to cancel name resolution
+  * Never block main loop executiuon.
+  * HttpService: Throw exception on error
+
+  [ Jose Antonio Santos Cadenas ]
+  * RabbitMQ: Delete queues and exchanges when they are not needed
+  * Prepare release 4.3.0
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Sat, 31 May 2014 11:23:11 +0200
+
 kurento (4.2.5) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
