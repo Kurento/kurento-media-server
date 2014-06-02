@@ -22,7 +22,6 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <version.hpp>
-#include "httpendpointserver.hpp"
 #include <ModuleLoader.hpp>
 #include <glib/gstdio.h>
 
@@ -50,7 +49,6 @@ using ::Glib::KeyFileFlags;
 static Service *service;
 
 GstSDPMessage *sdpPattern;
-KmsHttpEPServer *httpepserver;
 std::string stunServerAddress, pemCertificate;
 __pid_t pid;
 gint stunServerPort;

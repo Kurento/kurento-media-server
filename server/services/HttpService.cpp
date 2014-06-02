@@ -15,7 +15,6 @@
 
 #include <gst/gst.h>
 #include "HttpService.hpp"
-#include "httpendpointserver.hpp"
 
 #define GST_CAT_DEFAULT kurento_http_service
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -42,8 +41,13 @@ check_port (int port)
 HttpService::HttpService (Glib::KeyFile &confFile,
                           bool fixedPort) : Service (confFile)
 {
+  std::string interface;
+  std::string announcedAddr;
+  uint port;
+
   try {
-    address = confFile.get_string (HTTP_SERVICE_GROUP, HTTP_SERVICE_ADDRESS);
+    interface = confFile.get_string (HTTP_SERVICE_GROUP,
+                                     HTTP_SERVICE_ADDRESS);
   } catch (const Glib::KeyFileError &err) {
     GST_WARNING ("Http end point server will be listening to all interfaces");
   }
@@ -70,17 +74,9 @@ HttpService::HttpService (Glib::KeyFile &confFile,
                  "IP address to compose URLs");
   }
 
-  server = kms_http_ep_server_new (
-             KMS_HTTP_EP_SERVER_PORT, port,
-             KMS_HTTP_EP_SERVER_INTERFACE,
-             (address.empty() ) ? NULL : address.c_str (),
-             KMS_HTTP_EP_SERVER_ANNOUNCED_IP,
-             (announcedAddr.empty() ) ? NULL : announcedAddr.c_str (),
-             NULL);
-
-  /* FIXME: Do not use an extern variable. Develop a proper register and
-   * unregister mechanism instead. */
-  httpepserver = KMS_HTTP_EP_SERVER (g_object_ref (G_OBJECT (server) ) );
+  if (!HttpEndPointServer::configure (port, interface, announcedAddr) ) {
+    throw HttpServiceException ("Can not configure HTTP server");
+  }
 }
 
 static void
@@ -111,7 +107,8 @@ void HttpService::start ()
     finish = TRUE;
   };
 
-  kms_http_ep_server_start (server, http_server_handler_cb, &startHandler, NULL);
+  HttpEndPointServer::getHttpEndPointServer()->start (http_server_handler_cb,
+      &startHandler, NULL);
 
   while (!finish) {
     /* Yeld the execution to next main loop iteration and block until done */
@@ -142,7 +139,8 @@ void HttpService::stop ()
     finish = TRUE;
   };
 
-  kms_http_ep_server_stop (server, http_server_handler_cb, &stopHandler, NULL);
+  HttpEndPointServer::getHttpEndPointServer()->stop (http_server_handler_cb,
+      &stopHandler, NULL);
 
   while (!finish) {
     /* Main loop is not running so we set might_block to FALSE */
@@ -156,12 +154,6 @@ void HttpService::stop ()
 
 HttpService::~HttpService()
 {
-  GST_DEBUG ("Destroying HttpService");
-  g_object_unref (G_OBJECT (server) );
-
-  /* FIXME: Do not use an extern variable. Develop a proper register and
-   * unregister mechanism instead. */
-  g_object_unref (G_OBJECT (httpepserver) );
 }
 
 HttpService::StaticConstructor HttpService::staticConstructor;

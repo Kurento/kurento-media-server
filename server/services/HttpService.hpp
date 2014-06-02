@@ -16,7 +16,7 @@
 #ifndef __HTTP_SERVICE_HPP__
 #define __HTTP_SERVICE_HPP__
 
-#include <KmsHttpEPServer.h>
+#include <HttpEndPointServer.hpp>
 #include "Service.hpp"
 
 namespace kurento
@@ -46,10 +46,6 @@ public:
   virtual void stop ();
 
 private:
-  int port;
-  std::string address;
-  std::string announcedAddr;
-  KmsHttpEPServer *server;
 
   class StaticConstructor
   {

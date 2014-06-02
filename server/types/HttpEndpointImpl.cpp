@@ -13,6 +13,7 @@
  *
  */
 
+#include <HttpEndPointServer.hpp>
 #include "HttpEndpointImpl.hpp"
 
 #define GST_CAT_DEFAULT kurento_http_endpoint_impl
@@ -130,7 +131,7 @@ HttpEndpointImpl::unregister_end_point ()
     mutex.unlock ();
   };
 
-  kms_http_ep_server_unregister_end_point (httpepserver, uri.c_str(),
+  HttpEndPointServer::getHttpEndPointServer()->unregisterEndPoint (uri,
       unregister_end_point_adaptor_function, &aux, NULL);
 
   mutex.lock ();
@@ -151,7 +152,7 @@ HttpEndpointImpl::register_end_point ()
 
   std::function <void (const gchar *, GError *err) > aux = [&] (const gchar * uri,
   GError * err) {
-    gchar *addr;
+    std::string addr;
     guint port;
     gchar *url_tmp;
 
@@ -160,25 +161,26 @@ HttpEndpointImpl::register_end_point ()
       goto do_signal;
     }
 
-    actionRequestedHandlerId = g_signal_connect (httpepserver,
-                               "action-requested",
-                               G_CALLBACK (action_requested_adaptor_function),
-                               &actionRequestedLambda);
-    urlRemovedHandlerId = g_signal_connect (httpepserver, "url-removed",
-                                            G_CALLBACK (session_terminated_adaptor_function),
-                                            &sessionTerminatedLambda);
-    urlExpiredHandlerId = g_signal_connect (httpepserver, "url-expired",
-                                            G_CALLBACK (session_terminated_adaptor_function),
-                                            &sessionTerminatedLambda);
+    actionRequestedHandlerId =
+      HttpEndPointServer::getHttpEndPointServer()->connectSignal ("action-requested",
+          G_CALLBACK (action_requested_adaptor_function),
+          &actionRequestedLambda);
+    urlRemovedHandlerId =
+      HttpEndPointServer::getHttpEndPointServer()->connectSignal ("url-removed",
+          G_CALLBACK (session_terminated_adaptor_function),
+          &sessionTerminatedLambda);
+    urlExpiredHandlerId =
+      HttpEndPointServer::getHttpEndPointServer()->connectSignal ("url-expired",
+          G_CALLBACK (session_terminated_adaptor_function),
+          &sessionTerminatedLambda);
 
-    g_object_get (G_OBJECT (httpepserver), "announced-address", &addr, "port",
-                  &port, NULL);
+    addr = HttpEndPointServer::getHttpEndPointServer()->getAnnouncedAddress();
+    port = HttpEndPointServer::getHttpEndPointServer()->getPort();
 
-    url_tmp = g_strdup_printf ("http://%s:%d%s", addr, port, uri);
+    url_tmp = g_strdup_printf ("http://%s:%d%s", addr.c_str (), port, uri);
     url = std::string (url_tmp);
     g_free (url_tmp);
     urlSet = true;
-    g_free (addr);
 
 do_signal:
     mutex.lock ();
@@ -187,9 +189,9 @@ do_signal:
     mutex.unlock ();
   };
 
-  kms_http_ep_server_register_end_point (httpepserver, element,
-                                         disconnectionTimeout, register_end_point_adaptor_function,
-                                         &aux, NULL);
+  HttpEndPointServer::getHttpEndPointServer()->registerEndPoint (element,
+      disconnectionTimeout, register_end_point_adaptor_function,
+      &aux, NULL);
   mutex.lock ();
 
   while (!done) {
@@ -275,17 +277,20 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
     GST_DEBUG ("Session terminated URI %s", uriStr.c_str() );
 
     if (actionRequestedHandlerId > 0) {
-      g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
+      HttpEndPointServer::getHttpEndPointServer()->disconnectSignal (
+        actionRequestedHandlerId);
       actionRequestedHandlerId = 0;
     }
 
     if (urlExpiredHandlerId > 0) {
-      g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
+      HttpEndPointServer::getHttpEndPointServer()->disconnectSignal (
+        urlExpiredHandlerId);
       urlExpiredHandlerId = 0;
     }
 
     if (urlRemovedHandlerId > 0) {
-      g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+      HttpEndPointServer::getHttpEndPointServer()->disconnectSignal (
+        urlRemovedHandlerId);
       urlRemovedHandlerId = 0;
     }
 
@@ -308,15 +313,18 @@ HttpEndpointImpl::HttpEndpointImpl (int disconnectionTimeout,
 HttpEndpointImpl::~HttpEndpointImpl()
 {
   if (actionRequestedHandlerId > 0) {
-    g_signal_handler_disconnect (httpepserver, actionRequestedHandlerId);
+    HttpEndPointServer::getHttpEndPointServer()->disconnectSignal (
+      actionRequestedHandlerId);
   }
 
   if (urlExpiredHandlerId > 0) {
-    g_signal_handler_disconnect (httpepserver, urlExpiredHandlerId);
+    HttpEndPointServer::getHttpEndPointServer()->disconnectSignal (
+      urlExpiredHandlerId);
   }
 
   if (urlRemovedHandlerId > 0) {
-    g_signal_handler_disconnect (httpepserver, urlRemovedHandlerId);
+    HttpEndPointServer::getHttpEndPointServer()->disconnectSignal (
+      urlRemovedHandlerId);
   }
 
   unregister_end_point ();

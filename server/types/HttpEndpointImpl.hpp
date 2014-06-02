@@ -18,8 +18,7 @@
 
 #include "SessionEndpointImpl.hpp"
 #include <HttpEndpoint.hpp>
-#include "httpendpointserver.hpp"
-#include <httpendpointserver.hpp>
+#include "KmsHttpEPServer.h"
 
 namespace kurento
 {
