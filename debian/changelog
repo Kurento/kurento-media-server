@@ -1,3 +1,14 @@
+kurento (4.3.1) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * Fix compilation error on launchpad
+  * Prepare release 4.3.1
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 02 Jun 2014 10:13:01 +0200
+
 kurento (4.3.0) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
