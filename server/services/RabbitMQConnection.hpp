@@ -16,6 +16,7 @@
 #ifndef __RABBITMQ_CONNECTION_HPP__
 #define __RABBITMQ_CONNECTION_HPP__
 
+#include <memory>
 #include <string>
 #include <exception>
 #include <functional>
