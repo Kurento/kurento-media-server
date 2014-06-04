@@ -852,7 +852,7 @@ kms_http_ep_server_stop_impl (KmsHttpEPServer *self,
 {
   struct tmp_data *tdata;
 
-  tdata = g_slice_new (struct tmp_data);
+  tdata = g_slice_new0 (struct tmp_data);
   tdata->cb = stop_cb;
   tdata->notify = notify;
   tdata->data = user_data;
