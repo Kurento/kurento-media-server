@@ -1,3 +1,20 @@
+kurento (4.3.2) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+
+  [ Santiago Carot-Nemesio ]
+  * HttpEndPointServer: Use a singleton class instead of an extern variable
+
+  [ Jose Antonio Santos Cadenas ]
+  * Fix project version calculation
+  * Allow test to receive arguments from make command
+  * Prepare release 4.3.2
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Wed, 04 Jun 2014 15:34:46 +0200
+
 kurento (4.3.1) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
