@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-set (PROJECT_NAME "kmsc")
+set (PROJECT_NAME "kurento-media-server")
 
 project (kurento-media-server)
 
@@ -31,6 +31,8 @@ else()
   set(PROJECT_VERSION
       ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
 endif()
+
+message (STATUS "Compiling ${PROJECT_NAME}-${PROJECT_VERSION}")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
