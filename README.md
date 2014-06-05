@@ -43,7 +43,7 @@ News and Website
 Information about Kurento can be found on our [website].
 Follow us on Twitter @[kurentoms].
 
-[KurentoImage]: https://0.gravatar.com/avatar/b8fffabbe3831731cb4c4c9667bfa439?s=120
+[KurentoImage]: https://avatars1.githubusercontent.com/u/5392839?s=120
 [LGPL License]: http://www.gnu.org/licenses/lgpl-2.1.html
 [GitHub Repository]: https://github.com/kurento/kurento-media-server
 [GitHub Kurento Group]: https://github.com/kurento
