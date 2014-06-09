@@ -135,6 +135,7 @@ public:
 private:
 
   bool acked = false;
+  bool valid = false;
   amqp_envelope_t envelope;
   std::shared_ptr <RabbitMQConnection> connection;
 

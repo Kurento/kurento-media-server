@@ -238,6 +238,7 @@ RabbitMQConnection::readMessage (struct timeval *timeout,
 
   exception_on_error (amqp_consume_message (conn, &message.envelope, timeout, 0),
                       "Reading message");
+  message.valid = true;
 
   try {
     process (message);
@@ -301,7 +302,7 @@ RabbitMQMessage::RabbitMQMessage (std::shared_ptr <RabbitMQConnection>
 
 RabbitMQMessage::~RabbitMQMessage()
 {
-  if (!acked) {
+  if (!acked && valid) {
     GST_WARNING ("Rejecting message because it is not acked");
     amqp_basic_reject (connection->conn, 1,
                        envelope.delivery_tag, /* requeue */ true);
