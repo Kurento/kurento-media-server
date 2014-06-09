@@ -251,9 +251,6 @@ void
 RabbitMQConnection::sendReply (const amqp_envelope_t &envelope,
                                const amqp_bytes_t &reply)
 {
-  std::string replyTo ( (char *) envelope.message.properties.reply_to.bytes,
-                        envelope.message.properties.reply_to.len);
-
   sendMessage (reply, amqp_empty_bytes, envelope.message.properties.reply_to,
                envelope.message.properties.correlation_id);
 }
