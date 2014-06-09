@@ -16,6 +16,8 @@
 #include <gst/gst.h>
 #include <glibmm.h>
 #include "RabbitMQListener.hpp"
+#include <sys/types.h>
+#include <unistd.h>
 
 #define GST_CAT_DEFAULT kurento_rabbitmq_listener
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -53,9 +55,21 @@ void RabbitMQListener::setConfig (const std::string &address, int port)
 bool
 RabbitMQListener::readMessages (Glib::IOCondition cond)
 {
+  if (cond & (Glib::IO_NVAL | Glib::IO_ERR | Glib::IO_HUP) ) {
+    return false;
+  }
+
+  readMessages();
+
+  return true;
+}
+
+bool
+RabbitMQListener::readMessages ()
+{
   struct timeval timeout;
 
-  if (cond & (Glib::IO_NVAL | Glib::IO_ERR | Glib::IO_HUP) ) {
+  if (getpid () != pid) {
     return false;
   }
 
@@ -67,6 +81,7 @@ RabbitMQListener::readMessages (Glib::IOCondition cond)
       processMessage (message);
     });
   } catch (RabbitMQTimeoutException &e) {
+    return false;
   } catch (RabbitMQException &e) {
     GST_ERROR ("%s", e.what() );
   }
@@ -78,6 +93,7 @@ void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
                                     int ttl)
 {
   Glib::RefPtr<Glib::IOChannel> channel;
+  Glib::RefPtr<Glib::IdleSource> idle;
   int fd;
 
   connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
@@ -104,6 +120,21 @@ void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
   });
 
   source->attach (Glib::MainContext::get_default() );
+
+  /* Add idle source to read all message that are already in the queue,
+   * This is needed because the Channel callback is not being
+   * triggered when the data is already in the socket when the main loop
+   * starts */
+
+  idle = Glib::IdleSource::create();
+
+  idle->connect ([this] () -> bool {
+    return readMessages ();
+  });
+
+  /* Only the same process that creates the channel can read it */
+  pid = getpid ();
+  idle->attach ();
 }
 
 void RabbitMQListener::stopListen ()

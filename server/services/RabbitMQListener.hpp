@@ -41,12 +41,15 @@ protected:
 
 private:
   bool readMessages (Glib::IOCondition cond);
+  bool readMessages ();
 
   std::shared_ptr <RabbitMQConnection> connection;
   Glib::RefPtr<Glib::IOSource> source;
 
   std::string address;
   int port;
+
+  int pid = 0;
 
   class StaticConstructor
   {
