@@ -35,7 +35,6 @@ Build-Depends:
  ktool-rom-processor (>= 1.1.0)
 Standards-Version: 3.9.4
 
-
 Package: kurento
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
@@ -47,10 +46,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  gstreamer1.0-plugins-ugly (>= 1.2.3),
  gnutls-bin,
  libopencv-dev
-Description: Streaming Media Server
+Description: Kurento Streaming Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
-
 
 Package: kurento-dev
 Architecture: any
@@ -64,4 +62,4 @@ Package: kurento-dbg
 Architecture: any
 Depends: ${misc:Depends},
  kurento (= ${binary:Version})
-Description: Debugging symbols for kurento Streaming Media Server
+Description: Debugging symbols for Kurento Streaming Media Server
