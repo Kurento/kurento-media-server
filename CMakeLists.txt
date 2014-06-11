@@ -104,8 +104,6 @@ if(NOT DEFINED SYSCONF_INSTALL_DIR)
 endif(NOT DEFINED SYSCONF_INSTALL_DIR)
 
 install(FILES kurento.conf pattern.sdp DESTINATION ${SYSCONF_INSTALL_DIR}/${CUSTOM_PREFIX})
-install(PROGRAMS "scripts/init.d/kurento" DESTINATION ${SYSCONF_INSTALL_DIR}/init.d)
-install(FILES "scripts/default/kurento" DESTINATION ${SYSCONF_INSTALL_DIR}/default)
 install(FILES README.md LICENSE DESTINATION share/doc/kurento)
 
 include(CPack)
