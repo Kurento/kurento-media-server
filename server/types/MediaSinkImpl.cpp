@@ -174,8 +174,10 @@ MediaSinkImpl::linkPad (std::shared_ptr<MediaSourceImpl> mediaSrc, GstPad *src)
     gst_bin_add (container, filter);
     gst_element_sync_state_with_parent (filter);
 
-    if (gst_pad_link (aux_src, sink) == GST_PAD_LINK_OK) {
-      if (gst_pad_link (src, aux_sink) == GST_PAD_LINK_OK) {
+    if (gst_pad_link_full (aux_src, sink,
+                           GST_PAD_LINK_CHECK_NOTHING) == GST_PAD_LINK_OK) {
+      if (gst_pad_link_full (src, aux_sink,
+                             GST_PAD_LINK_CHECK_NOTHING) == GST_PAD_LINK_OK) {
         ret = true;
       } else {
         gst_pad_unlink (aux_src, sink);
@@ -190,7 +192,8 @@ MediaSinkImpl::linkPad (std::shared_ptr<MediaSourceImpl> mediaSrc, GstPad *src)
                                        GST_DEBUG_GRAPH_SHOW_ALL, "loopback");
 
   } else {
-    if (gst_pad_link (src, sink) == GST_PAD_LINK_OK) {
+    if (gst_pad_link_full (src, sink,
+                           GST_PAD_LINK_CHECK_NOTHING) == GST_PAD_LINK_OK) {
       ret = true;
     }
   }
