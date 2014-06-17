@@ -13,7 +13,6 @@ pkg_check_modules(NICE REQUIRED nice>=0.1.3)
 # Helpers
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 include(GLibHelpers)
-include(GstMacros)
 
 find_package(LibSoup REQUIRED)
 
