@@ -18,7 +18,7 @@
 #include "thrift/transport/TSocket.h"
 #include "thrift/transport/TBufferTransports.h"
 #include "thrift/protocol/TBinaryProtocol.h"
-#include <JsonRpcConstants.hpp>
+#include <jsonrpc/JsonRpcConstants.hpp>
 #include <gst/gst.h>
 #include "common/MediaSet.hpp"
 

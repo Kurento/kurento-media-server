@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <glibmm.h>
-#include <JsonSerializer.hpp>
+#include <jsonrpc/JsonSerializer.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -66,10 +66,6 @@ std::string MediaObjectImpl::getId ()
   return id;
 }
 
-} /* kurento */
-
-using namespace kurento;
-
 void
 Serialize (std::shared_ptr<MediaObject> &object, JsonSerializer &s)
 {
@@ -102,3 +98,5 @@ Serialize (MediaObject &object, JsonSerializer &s)
     // TODO: Find the object getting from mediaSet
   }
 }
+
+} /* kurento */

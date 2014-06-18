@@ -14,7 +14,7 @@
  */
 
 #include "RabbitMQEventHandler.hpp"
-#include <JsonRpcConstants.hpp>
+#include <jsonrpc/JsonRpcConstants.hpp>
 #include <gst/gst.h>
 
 #define GST_CAT_DEFAULT kurento_thrift_event_handler

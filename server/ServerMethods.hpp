@@ -16,7 +16,7 @@
 #ifndef __SERVER_METHODS__
 #define __SERVER_METHODS__
 
-#include <JsonRpcHandler.hpp>
+#include <jsonrpc/JsonRpcHandler.hpp>
 #include <EventHandler.hpp>
 
 namespace kurento

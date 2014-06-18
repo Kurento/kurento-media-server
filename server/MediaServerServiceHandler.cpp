@@ -16,7 +16,7 @@
 #include "MediaServerServiceHandler.hpp"
 #include "KmsMediaServer_constants.h"
 #include <ThriftEventHandler.hpp>
-#include <JsonRpcUtils.hpp>
+#include <jsonrpc/JsonRpcUtils.hpp>
 #include <gst/gst.h>
 #include <sys/socket.h>
 

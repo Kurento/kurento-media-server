@@ -20,7 +20,7 @@
 #include <EventHandler.hpp>
 #include <KurentoException.hpp>
 #include "utils/utils.hpp"
-#include <JsonRpcUtils.hpp>
+#include <jsonrpc/JsonRpcUtils.hpp>
 
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
