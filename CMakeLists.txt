@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project ("kurento-media-server")
 
+message ("If KurentoHelpers is not found, then it is necessary to install
+          kms-cmake-utils package from the kurento repository")
+
 find_package(KurentoHelpers REQUIRED)
 
 include (KurentoGitHelpers)
