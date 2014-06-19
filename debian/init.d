@@ -67,7 +67,7 @@ start_kurento () {
         --chuid $DAEMON_USER --background --no-close --make-pidfile 1>>"$DAEMON_LOG/kurento.log" 2>&1
     if [ $? != 0 ]; then
         log_failure_msg "Kurento Media Server already started"
-        exit 1
+	exit
     fi
 
     # Add file rotation
@@ -82,7 +82,7 @@ start_kurento () {
         notifempty
         sharedscripts
     }
-EOFile
+    EOFile
 
     # Add logrotate cron to root user
     echo "`crontab -u root -l`"|grep -iv "kurento"|crontab -u root -
@@ -94,16 +94,11 @@ stop_kurento () {
     verify_user
 
     /sbin/start-stop-daemon --stop --exec $DAEMON_CMD --pidfile "$PID_FILE"
-
-    if [ $? != 0 ]; then
-        log_failure_msg "Kurento Media Server not running"
-        exit 1
-    fi
-    rm -f $PID_FILE
+    [ $? != 0 ] && log_failure_msg "Kurento Media Server not running"
+    [ -f $PID_FILE] && rm -f $PID_FILE
 
     # Remove logrotate cron to root user
     echo "`crontab -u root -l`"|grep -iv "kurento"|crontab -u root -
-
 }
 
 status () {
