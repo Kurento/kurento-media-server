@@ -32,7 +32,9 @@ Build-Depends:
  uuid-dev,
  libsctp-dev,
  librabbitmq-dev,
- ktool-rom-processor (>= 1.1.0)
+ ktool-rom-processor (>= 1.1.0),
+ kms-jsonrpc-dev (>= 0.0.6),
+ kms-cmake-utils
 Standards-Version: 3.9.4
 
 Package: kurento
