@@ -64,15 +64,15 @@ start_kurento () {
         chown $DAEMON_USER $DAEMON_LOG || { log_failure_msg "Unable to access $DAEMON_LOG"; exit 1; }
     fi
     /sbin/start-stop-daemon --start --exec $DAEMON_CMD --pidfile "$PID_FILE" \
-        --chuid $DAEMON_USER --background --no-close --make-pidfile 1>>"$DAEMON_LOG/kurento.log" 2>&1
+        --chuid $DAEMON_USER --background --no-close --make-pidfile 1>>"$DAEMON_LOG/media-server.log" 2>&1
     if [ $? != 0 ]; then
         log_failure_msg "Kurento Media Server already started"
-	exit
+	return
     fi
 
     # Add file rotation
     [ -e /etc/logrotate.d ] || install -d -m755 /etc/logrotate.d
-    cat > /etc/logrotate.d/kurento  <<- EOFile
+    cat > /etc/logrotate.d/kurento  <<-EOFile
     "/var/log/kurento/*.log" {
         missingok
         copytruncate
@@ -82,7 +82,7 @@ start_kurento () {
         notifempty
         sharedscripts
     }
-    EOFile
+	EOFile
 
     # Add logrotate cron to root user
     echo "`crontab -u root -l`"|grep -iv "kurento"|crontab -u root -
@@ -92,10 +92,9 @@ start_kurento () {
 
 stop_kurento () {
     verify_user
-
     /sbin/start-stop-daemon --stop --exec $DAEMON_CMD --pidfile "$PID_FILE"
     [ $? != 0 ] && log_failure_msg "Kurento Media Server not running"
-    [ -f $PID_FILE] && rm -f $PID_FILE
+    [ -f $PID_FILE ] && rm -f $PID_FILE
 
     # Remove logrotate cron to root user
     echo "`crontab -u root -l`"|grep -iv "kurento"|crontab -u root -
@@ -143,7 +142,6 @@ case "$1" in
 
   *)
     echo "Usage: $0 {start|stop|restart|status}" >&2
-    exit 3
     ;;
 esac
 
