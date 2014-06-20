@@ -92,7 +92,6 @@ RabbitMQListener::readMessages ()
 void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
                                     int ttl)
 {
-  Glib::RefPtr<Glib::IOChannel> channel;
   Glib::RefPtr<Glib::IdleSource> idle;
   int fd;
 
@@ -139,6 +138,7 @@ void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
 
 void RabbitMQListener::stopListen ()
 {
+  channel->flush();
   source->destroy();
 }
 

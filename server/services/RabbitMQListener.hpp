@@ -43,6 +43,7 @@ private:
   bool readMessages (Glib::IOCondition cond);
   bool readMessages ();
 
+  Glib::RefPtr<Glib::IOChannel> channel;
   std::shared_ptr <RabbitMQConnection> connection;
   Glib::RefPtr<Glib::IOSource> source;
 
