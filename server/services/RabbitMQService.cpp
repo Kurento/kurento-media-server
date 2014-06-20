@@ -121,7 +121,7 @@ RabbitMQService::processMessage (RabbitMQMessage &message)
     pipeline->startRequest (message);
 
   } else {
-    /* Parend process  */
+    /* Parent process */
     childs.push_back (pid);
     message.noRejectOnRelease();
   }
