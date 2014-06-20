@@ -20,6 +20,9 @@
 #include <gst/gst.h>
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #define GST_CAT_DEFAULT kurento_rabbitmq_connection
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoRabbitMQConnection"
@@ -89,6 +92,19 @@ exception_on_error (amqp_rpc_reply_t x, const char *context)
   }
 }
 
+static void
+makeSocketLinger (int fd)
+{
+  struct linger ling;
+
+  ling.l_onoff = 1;
+  ling.l_linger = 30;
+
+  if (setsockopt (fd, SOL_SOCKET, SO_LINGER, &ling, sizeof (ling) ) < 0) {
+    GST_WARNING ("Could not configure SO_LINGER option on RabbitMQ socket");
+  }
+}
+
 RabbitMQConnection::RabbitMQConnection (const std::string &address, int port) :
   address (address), port (port)
 {
@@ -105,6 +121,8 @@ RabbitMQConnection::RabbitMQConnection (const std::string &address, int port) :
     throw Glib::IOChannelError (Glib::IOChannelError::Code::FAILED,
                                 "Cannot open TCP socket");
   }
+
+  makeSocketLinger (amqp_socket_get_sockfd (socket) );
 
   exception_on_error (amqp_login (conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN,
                                   "guest", "guest"), "Loging in");
@@ -123,6 +141,10 @@ RabbitMQConnection::~RabbitMQConnection()
   if (!closeOnRelease) {
     int fd = amqp_socket_get_sockfd (socket);
 
+    /* inform remote side that we are done */
+    shutdown (fd, SHUT_WR);
+
+    /* close socket */
     close (fd);
   }
 
