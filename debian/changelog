@@ -1,3 +1,14 @@
+kurento (4.3.4) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * Use a different temporal directory for each instance
+  * Prepare release 4.3.4
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 24 Jun 2014 15:31:33 +0200
+
 kurento (4.3.3) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
