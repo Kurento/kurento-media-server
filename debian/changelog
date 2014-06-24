@@ -1,3 +1,59 @@
+kurento (4.3.3) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare next development iteration
+  * Update kms-interface to last release version
+
+  [ Santiago Carot-Nemesio ]
+  * Add MixerImpl skelleton class
+  * MixerImpl: Implement connection/disconnection methods
+  * KmsHttpEPServer: Fix non initialized memory usage
+
+  [ Jose Antonio Santos Cadenas ]
+  * Change kurento logo
+  * Update plugins to solve problems with webrtc
+  * RabbitMQConnection: Do not reject invalid messages
+  * RabbitMQConneciton: Remove useless code
+  * RabbitMQListener: Read messages that are received before main loop starts
+  * debian: Fix packages description
+  * Move debian scripts to debian package directory
+  * Install README.md into docs file in a standard way
+  * Update plugins sumodule
+  * MediaSinkImpl: Fix linking problem with filters
+
+  [ David Fernandez ]
+  * cmake: Prepare cmake to use kms-cmake-utils project
+
+  [ Jose Antonio Santos Cadenas ]
+  * Install pre-commit hook if it is not already installed
+
+  [ David Fernandez ]
+  * cmake: Add info message about KurentoHelpers
+
+  [ Javier Lopez ]
+  * Avoid package install failure if daemon is not running
+  * Fix syntax error and logging in service script
+
+  [ Jose Antonio Santos Cadenas ]
+  * Use external jsonrpc library
+  * Add debian build dependencies
+
+  [ Miguel París Díaz ]
+  * main: use a different tmp dir per each kms instance
+
+  [ Santiago Carot-Nemesio ]
+  * RabbitMQService: Fix typo in comment
+  * RabbitMQConnection: Configure socket to send unsent data before closing the socket
+  * RabbitMQListener: Flush channel before destroying the listener
+
+  [ Jose Antonio Santos Cadenas ]
+  * Required gstreamer 1.3.3
+  * Prepare release 4.3.3
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 24 Jun 2014 08:53:26 +0200
+
 kurento (4.3.2) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
