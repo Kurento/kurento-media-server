@@ -132,18 +132,17 @@ RabbitMQConnection::RabbitMQConnection (const std::string &address, int port) :
 
 RabbitMQConnection::~RabbitMQConnection()
 {
+  int fd;
+
   if (conn == NULL) {
     GST_DEBUG ("service already stopped");
     return;
   }
 
+  fd = amqp_socket_get_sockfd (socket);
+
   /* Errors are ignored during close */
   if (!closeOnRelease) {
-    int fd = amqp_socket_get_sockfd (socket);
-
-    /* inform remote side that we are done */
-    shutdown (fd, SHUT_WR);
-
     /* close socket */
     close (fd);
   }
@@ -151,6 +150,12 @@ RabbitMQConnection::~RabbitMQConnection()
   amqp_channel_close (conn, 1, AMQP_REPLY_SUCCESS);
   amqp_connection_close (conn, AMQP_REPLY_SUCCESS);
   amqp_destroy_connection (conn);
+
+  if (closeOnRelease) {
+    /* inform remote side that we are done */
+    shutdown (fd, SHUT_WR);
+  }
+
   conn = NULL;
 }
 
