@@ -27,6 +27,7 @@
 #define WEB_RTC_END_POINT_GROUP "WebRtcEndPoint"
 #define WEB_RTC_END_POINT_STUN_SERVER_ADDRESS_KEY "stunServerAddress"
 #define WEB_RTC_END_POINT_STUN_SERVER_PORT_KEY "stunServerPort"
+#define WEB_RTC_END_POINT_TURN_URL_KEY "turnURL"
 #define WEB_RTC_END_POINT_PEM_CERTIFICATE_KEY "pemCertificate"
 
 #define STUN_SERVER_ADDRESS "77.72.174.167"
@@ -37,6 +38,8 @@
 extern GstSDPMessage *sdpPattern;
 extern std::string stunServerAddress;
 extern gint stunServerPort;
+extern std::string stunServerAddress;
+extern std::string turnURL;
 extern std::string pemCertificate;
 
 #endif /* __MEDIA_CONFIG_HPP__ */

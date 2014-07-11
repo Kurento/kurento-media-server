@@ -53,7 +53,7 @@ using ::Glib::KeyFileFlags;
 static Service *service;
 
 GstSDPMessage *sdpPattern;
-std::string stunServerAddress, pemCertificate;
+std::string stunServerAddress, turnURL, pemCertificate;
 __pid_t pid;
 gint stunServerPort;
 
@@ -245,6 +245,13 @@ configure_web_rtc_end_point (KeyFile &configFile, const std::string &file_name)
     GST_WARNING ("Setting default port %d to stun server",
                  STUN_SERVER_PORT);
     stunServerPort = STUN_SERVER_PORT;
+  }
+
+  try {
+    turnURL = configFile.get_string (WEB_RTC_END_POINT_GROUP,
+                                     WEB_RTC_END_POINT_TURN_URL_KEY);
+  } catch (const Glib::KeyFileError &err) {
+    GST_WARNING ("No TURN server configured");
   }
 
   try {

@@ -38,6 +38,9 @@ WebRtcEndpointImpl::WebRtcEndpointImpl (
   g_object_set ( G_OBJECT (element), "stun-server", stunServerAddress.c_str(),
                  NULL);
 
+  GST_INFO ("turn info: %s\n", turnURL.c_str() );
+  g_object_set ( G_OBJECT (element), "turn-url", turnURL.c_str(), NULL);
+
   if (pemCertificate.compare ("") == 0) {
     GST_INFO ("Using default pemCertificate");
   } else {
