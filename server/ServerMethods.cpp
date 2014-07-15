@@ -20,6 +20,7 @@
 #include <EventHandler.hpp>
 #include <KurentoException.hpp>
 #include <jsonrpc/JsonRpcUtils.hpp>
+#include <jsonrpc/JsonRpcConstants.hpp>
 
 #include <sstream>
 #include <boost/uuid/uuid.hpp>
@@ -34,6 +35,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define OBJECT "object"
 #define SUBSCRIPTION "subscription"
 
+#define REQUEST_TIMEOUT 20000 /* 20 seconds */
+
 namespace kurento
 {
 
@@ -42,6 +45,15 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
 {
   // TODO: Use config to load more factories
   moduleManager.loadModulesFromDirectories ("");
+
+  cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
+
+  handler.setPreProcess (std::bind (&ServerMethods::preProcess, this,
+                                    std::placeholders::_1,
+                                    std::placeholders::_2) );
+  handler.setPostProcess (std::bind (&ServerMethods::postProcess, this,
+                                     std::placeholders::_1,
+                                     std::placeholders::_2) );
 
   handler.addMethod ("create", std::bind (&ServerMethods::create, this,
                                           std::placeholders::_1,
@@ -100,6 +112,74 @@ void
 ServerMethods::process (const std::string &request, std::string &response)
 {
   handler.process (request, response);
+}
+bool
+ServerMethods::preProcess (const Json::Value &request, Json::Value &response)
+{
+  std::string sessionId;
+  std::string resp;
+  int requestId;
+
+  try {
+    Json::Reader reader;
+    Json::Value params;
+
+    JsonRpc::getValue (request, JSON_RPC_ID, requestId);
+    JsonRpc::getValue (request, JSON_RPC_PARAMS, params);
+    JsonRpc::getValue (params, SESSION_ID, sessionId);
+
+    resp = cache->getCachedResponse (sessionId, requestId);
+
+    GST_DEBUG ("Cached response: %s", resp.c_str() );
+
+    /* update response with the one we got from cache */
+    reader.parse (resp, response);
+
+    return false;
+  } catch (...) {
+    /* continue processing */
+    return true;
+  }
+}
+
+void
+ServerMethods::postProcess (const Json::Value &request, Json::Value &response)
+{
+  Json::FastWriter writer;
+  std::string sessionId;
+  std::string resp;
+  int requestId;
+
+  try {
+    Json::Reader reader;
+
+    JsonRpc::getValue (request, JSON_RPC_ID, requestId);
+
+    try {
+      Json::Value result;
+
+      JsonRpc::getValue (response, JSON_RPC_RESULT, result);
+      JsonRpc::getValue (result, SESSION_ID, sessionId);
+    } catch (JsonRpc::CallException &ex) {
+      Json::Value params;
+
+      GST_DEBUG ("Can't get SessionId from result. Trying from request");
+
+      JsonRpc::getValue (request, JSON_RPC_PARAMS, params);
+      JsonRpc::getValue (params, SESSION_ID, sessionId);
+    }
+
+    /* CacheException will be triggered if this response is not cached */
+    cache->getCachedResponse (sessionId, requestId);
+  } catch (JsonRpc::CallException &e) {
+    /* We could not get some of the required parameters. Ignore */
+  } catch (CacheException &e) {
+    /* Cache response */
+    resp = writer.write (response);
+
+    GST_DEBUG ("Caching: %s", resp.c_str() );
+    cache->addResponse (sessionId, requestId, resp);
+  }
 }
 
 void

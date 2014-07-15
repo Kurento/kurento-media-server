@@ -61,9 +61,10 @@ ClientHandler::check_create_pipeline_call()
 
   std::string sessionId1 = "1111";
   std::string sessionId2 = "2222";
+  int req_id1 = 0;
+  int req_id2 = 0;
 
   request["jsonrpc"] = "2.0";
-  request["id"] = 0;
   request["method"] = "create";
 
   /* Create a new piepeline using session 1 */
@@ -71,6 +72,7 @@ ClientHandler::check_create_pipeline_call()
   params["type"] = "MediaPipeline";
   params["sessionId"] = sessionId1;
 
+  request["id"] = req_id1++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -94,6 +96,7 @@ ClientHandler::check_create_pipeline_call()
   constructorParams ["uri"] = VIDEO_URI;
   params["constructorParams"] = constructorParams;
 
+  request["id"] = req_id1++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -117,6 +120,7 @@ ClientHandler::check_create_pipeline_call()
   constructorParams ["mediaPipeline"] = pipeId;
   params["constructorParams"] = constructorParams;
 
+  request["id"] = req_id1++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -141,6 +145,7 @@ ClientHandler::check_create_pipeline_call()
   constructorParams ["uri"] = RECORDER_URI_1;
   params["constructorParams"] = constructorParams;
 
+  request["id"] = req_id1++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -166,6 +171,7 @@ ClientHandler::check_create_pipeline_call()
   constructorParams ["uri"] = RECORDER_URI_2;
   params["constructorParams"] = constructorParams;
 
+  request["id"] = req_id2++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -200,6 +206,7 @@ ClientHandler::check_create_pipeline_call()
   operationParams["sink"] = filterId;
 
   params["operationParams"] = operationParams;
+  request["id"] = req_id1++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -224,6 +231,7 @@ ClientHandler::check_create_pipeline_call()
   operationParams["sink"] = recorderId1;
 
   params["operationParams"] = operationParams;
+  request["id"] = req_id1++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -248,6 +256,7 @@ ClientHandler::check_create_pipeline_call()
   operationParams["sink"] = recorderId2;
 
   params["operationParams"] = operationParams;
+  request["id"] = req_id2++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -267,6 +276,7 @@ ClientHandler::check_create_pipeline_call()
   params["sessionId"] = sessionId1;
   params["object"] = recorderId1;
 
+  request["id"] = req_id1++;
   request["params"] = params;
   req_str = writer.write (request);
   client->invokeJsonRpc (response_str, req_str);
@@ -282,6 +292,7 @@ ClientHandler::check_create_pipeline_call()
   params["object"] = filterId;
 
   request["params"] = params;
+  request["id"] = req_id1++;
   req_str = writer.write (request);
   client->invokeJsonRpc (response_str, req_str);
   BOOST_CHECK (reader.parse (response_str, response) == true);
@@ -295,6 +306,7 @@ ClientHandler::check_create_pipeline_call()
   params["sessionId"] = sessionId1;
   params["object"] = playerId;
 
+  request["id"] = req_id1++;
   request["params"] = params;
   req_str = writer.write (request);
   client->invokeJsonRpc (response_str, req_str);
@@ -309,6 +321,7 @@ ClientHandler::check_create_pipeline_call()
   params["sessionId"] = sessionId2;
   params["object"] = recorderId2;
 
+  request["id"] = req_id2++;
   request["params"] = params;
   req_str = writer.write (request);
   client->invokeJsonRpc (response_str, req_str);

@@ -27,6 +27,8 @@ class RequestCache
 {
 public:
   RequestCache (unsigned int timeout);
+  void addResponse (std::string sessionId, int requestId, std::string &response);
+  std::string getCachedResponse (std::string sessionId, int requestId);
   ~RequestCache ();
 
 private:
@@ -41,6 +43,21 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+};
+
+class CacheException : public std::exception
+{
+
+public:
+  CacheException (std::string desc) : desc (desc) {
+  }
+  virtual ~CacheException() {}
+  virtual const char *what() const throw() {
+    return desc.c_str();
+  }
+
+private:
+  std::string desc;
 };
 
 } // kurento

@@ -20,6 +20,24 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoCacheEntry"
 
+using namespace Glib::Threads;
+
+/* Next stuff is included to avoid problems with slots and lamdas */
+#include <type_traits>
+#include <sigc++/sigc++.h>
+#include <event2/event_struct.h>
+namespace sigc
+{
+template <typename Functor>
+struct functor_trait<Functor, false> {
+  typedef decltype (::sigc::mem_fun (std::declval<Functor &> (),
+                                     &Functor::operator() ) ) _intermediate;
+
+  typedef typename _intermediate::result_type result_type;
+  typedef Functor functor_type;
+};
+}
+
 namespace kurento
 {
 
@@ -30,12 +48,33 @@ CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
   this->requestId = requestId;
   this->sessionId = sessionId;
 
-  /* TODO: Add timeout callback */
+  source = Glib::TimeoutSource::create (timeout);
+  source->connect ( [this] () -> bool {
+    RecMutex::Lock lock (this->mutex);
+    this->timedout = true;
+    lock.release();
+
+    this->signalTimeout.emit();
+
+    return false;
+  });
+
+  source->attach();
+}
+
+std::string
+CacheEntry::getResponse (void)
+{
+  return response;
 }
 
 CacheEntry::~CacheEntry ()
 {
-  GST_DEBUG ("Do something");
+  RecMutex::Lock lock (mutex);
+
+  if (!timedout) {
+    source->destroy();
+  }
 }
 
 CacheEntry::StaticConstructor CacheEntry::staticConstructor;

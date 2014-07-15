@@ -16,6 +16,8 @@
 #include "RequestCache.hpp"
 #include <gst/gst.h>
 
+#include "CacheEntry.hpp"
+
 #define GST_CAT_DEFAULT kurento_request_cache
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoRequestCache"
@@ -32,9 +34,63 @@ RequestCache::RequestCache (unsigned int timeout)
 
 RequestCache::~RequestCache ()
 {
+}
+
+void
+RequestCache::addResponse (std::string sessionId, int requestId,
+                           std::string &response)
+{
+  std::shared_ptr<CacheEntry> entry;
   RecMutex::Lock lock (mutex);
 
-  GST_DEBUG ("Do something");
+  entry = std::shared_ptr<CacheEntry> (new CacheEntry (timeout, sessionId,
+                                       requestId, response) );
+
+  cache[sessionId][requestId] = entry;
+  entry->signalTimeout.connect ([this, sessionId, requestId] () {
+    RecMutex::Lock lock (this->mutex);
+    auto it1 = this->cache.find (sessionId);
+
+    if (it1 == this->cache.end() ) {
+      return;
+    }
+
+    auto it2 = this->cache[sessionId].find (requestId);
+
+    if (it2 == this->cache[sessionId].end() ) {
+      return;
+    }
+
+    this->cache[sessionId].erase (it2);
+
+    if (this->cache[sessionId].empty() ) {
+      this->cache.erase (it1);
+    }
+  });
+}
+
+std::string
+RequestCache::getCachedResponse (std::string sessionId, int requestId)
+{
+  std::string response = "response";
+  std::map<int, std::shared_ptr <CacheEntry>> requests;
+
+  RecMutex::Lock lock (mutex);
+
+  auto it1 = cache.find (sessionId);
+
+  if (it1 == cache.end() ) {
+    throw CacheException ("Session not cached");
+  }
+
+  requests = cache[sessionId];
+  auto it2 = requests.find (requestId);
+
+  if (it2 == requests.end() ) {
+    throw CacheException ("Response not cached");
+  }
+
+  return requests[requestId]->getResponse();
 }
 
 RequestCache::StaticConstructor RequestCache::staticConstructor;

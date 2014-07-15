@@ -75,13 +75,14 @@ ClientHandler::check_create_pipeline_call()
   std::string response_str;
   std::string pipeId;
   std::string objId;
+  int req_id = 0;
 
   Json::Value params;
   Json::Value constructorParams;
   Json::Value operationParams;
 
   request["jsonrpc"] = "2.0";
-  request["id"] = 0;
+  request["id"] = req_id++;
   request["method"] = "create";
 
   params["type"] = "MediaPipeline";
@@ -109,6 +110,7 @@ ClientHandler::check_create_pipeline_call()
   params["constructorParams"] = constructorParams;
   params["sessionId"] = "123456";
 
+  request["id"] = req_id++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -133,6 +135,7 @@ ClientHandler::check_create_pipeline_call()
   params["sessionId"] = "123456";
 
   params["operationParams"] = operationParams;
+  request["id"] = req_id++;
   request["params"] = params;
 
   req_str = writer.write (request);
@@ -144,6 +147,7 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
 
+  request["id"] = req_id++;
   request["method"] = "ref";
   params.clear();
   params["object"] = objId;
@@ -159,6 +163,7 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
 
+  request["id"] = req_id++;
   request["method"] = "describe";
   params.clear();
   params["object"] = objId;

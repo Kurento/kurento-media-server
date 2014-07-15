@@ -26,18 +26,19 @@ class CacheEntry
 public:
   CacheEntry (unsigned int timeout, std::string sessionId, int requestId,
               std::string response);
+  std::string getResponse (void);
   ~CacheEntry ();
 
-  /* Signal emitted when timeout has expired.             */
-  /* Signal provides the sessionId in the first parameter */
-  /* and the requestId in the second one.                 */
-  sigc::signal<void, std::string, int> signal_timeout;
+  sigc::signal<void> signalTimeout;
+
 
 private:
+  Glib::RefPtr<Glib::TimeoutSource> source;
+  Glib::Threads::RecMutex mutex;
   std::string sessionId;
   int requestId;
   std::string response;
-  unsigned int sourceId;
+  bool timedout;
 
   class StaticConstructor
   {
