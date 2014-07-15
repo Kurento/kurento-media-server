@@ -59,4 +59,29 @@ set_property (TARGET test_server_json_session
       ${CMAKE_SOURCE_DIR}/server/
 )
 
+
+add_test_program(test_server_duplicate_requests server_test_base.cpp server_duplicate_requests.cpp )
+add_dependencies(test_server_duplicate_requests
+  ALL
+  kmsiface
+  kurento
+)
+target_link_libraries(test_server_duplicate_requests
+  kmsiface
+  ${KMS_CORE_LIBRARIES}
+  ${THRIFT_LIBRARIES}
+  ${EVENT_LIBRARIES}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+)
+set_property (TARGET test_server_duplicate_requests
+  PROPERTY INCLUDE_DIRECTORIES
+    ${KMS_CORE_INCLUDE_DIRS}
+    ${THRIFT_INCLUDE_DIRS}
+    ${JSONRPC_INCLUDE_DIRS}
+    ${CMAKE_BINARY_DIR}/gen-cpp
+    ${CMAKE_SOURCE_DIR}/server/transport
+    ${CMAKE_SOURCE_DIR}/server/transport/thrift
+    ${CMAKE_SOURCE_DIR}/server/
+)
+
 endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
