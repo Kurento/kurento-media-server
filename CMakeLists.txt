@@ -57,7 +57,7 @@ pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4>=2.37)
 pkg_check_modules(UUID REQUIRED uuid>=2.20.0)
 pkg_check_modules(GMODULE REQUIRED gmodule-2.0>=2.38)
-pkg_check_modules(JSONRPC REQUIRED libjsonrpc>=0.0.6)
+pkg_check_modules(JSONRPC REQUIRED libjsonrpc>=0.1.0)
 pkg_check_modules(SIGCPP REQUIRED sigc++-2.0>=2.0.10)
 pkg_check_modules(RABBITMQ REQUIRED librabbitmq>=0.4.1)
 
