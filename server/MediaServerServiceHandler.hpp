@@ -17,7 +17,7 @@
 #define __MEDIA_SERVER_SERVICE_HANDLER_HPP__
 
 #include "KmsMediaServerService.h"
-#include "common/ConcurrentMap.hpp"
+
 #include <module.hpp>
 
 #include <ServerMethods.hpp>
