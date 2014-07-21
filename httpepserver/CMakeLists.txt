@@ -9,7 +9,6 @@ find_package(PkgConfig)
 pkg_check_modules(GIO REQUIRED gio-2.0>=2.36.0)
 pkg_check_modules(NICE REQUIRED nice>=0.1.3)
 
-
 # Helpers
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 include(GLibHelpers)
@@ -36,8 +35,8 @@ set(GEN_HEADERS
   kms-enumtypes.h
 )
 
-add_glib_marshal(HTTP_EP_SOURCES kms-marshal kms_marshal)
-add_glib_enumtypes(HTTP_EP_SOURCES kms-enumtypes KMS ${ENUM_HEADERS})
+add_glib_marshal(HTTP_EP_SOURCES HTTP_EP_HEADERS kms-marshal kms_marshal)
+add_glib_enumtypes(HTTP_EP_SOURCES HTTP_EP_HEADERS kms-enumtypes KMS ${ENUM_HEADERS})
 
 add_library(kmshttpep ${HTTP_EP_SOURCES})
 

@@ -1561,7 +1561,7 @@ kms_http_ep_server_class_init (KmsHttpEPServerClass *klass)
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (KmsHttpEPServerClass, action_requested),
                   NULL, NULL, kms_marshal_VOID__STRING_ENUM, G_TYPE_NONE, 2,
-                  G_TYPE_STRING, GST_TYPE_HTTP_END_POINT_ACTION);
+                  G_TYPE_STRING, KMS_TYPE_HTTP_END_POINT_ACTION);
 
   obj_signals[URL_REMOVED] =
     g_signal_new ("url-removed",
