@@ -28,7 +28,7 @@ Build-Depends:
  tesseract-ocr-dev,
  tesseract-ocr-eng,
  thrift-compiler,
- libjsoncpp-dev (>= ),
+ libjsoncpp-dev,
  uuid-dev,
  libsctp-dev,
  librabbitmq-dev,
