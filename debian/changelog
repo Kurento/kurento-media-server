@@ -1,3 +1,52 @@
+kurento (4.3.5) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * Update plugins with bugfixes
+  * RabbitMQ: Do not shutdown socket if closeOnRelease is not set
+
+  [ David Fernandez ]
+  * Add new directories to debian/kurento.install
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add agnosticbin fixes
+
+  [ Miguel París Díaz ]
+  * Update submodules
+  * Add TURN support
+
+  [ Santiago Carot-Nemesio ]
+  * MediaServerServiceHandler: Remove unused header
+
+  [ Miguel París Díaz ]
+  * kurento.conf: fix TURN URL description
+
+  [ Jose Antonio Santos Cadenas ]
+  * Update plugin dependencies to fix some negotiation errors
+
+  [ Santiago Carot-Nemesio ]
+  * Add basic cache classes
+
+  [ Jose Antonio Santos Cadenas ]
+  * Change c++ std flag from c++0x to c++11
+
+  [ Santiago Carot-Nemesio ]
+  * Increase dependancy version for using new json rpc library capabilities
+
+  [ Jose Antonio Santos Cadenas ]
+  * Adapt to new cmake enum and marshal generators
+
+  [ Santiago Carot-Nemesio ]
+  * Cache responses in the server as long as defined by the expiration timeout
+  * Add tests for duplicated requests
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare release 4.3.5
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Wed, 23 Jul 2014 16:12:32 +0200
+
 kurento (4.3.4) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
