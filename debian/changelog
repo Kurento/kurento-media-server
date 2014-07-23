@@ -1,3 +1,14 @@
+kurento (4.3.6) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * Fix debian/control file
+  * Prepare release 4.3.6
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Wed, 23 Jul 2014 18:53:54 +0200
+
 kurento (4.3.5) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
