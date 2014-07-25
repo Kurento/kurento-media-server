@@ -41,7 +41,7 @@ Description: Kurento Media Server
 Package: kurento-media-server-dev
 Architecture: any
 Depends: ${misc:Depends},
- kurento-media-server (= ${binary:Version})
+ kurento-media-server (= ${binary:Version}),
  kms-core-dev
 Description: Development files for Kurento Media Server
  The Kurento Media Server processes audio and video streams,
@@ -50,6 +50,6 @@ Description: Development files for Kurento Media Server
 Package: kurento-media-server-dbg
 Architecture: any
 Depends: ${misc:Depends},
- kurento-media-server (= ${binary:Version})
+ kurento-media-server (= ${binary:Version}),
  kms-core-dbg
 Description: Debugging symbols for Kurento Media Server
