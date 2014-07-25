@@ -33,13 +33,13 @@
 #define STUN_SERVER_ADDRESS "77.72.174.167"
 #define STUN_SERVER_PORT 0
 
-#define HTTP_EP_SERVER_SERVICE_PORT ((MEDIA_SERVER_SERVICE_PORT) + 1)
+#define HTTP_SERVICE_GROUP "HttpEPServer"
+#define HTTP_SERVICE_ADDRESS "serverAddress"
+#define HTTP_SERVICE_PORT "serverPort"
+#define HTTP_SERVICE_ANNOUNCED_ADDRESS "announcedAddress"
 
-extern GstSDPMessage *sdpPattern;
-extern std::string stunServerAddress;
-extern gint stunServerPort;
-extern std::string stunServerAddress;
-extern std::string turnURL;
-extern std::string pemCertificate;
+#define HTTP_DEFAULT_PORT 9091
+
+#define HTTP_EP_SERVER_SERVICE_PORT ((MEDIA_SERVER_SERVICE_PORT) + 1)
 
 #endif /* __MEDIA_CONFIG_HPP__ */

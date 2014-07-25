@@ -13,7 +13,7 @@
  *
  */
 
-#include "KmsMediaServerService.h"
+#include <ThriftServiceHandler.hpp>
 #include <transport/TBufferTransports.h>
 
 using namespace apache::thrift::transport;

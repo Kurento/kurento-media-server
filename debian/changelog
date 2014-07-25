@@ -1,3 +1,9 @@
+kurento-media-server (4.3.7) testing; urgency=medium
+
+  * Change package name
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 25 Jul 2014 10:10:52 +0200
+
 kurento (4.3.6) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]

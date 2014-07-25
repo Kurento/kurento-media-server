@@ -18,6 +18,7 @@
 
 #include <glibmm.h>
 #include "Service.hpp"
+#include <MediaServerConfig.hpp>
 
 namespace kurento
 {
@@ -25,7 +26,8 @@ namespace kurento
 class ServiceFactory
 {
 public:
-  static Service *create_service (Glib::KeyFile &confFile);
+  static Service *create_service (const MediaServerConfig &config,
+                                  Glib::KeyFile &confFile);
 
 private:
   class StaticConstructor

@@ -63,15 +63,13 @@ generateUUID()
   return ss.str();
 }
 
-RabbitMQPipeline::RabbitMQPipeline (Glib::KeyFile &confFile,
-                                    const std::string &address, const int port)
+RabbitMQPipeline::RabbitMQPipeline (const MediaServerConfig &config,
+                                    Glib::KeyFile &confFile,
+                                    const std::string &address, const int port) : ServerMethods (config)
 {
-  httpService = std::shared_ptr<HttpService> (new HttpService (
-                  confFile, /* fixedPort */ false) );
-  httpService->start();
   setConfig (address, port);
 
-  MediaSet::getMediaSet().signalEmpty.connect ([] () {
+  MediaSet::getMediaSet()->signalEmpty.connect ([] () {
     GST_INFO ("Mediaset is empty, exiting from child process");
     kill (getpid(), SIGINT);
   });
@@ -86,8 +84,6 @@ RabbitMQPipeline::~RabbitMQPipeline()
     getConnection()->deleteExchange (PIPELINE_QUEUE_PREFIX + pipelineId);
     getConnection()->deleteExchange (EVENT_EXCHANGE_PREFIX + pipelineId);
   }
-
-  httpService->stop();
 }
 
 void
@@ -133,14 +129,14 @@ RabbitMQPipeline::startRequest (RabbitMQMessage &message)
 
   GST_DEBUG ("Response: >%s<", response.c_str() );
 
-  if (MediaSet::getMediaSet().empty() ) {
+  if (MediaSet::getMediaSet()->empty() ) {
     GST_ERROR ("Error creating media pipeline, terminating process");
     kill (getpid(), SIGINT);
   }
 }
 
 std::string
-RabbitMQPipeline::connectEventHandler (std::shared_ptr< MediaObject > obj,
+RabbitMQPipeline::connectEventHandler (std::shared_ptr< MediaObjectImpl > obj,
                                        const std::string &sessionId,
                                        const std::string &eventType,
                                        const Json::Value &params)

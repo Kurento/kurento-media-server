@@ -14,13 +14,11 @@
  */
 
 #include "ThriftEventHandler.hpp"
-#include <utils/utils.hpp>
 #include "thrift/transport/TSocket.h"
 #include "thrift/transport/TBufferTransports.h"
 #include "thrift/protocol/TBinaryProtocol.h"
 #include <jsonrpc/JsonRpcConstants.hpp>
 #include <gst/gst.h>
-#include "common/MediaSet.hpp"
 
 #include "KmsMediaHandlerService.h"
 
@@ -34,7 +32,7 @@ using namespace ::apache::thrift::protocol;
 namespace kurento
 {
 
-ThriftEventHandler::ThriftEventHandler (std::shared_ptr<MediaObject> obj,
+ThriftEventHandler::ThriftEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                                         const std::string &sessionId,
                                         const std::string &ip, int port) :
   EventHandler (obj), ip (ip), port (port), sessionId (sessionId)
@@ -65,7 +63,7 @@ ThriftEventHandler::sendEvent (Json::Value &value)
       transport->open();
 
       event ["value"] = value;
-      event ["value"] ["subscription"] = handler->getId();
+      event ["value"] ["subscription"] = handler->id;
       event ["sessionId"] = handler->sessionId;
 
       rpc [JSON_RPC_PROTO] = JSON_RPC_PROTO_VERSION;
@@ -77,11 +75,11 @@ ThriftEventHandler::sendEvent (Json::Value &value)
 
       transport->close();
     } catch (std::exception &e) {
-      GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
-                   handler->getId().c_str(), handler->ip.c_str(), handler->port);
+      GST_WARNING ("Error sending event to MediaHandler(%s:%d)",
+                   handler->ip.c_str(), handler->port);
     } catch (...) {
-      GST_WARNING ("Error sending event to MediaHandler(%s, %s:%d)",
-                   handler->getId().c_str(), handler->ip.c_str(), handler->port);
+      GST_WARNING ("Error sending event to MediaHandler(%s:%d)",
+                   handler->ip.c_str(), handler->port);
     }
   });
 }

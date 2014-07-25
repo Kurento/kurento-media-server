@@ -28,16 +28,17 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-Service *ServiceFactory::create_service (Glib::KeyFile &confFile)
+Service *ServiceFactory::create_service (const MediaServerConfig &config,
+    Glib::KeyFile &confFile)
 {
   std::string service;
 
   service = confFile.get_string (FACTORY_GROUP, FACTORY_SERVICE);
 
   if (service == "Thrift") {
-    return new ThriftService (confFile);
+    return new ThriftService (config, confFile);
   } else if (service == "RabbitMQ") {
-    return new RabbitMQService (confFile);
+    return new RabbitMQService (config, confFile);
   }
 
   throw Glib::OptionError (Glib::OptionError::UNKNOWN_OPTION,

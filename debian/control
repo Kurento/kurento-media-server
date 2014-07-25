@@ -1,9 +1,8 @@
-Source: kurento
+Source: kurento-media-server
 Section: net
 Priority: optional
 Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
 Build-Depends:
- autoconf,
  cmake,
  debhelper (>= 7.0.50),
  gnutls-bin,
@@ -14,31 +13,16 @@ Build-Depends:
  libboost-filesystem-dev,
  libboost-test-dev,
  libevent-dev,
- libglibmm-2.4-dev,
  libgnutls28-dev,
  libgstreamer1.0-dev (>= 1.3.3),
- libgstreamer-plugins-base1.0-dev (>= 1.3.3),
- libnice-dev,
- libopencv-dev,
- libsoup2.4-dev,
  libthrift-dev (>= 0.9.0),
  libthrift-dev (<= 0.9.1),
- libtool,
- libvpx-dev,
- tesseract-ocr-dev,
- tesseract-ocr-eng,
  thrift-compiler,
- libjsoncpp-dev,
- uuid-dev,
- libsctp-dev,
  librabbitmq-dev,
- ktool-rom-processor (>= 2.0.0),
- kms-jsonrpc-dev (>= 0.1.0),
- kms-cmake-utils (>= 1.0.0),
- kms-gstmarshal-dev
+ kms-core-dev
 Standards-Version: 3.9.4
 
-Package: kurento
+Package: kurento-media-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  gstreamer1.0-plugins-base (>= 1.3.3),
@@ -48,21 +32,24 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  gstreamer1.0-plugins-good (>= 1.3.3),
  gstreamer1.0-plugins-ugly (>= 1.3.3),
  gnutls-bin,
- libopencv-dev
-Description: Kurento Streaming Media Server
+ kms-elements,
+ kms-core
+Description: Kurento Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
 
-Package: kurento-dev
+Package: kurento-media-server-dev
 Architecture: any
 Depends: ${misc:Depends},
- kurento (= ${binary:Version})
-Description: Development files for Kurento Streaming Media Server
+ kurento-media-server (= ${binary:Version})
+ kms-core-dev
+Description: Development files for Kurento Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
 
-Package: kurento-dbg
+Package: kurento-media-server-dbg
 Architecture: any
 Depends: ${misc:Depends},
- kurento (= ${binary:Version})
-Description: Debugging symbols for Kurento Streaming Media Server
+ kurento-media-server (= ${binary:Version})
+ kms-core-dbg
+Description: Debugging symbols for Kurento Media Server

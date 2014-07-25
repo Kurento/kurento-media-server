@@ -113,7 +113,7 @@ ClientHandler::check_create_pipeline_call()
 
   /* Create a filter using session 1 */
 
-  params["type"] = "ZBarFilter";
+  params["type"] = "HttpGetEndpoint";
   constructorParams ["mediaPipeline"] = pipeId;
   params["constructorParams"] = constructorParams;
 

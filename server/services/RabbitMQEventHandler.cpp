@@ -24,7 +24,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-RabbitMQEventHandler::RabbitMQEventHandler (std::shared_ptr< MediaObject > obj,
+RabbitMQEventHandler::RabbitMQEventHandler (std::shared_ptr< MediaObjectImpl >
+    obj,
     const std::string &address, int port,
     const std::string &exchange, const std::string &routingKey) :
   EventHandler (obj), connection (address, port), exchange (exchange),
@@ -54,9 +55,9 @@ RabbitMQEventHandler::sendEvent (Json::Value &value)
                exchange.c_str() );
     connection.sendMessage (writer.write (rpc), exchange, routingKey);
   } catch (std::exception &e) {
-    GST_WARNING ("Error sending event to MediaHandler(%s)", getId().c_str() );
+    GST_WARNING ("Error sending event to MediaHandler");
   } catch (...) {
-    GST_WARNING ("Error sending event to MediaHandler(%s)", getId().c_str() );
+    GST_WARNING ("Error sending event to MediaHandler");
   }
 }
 

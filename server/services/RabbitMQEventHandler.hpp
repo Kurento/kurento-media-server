@@ -25,7 +25,7 @@ namespace kurento
 class RabbitMQEventHandler : public EventHandler
 {
 public:
-  RabbitMQEventHandler (std::shared_ptr<MediaObject> obj,
+  RabbitMQEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                         const std::string &address, int port,
                         const std::string &exchange,
                         const std::string &routingKey);

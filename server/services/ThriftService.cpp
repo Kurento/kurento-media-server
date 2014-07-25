@@ -22,7 +22,7 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
-#include <MediaServerServiceHandler.hpp>
+#include "ThriftServiceHandler.hpp"
 
 #define GST_CAT_DEFAULT kurento_thrift_service
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -53,7 +53,8 @@ check_port (int port)
   }
 }
 
-ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
+ThriftService::ThriftService (const MediaServerConfig &config,
+                              Glib::KeyFile &confFile) : Service (config, confFile), config (config)
 {
   try {
     port = confFile.get_integer (THRIFT_GROUP, THRIFT_SERVER_SERVICE_PORT);
@@ -63,14 +64,12 @@ ThriftService::ThriftService (Glib::KeyFile &confFile) : Service (confFile)
                  DEFAULT_PORT);
     port = DEFAULT_PORT;
   }
-
-  httpService = std::shared_ptr<HttpService> (new HttpService (confFile) );
 }
 
 void ThriftService::serve()
 {
-  shared_ptr < MediaServerServiceHandler > handler (new
-      MediaServerServiceHandler () );
+  shared_ptr < ThriftServiceHandler > handler (new
+      ThriftServiceHandler (config) );
   shared_ptr < TProcessor > processor (new KmsMediaServerServiceProcessor (
                                          handler) );
   shared_ptr < TProtocolFactory > protocolFactory (new
@@ -94,7 +93,6 @@ void ThriftService::start ()
 {
   GST_DEBUG ("Starting service...");
 
-  httpService->start();
   thread = Glib::Thread::create (std::bind  (&ThriftService::serve, this), true);
 }
 
@@ -103,7 +101,6 @@ void ThriftService::stop ()
   GST_DEBUG ("stopping service...");
 
   server->stop();
-  httpService->stop();
   thread->join();
 }
 

@@ -17,7 +17,6 @@
 #define __RABBITMQ_SERVICE_HPP__
 
 #include "Service.hpp"
-#include "HttpService.hpp"
 #include "RabbitMQListener.hpp"
 #include "RabbitMQPipeline.hpp"
 #include <SignalHandler.hpp>
@@ -28,7 +27,7 @@ namespace kurento
 class RabbitMQService: private RabbitMQListener, public Service
 {
 public:
-  RabbitMQService (Glib::KeyFile &confFile);
+  RabbitMQService (const MediaServerConfig &config, Glib::KeyFile &confFile);
   virtual ~RabbitMQService() throw ();
   virtual void start ();
   virtual void stop ();
@@ -45,6 +44,7 @@ private:
   std::string address;
   int port;
 
+  const MediaServerConfig &config;
   Glib::KeyFile confFile;
 
   std::shared_ptr <SignalHandler> signalHandler;

@@ -18,26 +18,24 @@
 
 #include "KmsMediaServerService.h"
 
-#include <module.hpp>
-
 #include <ServerMethods.hpp>
 
 namespace kurento
 {
 
-class MediaServerServiceHandler: public KmsMediaServerServiceIf ,
+class ThriftServiceHandler: public KmsMediaServerServiceIf ,
   private ServerMethods
 {
 public:
-  MediaServerServiceHandler ();
-  ~MediaServerServiceHandler ();
+  ThriftServiceHandler (const MediaServerConfig &config);
+  ~ThriftServiceHandler ();
 
   /* JsonRPC */
   void invokeJsonRpc (std::string &_return, const std::string &request);
 
 protected:
 
-  virtual std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+  virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
       const std::string &sessionId, const std::string &eventType,
       const Json::Value &params);
 

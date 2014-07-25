@@ -28,7 +28,7 @@ namespace kurento
 class ThriftEventHandler : public EventHandler
 {
 public:
-  ThriftEventHandler (std::shared_ptr<MediaObject> obj,
+  ThriftEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                       const std::string &sessionId, const std::string &ip,
                       int port);
 
@@ -39,9 +39,14 @@ public:
 private:
   static Glib::ThreadPool pool;
 
+  void setId (std::string id) {
+    this->id = id;
+  }
+
   std::string ip;
   int port;
   std::string sessionId;
+  std::string id;
 
   class StaticConstructor
   {
@@ -50,6 +55,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend class ThriftServiceHandler;
 };
 
 } /* kurento */

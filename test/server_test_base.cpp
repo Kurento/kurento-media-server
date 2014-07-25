@@ -30,7 +30,6 @@
 
 #include <gst/gst.h>
 
-#include "media_config.hpp"
 #include "KmsMediaServer_types.h"
 
 using namespace apache::thrift;
@@ -64,7 +63,7 @@ start_server_test ()
     gchar *conf_file_param;
 
     conf_file_param = g_strconcat ("--conf-file=", conf_file, NULL);
-    execl (binary_dir, "kurento", conf_file_param, "--gst-plugin-path=.", NULL);
+    execl (binary_dir, "kurento-media-server", conf_file_param, NULL);
   } else if (childpid < 0) {
     BOOST_FAIL ("Error executing server");
   }

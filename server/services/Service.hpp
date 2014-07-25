@@ -17,6 +17,7 @@
 #define __SERVICE_HPP__
 
 #include <glibmm.h>
+#include <MediaServerConfig.hpp>
 
 namespace kurento
 {
@@ -24,7 +25,7 @@ namespace kurento
 class Service
 {
 public:
-  Service (Glib::KeyFile &confFile);
+  Service (const MediaServerConfig &config, Glib::KeyFile &confFile);
   virtual ~Service() throw () {};
   virtual void start () = 0;
   virtual void stop () = 0;

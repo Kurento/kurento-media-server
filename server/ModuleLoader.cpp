@@ -13,7 +13,6 @@
  *
  */
 
-#include <ModuleLoader.hpp>
 #include <gmodule.h>
 #include <gst/gst.h>
 #include <vector>

@@ -14,13 +14,17 @@
  */
 
 #include <gst/gst.h>
-#include <ServerMethods.hpp>
-#include <common/MediaSet.hpp>
+#include "ServerMethods.hpp"
+#include <MediaSet.hpp>
 #include <string>
 #include <EventHandler.hpp>
 #include <KurentoException.hpp>
-#include "utils/utils.hpp"
 #include <jsonrpc/JsonRpcUtils.hpp>
+
+#include <sstream>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -33,8 +37,11 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-ServerMethods::ServerMethods()
+ServerMethods::ServerMethods (const MediaServerConfig &config) : config (config)
 {
+  // TODO: Use config to load more factories
+  moduleManager.loadModulesFromDirectories ("");
+
   handler.addMethod ("create", std::bind (&ServerMethods::create, this,
                                           std::placeholders::_1,
                                           std::placeholders::_2) );
@@ -64,6 +71,11 @@ ServerMethods::ServerMethods()
                      std::placeholders::_2) );
 }
 
+ServerMethods::~ServerMethods()
+{
+  MediaSet::destroyMediaSet();
+}
+
 static void
 requireParams (const Json::Value &params)
 {
@@ -71,6 +83,17 @@ requireParams (const Json::Value &params)
     throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                   "'params' is requiered");
   }
+}
+
+static std::string
+generateUUID ()
+{
+  std::stringstream ss;
+  boost::uuids::uuid uuid = boost::uuids::random_generator() ();
+
+  ss << uuid;
+
+  return ss.str();
 }
 
 void
@@ -92,13 +115,13 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
   try {
     JsonRpc::getValue (params, SESSION_ID, sessionId);
   } catch (JsonRpc::CallException e) {
-    generateUUID (sessionId);
+    sessionId = generateUUID ();
   }
 
   JsonRpc::getValue (params, OBJECT, objectId);
 
   try {
-    obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
+    obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
 
 
   } catch (KurentoException &ex) {
@@ -127,7 +150,7 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
   JsonRpc::getValue (params, SESSION_ID, sessionId);
 
   try {
-    MediaSet::getMediaSet().keepAliveSession (sessionId);
+    MediaSet::getMediaSet()->keepAliveSession (sessionId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -151,7 +174,7 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
   JsonRpc::getValue (params, OBJECT, objectId);
 
   try {
-    MediaSet::getMediaSet().release (objectId);
+    MediaSet::getMediaSet()->release (objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -176,7 +199,7 @@ ServerMethods::ref (const Json::Value &params, Json::Value &response)
   JsonRpc::getValue (params, SESSION_ID, sessionId);
 
   try {
-    MediaSet::getMediaSet().ref (sessionId, objectId);
+    MediaSet::getMediaSet()->ref (sessionId, objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -202,7 +225,7 @@ ServerMethods::unref (const Json::Value &params, Json::Value &response)
   JsonRpc::getValue (params, SESSION_ID, sessionId);
 
   try {
-    MediaSet::getMediaSet().unref (sessionId, objectId);
+    MediaSet::getMediaSet()->unref (sessionId, objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -227,11 +250,11 @@ ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
   JsonRpc::getValue (params, SUBSCRIPTION, subscription);
   JsonRpc::getValue (params, SESSION_ID, sessionId);
 
-  MediaSet::getMediaSet().removeEventHandler (sessionId, objectId, subscription);
+  MediaSet::getMediaSet()->removeEventHandler (sessionId, objectId, subscription);
 }
 
 void
-ServerMethods::registerEventHandler (std::shared_ptr<MediaObject> obj,
+ServerMethods::registerEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                                      const std::string &sessionId,
                                      const  std::string &subscriptionId,
                                      std::shared_ptr<EventHandler> handler)
@@ -239,12 +262,12 @@ ServerMethods::registerEventHandler (std::shared_ptr<MediaObject> obj,
   std::shared_ptr <MediaObjectImpl> object = std::dynamic_pointer_cast
       <MediaObjectImpl> (obj);
 
-  MediaSet::getMediaSet().addEventHandler (sessionId, object->getId(),
+  MediaSet::getMediaSet()->addEventHandler (sessionId, object->getId(),
       subscriptionId, handler);
 }
 
 std::string
-ServerMethods::connectEventHandler (std::shared_ptr<MediaObject> obj,
+ServerMethods::connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                                     const std::string &sessionId, const std::string &eventType,
                                     std::shared_ptr<EventHandler> handler)
 {
@@ -264,7 +287,7 @@ ServerMethods::connectEventHandler (std::shared_ptr<MediaObject> obj,
 void
 ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
 {
-  std::shared_ptr<MediaObject> obj;
+  std::shared_ptr<MediaObjectImpl> obj;
   std::string eventType;
   std::string handlerId;
   std::string sessionId;
@@ -278,11 +301,11 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   try {
     JsonRpc::getValue (params, SESSION_ID, sessionId);
   } catch (JsonRpc::CallException e) {
-    generateUUID (sessionId);
+    sessionId = generateUUID ();
   }
 
   try {
-    obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
+    obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
 
     handlerId = connectEventHandler (obj, sessionId, eventType, params);
 
@@ -306,7 +329,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
 void
 ServerMethods::invoke (const Json::Value &params, Json::Value &response)
 {
-  std::shared_ptr<MediaObject> obj;
+  std::shared_ptr<MediaObjectImpl> obj;
   std::string sessionId;
   std::string operation;
   Json::Value operationParams;
@@ -326,19 +349,19 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
   try {
     JsonRpc::getValue (params, SESSION_ID, sessionId);
   } catch (JsonRpc::CallException e) {
-    generateUUID (sessionId);
+    sessionId = generateUUID ();
   }
 
   try {
     Json::Value value;
 
-    obj = MediaSet::getMediaSet().getMediaObject (sessionId, objectId);
+    obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
 
     if (!obj) {
       throw KurentoException (MEDIA_OBJECT_NOT_FOUND, "Object not found");
     }
 
-    obj->getInvoker().invoke (obj, operation, operationParams, value);
+    obj->invoke (obj, operation, operationParams, value);
 
     response["value"] = value;
     response["sessionId"] = sessionId;
@@ -368,32 +391,19 @@ ServerMethods::create (const Json::Value &params,
   try {
     JsonRpc::getValue (params, SESSION_ID, sessionId);
   } catch (JsonRpc::CallException e) {
-    generateUUID (sessionId);
+    sessionId = generateUUID ();
   }
 
-  if (!objectRegistrar) {
-    KurentoException e (MEDIA_OBJECT_TYPE_NOT_FOUND,
-                        "Class '" + type + "' does not exist");
-    throw e;
-  }
-
-  factory = objectRegistrar->getFactory (type);
+  factory = moduleManager.getFactory (type);
 
   if (factory) {
     try {
       std::shared_ptr <MediaObjectImpl> object;
 
       object = std::dynamic_pointer_cast<MediaObjectImpl> (
-                 factory->createObject (params["constructorParams"]) );
-      MediaSet::getMediaSet().ref (sessionId, object);
+                 factory->createObject (sessionId, params["constructorParams"]) );
+      object->setConfig (config);
 
-      try {
-        object->getMediaPipeline();
-      } catch (...) {
-        GST_ERROR ("Error getting pipeline");
-      }
-
-      MediaSet::getMediaSet().ref (sessionId, object);
       response["value"] = object->getId();
       response["sessionId"] = sessionId;
     } catch (KurentoException &ex) {

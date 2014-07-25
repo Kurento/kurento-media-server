@@ -18,6 +18,8 @@
 
 #include <jsonrpc/JsonRpcHandler.hpp>
 #include <EventHandler.hpp>
+#include <MediaServerConfig.hpp>
+#include <ModuleManager.hpp>
 
 namespace kurento
 {
@@ -28,22 +30,22 @@ class ServerMethods
 {
 
 public:
-  ServerMethods();
-  virtual ~ServerMethods() {};
+  ServerMethods (const MediaServerConfig &config);
+  virtual ~ServerMethods();
 
   void process (const std::string &request, std::string &response);
 
 protected:
 
-  virtual std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+  virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
       const std::string &sessionId, const std::string &eventType,
       const Json::Value &params) = 0;
 
-  std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+  std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                                    const std::string &sessioId, const std::string &eventType,
                                    std::shared_ptr<EventHandler> handler);
 
-  void registerEventHandler (std::shared_ptr<MediaObject> obj,
+  void registerEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                              const std::string &sessionId,
                              const  std::string &subscriptionId,
                              std::shared_ptr<EventHandler> handler);
@@ -60,7 +62,10 @@ private:
   void keepAlive (const Json::Value &params, Json::Value &response);
   void describe (const Json::Value &params, Json::Value &response);
 
+  const MediaServerConfig &config;
   JsonRpc::Handler handler;
+
+  ModuleManager moduleManager;
 
   class StaticConstructor
   {

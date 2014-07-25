@@ -18,7 +18,6 @@
 
 #include "RabbitMQListener.hpp"
 #include <ServerMethods.hpp>
-#include <HttpService.hpp>
 
 namespace kurento
 {
@@ -26,7 +25,8 @@ namespace kurento
 class RabbitMQPipeline: private RabbitMQListener, private ServerMethods
 {
 public:
-  RabbitMQPipeline (Glib::KeyFile &confFile, const std::string &address,
+  RabbitMQPipeline (const MediaServerConfig &config, Glib::KeyFile &confFile,
+                    const std::string &address,
                     const int port);
   virtual ~RabbitMQPipeline() throw ();
   virtual void startRequest (RabbitMQMessage &message);
@@ -34,7 +34,7 @@ public:
 protected:
   virtual void processMessage (RabbitMQMessage &message);
 
-  virtual std::string connectEventHandler (std::shared_ptr<MediaObject> obj,
+  virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
       const std::string &sessionId, const std::string &eventType,
       const Json::Value &params);
 
@@ -42,7 +42,6 @@ private:
 
   void destroyHandler (EventHandler *handler);
 
-  std::shared_ptr<HttpService> httpService;
   std::map <std::string, std::weak_ptr <EventHandler>> handlers;
   Glib::Threads::Mutex mutex;
   std::string pipelineId;

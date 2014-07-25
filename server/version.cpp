@@ -14,7 +14,7 @@
  */
 
 #include <config.h>
-#include <version.hpp>
+#include "version.hpp"
 
 const char *
 get_version ()

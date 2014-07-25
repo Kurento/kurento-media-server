@@ -1,6 +1,6 @@
 # Defaults for kurento initscript
-# sourced by /etc/init.d/kurento
-# installed at /etc/default/kurento by the maintainer scripts
+# sourced by /etc/init.d/kurento-media-server
+# installed at /etc/default/kurento-media-server by the maintainer scripts
 
 #
 # This is a POSIX shell fragment

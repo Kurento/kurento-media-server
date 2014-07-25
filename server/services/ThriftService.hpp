@@ -17,7 +17,6 @@
 #define __THRIFT_SERVICE_HPP__
 
 #include "Service.hpp"
-#include "HttpService.hpp"
 #include <server/TNonblockingServer.h>
 
 namespace kurento
@@ -26,7 +25,7 @@ namespace kurento
 class ThriftService: public Service
 {
 public:
-  ThriftService (Glib::KeyFile &confFile);
+  ThriftService (const MediaServerConfig &config, Glib::KeyFile &confFile);
   virtual ~ThriftService() throw ();
   virtual void start ();
   virtual void stop ();
@@ -34,8 +33,9 @@ public:
 private:
   int port;
   std::shared_ptr<apache::thrift::server::TNonblockingServer> server;
-  std::shared_ptr<HttpService> httpService;
   Glib::Thread *thread;
+
+  const MediaServerConfig &config;
 
   void serve ();
 

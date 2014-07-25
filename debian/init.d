@@ -1,7 +1,7 @@
 #! /bin/sh
 
 ### BEGIN INIT INFO
-# Provides:          kurentod
+# Provides:          kurento-media-serverd
 # Required-Start:    $remote_fs $network
 # Required-Stop:     $remote_fs
 # Default-Start:     2 3 4 5
@@ -17,19 +17,19 @@ else
 fi
 
 # Variables
-PID_FILE=/var/run/kurento.pid
-DAEMON_CMD=/usr/bin/kurento
+PID_FILE=/var/run/kurento-media-server.pid
+DAEMON_CMD=/usr/bin/kurento-media-server
 START_DAEMON=false
-DAEMON_LOG=/var/log/kurento
+DAEMON_LOG=/var/log/kurento-media-server
 LOG_SIZE=10M
 
 # Include stun defaults if available
-if [ -f /etc/default/kurento ] ; then
-	. /etc/default/kurento
+if [ -f /etc/default/kurento-media-server ] ; then
+	. /etc/default/kurento-media-server
 fi
 
 if [ "$START_DAEMON" != "true" ]; then
-    log_failure_msg "Review activate settings within file /etc/default/kurento"
+    log_failure_msg "Review activate settings within file /etc/default/kurento-media-server"
     exit 1
 fi
 
@@ -41,7 +41,7 @@ fi
 verify_user () {
 # Only root can start Kurento
     if [ `id -u` -ne 0 ]; then
-        log_failure_msg "Only root can start Kurento"
+        log_failure_msg "Only root can start Kurento Media Server"
         exit 1
     fi
 }
@@ -72,8 +72,8 @@ start_kurento () {
 
     # Add file rotation
     [ -e /etc/logrotate.d ] || install -d -m755 /etc/logrotate.d
-    cat > /etc/logrotate.d/kurento  <<-EOFile
-    "/var/log/kurento/*.log" {
+    cat > /etc/logrotate.d/kurento-media-server  <<-EOFile
+    "/var/log/kurento-media-server/*.log" {
         missingok
         copytruncate
         rotate 20
@@ -85,8 +85,8 @@ start_kurento () {
 	EOFile
 
     # Add logrotate cron to root user
-    echo "`crontab -u root -l`"|grep -iv "kurento"|crontab -u root -
-    echo "*/5 * * * * /usr/sbin/logrotate /etc/logrotate.d/kurento" | crontab -u root -
+    echo "`crontab -u root -l`"|grep -iv "kurento-media-server"|crontab -u root -
+    echo "*/5 * * * * /usr/sbin/logrotate /etc/logrotate.d/kurento-media-server" | crontab -u root -
 
 }
 
@@ -97,7 +97,7 @@ stop_kurento () {
     [ -f $PID_FILE ] && rm -f $PID_FILE
 
     # Remove logrotate cron to root user
-    echo "`crontab -u root -l`"|grep -iv "kurento"|crontab -u root -
+    echo "`crontab -u root -l`"|grep -iv "kurento-media-server"|crontab -u root -
 }
 
 status () {

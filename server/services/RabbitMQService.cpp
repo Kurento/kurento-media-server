@@ -63,7 +63,8 @@ check_port (int port)
   }
 }
 
-RabbitMQService::RabbitMQService (Glib::KeyFile &confFile) : Service (confFile)
+RabbitMQService::RabbitMQService (const MediaServerConfig &config,
+                                  Glib::KeyFile &confFile) : Service (config, confFile), config (config)
 {
   sigset_t mask;
   std::string address;
@@ -115,7 +116,8 @@ RabbitMQService::processMessage (RabbitMQMessage &message)
     stopListen();
     getConnection()->noCloseOnRelease();
 
-    pipeline = std::shared_ptr<RabbitMQPipeline> (new RabbitMQPipeline (confFile,
+    pipeline = std::shared_ptr<RabbitMQPipeline> (new RabbitMQPipeline (config,
+               confFile,
                address,
                port) );
     pipeline->startRequest (message);
