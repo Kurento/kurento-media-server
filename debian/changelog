@@ -1,4 +1,10 @@
-kurento-media-server (4.3.7) testing; urgency=medium
+kurento-media-server (5.0.0~rc1) testing; urgency=medium
+
+  * Prepare for release 5.0.0
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 28 Jul 2014 09:04:36 +0200
+
+kurento-media-server (4.3.6-1) testing; urgency=medium
 
   * Change package name
 
