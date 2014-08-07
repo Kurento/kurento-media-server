@@ -1,8 +1,5 @@
 include (TestHelpers)
 
-find_package (Boost COMPONENTS unit_test_framework REQUIRED)
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})

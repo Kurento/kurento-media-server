@@ -30,9 +30,10 @@ set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
 set(LIB_PREFIX "lib")
 
 find_package(PkgConfig)
+find_package (Boost COMPONENTS unit_test_framework)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 pkg_check_modules(KMS_CORE REQUIRED kmscore>=5.0.0)
-pkg_check_modules(GLIB2 REQUIRED glib-2.0>=2.38)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.3.3)
 pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0>=1.3.3)
 pkg_check_modules(THRIFT REQUIRED thrift-nb=0.9.0)
@@ -45,7 +46,9 @@ add_subdirectory(server)
 
 enable_testing()
 
-add_subdirectory(test)
+if (Boost_UNIT_TEST_FRAMEWORK_FOUND)
+  add_subdirectory(test)
+endif()
 
 if(NOT DEFINED SYSCONF_INSTALL_DIR)
 	set(SYSCONF_INSTALL_DIR etc CACHE PATH
