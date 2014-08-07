@@ -5,45 +5,23 @@ Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
 Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
- gnutls-bin,
- gtk-doc-tools,
- libsigc++-2.0-dev,
+ kms-core-dev,
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
- libboost-test-dev,
- libevent-dev,
- libgnutls28-dev,
- libgstreamer1.0-dev (>= 1.3.3),
  libthrift-dev (>= 0.9.0),
  libthrift-dev (<= 0.9.1),
+ libevent-dev,
  thrift-compiler,
- librabbitmq-dev,
- kms-core-dev
+ librabbitmq-dev
 Standards-Version: 3.9.4
 
 Package: kurento-media-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- gstreamer1.0-plugins-base (>= 1.3.3),
- gstreamer1.0-libav,
- gstreamer1.0-nice,
- gstreamer1.0-plugins-bad (>= 1.3.3),
- gstreamer1.0-plugins-good (>= 1.3.3),
- gstreamer1.0-plugins-ugly (>= 1.3.3),
- gnutls-bin,
  kms-elements,
  kms-core
 Description: Kurento Media Server
- The Kurento Media Server processes audio and video streams,
- doing composable pipeline-based processing or media.
-
-Package: kurento-media-server-dev
-Architecture: any
-Depends: ${misc:Depends},
- kurento-media-server (= ${binary:Version}),
- kms-core-dev
-Description: Development files for Kurento Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
 
