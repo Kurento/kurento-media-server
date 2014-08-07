@@ -19,7 +19,7 @@
 #include <gst/sdp/gstsdpmessage.h>
 #include <glibmm.h>
 
-#define DEFAULT_CONFIG_FILE "/etc/kurento/kurento.conf"
+#define DEFAULT_CONFIG_FILE "/etc/kurento-media-server/kurento-media-server.conf"
 
 #define SERVER_GROUP "Server"
 #define SDP_PATTERN_KEY "sdpPattern"
