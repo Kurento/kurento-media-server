@@ -73,7 +73,6 @@ ServerMethods::ServerMethods (const MediaServerConfig &config) : config (config)
 
 ServerMethods::~ServerMethods()
 {
-  MediaSet::destroyMediaSet();
 }
 
 static void
