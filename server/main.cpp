@@ -75,33 +75,12 @@ check_port (int port)
   }
 }
 
-static gchar *
-read_entire_file (const gchar *file_name)
+std::string
+read_entire_file (const std::string &file_name)
 {
-  gchar *data;
-  long f_size;
-  FILE *fp;
-
-  fp = fopen (file_name, "r");
-
-  if (fp == NULL) {
-    return NULL;
-  }
-
-  fseek (fp, 0, SEEK_END);
-  f_size = ftell (fp);
-  fseek (fp, 0, SEEK_SET);
-  data = (gchar *) g_malloc0 (f_size + 1);
-
-  if (fread (data, 1, f_size, fp) != (size_t) f_size) {
-    GST_ERROR ("Error reading file");
-  }
-
-  fclose (fp);
-
-  data[f_size] = '\0';
-
-  return data;
+  std::ifstream t (file_name);
+  return std::string ( (std::istreambuf_iterator<char> (t) ),
+                       std::istreambuf_iterator<char>() );
 }
 
 static GstSDPMessage *
@@ -109,8 +88,9 @@ load_sdp_pattern (Glib::KeyFile &configFile, const std::string &confFileName)
 {
   GstSDPResult result;
   GstSDPMessage *sdp_pattern = NULL;
-  gchar *sdp_pattern_text;
-  std::string sdp_pattern_file_name;
+  std::string sdp_pattern_text;
+  boost::filesystem::path sdp_pattern_file (configFile.get_string (SERVER_GROUP,
+      SDP_PATTERN_KEY) );
 
   GST_DEBUG ("Load SDP Pattern");
   result = gst_sdp_message_new (&sdp_pattern);
@@ -120,21 +100,23 @@ load_sdp_pattern (Glib::KeyFile &configFile, const std::string &confFileName)
     return NULL;
   }
 
-  sdp_pattern_file_name = configFile.get_string (SERVER_GROUP, SDP_PATTERN_KEY);
   boost::filesystem::path p (confFileName.c_str () );
-  sdp_pattern_file_name.insert (0, "/");
-  sdp_pattern_file_name.insert (0, p.parent_path ().c_str() );
-  sdp_pattern_text = read_entire_file (sdp_pattern_file_name.c_str () );
 
-  if (sdp_pattern_text == NULL) {
+  if (!sdp_pattern_file.is_absolute() ) {
+    sdp_pattern_file = p.parent_path() / sdp_pattern_file;
+  }
+
+  sdp_pattern_text = read_entire_file (sdp_pattern_file.generic_string() );
+
+  if (sdp_pattern_text.empty() ) {
     GST_ERROR ("Error reading SDP pattern file");
     gst_sdp_message_free (sdp_pattern);
     return NULL;
   }
 
-  result = gst_sdp_message_parse_buffer ( (const guint8 *) sdp_pattern_text, -1,
+  result = gst_sdp_message_parse_buffer ( (const guint8 *)
+                                          sdp_pattern_text.c_str(), -1,
                                           sdp_pattern);
-  g_free (sdp_pattern_text);
 
   if (result != GST_SDP_OK) {
     GST_ERROR ("Error parsing SDP config pattern");
