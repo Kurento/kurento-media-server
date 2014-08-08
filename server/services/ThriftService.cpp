@@ -53,13 +53,13 @@ check_port (int port)
   }
 }
 
-ThriftService::ThriftService (const MediaServerConfig &config,
-                              Glib::KeyFile &confFile) : Service (config, confFile), config (config)
+ThriftService::ThriftService (const boost::property_tree::ptree &config) :
+  Service (config), config (config)
 {
   try {
-    port = confFile.get_integer (THRIFT_GROUP, THRIFT_SERVER_SERVICE_PORT);
+    port = config.get<int> ("mediaServer.netInterface.thrift");
     check_port (port);
-  } catch (const Glib::KeyFileError &err) {
+  } catch (const boost::property_tree::ptree_error &e) {
     GST_WARNING ("Setting default port %d to media server",
                  DEFAULT_PORT);
     port = DEFAULT_PORT;

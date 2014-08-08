@@ -25,7 +25,7 @@ namespace kurento
 class ThriftService: public Service
 {
 public:
-  ThriftService (const MediaServerConfig &config, Glib::KeyFile &confFile);
+  ThriftService (const boost::property_tree::ptree &config);
   virtual ~ThriftService() throw ();
   virtual void start ();
   virtual void stop ();
@@ -35,7 +35,7 @@ private:
   std::shared_ptr<apache::thrift::server::TNonblockingServer> server;
   Glib::Thread *thread;
 
-  const MediaServerConfig &config;
+  const boost::property_tree::ptree &config;
 
   void serve ();
 

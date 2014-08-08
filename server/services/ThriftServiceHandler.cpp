@@ -27,7 +27,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-ThriftServiceHandler::ThriftServiceHandler (const MediaServerConfig &config) :
+ThriftServiceHandler::ThriftServiceHandler (const boost::property_tree::ptree
+    &config) :
   ServerMethods (config)
 {
 }

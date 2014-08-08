@@ -37,7 +37,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-ServerMethods::ServerMethods (const MediaServerConfig &config) : config (config)
+ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
+  config (config)
 {
   // TODO: Use config to load more factories
   moduleManager.loadModulesFromDirectories ("");
@@ -400,8 +401,7 @@ ServerMethods::create (const Json::Value &params,
       std::shared_ptr <MediaObjectImpl> object;
 
       object = std::dynamic_pointer_cast<MediaObjectImpl> (
-                 factory->createObject (sessionId, params["constructorParams"]) );
-      object->setConfig (config);
+                 factory->createObject (config, sessionId, params["constructorParams"]) );
 
       response["value"] = object->getId();
       response["sessionId"] = sessionId;

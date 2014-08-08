@@ -63,8 +63,7 @@ generateUUID()
   return ss.str();
 }
 
-RabbitMQPipeline::RabbitMQPipeline (const MediaServerConfig &config,
-                                    Glib::KeyFile &confFile,
+RabbitMQPipeline::RabbitMQPipeline (const boost::property_tree::ptree &config,
                                     const std::string &address, const int port) : ServerMethods (config)
 {
   setConfig (address, port);

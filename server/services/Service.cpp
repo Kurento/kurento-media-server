@@ -23,7 +23,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-Service::Service (const MediaServerConfig &config, Glib::KeyFile &confFile)
+Service::Service (const boost::property_tree::ptree &config)
 {
 }
 

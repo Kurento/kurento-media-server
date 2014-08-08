@@ -1,0 +1,67 @@
+{
+  "mediaServer" : {
+    "netInterface" : {
+      // Uncomment just one of them
+      "thrift" : {
+        "port" : 9090
+      }
+      /*
+      "rabbitmq": {
+        "address" : "127.0.0.1",
+        "port" : 5672,
+        "username" : "guest",
+        "password" : "guest",
+        "vhost" : "/"
+      }
+      */
+      /*
+      "websocket": {
+        "port": 9090,
+        "path": "kurento"
+      }
+      */
+    }
+  },
+  "controlServer" : {
+    "log": {
+      "controServerLogConfigFile": "/opt/kurento/logback.xml"
+    },
+    "netInterface" : {
+      "websocket" : {
+        "port": 8888,
+        "path": "kurento"
+      },
+      "thriftCallback" : {
+        "port": 9091
+      }
+    }
+  },
+  "modules": {
+    "kurento": {
+      "SdpEndpoint" : {
+        "sdpPattern" : "sdp_pattern.txt"
+      },
+      "HttpEndpoint" : {
+        // "serverAddress" : "localhost",
+        /*
+          Announced IP Addess may be helpful under situations such as the server needs
+          to provide URLs to clients whose host name is different from the one the
+          server is listening in. If this option is not provided, http server will try
+          to look for any available address in your system.
+        */
+        // "announcedAddress" : "localhost"
+      },
+      "WebRtcEndpoint" : {
+        // "stunServerAddress" : "stun ip address",
+        // "stunServerPort" : 3478,
+        // turnURL gives the necessary info to configure TURN for WebRTC.
+        //    'address' must be an IP (not a domain).
+        //    'transport' is optional (UDP by default).
+        // "turnURL" : "user:password@address:port(?transport=[udp|tcp|tls])",
+        // "pemCertificate" : "file"
+      }
+    }
+    //"module1": { …. }
+    //"module2": { …. }
+  }
+}

@@ -28,21 +28,19 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-Service *ServiceFactory::create_service (const MediaServerConfig &config,
-    Glib::KeyFile &confFile)
+Service *ServiceFactory::create_service (const boost::property_tree::ptree
+    &config)
 {
-  std::string service;
+  boost::property_tree::ptree netConfig =
+    config.get_child ("mediaServer.netInterface");
 
-  service = confFile.get_string (FACTORY_GROUP, FACTORY_SERVICE);
-
-  if (service == "Thrift") {
-    return new ThriftService (config, confFile);
-  } else if (service == "RabbitMQ") {
-    return new RabbitMQService (config, confFile);
+  if (netConfig.find ("thrift") != netConfig.not_found() ) {
+    return new ThriftService (config);
+  } else if (netConfig.find ("rabbitmq") != netConfig.not_found() ) {
+    return new RabbitMQService (config);
   }
 
-  throw Glib::OptionError (Glib::OptionError::UNKNOWN_OPTION,
-                           "Service " + service + " not found");
+  throw boost::property_tree::ptree_error ("Network interface cannt be tarted");
 }
 
 ServiceFactory::StaticConstructor ServiceFactory::staticConstructor;

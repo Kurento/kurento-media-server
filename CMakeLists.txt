@@ -25,7 +25,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror -std=c++11 -DGST_DISABLE_DEPRECATED")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -Werror -std=c99 -DGST_DISABLE_DEPRECATED")
 
-set(CUSTOM_PREFIX "kurento-media-server")
+set(CUSTOM_PREFIX "kurento")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
 set(LIB_PREFIX "lib")
 
@@ -55,4 +55,4 @@ if(NOT DEFINED SYSCONF_INSTALL_DIR)
 		    "Install directory for system-wide configuration files")
 endif()
 
-install(FILES kurento-media-server.conf pattern.sdp DESTINATION ${SYSCONF_INSTALL_DIR}/${CUSTOM_PREFIX})
+install(FILES kurento.conf.json sdp_pattern.txt DESTINATION ${SYSCONF_INSTALL_DIR}/${CUSTOM_PREFIX})

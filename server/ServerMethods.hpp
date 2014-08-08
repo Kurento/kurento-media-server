@@ -18,8 +18,8 @@
 
 #include <jsonrpc/JsonRpcHandler.hpp>
 #include <EventHandler.hpp>
-#include <MediaServerConfig.hpp>
 #include <ModuleManager.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 namespace kurento
 {
@@ -30,7 +30,7 @@ class ServerMethods
 {
 
 public:
-  ServerMethods (const MediaServerConfig &config);
+  ServerMethods (const boost::property_tree::ptree &config);
   virtual ~ServerMethods();
 
   void process (const std::string &request, std::string &response);
@@ -62,7 +62,7 @@ private:
   void keepAlive (const Json::Value &params, Json::Value &response);
   void describe (const Json::Value &params, Json::Value &response);
 
-  const MediaServerConfig &config;
+  const boost::property_tree::ptree &config;
   JsonRpc::Handler handler;
 
   ModuleManager moduleManager;

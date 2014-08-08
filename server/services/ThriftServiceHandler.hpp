@@ -27,7 +27,7 @@ class ThriftServiceHandler: public KmsMediaServerServiceIf ,
   private ServerMethods
 {
 public:
-  ThriftServiceHandler (const MediaServerConfig &config);
+  ThriftServiceHandler (const boost::property_tree::ptree &config);
   ~ThriftServiceHandler ();
 
   /* JsonRPC */

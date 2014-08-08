@@ -25,7 +25,7 @@ namespace kurento
 class RabbitMQPipeline: private RabbitMQListener, private ServerMethods
 {
 public:
-  RabbitMQPipeline (const MediaServerConfig &config, Glib::KeyFile &confFile,
+  RabbitMQPipeline (const boost::property_tree::ptree &config,
                     const std::string &address,
                     const int port);
   virtual ~RabbitMQPipeline() throw ();

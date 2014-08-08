@@ -18,7 +18,7 @@
 
 #include <glibmm.h>
 #include "Service.hpp"
-#include <MediaServerConfig.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 namespace kurento
 {
@@ -26,8 +26,7 @@ namespace kurento
 class ServiceFactory
 {
 public:
-  static Service *create_service (const MediaServerConfig &config,
-                                  Glib::KeyFile &confFile);
+  static Service *create_service (const boost::property_tree::ptree &config);
 
 private:
   class StaticConstructor

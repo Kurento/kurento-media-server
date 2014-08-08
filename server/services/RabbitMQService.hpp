@@ -27,7 +27,7 @@ namespace kurento
 class RabbitMQService: private RabbitMQListener, public Service
 {
 public:
-  RabbitMQService (const MediaServerConfig &config, Glib::KeyFile &confFile);
+  RabbitMQService (const boost::property_tree::ptree &config);
   virtual ~RabbitMQService() throw ();
   virtual void start ();
   virtual void stop ();
@@ -44,7 +44,7 @@ private:
   std::string address;
   int port;
 
-  const MediaServerConfig &config;
+  const boost::property_tree::ptree &config;
   Glib::KeyFile confFile;
 
   std::shared_ptr <SignalHandler> signalHandler;
