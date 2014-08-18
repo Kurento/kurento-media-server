@@ -13,33 +13,32 @@
  *
  */
 
-#include "ThriftServiceHandler.hpp"
+#include "ThriftTransportHandler.hpp"
 #include "KmsMediaServer_constants.h"
 #include <ThriftEventHandler.hpp>
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <gst/gst.h>
 #include <sys/socket.h>
 
-#define GST_CAT_DEFAULT kurento_media_server_service_handler
+#define GST_CAT_DEFAULT kurento_thrift_transport_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoThriftServiceHandler"
+#define GST_DEFAULT_NAME "KurentoThriftTransportHandler"
 
 namespace kurento
 {
 
-ThriftServiceHandler::ThriftServiceHandler (const boost::property_tree::ptree
-    &config) :
-  ServerMethods (config)
+ThriftTransportHandler::ThriftTransportHandler (const
+    boost::property_tree::ptree &config) : ServerMethods (config)
 {
 }
 
-ThriftServiceHandler::~ThriftServiceHandler ()
+ThriftTransportHandler::~ThriftTransportHandler ()
 {
 }
 
 void
-ThriftServiceHandler::invokeJsonRpc (std::string &_return,
-                                     const std::string &request)
+ThriftTransportHandler::invokeJsonRpc (std::string &_return,
+                                       const std::string &request)
 {
   GST_DEBUG ("Json request: %s", request.c_str() );
   process (request, _return);
@@ -47,7 +46,7 @@ ThriftServiceHandler::invokeJsonRpc (std::string &_return,
 }
 
 std::string
-ThriftServiceHandler::connectEventHandler (std::shared_ptr<MediaObjectImpl>
+ThriftTransportHandler::connectEventHandler (std::shared_ptr<MediaObjectImpl>
     obj, const std::string &sessionId, const std::string &eventType,
     const Json::Value &params)
 {
@@ -70,10 +69,10 @@ ThriftServiceHandler::connectEventHandler (std::shared_ptr<MediaObjectImpl>
 }
 
 
-ThriftServiceHandler::StaticConstructor
-ThriftServiceHandler::staticConstructor;
+ThriftTransportHandler::StaticConstructor
+ThriftTransportHandler::staticConstructor;
 
-ThriftServiceHandler::StaticConstructor::StaticConstructor()
+ThriftTransportHandler::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);

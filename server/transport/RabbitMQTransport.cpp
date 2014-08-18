@@ -14,16 +14,16 @@
  */
 
 #include <gst/gst.h>
-#include "RabbitMQService.hpp"
+#include "RabbitMQTransport.hpp"
 
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 
-#define GST_CAT_DEFAULT kurento_rabbitmq_service
+#define GST_CAT_DEFAULT kurento_rabbitmq_transport
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoRabbitMQService"
+#define GST_DEFAULT_NAME "KurentoRabbitMQTransport"
 
 /* This is included to avoid problems with slots and lamdas */
 #include <type_traits>
@@ -40,11 +40,6 @@ struct functor_trait<Functor, false> {
   typedef Functor functor_type;
 };
 }
-
-/* Config file values */
-#define RABBITMQ_GROUP "RabbitMQ"
-#define RABBITMQ_SERVER_ADDRESS "serverAddress"
-#define RABBITMQ_SERVER_PORT "serverPort"
 
 /* Default config values */
 #define RABBITMQ_SERVER_ADDRESS_DEFAULT "127.0.0.1"
@@ -63,15 +58,15 @@ check_port (int port)
   }
 }
 
-RabbitMQService::RabbitMQService (const boost::property_tree::ptree &config) :
-  Service (config), config (config)
+RabbitMQTransport::RabbitMQTransport (const boost::property_tree::ptree &config)
+  : Transport (config), config (config)
 {
   sigset_t mask;
   std::string address;
   int port;
 
   try {
-    address = confFile.get_string (RABBITMQ_GROUP, RABBITMQ_SERVER_ADDRESS);
+    address = config.get<std::string> ("mediaServer.net.rabbitmq.address");
   } catch (const Glib::KeyFileError &err) {
     GST_WARNING ("Setting default address %s to media server",
                  RABBITMQ_SERVER_ADDRESS_DEFAULT);
@@ -79,7 +74,7 @@ RabbitMQService::RabbitMQService (const boost::property_tree::ptree &config) :
   }
 
   try {
-    port = confFile.get_integer (RABBITMQ_GROUP, RABBITMQ_SERVER_PORT);
+    port = config.get<uint> ("mediaServer.net.rabbitmq.port");
     check_port (port);
   } catch (const Glib::KeyFileError &err) {
     GST_WARNING ("Setting default port %d to media server",
@@ -91,20 +86,19 @@ RabbitMQService::RabbitMQService (const boost::property_tree::ptree &config) :
   this->port = port;
 
   setConfig (address, port);
-  this->confFile.load_from_data (confFile.to_data() );
 
   sigemptyset (&mask);
   sigaddset (&mask, SIGCHLD);
   signalHandler = std::shared_ptr <SignalHandler> (new SignalHandler (mask,
-                  std::bind (&RabbitMQService::childSignal, this, std::placeholders::_1) ) );
+                  std::bind (&RabbitMQTransport::childSignal, this, std::placeholders::_1) ) );
 }
 
-RabbitMQService::~RabbitMQService()
+RabbitMQTransport::~RabbitMQTransport()
 {
 }
 
 void
-RabbitMQService::processMessage (RabbitMQMessage &message)
+RabbitMQTransport::processMessage (RabbitMQMessage &message)
 {
   int pid = fork();
 
@@ -128,15 +122,15 @@ RabbitMQService::processMessage (RabbitMQMessage &message)
   }
 }
 
-void RabbitMQService::start ()
+void RabbitMQTransport::start ()
 {
   listenQueue (PIPELINE_CREATION, true);
 }
 
-void RabbitMQService::stop ()
+void RabbitMQTransport::stop ()
 {
   stopListen();
-  GST_DEBUG ("stop service");
+  GST_DEBUG ("stop transport");
 
   if (pipeline) {
     pipeline.reset();
@@ -149,7 +143,7 @@ void RabbitMQService::stop ()
 }
 
 void
-RabbitMQService::childSignal (uint32_t signal)
+RabbitMQTransport::childSignal (uint32_t signal)
 {
   int pid;
   int status;
@@ -163,9 +157,9 @@ RabbitMQService::childSignal (uint32_t signal)
 }
 
 
-RabbitMQService::StaticConstructor RabbitMQService::staticConstructor;
+RabbitMQTransport::StaticConstructor RabbitMQTransport::staticConstructor;
 
-RabbitMQService::StaticConstructor::StaticConstructor()
+RabbitMQTransport::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);

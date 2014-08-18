@@ -13,22 +13,41 @@
  *
  */
 
-#ifndef __SERVICE_FACTORY_HPP__
-#define __SERVICE_FACTORY_HPP__
+#ifndef __THRIFT_EVENT_HANDLER_HPP__
+#define __THRIFT_EVENT_HANDLER_HPP__
 
+#include <memory>
+#include <string>
+#include <json/json.h>
 #include <glibmm.h>
-#include "Service.hpp"
-#include <boost/property_tree/ptree.hpp>
+#include <EventHandler.hpp>
 
 namespace kurento
 {
 
-class ServiceFactory
+class ThriftEventHandler : public EventHandler
 {
 public:
-  static Service *create_service (const boost::property_tree::ptree &config);
+  ThriftEventHandler (std::shared_ptr<MediaObjectImpl> obj,
+                      const std::string &sessionId, const std::string &ip,
+                      int port);
+
+  virtual ~ThriftEventHandler();
+
+  virtual void sendEvent (Json::Value &value);
 
 private:
+  static Glib::ThreadPool pool;
+
+  void setId (std::string id) {
+    this->id = id;
+  }
+
+  std::string ip;
+  int port;
+  std::string sessionId;
+  std::string id;
+
   class StaticConstructor
   {
   public:
@@ -36,8 +55,10 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend class ThriftTransportHandler;
 };
 
 } /* kurento */
 
-#endif /* __SERVICE_FACTORY_HPP__ */
+#endif /* __THRIFT_EVENT_HANDLER_HPP__ */

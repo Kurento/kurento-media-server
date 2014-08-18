@@ -13,7 +13,7 @@
  *
  */
 
-#include <ThriftServiceHandler.hpp>
+#include <ThriftTransportHandler.hpp>
 #include <transport/TBufferTransports.h>
 
 using namespace apache::thrift::transport;

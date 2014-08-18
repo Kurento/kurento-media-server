@@ -135,7 +135,7 @@ RabbitMQConnection::~RabbitMQConnection()
   int fd;
 
   if (conn == NULL) {
-    GST_DEBUG ("service already stopped");
+    GST_DEBUG ("transport already stopped");
     return;
   }
 

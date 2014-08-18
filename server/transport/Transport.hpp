@@ -13,41 +13,23 @@
  *
  */
 
-#ifndef __THRIFT_SERVICE_HPP__
-#define __THRIFT_SERVICE_HPP__
+#ifndef __TRANSPORT_HPP__
+#define __TRANSPORT_HPP__
 
-#include "Service.hpp"
-#include <server/TNonblockingServer.h>
+#include <boost/property_tree/ptree.hpp>
 
 namespace kurento
 {
 
-class ThriftService: public Service
+class Transport
 {
 public:
-  ThriftService (const boost::property_tree::ptree &config);
-  virtual ~ThriftService() throw ();
-  virtual void start ();
-  virtual void stop ();
-
-private:
-  int port;
-  std::shared_ptr<apache::thrift::server::TNonblockingServer> server;
-  Glib::Thread *thread;
-
-  const boost::property_tree::ptree &config;
-
-  void serve ();
-
-  class StaticConstructor
-  {
-  public:
-    StaticConstructor();
-  };
-
-  static StaticConstructor staticConstructor;
+  Transport (const boost::property_tree::ptree &config) {};
+  virtual ~Transport() throw () {};
+  virtual void start () = 0;
+  virtual void stop () = 0;
 };
 
 } /* kurento */
 
-#endif /* __THRIFT_SERVICE_HPP__ */
+#endif /* __TRANSPORT_HPP__ */

@@ -13,10 +13,10 @@
  *
  */
 
-#ifndef __RABBITMQ_SERVICE_HPP__
-#define __RABBITMQ_SERVICE_HPP__
+#ifndef __RABBITMQ_TRANSPORT_HPP__
+#define __RABBITMQ_TRANSPORT_HPP__
 
-#include "Service.hpp"
+#include "Transport.hpp"
 #include "RabbitMQListener.hpp"
 #include "RabbitMQPipeline.hpp"
 #include <SignalHandler.hpp>
@@ -24,11 +24,11 @@
 namespace kurento
 {
 
-class RabbitMQService: private RabbitMQListener, public Service
+class RabbitMQTransport: private RabbitMQListener, public Transport
 {
 public:
-  RabbitMQService (const boost::property_tree::ptree &config);
-  virtual ~RabbitMQService() throw ();
+  RabbitMQTransport (const boost::property_tree::ptree &config);
+  virtual ~RabbitMQTransport() throw ();
   virtual void start ();
   virtual void stop ();
 
@@ -45,7 +45,6 @@ private:
   int port;
 
   const boost::property_tree::ptree &config;
-  Glib::KeyFile confFile;
 
   std::shared_ptr <SignalHandler> signalHandler;
 
@@ -60,4 +59,4 @@ private:
 
 } /* kurento */
 
-#endif /* __RABBITMQ_SERVICE_HPP__ */
+#endif /* __RABBITMQ_TRANSPORT_HPP__ */

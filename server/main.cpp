@@ -26,8 +26,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "services/Service.hpp"
-#include "services/ServiceFactory.hpp"
+#include "TransportFactory.hpp"
 
 #include <SignalHandler.hpp>
 #include <gst/gst.h>
@@ -40,7 +39,7 @@ const std::string DEFAULT_CONFIG_FILE = "/etc/kurento/kurento.conf.json";
 
 using namespace ::kurento;
 
-static Service *service;
+static Transport *transport;
 
 __pid_t pid;
 
@@ -73,9 +72,9 @@ load_config (boost::property_tree::ptree &config, const std::string &file_name)
   GST_INFO ("Configuration loaded successfully");
 
   try {
-    service = ServiceFactory::create_service (config);
+    transport = TransportFactory::create_transport (config);
   } catch (std::exception &e) {
-    GST_ERROR ("Error creating service: %s", e.what() );
+    GST_ERROR ("Error creating transport: %s", e.what() );
     exit (1);
   }
 }
@@ -186,8 +185,8 @@ main (int argc, char **argv)
     load_config (config, (std::string) conf_file);
   }
 
-  /* Start service */
-  service->start ();
+  /* Start transport */
+  transport->start ();
 
   loop->run ();
 
@@ -195,9 +194,9 @@ main (int argc, char **argv)
 
   deleteCertificate ();
 
-  service->stop();
+  transport->stop();
 
-  delete service;
+  delete transport;
 
   return 0;
 }

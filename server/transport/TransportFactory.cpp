@@ -14,22 +14,35 @@
  */
 
 #include <gst/gst.h>
-#include "Service.hpp"
+#include "TransportFactory.hpp"
+#include "ThriftTransport.hpp"
+#include "RabbitMQTransport.hpp"
 
-#define GST_CAT_DEFAULT kurento_service
+#define GST_CAT_DEFAULT kurento_transport_factory
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoService"
+#define GST_DEFAULT_NAME "KurentoTransportFactory"
 
 namespace kurento
 {
 
-Service::Service (const boost::property_tree::ptree &config)
+Transport *TransportFactory::create_transport (const boost::property_tree::ptree
+    &config)
 {
+  boost::property_tree::ptree netConfig =
+    config.get_child ("mediaServer.netInterface");
+
+  if (netConfig.find ("thrift") != netConfig.not_found() ) {
+    return new ThriftTransport (config);
+  } else if (netConfig.find ("rabbitmq") != netConfig.not_found() ) {
+    return new RabbitMQTransport (config);
+  }
+
+  throw boost::property_tree::ptree_error ("Network interface cannt be tarted");
 }
 
-Service::StaticConstructor Service::staticConstructor;
+TransportFactory::StaticConstructor TransportFactory::staticConstructor;
 
-Service::StaticConstructor::StaticConstructor()
+TransportFactory::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);

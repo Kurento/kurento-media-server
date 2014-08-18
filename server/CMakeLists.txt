@@ -1,4 +1,4 @@
-aux_source_directory("services" SERVICES)
+aux_source_directory("transport" TRANSPORT)
 
 SET(KMSC_SOURCE
   main.cpp
@@ -12,7 +12,7 @@ SET(KMSC_SOURCE
   SignalHandler.hpp
   CacheEntry.cpp
   CacheEntry.hpp
-  ${SERVICES})
+  ${TRANSPORT})
 
 set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
 
@@ -41,7 +41,7 @@ set_property (TARGET kurento-media-server
     ${CMAKE_BINARY_DIR}
     ${CMAKE_BINARY_DIR}/gen-cpp
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/services
+    ${CMAKE_CURRENT_SOURCE_DIR}/transport
     ${CMAKE_CURRENT_SOURCE_DIR}/utils
     ${KMS_CORE_INCLUDE_DIRS}
     ${THRIFT_INCLUDE_DIRS}

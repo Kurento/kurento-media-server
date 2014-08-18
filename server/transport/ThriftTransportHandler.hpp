@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef __MEDIA_SERVER_SERVICE_HANDLER_HPP__
-#define __MEDIA_SERVER_SERVICE_HANDLER_HPP__
+#ifndef __MEDIA_SERVER_TRANSPORT_HANDLER_HPP__
+#define __MEDIA_SERVER_TRANSPORT_HANDLER_HPP__
 
 #include "KmsMediaServerService.h"
 
@@ -23,12 +23,12 @@
 namespace kurento
 {
 
-class ThriftServiceHandler: public KmsMediaServerServiceIf ,
+class ThriftTransportHandler: public KmsMediaServerServiceIf ,
   private ServerMethods
 {
 public:
-  ThriftServiceHandler (const boost::property_tree::ptree &config);
-  ~ThriftServiceHandler ();
+  ThriftTransportHandler (const boost::property_tree::ptree &config);
+  ~ThriftTransportHandler ();
 
   /* JsonRPC */
   void invokeJsonRpc (std::string &_return, const std::string &request);
@@ -52,4 +52,4 @@ private:
 
 } // kurento
 
-#endif /* __MEDIA_SERVER_SERVICE_HANDLER_HPP__ */
+#endif /* __MEDIA_SERVER_TRANSPORT_HANDLER_HPP__ */

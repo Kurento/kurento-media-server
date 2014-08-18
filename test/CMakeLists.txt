@@ -28,7 +28,8 @@ set_property (TARGET test_server_json
     INCLUDE_DIRECTORIES
       ${KMS_CORE_INCLUDE_DIRS}
       ${CMAKE_BINARY_DIR}/gen-cpp
-      ${CMAKE_SOURCE_DIR}/server/services
+      ${CMAKE_SOURCE_DIR}/server/transport
+      ${CMAKE_SOURCE_DIR}/server/transport/thrift
       ${CMAKE_SOURCE_DIR}/server
       ${THRIFT_INCLUDE_DIRS}
 )
@@ -53,7 +54,8 @@ set_property (TARGET test_server_json_session
       ${KMS_CORE_INCLUDE_DIRS}
       ${THRIFT_INCLUDE_DIRS}
       ${CMAKE_BINARY_DIR}/gen-cpp
-      ${CMAKE_SOURCE_DIR}/server/services
+      ${CMAKE_SOURCE_DIR}/server/transport
+      ${CMAKE_SOURCE_DIR}/server/transport/thrift
       ${CMAKE_SOURCE_DIR}/server/
 )
 

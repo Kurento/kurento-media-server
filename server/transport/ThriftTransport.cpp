@@ -14,7 +14,7 @@
  */
 
 #include <gst/gst.h>
-#include "ThriftService.hpp"
+#include "ThriftTransport.hpp"
 
 #include <protocol/TBinaryProtocol.h>
 #include <transport/TServerSocket.h>
@@ -22,14 +22,11 @@
 #include <concurrency/PosixThreadFactory.h>
 #include <concurrency/ThreadManager.h>
 
-#include "ThriftServiceHandler.hpp"
+#include "ThriftTransportHandler.hpp"
 
-#define GST_CAT_DEFAULT kurento_thrift_service
+#define GST_CAT_DEFAULT kurento_thrift_transport
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoThriftService"
-
-#define THRIFT_GROUP "Thrift"
-#define THRIFT_SERVER_SERVICE_PORT "serverPort"
+#define GST_DEFAULT_NAME "KurentoThriftTransport"
 
 #define DEFAULT_ADDRESS "localhost"
 #define DEFAULT_PORT 9090
@@ -49,15 +46,15 @@ static void
 check_port (int port)
 {
   if (port <= 0 || port > G_MAXUSHORT) {
-    throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid value");
+    throw boost::property_tree::ptree_bad_data ("Invalid value for port", port);
   }
 }
 
-ThriftService::ThriftService (const boost::property_tree::ptree &config) :
-  Service (config), config (config)
+ThriftTransport::ThriftTransport (const boost::property_tree::ptree &config) :
+  Transport (config), config (config)
 {
   try {
-    port = config.get<int> ("mediaServer.netInterface.thrift");
+    port = config.get<uint> ("mediaServer.netInterface.thrift");
     check_port (port);
   } catch (const boost::property_tree::ptree_error &e) {
     GST_WARNING ("Setting default port %d to media server",
@@ -66,10 +63,10 @@ ThriftService::ThriftService (const boost::property_tree::ptree &config) :
   }
 }
 
-void ThriftService::serve()
+void ThriftTransport::serve()
 {
-  shared_ptr < ThriftServiceHandler > handler (new
-      ThriftServiceHandler (config) );
+  shared_ptr < ThriftTransportHandler > handler (new
+      ThriftTransportHandler (config) );
   shared_ptr < TProcessor > processor (new KmsMediaServerServiceProcessor (
                                          handler) );
   shared_ptr < TProtocolFactory > protocolFactory (new
@@ -86,32 +83,32 @@ void ThriftService::serve()
   GST_INFO ("Starting thrift server");
   server->serve ();
   GST_INFO ("Thrift server stopped");
-  throw Glib::Thread::Exit ();
 }
 
-void ThriftService::start ()
+void ThriftTransport::start ()
 {
-  GST_DEBUG ("Starting service...");
+  GST_DEBUG ("Starting transport...");
 
-  thread = Glib::Thread::create (std::bind  (&ThriftService::serve, this), true);
+  thread = Glib::Thread::create (std::bind  (&ThriftTransport::serve, this),
+                                 true);
 }
 
-void ThriftService::stop ()
+void ThriftTransport::stop ()
 {
-  GST_DEBUG ("stopping service...");
+  GST_DEBUG ("stopping transport...");
 
   server->stop();
   thread->join();
 }
 
-ThriftService::~ThriftService()
+ThriftTransport::~ThriftTransport()
 {
-  GST_DEBUG ("Destroying ThriftService");
+  GST_DEBUG ("Destroying ThriftTransport");
 }
 
-ThriftService::StaticConstructor ThriftService::staticConstructor;
+ThriftTransport::StaticConstructor ThriftTransport::staticConstructor;
 
-ThriftService::StaticConstructor::StaticConstructor()
+ThriftTransport::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
