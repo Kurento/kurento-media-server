@@ -36,20 +36,9 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaServer"
 
-#define FILE_PERMISIONS (S_IRWXU | S_IRWXG | S_IRWXO)
-#define TMP_DIR_TEMPLATE "/tmp/kms_XXXXXX"
-#define CERTTOOL_TEMPLATE "autoCerttool.tmpl"
-#define CERT_KEY_PEM_FILE "autoCertkey.pem"
-
 const std::string DEFAULT_CONFIG_FILE = "/etc/kurento/kurento.conf.json";
 
 using namespace ::kurento;
-
-using boost::shared_ptr;
-using namespace boost::filesystem;
-
-using ::Glib::KeyFile;
-using ::Glib::KeyFileFlags;
 
 static Service *service;
 
@@ -70,14 +59,6 @@ static GOptionEntry entries[] = {
 
 Glib::RefPtr<Glib::IOChannel> channel;
 
-std::string
-read_entire_file (const std::string &file_name)
-{
-  std::ifstream t (file_name);
-  return std::string ( (std::istreambuf_iterator<char> (t) ),
-                       std::istreambuf_iterator<char>() );
-}
-
 static void
 load_config (boost::property_tree::ptree &config, const std::string &file_name)
 {
@@ -86,7 +67,7 @@ load_config (boost::property_tree::ptree &config, const std::string &file_name)
 
   boost::property_tree::read_json (file_name, config);
 
-  config.add ("configPath", configFilePath.parent_path() );
+  config.add ("configPath", configFilePath.parent_path().string() );
   pid = getpid();
 
   GST_INFO ("Configuration loaded successfully");
