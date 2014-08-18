@@ -1,10 +1,18 @@
-aux_source_directory("common" COMMON)
-aux_source_directory("types" TYPES)
-aux_source_directory("utils" UTILS)
 aux_source_directory("services" SERVICES)
 
-SET(KMSC_SOURCE main.cpp version.cpp ServerMethods.cpp
-              ${COMMON} ${TYPES} ${UTILS} ${SERVICES})
+SET(KMSC_SOURCE
+  main.cpp
+  version.cpp
+  version.hpp
+  ServerMethods.cpp
+  ServerMethods.hpp
+  RequestCache.cpp
+  RequestCache.hpp
+  SignalHandler.cpp
+  SignalHandler.hpp
+  CacheEntry.cpp
+  CacheEntry.hpp
+  ${SERVICES})
 
 set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
 
