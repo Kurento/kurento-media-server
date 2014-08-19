@@ -9,6 +9,8 @@ set (RABBIT_MQ_TRANSPORT_SOURCES
   RabbitMQEventHandler.hpp
   RabbitMQConnection.cpp
   RabbitMQConnection.hpp
+  RabbitMQTransportFactory.cpp
+  RabbitMQTransportFactory.hpp
 )
 
 add_library (rabbitMQTransport

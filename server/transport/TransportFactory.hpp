@@ -29,8 +29,16 @@ class TransportFactory
 public:
   static std::shared_ptr<Transport> create_transport (const
       boost::property_tree::ptree &config, std::shared_ptr<Processor> processor);
+  static void registerFactory (std::shared_ptr<TransportFactory> f);
+
+  virtual std::string getName () = 0;
+  virtual std::shared_ptr<Transport> create (const boost::property_tree::ptree
+      &config, std::shared_ptr<Processor> processor) = 0;
 
 private:
+
+  static std::map<std::string, std::shared_ptr<TransportFactory>> factories;
+
   class StaticConstructor
   {
   public:

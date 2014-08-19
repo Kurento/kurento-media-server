@@ -15,12 +15,13 @@
 
 #include <gst/gst.h>
 #include "TransportFactory.hpp"
-#include <ThriftTransport.hpp>
-#include <RabbitMQTransport.hpp>
 
 #define GST_CAT_DEFAULT kurento_transport_factory
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoTransportFactory"
+
+#include <ThriftTransportFactory.hpp>
+#include <RabbitMQTransportFactory.hpp>
 
 namespace kurento
 {
@@ -32,14 +33,26 @@ std::shared_ptr<Transport> TransportFactory::create_transport (
   boost::property_tree::ptree netConfig =
     config.get_child ("mediaServer.net");
 
-  if (netConfig.find ("thrift") != netConfig.not_found() ) {
-    return std::shared_ptr<Transport> (new ThriftTransport (config, processor) );
-  } else if (netConfig.find ("rabbitmq") != netConfig.not_found() ) {
-    return std::shared_ptr<Transport> ( new RabbitMQTransport (config, processor) );
+  if (netConfig.size() > 1) {
+    throw boost::property_tree::ptree_error ("Only one network interface can be configured");
+  } else if (netConfig.size() == 0) {
+    throw boost::property_tree::ptree_error ("No network interface is configured");
   }
 
-  throw boost::property_tree::ptree_error ("Network interface cannt be tarted");
+  try {
+    return factories.at (netConfig.begin()->first)->create (config, processor);
+  } catch (std::out_of_range &e) {
+    throw boost::property_tree::ptree_error ("Configured network interface has not been registered");
+  }
 }
+
+void TransportFactory::registerFactory (std::shared_ptr<TransportFactory> f)
+{
+  factories[f->getName()] = f;
+}
+
+std::map<std::string, std::shared_ptr<TransportFactory>>
+    TransportFactory::factories;
 
 TransportFactory::StaticConstructor TransportFactory::staticConstructor;
 
@@ -47,6 +60,10 @@ TransportFactory::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
+  TransportFactory::registerFactory (std::shared_ptr<TransportFactory>
+                                     (new ThriftTransportFactory() ) );
+  TransportFactory::registerFactory (std::shared_ptr<TransportFactory>
+                                     (new RabbitMQTransportFactory() ) );
 }
 
 } /* kurento */

@@ -5,6 +5,8 @@ set (THRIFT_TRANSPORT_SOURCES
   ThriftTransport.hpp
   ThriftTransportHandler.cpp
   ThriftTransportHandler.hpp
+  ThriftTransportFactory.cpp
+  ThriftTransportFactory.hpp
 )
 
 set(FLAGS "-DHAVE_NETINET_IN_H ")
