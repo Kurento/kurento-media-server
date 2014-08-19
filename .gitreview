@@ -2,4 +2,4 @@
 host=repository.kurento.com
 port=12345
 project=kurento-media-server.git
-defaultbranch=develop
+defaultbranch=4.3
