@@ -24,18 +24,22 @@
     }
   },
   "controlServer" : {
-    "log": {
-      "controServerLogConfigFile": "/opt/kurento/logback.xml"
-    },
     "net" : {
       "websocket" : {
-        "port": 8888,
-        "path": "kurento"
+        "port" : 8888,
+        "path" : "kurento"
+        //"securePort" : 8433
       },
       "thriftCallback" : {
-        "port": 9091
+        "port" : 9900
       }
-    }
+    },
+    "oauthserverUrl" : ""
+    // "logConfigFile" : "/opt/kurento/logback.xml",
+    // "keystore" : {
+    //   "file" : "ssss",
+    //   "pass" : "ssss"
+    //}
   },
   "modules": {
     "kurento": {
