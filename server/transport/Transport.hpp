@@ -24,7 +24,7 @@ namespace kurento
 class Transport
 {
 public:
-  Transport (const boost::property_tree::ptree &config) {};
+  Transport () {};
   virtual ~Transport() throw () {};
   virtual void start () = 0;
   virtual void stop () = 0;

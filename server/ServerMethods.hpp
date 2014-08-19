@@ -20,35 +20,35 @@
 #include <EventHandler.hpp>
 #include <ModuleManager.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <Processor.hpp>
 
 namespace kurento
 {
 
 class MediaObject;
 
-class ServerMethods
+class ServerMethods : public Processor
 {
 
 public:
   ServerMethods (const boost::property_tree::ptree &config);
   virtual ~ServerMethods();
 
-  void process (const std::string &request, std::string &response);
+  virtual void process (const std::string &request, std::string &response);
 
 protected:
 
   virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
       const std::string &sessionId, const std::string &eventType,
-      const Json::Value &params) = 0;
+      std::shared_ptr<EventHandler> handler);
 
-  std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
-                                   const std::string &sessioId, const std::string &eventType,
-                                   std::shared_ptr<EventHandler> handler);
+  virtual void registerEventHandler (std::shared_ptr<MediaObjectImpl> obj,
+                                     const std::string &sessionId, const  std::string &subscriptionId,
+                                     std::shared_ptr<EventHandler> handler);
 
-  void registerEventHandler (std::shared_ptr<MediaObjectImpl> obj,
-                             const std::string &sessionId,
-                             const  std::string &subscriptionId,
-                             std::shared_ptr<EventHandler> handler);
+  virtual void setEventSubscriptionHandler (EventSubscriptionHandler *e) {
+    eventSubscriptionHandler = e;
+  }
 
 private:
 
@@ -64,6 +64,8 @@ private:
 
   const boost::property_tree::ptree &config;
   JsonRpc::Handler handler;
+
+  EventSubscriptionHandler *eventSubscriptionHandler = NULL;
 
   ModuleManager moduleManager;
 

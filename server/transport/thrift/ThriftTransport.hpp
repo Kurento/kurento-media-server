@@ -13,40 +13,35 @@
  *
  */
 
-#ifndef __RABBITMQ_TRANSPORT_HPP__
-#define __RABBITMQ_TRANSPORT_HPP__
+#ifndef __THRIFT_TRANSPORT_HPP__
+#define __THRIFT_TRANSPORT_HPP__
 
-#include "Transport.hpp"
-#include "RabbitMQListener.hpp"
-#include "RabbitMQPipeline.hpp"
-#include <SignalHandler.hpp>
+#include <Transport.hpp>
+#include <server/TNonblockingServer.h>
+#include <glibmm/thread.h>
+#include <Processor.hpp>
 
 namespace kurento
 {
 
-class RabbitMQTransport: private RabbitMQListener, public Transport
+class ThriftTransport: public Transport
 {
 public:
-  RabbitMQTransport (const boost::property_tree::ptree &config);
-  virtual ~RabbitMQTransport() throw ();
+  ThriftTransport (const boost::property_tree::ptree &config,
+                   std::shared_ptr<Processor> processor);
+  virtual ~ThriftTransport() throw ();
   virtual void start ();
   virtual void stop ();
 
-protected:
-  virtual void processMessage (RabbitMQMessage &message);
-
 private:
-  void childSignal (uint32_t signal);
-
-  std::list <int> childs;
-  std::shared_ptr<RabbitMQPipeline> pipeline;
-
-  std::string address;
   int port;
+  std::shared_ptr<apache::thrift::server::TNonblockingServer> server;
+  Glib::Thread *thread;
 
   const boost::property_tree::ptree &config;
+  std::shared_ptr<Processor> processor;
 
-  std::shared_ptr <SignalHandler> signalHandler;
+  void serve ();
 
   class StaticConstructor
   {
@@ -59,4 +54,4 @@ private:
 
 } /* kurento */
 
-#endif /* __RABBITMQ_TRANSPORT_HPP__ */
+#endif /* __THRIFT_TRANSPORT_HPP__ */

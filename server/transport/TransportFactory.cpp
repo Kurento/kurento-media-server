@@ -15,8 +15,8 @@
 
 #include <gst/gst.h>
 #include "TransportFactory.hpp"
-#include "ThriftTransport.hpp"
-#include "RabbitMQTransport.hpp"
+#include <ThriftTransport.hpp>
+#include <RabbitMQTransport.hpp>
 
 #define GST_CAT_DEFAULT kurento_transport_factory
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -25,16 +25,17 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-Transport *TransportFactory::create_transport (const boost::property_tree::ptree
-    &config)
+std::shared_ptr<Transport> TransportFactory::create_transport (
+  const boost::property_tree::ptree
+  &config, std::shared_ptr<Processor> processor)
 {
   boost::property_tree::ptree netConfig =
-    config.get_child ("mediaServer.netInterface");
+    config.get_child ("mediaServer.net");
 
   if (netConfig.find ("thrift") != netConfig.not_found() ) {
-    return new ThriftTransport (config);
+    return std::shared_ptr<Transport> (new ThriftTransport (config, processor) );
   } else if (netConfig.find ("rabbitmq") != netConfig.not_found() ) {
-    return new RabbitMQTransport (config);
+    return std::shared_ptr<Transport> ( new RabbitMQTransport (config, processor) );
   }
 
   throw boost::property_tree::ptree_error ("Network interface cannt be tarted");

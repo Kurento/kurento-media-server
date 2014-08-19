@@ -15,7 +15,7 @@
 
 #include "ThriftTransportHandler.hpp"
 #include "KmsMediaServer_constants.h"
-#include <ThriftEventHandler.hpp>
+#include "ThriftEventHandler.hpp"
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <gst/gst.h>
 #include <sys/socket.h>
@@ -28,8 +28,10 @@ namespace kurento
 {
 
 ThriftTransportHandler::ThriftTransportHandler (const
-    boost::property_tree::ptree &config) : ServerMethods (config)
+    boost::property_tree::ptree &config,
+    std::shared_ptr<Processor> processor) : processor (processor)
 {
+  processor->setEventSubscriptionHandler (this);
 }
 
 ThriftTransportHandler::~ThriftTransportHandler ()
@@ -41,12 +43,12 @@ ThriftTransportHandler::invokeJsonRpc (std::string &_return,
                                        const std::string &request)
 {
   GST_DEBUG ("Json request: %s", request.c_str() );
-  process (request, _return);
+  processor->process (request, _return);
   GST_DEBUG ("Json response: %s", _return.c_str() );
 }
 
 std::string
-ThriftTransportHandler::connectEventHandler (std::shared_ptr<MediaObjectImpl>
+ThriftTransportHandler::processSubscription (std::shared_ptr<MediaObjectImpl>
     obj, const std::string &sessionId, const std::string &eventType,
     const Json::Value &params)
 {
@@ -61,8 +63,7 @@ ThriftTransportHandler::connectEventHandler (std::shared_ptr<MediaObjectImpl>
   handler = std::shared_ptr <EventHandler> (new ThriftEventHandler (obj,
             sessionId, ip, port) );
 
-  id = ServerMethods::connectEventHandler (obj, sessionId, eventType, handler);
-
+  id = processor->connectEventHandler (obj, sessionId, eventType, handler);
   std::dynamic_pointer_cast<ThriftEventHandler> (handler)->setId (id);
 
   return id;

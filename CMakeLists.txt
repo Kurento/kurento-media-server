@@ -34,6 +34,8 @@ find_package (Boost COMPONENTS unit_test_framework)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 pkg_check_modules(KMS_CORE REQUIRED kmscore>=5.0.0)
+pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.3.3)
 pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0>=1.3.3)
 pkg_check_modules(THRIFT REQUIRED thrift-nb=0.9.0)

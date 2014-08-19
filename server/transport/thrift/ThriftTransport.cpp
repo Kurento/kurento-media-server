@@ -50,11 +50,11 @@ check_port (int port)
   }
 }
 
-ThriftTransport::ThriftTransport (const boost::property_tree::ptree &config) :
-  Transport (config), config (config)
+ThriftTransport::ThriftTransport (const boost::property_tree::ptree &config,
+                                  std::shared_ptr<Processor> processor) : config (config), processor (processor)
 {
   try {
-    port = config.get<uint> ("mediaServer.netInterface.thrift");
+    port = config.get<uint> ("mediaServer.net.thrift.port");
     check_port (port);
   } catch (const boost::property_tree::ptree_error &e) {
     GST_WARNING ("Setting default port %d to media server",
@@ -66,7 +66,7 @@ ThriftTransport::ThriftTransport (const boost::property_tree::ptree &config) :
 void ThriftTransport::serve()
 {
   shared_ptr < ThriftTransportHandler > handler (new
-      ThriftTransportHandler (config) );
+      ThriftTransportHandler (config, processor) );
   shared_ptr < TProcessor > processor (new KmsMediaServerServiceProcessor (
                                          handler) );
   shared_ptr < TProtocolFactory > protocolFactory (new

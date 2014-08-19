@@ -17,29 +17,30 @@
 #define __MEDIA_SERVER_TRANSPORT_HANDLER_HPP__
 
 #include "KmsMediaServerService.h"
-
-#include <ServerMethods.hpp>
+#include <Processor.hpp>
+#include <memory>
 
 namespace kurento
 {
 
-class ThriftTransportHandler: public KmsMediaServerServiceIf ,
-  private ServerMethods
+class ThriftTransportHandler: public KmsMediaServerServiceIf,
+  public EventSubscriptionHandler
 {
 public:
-  ThriftTransportHandler (const boost::property_tree::ptree &config);
+  ThriftTransportHandler (const boost::property_tree::ptree &config,
+                          std::shared_ptr<Processor> processor);
   ~ThriftTransportHandler ();
 
   /* JsonRPC */
   void invokeJsonRpc (std::string &_return, const std::string &request);
 
-protected:
-
-  virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
+  virtual std::string processSubscription (std::shared_ptr<MediaObjectImpl> obj,
       const std::string &sessionId, const std::string &eventType,
       const Json::Value &params);
 
 private:
+
+  std::shared_ptr<Processor> processor;
 
   class StaticConstructor
   {

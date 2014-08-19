@@ -259,12 +259,10 @@ ServerMethods::registerEventHandler (std::shared_ptr<MediaObjectImpl> obj,
                                      const  std::string &subscriptionId,
                                      std::shared_ptr<EventHandler> handler)
 {
-  std::shared_ptr <MediaObjectImpl> object = std::dynamic_pointer_cast
-      <MediaObjectImpl> (obj);
-
-  MediaSet::getMediaSet()->addEventHandler (sessionId, object->getId(),
+  MediaSet::getMediaSet()->addEventHandler (sessionId, obj->getId(),
       subscriptionId, handler);
 }
+
 
 std::string
 ServerMethods::connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
@@ -307,7 +305,10 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   try {
     obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
 
-    handlerId = connectEventHandler (obj, sessionId, eventType, params);
+    if (eventSubscriptionHandler) {
+      handlerId = eventSubscriptionHandler->processSubscription (obj, sessionId,
+                  eventType, params);
+    }
 
     if (handlerId == "") {
       throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");

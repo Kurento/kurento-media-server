@@ -13,32 +13,35 @@
  *
  */
 
-#ifndef __THRIFT_TRANSPORT_HPP__
-#define __THRIFT_TRANSPORT_HPP__
+#ifndef __RABBITMQ_EVENT_HANDLER_HPP__
+#define __RABBITMQ_EVENT_HANDLER_HPP__
 
-#include "Transport.hpp"
-#include <server/TNonblockingServer.h>
-#include <glibmm/thread.h>
+#include <EventHandler.hpp>
+#include "RabbitMQConnection.hpp"
 
 namespace kurento
 {
 
-class ThriftTransport: public Transport
+class RabbitMQEventHandler : public EventHandler
 {
 public:
-  ThriftTransport (const boost::property_tree::ptree &config);
-  virtual ~ThriftTransport() throw ();
-  virtual void start ();
-  virtual void stop ();
+  RabbitMQEventHandler (std::shared_ptr<MediaObjectImpl> obj,
+                        const std::string &address, int port,
+                        const std::string &exchange,
+                        const std::string &routingKey);
+
+  std::string getRoutingKey () {
+    return routingKey;
+  }
+
+  virtual ~RabbitMQEventHandler();
+
+  virtual void sendEvent (Json::Value &value);
 
 private:
-  int port;
-  std::shared_ptr<apache::thrift::server::TNonblockingServer> server;
-  Glib::Thread *thread;
-
-  const boost::property_tree::ptree &config;
-
-  void serve ();
+  RabbitMQConnection connection;
+  std::string exchange;
+  std::string routingKey;
 
   class StaticConstructor
   {
@@ -51,4 +54,4 @@ private:
 
 } /* kurento */
 
-#endif /* __THRIFT_TRANSPORT_HPP__ */
+#endif /* __RABBITMQ_EVENT_HANDLER_HPP__ */

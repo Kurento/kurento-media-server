@@ -1,5 +1,3 @@
-aux_source_directory("transport" TRANSPORT)
-
 SET(KMSC_SOURCE
   main.cpp
   version.cpp
@@ -8,32 +6,19 @@ SET(KMSC_SOURCE
   ServerMethods.hpp
   RequestCache.cpp
   RequestCache.hpp
-  SignalHandler.cpp
-  SignalHandler.hpp
   CacheEntry.cpp
-  CacheEntry.hpp
-  ${TRANSPORT})
-
-set(CFLAGS "-DHAVE_NETINET_IN_H -DUSE_BOOST_THREAD -DHAVE_INTTYPES_H ")
-
-set_source_files_properties(${KMSC_SOURCE}
-  PROPERTIES
-    COMPILE_FLAGS ${CFLAGS}
-)
+  CacheEntry.hpp)
 
 add_executable(kurento-media-server ${KMSC_SOURCE})
 
-add_dependencies(kurento-media-server kmsiface)
+add_dependencies(kurento-media-server signalHandler transport)
 
 target_link_libraries (kurento-media-server
   kmsiface
-  ${KMS_CORE_LIBRARIES}
-  ${THRIFT_LIBRARIES}
-  ${EVENT_LIBRARIES} #Required by thrift
-  -lpthread
-  ${RABBITMQ_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  transport
+  signalHandler
 )
 
 set_property (TARGET kurento-media-server
@@ -42,10 +27,11 @@ set_property (TARGET kurento-media-server
     ${CMAKE_BINARY_DIR}/gen-cpp
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/transport
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/signalHandler
     ${KMS_CORE_INCLUDE_DIRS}
-    ${THRIFT_INCLUDE_DIRS}
-    ${RABBITMQ_INCLUDE_DIRS}
 )
 
 install(TARGETS kurento-media-server RUNTIME DESTINATION bin)
+
+add_subdirectory(transport)
+add_subdirectory(signalHandler)

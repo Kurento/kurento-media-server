@@ -17,31 +17,33 @@
 #define __RABBITMQ_PIPELINE_HPP__
 
 #include "RabbitMQListener.hpp"
-#include <ServerMethods.hpp>
+#include <Processor.hpp>
 
 namespace kurento
 {
 
-class RabbitMQPipeline: private RabbitMQListener, private ServerMethods
+class RabbitMQPipeline: private RabbitMQListener,
+  public EventSubscriptionHandler
 {
 public:
   RabbitMQPipeline (const boost::property_tree::ptree &config,
                     const std::string &address,
-                    const int port);
+                    const int port, std::shared_ptr<Processor> processor);
   virtual ~RabbitMQPipeline() throw ();
   virtual void startRequest (RabbitMQMessage &message);
 
-protected:
-  virtual void processMessage (RabbitMQMessage &message);
-
-  virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
+  virtual std::string processSubscription (std::shared_ptr<MediaObjectImpl> obj,
       const std::string &sessionId, const std::string &eventType,
       const Json::Value &params);
+
+protected:
+  virtual void processMessage (RabbitMQMessage &message);
 
 private:
 
   void destroyHandler (EventHandler *handler);
 
+  std::shared_ptr<Processor> processor;
   std::map <std::string, std::weak_ptr <EventHandler>> handlers;
   Glib::Threads::Mutex mutex;
   std::string pipelineId;

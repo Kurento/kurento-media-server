@@ -58,8 +58,8 @@ check_port (int port)
   }
 }
 
-RabbitMQTransport::RabbitMQTransport (const boost::property_tree::ptree &config)
-  : Transport (config), config (config)
+RabbitMQTransport::RabbitMQTransport (const boost::property_tree::ptree &config,
+                                      std::shared_ptr<Processor> processor) : processor (processor), config (config)
 {
   sigset_t mask;
   std::string address;
@@ -91,6 +91,8 @@ RabbitMQTransport::RabbitMQTransport (const boost::property_tree::ptree &config)
   sigaddset (&mask, SIGCHLD);
   signalHandler = std::shared_ptr <SignalHandler> (new SignalHandler (mask,
                   std::bind (&RabbitMQTransport::childSignal, this, std::placeholders::_1) ) );
+
+  // TODO: Set event processor
 }
 
 RabbitMQTransport::~RabbitMQTransport()
@@ -112,7 +114,7 @@ RabbitMQTransport::processMessage (RabbitMQMessage &message)
 
     pipeline = std::shared_ptr<RabbitMQPipeline> (new RabbitMQPipeline (config,
                address,
-               port) );
+               port, processor) );
     pipeline->startRequest (message);
 
   } else {

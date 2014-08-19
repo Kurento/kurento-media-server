@@ -29,6 +29,7 @@
 #include "TransportFactory.hpp"
 
 #include <SignalHandler.hpp>
+#include <ServerMethods.hpp>
 #include <gst/gst.h>
 
 #define GST_CAT_DEFAULT kurento_media_server
@@ -39,7 +40,7 @@ const std::string DEFAULT_CONFIG_FILE = "/etc/kurento/kurento.conf.json";
 
 using namespace ::kurento;
 
-static Transport *transport;
+static std::shared_ptr<Transport> transport;
 
 __pid_t pid;
 
@@ -71,8 +72,10 @@ load_config (boost::property_tree::ptree &config, const std::string &file_name)
 
   GST_INFO ("Configuration loaded successfully");
 
+  std::shared_ptr<ServerMethods> serverMethods (new ServerMethods (config) );
+
   try {
-    transport = TransportFactory::create_transport (config);
+    transport = TransportFactory::create_transport (config, serverMethods);
   } catch (std::exception &e) {
     GST_ERROR ("Error creating transport: %s", e.what() );
     exit (1);
@@ -196,7 +199,7 @@ main (int argc, char **argv)
 
   transport->stop();
 
-  delete transport;
+  transport.reset();
 
   return 0;
 }

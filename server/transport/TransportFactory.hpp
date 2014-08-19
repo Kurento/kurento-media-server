@@ -18,6 +18,7 @@
 
 #include <glibmm.h>
 #include "Transport.hpp"
+#include "Processor.hpp"
 #include <boost/property_tree/ptree.hpp>
 
 namespace kurento
@@ -26,7 +27,8 @@ namespace kurento
 class TransportFactory
 {
 public:
-  static Transport *create_transport (const boost::property_tree::ptree &config);
+  static std::shared_ptr<Transport> create_transport (const
+      boost::property_tree::ptree &config, std::shared_ptr<Processor> processor);
 
 private:
   class StaticConstructor

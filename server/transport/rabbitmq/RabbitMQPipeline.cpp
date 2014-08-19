@@ -64,7 +64,8 @@ generateUUID()
 }
 
 RabbitMQPipeline::RabbitMQPipeline (const boost::property_tree::ptree &config,
-                                    const std::string &address, const int port) : ServerMethods (config)
+                                    const std::string &address, const int port,
+                                    std::shared_ptr<Processor> processor) : processor (processor)
 {
   setConfig (address, port);
 
@@ -72,6 +73,8 @@ RabbitMQPipeline::RabbitMQPipeline (const boost::property_tree::ptree &config,
     GST_INFO ("Mediaset is empty, exiting from child process");
     kill (getpid(), SIGINT);
   });
+
+  processor->setEventSubscriptionHandler (this);
 }
 
 RabbitMQPipeline::~RabbitMQPipeline()
@@ -92,7 +95,7 @@ RabbitMQPipeline::processMessage (RabbitMQMessage &message)
   std::string response;
 
   GST_DEBUG ("Message: >%s<", data.c_str() );
-  process (data, response);
+  processor->process (data, response);
   GST_DEBUG ("Response: >%s<", response.c_str() );
 
   message.ack();
@@ -108,7 +111,7 @@ RabbitMQPipeline::startRequest (RabbitMQMessage &message)
   std::string request = message.getData();
 
   GST_DEBUG ("Message: >%s<", request.c_str() );
-  process (request, response);
+  processor->process (request, response);
 
   reader.parse (response, responseJson);
   message.ack();
@@ -135,7 +138,7 @@ RabbitMQPipeline::startRequest (RabbitMQMessage &message)
 }
 
 std::string
-RabbitMQPipeline::connectEventHandler (std::shared_ptr< MediaObjectImpl > obj,
+RabbitMQPipeline::processSubscription (std::shared_ptr< MediaObjectImpl > obj,
                                        const std::string &sessionId,
                                        const std::string &eventType,
                                        const Json::Value &params)
@@ -157,12 +160,12 @@ RabbitMQPipeline::connectEventHandler (std::shared_ptr< MediaObjectImpl > obj,
               EVENT_EXCHANGE_PREFIX + pipelineId, eventId),
               std::bind (&RabbitMQPipeline::destroyHandler, this, std::placeholders::_1) );
 
-    subscriptionId = ServerMethods::connectEventHandler (obj, sessionId, eventType,
+    subscriptionId = processor->connectEventHandler (obj, sessionId, eventType,
                      handler);
     handlers[eventId] = std::weak_ptr <EventHandler> (handler);
   } else {
     subscriptionId = generateUUID();
-    registerEventHandler (obj, sessionId, subscriptionId, handler);
+    processor->registerEventHandler (obj, sessionId, subscriptionId, handler);
   }
 
   return subscriptionId;
