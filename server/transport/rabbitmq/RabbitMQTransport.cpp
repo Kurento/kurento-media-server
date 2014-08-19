@@ -54,7 +54,7 @@ static void
 check_port (int port)
 {
   if (port <= 0 || port > G_MAXUSHORT) {
-    throw Glib::KeyFileError (Glib::KeyFileError::PARSE, "Invalid port value");
+    throw boost::property_tree::ptree_bad_data ("Invalid port value", port);
   }
 }
 
@@ -67,7 +67,7 @@ RabbitMQTransport::RabbitMQTransport (const boost::property_tree::ptree &config,
 
   try {
     address = config.get<std::string> ("mediaServer.net.rabbitmq.address");
-  } catch (const Glib::KeyFileError &err) {
+  } catch (const boost::property_tree::ptree_error &err) {
     GST_WARNING ("Setting default address %s to media server",
                  RABBITMQ_SERVER_ADDRESS_DEFAULT);
     address = RABBITMQ_SERVER_ADDRESS_DEFAULT;
@@ -76,7 +76,7 @@ RabbitMQTransport::RabbitMQTransport (const boost::property_tree::ptree &config,
   try {
     port = config.get<uint> ("mediaServer.net.rabbitmq.port");
     check_port (port);
-  } catch (const Glib::KeyFileError &err) {
+  } catch (const boost::property_tree::ptree_error &err) {
     GST_WARNING ("Setting default port %d to media server",
                  RABBITMQ_SERVER_PORT_DEFAULT);
     port = RABBITMQ_SERVER_PORT_DEFAULT;
