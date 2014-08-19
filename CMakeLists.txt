@@ -9,7 +9,7 @@ find_package(KurentoHelpers REQUIRED)
 
 include (KurentoGitHelpers)
 
-get_git_version (PROJECT_VERSION 4.3.6)
+get_git_version (PROJECT_VERSION 4.3.7)
 install_git_hook (pre-commit ${CMAKE_CURRENT_SOURCE_DIR}/hooks/pre-commit.hook)
 
 message (STATUS "Compiling ${PROJECT_NAME}-${PROJECT_VERSION}")

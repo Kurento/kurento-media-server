@@ -1,3 +1,13 @@
+kurento (4.3.7) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Fix a bug with webrtcendpoint and filters
+  * Configure default branch for gitreview
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 19 Aug 2014 10:28:10 +0200
+
 kurento (4.3.6) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
