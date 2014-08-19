@@ -5,13 +5,6 @@ set (TRANSPORT_SOURCES
   TransportFactory.hpp
 )
 
-set(FLAGS "-DHAVE_NETINET_IN_H ")
-
-set_source_files_properties(${TRANSPORT_SOURCES}
-  PROPERTIES
-    COMPILE_FLAGS ${FLAGS}
-)
-
 add_library (transport ${TRANSPORT_SOURCES})
 
 add_dependencies(transport thriftTransport rabbitMQTransport)
