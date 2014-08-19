@@ -14,6 +14,7 @@ target_link_libraries(transport
   ${KMS_CORE_LIBRARIES}
   thriftTransport
   rabbitMQTransport
+  websocketTransport
 )
 
 set_property (TARGET transport
@@ -22,6 +23,7 @@ set_property (TARGET transport
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/thrift/
     ${CMAKE_CURRENT_SOURCE_DIR}/rabbitmq/
+    ${CMAKE_CURRENT_SOURCE_DIR}/websocket/
     ${GSTREAMER_INCLUDE_DIRS}
     ${GLIBMM_INCLUDE_DIRS}
     ${KMS_CORE_INCLUDE_DIRS}
@@ -29,3 +31,5 @@ set_property (TARGET transport
 
 add_subdirectory(thrift)
 add_subdirectory(rabbitmq)
+
+add_subdirectory(websocket)

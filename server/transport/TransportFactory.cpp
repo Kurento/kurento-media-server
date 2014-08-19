@@ -22,6 +22,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #include <ThriftTransportFactory.hpp>
 #include <RabbitMQTransportFactory.hpp>
+#include <WebSocketTransportFactory.hpp>
 
 namespace kurento
 {
@@ -64,6 +65,8 @@ TransportFactory::StaticConstructor::StaticConstructor()
                                      (new ThriftTransportFactory() ) );
   TransportFactory::registerFactory (std::shared_ptr<TransportFactory>
                                      (new RabbitMQTransportFactory() ) );
+  TransportFactory::registerFactory (std::shared_ptr<TransportFactory>
+                                     (new WebSocketTransportFactory() ) );
 }
 
 } /* kurento */
