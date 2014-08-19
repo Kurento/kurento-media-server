@@ -31,7 +31,9 @@ ThriftTransportHandler::ThriftTransportHandler (const
     boost::property_tree::ptree &config,
     std::shared_ptr<Processor> processor) : processor (processor)
 {
-  processor->setEventSubscriptionHandler (this);
+  processor->setEventSubscriptionHandler (std::bind (
+      &ThriftTransportHandler::processSubscription, this, std::placeholders::_1,
+      std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) );
 }
 
 ThriftTransportHandler::~ThriftTransportHandler ()

@@ -305,10 +305,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   try {
     obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
 
-    if (eventSubscriptionHandler) {
-      handlerId = eventSubscriptionHandler->processSubscription (obj, sessionId,
-                  eventType, params);
-    }
+    eventSubscriptionHandler (obj, sessionId, eventType, params);
 
     if (handlerId == "") {
       throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");

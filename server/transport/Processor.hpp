@@ -21,14 +21,6 @@
 namespace kurento
 {
 
-class EventSubscriptionHandler
-{
-public:
-  virtual std::string processSubscription (std::shared_ptr<MediaObjectImpl> obj,
-      const std::string &sessionId, const std::string &eventType,
-      const Json::Value &params) = 0;
-};
-
 class Processor
 {
 public:
@@ -36,8 +28,10 @@ public:
   virtual ~Processor() throw () {};
   virtual void process (const std::string &request, std::string &response) = 0;
 
-  virtual void setEventSubscriptionHandler (EventSubscriptionHandler
-      *eventSubscriptionHandler) = 0;
+  virtual void setEventSubscriptionHandler (std::function < void (
+        std::shared_ptr<MediaObjectImpl> obj,
+        const std::string &sessionId, const std::string &eventType,
+        const Json::Value &params) > eventSubscriptionHandler) = 0;
   virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
       const std::string &sessionId, const std::string &eventType,
       std::shared_ptr<EventHandler> handler) = 0;

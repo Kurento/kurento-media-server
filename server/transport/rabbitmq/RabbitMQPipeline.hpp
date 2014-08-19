@@ -22,8 +22,7 @@
 namespace kurento
 {
 
-class RabbitMQPipeline: private RabbitMQListener,
-  public EventSubscriptionHandler
+class RabbitMQPipeline: private RabbitMQListener
 {
 public:
   RabbitMQPipeline (const boost::property_tree::ptree &config,

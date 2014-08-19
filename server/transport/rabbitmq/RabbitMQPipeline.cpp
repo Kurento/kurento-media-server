@@ -74,7 +74,9 @@ RabbitMQPipeline::RabbitMQPipeline (const boost::property_tree::ptree &config,
     kill (getpid(), SIGINT);
   });
 
-  processor->setEventSubscriptionHandler (this);
+  processor->setEventSubscriptionHandler (std::bind (
+      &RabbitMQPipeline::processSubscription, this, std::placeholders::_1,
+      std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) );
 }
 
 RabbitMQPipeline::~RabbitMQPipeline()

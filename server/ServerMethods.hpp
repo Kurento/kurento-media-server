@@ -46,7 +46,10 @@ protected:
                                      const std::string &sessionId, const  std::string &subscriptionId,
                                      std::shared_ptr<EventHandler> handler);
 
-  virtual void setEventSubscriptionHandler (EventSubscriptionHandler *e) {
+  virtual void setEventSubscriptionHandler (std::function < void (
+        std::shared_ptr<MediaObjectImpl> obj,
+        const std::string &sessionId, const std::string &eventType,
+        const Json::Value &params) > e) {
     eventSubscriptionHandler = e;
   }
 
@@ -65,7 +68,8 @@ private:
   const boost::property_tree::ptree &config;
   JsonRpc::Handler handler;
 
-  EventSubscriptionHandler *eventSubscriptionHandler = NULL;
+  std::function<void (std::shared_ptr<MediaObjectImpl> obj, const std::string &sessionId, const std::string &eventType, const Json::Value &params) >
+  eventSubscriptionHandler;
 
   ModuleManager moduleManager;
 

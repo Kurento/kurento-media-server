@@ -23,8 +23,7 @@
 namespace kurento
 {
 
-class ThriftTransportHandler: public KmsMediaServerServiceIf,
-  public EventSubscriptionHandler
+class ThriftTransportHandler: public KmsMediaServerServiceIf
 {
 public:
   ThriftTransportHandler (const boost::property_tree::ptree &config,
