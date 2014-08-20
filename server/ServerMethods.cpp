@@ -305,7 +305,12 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   try {
     obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
 
-    eventSubscriptionHandler (obj, sessionId, eventType, params);
+    try {
+      eventSubscriptionHandler (obj, sessionId, eventType, params);
+    } catch (std::bad_function_call &e) {
+      throw KurentoException (NOT_IMPLEMENTED,
+                              "Current transport does not support events");
+    }
 
     if (handlerId == "") {
       throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
