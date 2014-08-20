@@ -52,9 +52,10 @@ private:
 
   std::shared_ptr<Processor> processor;
 
+  int n_threads;
   std::string path;
   WebSocketServer server;
-  std::thread thread;
+  std::vector<std::thread> threads;
 
   class StaticConstructor
   {

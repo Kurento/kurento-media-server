@@ -18,7 +18,8 @@
       /*
       "websocket": {
         "port": 9090,
-        "path": "kurento"
+        "path": "kurento",
+        "threads": 10
       }
       */
     }

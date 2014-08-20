@@ -29,6 +29,7 @@ namespace kurento
 const std::string WEBSOCKET_ADDRESS_DEFAULT = "127.0.0.1";
 const uint WEBSOCKET_PORT_DEFAULT = 9090;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
+const int WEBSOCKET_THREADS_DEFAULT = 10;
 
 static void
 check_port (int port)
@@ -61,6 +62,19 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
     path = WEBSOCKET_PATH_DEFAULT;
   }
 
+  try {
+    n_threads = config.get<uint> ("mediaServer.net.websocket.threads");
+
+    if (n_threads < 1) {
+      throw boost::property_tree::ptree_bad_data ("Invalid threads number",
+          n_threads);
+    }
+  } catch (const boost::property_tree::ptree_error &err) {
+    GST_WARNING ("Setting default listener threads %d to websocket",
+                 WEBSOCKET_THREADS_DEFAULT);
+    n_threads = WEBSOCKET_THREADS_DEFAULT;
+  }
+
   server.clear_access_channels (websocketpp::log::alevel::all);
   server.clear_error_channels (websocketpp::log::alevel::all);
 
@@ -72,6 +86,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                        std::placeholders::_1) );
   server.set_message_handler (std::bind (&WebSocketTransport::processMessage,
                                          this, std::placeholders::_1, std::placeholders::_2) );
+
   server.listen (port);
 }
 
@@ -79,22 +94,39 @@ WebSocketTransport::~WebSocketTransport()
 {
 }
 
-void WebSocketTransport::run ()
+void WebSocketTransport::run()
 {
-  server.start_accept();
-  server.run();
+  bool running = true;
+
+  while (running) {
+    try {
+      server.run();
+      running = false;
+    } catch (std::exception &e) {
+      GST_ERROR ("Unexpected error while running the server: %s", e.what() );
+    } catch (...) {
+      GST_ERROR ("Unexpected error while running the server");
+    }
+  }
 }
 
 void WebSocketTransport::start ()
 {
-  thread = std::thread (std::bind (&WebSocketTransport::run, this) );
+  server.start_accept();
+
+  for (int i = 0; i < n_threads; i++) {
+    threads.push_back (std::thread (std::bind (&WebSocketTransport::run, this) ) );
+  }
 }
 
 void WebSocketTransport::stop ()
 {
   GST_DEBUG ("stop transport");
   server.stop();
-  thread.join();
+
+  for (int i = 0; i < n_threads; i++) {
+    threads[i].join();
+  }
 }
 
 void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
