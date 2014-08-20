@@ -22,8 +22,6 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoRequestCache"
 
-using namespace Glib::Threads;
-
 namespace kurento
 {
 
@@ -41,14 +39,14 @@ RequestCache::addResponse (std::string sessionId, int requestId,
                            std::string &response)
 {
   std::shared_ptr<CacheEntry> entry;
-  RecMutex::Lock lock (mutex);
+  std::unique_lock<std::recursive_mutex> lock (mutex);
 
   entry = std::shared_ptr<CacheEntry> (new CacheEntry (timeout, sessionId,
                                        requestId, response) );
 
   cache[sessionId][requestId] = entry;
   entry->signalTimeout.connect ([this, sessionId, requestId] () {
-    RecMutex::Lock lock (this->mutex);
+    std::unique_lock<std::recursive_mutex> lock (mutex);
     auto it1 = this->cache.find (sessionId);
 
     if (it1 == this->cache.end() ) {
@@ -75,7 +73,7 @@ RequestCache::getCachedResponse (std::string sessionId, int requestId)
   std::string response = "response";
   std::map<int, std::shared_ptr <CacheEntry>> requests;
 
-  RecMutex::Lock lock (mutex);
+  std::unique_lock<std::recursive_mutex> lock (mutex);
 
   auto it1 = cache.find (sessionId);
 

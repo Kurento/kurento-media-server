@@ -17,6 +17,7 @@
 #define __CACHE_ENTRY_H__
 
 #include <glibmm.h>
+#include <mutex>
 
 namespace kurento
 {
@@ -34,7 +35,7 @@ public:
 
 private:
   Glib::RefPtr<Glib::TimeoutSource> source;
-  Glib::Threads::RecMutex mutex;
+  std::recursive_mutex mutex;
   std::string sessionId;
   int requestId;
   std::string response;

@@ -50,7 +50,7 @@ CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
 
   source = Glib::TimeoutSource::create (timeout);
   source->connect ( [this] () -> bool {
-    RecMutex::Lock lock (this->mutex);
+    std::unique_lock<std::recursive_mutex> lock (mutex);
     this->timedout = true;
     lock.release();
 
@@ -70,7 +70,7 @@ CacheEntry::getResponse (void)
 
 CacheEntry::~CacheEntry ()
 {
-  RecMutex::Lock lock (mutex);
+  std::unique_lock<std::recursive_mutex> lock (mutex);
 
   if (!timedout) {
     source->destroy();

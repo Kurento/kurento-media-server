@@ -16,7 +16,9 @@
 #ifndef __REQUEST_CACHE_H__
 #define __REQUEST_CACHE_H__
 
-#include <glibmm.h>
+#include <memory>
+#include <map>
+#include <mutex>
 
 namespace kurento
 {
@@ -33,7 +35,7 @@ public:
 
 private:
   std::map<std::string, std::map<int, std::shared_ptr <CacheEntry>>> cache;
-  Glib::Threads::RecMutex mutex;
+  std::recursive_mutex mutex;
   unsigned int timeout;
 
   class StaticConstructor
