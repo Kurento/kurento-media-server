@@ -16,7 +16,6 @@
 #include <gst/gst.h>
 #include "Processor.hpp"
 #include "WebSocketTransport.hpp"
-#include <regex>
 
 #define GST_CAT_DEFAULT kurento_websocket_transport
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -149,18 +148,20 @@ void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)
 
   GST_DEBUG ("Client connected from %s", connection->get_origin().c_str() );
 
-  try {
-    if (!std::regex_match (connection->get_resource(),
-                           std::regex ("/" + path + "(\?.*)|($)") ) ) {
-      try {
-        GST_ERROR ("Invalid uri, closing connection");
-        server.close (hdl, websocketpp::close::status::protocol_error, "Invalid uri");
-      } catch (std::error_code &e) {
-        GST_ERROR ("Error: %s", e.message().c_str() );
-      }
+  if (resource.size() >= 1 && resource[0] == '/') {
+    resource = resource.substr (1);
+  }
+
+  resource = resource.substr (0, resource.find_first_of ('?') );
+
+  if (resource != path) {
+    try {
+      GST_ERROR ("Invalid path \"%s\", closing connection",
+                 connection->get_resource().c_str() );
+      server.close (hdl, websocketpp::close::status::protocol_error, "Invalid path");
+    } catch (std::error_code &e) {
+      GST_ERROR ("Error: %s", e.message().c_str() );
     }
-  } catch (std::regex_error &e) {
-    GST_ERROR ("Regex error: %s", e.what() );
   }
 }
 
