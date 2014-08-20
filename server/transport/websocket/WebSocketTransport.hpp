@@ -19,6 +19,17 @@
 #include "Transport.hpp"
 #include "Processor.hpp"
 
+#ifndef _WEBSOCKETPP_CPP11_STL_
+#define _WEBSOCKETPP_CPP11_STL_
+#endif
+
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
+#include <iostream>
+#include <thread>
+
+typedef websocketpp::server<websocketpp::config::asio> WebSocketServer;
+
 namespace kurento
 {
 
@@ -33,7 +44,17 @@ public:
 
 private:
 
+  void processMessage (websocketpp::connection_hdl hdl,
+                       WebSocketServer::message_ptr msg);
+  void openHandler (websocketpp::connection_hdl hdl);
+  void closeHandler (websocketpp::connection_hdl hdl);
+  void run ();
+
   std::shared_ptr<Processor> processor;
+
+  std::string path;
+  WebSocketServer server;
+  std::thread thread;
 
   class StaticConstructor
   {

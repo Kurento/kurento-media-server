@@ -16,6 +16,7 @@
 #include <gst/gst.h>
 #include "Processor.hpp"
 #include "WebSocketTransport.hpp"
+#include <regex>
 
 #define GST_CAT_DEFAULT kurento_websocket_transport
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -41,17 +42,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                         &config,
                                         std::shared_ptr<Processor> processor) : processor (processor)
 {
-  std::string address;
-  std::string path;
   uint port;
-
-  try {
-    address = config.get<std::string> ("mediaServer.net.websocket.address");
-  } catch (const boost::property_tree::ptree_error &err) {
-    GST_WARNING ("Setting default address %s to websocket",
-                 WEBSOCKET_ADDRESS_DEFAULT.c_str() );
-    address = WEBSOCKET_ADDRESS_DEFAULT;
-  }
 
   try {
     port = config.get<uint> ("mediaServer.net.websocket.port");
@@ -69,19 +60,81 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                  WEBSOCKET_PORT_DEFAULT);
     path = WEBSOCKET_PATH_DEFAULT;
   }
+
+  server.clear_access_channels (websocketpp::log::alevel::all);
+  server.clear_error_channels (websocketpp::log::alevel::all);
+
+  server.init_asio();
+  server.set_reuse_addr (true);
+  server.set_open_handler (std::bind (&WebSocketTransport::openHandler, this,
+                                      std::placeholders::_1) );
+  server.set_close_handler (std::bind (&WebSocketTransport::closeHandler, this,
+                                       std::placeholders::_1) );
+  server.set_message_handler (std::bind (&WebSocketTransport::processMessage,
+                                         this, std::placeholders::_1, std::placeholders::_2) );
+  server.listen (port);
 }
 
 WebSocketTransport::~WebSocketTransport()
 {
 }
 
+void WebSocketTransport::run ()
+{
+  server.start_accept();
+  server.run();
+}
+
 void WebSocketTransport::start ()
 {
+  thread = std::thread (std::bind (&WebSocketTransport::run, this) );
 }
 
 void WebSocketTransport::stop ()
 {
   GST_DEBUG ("stop transport");
+  server.stop();
+  thread.join();
+}
+
+void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
+    WebSocketServer::message_ptr msg)
+{
+  std::string data = msg->get_payload();
+  std::string response;
+
+  GST_DEBUG ("Message: >%s<", data.c_str() );
+  processor->process (data, response);
+  GST_DEBUG ("Response: >%s<", response.c_str() );
+
+  server.send (hdl, response, msg->get_opcode() );
+}
+
+void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)
+{
+  auto connection = server.get_con_from_hdl (hdl);
+  std::string resource = connection->get_resource();
+
+  GST_DEBUG ("Client connected from %s", connection->get_origin().c_str() );
+
+  try {
+    if (!std::regex_match (connection->get_resource(),
+                           std::regex ("/" + path + "(\?.*)|($)") ) ) {
+      try {
+        GST_ERROR ("Invalid uri, closing connection");
+        server.close (hdl, websocketpp::close::status::protocol_error, "Invalid uri");
+      } catch (std::error_code &e) {
+        GST_ERROR ("Error: %s", e.message().c_str() );
+      }
+    }
+  } catch (std::regex_error &e) {
+    GST_ERROR ("Regex error: %s", e.what() );
+  }
+}
+
+void WebSocketTransport::closeHandler (websocketpp::connection_hdl hdl)
+{
+  GST_DEBUG ("Connection closed");
 }
 
 WebSocketTransport::StaticConstructor WebSocketTransport::staticConstructor;

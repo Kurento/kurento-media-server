@@ -1,11 +1,11 @@
-set (WEBSOCKET_TRANSPORT
+set (WEBSOCKET_SOURCES
   WebSocketTransport.cpp
   WebSocketTransport.hpp
   WebSocketTransportFactory.cpp
   WebSocketTransportFactory.hpp
 )
 
-set(FLAGS "-D_WEBSOCKETPP_CPP11_STL_ ")
+set(FLAGS "-D_WEBSOCKETPP_CPP11_STL_ -pthread")
 
 set_source_files_properties(${WEBSOCKET_SOURCES}
   PROPERTIES
@@ -13,7 +13,7 @@ set_source_files_properties(${WEBSOCKET_SOURCES}
 )
 
 add_library (websocketTransport
-  ${WEBSOCKET_TRANSPORT}
+  ${WEBSOCKET_SOURCES}
 )
 
 target_link_libraries(websocketTransport
@@ -22,6 +22,7 @@ target_link_libraries(websocketTransport
 
 set_property (TARGET websocketTransport
   PROPERTY INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/server/transport
     ${CMAKE_SOURCE_DIR}/server/signalHandler
     ${GSTREAMER_INCLUDE_DIRS}
