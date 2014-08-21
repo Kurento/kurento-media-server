@@ -18,6 +18,7 @@
 
 #include "RabbitMQListener.hpp"
 #include <Processor.hpp>
+#include <mutex>
 
 namespace kurento
 {
@@ -44,7 +45,7 @@ private:
 
   std::shared_ptr<Processor> processor;
   std::map <std::string, std::weak_ptr <EventHandler>> handlers;
-  Glib::Threads::Mutex mutex;
+  std::mutex mutex;
   std::string pipelineId;
 
   class StaticConstructor

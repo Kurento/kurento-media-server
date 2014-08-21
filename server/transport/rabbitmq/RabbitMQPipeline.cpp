@@ -150,7 +150,7 @@ RabbitMQPipeline::processSubscription (std::shared_ptr< MediaObjectImpl > obj,
       <MediaObjectImpl> (obj);
   std::string eventId = object->getId() + "/" + eventType;
   std::shared_ptr <EventHandler> handler;
-  Glib::Threads::Mutex::Lock lock (mutex);
+  std::unique_lock<std::mutex> lock (mutex);
 
   if (handlers.find (eventId) != handlers.end() ) {
     handler = handlers[eventId].lock();
@@ -180,7 +180,7 @@ void RabbitMQPipeline::destroyHandler (EventHandler *handler)
 
   if (rabbitHandler != NULL) {
     std::string eventId;
-    Glib::Threads::Mutex::Lock lock (mutex);
+    std::unique_lock<std::mutex> lock (mutex);
 
     eventId = rabbitHandler->getRoutingKey();
 
