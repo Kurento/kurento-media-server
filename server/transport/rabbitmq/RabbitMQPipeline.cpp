@@ -146,9 +146,7 @@ RabbitMQPipeline::processSubscription (std::shared_ptr< MediaObjectImpl > obj,
                                        const Json::Value &params)
 {
   std::string subscriptionId;
-  std::shared_ptr <MediaObjectImpl> object = std::dynamic_pointer_cast
-      <MediaObjectImpl> (obj);
-  std::string eventId = object->getId() + "/" + eventType;
+  std::string eventId = obj->getId() + "/" + eventType;
   std::shared_ptr <EventHandler> handler;
   std::unique_lock<std::mutex> lock (mutex);
 
