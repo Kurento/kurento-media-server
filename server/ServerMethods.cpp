@@ -163,8 +163,6 @@ ServerMethods::postProcess (const Json::Value &request, Json::Value &response)
     } catch (JsonRpc::CallException &ex) {
       Json::Value params;
 
-      GST_DEBUG ("Can't get SessionId from result. Trying from request");
-
       JsonRpc::getValue (request, JSON_RPC_PARAMS, params);
       JsonRpc::getValue (params, SESSION_ID, sessionId);
     }
