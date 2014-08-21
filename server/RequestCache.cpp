@@ -70,7 +70,6 @@ RequestCache::addResponse (std::string sessionId, int requestId,
 std::string
 RequestCache::getCachedResponse (std::string sessionId, int requestId)
 {
-  std::string response = "response";
   std::map<int, std::shared_ptr <CacheEntry>> requests;
 
   std::unique_lock<std::recursive_mutex> lock (mutex);
