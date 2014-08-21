@@ -33,7 +33,8 @@ typedef websocketpp::server<websocketpp::config::asio> WebSocketServer;
 namespace kurento
 {
 
-class WebSocketTransport: public Transport
+class WebSocketTransport: public Transport,
+  public std::enable_shared_from_this<WebSocketTransport>
 {
 public:
   WebSocketTransport (const boost::property_tree::ptree &config,
@@ -44,11 +45,17 @@ public:
 
 private:
 
+  websocketpp::connection_hdl getConnection (const std::string &sessionId);
+
   void processMessage (websocketpp::connection_hdl hdl,
                        WebSocketServer::message_ptr msg);
   void openHandler (websocketpp::connection_hdl hdl);
   void closeHandler (websocketpp::connection_hdl hdl);
   void run ();
+
+  virtual std::string processSubscription (std::shared_ptr<MediaObjectImpl> obj,
+      const std::string &sessionId, const std::string &eventType,
+      const Json::Value &params);
 
   void storeConnection (const std::string &request, const std::string &response,
                         websocketpp::connection_hdl connection);
@@ -72,6 +79,8 @@ private:
   };
 
   static StaticConstructor staticConstructor;
+
+  friend class WebSocketEventHandler;
 };
 
 } /* kurento */

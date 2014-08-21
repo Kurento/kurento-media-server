@@ -3,6 +3,8 @@ set (WEBSOCKET_SOURCES
   WebSocketTransport.hpp
   WebSocketTransportFactory.cpp
   WebSocketTransportFactory.hpp
+  WebSocketEventHandler.cpp
+  WebSocketEventHandler.hpp
 )
 
 set(FLAGS "-D_WEBSOCKETPP_CPP11_STL_ -pthread")

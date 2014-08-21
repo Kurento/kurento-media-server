@@ -16,6 +16,7 @@
 #include <gst/gst.h>
 #include "Processor.hpp"
 #include "WebSocketTransport.hpp"
+#include "WebSocketEventHandler.hpp"
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <jsonrpc/JsonRpcConstants.hpp>
 
@@ -76,6 +77,10 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                  WEBSOCKET_THREADS_DEFAULT);
     n_threads = WEBSOCKET_THREADS_DEFAULT;
   }
+
+  processor->setEventSubscriptionHandler (std::bind (
+      &WebSocketTransport::processSubscription, this, std::placeholders::_1,
+      std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) );
 
   server.clear_access_channels (websocketpp::log::alevel::all);
   server.clear_error_channels (websocketpp::log::alevel::all);
@@ -163,6 +168,17 @@ getSessionId (const std::string &request, const std::string &response)
   return sessionId;
 }
 
+websocketpp::connection_hdl
+WebSocketTransport::getConnection (const std::string &sessionId)
+{
+  try {
+    std::unique_lock<std::mutex> lock (mutex);
+    return connections.at (sessionId);
+  } catch (std::out_of_range &e) {
+    throw std::out_of_range ("Connection not found for sessionId: " + sessionId);
+  }
+}
+
 void WebSocketTransport::storeConnection (const std::string &request,
     const std::string &response, websocketpp::connection_hdl connection)
 {
@@ -200,7 +216,7 @@ void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
 
   storeConnection (request, response, hdl);
 
-  server.send (hdl, response, msg->get_opcode() );
+  server.send (hdl, response, websocketpp::frame::opcode::TEXT);
 }
 
 void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)
@@ -225,6 +241,24 @@ void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)
       GST_ERROR ("Error: %s", e.message().c_str() );
     }
   }
+}
+
+std::string
+WebSocketTransport::processSubscription (std::shared_ptr< MediaObjectImpl > obj,
+    const std::string &sessionId,
+    const std::string &eventType,
+    const Json::Value &params)
+{
+  std::string subscriptionId;
+  std::shared_ptr <EventHandler> handler;
+
+  handler = std::shared_ptr <EventHandler> (new WebSocketEventHandler (obj,
+            shared_from_this(), sessionId) );
+
+  subscriptionId = processor->connectEventHandler (obj, sessionId, eventType,
+                   handler);
+
+  return subscriptionId;
 }
 
 void WebSocketTransport::closeHandler (websocketpp::connection_hdl hdl)
