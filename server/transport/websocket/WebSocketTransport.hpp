@@ -50,7 +50,15 @@ private:
   void closeHandler (websocketpp::connection_hdl hdl);
   void run ();
 
+  void storeConnection (const std::string &request, const std::string &response,
+                        websocketpp::connection_hdl connection);
+
   std::shared_ptr<Processor> processor;
+
+  std::map <std::string, websocketpp::connection_hdl> connections;
+  std::map <websocketpp::connection_hdl, std::string, std::owner_less<websocketpp::connection_hdl>>
+      connectionsReverse;
+  std::mutex mutex;
 
   int n_threads;
   std::string path;

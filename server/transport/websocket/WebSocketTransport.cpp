@@ -16,6 +16,8 @@
 #include <gst/gst.h>
 #include "Processor.hpp"
 #include "WebSocketTransport.hpp"
+#include <jsonrpc/JsonRpcUtils.hpp>
+#include <jsonrpc/JsonRpcConstants.hpp>
 
 #define GST_CAT_DEFAULT kurento_websocket_transport
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -24,8 +26,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+const std::string SESSION_ID = "sessionId";
+
 /* Default config values */
-const std::string WEBSOCKET_ADDRESS_DEFAULT = "127.0.0.1";
 const uint WEBSOCKET_PORT_DEFAULT = 9090;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
 const int WEBSOCKET_THREADS_DEFAULT = 10;
@@ -128,15 +131,74 @@ void WebSocketTransport::stop ()
   }
 }
 
+static std::string
+getSessionId (const std::string &request, const std::string &response)
+{
+  std::string sessionId;
+
+  try {
+    try {
+      Json::Reader reader;
+      Json::Value resp;
+      Json::Value result;
+
+      reader.parse (response, resp);
+
+      JsonRpc::getValue (resp, JSON_RPC_RESULT, result);
+      JsonRpc::getValue (result, SESSION_ID, sessionId);
+    } catch (JsonRpc::CallException &ex) {
+      Json::Reader reader;
+      Json::Value req;
+      Json::Value params;
+
+      reader.parse (request, req);
+
+      JsonRpc::getValue (req, JSON_RPC_PARAMS, params);
+      JsonRpc::getValue (params, SESSION_ID, sessionId);
+    }
+  } catch (JsonRpc::CallException &e) {
+    /* We could not get some of the required parameters. Ignore */
+  }
+
+  return sessionId;
+}
+
+void WebSocketTransport::storeConnection (const std::string &request,
+    const std::string &response, websocketpp::connection_hdl connection)
+{
+  std::string sessionId = getSessionId (request, response);
+
+  if (!sessionId.empty() ) {
+    std::unique_lock<std::mutex> lock (mutex);
+
+    try {
+      websocketpp::connection_hdl conn =  connections.at (sessionId);
+
+      if (!conn.owner_before (connection) && !connection.owner_before (conn) ) {
+        GST_WARNING ("Erasing old connection associated with: %s", sessionId.c_str() );
+        connectionsReverse.erase (conn);
+        connections.erase (sessionId);
+      }
+    } catch (std::out_of_range &e) {
+      /* Ignore */
+    }
+
+    connections[sessionId] = connection;
+    connectionsReverse[connection] = sessionId;
+  }
+}
+
 void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
     WebSocketServer::message_ptr msg)
 {
-  std::string data = msg->get_payload();
+  std::string request = msg->get_payload();
   std::string response;
 
-  GST_DEBUG ("Message: >%s<", data.c_str() );
-  processor->process (data, response);
+  GST_DEBUG ("Message: >%s<", request.c_str() );
+  processor->process (request, response);
   GST_DEBUG ("Response: >%s<", response.c_str() );
+
+  storeConnection (request, response, hdl);
 
   server.send (hdl, response, msg->get_opcode() );
 }
@@ -168,6 +230,17 @@ void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)
 void WebSocketTransport::closeHandler (websocketpp::connection_hdl hdl)
 {
   GST_DEBUG ("Connection closed");
+
+  try {
+    std::unique_lock<std::mutex> lock (mutex);
+    std::string sessionId = connectionsReverse.at (hdl);
+
+    GST_DEBUG ("Erasing connection associated with: %s", sessionId.c_str() );
+    connections.erase (sessionId);
+    connectionsReverse.erase (hdl);
+  } catch (std::out_of_range &e) {
+    /* Ignore */
+  }
 }
 
 WebSocketTransport::StaticConstructor WebSocketTransport::staticConstructor;

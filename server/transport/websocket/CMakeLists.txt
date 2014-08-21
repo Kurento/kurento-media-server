@@ -18,6 +18,7 @@ add_library (websocketTransport
 
 target_link_libraries(websocketTransport
   ${GSTREAMER_LIBRARIES}
+  ${JSONRPC_LIBRARIES}
 )
 
 set_property (TARGET websocketTransport
@@ -25,6 +26,7 @@ set_property (TARGET websocketTransport
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/server/transport
     ${CMAKE_SOURCE_DIR}/server/signalHandler
+    ${JSONRPC_INCLUDE_DIRS}
     ${GSTREAMER_INCLUDE_DIRS}
     ${KMS_CORE_INCLUDE_DIRS}
 )
