@@ -349,11 +349,11 @@ ServerMethods::connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
 {
   std::string subscriptionId;
 
-  subscriptionId = obj->connect (eventType, handler);
-
-  if (subscriptionId == "") {
+  if (!obj->connect (eventType, handler) ) {
     throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
   }
+
+  subscriptionId = generateUUID();
 
   registerEventHandler (obj, sessionId, subscriptionId, handler);
 
@@ -384,7 +384,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
 
     try {
-      eventSubscriptionHandler (obj, sessionId, eventType, params);
+      handlerId = eventSubscriptionHandler (obj, sessionId, eventType, params);
     } catch (std::bad_function_call &e) {
       throw KurentoException (NOT_IMPLEMENTED,
                               "Current transport does not support events");

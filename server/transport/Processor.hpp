@@ -28,7 +28,7 @@ public:
   virtual ~Processor() throw () {};
   virtual void process (const std::string &request, std::string &response) = 0;
 
-  virtual void setEventSubscriptionHandler (std::function < void (
+  virtual void setEventSubscriptionHandler (std::function < std::string (
         std::shared_ptr<MediaObjectImpl> obj,
         const std::string &sessionId, const std::string &eventType,
         const Json::Value &params) > eventSubscriptionHandler) = 0;
