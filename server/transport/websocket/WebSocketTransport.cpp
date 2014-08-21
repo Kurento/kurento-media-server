@@ -216,7 +216,11 @@ void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
 
   storeConnection (request, response, hdl);
 
-  server.send (hdl, response, websocketpp::frame::opcode::TEXT);
+  try {
+    server.send (hdl, response, websocketpp::frame::opcode::TEXT);
+  } catch (websocketpp::lib::error_code &e) {
+    GST_ERROR ("Could not send response to client: %s", e.message().c_str() );
+  }
 }
 
 void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)

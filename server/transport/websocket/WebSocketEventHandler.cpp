@@ -40,7 +40,6 @@ WebSocketEventHandler::sendEvent (Json::Value &value)
     Json::Value rpc;
     Json::Value event;
     std::string eventStr;
-    websocketpp::connection_hdl hdl;
 
     event ["value"] = value;
 
@@ -52,9 +51,13 @@ WebSocketEventHandler::sendEvent (Json::Value &value)
     GST_DEBUG ("Sending event: %s -> %s", eventStr.c_str(),
                sessionId.c_str() );
 
-    hdl = transport->getConnection (sessionId);
-
-    transport->server.send (hdl, eventStr, websocketpp::frame::opcode::TEXT);
+    try {
+      websocketpp::connection_hdl hdl = transport->getConnection (sessionId);
+      transport->server.send (hdl, eventStr, websocketpp::frame::opcode::TEXT);
+    } catch (websocketpp::lib::error_code &e) {
+      GST_ERROR ("Error on websocket while sending event to MediaHandler: %s",
+                 e.message().c_str() );
+    }
   } catch (std::exception &e) {
     GST_WARNING ("Error sending event to MediaHandler: %s", e.what() );
   } catch (...) {
