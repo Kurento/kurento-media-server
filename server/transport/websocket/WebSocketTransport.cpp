@@ -19,6 +19,7 @@
 #include "WebSocketEventHandler.hpp"
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <jsonrpc/JsonRpcConstants.hpp>
+#include <KurentoException.hpp>
 
 #define GST_CAT_DEFAULT kurento_websocket_transport
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -33,6 +34,8 @@ const std::string SESSION_ID = "sessionId";
 const uint WEBSOCKET_PORT_DEFAULT = 9090;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
 const int WEBSOCKET_THREADS_DEFAULT = 10;
+
+const std::chrono::seconds KEEP_ALIVE_PERIOD (60);
 
 static void
 check_port (int port)
@@ -117,23 +120,60 @@ void WebSocketTransport::run()
   }
 }
 
+void WebSocketTransport::keepAliveSessions()
+{
+  std::unique_lock<std::mutex> lock (mutex);
+
+  while (isRunning() ) {
+    for (auto c : connections) {
+      GST_INFO ("Keep alive %s", c.first.c_str() );
+
+      try {
+        processor->keepAliveSession (c.first);
+      } catch (KurentoException &e) {
+        if (e.getCode() == INVALID_SESSION) {
+          GST_INFO ("Session should be removed %s", c.first.c_str() );
+          // TODO: Remove session
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    cond.wait_for (lock, KEEP_ALIVE_PERIOD);
+  }
+}
+
 void WebSocketTransport::start ()
 {
+
   server.start_accept();
 
   for (int i = 0; i < n_threads; i++) {
     threads.push_back (std::thread (std::bind (&WebSocketTransport::run, this) ) );
   }
+
+  std::unique_lock<std::mutex> lock (mutex);
+  running = true;
+  keepAliveThread = std::thread (std::bind (
+                                   &WebSocketTransport::keepAliveSessions, this) );
 }
 
 void WebSocketTransport::stop ()
 {
+  std::unique_lock<std::mutex> lock (mutex);
+  running = false;
+  cond.notify_all();
+  lock.unlock();
+
   GST_DEBUG ("stop transport");
   server.stop();
 
   for (int i = 0; i < n_threads; i++) {
     threads[i].join();
   }
+
+  keepAliveThread.join();
 }
 
 static std::string
@@ -221,6 +261,7 @@ void WebSocketTransport::storeConnection (const std::string &request,
       GST_DEBUG ("Asociating session %s", sessionId.c_str() );
       connections[sessionId] = connection;
       connectionsReverse[connection] = sessionId;
+      processor->keepAliveSession (sessionId);
     }
   }
 }

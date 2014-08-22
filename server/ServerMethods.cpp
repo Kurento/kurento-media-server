@@ -113,6 +113,13 @@ ServerMethods::process (const std::string &request, std::string &response)
 {
   handler.process (request, response);
 }
+
+void
+ServerMethods::keepAliveSession (const std::string &sessionId)
+{
+  MediaSet::getMediaSet()->keepAliveSession (sessionId);
+}
+
 bool
 ServerMethods::preProcess (const Json::Value &request, Json::Value &response)
 {

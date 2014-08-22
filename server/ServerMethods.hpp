@@ -37,6 +37,8 @@ public:
 
   virtual void process (const std::string &request, std::string &response);
 
+  virtual void keepAliveSession (const std::string &sessionId);
+
 protected:
 
   virtual std::string connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,

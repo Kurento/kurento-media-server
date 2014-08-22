@@ -27,6 +27,7 @@
 #include <websocketpp/server.hpp>
 #include <iostream>
 #include <thread>
+#include <condition_variable>
 
 typedef websocketpp::server<websocketpp::config::asio> WebSocketServer;
 
@@ -60,6 +61,12 @@ private:
   void storeConnection (const std::string &request, const std::string &response,
                         websocketpp::connection_hdl connection);
 
+  void keepAliveSessions ();
+
+  bool isRunning () {
+    return running;
+  }
+
   std::shared_ptr<Processor> processor;
 
   std::map <std::string, websocketpp::connection_hdl> connections;
@@ -71,6 +78,9 @@ private:
   std::string path;
   WebSocketServer server;
   std::vector<std::thread> threads;
+  std::thread keepAliveThread;
+  bool running = false;
+  std::condition_variable cond;
 
   class StaticConstructor
   {
