@@ -219,7 +219,7 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
     throw e;
   }
 
-  response["sessionId"] = sessionId;
+  response[SESSION_ID] = sessionId;
   response["type"] = obj->getType ();
 }
 
@@ -410,7 +410,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     throw e;
   }
 
-  response["sessionId"] = sessionId;
+  response[SESSION_ID] = sessionId;
   response["value"] = handlerId;
 }
 
@@ -452,7 +452,7 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
     obj->invoke (obj, operation, operationParams, value);
 
     response["value"] = value;
-    response["sessionId"] = sessionId;
+    response[SESSION_ID] = sessionId;
   } catch (KurentoException &ex) {
     Json::Value data;
     data["code"] = ex.getCode();
@@ -492,7 +492,7 @@ ServerMethods::create (const Json::Value &params,
                  factory->createObject (config, sessionId, params["constructorParams"]) );
 
       response["value"] = object->getId();
-      response["sessionId"] = sessionId;
+      response[SESSION_ID] = sessionId;
     } catch (KurentoException &ex) {
       Json::Value data;
       data["code"] = ex.getCode();
