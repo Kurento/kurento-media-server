@@ -176,6 +176,34 @@ void WebSocketTransport::stop ()
   keepAliveThread.join();
 }
 
+static void
+injectSessionId (std::string &request, const std::string &sessionId)
+{
+  try {
+    Json::Reader reader;
+    Json::Value req;
+    Json::Value params;
+
+    reader.parse (request, req);
+    JsonRpc::getValue (req, JSON_RPC_PARAMS, params);
+
+    try {
+      std::string oldSessionId;
+      JsonRpc::getValue (req, SESSION_ID, oldSessionId);
+    } catch (JsonRpc::CallException &e) {
+      Json::FastWriter writer;
+      // There is no sessionId, inject it
+      GST_WARNING ("Injecting sessionId %s", sessionId.c_str() );
+      params[SESSION_ID] = sessionId;
+      req[JSON_RPC_PARAMS] = params;
+
+      request = writer.write (req);
+    }
+  } catch (JsonRpc::CallException &ex) {
+
+  }
+}
+
 static std::string
 getSessionId (const std::string &request, const std::string &response)
 {
@@ -271,6 +299,15 @@ void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
 {
   std::string request = msg->get_payload();
   std::string response;
+
+  try {
+    std::string sessionId;
+
+    sessionId = connectionsReverse.at (hdl);
+    injectSessionId (request, sessionId);
+  } catch (std::out_of_range &e) {
+    /* Ignore, there is no previous sessionId */
+  }
 
   GST_DEBUG ("Message: >%s<", request.c_str() );
   processor->process (request, response);
