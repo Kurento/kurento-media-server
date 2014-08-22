@@ -186,21 +186,42 @@ void WebSocketTransport::storeConnection (const std::string &request,
 
   if (!sessionId.empty() ) {
     std::unique_lock<std::mutex> lock (mutex);
+    bool needsWrite = false;
 
     try {
-      websocketpp::connection_hdl conn =  connections.at (sessionId);
+      websocketpp::connection_hdl conn = connections.at (sessionId);
 
-      if (!conn.owner_before (connection) && !connection.owner_before (conn) ) {
+      if (conn.lock() != connection.lock() ) {
         GST_WARNING ("Erasing old connection associated with: %s", sessionId.c_str() );
         connectionsReverse.erase (conn);
         connections.erase (sessionId);
+        needsWrite = true;
       }
     } catch (std::out_of_range &e) {
       /* Ignore */
+      needsWrite = true;
     }
 
-    connections[sessionId] = connection;
-    connectionsReverse[connection] = sessionId;
+    try {
+      std::string oldSession = connectionsReverse.at (connection);
+
+      if (oldSession != sessionId) {
+        GST_WARNING ("Erasing old sessionId %s associated with current connection",
+                     oldSession.c_str() );
+        connectionsReverse.erase (connection);
+        connections.erase (oldSession);
+        needsWrite = true;
+      }
+
+    } catch (std::out_of_range &e) {
+      needsWrite = true;
+    }
+
+    if (needsWrite) {
+      GST_DEBUG ("Asociating session %s", sessionId.c_str() );
+      connections[sessionId] = connection;
+      connectionsReverse[connection] = sessionId;
+    }
   }
 }
 
