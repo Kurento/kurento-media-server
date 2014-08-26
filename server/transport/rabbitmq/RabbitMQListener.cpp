@@ -27,6 +27,9 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #include <type_traits>
 #include <sigc++/sigc++.h>
 #include <event2/event_struct.h>
+
+#define RECONNECT_TIMEOUT 3000 /* 3 seconds*/
+
 namespace sigc
 {
 template <typename Functor>
@@ -44,6 +47,9 @@ namespace kurento
 
 RabbitMQListener::~RabbitMQListener()
 {
+  if (reconnectSrc) {
+    reconnectSrc->destroy();
+  }
 }
 
 void RabbitMQListener::setConfig (const std::string &address, int port)
@@ -52,16 +58,47 @@ void RabbitMQListener::setConfig (const std::string &address, int port)
   this->port = port;
 }
 
+void
+RabbitMQListener::reconnect ()
+{
+  GST_DEBUG ("Reconnecting to RabbitMQ broker");
+
+  reconnectSrc = Glib::TimeoutSource::create (RECONNECT_TIMEOUT);
+  reconnectSrc->connect ( [this] () -> bool {
+    try {
+      connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
+        address, port) );
+    } catch (Glib::IOChannelError &e) {
+      return true;
+    }
+
+    reconnected ();
+
+    return false;
+  });
+
+  reconnectSrc->attach();
+}
+
 bool
 RabbitMQListener::readMessages (Glib::IOCondition cond)
 {
-  if (cond & (Glib::IO_NVAL | Glib::IO_ERR | Glib::IO_HUP) ) {
-    return false;
+  if (cond & (Glib::IO_HUP | Glib::IO_NVAL | Glib::IO_ERR) ) {
+    goto error;
   }
 
   readMessages();
 
   return true;
+
+error:
+
+  if (cond & Glib::IO_HUP) {
+    GST_DEBUG ("Connection hung up");
+    reconnect ();
+  }
+
+  return false;
 }
 
 bool
@@ -95,8 +132,11 @@ void RabbitMQListener::listenQueue (const std::string &queue, bool durable,
   Glib::RefPtr<Glib::IdleSource> idle;
   int fd;
 
-  connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
-                 address, port) );
+  if (connection == NULL) {
+    connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
+                   address, port) );
+  }
+
   connection->declareQueue (queue, durable, ttl);
   connection->declareExchange (queue,
                                RabbitMQConnection::EXCHANGE_TYPE_DIRECT, durable, ttl);

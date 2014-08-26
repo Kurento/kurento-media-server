@@ -105,6 +105,12 @@ RabbitMQPipeline::processMessage (RabbitMQMessage &message)
 }
 
 void
+RabbitMQPipeline::reconnected ()
+{
+  GST_DEBUG ("TODO: Reconnected");
+}
+
+void
 RabbitMQPipeline::startRequest (RabbitMQMessage &message)
 {
   Json::Value responseJson;

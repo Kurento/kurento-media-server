@@ -34,6 +34,7 @@ public:
 
 protected:
   virtual void processMessage (RabbitMQMessage &message) = 0;
+  virtual void reconnected () = 0;
 
   std::shared_ptr <RabbitMQConnection> getConnection () {
     return connection;
@@ -42,10 +43,13 @@ protected:
 private:
   bool readMessages (Glib::IOCondition cond);
   bool readMessages ();
+  void reconnect ();
 
   Glib::RefPtr<Glib::IOChannel> channel;
   std::shared_ptr <RabbitMQConnection> connection;
   Glib::RefPtr<Glib::IOSource> source;
+
+  Glib::RefPtr<Glib::TimeoutSource> reconnectSrc;
 
   std::string address;
   int port;

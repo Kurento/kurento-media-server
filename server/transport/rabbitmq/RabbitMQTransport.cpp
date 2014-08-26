@@ -124,6 +124,12 @@ RabbitMQTransport::processMessage (RabbitMQMessage &message)
   }
 }
 
+void
+RabbitMQTransport::reconnected ()
+{
+  GST_DEBUG ("TODO: Reconnected");
+}
+
 void RabbitMQTransport::start ()
 {
   listenQueue (PIPELINE_CREATION, true);

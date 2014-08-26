@@ -38,6 +38,7 @@ public:
 
 protected:
   virtual void processMessage (RabbitMQMessage &message);
+  virtual void reconnected ();
 
 private:
 

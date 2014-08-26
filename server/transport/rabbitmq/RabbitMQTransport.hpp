@@ -35,6 +35,7 @@ public:
 
 protected:
   virtual void processMessage (RabbitMQMessage &message);
+  virtual void reconnected ();
 
 private:
   void childSignal (uint32_t signal);
