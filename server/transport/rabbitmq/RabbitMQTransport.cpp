@@ -102,7 +102,15 @@ RabbitMQTransport::~RabbitMQTransport()
 void
 RabbitMQTransport::processMessage (RabbitMQMessage &message)
 {
-  int pid = fork();
+  int pid;
+
+  /* TODO: */
+  /* Fork is an expensive operation so we should make sure that this */
+  /* request is a valid creation pipeline request before forking the */
+  /* process. Checking this stuff here does not seems a clean fix    */
+  /* because we would mixing protocol stuff in the transport layer.  */
+
+  pid = fork();
 
   if (pid < 0) {
     throw RabbitMQException ("Proccess cannot be forked");
