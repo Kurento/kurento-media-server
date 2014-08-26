@@ -107,7 +107,11 @@ RabbitMQPipeline::processMessage (RabbitMQMessage &message)
 void
 RabbitMQPipeline::reconnected ()
 {
-  GST_DEBUG ("TODO: Reconnected");
+  GST_DEBUG ("Reconnected");
+  listenQueue (PIPELINE_QUEUE_PREFIX + pipelineId, false, PIPELINE_QUEUE_TTL);
+  getConnection()->declareExchange (EVENT_EXCHANGE_PREFIX + pipelineId,
+                                    RabbitMQConnection::EXCHANGE_TYPE_FANOUT,
+                                    false, PIPELINE_QUEUE_TTL);
 }
 
 void
