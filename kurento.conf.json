@@ -17,7 +17,7 @@
       */
       /*
       "websocket": {
-        "port": 9090,
+        "port": 8888,
         //"secure": {
         //  "port": 8433,
         //  "certificate": "defaultCertificate.pem",

@@ -37,7 +37,7 @@ namespace kurento
 const std::string SESSION_ID = "sessionId";
 
 /* Default config values */
-const ushort WEBSOCKET_PORT_DEFAULT = 9090;
+const ushort WEBSOCKET_PORT_DEFAULT = 8888;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
 const int WEBSOCKET_THREADS_DEFAULT = 10;
 
