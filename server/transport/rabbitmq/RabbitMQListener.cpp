@@ -85,7 +85,12 @@ RabbitMQListener::reconnect ()
     }
 
     timeoutStrategy->reset ();
-    reconnected ();
+
+    try {
+      eventReconnectHandler ();
+    } catch (std::bad_function_call &e) {
+      /* No one is managing this event */
+    }
 
     return false;
   });

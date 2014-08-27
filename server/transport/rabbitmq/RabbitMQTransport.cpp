@@ -92,6 +92,8 @@ RabbitMQTransport::RabbitMQTransport (const boost::property_tree::ptree &config,
   signalHandler = std::shared_ptr <SignalHandler> (new SignalHandler (mask,
                   std::bind (&RabbitMQTransport::childSignal, this, std::placeholders::_1) ) );
 
+  setEventReconnectHandler (std::bind (&RabbitMQTransport::reconnect, this) );
+
   // TODO: Set event processor
 }
 
@@ -133,7 +135,7 @@ RabbitMQTransport::processMessage (RabbitMQMessage &message)
 }
 
 void
-RabbitMQTransport::reconnected ()
+RabbitMQTransport::reconnect ()
 {
   GST_DEBUG ("Reconnected");
   listenQueue (PIPELINE_CREATION, true);

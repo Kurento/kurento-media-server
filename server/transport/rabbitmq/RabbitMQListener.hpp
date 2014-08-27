@@ -35,10 +35,13 @@ public:
 
 protected:
   virtual void processMessage (RabbitMQMessage &message) = 0;
-  virtual void reconnected () = 0;
 
   std::shared_ptr <RabbitMQConnection> getConnection () {
     return connection;
+  }
+
+  void setEventReconnectHandler (std::function < void ( void ) > e) {
+    eventReconnectHandler = e;
   }
 
 private:
@@ -58,6 +61,8 @@ private:
   int pid = 0;
 
   std::shared_ptr <RabbitMQReconnectStrategy> timeoutStrategy;
+
+  std::function<void (void) > eventReconnectHandler;
 
   class StaticConstructor
   {

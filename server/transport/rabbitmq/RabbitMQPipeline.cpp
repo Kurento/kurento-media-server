@@ -77,6 +77,8 @@ RabbitMQPipeline::RabbitMQPipeline (const boost::property_tree::ptree &config,
   processor->setEventSubscriptionHandler (std::bind (
       &RabbitMQPipeline::processSubscription, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) );
+
+  setEventReconnectHandler (std::bind (&RabbitMQPipeline::reconnect, this) );
 }
 
 RabbitMQPipeline::~RabbitMQPipeline()
@@ -105,7 +107,7 @@ RabbitMQPipeline::processMessage (RabbitMQMessage &message)
 }
 
 void
-RabbitMQPipeline::reconnected ()
+RabbitMQPipeline::reconnect ()
 {
   GST_DEBUG ("Reconnected");
   listenQueue (PIPELINE_QUEUE_PREFIX + pipelineId, false, PIPELINE_QUEUE_TTL);

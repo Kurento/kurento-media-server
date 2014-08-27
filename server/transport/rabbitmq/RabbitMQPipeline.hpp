@@ -38,11 +38,11 @@ public:
 
 protected:
   virtual void processMessage (RabbitMQMessage &message);
-  virtual void reconnected ();
 
 private:
 
   void destroyHandler (EventHandler *handler);
+  virtual void reconnect ();
 
   std::shared_ptr<Processor> processor;
   std::map <std::string, std::weak_ptr <EventHandler>> handlers;
