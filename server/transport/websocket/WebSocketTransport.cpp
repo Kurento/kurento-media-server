@@ -21,9 +21,15 @@
 #include <jsonrpc/JsonRpcConstants.hpp>
 #include <KurentoException.hpp>
 
+#include <boost/filesystem.hpp>
+
+#include <type_traits>
+
 #define GST_CAT_DEFAULT kurento_websocket_transport
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoWebSocketTransport"
+
+typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
 
 namespace kurento
 {
@@ -31,42 +37,40 @@ namespace kurento
 const std::string SESSION_ID = "sessionId";
 
 /* Default config values */
-const uint WEBSOCKET_PORT_DEFAULT = 9090;
+const ushort WEBSOCKET_PORT_DEFAULT = 9090;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
 const int WEBSOCKET_THREADS_DEFAULT = 10;
 
 const std::chrono::seconds KEEP_ALIVE_PERIOD (60);
 
-static void
-check_port (int port)
+class configuration_exception : public std::exception
 {
-  if (port <= 0 || port > G_MAXUSHORT) {
-    throw boost::property_tree::ptree_bad_data ("Invalid port value", port);
+public:
+  configuration_exception (std::string message) {
+    this->message = message;
   }
-}
+
+  virtual const char *what() const _GLIBCXX_USE_NOEXCEPT {
+    return message.c_str();
+  }
+
+private:
+  std::string message;
+};
 
 WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                         &config,
                                         std::shared_ptr<Processor> processor) : processor (processor)
 {
-  uint port;
+  ushort port;
+  ushort securePort;
 
-  try {
-    port = config.get<uint> ("mediaServer.net.websocket.port");
-    check_port (port);
-  } catch (const boost::property_tree::ptree_error &err) {
-    GST_WARNING ("Setting default port %d to websocket",
-                 WEBSOCKET_PORT_DEFAULT);
-    port = WEBSOCKET_PORT_DEFAULT;
-  }
+  port = config.get<ushort> ("mediaServer.net.websocket.port",
+                             WEBSOCKET_PORT_DEFAULT);
+  securePort = config.get<ushort> ("mediaServer.net.websocket.secure.port", 0);
 
-  try {
-    path = config.get<std::string> ("mediaServer.net.websocket.path");
-  } catch (const boost::property_tree::ptree_error &err) {
-    GST_WARNING ("Setting default path %d to websocket",
-                 WEBSOCKET_PORT_DEFAULT);
-    path = WEBSOCKET_PATH_DEFAULT;
-  }
+  path = config.get<std::string> ("mediaServer.net.websocket.path",
+                                  WEBSOCKET_PATH_DEFAULT);
 
   try {
     n_threads = config.get<uint> ("mediaServer.net.websocket.threads");
@@ -85,19 +89,104 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
       &WebSocketTransport::processSubscription, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) );
 
+  /* Configure server */
   server.clear_access_channels (websocketpp::log::alevel::all);
   server.clear_error_channels (websocketpp::log::alevel::all);
 
-  server.init_asio();
+  server.init_asio (&ios);
   server.set_reuse_addr (true);
-  server.set_open_handler (std::bind (&WebSocketTransport::openHandler, this,
-                                      std::placeholders::_1) );
+  server.set_open_handler (std::bind ( (void (WebSocketTransport::*) (
+                                          WebSocketServer *, websocketpp::connection_hdl) )
+                                       &WebSocketTransport::openHandler, this,
+                                       &server, std::placeholders::_1) );
   server.set_close_handler (std::bind (&WebSocketTransport::closeHandler, this,
                                        std::placeholders::_1) );
-  server.set_message_handler (std::bind (&WebSocketTransport::processMessage,
-                                         this, std::placeholders::_1, std::placeholders::_2) );
+  server.set_message_handler (std::bind ( (void (WebSocketTransport::*) (
+      WebSocketServer *, websocketpp::connection_hdl,
+      WebSocketServer::message_ptr) ) &WebSocketTransport::processMessage,
+                                          this, &server, std::placeholders::_1,
+                                          std::placeholders::_2) );
 
   server.listen (port);
+
+  /* Configure secure server if enabled */
+  if (securePort != 0) {
+    try {
+      std::string password;
+      boost::filesystem::path certificateFile;
+
+      try {
+        password =
+          config.get<std::string> ("mediaServer.net.websocket.secure.password");
+      } catch (const boost::property_tree::ptree_error &err) {
+        throw configuration_exception ("Cannot get password for secure websocket");
+      }
+
+      try {
+        certificateFile = boost::filesystem::path (
+                            config.get<std::string> ("mediaServer.net.websocket.secure.certificate") );
+
+        if (certificateFile.is_relative() ) {
+          certificateFile = boost::filesystem::path (
+                              config.get<std::string> ("configPath") ) / certificateFile;
+        }
+
+        if (!boost::filesystem::exists (certificateFile) ) {
+          throw configuration_exception ("Cannot get cerfificate file for secure websocket, configured file "
+                                         + certificateFile.string() + " does not exist");
+        }
+      } catch (const boost::property_tree::ptree_error &err) {
+        throw configuration_exception ("Cannot get cerfificate file for secure websocket");
+      }
+
+      secureServer.clear_access_channels (websocketpp::log::alevel::all);
+      secureServer.clear_error_channels (websocketpp::log::alevel::all);
+
+      secureServer.init_asio (&ios);
+      secureServer.set_reuse_addr (true);
+
+      secureServer.set_open_handler (std::bind ( (void (WebSocketTransport::*) (
+                                       SecureWebSocketServer *,
+                                       websocketpp::connection_hdl) ) &WebSocketTransport::openHandler, this,
+                                     &secureServer, std::placeholders::_1) );
+      secureServer.set_close_handler (std::bind (&WebSocketTransport::closeHandler,
+                                      this,
+                                      std::placeholders::_1) );
+      secureServer.set_message_handler (std::bind ( (void (WebSocketTransport::*) (
+                                          SecureWebSocketServer *, websocketpp::connection_hdl,
+                                          SecureWebSocketServer::message_ptr) ) &WebSocketTransport::processMessage,
+                                        this, &secureServer, std::placeholders::_1,
+                                        std::placeholders::_2) );
+
+      secureServer.set_tls_init_handler ( [password, certificateFile] (
+      websocketpp::connection_hdl hdl) -> context_ptr {
+        context_ptr context (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv1) );
+
+        try {
+          context->set_options (boost::asio::ssl::context::default_workarounds |
+          boost::asio::ssl::context::no_sslv2 |
+          boost::asio::ssl::context::single_dh_use);
+          context->set_password_callback (std::bind ([password] (void) -> std::string {
+            GST_INFO ("password");
+            return password;
+          }) );
+          context->use_certificate_chain_file (certificateFile.string() );
+          context->use_private_key_file (certificateFile.string(), boost::asio::ssl::context::pem);
+        } catch (std::exception &e) {
+          GST_ERROR ("Error while setting up tls %s", e.what() );
+        }
+
+        return context;
+      });
+
+      secureServer.listen (securePort);
+      hasSecureServer = true;
+    } catch (const configuration_exception &err) {
+      GST_WARNING ("Secure websocket server not enabled: %s", err.what() );
+    }
+  } else {
+    GST_WARNING ("Secure websocket server not enabled");
+  }
 }
 
 WebSocketTransport::~WebSocketTransport()
@@ -110,7 +199,7 @@ void WebSocketTransport::run()
 
   while (running) {
     try {
-      server.run();
+      ios.run();
       running = false;
     } catch (std::exception &e) {
       GST_ERROR ("Unexpected error while running the server: %s", e.what() );
@@ -122,7 +211,7 @@ void WebSocketTransport::run()
 
 void WebSocketTransport::keepAliveSessions()
 {
-  std::unique_lock<std::mutex> lock (mutex);
+  std::unique_lock<std::recursive_mutex> lock (mutex);
 
   while (isRunning() ) {
     for (auto c : connections) {
@@ -146,14 +235,17 @@ void WebSocketTransport::keepAliveSessions()
 
 void WebSocketTransport::start ()
 {
-
   server.start_accept();
+
+  if (hasSecureServer) {
+    secureServer.start_accept();
+  }
 
   for (int i = 0; i < n_threads; i++) {
     threads.push_back (std::thread (std::bind (&WebSocketTransport::run, this) ) );
   }
 
-  std::unique_lock<std::mutex> lock (mutex);
+  std::unique_lock<std::recursive_mutex> lock (mutex);
   running = true;
   keepAliveThread = std::thread (std::bind (
                                    &WebSocketTransport::keepAliveSessions, this) );
@@ -161,7 +253,7 @@ void WebSocketTransport::start ()
 
 void WebSocketTransport::stop ()
 {
-  std::unique_lock<std::mutex> lock (mutex);
+  std::unique_lock<std::recursive_mutex> lock (mutex);
   running = false;
   cond.notify_all();
   lock.unlock();
@@ -240,7 +332,7 @@ websocketpp::connection_hdl
 WebSocketTransport::getConnection (const std::string &sessionId)
 {
   try {
-    std::unique_lock<std::mutex> lock (mutex);
+    std::unique_lock<std::recursive_mutex> lock (mutex);
     return connections.at (sessionId);
   } catch (std::out_of_range &e) {
     throw std::out_of_range ("Connection not found for sessionId: " + sessionId);
@@ -248,12 +340,13 @@ WebSocketTransport::getConnection (const std::string &sessionId)
 }
 
 void WebSocketTransport::storeConnection (const std::string &request,
-    const std::string &response, websocketpp::connection_hdl connection)
+    const std::string &response, websocketpp::connection_hdl connection,
+    bool secure)
 {
   std::string sessionId = getSessionId (request, response);
 
   if (!sessionId.empty() ) {
-    std::unique_lock<std::mutex> lock (mutex);
+    std::unique_lock<std::recursive_mutex> lock (mutex);
     bool needsWrite = false;
 
     try {
@@ -291,11 +384,34 @@ void WebSocketTransport::storeConnection (const std::string &request,
       connectionsReverse[connection] = sessionId;
       processor->keepAliveSession (sessionId);
     }
+
+    secureConnections[sessionId] = secure;
   }
 }
 
-void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
-    WebSocketServer::message_ptr msg)
+void
+WebSocketTransport::send (const std::string &sessionId,
+                          const std::string &message)
+{
+  std::unique_lock <std::recursive_mutex> lock (mutex);
+  websocketpp::connection_hdl hdl = getConnection (sessionId);
+
+  try {
+    if (secureConnections[sessionId]) {
+      lock.unlock();
+      secureServer.send (hdl, message, websocketpp::frame::opcode::TEXT);
+    } else {
+      lock.unlock();
+      server.send (hdl, message, websocketpp::frame::opcode::TEXT);
+    }
+  } catch (std::exception &e) {
+    GST_ERROR ("Error sending event: %s", e.what() );
+  }
+}
+
+template <typename ServerType>
+void WebSocketTransport::processMessage (ServerType *s,
+    websocketpp::connection_hdl hdl, typename ServerType::message_ptr msg)
 {
   std::string request = msg->get_payload();
   std::string response;
@@ -313,18 +429,21 @@ void WebSocketTransport::processMessage (websocketpp::connection_hdl hdl,
   processor->process (request, response);
   GST_DEBUG ("Response: >%s<", response.c_str() );
 
-  storeConnection (request, response, hdl);
+  storeConnection (request, response, hdl,
+                   std::is_same<ServerType, SecureWebSocketServer>::value);
 
   try {
-    server.send (hdl, response, websocketpp::frame::opcode::TEXT);
+    s->send (hdl, response, websocketpp::frame::opcode::TEXT);
   } catch (websocketpp::lib::error_code &e) {
     GST_ERROR ("Could not send response to client: %s", e.message().c_str() );
   }
 }
 
-void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)
+template <typename ServerType>
+void WebSocketTransport::openHandler (ServerType *s,
+                                      websocketpp::connection_hdl hdl)
 {
-  auto connection = server.get_con_from_hdl (hdl);
+  auto connection = s->get_con_from_hdl (hdl);
   std::string resource = connection->get_resource();
 
   GST_DEBUG ("Client connected from %s", connection->get_origin().c_str() );
@@ -339,7 +458,7 @@ void WebSocketTransport::openHandler (websocketpp::connection_hdl hdl)
     try {
       GST_ERROR ("Invalid path \"%s\", closing connection",
                  connection->get_resource().c_str() );
-      server.close (hdl, websocketpp::close::status::protocol_error, "Invalid path");
+      s->close (hdl, websocketpp::close::status::protocol_error, "Invalid path");
     } catch (std::error_code &e) {
       GST_ERROR ("Error: %s", e.message().c_str() );
     }
@@ -369,7 +488,7 @@ void WebSocketTransport::closeHandler (websocketpp::connection_hdl hdl)
   GST_DEBUG ("Connection closed");
 
   try {
-    std::unique_lock<std::mutex> lock (mutex);
+    std::unique_lock<std::recursive_mutex> lock (mutex);
     std::string sessionId = connectionsReverse.at (hdl);
 
     GST_DEBUG ("Erasing connection associated with: %s", sessionId.c_str() );

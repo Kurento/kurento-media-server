@@ -23,13 +23,15 @@
 #define _WEBSOCKETPP_CPP11_STL_
 #endif
 
-#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/config/asio.hpp>
 #include <websocketpp/server.hpp>
 #include <iostream>
 #include <thread>
 #include <condition_variable>
 
 typedef websocketpp::server<websocketpp::config::asio> WebSocketServer;
+typedef websocketpp::server<websocketpp::config::asio_tls>
+SecureWebSocketServer;
 
 namespace kurento
 {
@@ -44,13 +46,17 @@ public:
   virtual void start ();
   virtual void stop ();
 
+  void send (const std::string &sessionId, const std::string &message);
+
 private:
 
   websocketpp::connection_hdl getConnection (const std::string &sessionId);
 
-  void processMessage (websocketpp::connection_hdl hdl,
-                       WebSocketServer::message_ptr msg);
-  void openHandler (websocketpp::connection_hdl hdl);
+  template <typename ServerType>
+  void processMessage (ServerType *s, websocketpp::connection_hdl hdl,
+                       typename ServerType::message_ptr msg);
+  template <typename ServerType>
+  void openHandler (ServerType *s, websocketpp::connection_hdl hdl);
   void closeHandler (websocketpp::connection_hdl hdl);
   void run ();
 
@@ -59,7 +65,7 @@ private:
       const Json::Value &params);
 
   void storeConnection (const std::string &request, const std::string &response,
-                        websocketpp::connection_hdl connection);
+                        websocketpp::connection_hdl connection, bool secure);
 
   void keepAliveSessions ();
 
@@ -70,17 +76,21 @@ private:
   std::shared_ptr<Processor> processor;
 
   std::map <std::string, websocketpp::connection_hdl> connections;
+  std::map <std::string, bool> secureConnections;
   std::map <websocketpp::connection_hdl, std::string, std::owner_less<websocketpp::connection_hdl>>
       connectionsReverse;
-  std::mutex mutex;
+  std::recursive_mutex mutex;
 
   int n_threads;
   std::string path;
+  boost::asio::io_service ios;
   WebSocketServer server;
+  SecureWebSocketServer secureServer;
+  bool hasSecureServer = false;
   std::vector<std::thread> threads;
   std::thread keepAliveThread;
   bool running = false;
-  std::condition_variable cond;
+  std::condition_variable_any cond;
 
   class StaticConstructor
   {
@@ -89,8 +99,6 @@ private:
   };
 
   static StaticConstructor staticConstructor;
-
-  friend class WebSocketEventHandler;
 };
 
 } /* kurento */

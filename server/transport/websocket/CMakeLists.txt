@@ -21,6 +21,7 @@ add_library (websocketTransport
 target_link_libraries(websocketTransport
   ${GSTREAMER_LIBRARIES}
   ${JSONRPC_LIBRARIES}
+  ${OPENSSL_LIBRARIES}
 )
 
 set_property (TARGET websocketTransport

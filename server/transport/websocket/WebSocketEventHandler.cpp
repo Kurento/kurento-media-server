@@ -52,8 +52,7 @@ WebSocketEventHandler::sendEvent (Json::Value &value)
                sessionId.c_str() );
 
     try {
-      websocketpp::connection_hdl hdl = transport->getConnection (sessionId);
-      transport->server.send (hdl, eventStr, websocketpp::frame::opcode::TEXT);
+      transport->send (sessionId, eventStr);
     } catch (websocketpp::lib::error_code &e) {
       GST_ERROR ("Error on websocket while sending event to MediaHandler: %s",
                  e.message().c_str() );

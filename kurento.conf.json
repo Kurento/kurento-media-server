@@ -18,6 +18,11 @@
       /*
       "websocket": {
         "port": 9090,
+        //"secure": {
+        //  "port": 8433,
+        //  "certificate": "defaultCertificate.pem",
+        //  "password": ""
+        //},
         "path": "kurento",
         "threads": 10
       }
