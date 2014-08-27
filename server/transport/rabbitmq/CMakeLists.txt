@@ -11,6 +11,9 @@ set (RABBIT_MQ_TRANSPORT_SOURCES
   RabbitMQConnection.hpp
   RabbitMQTransportFactory.cpp
   RabbitMQTransportFactory.hpp
+  RabbitMQReconnectStrategy.hpp
+  ExponentialBackoffStrategy.cpp
+  ExponentialBackoffStrategy.hpp
 )
 
 add_library (rabbitMQTransport

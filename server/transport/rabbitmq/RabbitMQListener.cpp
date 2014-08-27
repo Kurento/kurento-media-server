@@ -16,6 +16,7 @@
 #include <gst/gst.h>
 #include <glibmm.h>
 #include "RabbitMQListener.hpp"
+#include "ExponentialBackoffStrategy.hpp"
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -28,7 +29,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #include <sigc++/sigc++.h>
 #include <event2/event_struct.h>
 
-#define RECONNECT_TIMEOUT 3000 /* 3 seconds*/
+#define MAX_TIMEOUT (30 * 1000) /* 30 seconds */
 
 namespace sigc
 {
@@ -44,6 +45,12 @@ struct functor_trait<Functor, false> {
 
 namespace kurento
 {
+
+RabbitMQListener::RabbitMQListener ()
+{
+  timeoutStrategy = std::shared_ptr<RabbitMQReconnectStrategy>
+                    (new ExponentialBackoffStrategy (MAX_TIMEOUT) );
+};
 
 RabbitMQListener::~RabbitMQListener()
 {
@@ -61,17 +68,23 @@ void RabbitMQListener::setConfig (const std::string &address, int port)
 void
 RabbitMQListener::reconnect ()
 {
-  GST_DEBUG ("Reconnecting to RabbitMQ broker");
+  int timeout;
 
-  reconnectSrc = Glib::TimeoutSource::create (RECONNECT_TIMEOUT);
+  timeout = timeoutStrategy->getTimeout();
+
+  GST_DEBUG ("Reconnecting to RabbitMQ broker in %d ms.", timeout);
+
+  reconnectSrc = Glib::TimeoutSource::create (timeout);
   reconnectSrc->connect ( [this] () -> bool {
     try {
       connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
         address, port) );
     } catch (Glib::IOChannelError &e) {
-      return true;
+      reconnect ();
+      return false;
     }
 
+    timeoutStrategy->reset ();
     reconnected ();
 
     return false;

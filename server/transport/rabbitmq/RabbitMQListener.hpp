@@ -17,6 +17,7 @@
 #define __RABBITMQ_LISTENER_HPP__
 
 #include "RabbitMQConnection.hpp"
+#include "RabbitMQReconnectStrategy.hpp"
 
 namespace kurento
 {
@@ -24,7 +25,7 @@ namespace kurento
 class RabbitMQListener
 {
 public:
-  RabbitMQListener () {};
+  RabbitMQListener ();
   RabbitMQListener (const std::string &address, int port);
   virtual ~RabbitMQListener() throw ();
 
@@ -55,6 +56,8 @@ private:
   int port;
 
   int pid = 0;
+
+  std::shared_ptr <RabbitMQReconnectStrategy> timeoutStrategy;
 
   class StaticConstructor
   {
