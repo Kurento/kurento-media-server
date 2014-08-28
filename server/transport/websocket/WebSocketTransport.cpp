@@ -107,7 +107,12 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                           this, &server, std::placeholders::_1,
                                           std::placeholders::_2) );
 
-  server.listen (port);
+  try {
+    server.listen (port);
+  } catch (std::error_code &e) {
+    GST_ERROR ("Error starting listen for weboscket transport on port %d", port);
+    exit (1);
+  }
 
   /* Configure secure server if enabled */
   if (securePort != 0) {
@@ -179,8 +184,12 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
         return context;
       });
 
-      secureServer.listen (securePort);
-      hasSecureServer = true;
+      try {
+        secureServer.listen (securePort);
+        hasSecureServer = true;
+      } catch (std::error_code &e) {
+        throw configuration_exception ("Error listening on port" + securePort);
+      }
     } catch (const configuration_exception &err) {
       GST_WARNING ("Secure websocket server not enabled: %s", err.what() );
     }
