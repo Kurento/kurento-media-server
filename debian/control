@@ -13,7 +13,7 @@ Build-Depends:
  libthrift-dev (<= 0.9.1),
  libevent-dev,
  thrift-compiler,
- libssl-dev
+ libssl-dev,
  librabbitmq-dev
 Standards-Version: 3.9.4
 
