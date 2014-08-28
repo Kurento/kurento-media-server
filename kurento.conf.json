@@ -2,10 +2,11 @@
   "mediaServer" : {
     "net" : {
       // Uncomment just one of them
-
+      /*
       "thrift" : {
         "port" : 9090
       }
+      */
       /*
       "rabbitmq": {
         "address" : "127.0.0.1",
@@ -15,7 +16,6 @@
         "vhost" : "/"
       }
       */
-      /*
       "websocket": {
         "port": 8888,
         //"secure": {
@@ -26,7 +26,6 @@
         "path": "kurento",
         "threads": 10
       }
-      */
     }
   },
   "controlServer" : {

@@ -13,7 +13,7 @@
  *
  */
 
-#include "server_test_base.hpp"
+#include "BaseTest.hpp"
 #include <boost/test/unit_test.hpp>
 
 #include <gst/gst.h>
@@ -22,11 +22,14 @@
 
 #define GST_CAT_DEFAULT server_duplicate_requests
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "server_duplicate_requests"
+#define GST_DEFAULT_NAME "test_server_duplicate_requests"
 
 #define VIDEO_URI "https://ci.kurento.com/video/sintel.webm"
 #define RECORDER_URI_1 "file:///tmp/recorder1.webm"
 #define RECORDER_URI_2 "file:///tmp/recorder2.webm"
+
+namespace kurento
+{
 
 class ClientHandler : public F
 {
@@ -70,7 +73,7 @@ ClientHandler::check_create_duplicate_requests_call()
   request["params"] = params;
 
   req_str = writer.write (request);
-  client->invokeJsonRpc (response_str1, req_str);
+  response_str1 = sendMessage (req_str);
 
   BOOST_CHECK (reader.parse (response_str1, response) == true);
 
@@ -85,7 +88,7 @@ ClientHandler::check_create_duplicate_requests_call()
   /* This requests should be already cached. Let's do it again */
 
   req_str = writer.write (request);
-  client->invokeJsonRpc (response_str2, req_str);
+  response_str2 = sendMessage (req_str);
 
   BOOST_CHECK (reader.parse (response_str2, response) == true);
 
@@ -106,13 +109,13 @@ ClientHandler::check_create_duplicate_requests_call()
   request["params"] = params;
 
   req_str = writer.write (request);
-  client->invokeJsonRpc (response_str1, req_str);
+  response_str1 = sendMessage (req_str);
 
   BOOST_CHECK (reader.parse (response_str1, response) == true);
 
   /* This requests should be already cached. Let's do it again */
   req_str = writer.write (request);
-  client->invokeJsonRpc (response_str2, req_str);
+  response_str2 = sendMessage (req_str);
 
   BOOST_CHECK (reader.parse (response_str2, response) == true);
 
@@ -125,7 +128,6 @@ BOOST_FIXTURE_TEST_SUITE ( server_duplicate_reqs_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_duplicate_reqs )
 {
-  BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
 
@@ -133,3 +135,5 @@ BOOST_AUTO_TEST_CASE ( server_duplicate_reqs )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} /* kurento */

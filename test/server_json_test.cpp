@@ -13,7 +13,7 @@
  *
  */
 
-#include "server_test_base.hpp"
+#include "BaseTest.hpp"
 #include <boost/test/unit_test.hpp>
 
 #include <gst/gst.h>
@@ -23,6 +23,9 @@
 #define GST_CAT_DEFAULT _server_json_test_
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "server_json_test"
+
+namespace kurento
+{
 
 class ClientHandler : public F
 {
@@ -52,7 +55,7 @@ ClientHandler::check_error_call()
 
   req_str = writer.write (request);
 
-  client->invokeJsonRpc (response_str, req_str);
+  response_str = sendMessage (req_str);
 
   BOOST_CHECK (reader.parse (response_str, response) == true);
 
@@ -93,7 +96,7 @@ ClientHandler::check_create_pipeline_call()
 
   req_str = writer.write (request);
 
-  client->invokeJsonRpc (response_str, req_str);
+  response_str = sendMessage (req_str);
 
   BOOST_CHECK (reader.parse (response_str, response) == true);
 
@@ -116,7 +119,7 @@ ClientHandler::check_create_pipeline_call()
   req_str = writer.write (request);
   response_str.clear();
 
-  client->invokeJsonRpc (response_str, req_str);
+  response_str = sendMessage (req_str);
 
   BOOST_CHECK (reader.parse (response_str, response) == true);
 
@@ -141,7 +144,7 @@ ClientHandler::check_create_pipeline_call()
   req_str = writer.write (request);
   response_str.clear();
 
-  client->invokeJsonRpc (response_str, req_str);
+  response_str = sendMessage (req_str);
   BOOST_CHECK (reader.parse (response_str, response) == true);
 
   BOOST_CHECK (!response.isMember ("error") );
@@ -157,7 +160,7 @@ ClientHandler::check_create_pipeline_call()
   req_str = writer.write (request);
   response_str.clear();
 
-  client->invokeJsonRpc (response_str, req_str);
+  response_str = sendMessage (req_str);
   BOOST_CHECK (reader.parse (response_str, response) == true);
 
   BOOST_CHECK (!response.isMember ("error") );
@@ -173,7 +176,7 @@ ClientHandler::check_create_pipeline_call()
   req_str = writer.write (request);
   response_str.clear();
 
-  client->invokeJsonRpc (response_str, req_str);
+  response_str = sendMessage (req_str);
   BOOST_CHECK (reader.parse (response_str, response) == true);
 
   BOOST_CHECK (!response.isMember ("error") );
@@ -194,7 +197,7 @@ ClientHandler::check_create_pipeline_call()
   req_str = writer.write (request);
   response_str.clear();
 
-  client->invokeJsonRpc (response_str, req_str);
+  response_str = sendMessage (req_str);
 
   BOOST_CHECK (response_str == "");
 }
@@ -204,7 +207,6 @@ BOOST_FIXTURE_TEST_SUITE ( server_unexpected_test_suite, ClientHandler)
 
 BOOST_AUTO_TEST_CASE ( server_unexpected_test )
 {
-  BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
 
@@ -213,3 +215,5 @@ BOOST_AUTO_TEST_CASE ( server_unexpected_test )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+} /* kurento */

@@ -1,6 +1,6 @@
 include (TestHelpers)
 
-add_definitions(-DBOOST_TEST_DYN_LINK)
+add_definitions(-DBOOST_TEST_DYN_LINK -D_WEBSOCKETPP_CPP11_STL_ -pthread)
 
 if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 
@@ -10,77 +10,67 @@ set (TEST_PROPERTIES
   "BOOST_TEST_CATCH_SYSTEM_ERRORS=no"
 )
 
-add_test_program(test_server_json server_json_test.cpp server_test_base.cpp)
+add_test_program(test_server_json server_json_test.cpp BaseTest.cpp)
 add_dependencies(test_server_json
   ALL
-  kmsiface
   kurento-media-server
 )
 target_link_libraries(test_server_json
-  kmsiface
   ${KMS_CORE_LIBRARIES}
-  ${THRIFT_LIBRARIES}
-  ${EVENT_LIBRARIES}
+  ${Boost_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  -pthread
 )
 set_property (TARGET test_server_json
   PROPERTY
     INCLUDE_DIRECTORIES
       ${KMS_CORE_INCLUDE_DIRS}
-      ${CMAKE_BINARY_DIR}/gen-cpp
       ${CMAKE_SOURCE_DIR}/server/transport
-      ${CMAKE_SOURCE_DIR}/server/transport/thrift
+      ${CMAKE_SOURCE_DIR}/server/transport/websocket
       ${CMAKE_SOURCE_DIR}/server
       ${THRIFT_INCLUDE_DIRS}
 )
 
-add_test_program(test_server_json_session server_test_base.cpp server_json_session.cpp)
+add_test_program(test_server_json_session BaseTest.cpp server_json_session.cpp)
 add_dependencies(test_server_json_session
   ALL
-  kmsiface
   kurento-media-server
 )
 
 target_link_libraries(test_server_json_session
-  kmsiface
   ${KMS_CORE_LIBRARIES}
-  ${THRIFT_LIBRARIES}
-  ${EVENT_LIBRARIES}
+  ${Boost_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  -pthread
 )
 set_property (TARGET test_server_json_session
   PROPERTY
     INCLUDE_DIRECTORIES
       ${KMS_CORE_INCLUDE_DIRS}
-      ${THRIFT_INCLUDE_DIRS}
-      ${CMAKE_BINARY_DIR}/gen-cpp
       ${CMAKE_SOURCE_DIR}/server/transport
-      ${CMAKE_SOURCE_DIR}/server/transport/thrift
+      ${CMAKE_SOURCE_DIR}/server/transport/websocket
       ${CMAKE_SOURCE_DIR}/server/
 )
 
-
-add_test_program(test_server_duplicate_requests server_test_base.cpp server_duplicate_requests.cpp )
+add_test_program(test_server_duplicate_requests BaseTest.cpp server_duplicate_requests.cpp )
 add_dependencies(test_server_duplicate_requests
   ALL
-  kmsiface
-  kurento
+  kurento-media-server
 )
 target_link_libraries(test_server_duplicate_requests
-  kmsiface
   ${KMS_CORE_LIBRARIES}
-  ${THRIFT_LIBRARIES}
-  ${EVENT_LIBRARIES}
+  ${Boost_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  -pthread
 )
 set_property (TARGET test_server_duplicate_requests
   PROPERTY INCLUDE_DIRECTORIES
     ${KMS_CORE_INCLUDE_DIRS}
-    ${THRIFT_INCLUDE_DIRS}
-    ${JSONRPC_INCLUDE_DIRS}
-    ${CMAKE_BINARY_DIR}/gen-cpp
     ${CMAKE_SOURCE_DIR}/server/transport
-    ${CMAKE_SOURCE_DIR}/server/transport/thrift
+    ${CMAKE_SOURCE_DIR}/server/transport/websocket
     ${CMAKE_SOURCE_DIR}/server/
 )
 
