@@ -22,7 +22,7 @@
 
 #define GST_CAT_DEFAULT _server_json_test_
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "server_json_test"
+#define GST_DEFAULT_NAME "test_server_json_test"
 
 namespace kurento
 {

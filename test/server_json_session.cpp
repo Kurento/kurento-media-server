@@ -22,7 +22,7 @@
 
 #define GST_CAT_DEFAULT _server_json_session
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "server_json_session"
+#define GST_DEFAULT_NAME "test_server_json_session"
 
 #define VIDEO_URI "https://ci.kurento.com/video/sintel.webm"
 #define RECORDER_URI_1 "file:///tmp/recorder1.webm"
