@@ -33,3 +33,10 @@ Depends: ${misc:Depends},
  kurento-media-server (= ${binary:Version}),
  kms-core-dbg
 Description: Debugging symbols for Kurento Media Server
+
+Package: kurento-server
+Architecture: any
+Depends:
+ kurento-media-server (= ${binary:Version})
+Description: Meta package for kurento server side
+ This packages install all required server programs for kurento
