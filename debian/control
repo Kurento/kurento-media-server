@@ -22,6 +22,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  kms-elements,
  kms-core
+Replaces: kurento
 Description: Kurento Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
