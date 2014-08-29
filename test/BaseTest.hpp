@@ -20,6 +20,9 @@
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#include <boost/filesystem.hpp>
+
 typedef websocketpp::client<websocketpp::config::asio_client> WebSocketClient;
 
 namespace kurento
@@ -35,6 +38,9 @@ protected:
 private:
   int pid;
 
+  void start_server ();
+  void stop_server ();
+
   bool initialized = false;
   bool terminate = false;
   std::mutex mutex;
@@ -45,6 +51,9 @@ private:
 
   void start_client ();
   void stop_client (std::unique_lock <std::mutex> &lock);
+
+  void create_ws_uri (uint port);
+  std::string uri;
 
   std::shared_ptr <WebSocketClient> client;
   websocketpp::connection_hdl connectionHdl;
@@ -59,6 +68,10 @@ private:
   bool received () {
     return receivedMessage;
   }
+
+  boost::filesystem::path write_config (const boost::filesystem::path &orig,
+                                        uint port);
+  boost::filesystem::path configDir;
 };
 
 } /* kurento */

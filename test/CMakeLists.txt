@@ -10,6 +10,13 @@ set_property (TARGET base_test
       ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 
+target_link_libraries(base_test
+  ${Boost_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+)
+
 if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 
 set (TEST_PROPERTIES

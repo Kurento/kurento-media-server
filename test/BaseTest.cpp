@@ -22,6 +22,9 @@
 #define BOOST_TEST_MODULE ServerTest
 #include <boost/test/unit_test.hpp>
 
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <gst/gst.h>
@@ -35,35 +38,83 @@ namespace kurento
 
 static const std::chrono::seconds REPLY_TIMEOUT (10);
 static const int MAX_RETRIES = 10;
-static const std::string URI = "ws://localhost:8888/kurento";
+static const std::string WS_PATH = "/kurento";
+static const std::string WS_PROTO = "ws://";
+static const std::string WS_ADDRESS = "localhost";
 
-int
-start_server_test ()
+static const std::string SDP_PATTERN = "sdp_pattern.txt";
+
+void F::create_ws_uri (uint port)
 {
-  pid_t childpid = -1;
+  uri = WS_PROTO + WS_ADDRESS + ":" + std::to_string (port) + WS_PATH;
+}
+
+boost::filesystem::path
+F::write_config (const boost::filesystem::path &orig, uint port)
+{
+  configDir = boost::filesystem::unique_path (
+                boost::filesystem::temp_directory_path() / "kms_config_%%%%%%%%" );
+  boost::filesystem::create_directories (configDir);
+  boost::filesystem::path newConfigFile = configDir / "config.json";
+
+  // Copy sdp pattern
+  boost::filesystem::copy_file (orig.parent_path() / SDP_PATTERN,
+                                configDir / SDP_PATTERN);
+
+  // Change port on config
+  boost::property_tree::ptree config;
+  boost::property_tree::json_parser::read_json (orig.string(), config);
+  boost::property_tree::ptree &wsConfig =
+    config.get_child ("mediaServer.net.websocket");
+  wsConfig.erase ("port");
+  wsConfig.add ("port", port);
+
+  boost::property_tree::json_parser::write_json (newConfigFile.string(), config);
+
+  return newConfigFile;
+}
+
+void
+F::start_server ()
+{
+  pid = -1;
   char *conf_file, *binary_dir;
 
   conf_file = getenv ("MEDIA_SERVER_CONF_FILE");
   binary_dir = getenv ("SERVER_DIR");
 
   if (conf_file == NULL) {
-    return -1;
+    BOOST_FAIL ("No configuration file for mediaserver");
   }
 
-  childpid = fork();
+  // Find an empty port
+  boost::asio::io_service ios;
+  boost::asio::ip::tcp::endpoint ep (boost::asio::ip::tcp::v6(), 0);
+  boost::asio::ip::tcp::acceptor acceptor (ios, ep);
+  acceptor.set_option (boost::asio::socket_base::reuse_address (true) );
+  acceptor.listen();
+  uint port = acceptor.local_endpoint().port();
 
-  if (childpid == 0) {
-    std::string  confFileParam = "--conf-file=" + std::string (conf_file);
+  boost::filesystem::path configFile = write_config (boost::filesystem::path (
+                                         conf_file), port);
+  create_ws_uri (port);
+
+  GST_DEBUG ("Binding to port: %d", port);
+  acceptor.close();
+
+  pid = fork();
+
+  if (pid == 0) {
+    std::string  confFileParam = "--conf-file=" + configFile.string();
+
     execl (binary_dir, "kurento-media-server", confFileParam.c_str(), NULL);
-  } else if (childpid < 0) {
+  } else if (pid < 0) {
     BOOST_FAIL ("Error executing server");
   }
-
-  return childpid;
 }
 
 void
-stop_server_test (int pid)
+F::stop_server ()
 {
   int status;
 
@@ -72,6 +123,8 @@ stop_server_test (int pid)
   if (pid != waitpid (pid, &status, 0) ) {
     BOOST_FAIL ("Error waiting for child process");
   }
+
+  boost::filesystem::remove_all (configDir);
 }
 
 void F::on_open (websocketpp::connection_hdl hdl)
@@ -137,7 +190,7 @@ void F::start_client()
 
     // We expect there to be a lot of errors, so suppress them
     websocketpp::lib::error_code ec;
-    WebSocketClient::connection_ptr con = client->get_connection (URI, ec);
+    WebSocketClient::connection_ptr con = client->get_connection (uri, ec);
 
     client->connect (con);
 
@@ -189,7 +242,7 @@ F::F ()
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
 
-  pid = start_server_test();
+  start_server();
   BOOST_REQUIRE_MESSAGE (pid > 0, "Error launching mediaserver");
 
   clientThread = std::thread (std::bind (&F::start_client, this) );
@@ -211,7 +264,7 @@ F::F ()
     stop_client (lock);
     lock.unlock();
 
-    stop_server_test (pid);
+    stop_server ();
   }
 
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
@@ -228,7 +281,7 @@ F::~F()
 
   lock.unlock();
 
-  stop_server_test (pid);
+  stop_server ();
 }
 
 } /* kurento */
