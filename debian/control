@@ -21,6 +21,7 @@ Package: kurento-media-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  kms-elements,
+ kms-filters,
  kms-core
 Replaces: kurento
 Description: Kurento Media Server
