@@ -191,6 +191,8 @@ main (int argc, char **argv)
   /* Start transport */
   transport->start ();
 
+  GST_INFO ("Mediaserver started");
+
   loop->run ();
 
   signalHandler.reset();
