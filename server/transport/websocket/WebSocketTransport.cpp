@@ -194,7 +194,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
       GST_WARNING ("Secure websocket server not enabled: %s", err.what() );
     }
   } else {
-    GST_WARNING ("Secure websocket server not enabled");
+    GST_INFO ("Secure websocket server not enabled");
   }
 }
 
