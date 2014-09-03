@@ -6,32 +6,41 @@ kurento-media-server
 ==========
 Kurento Media Server
 
-Kurento Media Server:The Kurento Media Server project processes audio and video streams,
-doing composable pipeline-based processing or media.
+Kurento Media Server: Kurento Media Server processes audio and video streams,
+doing composable pipeline-based processing of media.
 
-What is Kurento
------
-Kurento provides an open platform for video processing and streaming
-based on standards.
+Compilation instructions
+------
 
-This platform has several APIs and components which provide solutions
-to the requirements of multimedia content application developers.
-These include
+First you need to install dependencies, there are various ways, here we describe
+one that is pretty simple and automated:
 
-  * Kurento Media Server (KMS). A full featured media server providing
-    the capability to create and manage dynamic multimedia pipelines.
-  * Kurento Media Framework (KMF). A Java server-side API providing
-    the required abstractions for creating applications that manage
-    multimedia content, calls and conferences involving audio, video
-    and data information.
-  * Kurento Web SDK (KWS). A client-side HTML5 and Javascript SDK for
-    accessing KMF capabilities
-  * Kurento Android SDK (KAS). A Java and native SDK allowing easy
-    integration of KMF into any kind of Android application.
+```
+  sudo apt-get install devscripts
+  sudo apt-get update
+  pkgs=`dpkg-checkbuilddeps 2>&1` || echo "Installing dependencies"
+  pkgs=$(echo $pkgs | sed "s/dpkg-checkbuilddeps: Unmet build dependencies: //g" | sed "s/([^)]*)//g"|sed "s/,/ /g" )
+  sudo apt-get install $pkgs
+```
 
-Downloads
----------
-To download binary releases of Kurento components visit http://kurento.org
+Then you can compile the server, just execute:
+
+```
+  mkdir -p build
+  cd build
+  cmake ..
+  make -j4
+```
+
+If you want to create a debian package you can execute:
+
+```
+  sudo apt-get install devscripts
+  git submodule update --init --recursive
+  debuild -us -uc
+```
+
+Debian packages will be created on parent directory.
 
 Source
 ------
