@@ -37,6 +37,15 @@ Depends: ${misc:Depends},
  kms-core-dbg
 Description: Debugging symbols for Kurento Media Server
 
+Package: kurento-media-server-dev
+Architecture: any
+Depends: ${misc:Depends},
+ kurento-media-server (= ${binary:Version}),
+ kms-core-dev,
+ kms-filters-dev,
+ kms-elements-dev
+Description: Kurento media server, development files and tools
+
 Package: kurento-server
 Architecture: any
 Depends:
