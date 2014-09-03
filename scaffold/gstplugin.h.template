@@ -1,0 +1,32 @@
+#ifndef _GST_${nameUnderscoreUpper}_H_
+#define _GST_${nameUnderscoreUpper}_H_
+
+#include <gst/video/gstvideofilter.h>
+
+G_BEGIN_DECLS
+#define GST_TYPE_${nameUnderscoreUpper}   (kms_${nameUndersScoreLower}_get_type())
+#define GST_${nameUnderscoreUpper}(obj)   (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_${nameUnderscoreUpper},Gst${camelName}))
+#define GST_${nameUnderscoreUpper}_CLASS(klass)   (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_${nameUnderscoreUpper},Gst${camelName}Class))
+#define GST_IS_${nameUnderscoreUpper}(obj)   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_${nameUnderscoreUpper}))
+#define GST_IS_${nameUnderscoreUpper}_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_${nameUnderscoreUpper}))
+typedef struct _Gst${camelName} Gst${camelName};
+typedef struct _Gst${camelName}Class Gst${camelName}Class;
+typedef struct _Gst${camelName}Private Gst${camelName}Private;
+
+struct _Gst${camelName}
+{
+  GstVideoFilter base;
+  Gst${camelName}Private *priv;
+};
+
+struct _Gst${camelName}Class
+{
+  GstVideoFilterClass base_${nameUndersScoreLower}_class;
+};
+
+GType kms_${nameUndersScoreLower}_get_type (void);
+
+gboolean kms_${nameUndersScoreLower}_plugin_init (GstPlugin * plugin);
+
+G_END_DECLS
+#endif /* _GST_${nameUnderscoreUpper}_H_ */

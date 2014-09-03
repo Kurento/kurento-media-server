@@ -59,3 +59,6 @@ if(NOT DEFINED SYSCONF_INSTALL_DIR)
 endif()
 
 install(FILES kurento.conf.json sdp_pattern.txt DESTINATION ${SYSCONF_INSTALL_DIR}/${CUSTOM_PREFIX})
+
+add_subdirectory(scaffold)
+

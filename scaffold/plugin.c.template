@@ -1,0 +1,19 @@
+#include <config.h>
+#include <gst/gst.h>
+
+#include "gts${name}.h"
+
+static gboolean
+init (GstPlugin * plugin)
+{
+  if (!gst_${nameUndersScoreLower}_plugin_init (plugin))
+    return FALSE;
+
+  return TRUE;
+}
+
+GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
+    GST_VERSION_MINOR,
+    ${name},
+    "Filter documentation",
+    init, VERSION, GST_LICENSE_UNKNOWN, "PACKAGE_NAME", "origin")
