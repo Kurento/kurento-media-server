@@ -42,6 +42,42 @@ If you want to create a debian package you can execute:
 
 Debian packages will be created on parent directory.
 
+Binary distribution
+-------------------
+
+This software is distributed as debian packages, you can find stable releases
+here:
+
+https://launchpad.net/~kurento/+archive/ubuntu/kurento
+
+To install just execute:
+
+```
+  sudo add-apt-repository ppa:kurento/kurento
+  sudo apt-get update
+  sudo apt-get install kurento-server
+```
+
+You can also find current development version at:
+
+http://ubuntu.kurento.org/repo/?C=M;O=D (for 64 bits)
+
+http://ubuntu.kurento.org/repo-32/?C=M;O=D (for 32 bits)
+
+To install packages from unstable repository you need to execute:
+
+```
+  # Ppa is also required for gstreamer packages updates
+  sudo add-apt-repository ppa:kurento/kurento
+  if [ `uname -m` == 'x86_64' ]; then
+    sudo add "deb http://ubuntu.kurento.org repo/"
+  else
+    sudo add "deb http://ubuntu.kurento.org repo-32/"
+  fi
+  sudo apt-get update
+  sudo apt-get install kurento-server
+```
+
 Source
 ------
 The source code of this project can be cloned from the [GitHub Repository].
