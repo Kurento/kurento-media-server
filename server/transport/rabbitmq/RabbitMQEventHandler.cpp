@@ -17,9 +17,9 @@
 #include <jsonrpc/JsonRpcConstants.hpp>
 #include <gst/gst.h>
 
-#define GST_CAT_DEFAULT kurento_thrift_event_handler
+#define GST_CAT_DEFAULT kurento_rabbitmq_event_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-#define GST_DEFAULT_NAME "KurentoThriftEventHandler"
+#define GST_DEFAULT_NAME "KurentoRabbitMQEventHandler"
 
 namespace kurento
 {

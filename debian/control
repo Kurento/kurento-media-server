@@ -9,10 +9,6 @@ Build-Depends:
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
- libthrift-dev (>= 0.9.0),
- libthrift-dev (<= 0.9.1),
- libevent-dev,
- thrift-compiler,
  libssl-dev,
  librabbitmq-dev
 Standards-Version: 3.9.4

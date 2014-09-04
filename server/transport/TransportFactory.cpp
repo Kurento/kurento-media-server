@@ -20,7 +20,6 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoTransportFactory"
 
-#include <ThriftTransportFactory.hpp>
 #include <RabbitMQTransportFactory.hpp>
 #include <WebSocketTransportFactory.hpp>
 
@@ -61,8 +60,6 @@ TransportFactory::StaticConstructor::StaticConstructor()
 {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
-  TransportFactory::registerFactory (std::shared_ptr<TransportFactory>
-                                     (new ThriftTransportFactory() ) );
   TransportFactory::registerFactory (std::shared_ptr<TransportFactory>
                                      (new RabbitMQTransportFactory() ) );
   TransportFactory::registerFactory (std::shared_ptr<TransportFactory>

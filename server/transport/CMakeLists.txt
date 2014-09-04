@@ -7,12 +7,11 @@ set (TRANSPORT_SOURCES
 
 add_library (transport ${TRANSPORT_SOURCES})
 
-add_dependencies(transport thriftTransport rabbitMQTransport)
+add_dependencies(transport rabbitMQTransport)
 
 target_link_libraries(transport
   ${GSTREAMER_LIBRARIES}
   ${KMS_CORE_LIBRARIES}
-  thriftTransport
   rabbitMQTransport
   websocketTransport
 )
@@ -21,7 +20,6 @@ set_property (TARGET transport
   PROPERTY INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}/server/signalHandler
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/thrift/
     ${CMAKE_CURRENT_SOURCE_DIR}/rabbitmq/
     ${CMAKE_CURRENT_SOURCE_DIR}/websocket/
     ${GSTREAMER_INCLUDE_DIRS}
@@ -29,7 +27,6 @@ set_property (TARGET transport
     ${KMS_CORE_INCLUDE_DIRS}
 )
 
-add_subdirectory(thrift)
 add_subdirectory(rabbitmq)
 
 add_subdirectory(websocket)

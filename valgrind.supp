@@ -72,38 +72,6 @@
    fun:g_thread_proxy
 }
 {
-   Thrift workers start
-   Memcheck:Leak
-   fun:calloc
-   fun:_dl_allocate_tls
-   fun:pthread_create@@GLIBC_2.2.5
-   fun:_ZN6apache6thrift11concurrency13PthreadThread5startEv
-   fun:_ZN6apache6thrift11concurrency13ThreadManager4Impl9addWorkerEm
-   fun:_ZL27create_media_server_servicev
-   fun:_ZNK4sigc16pointer_functor0IvEclEv
-   fun:_ZNK4sigc15adaptor_functorINS_16pointer_functor0IvEEEclEv
-   fun:_ZN4sigc8internal10slot_call0INS_16pointer_functor0IvEEvE7call_itEPNS0_8slot_repE
-   obj:/usr/lib/x86_64-linux-gnu/libglibmm-2.4.so.1.3.0
-   fun:g_thread_proxy
-   fun:start_thread
-}
-{
-   Thrift Server Processor
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
-   fun:_ZNSsC1EPKcRKSaIcE
-   fun:_ZN7kurento30KmsMediaServerServiceProcessorC1EN5boost10shared_ptrINS_23KmsMediaServerServiceIfEEE
-   fun:_ZL27create_media_server_servicev
-   fun:_ZNK4sigc16pointer_functor0IvEclEv
-   fun:_ZNK4sigc15adaptor_functorINS_16pointer_functor0IvEEEclEv
-   fun:_ZN4sigc8internal10slot_call0INS_16pointer_functor0IvEEvE7call_itEPNS0_8slot_repE
-   obj:/usr/lib/x86_64-linux-gnu/libglibmm-2.4.so.1.3.0
-   fun:g_thread_proxy
-   fun:start_thread
-}
-{
    Thread leak????
    Memcheck:Leak
    fun:calloc
