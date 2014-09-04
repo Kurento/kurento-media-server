@@ -13,6 +13,7 @@ currentDir=@CMAKE_INSTALL_PREFIX@/share/kurento/scaffold
 camelName=$1
 name=`echo $camelName | sed -e 's/\([A-Z]\)/\L\1/g'`
 nameUndersScoreLower=`echo $camelName | sed -e 's/\([A-Z]\)/_\L\1/g' -e 's/^_//'`
+nameScoreLower=`echo $camelName | sed -e 's/\([A-Z]\)/-\L\1/g' -e 's/^-//'`
 nameUnderscoreUpper=`echo $nameUndersScoreLower | sed -e 's/\([a-z]\)/\U\1/g'`
 outputDir=$2
 
@@ -21,8 +22,8 @@ mkdir -p $outputDir
 cd $outputDir
 
 #Create directory for module
-mkdir $nameUndersScoreLower
-cd $nameUndersScoreLower
+mkdir $nameScoreLower
+cd $nameScoreLower
 git init
 
 #Create folder tree
@@ -66,10 +67,13 @@ cd ..
 cat $currentDir/CMakeLists_src.txt.template >> "CMakeLists.txt"
 
 cd ../..
+
+cat $currentDir/config.h.cmake.template | sed -e "s/\${nameUnderscoreUpper}/$nameUnderscoreUpper/" >> "config.h.cmake"
 cat $currentDir/CMakeLists_root.txt.template | sed -e "s/\${name}/$name/" >> "CMakeLists.txt"
 
 echo "build/" >> ".gitignore"
 
+git add CMakeLists.txt src .gitignore config.h.cmake
 git add CMakeLists.txt src .gitignore
 git commit -m "Initial commit"
 

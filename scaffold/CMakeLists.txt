@@ -11,6 +11,7 @@ set(SCAFFOLD_TEMPLATES
   gstplugin.cpp.template
   gstplugin.h.template
   plugin.c.template
+  config.h.cmake.template
 )
 
 install(FILES ${SCAFFOLD_TEMPLATES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${CUSTOM_PREFIX}/scaffold/)
