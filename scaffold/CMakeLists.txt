@@ -11,7 +11,13 @@ set(SCAFFOLD_TEMPLATES
   gstplugin.cpp.template
   gstplugin.h.template
   plugin.c.template
+  control.template
+  name.install.template
+  name.install.OpenCV.template
+  rules.template
+  changelog.template
   config.h.cmake.template
+  name-dev.install.template
 )
 
 install(FILES ${SCAFFOLD_TEMPLATES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${CUSTOM_PREFIX}/scaffold/)

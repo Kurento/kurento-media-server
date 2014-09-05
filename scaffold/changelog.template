@@ -1,0 +1,6 @@
+${nameScoreLower} (0.0.1~rc1) testing; urgency=medium
+
+  * Initial release.
+
+ -- Maintainer name <maintainerMail@mail>  ${date}
+
