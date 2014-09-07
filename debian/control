@@ -9,6 +9,7 @@ Build-Depends:
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
+ libevent-dev,
  libssl-dev,
  librabbitmq-dev
 Standards-Version: 3.9.4

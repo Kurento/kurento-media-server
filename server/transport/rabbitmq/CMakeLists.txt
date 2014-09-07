@@ -25,6 +25,7 @@ add_dependencies(rabbitMQTransport signalHandler)
 target_link_libraries(rabbitMQTransport
   ${GSTREAMER_LIBRARIES}
   ${RABBITMQ_LIBRARIES}
+  ${EVENT_LIBRARIES}
   signalHandler
 )
 
@@ -35,4 +36,5 @@ set_property (TARGET rabbitMQTransport
     ${GSTREAMER_INCLUDE_DIRS}
     ${KMS_CORE_INCLUDE_DIRS}
     ${RABBITMQ_INCLUDE_DIRS}
+    ${EVENT_INCLUDE_DIRS}
 )
