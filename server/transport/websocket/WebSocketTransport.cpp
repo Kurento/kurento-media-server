@@ -110,7 +110,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
   try {
     server.listen (port);
   } catch (std::error_code &e) {
-    GST_ERROR ("Error starting listen for weboscket transport on port %d", port);
+    GST_ERROR ("Error starting listen for websocket transport on port %d", port);
     exit (1);
   }
 
