@@ -37,14 +37,22 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define REQUEST_TIMEOUT 20000 /* 20 seconds */
 
+static const std::string KURENTO_MODULES_PATH = "KURENTO_MODULES_PATH";
+
 namespace kurento
 {
 
 ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   config (config)
 {
-  // TODO: Use config to load more factories
-  moduleManager.loadModulesFromDirectories ("");
+  std::string path;
+  char *env_path = getenv (KURENTO_MODULES_PATH.c_str() );
+
+  if (env_path != NULL) {
+    path = env_path;
+  }
+
+  moduleManager.loadModulesFromDirectories (path);
 
   cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
 
