@@ -61,6 +61,16 @@
         //    'transport' is optional (UDP by default).
         // "turnURL" : "user:password@address:port(?transport=[udp|tcp|tls])",
         // "pemCertificate" : "file"
+      },
+      "PlumberEndpoint" : {
+        // "bindAddress" : "localhost",
+        /*
+          Announced IP Address may be helpful under situations such as the endpoint needs
+          to provide an IP address to clients whose host name is different from the one
+          that the element is listening in. If this option is not provided, the bindAddress
+          will be used instead.
+        */
+        // "announcedAddress" : "localhost"
       }
     }
     //"module1": { …. }
