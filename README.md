@@ -53,6 +53,7 @@ https://launchpad.net/~kurento/+archive/ubuntu/kurento
 To install just execute:
 
 ```
+  sudo apt-get install software-properties-common # To install add-apt-repository tool
   sudo add-apt-repository ppa:kurento/kurento
   sudo apt-get update
   sudo apt-get install kurento-server
@@ -65,6 +66,7 @@ http://ubuntu.kurento.org/pool/main/k/kurento-media-server/
 To install packages from unstable repository you need to execute:
 
 ```
+  sudo apt-get install software-properties-common # To install add-apt-repository tool
   # Ppa is also required for gstreamer packages updates
   sudo add-apt-repository ppa:kurento/kurento
   sudo apt-add-repository http://ubuntu.kurento.org
