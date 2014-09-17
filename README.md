@@ -60,22 +60,17 @@ To install just execute:
 
 You can also find current development version at:
 
-http://ubuntu.kurento.org/repo/?C=M;O=D (for 64 bits)
-
-http://ubuntu.kurento.org/repo-32/?C=M;O=D (for 32 bits)
+http://ubuntu.kurento.org/pool/main/k/kurento-media-server/
 
 To install packages from unstable repository you need to execute:
 
 ```
   # Ppa is also required for gstreamer packages updates
   sudo add-apt-repository ppa:kurento/kurento
-  if [ `uname -m` == 'x86_64' ]; then
-    sudo add "deb http://ubuntu.kurento.org repo/"
-  else
-    sudo add "deb http://ubuntu.kurento.org repo-32/"
-  fi
+  sudo apt-add-repository http://ubuntu.kurento.org
+  wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
   sudo apt-get update
-  sudo apt-get install kurento-server
+  sudo apt-get install kurento-media-server
 ```
 
 Source
