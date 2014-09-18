@@ -16,7 +16,10 @@ First you need to install dependencies, there are various ways, here we describe
 one that is pretty simple and automated:
 
 ```
-  sudo apt-get install devscripts
+  sudo apt-get install devscripts software-properties-common
+  sudo add-apt-repository ppa:kurento/kurento
+  sudo apt-add-repository http://ubuntu.kurento.org
+  wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
   sudo apt-get update
   pkgs=`dpkg-checkbuilddeps 2>&1` || echo "Installing dependencies"
   pkgs=$(echo $pkgs | sed "s/dpkg-checkbuilddeps: Unmet build dependencies: //g" | sed "s/([^)]*)//g"|sed "s/,/ /g" )
