@@ -23,21 +23,6 @@
       }
     }
   },
-  "controlServer" : {
-    "net" : {
-      "websocket" : {
-        "port" : 8888,
-        "path" : "kurento"
-        //"securePort" : 8433
-      }
-    },
-    "oauthserverUrl" : ""
-    // "logConfigFile" : "/opt/kurento/logback.xml",
-    // "keystore" : {
-    //   "file" : "ssss",
-    //   "pass" : "ssss"
-    //}
-  },
   "modules": {
     "kurento": {
       "SdpEndpoint" : {
