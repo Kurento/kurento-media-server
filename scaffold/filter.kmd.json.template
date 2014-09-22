@@ -1,11 +1,5 @@
 {
   "name": "${name}",
   "version": "0.0.1-dev",
-  "kurentoVersion": "5.0.0-dev",
-  "imports": [
-    {
-      "name":"filters",
-      "version": "5.0.0-dev"
-    }
-  ]
+  "kurentoVersion": "^5.0.0"
 }
