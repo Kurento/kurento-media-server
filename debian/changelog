@@ -1,3 +1,19 @@
+kurento-media-server (5.0.2) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+
+  [ David Fernandez ]
+  * kurento-module-scaffold: Avoid errors in module regeneration
+  * kurento-module-scaffold: Change kurento-client-version in kmd template
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare release 5.0.2
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 23 Sep 2014 09:13:52 +0200
+
 kurento-media-server (5.0.1) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
