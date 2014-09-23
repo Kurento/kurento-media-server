@@ -7,7 +7,12 @@ SET(KMSC_SOURCE
   RequestCache.cpp
   RequestCache.hpp
   CacheEntry.cpp
-  CacheEntry.hpp)
+  CacheEntry.hpp
+  logging.cpp
+  logging.hpp
+)
+
+add_definitions(-DBOOST_LOG_DYN_LINK)
 
 add_executable(kurento-media-server ${KMSC_SOURCE})
 
@@ -16,8 +21,10 @@ add_dependencies(kurento-media-server signalHandler transport)
 target_link_libraries (kurento-media-server
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  ${Boost_LOG_LIBRARY}
   transport
   signalHandler
+  pthread
 )
 
 set_property (TARGET kurento-media-server

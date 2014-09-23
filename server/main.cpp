@@ -32,6 +32,8 @@
 #include <ServerMethods.hpp>
 #include <gst/gst.h>
 
+#include "logging.hpp"
+
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaServer"
@@ -157,6 +159,8 @@ main (int argc, char **argv)
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
+  gst_debug_remove_log_function_by_data (NULL);
+  gst_debug_add_log_function (log_function, NULL, NULL);
 
   context = g_option_context_new ("");
   g_option_context_add_main_entries (context, entries, NULL);
