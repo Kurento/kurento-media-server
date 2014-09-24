@@ -15,9 +15,19 @@
 
 #include <config.h>
 #include "version.hpp"
+#include <boost/concept_check.hpp>
+
+#include <iostream>
 
 const char *
 get_version ()
 {
   return PROJECT_VERSION;
+}
+
+void
+print_version ()
+{
+  std::cout << "Version: " << PROJECT_VERSION << std::endl;
+  std::cout << "TODO: print modules versions" << std::endl;
 }

@@ -193,6 +193,11 @@ main (int argc, char **argv)
       exit (0);
     }
 
+    if (vm.count ("version") ) {
+      print_version();
+      exit (0);
+    }
+
   } catch (boost::program_options::error &e) {
     std::cerr <<  "Error : " << e.what() << std::endl;
     exit (1);
