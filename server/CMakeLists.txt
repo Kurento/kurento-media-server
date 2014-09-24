@@ -22,6 +22,7 @@ target_link_libraries (kurento-media-server
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_LOG_LIBRARY}
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
   transport
   signalHandler
   pthread

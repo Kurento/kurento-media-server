@@ -32,6 +32,9 @@
 #include <ServerMethods.hpp>
 #include <gst/gst.h>
 
+#include <boost/program_options.hpp>
+#include <boost/exception/diagnostic_information.hpp>
+
 #include "logging.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_server
@@ -48,16 +51,7 @@ __pid_t pid;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create ();
 
-static gchar *conf_file;
 static gchar *tmp_dir;
-
-static GOptionEntry entries[] = {
-  {
-    "conf-file", 'f', 0, G_OPTION_ARG_FILENAME, &conf_file, "Configuration file",
-    NULL
-  },
-  {NULL}
-};
 
 Glib::RefPtr<Glib::IOChannel> channel;
 
@@ -150,9 +144,8 @@ main (int argc, char **argv)
 {
   sigset_t mask;
   std::shared_ptr <SignalHandler> signalHandler;
-  GError *error = NULL;
-  GOptionContext *context;
   boost::property_tree::ptree config;
+  std::string confFile;
 
   Glib::init();
 
@@ -162,18 +155,30 @@ main (int argc, char **argv)
   gst_debug_remove_log_function_by_data (NULL);
   gst_debug_add_log_function (log_function, NULL, NULL);
 
-  context = g_option_context_new ("");
-  g_option_context_add_main_entries (context, entries, NULL);
-  g_option_context_add_group (context, gst_init_get_option_group () );
+  try {
+    boost::program_options::options_description desc ("kurento-media-server usage");
 
-  if (!g_option_context_parse (context, &argc, &argv, &error) ) {
-    g_printerr ("option parsing failed: %s\n", error->message);
-    g_option_context_free (context);
-    g_error_free (error);
+    desc.add_options()
+    ("help,h", "Display this help message")
+    ("version,v", "Display the version number")
+    ("conf-file,f", boost::program_options::value<std::string>
+     (&confFile)->default_value (DEFAULT_CONFIG_FILE),
+     "Configuration file location");
+
+    boost::program_options::variables_map vm;
+    boost::program_options::store (boost::program_options::parse_command_line (argc,
+                                   argv, desc), vm);
+    boost::program_options::notify (vm);
+
+    if (vm.count ("help") ) {
+      std::cout << desc << "\n";
+      exit (0);
+    }
+
+  } catch (boost::program_options::error &e) {
+    std::cerr <<  "Error : " << e.what() << std::endl;
     exit (1);
   }
-
-  g_option_context_free (context);
 
   /* Install our signal handler */
   sigemptyset (&mask);
@@ -186,11 +191,7 @@ main (int argc, char **argv)
 
   GST_INFO ("Kmsc version: %s", get_version () );
 
-  if (!conf_file) {
-    load_config (config, DEFAULT_CONFIG_FILE);
-  } else {
-    load_config (config, (std::string) conf_file);
-  }
+  load_config (config, confFile);
 
   /* Start transport */
   transport->start ();

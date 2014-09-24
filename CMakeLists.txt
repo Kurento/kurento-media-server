@@ -31,7 +31,7 @@ set(LIB_PREFIX "lib")
 
 find_package(PkgConfig)
 find_package(Boost COMPONENTS unit_test_framework)
-find_package(Boost COMPONENTS system filesystem log REQUIRED)
+find_package(Boost COMPONENTS system filesystem log program_options REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 pkg_check_modules(KMS_CORE REQUIRED kmscore>=5.0.0)

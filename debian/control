@@ -10,6 +10,7 @@ Build-Depends:
  libboost-system-dev,
  libboost-filesystem-dev,
  libboost-log-dev,
+ libboost-program-options-dev,
  libevent-dev,
  libssl-dev,
  librabbitmq-dev
