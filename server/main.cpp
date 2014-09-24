@@ -42,6 +42,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaServer"
 
 const std::string DEFAULT_CONFIG_FILE = "/etc/kurento/kurento.conf.json";
+const std::string ENV_PREFIX = "KURENTO_";
 
 using namespace ::kurento;
 
@@ -139,6 +140,21 @@ deleteCertificate ()
   }
 }
 
+static std::string
+environment_adaptor (std::string &input)
+{
+  /* Look for KMS_ prefix and change to lower case */
+  if (input.find (ENV_PREFIX) == 0) {
+    std::string aux = input.substr (ENV_PREFIX.size() );
+    std::transform (aux.begin(), aux.end(), aux.begin(), [] (int c) -> int {
+      return (c == '_') ? '-' : tolower (c);
+    });
+    return aux;
+  }
+
+  return "";
+}
+
 int
 main (int argc, char **argv)
 {
@@ -168,6 +184,8 @@ main (int argc, char **argv)
     boost::program_options::variables_map vm;
     boost::program_options::store (boost::program_options::parse_command_line (argc,
                                    argv, desc), vm);
+    boost::program_options::store (boost::program_options::parse_environment (desc,
+                                   &environment_adaptor), vm);
     boost::program_options::notify (vm);
 
     if (vm.count ("help") ) {
