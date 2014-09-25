@@ -63,7 +63,13 @@ load_config (boost::property_tree::ptree &config, const std::string &file_name)
   boost::filesystem::path configFilePath (file_name);
   GST_INFO ("Reading configuration from: %s", file_name.c_str () );
 
-  boost::property_tree::read_json (file_name, config);
+  try {
+    boost::property_tree::read_json (file_name, config);
+  } catch (boost::property_tree::ptree_error &e) {
+    GST_ERROR ("Error reading configuration: %s", e.what() );
+    std::cerr << "Error reading configuration: " << e.what() << std::endl;
+    exit (1);
+  }
 
   config.add ("configPath", configFilePath.parent_path().string() );
   pid = getpid();
