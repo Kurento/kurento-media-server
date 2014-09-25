@@ -27,6 +27,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include "modules.hpp"
+
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoServerMethods"
@@ -43,16 +45,9 @@ namespace kurento
 {
 
 ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
-  config (config)
+  config (config), moduleManager (getModuleManager() )
 {
   std::string path;
-  char *env_path = getenv (KURENTO_MODULES_PATH.c_str() );
-
-  if (env_path != NULL) {
-    path = env_path;
-  }
-
-  moduleManager.loadModulesFromDirectories (path);
 
   cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
 

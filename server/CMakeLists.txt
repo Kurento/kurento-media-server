@@ -10,6 +10,8 @@ SET(KMSC_SOURCE
   CacheEntry.hpp
   logging.cpp
   logging.hpp
+  modules.cpp
+  modules.hpp
 )
 
 add_definitions(-DBOOST_LOG_DYN_LINK)

@@ -36,6 +36,7 @@
 #include <boost/exception/diagnostic_information.hpp>
 
 #include "logging.hpp"
+#include "modules.hpp"
 
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -162,6 +163,7 @@ main (int argc, char **argv)
   std::shared_ptr <SignalHandler> signalHandler;
   boost::property_tree::ptree config;
   std::string confFile;
+  std::string path;
 
   Glib::init();
 
@@ -177,6 +179,8 @@ main (int argc, char **argv)
     desc.add_options()
     ("help,h", "Display this help message")
     ("version,v", "Display the version number")
+    ("modules-path,p", boost::program_options::value<std::string>
+     (&path), "Path where kurento modules can be found")
     ("conf-file,f", boost::program_options::value<std::string>
      (&confFile)->default_value (DEFAULT_CONFIG_FILE),
      "Configuration file location");
@@ -192,6 +196,8 @@ main (int argc, char **argv)
       std::cout << desc << "\n";
       exit (0);
     }
+
+    loadModules (path);
 
     if (vm.count ("version") ) {
       print_version();

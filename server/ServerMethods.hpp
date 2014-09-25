@@ -77,7 +77,7 @@ private:
   std::function<std::string (std::shared_ptr<MediaObjectImpl> obj, const std::string &sessionId, const std::string &eventType, const Json::Value &params) >
   eventSubscriptionHandler;
 
-  ModuleManager moduleManager;
+  ModuleManager &moduleManager;
   std::shared_ptr<RequestCache> cache;
 
   class StaticConstructor
