@@ -15,9 +15,9 @@
 
 #include <config.h>
 #include "version.hpp"
-#include <boost/concept_check.hpp>
 
 #include <iostream>
+#include "modules.hpp"
 
 const char *
 get_version ()
@@ -28,6 +28,16 @@ get_version ()
 void
 print_version ()
 {
+  kurento::ModuleManager &moduleManager = kurento::getModuleManager();
+
   std::cout << "Version: " << PROJECT_VERSION << std::endl;
-  std::cout << "TODO: print modules versions" << std::endl;
+
+  if (moduleManager.getModules().size () > 0) {
+    std::cout << "Found modules:" << std::endl;
+
+    for (auto module : moduleManager.getModules() ) {
+      std::cout << "\tModule: '" << module.second->getName() << "' version '" <<
+                module.second->getVersion() << "'" << std::endl;
+    }
+  }
 }
