@@ -203,6 +203,11 @@ main (int argc, char **argv)
       exit (0);
     }
 
+    if (vm.count ("version") ) {
+      // Disable lot to just print version
+      gst_debug_remove_log_function (log_function);
+    }
+
     loadModules (path);
 
     if (vm.count ("version") ) {
