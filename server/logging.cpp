@@ -19,6 +19,8 @@
 #include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 
+#include <sstream>
+
 namespace kurento
 {
 
@@ -69,10 +71,6 @@ log_function (GstDebugCategory *category, GstDebugLevel level,
     return;
   }
 
-  if (object != NULL) {
-
-  }
-
   switch (level) {
   case GST_LEVEL_ERROR:
     BOOST_LOG_TRIVIAL (error) << LOG;
@@ -99,6 +97,23 @@ log_function (GstDebugCategory *category, GstDebugLevel level,
   default:
     break;
   }
+}
+
+void
+simple_log_function (GstDebugCategory *category, GstDebugLevel level,
+                     const gchar *file,
+                     const gchar *function, gint line, GObject *object,
+                     GstDebugMessage *message, gpointer user_data)
+{
+  std::stringstream ss;
+
+  if (level > gst_debug_category_get_threshold (category) ) {
+    return;
+  }
+
+  ss << LOG;
+
+  std::cout << ss.str() << std::endl;
 }
 
 }  /* kurento */

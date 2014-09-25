@@ -26,6 +26,11 @@ void log_function (GstDebugCategory *category, GstDebugLevel level,
                    GObject *object, GstDebugMessage *message,
                    gpointer user_data) G_GNUC_NO_INSTRUMENT;
 
+void simple_log_function (GstDebugCategory *category, GstDebugLevel level,
+                          const gchar *file, const gchar *function, gint line,
+                          GObject *object, GstDebugMessage *message,
+                          gpointer user_data) G_GNUC_NO_INSTRUMENT;
+
 } /* kurento */
 
 #endif /* __KURENTO_LOGGING_HPP__ */
