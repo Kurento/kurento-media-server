@@ -30,6 +30,7 @@
       },
       "HttpEndpoint" : {
         // "serverAddress" : "localhost",
+        // "port" : 9091
         /*
           Announced IP Addess may be helpful under situations such as the server needs
           to provide URLs to clients whose host name is different from the one the
