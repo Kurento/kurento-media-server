@@ -2,3 +2,4 @@ usr/include/kurento/modules/*/*.hpp
 usr/lib/*/*.so
 usr/lib/*/pkgconfig/*.pc
 usr/share/kurento/modules/*.kmd.json
+usr/share/cmake-2.8/Modules/*
