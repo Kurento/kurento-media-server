@@ -253,8 +253,6 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
 void
 ServerMethods::release (const Json::Value &params, Json::Value &response)
 {
-  std::shared_ptr<MediaObject> obj;
-  std::string subscription;
   std::string objectId;
 
   requireParams (params);
@@ -277,7 +275,6 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
 void
 ServerMethods::ref (const Json::Value &params, Json::Value &response)
 {
-  std::shared_ptr<MediaObject> obj;
   std::string objectId;
   std::string sessionId;
 
@@ -302,8 +299,6 @@ ServerMethods::ref (const Json::Value &params, Json::Value &response)
 void
 ServerMethods::unref (const Json::Value &params, Json::Value &response)
 {
-  std::shared_ptr<MediaObject> obj;
-  std::string subscription;
   std::string objectId;
   std::string sessionId;
 
