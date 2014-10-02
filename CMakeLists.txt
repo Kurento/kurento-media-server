@@ -42,6 +42,8 @@ pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0>=1.3.3)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 pkg_check_modules(RABBITMQ REQUIRED librabbitmq>=0.4.1)
 
+pkg_check_modules(GNUTLS REQUIRED gnutls>=3.2.11)
+
 add_subdirectory(server)
 
 enable_testing()
