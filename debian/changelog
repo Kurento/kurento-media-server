@@ -1,3 +1,32 @@
+kurento-media-server (5.0.3) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * Base log system on boost
+  * main: Use boost program options parser instead of Glibmm
+  * main: Parse commanline options also from environment variables
+  * main: Print mediaserver version when -v option is passed
+  * Use boost program_options to configure modules path
+  * version: Print name and version for each found module
+  * Raise a proper error when configuration file cannot be read
+  * Change log system to normal prints on server destruction
+  * Disable log when printing version
+  * Prepare scaffold to install generated FindMODULE.cmake
+  * modules.cpp: Add license
+  * Hack to avoid problems while loading modules with different versions if gnutls
+
+  [ Santiago Carot-Nemesio ]
+  * ServerMethods: Remove unused variables
+  * kurento.conf.json: Add missed port for HttpEndpoint section
+
+  [ Jose Antonio Santos Cadenas ]
+  * config: guess a valid stun address in WebRtcEndpoint config
+  * Prepare release 5.0.3
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 07 Oct 2014 07:40:07 +0200
+
 kurento-media-server (5.0.2) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]

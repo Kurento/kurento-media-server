@@ -5,7 +5,7 @@ Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
 Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
- kms-core-dev (>= 5.0.3),
+ kms-core-dev (>= 5.0.4),
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
@@ -19,9 +19,9 @@ Standards-Version: 3.9.4
 Package: kurento-media-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- kms-elements (>= 5.0.3),
- kms-filters (>= 5.0.3),
- kms-core (>= 5.0.3)
+ kms-elements (>= 5.0.4),
+ kms-filters (>= 5.0.4),
+ kms-core (>= 5.0.4)
 Replaces: kurento
 Breaks: kurento
 Conflicts: kurento
