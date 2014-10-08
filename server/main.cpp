@@ -185,6 +185,7 @@ main (int argc, char **argv)
     desc.add_options()
     ("help,h", "Display this help message")
     ("version,v", "Display the version number")
+    ("list,l", "Lists all available factories")
     ("modules-path,p", boost::program_options::value<std::string>
      (&path), "Path where kurento modules can be found")
     ("conf-file,f", boost::program_options::value<std::string>
@@ -203,12 +204,22 @@ main (int argc, char **argv)
       exit (0);
     }
 
-    if (vm.count ("version") ) {
+    if (vm.count ("version") || vm.count ("list") ) {
       // Disable lot to just print version
       gst_debug_remove_log_function (log_function);
     }
 
     loadModules (path);
+
+    if (vm.count ("list") ) {
+      std::cout << "Available factories:" << std::endl;
+
+      for (auto it : kurento::getModuleManager().getLoadedFactories() ) {
+        std::cout << "\t" << it.first << std::endl;
+      }
+
+      exit (0);
+    }
 
     if (vm.count ("version") ) {
       print_version();
