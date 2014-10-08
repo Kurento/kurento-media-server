@@ -1,3 +1,14 @@
+kurento-media-server (5.0.4) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * debian/control: Add libgnutls28-dev to debian build dependencies
+  * Prepare release 5.0.4
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Wed, 08 Oct 2014 07:49:08 +0200
+
 kurento-media-server (5.0.3) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
