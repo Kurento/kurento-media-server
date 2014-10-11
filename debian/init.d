@@ -102,14 +102,14 @@ stop_kurento () {
 
 status () {
     log_action_begin_msg "checking Kurento Media Server"
-    if pidofproc -p $PID_FILE >/dev/null ; then
-        log_action_end_msg 0 "running"
+    pidofproc -p $PID_FILE $DAEMON_CMD > /dev/null
+    code=$?
+    if [ $code -eq 0 ]; then
+        log_action_cont_msg "running"; log_action_end_msg 0
+    elif [ $code -eq 1 ] ; then
+        log_action_cont_msg "$DAEMON_CMD stopped unexpectedly"; log_action_end_msg 1
     else
-        if [ -e "$PID_FILE" ]; then
-            log_action_end_msg 1 "$DAEMON_CMD failed"
-        else
-            log_action_end_msg 0 "not running"
-        fi
+        log_action_cont_msg "not running"; log_action_end_msg 0
     fi
 }
 
