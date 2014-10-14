@@ -18,6 +18,7 @@ set(SCAFFOLD_TEMPLATES
   changelog.template
   config.h.cmake.template
   name-dev.install.template
+  Gruntfile.js.template
 )
 
 install(FILES ${SCAFFOLD_TEMPLATES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${CUSTOM_PREFIX}/scaffold/)
