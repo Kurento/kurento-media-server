@@ -6,7 +6,7 @@ add_library (base_test EXCLUDE_FROM_ALL BaseTest.cpp)
 set_property (TARGET base_test
   PROPERTY
     INCLUDE_DIRECTORIES
-      ${KMS_CORE_INCLUDE_DIRS}
+      ${KMSCORE_INCLUDE_DIRS}
       ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 
@@ -33,7 +33,7 @@ add_dependencies(test_server_json
   base_test
 )
 target_link_libraries(test_server_json
-  ${KMS_CORE_LIBRARIES}
+  ${KMSCORE_LIBRARIES}
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -43,7 +43,7 @@ target_link_libraries(test_server_json
 set_property (TARGET test_server_json
   PROPERTY
     INCLUDE_DIRECTORIES
-      ${KMS_CORE_INCLUDE_DIRS}
+      ${KMSCORE_INCLUDE_DIRS}
       ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 
@@ -55,7 +55,7 @@ add_dependencies(test_server_json_session
 )
 
 target_link_libraries(test_server_json_session
-  ${KMS_CORE_LIBRARIES}
+  ${KMSCORE_LIBRARIES}
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -65,7 +65,7 @@ target_link_libraries(test_server_json_session
 set_property (TARGET test_server_json_session
   PROPERTY
     INCLUDE_DIRECTORIES
-      ${KMS_CORE_INCLUDE_DIRS}
+      ${KMSCORE_INCLUDE_DIRS}
       ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 
@@ -76,7 +76,7 @@ add_dependencies(test_server_duplicate_requests
   base_test
 )
 target_link_libraries(test_server_duplicate_requests
-  ${KMS_CORE_LIBRARIES}
+  ${KMSCORE_LIBRARIES}
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -85,7 +85,7 @@ target_link_libraries(test_server_duplicate_requests
 )
 set_property (TARGET test_server_duplicate_requests
   PROPERTY INCLUDE_DIRECTORIES
-    ${KMS_CORE_INCLUDE_DIRS}
+    ${KMSCORE_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 

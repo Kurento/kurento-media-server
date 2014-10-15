@@ -31,5 +31,5 @@ set_property (TARGET websocketTransport
     ${CMAKE_SOURCE_DIR}/server/signalHandler
     ${JSONRPC_INCLUDE_DIRS}
     ${GSTREAMER_INCLUDE_DIRS}
-    ${KMS_CORE_INCLUDE_DIRS}
+    ${KMSCORE_INCLUDE_DIRS}
 )

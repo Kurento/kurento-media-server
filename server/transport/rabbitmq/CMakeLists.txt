@@ -34,7 +34,7 @@ set_property (TARGET rabbitMQTransport
     ${CMAKE_SOURCE_DIR}/server/transport
     ${CMAKE_SOURCE_DIR}/server/signalHandler
     ${GSTREAMER_INCLUDE_DIRS}
-    ${KMS_CORE_INCLUDE_DIRS}
+    ${KMSCORE_INCLUDE_DIRS}
     ${RABBITMQ_INCLUDE_DIRS}
     ${EVENT_INCLUDE_DIRS}
 )

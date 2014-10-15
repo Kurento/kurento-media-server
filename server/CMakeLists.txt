@@ -39,7 +39,7 @@ set_property (TARGET kurento-media-server
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/transport
     ${CMAKE_CURRENT_SOURCE_DIR}/signalHandler
-    ${KMS_CORE_INCLUDE_DIRS}
+    ${KMSCORE_INCLUDE_DIRS}
     ${GNUTLS_INCLUDE_DIRS}
 )
 

@@ -29,12 +29,14 @@ set(CUSTOM_PREFIX "kurento")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
 set(LIB_PREFIX "lib")
 
+include (GenericFind)
+
 find_package(PkgConfig)
 find_package(Boost COMPONENTS unit_test_framework)
 find_package(Boost COMPONENTS system filesystem log program_options REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-pkg_check_modules(KMS_CORE REQUIRED kmscore>=5.0.0)
+generic_find(LIBNAME KMSCORE VERSION ^5.0.0 REQUIRED)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.3.3)

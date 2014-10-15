@@ -11,7 +11,7 @@ add_dependencies(transport rabbitMQTransport)
 
 target_link_libraries(transport
   ${GSTREAMER_LIBRARIES}
-  ${KMS_CORE_LIBRARIES}
+  ${KMSCORE_LIBRARIES}
   rabbitMQTransport
   websocketTransport
 )
@@ -24,7 +24,7 @@ set_property (TARGET transport
     ${CMAKE_CURRENT_SOURCE_DIR}/websocket/
     ${GSTREAMER_INCLUDE_DIRS}
     ${GLIBMM_INCLUDE_DIRS}
-    ${KMS_CORE_INCLUDE_DIRS}
+    ${KMSCORE_INCLUDE_DIRS}
 )
 
 add_subdirectory(rabbitmq)
