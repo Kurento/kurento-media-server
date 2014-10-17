@@ -28,6 +28,10 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include "modules.hpp"
+#include <version.hpp>
+#include <ServerInfo.hpp>
+#include <ModuleInfo.hpp>
+#include <ServerType.hpp>
 
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -47,7 +51,28 @@ namespace kurento
 ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   config (config), moduleManager (getModuleManager() )
 {
-  std::string path;
+  std::string version (get_version() );
+  std::vector<std::shared_ptr<ModuleInfo>> modules;
+  std::shared_ptr<ServerType> type (new ServerType (ServerType::KMS) );
+  std::vector<std::string> capabilities;
+  std::shared_ptr <ServerInfo> serverInfo;
+
+  for (auto moduleIt : moduleManager.getModules () ) {
+    std::vector<std::string> factories;
+
+    for (auto factIt : moduleIt.second->getFactories() ) {
+      factories.push_back (factIt.first);
+    }
+
+    modules.push_back (std::shared_ptr<ModuleInfo> (new ModuleInfo (
+                         moduleIt.second->getVersion(), moduleIt.second->getName(), factories) ) );
+  }
+
+  serverInfo = std::shared_ptr <ServerInfo> (new ServerInfo (version, modules,
+               type, capabilities) );
+  serverData = MediaSet::getMediaSet ()->ref (new ServerImpl (serverInfo,
+               config) );
+
 
   cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
 

@@ -22,6 +22,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <Processor.hpp>
 #include "RequestCache.hpp"
+#include <ServerImpl.hpp>
 
 namespace kurento
 {
@@ -79,6 +80,9 @@ private:
 
   ModuleManager &moduleManager;
   std::shared_ptr<RequestCache> cache;
+
+  /* Instance of ServerImpl, its here to avoid to be destroyed from mediaSet */
+  std::shared_ptr<MediaObjectImpl> serverData;
 
   class StaticConstructor
   {
