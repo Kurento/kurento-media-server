@@ -147,21 +147,6 @@ deleteCertificate ()
   }
 }
 
-static std::string
-environment_adaptor (std::string &input)
-{
-  /* Look for KMS_ prefix and change to lower case */
-  if (input.find (ENV_PREFIX) == 0) {
-    std::string aux = input.substr (ENV_PREFIX.size() );
-    std::transform (aux.begin(), aux.end(), aux.begin(), [] (int c) -> int {
-      return (c == '_') ? '-' : tolower (c);
-    });
-    return aux;
-  }
-
-  return "";
-}
-
 int
 main (int argc, char **argv)
 {
@@ -192,11 +177,32 @@ main (int argc, char **argv)
      (&confFile)->default_value (DEFAULT_CONFIG_FILE),
      "Configuration file location");
 
+    boost::program_options::command_line_parser clp (argc, argv);
+    clp.options (desc).allow_unregistered();
     boost::program_options::variables_map vm;
-    boost::program_options::store (boost::program_options::parse_command_line (argc,
-                                   argv, desc), vm);
+    auto parsed = clp.run();
+    boost::program_options::store (parsed, vm);
+
     boost::program_options::store (boost::program_options::parse_environment (desc,
-                                   &environment_adaptor), vm);
+    [&desc] (std::string & input) -> std::string {
+      /* Look for KURENTO_ prefix and change to lower case */
+      if (input.find (ENV_PREFIX) == 0) {
+        std::string aux = input.substr (ENV_PREFIX.size() );
+        std::transform (aux.begin(), aux.end(), aux.begin(), [] (int c) -> int {
+          return (c == '_') ? '-' : tolower (c);
+        });
+
+        if (!desc.find_nothrow (aux, false) ) {
+          return "";
+        }
+
+        return aux;
+      }
+
+
+      return "";
+    }), vm);
+
     boost::program_options::notify (vm);
 
     if (vm.count ("help") ) {
