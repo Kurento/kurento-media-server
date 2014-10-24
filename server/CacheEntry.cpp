@@ -52,7 +52,7 @@ CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
   source->connect ( [this] () -> bool {
     std::unique_lock<std::recursive_mutex> lock (mutex);
     this->timedout = true;
-    lock.release();
+    lock.unlock();
 
     this->signalTimeout.emit();
 
