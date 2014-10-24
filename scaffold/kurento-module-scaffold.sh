@@ -55,7 +55,6 @@ mkdir implementation
 mkdir interface
 cd interface
 
-cat $currentDir/Gruntfile.js.template > "Gruntfile.js"
 cat $currentDir/filter.kmd.json.template | sed -e "s/\${name}/$name/" > "$name.kmd.json"
 
 if [ -z "$openCVFilter" ]
