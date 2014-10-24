@@ -81,9 +81,6 @@ private:
   ModuleManager &moduleManager;
   std::shared_ptr<RequestCache> cache;
 
-  /* Instance of ServerImpl, its here to avoid to be destroyed from mediaSet */
-  std::shared_ptr<MediaObjectImpl> serverData;
-
   class StaticConstructor
   {
   public:

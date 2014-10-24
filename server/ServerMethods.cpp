@@ -56,6 +56,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   std::shared_ptr<ServerType> type (new ServerType (ServerType::KMS) );
   std::vector<std::string> capabilities;
   std::shared_ptr <ServerInfo> serverInfo;
+  std::shared_ptr<MediaObjectImpl> serverData;
 
   for (auto moduleIt : moduleManager.getModules () ) {
     std::vector<std::string> factories;
@@ -70,9 +71,11 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
 
   serverInfo = std::shared_ptr <ServerInfo> (new ServerInfo (version, modules,
                type, capabilities) );
+
   serverData = MediaSet::getMediaSet ()->ref (new ServerImpl (serverInfo,
                config) );
-
+  MediaSet::getMediaSet ()->setServer (std::dynamic_pointer_cast <ServerImpl>
+                                       (serverData) );
 
   cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
 
