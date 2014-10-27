@@ -62,6 +62,7 @@ private:
   bool preProcess (const Json::Value &request, Json::Value &response);
   void postProcess (const Json::Value &request, Json::Value &response);
 
+  void connect (const Json::Value &params, Json::Value &response);
   void create (const Json::Value &params, Json::Value &response);
   void invoke (const Json::Value &params, Json::Value &response);
   void subscribe (const Json::Value &params, Json::Value &response);
@@ -80,6 +81,7 @@ private:
 
   ModuleManager &moduleManager;
   std::shared_ptr<RequestCache> cache;
+  std::string instanceId;
 
   class StaticConstructor
   {

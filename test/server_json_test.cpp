@@ -37,6 +37,7 @@ public:
 protected:
   void check_error_call ();
   void check_create_pipeline_call ();
+  void check_connect_call ();
 };
 
 void
@@ -65,6 +66,59 @@ ClientHandler::check_error_call()
   BOOST_CHECK (response["error"]["code"].isInt() );
   BOOST_CHECK (response["error"]["code"] == -32600);
   BOOST_CHECK (response["error"].isMember ("message") );
+}
+
+void
+ClientHandler::check_connect_call()
+{
+  Json::Value request;
+  Json::Value response;
+  Json::FastWriter writer;
+  Json::Reader reader;
+  std::string req_str;
+  std::string response_str;
+  Json::Value params;
+
+  request["jsonrpc"] = "2.0";
+  request["id"] = 0;
+  request["method"] = "connect";
+  request["params"] = params;
+
+  req_str = writer.write (request);
+
+  response_str = sendMessage (req_str);
+
+  BOOST_CHECK (reader.parse (response_str, response) == true);
+
+  BOOST_CHECK (!response.isMember ("error") );
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("sessionId") );
+  BOOST_CHECK (response["result"]["sessionId"].isString() );
+  BOOST_CHECK (response["result"].isMember ("serverId") );
+  BOOST_CHECK (response["result"]["serverId"].isString() );
+
+  request["id"] = 1;
+  params["sessionId"] = "fakeSession";
+  request["params"] = params;
+
+  req_str = writer.write (request);
+
+  response_str = sendMessage (req_str);
+
+  BOOST_CHECK (reader.parse (response_str, response) == true);
+
+  BOOST_CHECK (response.isMember ("error") );
+  BOOST_CHECK (response["error"].isObject() );
+  BOOST_CHECK (response["error"].isMember ("code") );
+  BOOST_CHECK (response["error"]["code"].isInt() );
+  BOOST_CHECK (response["error"]["code"] == -32000);
+  BOOST_CHECK (response["error"].isMember ("message") );
+  BOOST_CHECK (response["error"].isMember ("data") );
+  BOOST_CHECK (response["error"]["data"].isMember ("code") );
+  BOOST_CHECK (response["error"]["data"].isMember ("message") );
+  BOOST_CHECK (response["error"]["data"]["code"].isInt() );
+  BOOST_CHECK (response["error"]["data"]["code"] == 40007);
 }
 
 void
@@ -212,6 +266,7 @@ BOOST_AUTO_TEST_CASE ( server_unexpected_test )
 
   check_error_call();
   check_create_pipeline_call();
+  check_connect_call();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

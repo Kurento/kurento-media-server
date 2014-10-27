@@ -48,6 +48,17 @@ static const std::string KURENTO_MODULES_PATH = "KURENTO_MODULES_PATH";
 namespace kurento
 {
 
+static std::string
+generateUUID ()
+{
+  std::stringstream ss;
+  boost::uuids::uuid uuid = boost::uuids::random_generator() ();
+
+  ss << uuid;
+
+  return ss.str();
+}
+
 ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   config (config), moduleManager (getModuleManager() )
 {
@@ -57,6 +68,8 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   std::vector<std::string> capabilities;
   std::shared_ptr <ServerInfo> serverInfo;
   std::shared_ptr<MediaObjectImpl> serverData;
+
+  instanceId = generateUUID();
 
   for (auto moduleIt : moduleManager.getModules () ) {
     std::vector<std::string> factories;
@@ -86,6 +99,9 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
                                      std::placeholders::_1,
                                      std::placeholders::_2) );
 
+  handler.addMethod ("connect", std::bind (&ServerMethods::connect, this,
+                     std::placeholders::_1,
+                     std::placeholders::_2) );
   handler.addMethod ("create", std::bind (&ServerMethods::create, this,
                                           std::placeholders::_1,
                                           std::placeholders::_2) );
@@ -126,17 +142,6 @@ requireParams (const Json::Value &params)
     throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
                                   "'params' is requiered");
   }
-}
-
-static std::string
-generateUUID ()
-{
-  std::stringstream ss;
-  boost::uuids::uuid uuid = boost::uuids::random_generator() ();
-
-  ss << uuid;
-
-  return ss.str();
 }
 
 void
@@ -488,6 +493,43 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
                               ex.what(), data);
     throw e;
   }
+}
+
+void
+ServerMethods::connect (const Json::Value &params, Json::Value &response)
+{
+  std::string sessionId;
+
+  if (params == Json::Value::null) {
+    sessionId = generateUUID ();
+  } else {
+    bool doKeepAlive = false;
+
+    try {
+      JsonRpc::getValue (params, SESSION_ID, sessionId);
+      doKeepAlive = true;
+      GST_INFO ("Doing keep alive for session %s", sessionId.c_str () );
+    } catch (JsonRpc::CallException e) {
+      sessionId = generateUUID ();
+    }
+
+    if (doKeepAlive) {
+      try {
+        keepAliveSession (sessionId);
+      } catch (KurentoException &ex) {
+        Json::Value data;
+        data["code"] = ex.getCode();
+        data["message"] = ex.getMessage();
+
+        JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                  ex.what(), data);
+        throw e;
+      }
+    }
+  }
+
+  response[SESSION_ID] = sessionId;
+  response["serverId"] = instanceId;
 }
 
 void
