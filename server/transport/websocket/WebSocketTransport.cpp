@@ -391,7 +391,14 @@ void WebSocketTransport::storeConnection (const std::string &request,
       GST_DEBUG ("Asociating session %s", sessionId.c_str() );
       connections[sessionId] = connection;
       connectionsReverse[connection] = sessionId;
-      processor->keepAliveSession (sessionId);
+
+      try {
+        processor->keepAliveSession (sessionId);
+      } catch (KurentoException &e) {
+        if (e.getCode () != INVALID_SESSION) {
+          throw e;
+        }
+      }
     }
 
     secureConnections[sessionId] = secure;
