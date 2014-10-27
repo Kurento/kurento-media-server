@@ -144,6 +144,18 @@ requireParams (const Json::Value &params)
   }
 }
 
+static bool
+getOrCreateSessionId (std::string &_sessionId, const Json::Value &params)
+{
+  try {
+    JsonRpc::getValue (params, SESSION_ID, _sessionId);
+    return true;
+  } catch (JsonRpc::CallException e) {
+    _sessionId = generateUUID ();
+    return false;
+  }
+}
+
 void
 ServerMethods::process (const std::string &request, std::string &response)
 {
@@ -233,11 +245,7 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
 
   requireParams (params);
 
-  try {
-    JsonRpc::getValue (params, SESSION_ID, sessionId);
-  } catch (JsonRpc::CallException e) {
-    sessionId = generateUUID ();
-  }
+  getOrCreateSessionId (sessionId, params);
 
   JsonRpc::getValue (params, OBJECT, objectId);
 
@@ -412,11 +420,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   JsonRpc::getValue (params, "type", eventType);
   JsonRpc::getValue (params, OBJECT, objectId);
 
-  try {
-    JsonRpc::getValue (params, SESSION_ID, sessionId);
-  } catch (JsonRpc::CallException e) {
-    sessionId = generateUUID ();
-  }
+  getOrCreateSessionId (sessionId, params);
 
   try {
     obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
@@ -465,11 +469,7 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
     /* operationParams is optional at this point */
   }
 
-  try {
-    JsonRpc::getValue (params, SESSION_ID, sessionId);
-  } catch (JsonRpc::CallException e) {
-    sessionId = generateUUID ();
-  }
+  getOrCreateSessionId (sessionId, params);
 
   try {
     Json::Value value;
@@ -505,13 +505,7 @@ ServerMethods::connect (const Json::Value &params, Json::Value &response)
   } else {
     bool doKeepAlive = false;
 
-    try {
-      JsonRpc::getValue (params, SESSION_ID, sessionId);
-      doKeepAlive = true;
-      GST_INFO ("Doing keep alive for session %s", sessionId.c_str () );
-    } catch (JsonRpc::CallException e) {
-      sessionId = generateUUID ();
-    }
+    doKeepAlive = getOrCreateSessionId (sessionId, params);
 
     if (doKeepAlive) {
       try {
