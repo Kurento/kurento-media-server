@@ -6,6 +6,7 @@ Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
  kms-core-dev (>= 5.1.0~58),
+ kms-jsonrpc-dev (>= 0.2.0),
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
@@ -22,7 +23,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  kms-elements (>= 5.0.4),
  kms-filters (>= 5.0.4),
- kms-core (>= 5.1.0~58)
+ kms-core (>= 5.1.0~58),
+ kms-jsonrpc (>= 0.2.0)
 Replaces: kurento
 Breaks: kurento
 Conflicts: kurento

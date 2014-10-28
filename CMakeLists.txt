@@ -37,6 +37,7 @@ find_package(Boost COMPONENTS system filesystem log program_options REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 generic_find(LIBNAME KMSCORE VERSION ^5.1.0 REQUIRED)
+generic_find(LIBNAME KmsJsonRpc VERSION ^0.2.0 REQUIRED)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.3.3)

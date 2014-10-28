@@ -44,6 +44,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define REQUEST_TIMEOUT 20000 /* 20 seconds */
 
 static const std::string KURENTO_MODULES_PATH = "KURENTO_MODULES_PATH";
+static const std::string NEW_REF = "newref:";
 
 namespace kurento
 {
@@ -81,6 +82,8 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
     modules.push_back (std::shared_ptr<ModuleInfo> (new ModuleInfo (
                          moduleIt.second->getVersion(), moduleIt.second->getName(), factories) ) );
   }
+
+  capabilities.push_back ("transactions");
 
   serverInfo = std::shared_ptr <ServerInfo> (new ServerInfo (version, modules,
                type, capabilities) );
@@ -129,6 +132,8 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   handler.addMethod ("describe", std::bind (&ServerMethods::describe,
                      this, std::placeholders::_1,
                      std::placeholders::_2) );
+  handler.addMethod ("transaction", std::bind (&ServerMethods::transaction,
+                     this, std::placeholders::_1, std::placeholders::_2) );
 }
 
 ServerMethods::~ServerMethods()
@@ -570,6 +575,95 @@ ServerMethods::create (const Json::Value &params,
     // TODO: Define error data and code
     throw e;
   }
+
+}
+
+void
+insertResult (Json::Value &value, Json::Value &responses, const int index)
+{
+  try {
+    Json::Value result;
+
+    JsonRpc::getValue (responses[index], JSON_RPC_RESULT, result);
+    value = result["value"];
+  } catch (JsonRpc::CallException e) {
+    GST_ERROR ("Error while inserting new ref value: %s",
+               e.getMessage ().c_str () );
+    throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                  "Result not found on request " + std::to_string (index) );
+  }
+}
+
+void
+injectRefs (Json::Value &params, Json::Value &responses)
+{
+  if (params.isObject () || params.isArray () ) {
+    for (auto it = params.begin(); it != params.end() ; it++) {
+      injectRefs (*it, responses);
+    }
+  } else if (params.isConvertibleTo (Json::ValueType::stringValue) ) {
+    std::string param = params.asString ();
+
+    if (param.size() > NEW_REF.size()
+        && param.substr (0, NEW_REF.size() ) == NEW_REF) {
+      std::string ref = param.substr (NEW_REF.size() );
+
+      try {
+        int index = stoi (ref);
+
+        insertResult (params, responses, index);
+      } catch (std::invalid_argument &e) {
+        throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                      "Invalid index of newref '" + ref + "'");
+      }
+    }
+  }
+}
+
+void
+ServerMethods::transaction (const Json::Value &params, Json::Value &response)
+{
+  std::string sessionId;
+  Json::Value operations;
+  std::string uniqueId = generateUUID();
+
+  requireParams (params);
+
+  getOrCreateSessionId (sessionId, params);
+
+  JsonRpc::getArray (params, "operations", operations);
+
+  for (uint i = 0; i < operations.size(); i++) {
+    bool ret;
+    Json::Value &reqParams = operations[i][JSON_RPC_PARAMS];
+
+    reqParams[SESSION_ID] = sessionId;
+
+    if (!operations[i][JSON_RPC_ID].isConvertibleTo (Json::ValueType::uintValue)
+        || operations[i][JSON_RPC_ID].asUInt() != i) {
+      throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
+                                    "Id of request '" + std::to_string (i) + "' should be '" + std::to_string (
+                                      i) + "'");
+    }
+
+    try {
+      operations[i][JSON_RPC_ID] = uniqueId + "_" + std::to_string (
+                                     operations[i][JSON_RPC_ID].asUInt() );
+    } catch (...) {
+      GST_ERROR ("Error setting id");
+    }
+
+    injectRefs (reqParams, response);
+
+    ret = handler.process (operations[i], response[i]);
+
+    response[i][JSON_RPC_ID] = i;
+
+    if (!ret) {
+      return;
+    }
+  }
+
 
 }
 
