@@ -32,6 +32,7 @@
 #include <ServerInfo.hpp>
 #include <ModuleInfo.hpp>
 #include <ServerType.hpp>
+#include <UUIDGenerator.hpp>
 
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -48,17 +49,6 @@ static const std::string NEW_REF = "newref:";
 
 namespace kurento
 {
-
-static std::string
-generateUUID ()
-{
-  std::stringstream ss;
-  boost::uuids::uuid uuid = boost::uuids::random_generator() ();
-
-  ss << uuid;
-
-  return ss.str();
-}
 
 ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   config (config), moduleManager (getModuleManager() )
