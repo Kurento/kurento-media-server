@@ -664,6 +664,9 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
     }
   }
 
+  if (response.isNull () ) {
+    response.resize (0);
+  }
 
 }
 
