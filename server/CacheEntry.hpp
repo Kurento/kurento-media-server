@@ -39,7 +39,7 @@ private:
   std::string sessionId;
   int requestId;
   std::string response;
-  bool timedout;
+  bool timedout = false;
 
   class StaticConstructor
   {
