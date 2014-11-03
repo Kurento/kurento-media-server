@@ -220,11 +220,7 @@ main (int argc, char **argv)
 
   loop->run ();
 
-  signalHandler.reset();
-
   transport->stop();
-
-  transport.reset();
 
   gst_debug_add_log_function (simple_log_function, NULL, NULL);
   gst_debug_remove_log_function (log_function);
