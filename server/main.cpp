@@ -49,13 +49,7 @@ using namespace ::kurento;
 
 static std::shared_ptr<Transport> transport;
 
-__pid_t pid;
-
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create ();
-
-static gchar *tmp_dir;
-
-Glib::RefPtr<Glib::IOChannel> channel;
 
 static void
 load_config (boost::property_tree::ptree &config, const std::string &file_name)
@@ -72,7 +66,6 @@ load_config (boost::property_tree::ptree &config, const std::string &file_name)
   }
 
   config.add ("configPath", configFilePath.parent_path().string() );
-  pid = getpid();
 
   GST_INFO ("Configuration loaded successfully");
 
@@ -112,38 +105,6 @@ signal_handler (uint32_t signo)
 
   default:
     break;
-  }
-}
-
-static int
-delete_file (const char *fpath, const struct stat *sb, int typeflag,
-             struct FTW *ftwbuf)
-{
-  int rv = g_remove (fpath);
-
-  if (rv) {
-    GST_WARNING ("Error deleting file: %s. %s", fpath, strerror (errno) );
-  }
-
-  return rv;
-}
-static void
-remove_recursive (const gchar *path)
-{
-  nftw (path, delete_file, 64, FTW_DEPTH | FTW_PHYS);
-}
-
-static void
-deleteCertificate ()
-{
-  // Only parent process can delete certificate
-  if (pid != getpid() ) {
-    return;
-  }
-
-  if (tmp_dir != NULL) {
-    remove_recursive (tmp_dir);
-    g_free (tmp_dir);
   }
 }
 
@@ -258,8 +219,6 @@ main (int argc, char **argv)
   loop->run ();
 
   signalHandler.reset();
-
-  deleteCertificate ();
 
   transport->stop();
 
