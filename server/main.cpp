@@ -47,13 +47,12 @@ const std::string ENV_PREFIX = "KURENTO_";
 
 using namespace ::kurento;
 
-static std::shared_ptr<Transport> transport;
-
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create ();
 
-static void
+static std::shared_ptr<Transport>
 load_config (boost::property_tree::ptree &config, const std::string &file_name)
 {
+  std::shared_ptr<Transport> transport;
   boost::filesystem::path configFilePath (file_name);
   GST_INFO ("Reading configuration from: %s", file_name.c_str () );
 
@@ -77,6 +76,8 @@ load_config (boost::property_tree::ptree &config, const std::string &file_name)
     GST_ERROR ("Error creating transport: %s", e.what() );
     exit (1);
   }
+
+  return transport;
 }
 
 static void
@@ -113,6 +114,7 @@ main (int argc, char **argv)
 {
   sigset_t mask;
   std::shared_ptr <SignalHandler> signalHandler;
+  std::shared_ptr<Transport> transport;
   boost::property_tree::ptree config;
   std::string confFile;
   std::string path;
@@ -209,7 +211,7 @@ main (int argc, char **argv)
 
   GST_INFO ("Kmsc version: %s", get_version () );
 
-  load_config (config, confFile);
+  transport = load_config (config, confFile);
 
   /* Start transport */
   transport->start ();
