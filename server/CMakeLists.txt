@@ -22,10 +22,7 @@ add_executable(kurento-media-server ${KMSC_SOURCE})
 add_dependencies(kurento-media-server signalHandler transport)
 
 target_link_libraries (kurento-media-server
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_LOG_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${Boost_LIBRARIES}
   ${GNUTLS_LIBRARIES}
   transport
   signalHandler
