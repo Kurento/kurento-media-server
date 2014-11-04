@@ -39,6 +39,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoServerMethods"
 
 #define SESSION_ID "sessionId"
+#define VALUE "value"
 #define OBJECT "object"
 #define SUBSCRIPTION "subscription"
 
@@ -622,6 +623,7 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
   getOrCreateSessionId (sessionId, params);
 
   JsonRpc::getArray (params, "operations", operations);
+  Json::Value responses;
 
   for (uint i = 0; i < operations.size(); i++) {
     bool ret;
@@ -643,21 +645,23 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
       GST_ERROR ("Error setting id");
     }
 
-    injectRefs (reqParams, response);
+    injectRefs (reqParams, responses);
 
-    ret = handler.process (operations[i], response[i]);
+    ret = handler.process (operations[i], responses[i]);
 
-    response[i][JSON_RPC_ID] = i;
+    responses[i][JSON_RPC_ID] = i;
 
     if (!ret) {
       return;
     }
   }
 
-  if (response.isNull () ) {
-    response.resize (0);
+  if (responses.isNull () ) {
+    responses.resize (0);
   }
 
+  response[VALUE] = responses;
+  response[SESSION_ID] = sessionId;
 }
 
 ServerMethods::StaticConstructor ServerMethods::staticConstructor;
