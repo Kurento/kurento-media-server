@@ -442,7 +442,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
   }
 
   response[SESSION_ID] = sessionId;
-  response["value"] = handlerId;
+  response[VALUE] = handlerId;
 }
 
 void
@@ -478,7 +478,7 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
 
     obj->invoke (obj, operation, operationParams, value);
 
-    response["value"] = value;
+    response[VALUE] = value;
     response[SESSION_ID] = sessionId;
   } catch (KurentoException &ex) {
     Json::Value data;
@@ -549,7 +549,7 @@ ServerMethods::create (const Json::Value &params,
       object = std::dynamic_pointer_cast<MediaObjectImpl> (
                  factory->createObject (config, sessionId, params["constructorParams"]) );
 
-      response["value"] = object->getId();
+      response[VALUE] = object->getId();
       response[SESSION_ID] = sessionId;
     } catch (KurentoException &ex) {
       Json::Value data;
@@ -576,7 +576,7 @@ insertResult (Json::Value &value, Json::Value &responses, const int index)
     Json::Value result;
 
     JsonRpc::getValue (responses[index], JSON_RPC_RESULT, result);
-    value = result["value"];
+    value = result[VALUE];
   } catch (JsonRpc::CallException e) {
     GST_ERROR ("Error while inserting new ref value: %s",
                e.getMessage ().c_str () );
