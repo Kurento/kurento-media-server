@@ -62,7 +62,7 @@ ClientHandler::check_create_duplicate_requests_call()
   std::string sessionId1 = "1111";
 
   request["jsonrpc"] = "2.0";
-  request["id"] = 0;
+  request["id"] = getId();
   request["method"] = "create";
 
   /* Create a new piepeline using session 1 */
@@ -100,7 +100,7 @@ ClientHandler::check_create_duplicate_requests_call()
   response_str2.clear();
 
   /* Create a player using session 1 */
-  request["id"] = 1;
+  request["id"] = getId();
   params["type"] = "PlayerEndpoint";
   constructorParams ["mediaPipeline"] = pipeId;
   constructorParams ["uri"] = VIDEO_URI;

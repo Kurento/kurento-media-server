@@ -35,6 +35,12 @@ protected:
 
   std::string sendMessage (const std::string &message);
 
+  int getId() {
+    return id++;
+  }
+
+  std::atomic<int> id;
+
 private:
   int pid;
 

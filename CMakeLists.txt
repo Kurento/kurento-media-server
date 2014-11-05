@@ -50,9 +50,7 @@ add_subdirectory(server)
 
 enable_testing()
 
-if (Boost_UNIT_TEST_FRAMEWORK_FOUND)
-  add_subdirectory(test)
-endif()
+add_subdirectory(test)
 
 if(NOT DEFINED SYSCONF_INSTALL_DIR)
 	set(SYSCONF_INSTALL_DIR etc CACHE PATH

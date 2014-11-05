@@ -238,6 +238,8 @@ F::F ()
 {
   int retries = 0;
 
+  id = 0;
+
   gst_init (NULL, NULL);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
