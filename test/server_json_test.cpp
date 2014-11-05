@@ -38,6 +38,7 @@ protected:
   void check_error_call ();
   void check_create_pipeline_call ();
   void check_connect_call ();
+  void check_bad_transaction_call ();
 };
 
 void
@@ -119,6 +120,61 @@ ClientHandler::check_connect_call()
   BOOST_CHECK (response["error"]["data"].isMember ("message") );
   BOOST_CHECK (response["error"]["data"]["code"].isInt() );
   BOOST_CHECK (response["error"]["data"]["code"] == 40007);
+}
+
+void
+ClientHandler::check_bad_transaction_call()
+{
+  Json::Value response;
+  Json::Reader reader;
+  std::string req_str;
+  std::string response_str;
+
+  req_str = "{"
+            "\"id\": 50000,"
+            "\"jsonrpc\":\"2.0\","
+            "\"method\":\"transaction\","
+            "\"params\":{"
+            "\"operations\":["
+            "{"
+            "\"id\":0,"
+            "\"jsonrpc\":\"2.0\","
+            "\"method\":\"create\","
+            "\"params\":{"
+            "\"constructorParams\":{"
+            "\"mediaPipeline\":\"5b96c1ad-46ba-4366-8241-fbc1cd0e9bbd\","
+            "\"uri\":\"http://files.kurento.org/video/small.webm\"},"
+            "\"transaction\":{"
+            "\"_events\":{},"
+            "\"_maxListeners\":10,"
+            "\"domain\":null,"
+            "\"members\":[]},"
+            "\"type\":\"PlayerEndpoint\"}"
+            "},"
+            "{"
+            "\"id\":1,"
+            "\"jsonrpc\":\"2.0\","
+            "\"method\":\"create\","
+            "\"params\":{\""
+            "constructorParams\":{"
+            "\"mediaPipeline\":\"5b96c1ad-46ba-4366-8241-fbc1cd0e9bbd\"},"
+            "\"transaction\":{"
+            "\"_events\":{},"
+            "\"_maxListeners\":10,"
+            "\"domain\":null,"
+            "\"members\":[]},"
+            "\"type\":\"HttpGetEndpoint\"}"
+            "}"
+            "],"
+            "\"sessionId\":\"c58960d9-4cac-4036-ad2e-1aef26946dae\"}}";
+
+  response_str = sendMessage (req_str);
+
+  BOOST_CHECK (reader.parse (response_str, response) == true);
+
+  BOOST_CHECK (!response.isMember ("error") );
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].type() != Json::ValueType::nullValue);
 }
 
 void
@@ -266,6 +322,7 @@ BOOST_AUTO_TEST_CASE ( server_unexpected_test )
   check_connect_call();
   check_error_call();
   check_create_pipeline_call();
+  check_bad_transaction_call();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

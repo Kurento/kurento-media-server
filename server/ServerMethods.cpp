@@ -21,6 +21,7 @@
 #include <KurentoException.hpp>
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <jsonrpc/JsonRpcConstants.hpp>
+#include <jsonrpc/JsonFixes.hpp>
 
 #include <sstream>
 #include <boost/uuid/uuid.hpp>
@@ -593,7 +594,7 @@ injectRefs (Json::Value &params, Json::Value &responses)
       injectRefs (*it, responses);
     }
   } else if (params.isConvertibleTo (Json::ValueType::stringValue) ) {
-    std::string param = params.asString ();
+    std::string param = JsonFixes::getString (params);
 
     if (param.size() > NEW_REF.size()
         && param.substr (0, NEW_REF.size() ) == NEW_REF) {
@@ -627,6 +628,7 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
 
   for (uint i = 0; i < operations.size(); i++) {
     bool ret;
+
     Json::Value &reqParams = operations[i][JSON_RPC_PARAMS];
 
     reqParams[SESSION_ID] = sessionId;
@@ -652,7 +654,7 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
     responses[i][JSON_RPC_ID] = i;
 
     if (!ret) {
-      return;
+      break;
     }
   }
 
