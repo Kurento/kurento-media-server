@@ -38,6 +38,7 @@ if [ ! -x $DAEMON_CMD ]; then
     exit 1
 fi
 
+#Helper function to verify user
 verify_user () {
 # Only root can start Kurento
     if [ `id -u` -ne 0 ]; then
@@ -45,6 +46,12 @@ verify_user () {
         exit 1
     fi
 }
+
+# Helper function to check status
+check_status() {
+    pidofproc -p  $PID_FILE $DAEMON_CMD >/dev/null 2>&1
+}
+
 
 start_kurento () {
 
@@ -92,6 +99,7 @@ start_kurento () {
 
 stop_kurento () {
     verify_user
+
     /sbin/start-stop-daemon --stop --exec $DAEMON_CMD --pidfile "$PID_FILE"
     [ $? != 0 ] && log_failure_msg "Kurento Media Server not running"
     [ -f $PID_FILE ] && rm -f $PID_FILE
@@ -102,14 +110,22 @@ stop_kurento () {
 
 status () {
     log_action_begin_msg "checking Kurento Media Server"
-    pidofproc -p $PID_FILE $DAEMON_CMD > /dev/null
-    code=$?
-    if [ $code -eq 0 ]; then
-        log_action_cont_msg "running"; log_action_end_msg 0
-    elif [ $code -eq 1 ] ; then
-        log_action_cont_msg "$DAEMON_CMD stopped unexpectedly"; log_action_end_msg 1
+
+    check_status
+    status=$?
+    if [ $status -eq 0 ]; then
+        read pid < $PID_FILE
+        log_action_cont_msg "$DAEMON_CMD is running with pid $pid"
+        log_action_end_msg 0
+    elif [ $status -eq 1 ]; then
+        log_action_cont_msg "$DAEMON_CMD is not running but the pid file exists"
+        log_action_end_msg 1
+    elif [ $status -eq 3 ]; then
+        log_action_cont_msg "$DAEMON_CMD is not running"
+        log_action_end_msg 3
     else
-        log_action_cont_msg "not running"; log_action_end_msg 0
+        log_action_cont_msg "Unable to determine $DAEMON_CMD status"
+        log_action_end_msg 4
     fi
 }
 
