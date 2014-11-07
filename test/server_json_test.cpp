@@ -113,13 +113,11 @@ ClientHandler::check_connect_call()
   BOOST_CHECK (response["error"].isObject() );
   BOOST_CHECK (response["error"].isMember ("code") );
   BOOST_CHECK (response["error"]["code"].isInt() );
-  BOOST_CHECK (response["error"]["code"] == -32000);
+  BOOST_CHECK (response["error"]["code"] == 40007);
   BOOST_CHECK (response["error"].isMember ("message") );
   BOOST_CHECK (response["error"].isMember ("data") );
-  BOOST_CHECK (response["error"]["data"].isMember ("code") );
-  BOOST_CHECK (response["error"]["data"].isMember ("message") );
-  BOOST_CHECK (response["error"]["data"]["code"].isInt() );
-  BOOST_CHECK (response["error"]["data"]["code"] == 40007);
+  BOOST_CHECK (response["error"]["data"].isMember ("type") );
+  BOOST_CHECK (response["error"]["data"]["type"] == "INVALID_SESSION");
 }
 
 void

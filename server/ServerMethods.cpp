@@ -43,6 +43,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define VALUE "value"
 #define OBJECT "object"
 #define SUBSCRIPTION "subscription"
+#define TYPE "type"
 
 #define REQUEST_TIMEOUT 20000 /* 20 seconds */
 
@@ -136,8 +137,12 @@ static void
 requireParams (const Json::Value &params)
 {
   if (params == Json::Value::null) {
-    throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                  "'params' is requiered");
+    Json::Value data;
+
+    data[TYPE] = "INVALID_PARAMS";
+
+    throw JsonRpc::CallException (JsonRpc::ErrorCode::INVALID_PARAMS,
+                                  "'params' is requiered", data);
   }
 }
 
@@ -252,12 +257,10 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
 
   } catch (KurentoException &ex) {
     Json::Value data;
-    data["code"] = ex.getCode();
-    data["message"] = ex.getMessage();
 
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              ex.what(), data);
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
 
   response[SESSION_ID] = sessionId;
@@ -279,12 +282,10 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
     MediaSet::getMediaSet()->keepAliveSession (sessionId);
   } catch (KurentoException &ex) {
     Json::Value data;
-    data["code"] = ex.getCode();
-    data["message"] = ex.getMessage();
 
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              ex.what(), data);
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
 }
 
@@ -301,12 +302,10 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
     MediaSet::getMediaSet()->release (objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
-    data["code"] = ex.getCode();
-    data["message"] = ex.getMessage();
 
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              ex.what(), data);
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
 }
 
@@ -325,12 +324,10 @@ ServerMethods::ref (const Json::Value &params, Json::Value &response)
     MediaSet::getMediaSet()->ref (sessionId, objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
-    data["code"] = ex.getCode();
-    data["message"] = ex.getMessage();
 
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              ex.what(), data);
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
 }
 
@@ -349,12 +346,10 @@ ServerMethods::unref (const Json::Value &params, Json::Value &response)
     MediaSet::getMediaSet()->unref (sessionId, objectId);
   } catch (KurentoException &ex) {
     Json::Value data;
-    data["code"] = ex.getCode();
-    data["message"] = ex.getMessage();
 
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              ex.what(), data);
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
 }
 
@@ -434,12 +429,10 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     }
   } catch (KurentoException &ex) {
     Json::Value data;
-    data["code"] = ex.getCode();
-    data["message"] = ex.getMessage();
 
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              ex.what(), data);
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
 
   response[SESSION_ID] = sessionId;
@@ -483,12 +476,10 @@ ServerMethods::invoke (const Json::Value &params, Json::Value &response)
     response[SESSION_ID] = sessionId;
   } catch (KurentoException &ex) {
     Json::Value data;
-    data["code"] = ex.getCode();
-    data["message"] = ex.getMessage();
 
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              ex.what(), data);
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
 }
 
@@ -509,12 +500,10 @@ ServerMethods::connect (const Json::Value &params, Json::Value &response)
         keepAliveSession (sessionId);
       } catch (KurentoException &ex) {
         Json::Value data;
-        data["code"] = ex.getCode();
-        data["message"] = ex.getMessage();
 
-        JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                  ex.what(), data);
-        throw e;
+        data[TYPE] = ex.getType();
+
+        throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
       }
     }
   }
@@ -543,31 +532,21 @@ ServerMethods::create (const Json::Value &params,
 
   factory = moduleManager.getFactory (type);
 
-  if (factory) {
-    try {
-      std::shared_ptr <MediaObjectImpl> object;
+  try {
+    std::shared_ptr <MediaObjectImpl> object;
 
-      object = std::dynamic_pointer_cast<MediaObjectImpl> (
-                 factory->createObject (config, sessionId, params["constructorParams"]) );
+    object = std::dynamic_pointer_cast<MediaObjectImpl> (
+               factory->createObject (config, sessionId, params["constructorParams"]) );
 
-      response[VALUE] = object->getId();
-      response[SESSION_ID] = sessionId;
-    } catch (KurentoException &ex) {
-      Json::Value data;
-      data["code"] = ex.getCode();
-      data["message"] = ex.getMessage();
+    response[VALUE] = object->getId();
+    response[SESSION_ID] = sessionId;
+  } catch (KurentoException &ex) {
+    Json::Value data;
 
-      JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                ex.what(), data);
-      throw e;
-    }
-  } else {
-    JsonRpc::CallException e (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                              "Class '" + type + "' does not exist");
-    // TODO: Define error data and code
-    throw e;
+    data[TYPE] = ex.getType();
+
+    throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
-
 }
 
 void
@@ -579,10 +558,17 @@ insertResult (Json::Value &value, Json::Value &responses, const int index)
     JsonRpc::getValue (responses[index], JSON_RPC_RESULT, result);
     value = result[VALUE];
   } catch (JsonRpc::CallException e) {
+    Json::Value data;
+
+    KurentoException ke (MALFORMED_TRANSACTION,
+                         "Result not found on request " +
+                         std::to_string (index) );
+
+    data[TYPE] = ke.getType();
+
     GST_ERROR ("Error while inserting new ref value: %s",
                e.getMessage ().c_str () );
-    throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                  "Result not found on request " + std::to_string (index) );
+    throw JsonRpc::CallException (ke.getCode (), ke.getMessage (), data);
   }
 }
 
@@ -605,8 +591,14 @@ injectRefs (Json::Value &params, Json::Value &responses)
 
         insertResult (params, responses, index);
       } catch (std::invalid_argument &e) {
-        throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                      "Invalid index of newref '" + ref + "'");
+        Json::Value data;
+
+        KurentoException ke (MALFORMED_TRANSACTION,
+                             "Invalid index of newref '" + ref + "'");
+
+        data[TYPE] = ke.getType();
+
+        throw JsonRpc::CallException (ke.getCode (), ke.getMessage (), data);
       }
     }
   }
@@ -635,9 +627,15 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
 
     if (!operations[i][JSON_RPC_ID].isConvertibleTo (Json::ValueType::uintValue)
         || operations[i][JSON_RPC_ID].asUInt() != i) {
-      throw JsonRpc::CallException (JsonRpc::ErrorCode::SERVER_ERROR_INIT,
-                                    "Id of request '" + std::to_string (i) + "' should be '" + std::to_string (
-                                      i) + "'");
+      Json::Value data;
+
+      KurentoException ke (MALFORMED_TRANSACTION,
+                           "Id of request '" + std::to_string (i) +
+                           "' should be '" + std::to_string (i) + "'");
+
+      data[TYPE] = ke.getType();
+
+      throw JsonRpc::CallException (ke.getCode (), ke.getMessage (), data);
     }
 
     try {
