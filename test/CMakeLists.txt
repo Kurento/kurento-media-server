@@ -20,7 +20,7 @@ set (TEST_PROPERTIES
   "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf.json"
   "SERVER_DIR=${CMAKE_CURRENT_BINARY_DIR}/../server/kurento-media-server"
   "GST_DEBUG=test_*:5,Kurento*:3"
-#   "BOOST_TEST_CATCH_SYSTEM_ERRORS=no"
+  "BOOST_TEST_CATCH_SYSTEM_ERRORS=no"
 )
 
 add_test_program(test_server_json server_json_test.cpp)

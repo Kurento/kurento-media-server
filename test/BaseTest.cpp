@@ -37,7 +37,7 @@ namespace kurento
 {
 
 static const std::chrono::seconds REPLY_TIMEOUT (10);
-static const int MAX_RETRIES = 10;
+static const int MAX_RETRIES = 20;
 static const std::string WS_PATH = "/kurento";
 static const std::string WS_PROTO = "ws://";
 static const std::string WS_ADDRESS = "localhost";
@@ -253,7 +253,7 @@ F::F ()
 
   while (!initialized && retries < MAX_RETRIES) {
     lock.unlock();
-    std::this_thread::sleep_for (std::chrono::milliseconds (100) );
+    std::this_thread::sleep_for (std::chrono::milliseconds (100 * (retries + 1) ) );
     lock.lock();
 
     if (!initialized) {
