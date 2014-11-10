@@ -32,7 +32,7 @@ set(LIB_PREFIX "lib")
 include (GenericFind)
 
 find_package(PkgConfig)
-generic_find(LIBNAME Boost COMPONENTS system filesystem log program_options unit_test_framework REQUIRED)
+generic_find(LIBNAME Boost COMPONENTS system filesystem program_options unit_test_framework REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 generic_find(LIBNAME KMSCORE VERSION ^5.1.0 REQUIRED)

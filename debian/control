@@ -10,7 +10,6 @@ Build-Depends:
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
- libboost-log-dev,
  libboost-program-options-dev,
  libboost-test-dev,
  libevent-dev,

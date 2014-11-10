@@ -17,7 +17,6 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-#include <boost/log/trivial.hpp>
 
 #include <sstream>
 #include <thread>
@@ -75,44 +74,6 @@ expand_string (std::string str, int len)
     << ":" << line << " " << function << "() " << \
     debug_object(object) << \
     gst_debug_message_get(message)
-
-void
-log_function (GstDebugCategory *category, GstDebugLevel level,
-              const gchar *file,
-              const gchar *function, gint line, GObject *object,
-              GstDebugMessage *message, gpointer user_data)
-{
-  if (level > gst_debug_category_get_threshold (category) ) {
-    return;
-  }
-
-  switch (level) {
-  case GST_LEVEL_ERROR:
-    BOOST_LOG_TRIVIAL (error) << LOG;
-    break;
-
-  case GST_LEVEL_WARNING:
-    BOOST_LOG_TRIVIAL (warning) << LOG;
-    break;
-
-  case GST_LEVEL_FIXME:
-  case GST_LEVEL_INFO:
-    BOOST_LOG_TRIVIAL (info) << LOG;
-    break;
-
-  case GST_LEVEL_DEBUG:
-    BOOST_LOG_TRIVIAL (debug) << LOG;
-    break;
-
-  case GST_LEVEL_LOG:
-  case GST_LEVEL_TRACE:
-    BOOST_LOG_TRIVIAL (trace) << LOG;
-    break;
-
-  default:
-    break;
-  }
-}
 
 static std::string
 getDateTime ()

@@ -174,7 +174,7 @@ main (int argc, char **argv)
     }
 
     if (vm.count ("version") || vm.count ("list") ) {
-      // Disable lot to just print version
+      // Disable log to just print version
       gst_debug_remove_log_function (simple_log_function);
     }
 
