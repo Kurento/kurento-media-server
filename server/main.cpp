@@ -125,7 +125,7 @@ main (int argc, char **argv)
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
   gst_debug_remove_log_function_by_data (NULL);
-  gst_debug_add_log_function (log_function, NULL, NULL);
+  gst_debug_add_log_function (simple_log_function, NULL, NULL);
 
   try {
     boost::program_options::options_description desc ("kurento-media-server usage");
@@ -175,7 +175,7 @@ main (int argc, char **argv)
 
     if (vm.count ("version") || vm.count ("list") ) {
       // Disable lot to just print version
-      gst_debug_remove_log_function (log_function);
+      gst_debug_remove_log_function (simple_log_function);
     }
 
     loadModules (path);
@@ -221,9 +221,6 @@ main (int argc, char **argv)
   loop->run ();
 
   transport->stop();
-
-  gst_debug_add_log_function (simple_log_function, NULL, NULL);
-  gst_debug_remove_log_function (log_function);
 
   return 0;
 }

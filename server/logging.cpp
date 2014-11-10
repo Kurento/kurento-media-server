@@ -20,6 +20,8 @@
 #include <boost/log/trivial.hpp>
 
 #include <sstream>
+#include <thread>
+#include <sys/time.h>
 
 namespace kurento
 {
@@ -55,11 +57,24 @@ debug_object (GObject *object)
   return fmt.str();
 }
 
-#define LOG category->name << " " <<  \
-                           boost::filesystem::path(file).filename().string() \
-                           << ":" << line << " " << function << "() " << \
-                           debug_object(object) << \
-                           gst_debug_message_get(message)
+static std::string
+expand_string (std::string str, int len)
+{
+  std::string ret = str;
+  int sp = len - str.size ();
+
+  for (int i = sp; i > 0; i--) {
+    str.append (" ");
+  }
+
+  return str;
+}
+
+#define LOG expand_string(category->name, 25) << " " <<  \
+    boost::filesystem::path(file).filename().string() \
+    << ":" << line << " " << function << "() " << \
+    debug_object(object) << \
+    gst_debug_message_get(message)
 
 void
 log_function (GstDebugCategory *category, GstDebugLevel level,
@@ -99,6 +114,30 @@ log_function (GstDebugCategory *category, GstDebugLevel level,
   }
 }
 
+static std::string
+getDateTime ()
+{
+  timeval curTime;
+  struct tm *timeinfo;
+  char buffer[22];
+
+  gettimeofday (&curTime, NULL);;
+  timeinfo = localtime (&curTime.tv_sec);
+
+  strftime (buffer, 22, "%Y-%m-%d %H:%M:%S", timeinfo);
+  std::string datetime (buffer);
+  datetime.append (".");
+
+  std::string micros = std::to_string (curTime.tv_usec);
+
+  while (micros.size() < 6) {
+    micros = "0" + micros;
+  }
+
+  datetime.append (micros);
+  return datetime;
+}
+
 void
 simple_log_function (GstDebugCategory *category, GstDebugLevel level,
                      const gchar *file,
@@ -108,6 +147,43 @@ simple_log_function (GstDebugCategory *category, GstDebugLevel level,
   std::stringstream ss;
 
   if (level > gst_debug_category_get_threshold (category) ) {
+    return;
+  }
+
+  ss << getDateTime() << " ";
+  ss << getpid() << " ";
+  ss << "[" << std::this_thread::get_id () << "]";
+
+  switch (level) {
+  case GST_LEVEL_ERROR:
+    ss << "   error ";
+    break;
+
+  case GST_LEVEL_WARNING:
+    ss << " warning ";
+    break;
+
+  case GST_LEVEL_FIXME:
+    ss << "   fixme ";
+    break;
+
+  case GST_LEVEL_INFO:
+    ss << "    info ";
+    break;
+
+  case GST_LEVEL_DEBUG:
+    ss << "   debug ";
+    break;
+
+  case GST_LEVEL_LOG:
+    ss << "     log ";
+    break;
+
+  case GST_LEVEL_TRACE:
+    ss << "   trace ";
+    break;
+
+  default:
     return;
   }
 
