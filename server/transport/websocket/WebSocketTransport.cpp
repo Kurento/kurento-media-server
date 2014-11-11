@@ -294,7 +294,7 @@ injectSessionId (std::string &request, const std::string &sessionId)
     } catch (JsonRpc::CallException &e) {
       Json::FastWriter writer;
       // There is no sessionId, inject it
-      GST_WARNING ("Injecting sessionId %s", sessionId.c_str() );
+      GST_TRACE ("Injecting sessionId %s", sessionId.c_str() );
       params[SESSION_ID] = sessionId;
       req[JSON_RPC_PARAMS] = params;
 
