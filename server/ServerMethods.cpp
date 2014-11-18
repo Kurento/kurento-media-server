@@ -262,7 +262,7 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
   }
 
   response[SESSION_ID] = sessionId;
-  response["type"] = obj->getType ();
+  response[TYPE] = obj->getType ();
 }
 
 void
@@ -405,7 +405,7 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
 
   requireParams (params);
 
-  JsonRpc::getValue (params, "type", eventType);
+  JsonRpc::getValue (params, TYPE, eventType);
   JsonRpc::getValue (params, OBJECT, objectId);
 
   getOrCreateSessionId (sessionId, params);
@@ -518,7 +518,7 @@ ServerMethods::create (const Json::Value &params,
 
   requireParams (params);
 
-  JsonRpc::getValue (params, "type", type);
+  JsonRpc::getValue (params, TYPE, type);
 
   try {
     JsonRpc::getValue (params, SESSION_ID, sessionId);
