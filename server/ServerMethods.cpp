@@ -283,16 +283,21 @@ ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
 
     throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
+
+  response[SESSION_ID] = sessionId;
 }
 
 void
 ServerMethods::release (const Json::Value &params, Json::Value &response)
 {
   std::string objectId;
+  std::string sessionId;
 
   requireParams (params);
 
   JsonRpc::getValue (params, OBJECT, objectId);
+
+  getOrCreateSessionId (sessionId, params);
 
   try {
     MediaSet::getMediaSet()->release (objectId);
@@ -303,6 +308,8 @@ ServerMethods::release (const Json::Value &params, Json::Value &response)
 
     throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
+
+  response[SESSION_ID] = sessionId;
 }
 
 void
@@ -325,6 +332,8 @@ ServerMethods::ref (const Json::Value &params, Json::Value &response)
 
     throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
+
+  response[SESSION_ID] = sessionId;
 }
 
 void
@@ -347,6 +356,8 @@ ServerMethods::unref (const Json::Value &params, Json::Value &response)
 
     throw JsonRpc::CallException (ex.getCode (), ex.getMessage (), data);
   }
+
+  response[SESSION_ID] = sessionId;
 }
 
 void
@@ -363,6 +374,8 @@ ServerMethods::unsubscribe (const Json::Value &params, Json::Value &response)
   JsonRpc::getValue (params, SESSION_ID, sessionId);
 
   MediaSet::getMediaSet()->removeEventHandler (sessionId, objectId, subscription);
+
+  response[SESSION_ID] = sessionId;
 }
 
 void

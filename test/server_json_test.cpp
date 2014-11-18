@@ -291,12 +291,13 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (response["result"].isMember ("type") );
   BOOST_CHECK (response["result"]["type"].asString () == "WebRtcEndpoint" );
 
-  /* Notification */
+  std::string sessionId = "123456";
   request.removeMember ("id");
+  request["id"] = getId();
   request["method"] = "release";
   params.clear();
   params["object"] = objId;
-  params["sessionId"] = "123456";
+  params["sessionId"] = sessionId;
 
   params["operationParams"] = operationParams;
   request["params"] = params;
@@ -306,7 +307,12 @@ ClientHandler::check_create_pipeline_call()
 
   response_str = sendMessage (req_str);
 
-  BOOST_CHECK (response_str == "");
+  BOOST_CHECK (reader.parse (response_str, response) == true);
+
+  BOOST_CHECK (!response.isMember ("error") );
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isMember ("sessionId") );
+  BOOST_CHECK (response["result"]["sessionId"].asString () == sessionId );
 }
 
 
