@@ -241,7 +241,6 @@ void
 ServerMethods::describe (const Json::Value &params, Json::Value &response)
 {
   std::shared_ptr<MediaObjectImpl> obj;
-  std::string subscription;
   std::string sessionId;
   std::string objectId;
 
@@ -253,7 +252,6 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
 
   try {
     obj = MediaSet::getMediaSet()->getMediaObject (sessionId, objectId);
-
 
   } catch (KurentoException &ex) {
     Json::Value data;
@@ -270,8 +268,6 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
 void
 ServerMethods::keepAlive (const Json::Value &params, Json::Value &response)
 {
-  std::shared_ptr<MediaObject> obj;
-  std::string subscription;
   std::string sessionId;
 
   requireParams (params);
