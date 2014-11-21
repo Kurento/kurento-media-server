@@ -98,6 +98,8 @@ for file in `git diff-index --cached --name-only HEAD --diff-filter=ACMR| grep "
 
       FIX_COMMAND="$INDENT ${INDENT_PARAMETERS} $file; git add $file; git commit"
     fi
+    a=$(<${newfile})
+    printf '%s\n' "$a" > ${newfile}
     diff -u -p "${nf}" "${newfile}"
     r=$?
     rm "${newfile}"
