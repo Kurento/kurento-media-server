@@ -17,6 +17,7 @@
 #include "Processor.hpp"
 #include "WebSocketTransport.hpp"
 #include "WebSocketEventHandler.hpp"
+#include "WebSocketRegistrar.hpp"
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <jsonrpc/JsonRpcConstants.hpp>
 #include <KurentoException.hpp>
@@ -34,6 +35,8 @@ typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
 namespace kurento
 {
 
+const std::string DEFAULT_LOCAL_ADDRESS = "localhost";
+
 const std::string SESSION_ID = "sessionId";
 
 /* Default config values */
@@ -46,11 +49,13 @@ const std::chrono::seconds KEEP_ALIVE_PERIOD (60);
 class configuration_exception : public std::exception
 {
 public:
-  configuration_exception (std::string message) {
+  configuration_exception (std::string message)
+  {
     this->message = message;
   }
 
-  virtual const char *what() const _GLIBCXX_USE_NOEXCEPT {
+  virtual const char *what() const _GLIBCXX_USE_NOEXCEPT
+  {
     return message.c_str();
   }
 
@@ -60,10 +65,13 @@ private:
 
 WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                         &config,
-                                        std::shared_ptr<Processor> processor) : processor (processor)
+                                        std::shared_ptr<Processor> processor) :
+  processor (processor)
 {
   ushort port;
   ushort securePort;
+  std::string registrarAddress;
+  std::string localAddress;
 
   port = config.get<ushort> ("mediaServer.net.websocket.port",
                              WEBSOCKET_PORT_DEFAULT);
@@ -177,7 +185,8 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
           }) );
           context->use_certificate_chain_file (certificateFile.string() );
           context->use_private_key_file (certificateFile.string(), boost::asio::ssl::context::pem);
-        } catch (std::exception &e) {
+        } catch (std::exception &e)
+        {
           GST_ERROR ("Error while setting up tls %s", e.what() );
         }
 
@@ -195,6 +204,17 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
     }
   } else {
     GST_INFO ("Secure websocket server not enabled");
+  }
+
+  registrarAddress =
+    config.get<std::string> ("mediaServer.net.websocket.registrar.address", "");
+  localAddress =
+    config.get<std::string> ("mediaServer.net.websocket.registrar.localAddress",
+                             DEFAULT_LOCAL_ADDRESS);
+
+  if (!registrarAddress.empty () && !localAddress.empty () ) {
+    registrar = std::shared_ptr<WebSocketRegistrar> (new WebSocketRegistrar (
+                  registrarAddress, localAddress, port, securePort, path) );
   }
 }
 
@@ -258,6 +278,10 @@ void WebSocketTransport::start ()
   running = true;
   keepAliveThread = std::thread (std::bind (
                                    &WebSocketTransport::keepAliveSessions, this) );
+
+  if (registrar) {
+    registrar->start();
+  }
 }
 
 void WebSocketTransport::stop ()
@@ -362,7 +386,8 @@ void WebSocketTransport::storeConnection (const std::string &request,
       websocketpp::connection_hdl conn = connections.at (sessionId);
 
       if (conn.lock() != connection.lock() ) {
-        GST_WARNING ("Erasing old connection associated with: %s", sessionId.c_str() );
+        GST_WARNING ("Erasing old connection associated with: %s",
+                     sessionId.c_str() );
         connectionsReverse.erase (conn);
         connections.erase (sessionId);
         needsWrite = true;

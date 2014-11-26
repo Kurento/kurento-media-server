@@ -36,6 +36,8 @@ SecureWebSocketServer;
 namespace kurento
 {
 
+class WebSocketRegistrar;
+
 class WebSocketTransport: public Transport,
   public std::enable_shared_from_this<WebSocketTransport>
 {
@@ -69,7 +71,8 @@ private:
 
   void keepAliveSessions ();
 
-  bool isRunning () {
+  bool isRunning ()
+  {
     return running;
   }
 
@@ -77,8 +80,8 @@ private:
 
   std::map <std::string, websocketpp::connection_hdl> connections;
   std::map <std::string, bool> secureConnections;
-  std::map <websocketpp::connection_hdl, std::string, std::owner_less<websocketpp::connection_hdl>>
-      connectionsReverse;
+  std::map <websocketpp::connection_hdl, std::string,
+      std::owner_less<websocketpp::connection_hdl>> connectionsReverse;
   std::recursive_mutex mutex;
 
   int n_threads;
@@ -91,6 +94,7 @@ private:
   std::thread keepAliveThread;
   bool running = false;
   std::condition_variable_any cond;
+  std::shared_ptr <WebSocketRegistrar> registrar;
 
   class StaticConstructor
   {

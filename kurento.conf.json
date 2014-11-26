@@ -18,6 +18,10 @@
         //  "certificate": "defaultCertificate.pem",
         //  "password": ""
         //},
+        //"registrar": {
+        //  "address": "ws://localhost:9090",
+        //  "localAddress": "localhost"
+        //},
         "path": "kurento",
         "threads": 10
       }

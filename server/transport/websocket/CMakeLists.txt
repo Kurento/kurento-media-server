@@ -5,6 +5,8 @@ set (WEBSOCKET_SOURCES
   WebSocketTransportFactory.hpp
   WebSocketEventHandler.cpp
   WebSocketEventHandler.hpp
+  WebSocketRegistrar.cpp
+  WebSocketRegistrar.hpp
 )
 
 set(FLAGS "-D_WEBSOCKETPP_CPP11_STL_ -pthread")
