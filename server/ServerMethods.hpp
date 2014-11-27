@@ -22,7 +22,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <Processor.hpp>
 #include "RequestCache.hpp"
-#include <ServerImpl.hpp>
 
 namespace kurento
 {
@@ -53,7 +52,8 @@ protected:
   virtual void setEventSubscriptionHandler (std::function < std::string (
         std::shared_ptr<MediaObjectImpl> obj,
         const std::string &sessionId, const std::string &eventType,
-        const Json::Value &params) > e) {
+        const Json::Value &params) > e)
+  {
     eventSubscriptionHandler = e;
   }
 

@@ -30,6 +30,7 @@
 
 #include "modules.hpp"
 #include <version.hpp>
+#include <ServerManagerImpl.hpp>
 #include <ServerInfo.hpp>
 #include <ModuleInfo.hpp>
 #include <ServerType.hpp>
@@ -61,7 +62,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   std::shared_ptr<ServerType> type (new ServerType (ServerType::KMS) );
   std::vector<std::string> capabilities;
   std::shared_ptr <ServerInfo> serverInfo;
-  std::shared_ptr<MediaObjectImpl> serverData;
+  std::shared_ptr<MediaObjectImpl> serverManager;
 
   instanceId = generateUUID();
 
@@ -81,10 +82,10 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   serverInfo = std::shared_ptr <ServerInfo> (new ServerInfo (version, modules,
                type, capabilities) );
 
-  serverData = MediaSet::getMediaSet ()->ref (new ServerImpl (serverInfo,
-               config) );
-  MediaSet::getMediaSet ()->setServer (std::dynamic_pointer_cast <ServerImpl>
-                                       (serverData) );
+  serverManager = MediaSet::getMediaSet ()->ref (new ServerManagerImpl (
+                    serverInfo, config) );
+  MediaSet::getMediaSet ()->setServerManager (std::dynamic_pointer_cast
+      <ServerManagerImpl> (serverManager) );
 
   cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
 
