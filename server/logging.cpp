@@ -151,6 +151,7 @@ simple_log_function (GstDebugCategory *category, GstDebugLevel level,
   ss << LOG << std::endl;
 
   std::cout << ss.str();
+  std::cout.flush ();
 }
 
 }  /* kurento */
