@@ -222,5 +222,7 @@ main (int argc, char **argv)
 
   transport->stop();
 
+  GST_INFO ("Mediaserver stopped");
+
   return 0;
 }
