@@ -241,7 +241,7 @@ ClientHandler::check_create_pipeline_call()
   request["method"] = "invoke";
   params.clear();
   params["object"] = objId;
-  params["operation"] = "getMediaSrcs";
+  params["operation"] = "getName";
   params["sessionId"] = "123456";
 
   params["operationParams"] = operationParams;
