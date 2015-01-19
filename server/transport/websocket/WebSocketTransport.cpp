@@ -243,14 +243,22 @@ void WebSocketTransport::keepAliveSessions()
   std::unique_lock<std::recursive_mutex> lock (mutex);
 
   while (isRunning() ) {
+    std::list<std::string> conns;
+
     for (auto c : connections) {
-      GST_INFO ("Keep alive %s", c.first.c_str() );
+      conns.push_back (c.first);
+    }
+
+    lock.unlock ();
+
+    for (auto c : conns) {
+      GST_INFO ("Keep alive %s", c.c_str() );
 
       try {
-        processor->keepAliveSession (c.first);
+        processor->keepAliveSession (c);
       } catch (KurentoException &e) {
         if (e.getCode() == INVALID_SESSION) {
-          GST_INFO ("Session should be removed %s", c.first.c_str() );
+          GST_INFO ("Session should be removed %s", c.c_str() );
           // TODO: Remove session
         } else {
           throw e;
@@ -258,6 +266,7 @@ void WebSocketTransport::keepAliveSessions()
       }
     }
 
+    lock.lock();
     cond.wait_for (lock, KEEP_ALIVE_PERIOD);
   }
 }
