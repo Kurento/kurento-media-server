@@ -124,8 +124,6 @@ main (int argc, char **argv)
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
-  gst_debug_remove_log_function_by_data (NULL);
-  gst_debug_add_log_function (simple_log_function, NULL, NULL);
 
   try {
     boost::program_options::options_description desc ("kurento-media-server usage");
@@ -133,6 +131,7 @@ main (int argc, char **argv)
     desc.add_options()
     ("help,h", "Display this help message")
     ("version,v", "Display the version number")
+    ("log,g", "Use gstreamer log")
     ("list,l", "Lists all available factories")
     ("modules-path,p", boost::program_options::value<std::string>
      (&path), "Path where kurento modules can be found")
@@ -149,7 +148,8 @@ main (int argc, char **argv)
     boost::program_options::store (boost::program_options::parse_environment (desc,
     [&desc] (std::string & input) -> std::string {
       /* Look for KURENTO_ prefix and change to lower case */
-      if (input.find (ENV_PREFIX) == 0) {
+      if (input.find (ENV_PREFIX) == 0)
+      {
         std::string aux = input.substr (ENV_PREFIX.size() );
         std::transform (aux.begin(), aux.end(), aux.begin(), [] (int c) -> int {
           return (c == '_') ? '-' : tolower (c);
@@ -168,6 +168,11 @@ main (int argc, char **argv)
 
     boost::program_options::notify (vm);
 
+    if (!vm.count ("log") ) {
+      gst_debug_remove_log_function_by_data (NULL);
+      gst_debug_add_log_function (simple_log_function, NULL, NULL);
+    }
+
     if (vm.count ("help") ) {
       std::cout << desc << "\n";
       exit (0);
@@ -175,7 +180,7 @@ main (int argc, char **argv)
 
     if (vm.count ("version") || vm.count ("list") ) {
       // Disable log to just print version
-      gst_debug_remove_log_function (simple_log_function);
+      gst_debug_remove_log_function_by_data (NULL);
     }
 
     loadModules (path);
