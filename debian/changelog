@@ -1,3 +1,96 @@
+kurento-media-server (5.1.0) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * main: Add command line option '-l' to list all available factories
+
+  [ Javier Lopez ]
+  * Fix action status in init.d script
+
+  [ David Fernandez ]
+  * kurento-module-scaffold: Add Gruntfile.js to module generation
+
+  [ Jose Antonio Santos Cadenas ]
+  * Use generic find to get KMSCORE
+  * Add ServerImpl object to MediaSet to allow its usage from applications
+  * main.cpp: Do not stop the server if there are unrecognized options
+  * Revert "kurento-module-scaffold: Add Gruntfile.js to module generation"
+  * CacheEntry: Use unlock instead of release in unique_lock
+  * ServerMethods: Let MediaSet handle Server object
+  * debian: Update kms-core dependency version
+  * WebSocketTransport: Do not fail if cached sessionId does not exist
+  * ServerMethods: Add implementation of connect method
+  * ServerMethods: Add function to get or create sessionId
+  * ServerMethods: Add transactions support
+  * ServerMethods: If transaction response is empty initialize it as an array
+  * Fix dependency version
+  * ServerMethods: Use uuid generator from kms-core library
+
+  [ Santiago Carot-Nemesio ]
+  * CacheEntry: Fix valgrind warning due to an access to an uninitialized memory
+  * main: Remove obsolete code
+  * main: Avoid usage of global static variables when possible
+
+  [ Jose Antonio Santos Cadenas ]
+  * CMake: Use generic_find for boost
+
+  [ Santiago Carot-Nemesio ]
+  * main: Shared pointer can be released when main function exites
+
+  [ Jose Antonio Santos Cadenas ]
+  * ServerMethods: Add sessionId to transactions response
+  * ServerMethods: Use constant for "value" string
+  * Reenable tests that were disabled by boost dependencies changes
+  * ServerMethods: Fix problems with wrong transaction requests
+  * Add files to .gitignore
+
+  [ Ivan Gracia ]
+  * Fix status section of init script
+
+  [ Jose Antonio Santos Cadenas ]
+  * .gitreview: Remove .git from the end of the project
+  * README.md: Update dependencies installation instructions
+  * Improve tests to work better on jenkins
+  * ServerMethods: Improve exception management
+  * Use standard print to print log in console
+  * Remove boost-log dependency
+  * WebSocketTransport: Reduce logging for session injection, it is a common task
+  * ServerMethods: Remove unneeded variables
+  * ServerMethods: Use constants for "type" literal strings
+  * ServerMethods: Return sessionId on all correct requests
+  * CMakeLists.txt: Disable log on tests by default
+  * Fix precommit-hook to work with astyle 2.04
+  * logging: Avoid separated endofline character from its lines in log
+
+  [ David Fernandez ]
+  * kurento-module-scaffold: Fix bug including file
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add registrar to websocket
+  * Change Server for ServerManager
+  * logging.cpp: Flush stdout after writing to ensure writing when redirected to a file
+
+  [ David Fernandez ]
+  * Add support for H264 in sdp_pattern
+
+  [ Jose Antonio Santos Cadenas ]
+  * Add info message when mediaserver exits normally
+  * Do not use removed methods in tests
+
+  [ David Fernandez ]
+  * Add opus stereo to sdp_pattern
+
+  [ Jose Antonio Santos Cadenas ]
+  * sdp_pattern.txt: Add a more descriptive name to sdp session
+  * main.cpp: Add flag to enable gstreamer log format
+  * WebSocketTransport: Do not hold the lock while doing a keep alive
+  * Update dependencies
+  * Prepare release 5.1.0
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Sat, 24 Jan 2015 19:11:46 +0100
+
 kurento-media-server (5.0.4) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
