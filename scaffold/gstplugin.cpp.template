@@ -10,6 +10,7 @@
 
 GST_DEBUG_CATEGORY_STATIC (gst_${nameUndersScoreLower}_debug_category);
 #define GST_CAT_DEFAULT gst_${nameUndersScoreLower}_debug_category
+#define PLUGIN_NAME ""
 
 #define GST_${nameUnderscoreUpper}_GET_PRIVATE(obj) (    \
     G_TYPE_INSTANCE_GET_PRIVATE (               \
@@ -40,6 +41,7 @@ static GstFlowReturn
 gst_${nameUndersScoreLower}_transform_frame_ip (GstVideoFilter *filter,
                                       GstVideoFrame *frame)
 {
+  return GST_FLOW_OK;
 }
 
 static void
