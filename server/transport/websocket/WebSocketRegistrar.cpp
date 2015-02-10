@@ -188,7 +188,7 @@ WebSocketRegistrar::connectionOpen (std::shared_ptr<ClientType> client,
   waitTime = DEFAULT_WAIT_TIME;
   connection = hdl;
 
-  req["jsorpc"] = "2.0";
+  req["jsonrpc"] = "2.0";
   req["method"] = "register";
 
 
