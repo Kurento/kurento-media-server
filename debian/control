@@ -6,6 +6,8 @@ Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
  kms-core-dev (>= 5.1.0),
+ kms-elements-dev,
+ kms-filters-dev,
  kms-jsonrpc-dev (>= 0.2.0),
  libboost-dev,
  libboost-system-dev,
