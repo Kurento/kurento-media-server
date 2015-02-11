@@ -1,13 +1,13 @@
-Source: kurento-media-server
+Source: kurento-media-server-6.0
 Section: net
 Priority: optional
 Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
 Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
- kms-core-dev (>= 5.1.0),
- kms-elements-dev,
- kms-filters-dev,
+ kms-core-6.0-dev,
+ kms-elements-6.0-dev,
+ kms-filters-6.0-dev,
  kms-jsonrpc-dev (>= 0.2.0),
  libboost-dev,
  libboost-system-dev,
@@ -20,39 +20,51 @@ Build-Depends:
  librabbitmq-dev
 Standards-Version: 3.9.4
 
-Package: kurento-media-server
+Package: kurento-media-server-6.0
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- kms-elements (>= 5.1.0),
- kms-filters (>= 5.1.0),
- kms-core (>= 5.1.0),
+ kms-elements-6.0,
+ kms-filters-6.0,
+ kms-core-6.0,
  kms-jsonrpc (>= 0.2.0)
-Replaces: kurento
-Breaks: kurento
+Replaces:
+ kurento
+ kurento-media-server
+Breaks:
+ kurento
+ kurento-media-server
 Conflicts: kurento
 Description: Kurento Media Server
  The Kurento Media Server processes audio and video streams,
  doing composable pipeline-based processing or media.
 
-Package: kurento-media-server-dbg
+Package: kurento-media-server-6.0-dbg
 Architecture: any
 Depends: ${misc:Depends},
- kurento-media-server (= ${binary:Version}),
- kms-core-dbg
+ kurento-media-server-6.0 (= ${binary:Version}),
+ kms-core-6.0-dbg
+Breaks:
+ kurento-media-server-dbg
+Replaces:
+ kurento-media-server-dbg
 Description: Debugging symbols for Kurento Media Server
 
-Package: kurento-media-server-dev
+Package: kurento-media-server-6.0-dev
 Architecture: any
 Depends: ${misc:Depends},
- kurento-media-server (= ${binary:Version}),
- kms-core-dev,
- kms-filters-dev,
- kms-elements-dev
+ kurento-media-server-6.0 (= ${binary:Version}),
+ kms-core-6.0-dev,
+ kms-filters-6.0-dev,
+ kms-elements-6.0-dev
+Breaks:
+ kurento-media-server-dev
+Replaces:
+ kurento-media-server-dev
 Description: Kurento media server, development files and tools
 
 Package: kurento-server
 Architecture: any
 Depends:
- kurento-media-server (= ${binary:Version})
+ kurento-media-server-6.0 (= ${binary:Version})
 Description: Meta package for kurento server side
  This packages install all required server programs for kurento
