@@ -1,5 +1,5 @@
 [gerrit]
-host=repository.kurento.com
+host=code.kurento.org
 port=12345
 project=kurento-media-server
-defaultbranch=develop
+defaultbranch=master
