@@ -2,4 +2,4 @@
 host=code.kurento.org
 port=12345
 project=kurento-media-server
-defaultbranch=master
+defaultbranch=release-5.1
