@@ -28,10 +28,10 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  kms-core-6.0,
  kms-jsonrpc (>= 0.2.0)
 Replaces:
- kurento
+ kurento,
  kurento-media-server
 Breaks:
- kurento
+ kurento,
  kurento-media-server
 Conflicts: kurento
 Description: Kurento Media Server
