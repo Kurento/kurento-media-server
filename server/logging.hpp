@@ -17,14 +17,51 @@
 #define __KURENTO_LOGGING_HPP__
 
 #include <gst/gst.h>
+#include <boost/log/sources/global_logger_storage.hpp>
+#include <boost/log/expressions/keyword.hpp>
+#include <boost/log/sources/severity_channel_logger.hpp>
+
+namespace src = boost::log::sources;
+namespace keywords = boost::log::keywords;
 
 namespace kurento
 {
+
+enum severity_level {
+  error,
+  warning,
+  fixme,
+  info,
+  debug,
+  log,
+  trace,
+  undefined
+};
+
+typedef src::severity_channel_logger_mt <
+severity_level,     // the type of the severity level
+std::string         // the type of the channel name
+> kms_logger_mt;
+
+BOOST_LOG_ATTRIBUTE_KEYWORD (category, "Category", std::string)
+BOOST_LOG_ATTRIBUTE_KEYWORD (filename, "FileName", std::string)
+BOOST_LOG_ATTRIBUTE_KEYWORD (gstline, "GstLine", std::string)
+BOOST_LOG_ATTRIBUTE_KEYWORD (function, "Function", std::string)
+BOOST_LOG_ATTRIBUTE_KEYWORD (gobject, "GObject", std::string)
+
+BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT (system_logger, kms_logger_mt)
+{
+  kms_logger_mt logger (keywords::channel = "system");
+
+  return logger;
+}
 
 void simple_log_function (GstDebugCategory *category, GstDebugLevel level,
                           const gchar *file, const gchar *function, gint line,
                           GObject *object, GstDebugMessage *message,
                           gpointer user_data) G_GNUC_NO_INSTRUMENT;
+
+bool kms_init_logging (const std::string &path);
 
 } /* kurento */
 

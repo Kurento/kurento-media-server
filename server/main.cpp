@@ -25,6 +25,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
 
 #include "TransportFactory.hpp"
 
@@ -46,6 +47,7 @@ const std::string DEFAULT_CONFIG_FILE = "/etc/kurento/kurento.conf.json";
 const std::string ENV_PREFIX = "KURENTO_";
 
 using namespace ::kurento;
+namespace logging = boost::log;
 
 Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create ();
 
@@ -109,6 +111,21 @@ signal_handler (uint32_t signo)
   }
 }
 
+static void
+kms_init_dependencies (int argc, char **argv)
+{
+  Glib::init();
+
+  gst_init (&argc, &argv);
+
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
+
+  /* Initialization routine to add commonly used */
+  /* attributes to the logging system */
+  logging::add_common_attributes();
+}
+
 int
 main (int argc, char **argv)
 {
@@ -117,13 +134,9 @@ main (int argc, char **argv)
   std::shared_ptr<Transport> transport;
   boost::property_tree::ptree config;
   std::string confFile;
-  std::string path;
+  std::string path, logs_path;
 
-  Glib::init();
-
-  gst_init (&argc, &argv);
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-                           GST_DEFAULT_NAME);
+  kms_init_dependencies (argc, argv);
 
   try {
     boost::program_options::options_description desc ("kurento-media-server usage");
@@ -137,7 +150,9 @@ main (int argc, char **argv)
      (&path), "Path where kurento modules can be found")
     ("conf-file,f", boost::program_options::value<std::string>
      (&confFile)->default_value (DEFAULT_CONFIG_FILE),
-     "Configuration file location");
+     "Configuration file location")
+    ("logs-path,d", boost::program_options::value <std::string> (&logs_path),
+     "Path where debug files will be stored");
 
     boost::program_options::command_line_parser clp (argc, argv);
     clp.options (desc).allow_unregistered();
@@ -171,6 +186,14 @@ main (int argc, char **argv)
     if (!vm.count ("log") ) {
       gst_debug_remove_log_function_by_data (NULL);
       gst_debug_add_log_function (simple_log_function, NULL, NULL);
+    }
+
+    if (vm.count ("logs-path") ) {
+      if (kms_init_logging (logs_path) ) {
+        GST_DEBUG ("Dumping logs to %s", logs_path.c_str() );
+      } else {
+        GST_WARNING ("Can no set debugging path %s", logs_path.c_str() );
+      }
     }
 
     if (vm.count ("help") ) {
