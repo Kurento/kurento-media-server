@@ -240,53 +240,45 @@ void init_file_collecting (boost::shared_ptr< sink_t > sink,
       ) );
 }
 
-static std::string
-severity_to_string (severity_level level)
+/* The formatting logic for the severity level */
+template< typename CharT, typename TraitsT >
+inline std::basic_ostream< CharT, TraitsT > &operator<< (
+  std::basic_ostream< CharT, TraitsT > &strm, severity_level lvl)
 {
-  switch (level) {
-  case error:
-    return "  error";
+  static const char *const str[] = {
+    "error",
+    "warning",
+    "fixme",
+    "info",
+    "debug",
+    "log",
+    "trace",
+    "unknown"
+  };
 
-  case warning:
-    return "warning";
-
-  case fixme:
-    return "  fixme";
-
-  case info:
-    return "   info";
-
-  case debug:
-    return "  debug";
-
-  case log:
-    return "    log";
-
-  case trace:
-    return "  trace";
-
-  default:
-    return "unknown";
+  if (static_cast< std::size_t > (lvl) < (sizeof (str) / sizeof (*str) ) ) {
+    strm << str[lvl];
+  } else {
+    strm << static_cast< int > (lvl);
   }
+
+  return strm;
 }
 
 static void
 system_formatter (logging::record_view const &rec,
                   logging::formatting_ostream &strm)
 {
-  logging::value_ref< severity_level > val =
-    logging::extract< severity_level > ("Severity", rec);
   auto date_time_formatter = expr::stream
                              << expr::format_date_time< boost::posix_time::ptime > ("TimeStamp",
                                  "%Y-%m-%d %H:%M:%S,%f");
-
   date_time_formatter (rec, strm) << " ";
   strm << logging::extract< attrs::current_process_id::value_type > ("ProcessID",
        rec) << " ";
   strm << "[" <<
        logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
            rec) << "] ";
-  strm << severity_to_string (val.get() ) << " ";
+  strm << logging::extract< severity_level > ("Severity", rec) << " ";
   strm << logging::extract< std::string > ("Category", rec) << " ";
   strm << logging::extract< std::string > ("FileName", rec) << ":";
   strm << logging::extract< int > ("Line", rec) << " ";
