@@ -16,7 +16,6 @@
 #ifndef __KURENTO_LOGGING_HPP__
 #define __KURENTO_LOGGING_HPP__
 
-#include <gst/gst.h>
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/expressions/keyword.hpp>
 #include <boost/log/sources/severity_channel_logger.hpp>
@@ -55,11 +54,6 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_INIT (system_logger, kms_logger_mt)
 
   return logger;
 }
-
-void simple_log_function (GstDebugCategory *category, GstDebugLevel level,
-                          const gchar *file, const gchar *function, gint line,
-                          GObject *object, GstDebugMessage *message,
-                          gpointer user_data) G_GNUC_NO_INSTRUMENT;
 
 bool kms_init_logging (const std::string &path);
 

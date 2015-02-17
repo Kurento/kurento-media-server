@@ -13,11 +13,9 @@
  *
  */
 
-#include "logging.hpp"
+#include <gst/gst.h>
 
-#include <sstream>
-#include <thread>
-#include <sys/time.h>
+#include "logging.hpp"
 
 #include <boost/format.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
@@ -87,91 +85,6 @@ expand_string (std::string str, int len)
   }
 
   return str;
-}
-
-#define LOG expand_string(category->name, 25) << " " <<  \
-    boost::filesystem::path(file).filename().string() \
-    << ":" << line << " " << function << "() " << \
-    debug_object(object) << \
-    gst_debug_message_get(message)
-
-static std::string
-getDateTime ()
-{
-  timeval curTime;
-  struct tm *timeinfo;
-  char buffer[22];
-
-  gettimeofday (&curTime, NULL);;
-  timeinfo = localtime (&curTime.tv_sec);
-
-  strftime (buffer, 22, "%Y-%m-%d %H:%M:%S", timeinfo);
-  std::string datetime (buffer);
-  datetime.append (".");
-
-  std::string micros = std::to_string (curTime.tv_usec);
-
-  while (micros.size() < 6) {
-    micros = "0" + micros;
-  }
-
-  datetime.append (micros);
-  return datetime;
-}
-
-void
-simple_log_function (GstDebugCategory *category, GstDebugLevel level,
-                     const gchar *file,
-                     const gchar *function, gint line, GObject *object,
-                     GstDebugMessage *message, gpointer user_data)
-{
-  std::stringstream ss;
-
-  if (level > gst_debug_category_get_threshold (category) ) {
-    return;
-  }
-
-  ss << getDateTime() << " ";
-  ss << getpid() << " ";
-  ss << "[" << std::this_thread::get_id () << "]";
-
-  switch (level) {
-  case GST_LEVEL_ERROR:
-    ss << "   error ";
-    break;
-
-  case GST_LEVEL_WARNING:
-    ss << " warning ";
-    break;
-
-  case GST_LEVEL_FIXME:
-    ss << "   fixme ";
-    break;
-
-  case GST_LEVEL_INFO:
-    ss << "    info ";
-    break;
-
-  case GST_LEVEL_DEBUG:
-    ss << "   debug ";
-    break;
-
-  case GST_LEVEL_LOG:
-    ss << "     log ";
-    break;
-
-  case GST_LEVEL_TRACE:
-    ss << "   trace ";
-    break;
-
-  default:
-    return;
-  }
-
-  ss << LOG << std::endl;
-
-  std::cout << ss.str();
-  std::cout.flush ();
 }
 
 static severity_level

@@ -144,7 +144,6 @@ main (int argc, char **argv)
     desc.add_options()
     ("help,h", "Display this help message")
     ("version,v", "Display the version number")
-    ("log,g", "Use gstreamer log")
     ("list,l", "Lists all available factories")
     ("modules-path,p", boost::program_options::value<std::string>
      (&path), "Path where kurento modules can be found")
@@ -182,11 +181,6 @@ main (int argc, char **argv)
     }), vm);
 
     boost::program_options::notify (vm);
-
-    if (!vm.count ("log") ) {
-      gst_debug_remove_log_function_by_data (NULL);
-      gst_debug_add_log_function (simple_log_function, NULL, NULL);
-    }
 
     if (vm.count ("logs-path") ) {
       if (kms_init_logging (logs_path) ) {
