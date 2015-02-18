@@ -24,8 +24,8 @@ DAEMON_LOG=/var/log/kurento-media-server
 LOG_SIZE=10M
 
 # Include stun defaults if available
-if [ -f /etc/default/kurento-media-server ] ; then
-	. /etc/default/kurento-media-server
+if [ -f /etc/default/kurento-media-server-6.0 ] ; then
+	. /etc/default/kurento-media-server-6.0
 fi
 
 if [ "$START_DAEMON" != "true" ]; then
