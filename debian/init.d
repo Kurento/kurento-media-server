@@ -21,7 +21,6 @@ PID_FILE=/var/run/kurento-media-server.pid
 DAEMON_CMD=/usr/bin/kurento-media-server
 START_DAEMON=false
 DAEMON_LOG=/var/log/kurento-media-server
-LOG_SIZE=10M
 
 # Include stun defaults if available
 if [ -f /etc/default/kurento-media-server ] ; then
@@ -76,25 +75,6 @@ start_kurento () {
         log_failure_msg "Kurento Media Server already started"
 	return
     fi
-
-    # Add file rotation
-    [ -e /etc/logrotate.d ] || install -d -m755 /etc/logrotate.d
-    cat > /etc/logrotate.d/kurento-media-server  <<-EOFile
-    "/var/log/kurento-media-server/*.log" {
-        missingok
-        copytruncate
-        rotate 20
-        size $LOG_SIZE
-        compress
-        notifempty
-        sharedscripts
-    }
-	EOFile
-
-    # Add logrotate cron to root user
-    echo "`crontab -u root -l`"|grep -iv "kurento-media-server"|crontab -u root -
-    echo "*/5 * * * * /usr/sbin/logrotate /etc/logrotate.d/kurento-media-server" | crontab -u root -
-
 }
 
 stop_kurento () {
@@ -103,9 +83,6 @@ stop_kurento () {
     /sbin/start-stop-daemon --stop --exec $DAEMON_CMD --pidfile "$PID_FILE"
     [ $? != 0 ] && log_failure_msg "Kurento Media Server not running"
     [ -f $PID_FILE ] && rm -f $PID_FILE
-
-    # Remove logrotate cron to root user
-    echo "`crontab -u root -l`"|grep -iv "kurento-media-server"|crontab -u root -
 }
 
 status () {

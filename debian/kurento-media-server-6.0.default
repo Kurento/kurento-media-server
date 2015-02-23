@@ -24,5 +24,6 @@ export GST_DEBUG=1,Kurento*:5
 # whom the daemons should run as
 DAEMON_USER=nobody
 
-# Logging
-LOG_SIZE=10M
+DAEMON_LOG=/var/log/kurento-media-server
+
+export KURENTO_LOGS_PATH=$DAEMON_LOG
