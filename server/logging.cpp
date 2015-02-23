@@ -159,13 +159,13 @@ inline std::basic_ostream< CharT, TraitsT > &operator<< (
   std::basic_ostream< CharT, TraitsT > &strm, severity_level lvl)
 {
   static const char *const str[] = {
-    "error",
+    "  error",
     "warning",
-    "fixme",
-    "info",
-    "debug",
-    "log",
-    "trace",
+    "  fixme",
+    "   info",
+    "  debug",
+    "    log",
+    "  trace",
     "unknown"
   };
 
