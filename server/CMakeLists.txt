@@ -12,6 +12,8 @@ SET(KMSC_SOURCE
   logging.hpp
   modules.cpp
   modules.hpp
+  loadConfig.cpp
+  loadConfig.hpp
   dtlsfix.cpp
 )
 
