@@ -55,7 +55,7 @@ F::write_config (const boost::filesystem::path &orig, uint port)
   configDir = boost::filesystem::unique_path (
                 boost::filesystem::temp_directory_path() / "kms_config_%%%%%%%%" );
   boost::filesystem::create_directories (configDir);
-  boost::filesystem::path newConfigFile = configDir / "config.json";
+  boost::filesystem::path newConfigFile = configDir / "config.conf.json";
 
   // Copy sdp pattern
   boost::filesystem::copy_file (orig.parent_path() / SDP_PATTERN,

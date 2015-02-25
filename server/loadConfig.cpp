@@ -33,6 +33,27 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+class ParseException : public virtual std::exception
+{
+public:
+  ParseException (const std::string &message) : message (message) {};
+
+  virtual ~ParseException() {};
+
+  virtual const char *what() const noexcept
+  {
+    return message.c_str();
+  };
+
+  const std::string &getMessage() const
+  {
+    return message;
+  };
+
+private:
+  std::string message;
+};
+
 static std::list<std::string>
 split (const std::string &s, char delim)
 {
@@ -96,6 +117,41 @@ mergePropertyTrees (boost::property_tree::ptree &ptMerged,
   }
 }
 
+static std::string
+loadFile (boost::property_tree::ptree &config,
+          const boost::filesystem::path &file)
+{
+  boost::filesystem::path extension = file.extension();
+  boost::filesystem::path extension2 = file.stem().extension();
+  std::string fileName = file.filename().string();
+  boost::property_tree::ptree readConfig;
+
+  if (extension2.string() == ".conf") {
+    if (extension.string() == ".json") {
+      boost::property_tree::read_json (file.string(), readConfig);
+    } else if (extension.string() == ".info") {
+      boost::property_tree::read_info (file.string(), readConfig);
+    } else if (extension.string() == ".ini") {
+      boost::property_tree::read_ini (file.string(), readConfig);
+    } else if (extension.string() == ".xml") {
+      boost::property_tree::read_xml (file.string(), readConfig);
+    } else {
+      throw ParseException ("Unknonw file format");
+    }
+  } else {
+    throw ParseException ("Unknonw file format");
+  }
+
+  mergePropertyTrees (config, readConfig);
+
+  config.put ("configPath", file.parent_path().string() );
+
+  fileName = fileName.substr (0, fileName.size() - extension.string().size() );
+  fileName = fileName.substr (0, fileName.size() - extension2.string().size() );
+
+  return fileName;
+}
+
 static void
 loadModulesConfigFromDir (boost::property_tree::ptree &config,
                           const boost::filesystem::path &dir, const boost::filesystem::path &parentDir)
@@ -113,57 +169,37 @@ loadModulesConfigFromDir (boost::property_tree::ptree &config,
   for ( boost::filesystem::directory_iterator itr ( dir ); itr != end_itr;
         ++itr ) {
     if (boost::filesystem::is_regular (*itr) ) {
-      boost::filesystem::path extension = itr->path().extension();
-      boost::filesystem::path extension2 = itr->path().stem().extension();
-      std::string fileName = itr->path().filename().string();
-
-      if (extension2.string() == ".conf") {
+      try {
         boost::property_tree::ptree moduleConfig;
+        std::string fileName = loadFile (moduleConfig, itr->path() );
 
-        if (extension.string() == ".json") {
-          boost::property_tree::read_json (itr->path().string(), moduleConfig);
-        } else if (extension.string() == ".info") {
-          boost::property_tree::read_info (itr->path().string(), moduleConfig);
-        } else if (extension.string() == ".ini") {
-          boost::property_tree::read_ini (itr->path().string(), moduleConfig);
-        } else if (extension.string() == ".xml") {
-          boost::property_tree::read_xml (itr->path().string(), moduleConfig);
-        } else {
-          continue;
+        boost::filesystem::path diffpath;
+
+        boost::filesystem::path tmppath = itr->path().parent_path();
+
+        while (tmppath != parentDir) {
+          diffpath = tmppath.stem() / diffpath;
+          tmppath = tmppath.parent_path();
         }
 
-        moduleConfig.add ("configPath", itr->path().parent_path().string() );
+        tmppath = diffpath;
 
-        {
-          boost::filesystem::path diffpath;
+        boost::property_tree::ptree loadedConfig;
+        std::string key = "modules";
 
-          boost::filesystem::path tmppath = itr->path().parent_path();
-
-          while (tmppath != parentDir) {
-            diffpath = tmppath.stem() / diffpath;
-            tmppath = tmppath.parent_path();
-          }
-
-          tmppath = diffpath;
-
-          boost::property_tree::ptree loadedConfig;
-          std::string key = "modules";
-
-          for (auto it = tmppath.begin(); it != tmppath.end(); it ++) {
-            key += "." + it->string();
-          }
-
-          fileName = fileName.substr (0, fileName.size() - extension.string().size() );
-          fileName = fileName.substr (0, fileName.size() - extension2.string().size() );
-
-          key += "." + fileName;
-
-          loadedConfig.put_child (key, moduleConfig);
-
-          mergePropertyTrees (config, loadedConfig);
+        for (auto it = tmppath.begin(); it != tmppath.end(); it ++) {
+          key += "." + it->string();
         }
+
+        key += "." + fileName;
+
+        loadedConfig.put_child (key, moduleConfig);
+
+        mergePropertyTrees (config, loadedConfig);
 
         GST_INFO ("Loaded module config from: %s", itr->path().string().c_str() );
+      } catch (ParseException &e) {
+        // Ignore this exceptions here
       }
     } else if (boost::filesystem::is_directory (*itr) ) {
       loadModulesConfigFromDir (config, itr->path(), parentDir);
@@ -201,7 +237,11 @@ loadConfig (boost::property_tree::ptree &config, const std::string &file_name,
   GST_INFO ("Reading configuration from: %s", file_name.c_str () );
 
   try {
-    boost::property_tree::read_json (file_name, config);
+    loadFile (config, configFilePath);
+  } catch (ParseException &e) {
+    GST_ERROR ("Error reading configuration: %s", e.what() );
+    std::cerr << "Error reading configuration: " << e.what() << std::endl;
+    exit (1);
   } catch (boost::property_tree::ptree_error &e) {
     GST_ERROR ("Error reading configuration: %s", e.what() );
     std::cerr << "Error reading configuration: " << e.what() << std::endl;
@@ -209,8 +249,6 @@ loadConfig (boost::property_tree::ptree &config, const std::string &file_name,
   }
 
   loadModulesConfig (config, configFilePath, modulesConfigPath);
-
-  config.add ("configPath", configFilePath.parent_path().string() );
 
   GST_INFO ("Configuration loaded successfully");
 
