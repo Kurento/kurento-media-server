@@ -152,6 +152,35 @@ loadFile (boost::property_tree::ptree &config,
   return fileName;
 }
 
+static std::string
+diffPathToKey (const boost::filesystem::path &path,
+               const boost::filesystem::path &ancestorPath)
+{
+  boost::filesystem::path diffpath;
+
+  boost::filesystem::path tmppath = path;
+
+  while (tmppath != ancestorPath) {
+    diffpath = tmppath.stem() / diffpath;
+    tmppath = tmppath.parent_path();
+  }
+
+  tmppath = diffpath;
+
+  boost::property_tree::ptree loadedConfig;
+  std::string key;
+
+  for (auto it = tmppath.begin(); it != tmppath.end(); it ++) {
+    if (key.empty() ) {
+      key = it->string();
+    } else {
+      key += "." + it->string();
+    }
+  }
+
+  return key;
+}
+
 static void
 loadModulesConfigFromDir (boost::property_tree::ptree &config,
                           const boost::filesystem::path &dir, const boost::filesystem::path &parentDir)
@@ -172,29 +201,13 @@ loadModulesConfigFromDir (boost::property_tree::ptree &config,
       try {
         boost::property_tree::ptree moduleConfig;
         std::string fileName = loadFile (moduleConfig, itr->path() );
-
-        boost::filesystem::path diffpath;
-
-        boost::filesystem::path tmppath = itr->path().parent_path();
-
-        while (tmppath != parentDir) {
-          diffpath = tmppath.stem() / diffpath;
-          tmppath = tmppath.parent_path();
-        }
-
-        tmppath = diffpath;
-
+        std::string key = diffPathToKey (itr->path().parent_path(), parentDir);
         boost::property_tree::ptree loadedConfig;
-        std::string key = "modules";
 
-        for (auto it = tmppath.begin(); it != tmppath.end(); it ++) {
-          key += "." + it->string();
-        }
-
+        key = key.empty() ? "modules" :  "modules." + key;
         key += "." + fileName;
 
         loadedConfig.put_child (key, moduleConfig);
-
         mergePropertyTrees (config, loadedConfig);
 
         GST_INFO ("Loaded module config from: %s", itr->path().string().c_str() );
