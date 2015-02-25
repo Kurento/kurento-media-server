@@ -22,6 +22,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/info_parser.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 #define GST_CAT_DEFAULT kurento_load_config
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -114,10 +117,20 @@ loadModulesConfigFromDir (boost::property_tree::ptree &config,
       boost::filesystem::path extension2 = itr->path().stem().extension();
       std::string fileName = itr->path().filename().string();
 
-      if (extension.string() == ".json" && extension2.string() == ".conf") {
+      if (extension2.string() == ".conf") {
         boost::property_tree::ptree moduleConfig;
 
-        boost::property_tree::read_json (itr->path().string(), moduleConfig);
+        if (extension.string() == ".json") {
+          boost::property_tree::read_json (itr->path().string(), moduleConfig);
+        } else if (extension.string() == ".info") {
+          boost::property_tree::read_info (itr->path().string(), moduleConfig);
+        } else if (extension.string() == ".ini") {
+          boost::property_tree::read_ini (itr->path().string(), moduleConfig);
+        } else if (extension.string() == ".xml") {
+          boost::property_tree::read_xml (itr->path().string(), moduleConfig);
+        } else {
+          continue;
+        }
 
         moduleConfig.add ("configPath", itr->path().parent_path().string() );
 
