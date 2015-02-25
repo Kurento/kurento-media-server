@@ -95,11 +95,11 @@ signal_handler (uint32_t signo)
 }
 
 static void
-kms_init_dependencies (int argc, char **argv)
+kms_init_dependencies (int *argc, char ***argv)
 {
   Glib::init();
 
-  gst_init (&argc, &argv);
+  gst_init (argc, argv);
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
@@ -119,7 +119,7 @@ main (int argc, char **argv)
   std::string confFile;
   std::string path, logs_path, modulesConfigPath;
 
-  kms_init_dependencies (argc, argv);
+  kms_init_dependencies (&argc, &argv);
 
   try {
     boost::program_options::options_description desc ("kurento-media-server usage");
