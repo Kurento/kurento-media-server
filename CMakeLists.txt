@@ -52,12 +52,7 @@ enable_testing()
 
 add_subdirectory(test)
 
-if(NOT DEFINED SYSCONF_INSTALL_DIR)
-	set(SYSCONF_INSTALL_DIR etc CACHE PATH
-		    "Install directory for system-wide configuration files")
-endif()
-
-install(FILES kurento.conf.json sdp_pattern.txt DESTINATION ${SYSCONF_INSTALL_DIR}/${CUSTOM_PREFIX})
+install(FILES kurento.conf.json sdp_pattern.txt DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${CUSTOM_PREFIX})
 
 add_subdirectory(scaffold)
 
