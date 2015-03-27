@@ -20,7 +20,6 @@ fi
 PID_FILE=/var/run/kurento-media-server.pid
 DAEMON_CMD=/usr/bin/kurento-media-server
 START_DAEMON=false
-DAEMON_LOG=/var/log/kurento-media-server
 
 # Include stun defaults if available
 if [ -f /etc/default/kurento-media-server ] ; then
@@ -69,8 +68,8 @@ start_kurento () {
     if [ $? != 0 ]; then
         chown $DAEMON_USER $DAEMON_LOG || { log_failure_msg "Unable to access $DAEMON_LOG"; exit 1; }
     fi
-    /sbin/start-stop-daemon --start --exec $DAEMON_CMD --pidfile "$PID_FILE" \
-        --chuid $DAEMON_USER --background --no-close --make-pidfile 1>>"$DAEMON_LOG/media-server.log" 2>&1
+   /sbin/start-stop-daemon --start --exec $DAEMON_CMD --pidfile "$PID_FILE" \
+        --chuid $DAEMON_USER --background --no-close --make-pidfile 1>>"$DAEMON_LOG/media-server_error.log" 2>&1
     if [ $? != 0 ]; then
         log_failure_msg "Kurento Media Server already started"
 	return

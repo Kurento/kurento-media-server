@@ -210,9 +210,9 @@ kms_init_logging (const std::string &path)
 
   boost::shared_ptr< sinks::text_file_backend > backend =
     boost::make_shared< sinks::text_file_backend > (
-      keywords::file_name = path + "/" + "%Y%m%d_%H%M%S_%5N.log",
+      keywords::file_name = path + "/" + "media-server.log",
       keywords::rotation_size = 5 * 1024 * 1024,
-      keywords::time_based_rotation = sinks::file::rotation_at_time_point (12, 0, 0)
+      keywords::time_based_rotation = sinks::file::rotation_at_time_point (0, 0, 0)
     );
 
   /* Enable auto-flushing after each log record written */
