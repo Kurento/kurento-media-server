@@ -42,8 +42,6 @@ static const std::string WS_PATH = "/kurento";
 static const std::string WS_PROTO = "ws://";
 static const std::string WS_ADDRESS = "localhost";
 
-static const std::string SDP_PATTERN = "sdp_pattern.txt";
-
 void F::create_ws_uri (uint port)
 {
   uri = WS_PROTO + WS_ADDRESS + ":" + std::to_string (port) + WS_PATH;
@@ -56,10 +54,6 @@ F::write_config (const boost::filesystem::path &orig, uint port)
                 boost::filesystem::temp_directory_path() / "kms_config_%%%%%%%%" );
   boost::filesystem::create_directories (configDir);
   boost::filesystem::path newConfigFile = configDir / "config.conf.json";
-
-  // Copy sdp pattern
-  boost::filesystem::copy_file (orig.parent_path() / SDP_PATTERN,
-                                configDir / SDP_PATTERN);
 
   // Change port on config
   boost::property_tree::ptree config;
@@ -106,8 +100,10 @@ F::start_server ()
 
   if (pid == 0) {
     std::string  confFileParam = "--conf-file=" + configFile.string();
+    std::string modulesConfigParam = "--modules-config-path=/etc/kurento/modules" ;
 
-    execl (binary_dir, "kurento-media-server", confFileParam.c_str(), NULL);
+    execl (binary_dir, "kurento-media-server", confFileParam.c_str(),
+           modulesConfigParam.c_str(), NULL);
   } else if (pid < 0) {
     BOOST_FAIL ("Error executing server");
   }
