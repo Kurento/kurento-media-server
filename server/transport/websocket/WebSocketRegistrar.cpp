@@ -99,6 +99,7 @@ WebSocketRegistrar::connectRegistrar ()
   }
 
   while (!finished) {
+    boost::asio::io_service ios;
     GST_INFO ("Connecting registrar");
 
     if (registrarAddress.size() <= 3 && registrarAddress.substr (0, 3) == "wss") {
@@ -120,7 +121,7 @@ WebSocketRegistrar::connectRegistrar ()
                                        this, std::placeholders::_1) );
 
       // Initialize ASIO
-      secureClient->init_asio();
+      secureClient->init_asio (&ios);
 
       SecureWebSocketClient::connection_ptr con = secureClient->get_connection (
             registrarAddress, ec);
@@ -145,7 +146,7 @@ WebSocketRegistrar::connectRegistrar ()
                                             std::placeholders::_1) );
 
       // Initialize ASIO
-      client->init_asio();
+      client->init_asio (&ios);
 
       WebSocketClient::connection_ptr con = client->get_connection (registrarAddress,
                                             ec);
