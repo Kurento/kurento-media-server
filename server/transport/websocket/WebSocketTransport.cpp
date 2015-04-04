@@ -117,8 +117,9 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
 
   try {
     server.listen (port);
-  } catch (std::error_code &e) {
-    GST_ERROR ("Error starting listen for websocket transport on port %d", port);
+  } catch (websocketpp::exception &e) {
+    GST_ERROR ("Error starting listen for websocket transport on port %d: %s", port,
+               e.what() );
     exit (1);
   }
 
@@ -196,7 +197,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
       try {
         secureServer.listen (securePort);
         hasSecureServer = true;
-      } catch (std::error_code &e) {
+      } catch (websocketpp::exception &e) {
         throw configuration_exception ("Error listening on port" + securePort);
       }
     } catch (const configuration_exception &err) {
@@ -484,8 +485,9 @@ void WebSocketTransport::processMessage (ServerType *s,
 
   try {
     s->send (hdl, response, websocketpp::frame::opcode::TEXT);
-  } catch (websocketpp::lib::error_code &e) {
-    GST_ERROR ("Could not send response to client: %s", e.message().c_str() );
+  } catch (websocketpp::exception &e) {
+    GST_ERROR ("Could not send response to client: %s",
+               e.code().message().c_str() );
   }
 }
 
@@ -509,8 +511,8 @@ void WebSocketTransport::openHandler (ServerType *s,
       GST_ERROR ("Invalid path \"%s\", closing connection",
                  connection->get_resource().c_str() );
       s->close (hdl, websocketpp::close::status::protocol_error, "Invalid path");
-    } catch (std::error_code &e) {
-      GST_ERROR ("Error: %s", e.message().c_str() );
+    } catch (websocketpp::exception &e) {
+      GST_ERROR ("Error: %s", e.code().message().c_str() );
     }
   }
 }

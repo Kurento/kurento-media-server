@@ -25,55 +25,35 @@
  *
  */
 
-#ifndef WEBSOCKETPP_CONFIG_ASIO_TLS_CLIENT_HPP
-#define WEBSOCKETPP_CONFIG_ASIO_TLS_CLIENT_HPP
+#ifndef WEBSOCKETPP_COMMON_TIME_HPP
+#define WEBSOCKETPP_COMMON_TIME_HPP
 
-#include <websocketpp/config/core_client.hpp>
-#include <websocketpp/transport/asio/endpoint.hpp>
-#include <websocketpp/transport/asio/security/tls.hpp>
+#include <ctime>
 
-// Pull in non-tls config
-#include <websocketpp/config/asio_no_tls_client.hpp>
-
-// Define TLS config
 namespace websocketpp
 {
-namespace config
+namespace lib
 {
 
-/// Client config with asio transport and TLS enabled
-struct asio_tls_client : public core_client {
-  typedef asio_tls_client type;
-  typedef core_client base;
+// Code in this header was inspired by the following article and includes some
+// code from the related project g2log. The g2log code is public domain licensed
+// http://kjellkod.wordpress.com/2013/01/22/exploring-c11-part-2-localtime-and-time-again/
 
-  typedef base::concurrency_type concurrency_type;
+/// Thread safe cross platform localtime
+inline std::tm localtime (std::time_t const &time)
+{
+  std::tm tm_snapshot;
+#if (defined(__MINGW32__) || defined(__MINGW64__))
+  memcpy (&tm_snapshot, ::localtime (&time), sizeof (std::tm) );
+#elif (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+  localtime_s (&tm_snapshot, &time);
+#else
+  localtime_r (&time, &tm_snapshot); // POSIX
+#endif
+  return tm_snapshot;
+}
 
-  typedef base::request_type request_type;
-  typedef base::response_type response_type;
+} // lib
+} // websocketpp
 
-  typedef base::message_type message_type;
-  typedef base::con_msg_manager_type con_msg_manager_type;
-  typedef base::endpoint_msg_manager_type endpoint_msg_manager_type;
-
-  typedef base::alog_type alog_type;
-  typedef base::elog_type elog_type;
-
-  typedef base::rng_type rng_type;
-
-  struct transport_config : public base::transport_config {
-    typedef type::concurrency_type concurrency_type;
-    typedef type::alog_type alog_type;
-    typedef type::elog_type elog_type;
-    typedef type::request_type request_type;
-    typedef type::response_type response_type;
-    typedef websocketpp::transport::asio::tls_socket::endpoint socket_type;
-  };
-
-  typedef websocketpp::transport::asio::endpoint<transport_config>
-  transport_type;
-};
-
-} // namespace config
-} // namespace websocketpp
-
-#endif // WEBSOCKETPP_CONFIG_ASIO_TLS_CLIENT_HPP
+#endif // WEBSOCKETPP_COMMON_TIME_HPP

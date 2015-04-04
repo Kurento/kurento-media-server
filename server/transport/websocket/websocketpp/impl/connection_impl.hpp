@@ -28,15 +28,22 @@
 #ifndef WEBSOCKETPP_CONNECTION_IMPL_HPP
 #define WEBSOCKETPP_CONNECTION_IMPL_HPP
 
-#include <websocketpp/common/platforms.hpp>
-#include <websocketpp/common/system_error.hpp>
-
-#include <websocketpp/processors/processor.hpp>
-
 #include <websocketpp/processors/hybi00.hpp>
 #include <websocketpp/processors/hybi07.hpp>
 #include <websocketpp/processors/hybi08.hpp>
 #include <websocketpp/processors/hybi13.hpp>
+
+#include <websocketpp/processors/processor.hpp>
+
+#include <websocketpp/common/platforms.hpp>
+#include <websocketpp/common/system_error.hpp>
+
+#include <algorithm>
+#include <exception>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace websocketpp
 {
@@ -56,7 +63,7 @@ void connection<config>::set_termination_handler (
 }
 
 template <typename config>
-const std::string &connection<config>::get_origin() const
+std::string const &connection<config>::get_origin() const
 {
   //scoped_lock_type lock(m_connection_state_lock);
   return m_processor->get_origin (m_request);
@@ -77,7 +84,7 @@ session::state::value connection<config>::get_state() const
 }
 
 template <typename config>
-lib::error_code connection<config>::send (const std::string &payload,
+lib::error_code connection<config>::send (std::string const &payload,
     frame::opcode::value op)
 {
   message_ptr msg = m_msg_manager->get_message (op, payload.size() );
@@ -87,7 +94,7 @@ lib::error_code connection<config>::send (const std::string &payload,
 }
 
 template <typename config>
-lib::error_code connection<config>::send (const void *payload, size_t len,
+lib::error_code connection<config>::send (void const *payload, size_t len,
     frame::opcode::value op)
 {
   message_ptr msg = m_msg_manager->get_message (op, len);
@@ -104,10 +111,12 @@ lib::error_code connection<config>::send (typename config::message_type::ptr
     m_alog.write (log::alevel::devel, "connection send");
   }
 
-  // TODO:
+  {
+    scoped_lock_type lock (m_connection_state_lock);
 
-  if (m_state != session::state::open) {
-    return error::make_error_code (error::invalid_state);
+    if (m_state != session::state::open) {
+      return error::make_error_code (error::invalid_state);
+    }
   }
 
   message_ptr outgoing_msg;
@@ -148,15 +157,22 @@ lib::error_code connection<config>::send (typename config::message_type::ptr
 }
 
 template <typename config>
-void connection<config>::ping (const std::string &payload, lib::error_code &ec)
+void connection<config>::ping (std::string const &payload, lib::error_code &ec)
 {
   if (m_alog.static_test (log::alevel::devel) ) {
     m_alog.write (log::alevel::devel, "connection ping");
   }
 
-  if (m_state != session::state::open) {
-    ec = error::make_error_code (error::invalid_state);
-    return;
+  {
+    scoped_lock_type lock (m_connection_state_lock);
+
+    if (m_state != session::state::open) {
+      std::stringstream ss;
+      ss << "connection::ping called from invalid state " << m_state;
+      m_alog.write (log::alevel::devel, ss.str() );
+      ec = error::make_error_code (error::invalid_state);
+      return;
+    }
   }
 
   message_ptr msg = m_msg_manager->get_message();
@@ -216,20 +232,19 @@ void connection<config>::ping (const std::string &payload, lib::error_code &ec)
 }
 
 template<typename config>
-void connection<config>::ping (const std::string &payload)
+void connection<config>::ping (std::string const &payload)
 {
   lib::error_code ec;
   ping (payload, ec);
 
   if (ec) {
-    throw ec;
+    throw exception (ec);
   }
 }
 
 template<typename config>
 void connection<config>::handle_pong_timeout (std::string payload,
-    const lib::error_code &
-    ec)
+    lib::error_code const &ec)
 {
   if (ec) {
     if (ec == transport::error::operation_aborted) {
@@ -247,15 +262,22 @@ void connection<config>::handle_pong_timeout (std::string payload,
 }
 
 template <typename config>
-void connection<config>::pong (const std::string &payload, lib::error_code &ec)
+void connection<config>::pong (std::string const &payload, lib::error_code &ec)
 {
   if (m_alog.static_test (log::alevel::devel) ) {
     m_alog.write (log::alevel::devel, "connection pong");
   }
 
-  if (m_state != session::state::open) {
-    ec = error::make_error_code (error::invalid_state);
-    return;
+  {
+    scoped_lock_type lock (m_connection_state_lock);
+
+    if (m_state != session::state::open) {
+      std::stringstream ss;
+      ss << "connection::pong called from invalid state " << m_state;
+      m_alog.write (log::alevel::devel, ss.str() );
+      ec = error::make_error_code (error::invalid_state);
+      return;
+    }
   }
 
   message_ptr msg = m_msg_manager->get_message();
@@ -289,13 +311,13 @@ void connection<config>::pong (const std::string &payload, lib::error_code &ec)
 }
 
 template<typename config>
-void connection<config>::pong (const std::string &payload)
+void connection<config>::pong (std::string const &payload)
 {
   lib::error_code ec;
   pong (payload, ec);
 
   if (ec) {
-    throw ec;
+    throw exception (ec);
   }
 }
 
@@ -307,14 +329,16 @@ void connection<config>::close (close::status::value const code,
     m_alog.write (log::alevel::devel, "connection close");
   }
 
+  // Truncate reason to maximum size allowable in a close frame.
+  std::string tr (reason, 0, std::min<size_t> (reason.size(),
+                  frame::limits::close_reason_size) );
+
+  scoped_lock_type lock (m_connection_state_lock);
+
   if (m_state != session::state::open) {
     ec = error::make_error_code (error::invalid_state);
     return;
   }
-
-  // Truncate reason to maximum size allowable in a close frame.
-  std::string tr (reason, 0, std::min<size_t> (reason.size(),
-                  frame::limits::close_reason_size) );
 
   ec = this->send_close_frame (code, tr, false, close::status::terminal (code) );
 }
@@ -327,7 +351,7 @@ void connection<config>::close (close::status::value const code,
   close (code, reason, ec);
 
   if (ec) {
-    throw ec;
+    throw exception (ec);
   }
 }
 
@@ -415,14 +439,14 @@ bool connection<config>::get_secure() const
 }
 
 template <typename config>
-const std::string &connection<config>::get_host() const
+std::string const &connection<config>::get_host() const
 {
   //scoped_lock_type lock(m_connection_state_lock);
   return m_uri->get_host();
 }
 
 template <typename config>
-const std::string &connection<config>::get_resource() const
+std::string const &connection<config>::get_resource() const
 {
   //scoped_lock_type lock(m_connection_state_lock);
   return m_uri->get_resource();
@@ -455,20 +479,20 @@ void connection<config>::set_uri (uri_ptr uri)
 
 
 template <typename config>
-const std::string &connection<config>::get_subprotocol() const
+std::string const &connection<config>::get_subprotocol() const
 {
   return m_subprotocol;
 }
 
 template <typename config>
-const std::vector<std::string> &
+std::vector<std::string> const &
 connection<config>::get_requested_subprotocols() const
 {
   return m_requested_subprotocols;
 }
 
 template <typename config>
-void connection<config>::add_subprotocol (const std::string &value,
+void connection<config>::add_subprotocol (std::string const &value,
     lib::error_code &ec)
 {
   if (m_is_server) {
@@ -487,19 +511,19 @@ void connection<config>::add_subprotocol (const std::string &value,
 }
 
 template <typename config>
-void connection<config>::add_subprotocol (const std::string &value)
+void connection<config>::add_subprotocol (std::string const &value)
 {
   lib::error_code ec;
   this->add_subprotocol (value, ec);
 
   if (ec) {
-    throw ec;
+    throw exception (ec);
   }
 }
 
 
 template <typename config>
-void connection<config>::select_subprotocol (const std::string &value,
+void connection<config>::select_subprotocol (std::string const &value,
     lib::error_code &ec)
 {
   if (!m_is_server) {
@@ -527,27 +551,34 @@ void connection<config>::select_subprotocol (const std::string &value,
 }
 
 template <typename config>
-void connection<config>::select_subprotocol (const std::string &value)
+void connection<config>::select_subprotocol (std::string const &value)
 {
   lib::error_code ec;
   this->select_subprotocol (value, ec);
 
   if (ec) {
-    throw ec;
+    throw exception (ec);
   }
 }
 
 
 template <typename config>
-const std::string &
-connection<config>::get_request_header (const std::string &key)
+std::string const &
+connection<config>::get_request_header (std::string const &key) const
 {
   return m_request.get_header (key);
 }
 
 template <typename config>
-const std::string &
-connection<config>::get_response_header (const std::string &key)
+std::string const &
+connection<config>::get_request_body() const
+{
+  return m_request.get_body();
+}
+
+template <typename config>
+std::string const &
+connection<config>::get_response_header (std::string const &key) const
 {
   return m_response.get_header (key);
 }
@@ -555,12 +586,9 @@ connection<config>::get_response_header (const std::string &key)
 template <typename config>
 void connection<config>::set_status (http::status_code::value code)
 {
-  //scoped_lock_type lock(m_connection_state_lock);
-
   if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
-    throw error::make_error_code (error::invalid_state);
-    //throw exception("Call to set_status from invalid state",
-    //              error::INVALID_STATE);
+    throw exception ("Call to set_status from invalid state",
+                     error::make_error_code (error::invalid_state) );
   }
 
   m_response.set_status (code);
@@ -569,12 +597,9 @@ template <typename config>
 void connection<config>::set_status (http::status_code::value code,
                                      std::string const &msg)
 {
-  //scoped_lock_type lock(m_connection_state_lock);
-
   if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
-    throw error::make_error_code (error::invalid_state);
-    //throw exception("Call to set_status from invalid state",
-    //              error::INVALID_STATE);
+    throw exception ("Call to set_status from invalid state",
+                     error::make_error_code (error::invalid_state) );
   }
 
   m_response.set_status (code, msg);
@@ -582,12 +607,9 @@ void connection<config>::set_status (http::status_code::value code,
 template <typename config>
 void connection<config>::set_body (std::string const &value)
 {
-  //scoped_lock_type lock(m_connection_state_lock);
-
   if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
-    throw error::make_error_code (error::invalid_state);
-    //throw exception("Call to set_status from invalid state",
-    //                error::INVALID_STATE);
+    throw exception ("Call to set_status from invalid state",
+                     error::make_error_code (error::invalid_state) );
   }
 
   m_response.set_body (value);
@@ -597,21 +619,21 @@ template <typename config>
 void connection<config>::append_header (std::string const &key,
                                         std::string const &val)
 {
-  //scoped_lock_type lock(m_connection_state_lock);
-
   if (m_is_server) {
     if (m_internal_state == istate::PROCESS_HTTP_REQUEST) {
       // we are setting response headers for an incoming server connection
       m_response.append_header (key, val);
     } else {
-      throw error::make_error_code (error::invalid_state);
+      throw exception ("Call to append_header from invalid state",
+                       error::make_error_code (error::invalid_state) );
     }
   } else {
     if (m_internal_state == istate::USER_INIT) {
       // we are setting initial headers for an outgoing client connection
       m_request.append_header (key, val);
     } else {
-      throw error::make_error_code (error::invalid_state);
+      throw exception ("Call to append_header from invalid state",
+                       error::make_error_code (error::invalid_state) );
     }
   }
 }
@@ -619,42 +641,42 @@ template <typename config>
 void connection<config>::replace_header (std::string const &key,
     std::string const &val)
 {
-  // scoped_lock_type lock(m_connection_state_lock);
-
   if (m_is_server) {
     if (m_internal_state == istate::PROCESS_HTTP_REQUEST) {
       // we are setting response headers for an incoming server connection
       m_response.replace_header (key, val);
     } else {
-      throw error::make_error_code (error::invalid_state);
+      throw exception ("Call to replace_header from invalid state",
+                       error::make_error_code (error::invalid_state) );
     }
   } else {
     if (m_internal_state == istate::USER_INIT) {
       // we are setting initial headers for an outgoing client connection
       m_request.replace_header (key, val);
     } else {
-      throw error::make_error_code (error::invalid_state);
+      throw exception ("Call to replace_header from invalid state",
+                       error::make_error_code (error::invalid_state) );
     }
   }
 }
 template <typename config>
 void connection<config>::remove_header (std::string const &key)
 {
-  //scoped_lock_type lock(m_connection_state_lock);
-
   if (m_is_server) {
     if (m_internal_state == istate::PROCESS_HTTP_REQUEST) {
       // we are setting response headers for an incoming server connection
       m_response.remove_header (key);
     } else {
-      throw error::make_error_code (error::invalid_state);
+      throw exception ("Call to remove_header from invalid state",
+                       error::make_error_code (error::invalid_state) );
     }
   } else {
     if (m_internal_state == istate::USER_INIT) {
       // we are setting initial headers for an outgoing client connection
       m_request.remove_header (key);
     } else {
-      throw error::make_error_code (error::invalid_state);
+      throw exception ("Call to remove_header from invalid state",
+                       error::make_error_code (error::invalid_state) );
     }
   }
 }
@@ -671,11 +693,13 @@ void connection<config>::start()
 {
   m_alog.write (log::alevel::devel, "connection start");
 
-  this->atomic_state_change (
-    istate::USER_INIT,
-    istate::TRANSPORT_INIT,
-    "Start must be called from user init state"
-  );
+  if (m_internal_state != istate::USER_INIT) {
+    m_alog.write (log::alevel::devel, "Start called in invalid state");
+    this->terminate (error::make_error_code (error::invalid_state) );
+    return;
+  }
+
+  m_internal_state = istate::TRANSPORT_INIT;
 
   // Depending on how the transport implements init this function may return
   // immediately and call handle_transport_init later or call
@@ -694,40 +718,31 @@ void connection<config>::handle_transport_init (lib::error_code const &ec)
 {
   m_alog.write (log::alevel::devel, "connection handle_transport_init");
 
-  {
-    scoped_lock_type lock (m_connection_state_lock);
+  lib::error_code ecm = ec;
 
-    if (m_internal_state != istate::TRANSPORT_INIT) {
-      throw error::make_error_code (error::invalid_state);
-      //throw exception("handle_transport_init must be called from transport init state",
-      //                error::INVALID_STATE);
-    }
-
-    if (!ec) {
-      // unless there was a transport error, advance internal state.
-      if (m_is_server) {
-        m_internal_state = istate::READ_HTTP_REQUEST;
-      } else {
-        m_internal_state = istate::WRITE_HTTP_REQUEST;
-      }
-    }
+  if (m_internal_state != istate::TRANSPORT_INIT) {
+    m_alog.write (log::alevel::devel,
+                  "handle_transport_init must be called from transport init state");
+    ecm = error::make_error_code (error::invalid_state);
   }
 
-  if (ec) {
+  if (ecm) {
     std::stringstream s;
-    s << "handle_transport_init received error: " << ec.message();
-    m_elog.write (log::elevel::fatal, s.str() );
+    s << "handle_transport_init received error: " << ecm.message();
+    m_elog.write (log::elevel::rerror, s.str() );
 
-    this->terminate (ec);
+    this->terminate (ecm);
     return;
   }
 
   // At this point the transport is ready to read and write bytes.
   if (m_is_server) {
+    m_internal_state = istate::READ_HTTP_REQUEST;
     this->read_handshake (1);
   } else {
     // We are a client. Set the processor to the version specified in the
     // config file and send a handshake request.
+    m_internal_state = istate::WRITE_HTTP_REQUEST;
     m_processor = get_processor (config::client_version);
     this->send_http_request();
   }
@@ -770,24 +785,37 @@ void connection<config>::handle_read_handshake (lib::error_code const &ec,
 {
   m_alog.write (log::alevel::devel, "connection handle_read_handshake");
 
-  this->atomic_state_check (
-    istate::READ_HTTP_REQUEST,
-    "handle_read_handshake must be called from READ_HTTP_REQUEST state"
-  );
+  lib::error_code ecm = ec;
 
-  if (ec) {
-    if (ec == transport::error::eof) {
-      // we expect to get eof if the connection is closed already
-      if (m_state == session::state::closed) {
-        m_alog.write (log::alevel::devel, "got eof from closed con");
-        return;
+  if (!ecm) {
+    scoped_lock_type lock (m_connection_state_lock);
+
+    if (m_state == session::state::connecting) {
+      if (m_internal_state != istate::READ_HTTP_REQUEST) {
+        ecm = error::make_error_code (error::invalid_state);
       }
+    } else if (m_state == session::state::closed) {
+      // The connection was canceled while the response was being sent,
+      // usually by the handshake timer. This is basically expected
+      // (though hopefully rare) and there is nothing we can do so ignore.
+      m_alog.write (log::alevel::devel,
+                    "handle_read_handshake invoked after connection was closed");
+      return;
+    } else {
+      ecm = error::make_error_code (error::invalid_state);
+    }
+  }
+
+  if (ecm) {
+    if (ecm == transport::error::eof && m_state == session::state::closed) {
+      // we expect to get eof if the connection is closed already
+      m_alog.write (log::alevel::devel,
+                    "got (expected) eof/state error from closed con");
+      return;
     }
 
-    std::stringstream s;
-    s << "error in handle_read_handshake: " << ec.message();
-    m_elog.write (log::elevel::fatal, s.str() );
-    this->terminate (ec);
+    log_err (log::elevel::rerror, "handle_read_handshake", ecm);
+    this->terminate (ecm);
     return;
   }
 
@@ -806,13 +834,14 @@ void connection<config>::handle_read_handshake (lib::error_code const &ec,
     // All HTTP exceptions will result in this request failing and an error
     // response being returned. No more bytes will be read in this con.
     m_response.set_status (e.m_error_code, e.m_error_msg);
-    this->send_http_response_error();
+    this->send_http_response_error (error::make_error_code (
+                                      error::http_parse_error) );
     return;
   }
 
   // More paranoid boundaries checking.
   // TODO: Is this overkill?
-  if (bytes_processed > config::connection_read_buffer_size) {
+  if (bytes_processed > bytes_transferred) {
     m_elog.write (log::elevel::fatal, "Fatal boundaries checking error.");
     this->terminate (make_error_code (error::general) );
     return;
@@ -826,8 +855,10 @@ void connection<config>::handle_read_handshake (lib::error_code const &ec,
   }
 
   if (m_request.ready() ) {
-    if (!this->initialize_processor() ) {
-      this->send_http_response_error();
+    lib::error_code processor_ec = this->initialize_processor();
+
+    if (processor_ec) {
+      this->send_http_response_error (processor_ec);
       return;
     }
 
@@ -844,7 +875,8 @@ void connection<config>::handle_read_handshake (lib::error_code const &ec,
         // TODO: need more bytes
         m_alog.write (log::alevel::devel, "short key3 read");
         m_response.set_status (http::status_code::internal_server_error);
-        this->send_http_response_error();
+        this->send_http_response_error (processor::error::make_error_code (
+                                          processor::error::short_key3) );
         return;
       }
     }
@@ -864,15 +896,12 @@ void connection<config>::handle_read_handshake (lib::error_code const &ec,
     std::copy (m_buf + bytes_processed, m_buf + bytes_transferred, m_buf);
     m_buf_cursor = bytes_transferred - bytes_processed;
 
-    this->atomic_state_change (
-      istate::READ_HTTP_REQUEST,
-      istate::PROCESS_HTTP_REQUEST,
-      "send_http_response must be called from READ_HTTP_REQUEST state"
-    );
+
+    m_internal_state = istate::PROCESS_HTTP_REQUEST;
 
     // We have the complete request. Process it.
-    this->process_handshake_request();
-    this->send_http_response();
+    lib::error_code handshake_ec = this->process_handshake_request();
+    this->send_http_response (handshake_ec);
   } else {
     // read at least 1 more byte
     transport_con_type::async_read_at_least (
@@ -895,14 +924,18 @@ void connection<config>::handle_read_handshake (lib::error_code const &ec,
 // sure if the hybi00 key3 bytes need to be read). This method sets the correct
 // state and calls send_http_response
 template <typename config>
-void connection<config>::send_http_response_error()
+void connection<config>::send_http_response_error (lib::error_code const &ec)
 {
-  this->atomic_state_change (
-    istate::READ_HTTP_REQUEST,
-    istate::PROCESS_HTTP_REQUEST,
-    "send_http_response must be called from READ_HTTP_REQUEST state"
-  );
-  this->send_http_response();
+  if (m_internal_state != istate::READ_HTTP_REQUEST) {
+    m_alog.write (log::alevel::devel,
+                  "send_http_response_error called in invalid state");
+    this->terminate (error::make_error_code (error::invalid_state) );
+    return;
+  }
+
+  m_internal_state = istate::PROCESS_HTTP_REQUEST;
+
+  this->send_http_response (ec);
 }
 
 // All exit paths for this function need to call send_http_response() or submit
@@ -913,15 +946,16 @@ void connection<config>::handle_read_frame (lib::error_code const &ec,
 {
   //m_alog.write(log::alevel::devel,"connection handle_read_frame");
 
-  this->atomic_state_check (
-    istate::PROCESS_CONNECTION,
-    "handle_read_frame must be called from PROCESS_CONNECTION state"
-  );
+  lib::error_code ecm = ec;
 
-  if (ec) {
-    log::level echannel = log::elevel::fatal;
+  if (!ecm && m_internal_state != istate::PROCESS_CONNECTION) {
+    ecm = error::make_error_code (error::invalid_state);
+  }
 
-    if (ec == transport::error::eof) {
+  if (ecm) {
+    log::level echannel = log::elevel::rerror;
+
+    if (ecm == transport::error::eof) {
       if (m_state == session::state::closed) {
         // we expect to get eof if the connection is closed already
         // just ignore it
@@ -934,9 +968,17 @@ void connection<config>::handle_read_frame (lib::error_code const &ec,
         terminate (lib::error_code() );
         return;
       }
-    }
-
-    if (ec == transport::error::tls_short_read) {
+    } else if (ecm == error::invalid_state) {
+      // In general, invalid state errors in the closed state are the
+      // result of handlers that were in the system already when the state
+      // changed and should be ignored as they pose no problems and there
+      // is nothing useful that we can do about them.
+      if (m_state == session::state::closed) {
+        m_alog.write (log::alevel::devel,
+                      "handle_read_frame: got invalid istate in closed state");
+        return;
+      }
+    } else if (ecm == transport::error::tls_short_read) {
       if (m_state == session::state::closed) {
         // We expect to get a TLS short read if we try to read after the
         // connection is closed. If this happens ignore and exit the
@@ -946,12 +988,12 @@ void connection<config>::handle_read_frame (lib::error_code const &ec,
       }
 
       echannel = log::elevel::rerror;
-    } else if (ec == transport::error::action_after_shutdown) {
+    } else if (ecm == transport::error::action_after_shutdown) {
       echannel = log::elevel::info;
     }
 
-    log_err (echannel, "handle_read_frame", ec);
-    this->terminate (ec);
+    log_err (echannel, "handle_read_frame", ecm);
+    this->terminate (ecm);
     return;
   }
 
@@ -1066,13 +1108,13 @@ void connection<config>::read_frame()
 }
 
 template <typename config>
-bool connection<config>::initialize_processor()
+lib::error_code connection<config>::initialize_processor()
 {
   m_alog.write (log::alevel::devel, "initialize_processor");
 
   // if it isn't a websocket handshake nothing to do.
   if (!processor::is_websocket_handshake (m_request) ) {
-    return true;
+    return lib::error_code();
   }
 
   int version = processor::get_websocket_version (m_request);
@@ -1080,14 +1122,14 @@ bool connection<config>::initialize_processor()
   if (version < 0) {
     m_alog.write (log::alevel::devel, "BAD REQUEST: can't determine version");
     m_response.set_status (http::status_code::bad_request);
-    return false;
+    return error::make_error_code (error::invalid_version);
   }
 
   m_processor = get_processor (version);
 
   // if the processor is not null we are done
   if (m_processor) {
-    return true;
+    return lib::error_code();
   }
 
   // We don't have a processor for this version. Return bad request
@@ -1105,11 +1147,11 @@ bool connection<config>::initialize_processor()
   }
 
   m_response.replace_header ("Sec-WebSocket-Version", ss.str() );
-  return false;
+  return error::make_error_code (error::unsupported_version);
 }
 
 template <typename config>
-bool connection<config>::process_handshake_request()
+lib::error_code connection<config>::process_handshake_request()
 {
   m_alog.write (log::alevel::devel, "process handshake request");
 
@@ -1126,16 +1168,22 @@ bool connection<config>::process_handshake_request()
     if (!m_uri->get_valid() ) {
       m_alog.write (log::alevel::devel, "Bad request: failed to parse uri");
       m_response.set_status (http::status_code::bad_request);
-      return false;
+      return error::make_error_code (error::invalid_uri);
     }
 
     if (m_http_handler) {
+      m_is_http = true;
       m_http_handler (m_connection_hdl);
+
+      if (m_state == session::state::closed) {
+        return error::make_error_code (error::http_connection_ended);
+      }
     } else {
       set_status (http::status_code::upgrade_required);
+      return error::make_error_code (error::upgrade_required);
     }
 
-    return true;
+    return lib::error_code();
   }
 
   lib::error_code ec = m_processor->validate_handshake (m_request);
@@ -1145,7 +1193,7 @@ bool connection<config>::process_handshake_request()
     // Not a valid handshake request
     m_alog.write (log::alevel::devel, "Bad request " + ec.message() );
     m_response.set_status (http::status_code::bad_request);
-    return false;
+    return ec;
   }
 
   // Read extension parameters and set up values necessary for the end user
@@ -1159,7 +1207,7 @@ bool connection<config>::process_handshake_request()
     m_alog.write (log::alevel::devel,
                   "Bad request: " + neg_results.first.message() );
     m_response.set_status (http::status_code::bad_request);
-    return false;
+    return neg_results.first;
   } else {
     // extension negotiation succeeded, set response header accordingly
     // we don't send an empty extensions header because it breaks many
@@ -1177,7 +1225,7 @@ bool connection<config>::process_handshake_request()
   if (!m_uri->get_valid() ) {
     m_alog.write (log::alevel::devel, "Bad request: failed to parse uri");
     m_response.set_status (http::status_code::bad_request);
-    return false;
+    return error::make_error_code (error::invalid_uri);
   }
 
   // extract subprotocols
@@ -1202,7 +1250,7 @@ bool connection<config>::process_handshake_request()
       m_alog.write (log::alevel::devel, s.str() );
 
       m_response.set_status (http::status_code::internal_server_error);
-      return false;
+      return ec;
     }
   } else {
     // User application has rejected the handshake
@@ -1215,19 +1263,27 @@ bool connection<config>::process_handshake_request()
       m_response.set_status (http::status_code::bad_request);
     }
 
-    return false;
+    return error::make_error_code (error::rejected);
   }
 
-  return true;
+  return lib::error_code();
 }
 
 template <typename config>
-void connection<config>::send_http_response()
+void connection<config>::send_http_response (lib::error_code const &ec)
 {
   m_alog.write (log::alevel::devel, "connection send_http_response");
 
+  if (ec == error::make_error_code (error::http_connection_ended) ) {
+    m_alog.write (log::alevel::http, "An HTTP handler took over the connection.");
+    return;
+  }
+
   if (m_response.get_status_code() == http::status_code::uninitialized) {
     m_response.set_status (http::status_code::internal_server_error);
+    m_ec = error::make_error_code (error::general);
+  } else {
+    m_ec = ec;
   }
 
   m_response.set_version ("HTTP/1.1");
@@ -1276,18 +1332,39 @@ void connection<config>::handle_send_http_response (lib::error_code const &ec)
 {
   m_alog.write (log::alevel::devel, "handle_send_http_response");
 
-  this->atomic_state_check (
-    istate::PROCESS_HTTP_REQUEST,
-    "handle_send_http_response must be called from PROCESS_HTTP_REQUEST state"
-  );
+  lib::error_code ecm = ec;
 
-  if (ec) {
-    log_err (log::elevel::rerror, "handle_send_http_response", ec);
-    this->terminate (ec);
-    return;
+  if (!ecm) {
+    scoped_lock_type lock (m_connection_state_lock);
+
+    if (m_state == session::state::connecting) {
+      if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
+        ecm = error::make_error_code (error::invalid_state);
+      }
+    } else if (m_state == session::state::closed) {
+      // The connection was canceled while the response was being sent,
+      // usually by the handshake timer. This is basically expected
+      // (though hopefully rare) and there is nothing we can do so ignore.
+      m_alog.write (log::alevel::devel,
+                    "handle_send_http_response invoked after connection was closed");
+      return;
+    } else {
+      ecm = error::make_error_code (error::invalid_state);
+    }
   }
 
-  this->log_open_result();
+  if (ecm) {
+    if (ecm == transport::error::eof && m_state == session::state::closed) {
+      // we expect to get eof if the connection is closed already
+      m_alog.write (log::alevel::devel,
+                    "got (expected) eof/state error from closed con");
+      return;
+    }
+
+    log_err (log::elevel::rerror, "handle_send_http_response", ecm);
+    this->terminate (ecm);
+    return;
+  }
 
   if (m_handshake_timer) {
     m_handshake_timer->cancel();
@@ -1295,8 +1372,11 @@ void connection<config>::handle_send_http_response (lib::error_code const &ec)
   }
 
   if (m_response.get_status_code() != http::status_code::switching_protocols) {
-    if (m_processor) {
-      // this was a websocket connection that ended in an error
+    /*if (m_processor || m_ec == error::http_parse_error ||
+        m_ec == error::invalid_version || m_ec == error::unsupported_version
+        || m_ec == error::upgrade_required)
+    {*/
+    if (!m_is_http) {
       std::stringstream s;
       s << "Handshake ended with HTTP error: "
         << m_response.get_status_code();
@@ -1304,19 +1384,25 @@ void connection<config>::handle_send_http_response (lib::error_code const &ec)
     } else {
       // if this was not a websocket connection, we have written
       // the expected response and the connection can be closed.
+
+      this->log_http_result();
+
+      if (m_ec) {
+        m_alog.write (log::alevel::devel,
+                      "got to writing HTTP results with m_ec set: " + m_ec.message() );
+      }
+
+      m_ec = make_error_code (error::http_connection_ended);
     }
 
-    this->terminate (make_error_code (error::http_connection_ended) );
+    this->terminate (m_ec);
     return;
   }
 
-  this->atomic_state_change (
-    istate::PROCESS_HTTP_REQUEST,
-    istate::PROCESS_CONNECTION,
-    session::state::connecting,
-    session::state::open,
-    "handle_send_http_response must be called from PROCESS_HTTP_REQUEST state"
-  );
+  this->log_open_result();
+
+  m_internal_state = istate::PROCESS_CONNECTION;
+  m_state = session::state::open;
 
   if (m_open_handler) {
     m_open_handler (m_connection_hdl);
@@ -1391,22 +1477,41 @@ void connection<config>::handle_send_http_request (lib::error_code const &ec)
 {
   m_alog.write (log::alevel::devel, "handle_send_http_request");
 
-  this->atomic_state_check (
-    istate::WRITE_HTTP_REQUEST,
-    "handle_send_http_request must be called from WRITE_HTTP_REQUEST state"
-  );
+  lib::error_code ecm = ec;
 
-  if (ec) {
-    log_err (log::elevel::rerror, "handle_send_http_request", ec);
-    this->terminate (ec);
-    return;
+  if (!ecm) {
+    scoped_lock_type lock (m_connection_state_lock);
+
+    if (m_state == session::state::connecting) {
+      if (m_internal_state != istate::WRITE_HTTP_REQUEST) {
+        ecm = error::make_error_code (error::invalid_state);
+      } else {
+        m_internal_state = istate::READ_HTTP_RESPONSE;
+      }
+    } else if (m_state == session::state::closed) {
+      // The connection was canceled while the response was being sent,
+      // usually by the handshake timer. This is basically expected
+      // (though hopefully rare) and there is nothing we can do so ignore.
+      m_alog.write (log::alevel::devel,
+                    "handle_send_http_request invoked after connection was closed");
+      return;
+    } else {
+      ecm = error::make_error_code (error::invalid_state);
+    }
   }
 
-  this->atomic_state_change (
-    istate::WRITE_HTTP_REQUEST,
-    istate::READ_HTTP_RESPONSE,
-    "handle_send_http_request must be called from WRITE_HTTP_REQUEST state"
-  );
+  if (ecm) {
+    if (ecm == transport::error::eof && m_state == session::state::closed) {
+      // we expect to get eof if the connection is closed already
+      m_alog.write (log::alevel::devel,
+                    "got (expected) eof/state error from closed con");
+      return;
+    }
+
+    log_err (log::elevel::rerror, "handle_send_http_request", ecm);
+    this->terminate (ecm);
+    return;
+  }
 
   transport_con_type::async_read_at_least (
     1,
@@ -1427,14 +1532,37 @@ void connection<config>::handle_read_http_response (lib::error_code const &ec,
 {
   m_alog.write (log::alevel::devel, "handle_read_http_response");
 
-  this->atomic_state_check (
-    istate::READ_HTTP_RESPONSE,
-    "handle_read_http_response must be called from READ_HTTP_RESPONSE state"
-  );
+  lib::error_code ecm = ec;
 
-  if (ec) {
-    log_err (log::elevel::rerror, "handle_send_http_response", ec);
-    this->terminate (ec);
+  if (!ecm) {
+    scoped_lock_type lock (m_connection_state_lock);
+
+    if (m_state == session::state::connecting) {
+      if (m_internal_state != istate::READ_HTTP_RESPONSE) {
+        ecm = error::make_error_code (error::invalid_state);
+      }
+    } else if (m_state == session::state::closed) {
+      // The connection was canceled while the response was being sent,
+      // usually by the handshake timer. This is basically expected
+      // (though hopefully rare) and there is nothing we can do so ignore.
+      m_alog.write (log::alevel::devel,
+                    "handle_read_http_response invoked after connection was closed");
+      return;
+    } else {
+      ecm = error::make_error_code (error::invalid_state);
+    }
+  }
+
+  if (ecm) {
+    if (ecm == transport::error::eof && m_state == session::state::closed) {
+      // we expect to get eof if the connection is closed already
+      m_alog.write (log::alevel::devel,
+                    "got (expected) eof/state error from closed con");
+      return;
+    }
+
+    log_err (log::elevel::rerror, "handle_read_http_response", ecm);
+    this->terminate (ecm);
     return;
   }
 
@@ -1471,13 +1599,8 @@ void connection<config>::handle_read_http_response (lib::error_code const &ec,
     }
 
     // response is valid, connection can now be assumed to be open
-    this->atomic_state_change (
-      istate::READ_HTTP_RESPONSE,
-      istate::PROCESS_CONNECTION,
-      session::state::connecting,
-      session::state::open,
-      "handle_read_http_response must be called from READ_HTTP_RESPONSE state"
-    );
+    m_internal_state = istate::PROCESS_CONNECTION;
+    m_state = session::state::open;
 
     this->log_open_result();
 
@@ -1560,9 +1683,16 @@ void connection<config>::terminate (lib::error_code const &ec)
     m_local_close_reason = ec.message();
   }
 
+  // TODO: does this need a mutex?
   if (m_state == session::state::connecting) {
     m_state = session::state::closed;
     tstat = failed;
+
+    // Log fail result here before socket is shut down and we can't get
+    // the remote address, etc anymore
+    if (m_ec != error::http_connection_ended) {
+      log_fail_result();
+    }
   } else if (m_state != session::state::closed) {
     m_state = session::state::closed;
     tstat = closed;
@@ -1599,11 +1729,11 @@ void connection<config>::handle_terminate (terminate_status tstat,
 
   // clean shutdown
   if (tstat == failed) {
-    if (m_fail_handler) {
-      m_fail_handler (m_connection_hdl);
+    if (m_ec != error::http_connection_ended) {
+      if (m_fail_handler) {
+        m_fail_handler (m_connection_hdl);
+      }
     }
-
-    log_fail_result();
   } else if (tstat == closed) {
     if (m_close_handler) {
       m_close_handler (m_connection_hdl);
@@ -1703,8 +1833,12 @@ void connection<config>::write_frame()
         if (m_alog.static_test (log::alevel::frame_payload) ) {
           if (m_alog.dynamic_test (log::alevel::frame_payload) ) {
             payload << "[" << i << "] ("
-                    << m_current_msgs[i]->get_payload().size() << ") "
-                    << utility::to_hex (m_current_msgs[i]->get_payload() )
+                    << m_current_msgs[i]->get_payload().size() << ") [" <<
+                    m_current_msgs[i]->get_opcode() << "] "
+                    << (m_current_msgs[i]->get_opcode() == frame::opcode::text ?
+                        m_current_msgs[i]->get_payload() :
+                        utility::to_hex (m_current_msgs[i]->get_payload() )
+                       )
                     << "\n";
           }
         }
@@ -1767,48 +1901,7 @@ void connection<config>::handle_write_frame (lib::error_code const &ec)
 }
 
 template <typename config>
-void connection<config>::atomic_state_change (istate_type req, istate_type dest,
-    std::string msg)
-{
-  scoped_lock_type lock (m_connection_state_lock);
-
-  if (m_internal_state != req) {
-    throw error::make_error_code (error::invalid_state);
-    //throw exception(msg,error::INVALID_STATE);
-  }
-
-  m_internal_state = dest;
-}
-
-template <typename config>
-void connection<config>::atomic_state_change (istate_type internal_req,
-    istate_type internal_dest, session::state::value external_req,
-    session::state::value external_dest, std::string msg)
-{
-  scoped_lock_type lock (m_connection_state_lock);
-
-  if (m_internal_state != internal_req || m_state != external_req) {
-    throw error::make_error_code (error::invalid_state);
-    //throw exception(msg,error::INVALID_STATE);
-  }
-
-  m_internal_state = internal_dest;
-  m_state = external_dest;
-}
-
-template <typename config>
-void connection<config>::atomic_state_check (istate_type req, std::string msg)
-{
-  scoped_lock_type lock (m_connection_state_lock);
-
-  if (m_internal_state != req) {
-    throw error::make_error_code (error::invalid_state);
-    //throw exception(msg,error::INVALID_STATE);
-  }
-}
-
-template <typename config>
-const std::vector<int> &connection<config>::get_supported_versions() const
+std::vector<int> const &connection<config>::get_supported_versions() const
 {
   return versions_supported;
 }
@@ -2061,38 +2154,38 @@ connection<config>::get_processor (int version) const
 
   switch (version) {
   case 0:
-    p.reset (new processor::hybi00<config> (
-               transport_con_type::is_secure(),
-               m_is_server,
-               m_msg_manager
-             ) );
+    p = lib::make_shared<processor::hybi00<config> > (
+          transport_con_type::is_secure(),
+          m_is_server,
+          m_msg_manager
+        );
     break;
 
   case 7:
-    p.reset (new processor::hybi07<config> (
-               transport_con_type::is_secure(),
-               m_is_server,
-               m_msg_manager,
-               m_rng
-             ) );
+    p = lib::make_shared<processor::hybi07<config> > (
+          transport_con_type::is_secure(),
+          m_is_server,
+          m_msg_manager,
+          lib::ref (m_rng)
+        );
     break;
 
   case 8:
-    p.reset (new processor::hybi08<config> (
-               transport_con_type::is_secure(),
-               m_is_server,
-               m_msg_manager,
-               m_rng
-             ) );
+    p = lib::make_shared<processor::hybi08<config> > (
+          transport_con_type::is_secure(),
+          m_is_server,
+          m_msg_manager,
+          lib::ref (m_rng)
+        );
     break;
 
   case 13:
-    p.reset (new processor::hybi13<config> (
-               transport_con_type::is_secure(),
-               m_is_server,
-               m_msg_manager,
-               m_rng
-             ) );
+    p = lib::make_shared<processor::hybi13<config> > (
+          transport_con_type::is_secure(),
+          m_is_server,
+          m_msg_manager,
+          lib::ref (m_rng)
+        );
     break;
 
   default:
@@ -2207,9 +2300,74 @@ void connection<config>::log_close_result()
 template <typename config>
 void connection<config>::log_fail_result()
 {
-  // TODO: include more information about the connection?
-  // should this be filed under connect rather than disconnect?
-  m_alog.write (log::alevel::disconnect, "Failed: " + m_ec.message() );
+  std::stringstream s;
+
+  int version = processor::get_websocket_version (m_request);
+
+  // Connection Type
+  s << "WebSocket Connection ";
+
+  // Remote endpoint address & WebSocket version
+  s << transport_con_type::get_remote_endpoint();
+
+  if (version < 0) {
+    s << " -";
+  } else {
+    s << " v" << version;
+  }
+
+  // User Agent
+  std::string ua = m_request.get_header ("User-Agent");
+
+  if (ua == "") {
+    s << " \"\" ";
+  } else {
+    // check if there are any quotes in the user agent
+    s << " \"" << utility::string_replace_all (ua, "\"", "\\\"") << "\" ";
+  }
+
+  // URI
+  s << (m_uri ? m_uri->get_resource() : "-");
+
+  // HTTP Status code
+  s  << " " << m_response.get_status_code();
+
+  // WebSocket++ error code & reason
+  s << " " << m_ec << " " << m_ec.message();
+
+  m_alog.write (log::alevel::fail, s.str() );
+}
+
+template <typename config>
+void connection<config>::log_http_result()
+{
+  std::stringstream s;
+
+  if (processor::is_websocket_handshake (m_request) ) {
+    m_alog.write (log::alevel::devel, "Call to log_http_result for WebSocket");
+    return;
+  }
+
+  // Connection Type
+  s << (m_request.get_header ("host") == "" ? "-" :
+        m_request.get_header ("host") )
+    << " " << transport_con_type::get_remote_endpoint()
+    << " \"" << m_request.get_method()
+    << " " << (m_uri ? m_uri->get_resource() : "-")
+    << " " << m_request.get_version() << "\" " << m_response.get_status_code()
+    << " " << m_response.get_body().size();
+
+  // User Agent
+  std::string ua = m_request.get_header ("User-Agent");
+
+  if (ua == "") {
+    s << " \"\" ";
+  } else {
+    // check if there are any quotes in the user agent
+    s << " \"" << utility::string_replace_all (ua, "\"", "\\\"") << "\" ";
+  }
+
+  m_alog.write (log::alevel::http, s.str() );
 }
 
 } // namespace websocketpp

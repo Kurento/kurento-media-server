@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Peter Thorson. All rights reserved.
+ * Copyright (c) 2014, Peter Thorson. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,11 +29,11 @@
 #define WEBSOCKETPP_ENDPOINT_HPP
 
 #include <websocketpp/connection.hpp>
+
 #include <websocketpp/logger/levels.hpp>
 #include <websocketpp/version.hpp>
 
-#include <iostream>
-#include <set>
+#include <string>
 
 namespace websocketpp
 {
@@ -87,16 +87,15 @@ public:
   // TODO: organize these
   typedef typename connection_type::termination_handler termination_handler;
 
-  typedef lib::shared_ptr<connection_weak_ptr> hdl_type;
-
   explicit endpoint (bool p_is_server)
-    : m_alog (config::alog_level, &std::cout)
-    , m_elog (config::elog_level, &std::cerr)
+    : m_alog (config::alog_level, log::channel_type_hint::access)
+    , m_elog (config::elog_level, log::channel_type_hint::error)
     , m_user_agent (::websocketpp::user_agent)
     , m_open_handshake_timeout_dur (config::timeout_open_handshake)
     , m_close_handshake_timeout_dur (config::timeout_close_handshake)
     , m_pong_timeout_dur (config::timeout_pong)
     , m_max_message_size (config::max_message_size)
+    , m_max_http_body_size (config::max_http_body_size)
     , m_is_server (p_is_server)
   {
     m_alog.set_channels (config::alog_level);
@@ -375,9 +374,10 @@ public:
 
   /// Get default maximum message size
   /**
-   * Get the default maximum message size that will be used for new connections created
-   * by this endpoint. The maximum message size determines the point at which the
-   * connection will fail a connection with the message_too_big protocol error.
+   * Get the default maximum message size that will be used for new
+   * connections created by this endpoint. The maximum message size determines
+   * the point at which the connection will fail a connection with the
+   * message_too_big protocol error.
    *
    * The default is set by the max_message_size value from the template config
    *
@@ -390,9 +390,10 @@ public:
 
   /// Set default maximum message size
   /**
-   * Set the default maximum message size that will be used for new connections created
-   * by this endpoint. Maximum message size determines the point at which the connection
-   * will fail a connection with the message_too_big protocol error.
+   * Set the default maximum message size that will be used for new
+   * connections created by this endpoint. Maximum message size determines the
+   * point at which the connection will fail a connection with the
+   * message_too_big protocol error.
    *
    * The default is set by the max_message_size value from the template config
    *
@@ -403,6 +404,42 @@ public:
   void set_max_message_size (size_t new_value)
   {
     m_max_message_size = new_value;
+  }
+
+  /// Get maximum HTTP message body size
+  /**
+   * Get maximum HTTP message body size. Maximum message body size determines
+   * the point at which the connection will stop reading an HTTP request whose
+   * body is too large.
+   *
+   * The default is set by the max_http_body_size value from the template
+   * config
+   *
+   * @since 0.5.0
+   *
+   * @return The maximum HTTP message body size
+   */
+  size_t get_max_http_body_size() const
+  {
+    return m_max_http_body_size;
+  }
+
+  /// Set maximum HTTP message body size
+  /**
+   * Set maximum HTTP message body size. Maximum message body size determines
+   * the point at which the connection will stop reading an HTTP request whose
+   * body is too large.
+   *
+   * The default is set by the max_http_body_size value from the template
+   * config
+   *
+   * @since 0.5.1
+   *
+   * @param new_value The value to set as the maximum message size.
+   */
+  void set_max_http_body_size (size_t new_value)
+  {
+    m_max_http_body_size = new_value;
   }
 
   /*************************************/
@@ -422,21 +459,21 @@ public:
 
   /// Pause reading of new data (exception free)
   /**
-   * Signals to the connection to halt reading of new data. While reading is paused,
-   * the connection will stop reading from its associated socket. In turn this will
-   * result in TCP based flow control kicking in and slowing data flow from the remote
-   * endpoint.
+   * Signals to the connection to halt reading of new data. While reading is
+   * paused, the connection will stop reading from its associated socket. In
+   * turn this will result in TCP based flow control kicking in and slowing
+   * data flow from the remote endpoint.
    *
-   * This is useful for applications that push new requests to a queue to be processed
-   * by another thread and need a way to signal when their request queue is full without
-   * blocking the network processing thread.
+   * This is useful for applications that push new requests to a queue to be
+   * processed by another thread and need a way to signal when their request
+   * queue is full without blocking the network processing thread.
    *
    * Use `resume_reading()` to resume.
    *
-   * If supported by the transport this is done asynchronously. As such reading may not
-   * stop until the current read operation completes. Typically you can expect to
-   * receive no more bytes after initiating a read pause than the size of the read
-   * buffer.
+   * If supported by the transport this is done asynchronously. As such
+   * reading may not stop until the current read operation completes.
+   * Typically you can expect to receive no more bytes after initiating a read
+   * pause than the size of the read buffer.
    *
    * If reading is paused for this connection already nothing is changed.
    */
@@ -447,8 +484,8 @@ public:
 
   /// Resume reading of new data (exception free)
   /**
-   * Signals to the connection to resume reading of new data after it was paused by
-   * `pause_reading()`.
+   * Signals to the connection to resume reading of new data after it was
+   * paused by `pause_reading()`.
    *
    * If reading is not paused for this connection already nothing is changed.
    */
@@ -569,7 +606,7 @@ public:
     connection_ptr con = this->get_con_from_hdl (hdl, ec);
 
     if (ec) {
-      throw ec;
+      throw exception (ec);
     }
 
     return con;
@@ -598,6 +635,7 @@ private:
   long                        m_close_handshake_timeout_dur;
   long                        m_pong_timeout_dur;
   size_t                      m_max_message_size;
+  size_t                      m_max_http_body_size;
 
   rng_type m_rng;
 

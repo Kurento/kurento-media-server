@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Peter Thorson. All rights reserved.
+ * Copyright (c) 2014, Peter Thorson. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@ public:
    */
   message_ptr get_message()
   {
-    return message_ptr (new message (type::shared_from_this() ) );
+    return message_ptr (lib::make_shared<message> (type::shared_from_this() ) );
   }
 
   /// Get a message buffer with specified size and opcode
@@ -69,7 +69,8 @@ public:
    */
   message_ptr get_message (frame::opcode::value op, size_t size)
   {
-    return message_ptr (new message (type::shared_from_this(), op, size) );
+    return message_ptr (lib::make_shared<message> (type::shared_from_this(), op,
+                        size) );
   }
 
   /// Recycle a message
@@ -82,7 +83,7 @@ public:
    *
    * @return true if the message was successfully recycled, false otherwse.
    */
-  bool recycle (message *msg)
+  bool recycle (message *)
   {
     return false;
   }
@@ -102,7 +103,7 @@ public:
    */
   con_msg_man_ptr get_manager() const
   {
-    return con_msg_man_ptr (new con_msg_manager() );
+    return con_msg_man_ptr (lib::make_shared<con_msg_manager>() );
   }
 };
 

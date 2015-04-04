@@ -53,9 +53,9 @@ WebSocketEventHandler::sendEvent (Json::Value &value)
 
     try {
       transport->send (sessionId, eventStr);
-    } catch (websocketpp::lib::error_code &e) {
+    } catch (websocketpp::exception &e) {
       GST_ERROR ("Error on websocket while sending event to MediaHandler: %s",
-                 e.message().c_str() );
+                 e.code().message().c_str() );
     }
   } catch (std::exception &e) {
     GST_WARNING ("Error sending event to MediaHandler: %s", e.what() );
