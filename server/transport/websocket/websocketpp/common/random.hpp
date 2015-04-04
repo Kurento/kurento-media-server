@@ -29,35 +29,37 @@
 #define WEBSOCKETPP_COMMON_RANDOM_DEVICE_HPP
 
 #if defined _WEBSOCKETPP_CPP11_STL_ && !defined _WEBSOCKETPP_NO_CPP11_RANDOM_DEVICE_
-    #ifndef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-        #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-    #endif
+#ifndef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+#endif
 #endif
 
 #ifdef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-    #include <random>
+#include <random>
 #else
-    #include <boost/version.hpp>
+#include <boost/version.hpp>
 
-    #if (BOOST_VERSION/100000) == 1 && ((BOOST_VERSION/100)%1000) > 46
-        #include <boost/random/uniform_int_distribution.hpp>
-        #include <boost/random/random_device.hpp>
-    #elif (BOOST_VERSION/100000) == 1 && ((BOOST_VERSION/100)%1000) >= 43
-        #include <boost/nondet_random.hpp>
-    #else
-        // TODO: static_assert(false, "Could not find a suitable random_device")
-    #endif
+#if (BOOST_VERSION/100000) == 1 && ((BOOST_VERSION/100)%1000) > 46
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/random_device.hpp>
+#elif (BOOST_VERSION/100000) == 1 && ((BOOST_VERSION/100)%1000) >= 43
+#include <boost/nondet_random.hpp>
+#else
+// TODO: static_assert(false, "Could not find a suitable random_device")
+#endif
 #endif
 
-namespace websocketpp {
-namespace lib {
+namespace websocketpp
+{
+namespace lib
+{
 
 #ifdef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
-    using std::random_device;
-    using std::uniform_int_distribution;
+using std::random_device;
+using std::uniform_int_distribution;
 #else
-    using boost::random::random_device;
-    using boost::random::uniform_int_distribution;
+using boost::random::random_device;
+using boost::random::uniform_int_distribution;
 #endif
 
 } // namespace lib

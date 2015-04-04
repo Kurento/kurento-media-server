@@ -30,7 +30,8 @@
 
 #include <websocketpp/common/memory.hpp>
 
-namespace websocketpp {
+namespace websocketpp
+{
 
 /// A handle to uniquely identify a connection.
 /**

@@ -60,10 +60,14 @@
 // pre_init(init_handler);
 // post_init(init_handler);
 
-namespace websocketpp {
-namespace transport {
-namespace asio {
-namespace socket {
+namespace websocketpp
+{
+namespace transport
+{
+namespace asio
+{
+namespace socket
+{
 
 /**
  * The transport::asio::socket::* classes are a set of security/socket related
@@ -71,79 +75,93 @@ namespace socket {
  */
 
 /// Errors related to asio transport sockets
-namespace error {
-    enum value {
-        /// Catch-all error for security policy errors that don't fit in other
-        /// categories
-        security = 1,
+namespace error
+{
+enum value {
+  /// Catch-all error for security policy errors that don't fit in other
+  /// categories
+  security = 1,
 
-        /// Catch-all error for socket component errors that don't fit in other
-        /// categories
-        socket,
+  /// Catch-all error for socket component errors that don't fit in other
+  /// categories
+  socket,
 
-        /// A function was called in a state that it was illegal to do so.
-        invalid_state,
+  /// A function was called in a state that it was illegal to do so.
+  invalid_state,
 
-        /// The application was prompted to provide a TLS context and it was
-        /// empty or otherwise invalid
-        invalid_tls_context,
+  /// The application was prompted to provide a TLS context and it was
+  /// empty or otherwise invalid
+  invalid_tls_context,
 
-        /// TLS Handshake Timeout
-        tls_handshake_timeout,
+  /// TLS Handshake Timeout
+  tls_handshake_timeout,
 
-        /// pass_through from underlying library
-        pass_through,
+  /// pass_through from underlying library
+  pass_through,
 
-        /// Required tls_init handler not present
-        missing_tls_init_handler,
+  /// Required tls_init handler not present
+  missing_tls_init_handler,
 
-        /// TLS Handshake Failed
-        tls_handshake_failed,
-    };
+  /// TLS Handshake Failed
+  tls_handshake_failed,
+};
 } // namespace error
 
 /// Error category related to asio transport socket policies
-class socket_category : public lib::error_category {
+class socket_category : public lib::error_category
+{
 public:
-    const char *name() const _WEBSOCKETPP_NOEXCEPT_TOKEN_ {
-        return "websocketpp.transport.asio.socket";
-    }
+  const char *name() const _WEBSOCKETPP_NOEXCEPT_TOKEN_
+  {
+    return "websocketpp.transport.asio.socket";
+  }
 
-    std::string message(int value) const {
-        switch(value) {
-            case error::security:
-                return "Security policy error";
-            case error::socket:
-                return "Socket component error";
-            case error::invalid_state:
-                return "Invalid state";
-            case error::invalid_tls_context:
-                return "Invalid or empty TLS context supplied";
-            case error::tls_handshake_timeout:
-                return "TLS handshake timed out";
-            case error::pass_through:
-                return "Pass through from socket policy";
-            case error::missing_tls_init_handler:
-                return "Required tls_init handler not present.";
-            case error::tls_handshake_failed:
-                return "TLS handshake failed";
-            default:
-                return "Unknown";
-        }
+  std::string message (int value) const
+  {
+    switch (value) {
+    case error::security:
+      return "Security policy error";
+
+    case error::socket:
+      return "Socket component error";
+
+    case error::invalid_state:
+      return "Invalid state";
+
+    case error::invalid_tls_context:
+      return "Invalid or empty TLS context supplied";
+
+    case error::tls_handshake_timeout:
+      return "TLS handshake timed out";
+
+    case error::pass_through:
+      return "Pass through from socket policy";
+
+    case error::missing_tls_init_handler:
+      return "Required tls_init handler not present.";
+
+    case error::tls_handshake_failed:
+      return "TLS handshake failed";
+
+    default:
+      return "Unknown";
     }
+  }
 };
 
-inline const lib::error_category& get_socket_category() {
-    static socket_category instance;
-    return instance;
+inline const lib::error_category &get_socket_category()
+{
+  static socket_category instance;
+  return instance;
 }
 
-inline lib::error_code make_error_code(error::value e) {
-    return lib::error_code(static_cast<int>(e), get_socket_category());
+inline lib::error_code make_error_code (error::value e)
+{
+  return lib::error_code (static_cast<int> (e), get_socket_category() );
 }
 
 /// Type of asio transport socket policy initialization handlers
-typedef lib::function<void(const lib::error_code&)> init_handler;
+typedef lib::function<void (const lib::error_code &) > init_handler;
 
 } // namespace socket
 } // namespace asio

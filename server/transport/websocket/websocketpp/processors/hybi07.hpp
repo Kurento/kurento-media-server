@@ -30,34 +30,39 @@
 
 #include <websocketpp/processors/hybi08.hpp>
 
-namespace websocketpp {
-namespace processor {
+namespace websocketpp
+{
+namespace processor
+{
 
 /// Processor for Hybi Draft version 07
 /**
  * The primary difference between 07 and 08 is a version number.
  */
 template <typename config>
-class hybi07 : public hybi08<config> {
+class hybi07 : public hybi08<config>
+{
 public:
-    typedef typename config::request_type request_type;
+  typedef typename config::request_type request_type;
 
-    typedef typename config::con_msg_manager_type::ptr msg_manager_ptr;
-    typedef typename config::rng_type rng_type;
+  typedef typename config::con_msg_manager_type::ptr msg_manager_ptr;
+  typedef typename config::rng_type rng_type;
 
-    explicit hybi07(bool secure, bool p_is_server, msg_manager_ptr manager, rng_type& rng)
-      : hybi08<config>(secure, p_is_server, manager, rng) {}
+  explicit hybi07 (bool secure, bool p_is_server, msg_manager_ptr manager,
+                   rng_type &rng)
+    : hybi08<config> (secure, p_is_server, manager, rng) {}
 
-    // outgoing client connection processing is not supported for this version
-    lib::error_code client_handshake_request(request_type & req, uri_ptr uri,
-        std::vector<std::string> const & subprotocols) const
-    {
-        return error::make_error_code(error::no_protocol_support);
-    }
+  // outgoing client connection processing is not supported for this version
+  lib::error_code client_handshake_request (request_type &req, uri_ptr uri,
+      std::vector<std::string> const &subprotocols) const
+  {
+    return error::make_error_code (error::no_protocol_support);
+  }
 
-    int get_version() const {
-        return 7;
-    }
+  int get_version() const
+  {
+    return 7;
+  }
 private:
 };
 

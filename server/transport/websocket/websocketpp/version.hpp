@@ -29,7 +29,8 @@
 #define WEBSOCKETPP_VERSION_HPP
 
 /// Namespace for the WebSocket++ project
-namespace websocketpp {
+namespace websocketpp
+{
 
 /*
  other places where version information is kept

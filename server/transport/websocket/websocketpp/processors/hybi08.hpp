@@ -30,39 +30,45 @@
 
 #include <websocketpp/processors/hybi13.hpp>
 
-namespace websocketpp {
-namespace processor {
+namespace websocketpp
+{
+namespace processor
+{
 
 /// Processor for Hybi Draft version 08
 /**
  * The primary difference between 08 and 13 is a different origin header name
  */
 template <typename config>
-class hybi08 : public hybi13<config> {
+class hybi08 : public hybi13<config>
+{
 public:
-    typedef hybi08<config> type;
-    typedef typename config::request_type request_type;
+  typedef hybi08<config> type;
+  typedef typename config::request_type request_type;
 
-    typedef typename config::con_msg_manager_type::ptr msg_manager_ptr;
-    typedef typename config::rng_type rng_type;
+  typedef typename config::con_msg_manager_type::ptr msg_manager_ptr;
+  typedef typename config::rng_type rng_type;
 
-    explicit hybi08(bool secure, bool p_is_server, msg_manager_ptr manager, rng_type& rng)
-      : hybi13<config>(secure, p_is_server, manager, rng) {}
+  explicit hybi08 (bool secure, bool p_is_server, msg_manager_ptr manager,
+                   rng_type &rng)
+    : hybi13<config> (secure, p_is_server, manager, rng) {}
 
-    // outgoing client connection processing is not supported for this version
-    lib::error_code client_handshake_request(request_type& req, uri_ptr uri,
-        std::vector<std::string> const & subprotocols) const
-    {
-        return error::make_error_code(error::no_protocol_support);
-    }
+  // outgoing client connection processing is not supported for this version
+  lib::error_code client_handshake_request (request_type &req, uri_ptr uri,
+      std::vector<std::string> const &subprotocols) const
+  {
+    return error::make_error_code (error::no_protocol_support);
+  }
 
-    int get_version() const {
-        return 8;
-    }
+  int get_version() const
+  {
+    return 8;
+  }
 
-    const std::string& get_origin(request_type const & r) const {
-        return r.get_header("Sec-WebSocket-Origin");
-    }
+  const std::string &get_origin (request_type const &r) const
+  {
+    return r.get_header ("Sec-WebSocket-Origin");
+  }
 private:
 };
 

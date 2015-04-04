@@ -33,28 +33,33 @@
 #include <websocketpp/common/cpp11.hpp>
 #include <websocketpp/logger/levels.hpp>
 
-namespace websocketpp {
-namespace log {
+namespace websocketpp
+{
+namespace log
+{
 
 /// Stub logger that ignores all input
-class stub {
+class stub
+{
 public:
-    explicit stub(std::ostream * out) {}
-    stub(level c, std::ostream * out) {}
-    _WEBSOCKETPP_CONSTEXPR_TOKEN_ stub() {}
+  explicit stub (std::ostream *out) {}
+  stub (level c, std::ostream *out) {}
+  _WEBSOCKETPP_CONSTEXPR_TOKEN_ stub() {}
 
-    void set_channels(level channels) {}
-    void clear_channels(level channels) {}
+  void set_channels (level channels) {}
+  void clear_channels (level channels) {}
 
-    void write(level channel, std::string const & msg) {}
-    void write(level channel, char const * msg) {}
+  void write (level channel, std::string const &msg) {}
+  void write (level channel, char const *msg) {}
 
-    _WEBSOCKETPP_CONSTEXPR_TOKEN_ bool static_test(level channel) const {
-        return false;
-    }
-    bool dynamic_test(level channel) {
-        return false;
-    }
+  _WEBSOCKETPP_CONSTEXPR_TOKEN_ bool static_test (level channel) const
+  {
+    return false;
+  }
+  bool dynamic_test (level channel)
+  {
+    return false;
+  }
 };
 
 } // log

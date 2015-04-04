@@ -34,7 +34,8 @@
 #include <string>
 #include <vector>
 
-namespace websocketpp {
+namespace websocketpp
+{
 
 /**
  * Some generic information about extensions
@@ -47,44 +48,53 @@ namespace websocketpp {
  * calling is_enabled(). This runtime flag indicates whether or not the
  * extension has been negotiated for this connection.
  */
-namespace extensions {
+namespace extensions
+{
 
-namespace error {
+namespace error
+{
 enum value {
-    /// Catch all
-    general = 1,
+  /// Catch all
+  general = 1,
 
-    /// Extension disabled
-    disabled
+  /// Extension disabled
+  disabled
 };
 
-class category : public lib::error_category {
+class category : public lib::error_category
+{
 public:
-    category() {}
+  category() {}
 
-    const char *name() const _WEBSOCKETPP_NOEXCEPT_TOKEN_ {
-        return "websocketpp.extension";
-    }
+  const char *name() const _WEBSOCKETPP_NOEXCEPT_TOKEN_
+  {
+    return "websocketpp.extension";
+  }
 
-    std::string message(int value) const {
-        switch(value) {
-            case general:
-                return "Generic extension error";
-            case disabled:
-                return "Use of methods from disabled extension";
-            default:
-                return "Unknown permessage-compress error";
-        }
+  std::string message (int value) const
+  {
+    switch (value) {
+    case general:
+      return "Generic extension error";
+
+    case disabled:
+      return "Use of methods from disabled extension";
+
+    default:
+      return "Unknown permessage-compress error";
     }
+  }
 };
 
-inline const lib::error_category& get_category() {
-    static category instance;
-    return instance;
+inline const lib::error_category &get_category()
+{
+  static category instance;
+  return instance;
 }
 
-inline lib::error_code make_error_code(error::value e) {
-    return lib::error_code(static_cast<int>(e), get_category());
+inline lib::error_code make_error_code (error::value e)
+{
+  return lib::error_code (static_cast<int> (e), get_category() );
 }
 
 } // namespace error
@@ -93,9 +103,8 @@ inline lib::error_code make_error_code(error::value e) {
 
 _WEBSOCKETPP_ERROR_CODE_ENUM_NS_START_
 template<> struct is_error_code_enum
-    <websocketpp::extensions::error::value>
-{
-    static const bool value = true;
+    <websocketpp::extensions::error::value> {
+  static const bool value = true;
 };
 _WEBSOCKETPP_ERROR_CODE_ENUM_NS_END_
 

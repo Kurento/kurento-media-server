@@ -48,93 +48,112 @@
 #include <websocketpp/common/stdint.hpp>
 #include <websocketpp/logger/levels.hpp>
 
-namespace websocketpp {
-namespace log {
+namespace websocketpp
+{
+namespace log
+{
 
 /// Basic logger that outputs to an ostream
 template <typename concurrency, typename names>
-class basic {
+class basic
+{
 public:
-    basic<concurrency,names>(std::ostream * out = &std::cout)
-      : m_static_channels(0xffffffff)
-      , m_dynamic_channels(0)
-      , m_out(out) {}
+  basic<concurrency, names> (std::ostream *out = &std::cout)
+    : m_static_channels (0xffffffff)
+    , m_dynamic_channels (0)
+    , m_out (out) {}
 
-    basic<concurrency,names>(level c, std::ostream * out = &std::cout)
-      : m_static_channels(c)
-      , m_dynamic_channels(0)
-      , m_out(out) {}
+  basic<concurrency, names> (level c, std::ostream *out = &std::cout)
+    : m_static_channels (c)
+    , m_dynamic_channels (0)
+    , m_out (out) {}
 
-    void set_ostream(std::ostream * out = &std::cout) {
-        m_out = out;
+  void set_ostream (std::ostream *out = &std::cout)
+  {
+    m_out = out;
+  }
+
+  void set_channels (level channels)
+  {
+    if (channels == names::none) {
+      clear_channels (names::all);
+      return;
     }
 
-    void set_channels(level channels) {
-        if (channels == names::none) {
-            clear_channels(names::all);
-            return;
-        }
+    scoped_lock_type lock (m_lock);
+    m_dynamic_channels |= (channels & m_static_channels);
+  }
 
-        scoped_lock_type lock(m_lock);
-        m_dynamic_channels |= (channels & m_static_channels);
+  void clear_channels (level channels)
+  {
+    scoped_lock_type lock (m_lock);
+    m_dynamic_channels &= ~channels;
+  }
+
+  void write (level channel, std::string const &msg)
+  {
+    scoped_lock_type lock (m_lock);
+
+    if (!this->dynamic_test (channel) ) {
+      return;
     }
 
-    void clear_channels(level channels) {
-        scoped_lock_type lock(m_lock);
-        m_dynamic_channels &= ~channels;
+    *m_out << "[" << timestamp << "] "
+           << "[" << names::channel_name (channel) << "] "
+           << msg << "\n";
+    m_out->flush();
+  }
+
+  void write (level channel, char const *msg)
+  {
+    scoped_lock_type lock (m_lock);
+
+    if (!this->dynamic_test (channel) ) {
+      return;
     }
 
-    void write(level channel, std::string const & msg) {
-        scoped_lock_type lock(m_lock);
-        if (!this->dynamic_test(channel)) { return; }
-        *m_out << "[" << timestamp << "] "
-                  << "[" << names::channel_name(channel) << "] "
-                  << msg << "\n";
-        m_out->flush();
-    }
+    *m_out << "[" << timestamp << "] "
+           << "[" << names::channel_name (channel) << "] "
+           << msg << "\n";
+    m_out->flush();
+  }
 
-    void write(level channel, char const * msg) {
-        scoped_lock_type lock(m_lock);
-        if (!this->dynamic_test(channel)) { return; }
-        *m_out << "[" << timestamp << "] "
-                  << "[" << names::channel_name(channel) << "] "
-                  << msg << "\n";
-        m_out->flush();
-    }
+  _WEBSOCKETPP_CONSTEXPR_TOKEN_ bool static_test (level channel) const
+  {
+    return ( (channel & m_static_channels) != 0);
+  }
 
-    _WEBSOCKETPP_CONSTEXPR_TOKEN_ bool static_test(level channel) const {
-        return ((channel & m_static_channels) != 0);
-    }
-
-    bool dynamic_test(level channel) {
-        return ((channel & m_dynamic_channels) != 0);
-    }
+  bool dynamic_test (level channel)
+  {
+    return ( (channel & m_dynamic_channels) != 0);
+  }
 private:
-    typedef typename concurrency::scoped_lock_type scoped_lock_type;
-    typedef typename concurrency::mutex_type mutex_type;
+  typedef typename concurrency::scoped_lock_type scoped_lock_type;
+  typedef typename concurrency::mutex_type mutex_type;
 
-    // The timestamp does not include the time zone, because on Windows with the
-    // default registry settings, the time zone would be written out in full,
-    // which would be obnoxiously verbose.
-    //
-    // TODO: find a workaround for this or make this format user settable
-    static std::ostream & timestamp(std::ostream & os) {
-        std::time_t t = std::time(NULL);
-        std::tm* lt = std::localtime(&t);
-        #ifdef _WEBSOCKETPP_CPP11_CHRONO_
-            return os << std::put_time(lt,"%Y-%m-%d %H:%M:%S");
-        #else // Falls back to strftime, which requires a temporary copy of the string.
-            char buffer[20];
-            std::strftime(buffer,sizeof(buffer),"%Y-%m-%d %H:%M:%S",lt);
-            return os << buffer;
-        #endif
-    }
+  // The timestamp does not include the time zone, because on Windows with the
+  // default registry settings, the time zone would be written out in full,
+  // which would be obnoxiously verbose.
+  //
+  // TODO: find a workaround for this or make this format user settable
+  static std::ostream &timestamp (std::ostream &os)
+  {
+    std::time_t t = std::time (NULL);
+    std::tm *lt = std::localtime (&t);
+#ifdef _WEBSOCKETPP_CPP11_CHRONO_
+    return os << std::put_time (lt, "%Y-%m-%d %H:%M:%S");
+#else // Falls back to strftime, which requires a temporary copy of the string.
+    char buffer[20];
+    std::strftime (buffer, sizeof (buffer), "%Y-%m-%d %H:%M:%S", lt);
+    return os << buffer;
+#endif
+  }
 
-    mutex_type m_lock;
+  mutex_type m_lock;
 
-    level const m_static_channels;
-    level m_dynamic_channels;
-    std::ostream * m_out;
+  level const m_static_channels;
+  level m_dynamic_channels;
+  std::ostream *m_out;
 };
 
 } // log

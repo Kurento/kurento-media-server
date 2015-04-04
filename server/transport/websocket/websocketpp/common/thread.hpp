@@ -29,36 +29,38 @@
 #define WEBSOCKETPP_COMMON_THREAD_HPP
 
 #if defined _WEBSOCKETPP_CPP11_STL_ && !defined _WEBSOCKETPP_NO_CPP11_THREAD_
-    #ifndef _WEBSOCKETPP_CPP11_THREAD_
-        #define _WEBSOCKETPP_CPP11_THREAD_
-    #endif
+#ifndef _WEBSOCKETPP_CPP11_THREAD_
+#define _WEBSOCKETPP_CPP11_THREAD_
+#endif
 #endif
 
 #ifdef _WEBSOCKETPP_CPP11_THREAD_
-    #include <thread>
-    #include <mutex>
-    #include <condition_variable>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #else
-    #include <boost/thread.hpp>
-    #include <boost/thread/mutex.hpp>
-    #include <boost/thread/condition_variable.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
 #endif
 
-namespace websocketpp {
-namespace lib {
+namespace websocketpp
+{
+namespace lib
+{
 
 #ifdef _WEBSOCKETPP_CPP11_THREAD_
-    using std::mutex;
-    using std::lock_guard;
-    using std::thread;
-    using std::unique_lock;
-    using std::condition_variable;
+using std::mutex;
+using std::lock_guard;
+using std::thread;
+using std::unique_lock;
+using std::condition_variable;
 #else
-    using boost::mutex;
-    using boost::lock_guard;
-    using boost::thread;
-    using boost::unique_lock;
-    using boost::condition_variable;
+using boost::mutex;
+using boost::lock_guard;
+using boost::thread;
+using boost::unique_lock;
+using boost::condition_variable;
 #endif
 
 } // namespace lib

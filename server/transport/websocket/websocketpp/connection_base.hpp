@@ -28,7 +28,8 @@
 #ifndef WEBSOCKETPP_CONNECTION_BASE_HPP
 #define WEBSOCKETPP_CONNECTION_BASE_HPP
 
-namespace websocketpp {
+namespace websocketpp
+{
 
 /// Stub for user supplied base class.
 class connection_base {};

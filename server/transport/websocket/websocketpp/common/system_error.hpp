@@ -29,35 +29,37 @@
 #define WEBSOCKETPP_COMMON_SYSTEM_ERROR_HPP
 
 #if defined _WEBSOCKETPP_CPP11_STL_ && !defined _WEBSOCKETPP_NO_CPP11_SYSTEM_ERROR_
-    #ifndef _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
-        #define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
-    #endif
+#ifndef _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
+#define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
+#endif
 #endif
 
 #ifdef _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
-    #include <system_error>
+#include <system_error>
 #else
-    #include <boost/system/error_code.hpp>
-    #include <boost/system/system_error.hpp>
+#include <boost/system/error_code.hpp>
+#include <boost/system/system_error.hpp>
 #endif
 
-namespace websocketpp {
-namespace lib {
+namespace websocketpp
+{
+namespace lib
+{
 
 #ifdef _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
-    using std::error_code;
-    using std::error_category;
-    using std::error_condition;
-    using std::system_error;
-    #define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_START_ namespace std {
-    #define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_END_ }
+using std::error_code;
+using std::error_category;
+using std::error_condition;
+using std::system_error;
+#define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_START_ namespace std {
+#define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_END_ }
 #else
-    using boost::system::error_code;
-    using boost::system::error_category;
-    using boost::system::error_condition;
-    using boost::system::system_error;
-    #define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_START_ namespace boost { namespace system {
-    #define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_END_ }}
+using boost::system::error_code;
+using boost::system::error_category;
+using boost::system::error_condition;
+using boost::system::system_error;
+#define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_START_ namespace boost { namespace system {
+#define _WEBSOCKETPP_ERROR_CODE_ENUM_NS_END_ }}
 #endif
 
 } // namespace lib

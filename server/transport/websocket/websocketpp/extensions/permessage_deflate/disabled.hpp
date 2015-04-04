@@ -38,9 +38,12 @@
 #include <string>
 #include <utility>
 
-namespace websocketpp {
-namespace extensions {
-namespace permessage_deflate {
+namespace websocketpp
+{
+namespace extensions
+{
+namespace permessage_deflate
+{
 
 /// Stub class for use when disabling permessage_deflate extension
 /**
@@ -49,39 +52,45 @@ namespace permessage_deflate {
  * functionality at compile time without loading any unnecessary code.
  */
 template <typename config>
-class disabled {
-    typedef std::pair<lib::error_code,std::string> err_str_pair;
+class disabled
+{
+  typedef std::pair<lib::error_code, std::string> err_str_pair;
 
 public:
-    err_str_pair negotiate(http::attribute_list const & attributes) {
-        return make_pair(make_error_code(error::disabled),std::string());
-    }
+  err_str_pair negotiate (http::attribute_list const &attributes)
+  {
+    return make_pair (make_error_code (error::disabled), std::string() );
+  }
 
-    /// Returns true if the extension is capable of providing
-    /// permessage_deflate functionality
-    bool is_implemented() const {
-        return false;
-    }
+  /// Returns true if the extension is capable of providing
+  /// permessage_deflate functionality
+  bool is_implemented() const
+  {
+    return false;
+  }
 
-    /// Returns true if permessage_deflate functionality is active for this
-    /// connection
-    bool is_enabled() const {
-        return false;
-    }
+  /// Returns true if permessage_deflate functionality is active for this
+  /// connection
+  bool is_enabled() const
+  {
+    return false;
+  }
 
-    lib::error_code compress(std::string const & in, std::string & out) {
-        return make_error_code(error::disabled);
-    }
+  lib::error_code compress (std::string const &in, std::string &out)
+  {
+    return make_error_code (error::disabled);
+  }
 
-    lib::error_code decompress(uint8_t const * buf, size_t len,
-        std::string & out)
-    {
-        return make_error_code(error::disabled);
-    }
+  lib::error_code decompress (uint8_t const *buf, size_t len,
+                              std::string &out)
+  {
+    return make_error_code (error::disabled);
+  }
 
-    lib::error_code decompress(std::string const & in, std::string & out) {
-        return make_error_code(error::disabled);
-    }
+  lib::error_code decompress (std::string const &in, std::string &out)
+  {
+    return make_error_code (error::disabled);
+  }
 };
 
 } // namespace permessage_deflate

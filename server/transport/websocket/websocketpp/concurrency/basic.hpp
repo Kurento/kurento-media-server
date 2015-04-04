@@ -30,14 +30,17 @@
 
 #include <websocketpp/common/thread.hpp>
 
-namespace websocketpp {
-namespace concurrency {
+namespace websocketpp
+{
+namespace concurrency
+{
 
 /// Concurrency policy that uses std::mutex / boost::mutex
-class basic {
+class basic
+{
 public:
-    typedef lib::mutex mutex_type;
-    typedef lib::lock_guard<mutex_type> scoped_lock_type;
+  typedef lib::mutex mutex_type;
+  typedef lib::lock_guard<mutex_type> scoped_lock_type;
 };
 
 } // namespace concurrency

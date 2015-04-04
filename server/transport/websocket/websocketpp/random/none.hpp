@@ -28,11 +28,14 @@
 #ifndef WEBSOCKETPP_RANDOM_NONE_HPP
 #define WEBSOCKETPP_RANDOM_NONE_HPP
 
-namespace websocketpp {
+namespace websocketpp
+{
 /// Random number generation policies
-namespace random {
+namespace random
+{
 /// Stub RNG policy that always returns 0
-namespace none {
+namespace none
+{
 
 /// Thread safe stub "random" integer generator.
 /**
@@ -43,14 +46,16 @@ namespace none {
  * Call operator() to generate the next number
  */
 template <typename int_type>
-class int_generator {
-    public:
-        int_generator() {}
+class int_generator
+{
+public:
+  int_generator() {}
 
-        /// advances the engine's state and returns the generated value
-        int_type operator()() {
-            return 0;
-        }
+  /// advances the engine's state and returns the generated value
+  int_type operator() ()
+  {
+    return 0;
+  }
 };
 
 } // namespace none

@@ -34,86 +34,86 @@
 
 // Hide clang feature detection from other compilers
 #ifndef __has_feature         // Optional of course.
-  #define __has_feature(x) 0  // Compatibility with non-clang compilers.
+#define __has_feature(x) 0  // Compatibility with non-clang compilers.
 #endif
 #ifndef __has_extension
-  #define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
+#define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
 #endif
 
 
 #if defined(_WEBSOCKETPP_CPP11_STL_) || __cplusplus >= 201103L
-    // _WEBSOCKETPP_CPP11_STL_ is a flag from the build system that forces
-    // WebSocket++ into C++11 mode. __cplusplus is a define set by the compiler
-    // if it has full support for C++11 language features. If either are set use
-    // C++11 language features
-    #ifndef _WEBSOCKETPP_NOEXCEPT_TOKEN_
-        #define _WEBSOCKETPP_NOEXCEPT_TOKEN_ noexcept
-    #endif
-    #ifndef _WEBSOCKETPP_CONSTEXPR_TOKEN_
-        #define _WEBSOCKETPP_CONSTEXPR_TOKEN_ constexpr
-    #endif
-    #ifndef _WEBSOCKETPP_INITIALIZER_LISTS_
-        #define _WEBSOCKETPP_INITIALIZER_LISTS_
-    #endif
-    #ifndef _WEBSOCKETPP_NULLPTR_TOKEN_
-        #define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
-    #endif
+// _WEBSOCKETPP_CPP11_STL_ is a flag from the build system that forces
+// WebSocket++ into C++11 mode. __cplusplus is a define set by the compiler
+// if it has full support for C++11 language features. If either are set use
+// C++11 language features
+#ifndef _WEBSOCKETPP_NOEXCEPT_TOKEN_
+#define _WEBSOCKETPP_NOEXCEPT_TOKEN_ noexcept
+#endif
+#ifndef _WEBSOCKETPP_CONSTEXPR_TOKEN_
+#define _WEBSOCKETPP_CONSTEXPR_TOKEN_ constexpr
+#endif
+#ifndef _WEBSOCKETPP_INITIALIZER_LISTS_
+#define _WEBSOCKETPP_INITIALIZER_LISTS_
+#endif
+#ifndef _WEBSOCKETPP_NULLPTR_TOKEN_
+#define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
+#endif
 #else
-    // Test for noexcept
-    #ifndef _WEBSOCKETPP_NOEXCEPT_TOKEN_
-        #ifdef _WEBSOCKETPP_NOEXCEPT_
-            // build system says we have noexcept
-            #define _WEBSOCKETPP_NOEXCEPT_TOKEN_ noexcept
-        #else
-            #if __has_feature(cxx_noexcept)
-                // clang feature detect says we have noexcept
-                #define _WEBSOCKETPP_NOEXCEPT_TOKEN_ noexcept
-            #else
-                // assume we don't have noexcept
-                #define _WEBSOCKETPP_NOEXCEPT_TOKEN_
-            #endif
-        #endif
-    #endif
+// Test for noexcept
+#ifndef _WEBSOCKETPP_NOEXCEPT_TOKEN_
+#ifdef _WEBSOCKETPP_NOEXCEPT_
+// build system says we have noexcept
+#define _WEBSOCKETPP_NOEXCEPT_TOKEN_ noexcept
+#else
+#if __has_feature(cxx_noexcept)
+// clang feature detect says we have noexcept
+#define _WEBSOCKETPP_NOEXCEPT_TOKEN_ noexcept
+#else
+// assume we don't have noexcept
+#define _WEBSOCKETPP_NOEXCEPT_TOKEN_
+#endif
+#endif
+#endif
 
-    // Test for constexpr
-    #ifndef _WEBSOCKETPP_CONSTEXPR_TOKEN_
-        #ifdef _WEBSOCKETPP_CONSTEXPR_
-            // build system says we have constexpr
-            #define _WEBSOCKETPP_CONSTEXPR_TOKEN_ constexpr
-        #else
-            #if __has_feature(cxx_constexpr)
-                // clang feature detect says we have constexpr
-                #define _WEBSOCKETPP_CONSTEXPR_TOKEN_ constexpr
-            #else
-                // assume we don't have constexpr
-                #define _WEBSOCKETPP_CONSTEXPR_TOKEN_
-            #endif
-        #endif
-    #endif
+// Test for constexpr
+#ifndef _WEBSOCKETPP_CONSTEXPR_TOKEN_
+#ifdef _WEBSOCKETPP_CONSTEXPR_
+// build system says we have constexpr
+#define _WEBSOCKETPP_CONSTEXPR_TOKEN_ constexpr
+#else
+#if __has_feature(cxx_constexpr)
+// clang feature detect says we have constexpr
+#define _WEBSOCKETPP_CONSTEXPR_TOKEN_ constexpr
+#else
+// assume we don't have constexpr
+#define _WEBSOCKETPP_CONSTEXPR_TOKEN_
+#endif
+#endif
+#endif
 
-    // Enable initializer lists on clang when available.
-    #if __has_feature(cxx_generalized_initializers) && !defined(_WEBSOCKETPP_INITIALIZER_LISTS_)
-        #define _WEBSOCKETPP_INITIALIZER_LISTS_
-    #endif
-    
-    // Test for nullptr
-    #ifndef _WEBSOCKETPP_NULLPTR_TOKEN_
-        #ifdef _WEBSOCKETPP_NULLPTR_
-            // build system says we have nullptr
-            #define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
-        #else
-            #if __has_feature(cxx_nullptr)
-                // clang feature detect says we have nullptr
-                #define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
-            #elif _MSC_VER >= 1600
-                // Visual Studio version that has nullptr
-                #define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
-            #else
-                // assume we don't have nullptr
-                #define _WEBSOCKETPP_NULLPTR_TOKEN_ 0
-            #endif
-        #endif
-    #endif
+// Enable initializer lists on clang when available.
+#if __has_feature(cxx_generalized_initializers) && !defined(_WEBSOCKETPP_INITIALIZER_LISTS_)
+#define _WEBSOCKETPP_INITIALIZER_LISTS_
+#endif
+
+// Test for nullptr
+#ifndef _WEBSOCKETPP_NULLPTR_TOKEN_
+#ifdef _WEBSOCKETPP_NULLPTR_
+// build system says we have nullptr
+#define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
+#else
+#if __has_feature(cxx_nullptr)
+// clang feature detect says we have nullptr
+#define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
+#elif _MSC_VER >= 1600
+// Visual Studio version that has nullptr
+#define _WEBSOCKETPP_NULLPTR_TOKEN_ nullptr
+#else
+// assume we don't have nullptr
+#define _WEBSOCKETPP_NULLPTR_TOKEN_ 0
+#endif
+#endif
+#endif
 #endif
 
 #endif // WEBSOCKETPP_COMMON_CPP11_HPP

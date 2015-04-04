@@ -28,25 +28,30 @@
 #ifndef WEBSOCKETPP_CONCURRENCY_NONE_HPP
 #define WEBSOCKETPP_CONCURRENCY_NONE_HPP
 
-namespace websocketpp {
+namespace websocketpp
+{
 
 /// Concurrency handling support
-namespace concurrency {
+namespace concurrency
+{
 
 /// Implementation for no-op locking primitives
-namespace none_impl {
+namespace none_impl
+{
 /// A fake mutex implementation that does nothing
-class fake_mutex {
+class fake_mutex
+{
 public:
-    fake_mutex() {}
-    ~fake_mutex() {}
+  fake_mutex() {}
+  ~fake_mutex() {}
 };
 
 /// A fake lock guard implementation that does nothing
-class fake_lock_guard {
+class fake_lock_guard
+{
 public:
-    explicit fake_lock_guard(fake_mutex foo) {}
-    ~fake_lock_guard() {}
+  explicit fake_lock_guard (fake_mutex foo) {}
+  ~fake_lock_guard() {}
 };
 } // namespace none_impl
 
@@ -57,21 +62,22 @@ public:
  * also be used as is to disable all locking for endpoints used in purely single
  * threaded programs.
  */
-class none {
+class none
+{
 public:
-    /// The type of a mutex primitive
-    /**
-     * std::mutex is an example.
-     */
-    typedef none_impl::fake_mutex mutex_type;
+  /// The type of a mutex primitive
+  /**
+   * std::mutex is an example.
+   */
+  typedef none_impl::fake_mutex mutex_type;
 
-    /// The type of a scoped/RAII lock primitive.
-    /**
-     * The scoped lock constructor should take a mutex_type as a parameter,
-     * acquire that lock, and release it in its destructor. std::lock_guard is
-     * an example.
-     */
-    typedef none_impl::fake_lock_guard scoped_lock_type;
+  /// The type of a scoped/RAII lock primitive.
+  /**
+   * The scoped lock constructor should take a mutex_type as a parameter,
+   * acquire that lock, and release it in its destructor. std::lock_guard is
+   * an example.
+   */
+  typedef none_impl::fake_lock_guard scoped_lock_type;
 };
 
 } // namespace concurrency

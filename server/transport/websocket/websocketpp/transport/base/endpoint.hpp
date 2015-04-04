@@ -36,7 +36,8 @@
 
 #include <iostream>
 
-namespace websocketpp {
+namespace websocketpp
+{
 /// Transport policies provide network connectivity and timers
 /**
  * ### Endpoint Interface
@@ -68,13 +69,14 @@ namespace websocketpp {
  * Called once after construction to provide pointers to the endpoint's access
  * and error loggers. These may be stored and used to log messages or ignored.
  */
-namespace transport {
+namespace transport
+{
 
 /// The type and signature of the callback passed to the accept method
-typedef lib::function<void(lib::error_code const &)> accept_handler;
+typedef lib::function<void (lib::error_code const &) > accept_handler;
 
 /// The type and signature of the callback passed to the connect method
-typedef lib::function<void(lib::error_code const &)> connect_handler;
+typedef lib::function<void (lib::error_code const &) > connect_handler;
 
 } // namespace transport
 } // namespace websocketpp
