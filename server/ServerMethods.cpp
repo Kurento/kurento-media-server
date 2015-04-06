@@ -36,6 +36,8 @@
 #include <ServerType.hpp>
 #include <UUIDGenerator.hpp>
 
+#include <ResourceManager.hpp>
+
 #define GST_CAT_DEFAULT kurento_server_methods
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoServerMethods"
@@ -540,9 +542,11 @@ ServerMethods::create (const Json::Value &params,
     sessionId = generateUUID ();
   }
 
-  factory = moduleManager.getFactory (type);
-
   try {
+    factory = moduleManager.getFactory (type);
+
+    checkResources();
+
     std::shared_ptr <MediaObjectImpl> object;
 
     object = std::dynamic_pointer_cast<MediaObjectImpl> (

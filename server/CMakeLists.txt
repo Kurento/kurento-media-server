@@ -4,6 +4,8 @@ SET(KMSC_SOURCE
   version.hpp
   ServerMethods.cpp
   ServerMethods.hpp
+  ResourceManager.cpp
+  ResourceManager.hpp
   RequestCache.cpp
   RequestCache.hpp
   CacheEntry.cpp

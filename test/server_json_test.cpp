@@ -39,6 +39,7 @@ protected:
   void check_create_pipeline_call ();
   void check_connect_call ();
   void check_bad_transaction_call ();
+  void check_system_overload ();
 };
 
 void
@@ -315,6 +316,74 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (response["result"]["sessionId"].asString () == sessionId );
 }
 
+void
+ClientHandler::check_system_overload()
+{
+  Json::Value request;
+  Json::Value response;
+  Json::FastWriter writer;
+  Json::Reader reader;
+  std::string req_str;
+  std::string response_str;
+  std::string pipeId;
+  std::string objId;
+
+  Json::Value params;
+  Json::Value constructorParams;
+  Json::Value operationParams;
+
+  request["jsonrpc"] = "2.0";
+  request["id"] = getId();
+  request["method"] = "create";
+
+  params["type"] = "MediaPipeline";
+  params["sessionId"] = "1234567";
+
+  request["params"] = params;
+  request["sessionId"] = "sessionId";
+
+  req_str = writer.write (request);
+
+  response_str = sendMessage (req_str);
+
+  BOOST_CHECK (reader.parse (response_str, response) == true);
+
+  BOOST_CHECK (!response.isMember ("error") );
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("value") );
+  BOOST_CHECK (response["result"]["value"].isString() );
+
+  pipeId = response["result"]["value"].asString();
+
+  int times = 0;
+
+  do {
+
+    params["type"] = "WebRtcEndpoint";
+    constructorParams ["mediaPipeline"] = pipeId;
+    params["constructorParams"] = constructorParams;
+    params["sessionId"] = "1234567";
+
+    request["id"] = getId();
+    request["params"] = params;
+
+    req_str = writer.write (request);
+    response_str.clear();
+
+    response_str = sendMessage (req_str);
+
+    BOOST_CHECK (reader.parse (response_str, response) == true);
+
+    times ++;
+  } while (!response.isMember ("error") );
+
+  BOOST_CHECK (times > 0);
+  BOOST_CHECK (response.isMember ("error") );
+
+  BOOST_CHECK (response["error"]["data"]["type"].asString() ==
+               "NOT_ENOUGH_RESOURCES");
+}
 
 BOOST_FIXTURE_TEST_SUITE ( server_unexpected_test_suite, ClientHandler)
 
@@ -327,6 +396,7 @@ BOOST_AUTO_TEST_CASE ( server_unexpected_test )
   check_error_call();
   check_create_pipeline_call();
   check_bad_transaction_call();
+  check_system_overload();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
