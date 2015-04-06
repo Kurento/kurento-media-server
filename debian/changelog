@@ -1,3 +1,14 @@
+kurento-media-server (5.1.2) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * WebSocketRegistrar: Fix thread leak when reconnecting to registrar
+  * Prepare release 5.1.2
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 06 Apr 2015 22:11:29 +0200
+
 kurento-media-server (5.1.1) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
