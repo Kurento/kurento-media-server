@@ -28,6 +28,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+// TODO: This limits should be calculated
+static int maxOpenFiles = 500;
 static int maxThreads = 500;
 
 static void
@@ -57,8 +59,8 @@ getNumberOfThreads ()
   return atoi (tokens[19].c_str() );
 }
 
-void
-checkResources (void)
+static void
+checkThreads ()
 {
   int nThreads;
 
@@ -67,6 +69,43 @@ checkResources (void)
   if (nThreads > maxThreads) {
     throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many threads");
   }
+}
+
+static int
+getNumberOfOpenFiles ()
+{
+  int openFiles = 0;
+  DIR *d;
+  struct dirent *dir;
+
+  d = opendir ("/proc/self/fd");
+
+  while ( (dir = readdir (d) ) != NULL) {
+    openFiles ++;
+  }
+
+  closedir (d);
+
+  return openFiles;
+}
+
+static void
+checkOpenFiles ()
+{
+  int nOpenFiles;
+
+  nOpenFiles = getNumberOfOpenFiles ();
+
+  if (nOpenFiles > maxOpenFiles) {
+    throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many open files");
+  }
+}
+
+void
+checkResources (void)
+{
+  checkThreads ();
+  checkOpenFiles ();
 }
 
 } /* kurento */
