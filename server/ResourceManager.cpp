@@ -21,6 +21,8 @@
 #include <sstream>
 #include <KurentoException.hpp>
 
+#include <sys/resource.h>
+
 #define GST_CAT_DEFAULT kurento_resource_manager
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoResourceManager"
@@ -28,8 +30,10 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
+static const float LIMIT_PERCENT = 0.8;
+
+static int maxOpenFiles = 0;
 // TODO: This limits should be calculated
-static int maxOpenFiles = 500;
 static int maxThreads = 500;
 
 static void
@@ -72,6 +76,19 @@ checkThreads ()
 }
 
 static int
+getMaxOpenFiles ()
+{
+  if (maxOpenFiles == 0) {
+    struct rlimit limits;
+    getrlimit (RLIMIT_NOFILE, &limits);
+
+    maxOpenFiles = limits.rlim_cur * LIMIT_PERCENT;
+  }
+
+  return maxOpenFiles;
+}
+
+static int
 getNumberOfOpenFiles ()
 {
   int openFiles = 0;
@@ -96,7 +113,7 @@ checkOpenFiles ()
 
   nOpenFiles = getNumberOfOpenFiles ();
 
-  if (nOpenFiles > maxOpenFiles) {
+  if (nOpenFiles > getMaxOpenFiles () ) {
     throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many open files");
   }
 }
