@@ -33,8 +33,7 @@ namespace kurento
 static const float LIMIT_PERCENT = 0.8;
 
 static int maxOpenFiles = 0;
-// TODO: This limits should be calculated
-static int maxThreads = 500;
+static int maxThreads = 0;
 
 static void
 tokenize (std::string str, char sep, std::vector<std::string> &tokens)
@@ -63,6 +62,19 @@ getNumberOfThreads ()
   return atoi (tokens[19].c_str() );
 }
 
+static int
+getMaxThreads ()
+{
+  if (maxThreads == 0) {
+    struct rlimit limits;
+    getrlimit (RLIMIT_NPROC, &limits);
+
+    maxThreads = limits.rlim_cur * LIMIT_PERCENT;
+  }
+
+  return maxThreads;
+}
+
 static void
 checkThreads ()
 {
@@ -70,7 +82,7 @@ checkThreads ()
 
   nThreads = getNumberOfThreads ();
 
-  if (nThreads > maxThreads) {
+  if (nThreads > getMaxThreads () ) {
     throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many threads");
   }
 }
