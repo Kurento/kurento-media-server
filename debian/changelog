@@ -1,3 +1,14 @@
+kurento-media-server (5.1.3) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * debian/control: Dependency update
+  * Prepare release 5.1.3
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 13 Apr 2015 17:23:10 +0200
+
 kurento-media-server (5.1.2) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
