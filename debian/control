@@ -25,10 +25,10 @@ Package: kurento-media-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libglib2.0-0 (>= 2.42),
- kms-elements (>= 5.1.0),
- kms-filters (>= 5.1.0),
- kms-core (>= 5.1.0),
- kms-jsonrpc (>= 0.2.0)
+ kms-elements (>= 5.1.2),
+ kms-filters (>= 5.1.1),
+ kms-core (>= 5.1.3),
+ kms-jsonrpc (>= 0.2.2)
 Replaces: kurento
 Breaks: kurento
 Conflicts: kurento
