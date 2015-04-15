@@ -44,8 +44,8 @@
         // "announcedAddress" : "localhost"
       },
       "WebRtcEndpoint" : {
-        // "stunServerAddress" : "77.72.174.167", // Only IP address are supported
-        // "stunServerPort" : 3478,
+        // "stunServerAddress" : "173.194.78.127", // Only IP address are supported
+        // "stunServerPort" : 19302,
         // turnURL gives the necessary info to configure TURN for WebRTC.
         //    'address' must be an IP (not a domain).
         //    'transport' is optional (UDP by default).
