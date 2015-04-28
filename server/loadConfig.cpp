@@ -68,51 +68,27 @@ split (const std::string &s, char delim)
   return elems;
 }
 
-static void
+void
 mergePropertyTrees (boost::property_tree::ptree &ptMerged,
-                    const boost::property_tree::ptree &rptSecond )
+                    const boost::property_tree::ptree &ptSecond, int level )
 {
-  // Keep track of keys and values (subtrees) in second property tree
-  std::queue<std::string> qKeys;
-  std::queue<boost::property_tree::ptree> qValues;
-  qValues.push ( rptSecond );
+  // Value or object or array
+  if (level > 0 && ptSecond.empty() ) {
+    // Copy value
+    ptMerged = ptSecond;
+  } else if (level > 0 && ptSecond.count (std::string() ) == ptSecond.size() ) {
+    // Copy array
+    ptMerged = ptSecond;
+  } else {
+    auto it = ptSecond.begin();
 
-  // Iterate over second property tree
-  while ( !qValues.empty() ) {
-    // Setup keys and corresponding values
-    boost::property_tree::ptree ptree = qValues.front();
-    qValues.pop();
-    std::string keychain;
+    for (; it != ptSecond.end(); ++it) {
+      boost::property_tree::ptree child = ptMerged.get_child (it->first.data(),
+                                          boost::property_tree::ptree() );
+      mergePropertyTrees (child, it->second, level + 1);
 
-    if ( !qKeys.empty() ) {
-      keychain = qKeys.front();
-      qKeys.pop();
-    }
-
-    BOOST_FOREACH ( const boost::property_tree::ptree::value_type & child, ptree ) {
-      if ( child.second.size() == 0 ) {
-        std::string s;
-
-        if ( !keychain.empty() ) {
-          s = keychain + "." + child.first.data();
-        } else {
-          s = child.first.data();
-        }
-
-        // Put into combined property tree
-        ptMerged.put ( s, child.second.data() );
-      } else {
-        // Put keys (identifiers of subtrees) and all of its parents (where present)
-        // aside for later iteration.
-        if ( !keychain.empty() ) {
-          qKeys.push ( keychain + "." + child.first.data() );
-        } else {
-          qKeys.push ( child.first.data() );
-        }
-
-        // Put values (the subtrees) aside, too
-        qValues.push ( child.second );
-      }
+      ptMerged.erase (it->first.data() );
+      ptMerged.add_child (it->first.data(), child);
     }
   }
 }
@@ -267,9 +243,9 @@ loadConfig (boost::property_tree::ptree &config, const std::string &file_name,
 
   std::ostringstream oss;
   boost::property_tree::write_json (oss, config, true);
-  std::string jsonConfig = oss.str();
+  std::string infoConfig = oss.str();
 
-  GST_DEBUG ("Effective loaded config:\n%s", jsonConfig.c_str() );
+  GST_DEBUG ("Effective loaded config:\n%s", infoConfig.c_str() );
 }
 
 } /* kurento */

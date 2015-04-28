@@ -25,6 +25,10 @@ void
 loadConfig (boost::property_tree::ptree &config, const std::string &file_name,
             const std::string &modulesConfigPath);
 
+void
+mergePropertyTrees (boost::property_tree::ptree &ptMerged,
+                    const boost::property_tree::ptree &ptSecond, int level = 0 );
+
 } /* kurento */
 
 #endif /* __KURENTO_LOAD_CONFIG_HPP__ */

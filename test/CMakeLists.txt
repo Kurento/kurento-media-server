@@ -85,4 +85,21 @@ set_property (TARGET test_server_duplicate_requests
     ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 
+add_test_program (test_config_read
+  config_read_test.cpp
+  ${CMAKE_SOURCE_DIR}/server/loadConfig.cpp)
+target_link_libraries(test_config_read
+  ${Boost_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  ${Boost_LIBRARIES}
+  ${KMSCORE_LIBRARIES}
+  -pthread
+)
+set_property (TARGET test_config_read
+  PROPERTY INCLUDE_DIRECTORIES
+    ${KMSCORE_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/server
+)
+
 endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
