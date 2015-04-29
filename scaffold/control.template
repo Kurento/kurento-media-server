@@ -5,9 +5,9 @@ Maintainer: Maintainer Name
 Build-Depends: debhelper (>= 8.0.0),
  cmake,
  pkg-config,
- kms-core-dev,
- kms-elements-dev,
- kms-filters-dev,
+ kms-core-6.0-dev,
+ kms-elements-6.0-dev,
+ kms-filters-6.0-dev,
  libopencv-dev
 Standards-Version: 3.9.4
 
@@ -19,8 +19,8 @@ Description: package description
 Package: ${nameScoreLower}-dev
 Architecture: any
 Depends: ${nameScoreLower} (= ${binary:Version}),
-  kms-core-dev,
-  kms-elements-dev,
-  kms-filters-dev,
+  kms-core-6.0-dev,
+  kms-elements-6.0-dev,
+  kms-filters-6.0-dev,
   libopencv-dev
 Description: dev package description
