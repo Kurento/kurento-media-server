@@ -148,8 +148,7 @@ main (int argc, char **argv)
     boost::program_options::store (boost::program_options::parse_environment (desc,
     [&desc] (std::string & input) -> std::string {
       /* Look for KURENTO_ prefix and change to lower case */
-      if (input.find (ENV_PREFIX) == 0)
-      {
+      if (input.find (ENV_PREFIX) == 0) {
         std::string aux = input.substr (ENV_PREFIX.size() );
         std::transform (aux.begin(), aux.end(), aux.begin(), [] (int c) -> int {
           return (c == '_') ? '-' : tolower (c);
