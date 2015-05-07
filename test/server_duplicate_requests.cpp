@@ -18,7 +18,7 @@
 
 #include <gst/gst.h>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #define GST_CAT_DEFAULT server_duplicate_requests
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);

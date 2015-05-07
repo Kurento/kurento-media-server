@@ -14,7 +14,7 @@
  */
 
 #include "WebSocketRegistrar.hpp"
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <gst/gst.h>
 
 #define GST_CAT_DEFAULT kurento_websocket_registrar
