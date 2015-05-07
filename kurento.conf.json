@@ -26,44 +26,5 @@
         "threads": 10
       }
     }
-  },
-  "modules": {
-    "kurento": {
-      "SdpEndpoint" : {
-        "sdpPattern" : "sdp_pattern.txt"
-      },
-      "HttpEndpoint" : {
-        // "serverAddress" : "localhost",
-        // "port" : 9091
-        /*
-          Announced IP Addess may be helpful under situations such as the server needs
-          to provide URLs to clients whose host name is different from the one the
-          server is listening in. If this option is not provided, http server will try
-          to look for any available address in your system.
-        */
-        // "announcedAddress" : "localhost"
-      },
-      "WebRtcEndpoint" : {
-        // "stunServerAddress" : "173.194.78.127", // Only IP address are supported
-        // "stunServerPort" : 19302,
-        // turnURL gives the necessary info to configure TURN for WebRTC.
-        //    'address' must be an IP (not a domain).
-        //    'transport' is optional (UDP by default).
-        // "turnURL" : "user:password@address:port(?transport=[udp|tcp|tls])",
-        // "pemCertificate" : "file"
-      },
-      "PlumberEndpoint" : {
-        // "bindAddress" : "localhost",
-        /*
-          Announced IP Address may be helpful under situations such as the endpoint needs
-          to provide an IP address to clients whose host name is different from the one
-          that the element is listening in. If this option is not provided, the bindAddress
-          will be used instead.
-        */
-        // "announcedAddress" : "localhost"
-      }
-    }
-    //"module1": { …. }
-    //"module2": { …. }
   }
 }
