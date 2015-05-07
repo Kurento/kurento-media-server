@@ -213,6 +213,7 @@ loadModulesConfig (boost::property_tree::ptree &config,
 
   for (std::string location : locations) {
     boost::filesystem::path dir (location);
+    dir.normalize();
 
     loadModulesConfigFromDir (config, dir, dir);
   }
