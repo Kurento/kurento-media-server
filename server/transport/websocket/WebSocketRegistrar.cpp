@@ -27,6 +27,8 @@ namespace kurento
 const std::chrono::milliseconds DEFAULT_WAIT_TIME (100);
 const std::chrono::seconds MAX_WAIT_TIME (10);
 
+typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
+
 WebSocketRegistrar::WebSocketRegistrar (const std::string &registrarAddress,
                                         const std::string &localAddress,
                                         ushort localPort,
@@ -100,9 +102,10 @@ WebSocketRegistrar::connectRegistrar ()
 
   while (!finished) {
     boost::asio::io_service ios;
+
     GST_INFO ("Connecting registrar");
 
-    if (registrarAddress.size() <= 3 && registrarAddress.substr (0, 3) == "wss") {
+    if (registrarAddress.size() >= 3 && registrarAddress.substr (0, 3) == "wss") {
       secureClient = std::shared_ptr<SecureWebSocketClient> (new
                      SecureWebSocketClient() );
       secureClient->clear_access_channels (websocketpp::log::alevel::all);
@@ -119,15 +122,35 @@ WebSocketRegistrar::connectRegistrar ()
                                          this, secureClient, std::placeholders::_1, std::placeholders::_2) );
       secureClient->set_close_handler (std::bind (&WebSocketRegistrar::closedHandler,
                                        this, std::placeholders::_1) );
+      secureClient->set_tls_init_handler ( [] (websocketpp::connection_hdl hdl) ->
+      context_ptr {
+        context_ptr ctx (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv1) );
+
+        try {
+          ctx->set_options (boost::asio::ssl::context::default_workarounds |
+          boost::asio::ssl::context::no_sslv2 |
+          boost::asio::ssl::context::single_dh_use);
+        } catch (std::exception &e)
+        {
+          GST_ERROR ("Error setting tls on registrar connection: %s", e.what() );
+        }
+
+        return ctx;
+      });
 
       // Initialize ASIO
       secureClient->init_asio (&ios);
 
       SecureWebSocketClient::connection_ptr con = secureClient->get_connection (
             registrarAddress, ec);
-      secure = true;
-      secureClient->connect (con);
-      secureClient->run();
+
+      if (con) {
+        secure = true;
+        secureClient->connect (con);
+        secureClient->run();
+      } else {
+        GST_ERROR ("Cannot create connection %s", ec.message().c_str() );
+      }
     } else {
       client = std::shared_ptr<WebSocketClient> (new WebSocketClient() );
       client->clear_access_channels (websocketpp::log::alevel::all);
@@ -150,9 +173,14 @@ WebSocketRegistrar::connectRegistrar ()
 
       WebSocketClient::connection_ptr con = client->get_connection (registrarAddress,
                                             ec);
-      secure = false;
-      client->connect (con);
-      client->run();
+
+      if (con) {
+        secure = false;
+        client->connect (con);
+        client->run();
+      } else {
+        GST_ERROR ("Cannot create connection %s", ec.message().c_str() );
+      }
     }
 
     if (finished) {
