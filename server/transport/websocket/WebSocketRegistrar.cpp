@@ -74,9 +74,11 @@ WebSocketRegistrar::stop()
     if (secure) {
       secureClient->close (connection, websocketpp::close::status::going_away,
                            "terminating");
+      secureClient->get_io_service().stop();
     } else {
       client->close (connection, websocketpp::close::status::going_away,
                      "terminating");
+      client->get_io_service().stop();
     }
   } catch (...) {
 
