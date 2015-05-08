@@ -102,4 +102,20 @@ set_property (TARGET test_config_read
     ${CMAKE_SOURCE_DIR}/server
 )
 
+add_test_program (test_registrar registrar_test.cpp ${CMAKE_SOURCE_DIR}/server/transport/websocket/WebSocketRegistrar.cpp)
+target_link_libraries(test_registrar
+  ${Boost_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  ${Boost_LIBRARIES}
+  ${KMSCORE_LIBRARIES}
+  ${OPENSSL_LIBRARIES}
+  -pthread
+)
+set_property (TARGET test_registrar
+  PROPERTY INCLUDE_DIRECTORIES
+    ${KMSCORE_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/server/transport/websocket
+)
+
 endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
