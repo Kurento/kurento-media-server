@@ -24,7 +24,6 @@ set (TEST_PROPERTIES
 
 add_test_program(test_server_json server_json_test.cpp)
 add_dependencies(test_server_json
-  ALL
   kurento-media-server
   base_test
 )
@@ -45,7 +44,6 @@ set_property (TARGET test_server_json
 
 add_test_program(test_server_json_session server_json_session.cpp)
 add_dependencies(test_server_json_session
-  ALL
   kurento-media-server
   base_test
 )
@@ -67,7 +65,6 @@ set_property (TARGET test_server_json_session
 
 add_test_program(test_server_duplicate_requests server_duplicate_requests.cpp )
 add_dependencies(test_server_duplicate_requests
-  ALL
   kurento-media-server
   base_test
 )
