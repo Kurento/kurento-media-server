@@ -16,7 +16,6 @@ SET(KMSC_SOURCE
   modules.hpp
   loadConfig.cpp
   loadConfig.hpp
-  dtlsfix.cpp
 )
 
 add_definitions(-DBOOST_LOG_DYN_LINK)
@@ -27,7 +26,6 @@ add_dependencies(kurento-media-server signalHandler transport)
 
 target_link_libraries (kurento-media-server
   ${Boost_LIBRARIES}
-  ${GNUTLS_LIBRARIES}
   transport
   signalHandler
   pthread
@@ -41,7 +39,6 @@ set_property (TARGET kurento-media-server
     ${CMAKE_CURRENT_SOURCE_DIR}/transport
     ${CMAKE_CURRENT_SOURCE_DIR}/signalHandler
     ${KMSCORE_INCLUDE_DIRS}
-    ${GNUTLS_INCLUDE_DIRS}
 )
 
 install(TARGETS kurento-media-server RUNTIME DESTINATION bin)

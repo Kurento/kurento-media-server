@@ -16,7 +16,6 @@ Build-Depends:
  libboost-thread-dev,
  libboost-log-dev,
  libevent-dev,
- libgnutls28-dev,
  libssl-dev,
  librabbitmq-dev
 Standards-Version: 3.9.4
