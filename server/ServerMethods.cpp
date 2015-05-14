@@ -85,7 +85,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
                type, capabilities) );
 
   serverManager = MediaSet::getMediaSet ()->ref (new ServerManagerImpl (
-                    serverInfo, config) );
+                    serverInfo, config, moduleManager) );
   MediaSet::getMediaSet ()->setServerManager (std::dynamic_pointer_cast
       <ServerManagerImpl> (serverManager) );
 
