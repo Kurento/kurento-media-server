@@ -77,6 +77,8 @@ private:
   const boost::property_tree::ptree &config;
   JsonRpc::Handler handler;
 
+  float resourceLimitPercent;
+
   std::function<std::string (std::shared_ptr<MediaObjectImpl> obj, const std::string &sessionId, const std::string &eventType, const Json::Value &params) >
   eventSubscriptionHandler;
 

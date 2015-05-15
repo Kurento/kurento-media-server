@@ -1,5 +1,10 @@
 mediaServer
 {
+;  resources
+;  {
+;    ; Resources usage limit for raising an exception when an object creation is attempted
+;    exceptionLimit 0.8
+;  }
   net
   {
     websocket

@@ -66,6 +66,13 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   std::shared_ptr <ServerInfo> serverInfo;
   std::shared_ptr<MediaObjectImpl> serverManager;
 
+  resourceLimitPercent =
+    config.get<float> ("mediaServer.resources.exceptionLimit",
+                       DEFAULT_RESOURCE_LIMIT_PERCENT);
+
+  GST_INFO ("Not enough resources exception will be raised when resources reach %f ",
+            resourceLimitPercent);
+
   instanceId = generateUUID();
 
   for (auto moduleIt : moduleManager.getModules () ) {
@@ -545,7 +552,7 @@ ServerMethods::create (const Json::Value &params,
   try {
     factory = moduleManager.getFactory (type);
 
-    checkResources();
+    checkResources (resourceLimitPercent);
 
     std::shared_ptr <MediaObjectImpl> object;
 

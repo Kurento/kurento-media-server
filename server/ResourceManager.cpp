@@ -30,8 +30,6 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-static const float LIMIT_PERCENT = 0.8;
-
 static int maxOpenFiles = 0;
 static int maxThreads = 0;
 
@@ -69,20 +67,20 @@ getMaxThreads ()
     struct rlimit limits;
     getrlimit (RLIMIT_NPROC, &limits);
 
-    maxThreads = limits.rlim_cur * LIMIT_PERCENT;
+    maxThreads = limits.rlim_cur;
   }
 
   return maxThreads;
 }
 
 static void
-checkThreads ()
+checkThreads (float limit_percent)
 {
   int nThreads;
 
   nThreads = getNumberOfThreads ();
 
-  if (nThreads > getMaxThreads () ) {
+  if (nThreads > getMaxThreads () * limit_percent ) {
     throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many threads");
   }
 }
@@ -94,7 +92,7 @@ getMaxOpenFiles ()
     struct rlimit limits;
     getrlimit (RLIMIT_NOFILE, &limits);
 
-    maxOpenFiles = limits.rlim_cur * LIMIT_PERCENT;
+    maxOpenFiles = limits.rlim_cur;
   }
 
   return maxOpenFiles;
@@ -119,22 +117,22 @@ getNumberOfOpenFiles ()
 }
 
 static void
-checkOpenFiles ()
+checkOpenFiles (float limit_percent)
 {
   int nOpenFiles;
 
   nOpenFiles = getNumberOfOpenFiles ();
 
-  if (nOpenFiles > getMaxOpenFiles () ) {
+  if (nOpenFiles > getMaxOpenFiles () * limit_percent ) {
     throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many open files");
   }
 }
 
 void
-checkResources (void)
+checkResources (float limit_percent)
 {
-  checkThreads ();
-  checkOpenFiles ();
+  checkThreads (limit_percent);
+  checkOpenFiles (limit_percent);
 }
 
 } /* kurento */

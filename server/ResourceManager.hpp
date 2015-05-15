@@ -19,7 +19,9 @@
 namespace kurento
 {
 
-void checkResources (void);
+static const float DEFAULT_RESOURCE_LIMIT_PERCENT = 0.8;
+
+void checkResources (float limit_percent);
 
 } /* kurento */
 
