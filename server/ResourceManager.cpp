@@ -20,6 +20,7 @@
 #include <fstream>
 #include <sstream>
 #include <KurentoException.hpp>
+#include <MediaSet.hpp>
 
 #include <sys/resource.h>
 
@@ -133,6 +134,22 @@ checkResources (float limit_percent)
 {
   checkThreads (limit_percent);
   checkOpenFiles (limit_percent);
+}
+
+void killServerOnLowResources (float limit_percent)
+{
+  MediaSet::getMediaSet()->signalEmptyLocked.connect ([limit_percent] () {
+    GST_DEBUG ("MediaSet empty, checking resources");
+
+    try {
+      checkResources (limit_percent);
+    } catch (KurentoException &e) {
+      if (e.getCode() == NOT_ENOUGH_RESOURCES) {
+        GST_ERROR ("Resources over the limit, server will be killed");
+        exit (1);
+      }
+    }
+  });
 }
 
 } /* kurento */

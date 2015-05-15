@@ -25,6 +25,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 
 #include "TransportFactory.hpp"
+#include "ResourceManager.hpp"
 
 #include <SignalHandler.hpp>
 #include <ServerMethods.hpp>
@@ -32,6 +33,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/exception/diagnostic_information.hpp>
+#include <boost/optional.hpp>
 
 #include "logging.hpp"
 #include "modules.hpp"
@@ -148,7 +150,8 @@ main (int argc, char **argv)
     boost::program_options::store (boost::program_options::parse_environment (desc,
     [&desc] (std::string & input) -> std::string {
       /* Look for KURENTO_ prefix and change to lower case */
-      if (input.find (ENV_PREFIX) == 0) {
+      if (input.find (ENV_PREFIX) == 0)
+      {
         std::string aux = input.substr (ENV_PREFIX.size() );
         std::transform (aux.begin(), aux.end(), aux.begin(), [] (int c) -> int {
           return (c == '_') ? '-' : tolower (c);
@@ -201,7 +204,6 @@ main (int argc, char **argv)
       print_version();
       exit (0);
     }
-
   } catch (boost::program_options::error &e) {
     std::cerr <<  "Error : " << e.what() << std::endl;
     exit (1);
@@ -219,6 +221,15 @@ main (int argc, char **argv)
   GST_INFO ("Kmsc version: %s", get_version () );
 
   loadConfig (config, confFile, modulesConfigPath);
+
+  boost::optional<float> killResourceLimit =
+    config.get_optional<float> ("mediaServer.resources.killLimit");
+
+  if (killResourceLimit) {
+    GST_INFO ("Resource limit is: %f", *killResourceLimit);
+    killServerOnLowResources (*killResourceLimit);
+  }
+
   transport = createTransportFromConfig (config);
 
   /* Start transport */

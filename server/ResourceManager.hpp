@@ -23,6 +23,8 @@ static const float DEFAULT_RESOURCE_LIMIT_PERCENT = 0.8;
 
 void checkResources (float limit_percent);
 
+void killServerOnLowResources (float limit_percent);
+
 } /* kurento */
 
 #endif /* __RESOURCE_MANAGER_H__ */
