@@ -308,6 +308,10 @@ void WebSocketTransport::stop ()
     threads[i].join();
   }
 
+  if (registrar) {
+    registrar->stop();
+  }
+
   keepAliveThread.join();
 }
 
