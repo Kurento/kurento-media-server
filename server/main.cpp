@@ -39,6 +39,8 @@
 #include "modules.hpp"
 #include "loadConfig.hpp"
 
+#include "MediaSet.hpp"
+
 #define GST_CAT_DEFAULT kurento_media_server
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoMediaServer"
@@ -240,6 +242,7 @@ main (int argc, char **argv)
   loop->run ();
 
   transport->stop();
+  MediaSet::deleteMediaSet();
 
   GST_INFO ("Mediaserver stopped");
 
