@@ -144,12 +144,14 @@ kms_log_function (GstDebugCategory *category, GstDebugLevel level,
 }
 
 void init_file_collecting (boost::shared_ptr< sink_t > sink,
-                           const std::string &path)
+                           const std::string &path,
+                           int fileSize,
+                           int fileNumber)
 {
   sink->locked_backend()->set_file_collector (sinks::file::make_collector (
         keywords::target = path,
-        keywords::max_size = 16 * 1024 * 1024,
-        keywords::min_free_space = 100 * 1024 * 1024
+        keywords::max_size = (fileSize * fileNumber) * 1024 * 1024,
+        keywords::min_free_space = fileSize * 1024 * 1024
       ) );
 }
 
@@ -201,7 +203,7 @@ system_formatter (logging::record_view const &rec,
 }
 
 bool
-kms_init_logging (const std::string &path)
+kms_init_logging (const std::string &path, int fileSize, int fileNumber)
 {
   gst_debug_remove_log_function_by_data (NULL);
   gst_debug_add_log_function (kms_log_function, NULL, NULL);
@@ -212,7 +214,7 @@ kms_init_logging (const std::string &path)
     boost::make_shared< sinks::text_file_backend > (
       keywords::file_name = path + "/" + "media-server_%Y-%m-%d_%H-%M-%S.%5N.pid" +
                             std::to_string (getpid() ) + ".log",
-      keywords::rotation_size = 100 * 1024 * 1024,
+      keywords::rotation_size = fileSize * 1024 * 1024,
       keywords::time_based_rotation = sinks::file::rotation_at_time_point (0, 0, 0)
     );
 
@@ -230,7 +232,7 @@ kms_init_logging (const std::string &path)
   );
 
   /* Set up where the rotated files will be stored */
-  init_file_collecting (system_sink, path + "/logs");
+  init_file_collecting (system_sink, path + "/logs", fileSize, fileNumber);
 
   /* Upon restart, scan the directory for files matching the file_name pattern */
   system_sink->locked_backend()->scan_for_files();
