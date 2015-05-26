@@ -29,12 +29,14 @@ class RequestCache
 {
 public:
   RequestCache (unsigned int timeout);
-  void addResponse (std::string sessionId, int requestId, std::string &response);
-  std::string getCachedResponse (std::string sessionId, int requestId);
+  void addResponse (std::string sessionId, std::string requestId,
+                    std::string &response);
+  std::string getCachedResponse (std::string sessionId, std::string requestId);
   ~RequestCache ();
 
 private:
-  std::map<std::string, std::map<int, std::shared_ptr <CacheEntry>>> cache;
+  std::map<std::string, std::map<std::string, std::shared_ptr <CacheEntry>>>
+  cache;
   std::recursive_mutex mutex;
   unsigned int timeout;
 

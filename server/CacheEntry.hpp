@@ -25,7 +25,7 @@ namespace kurento
 class CacheEntry
 {
 public:
-  CacheEntry (unsigned int timeout, std::string sessionId, int requestId,
+  CacheEntry (unsigned int timeout, std::string sessionId, std::string requestId,
               std::string response);
   std::string getResponse (void);
   ~CacheEntry ();
@@ -37,7 +37,7 @@ private:
   Glib::RefPtr<Glib::TimeoutSource> source;
   std::recursive_mutex mutex;
   std::string sessionId;
-  int requestId;
+  std::string requestId;
   std::string response;
   bool timedout = false;
 

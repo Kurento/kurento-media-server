@@ -185,7 +185,7 @@ ServerMethods::preProcess (const Json::Value &request, Json::Value &response)
 {
   std::string sessionId;
   std::string resp;
-  int requestId;
+  std::string requestId;
 
   try {
     Json::Reader reader;
@@ -215,7 +215,7 @@ ServerMethods::postProcess (const Json::Value &request, Json::Value &response)
   Json::FastWriter writer;
   std::string sessionId;
   std::string resp;
-  int requestId;
+  std::string requestId;
 
   try {
     Json::Reader reader;

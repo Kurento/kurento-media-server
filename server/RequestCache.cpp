@@ -35,7 +35,7 @@ RequestCache::~RequestCache ()
 }
 
 void
-RequestCache::addResponse (std::string sessionId, int requestId,
+RequestCache::addResponse (std::string sessionId, std::string requestId,
                            std::string &response)
 {
   std::shared_ptr<CacheEntry> entry;
@@ -68,9 +68,9 @@ RequestCache::addResponse (std::string sessionId, int requestId,
 }
 
 std::string
-RequestCache::getCachedResponse (std::string sessionId, int requestId)
+RequestCache::getCachedResponse (std::string sessionId, std::string requestId)
 {
-  std::map<int, std::shared_ptr <CacheEntry>> requests;
+  std::map<std::string, std::shared_ptr <CacheEntry>> requests;
 
   std::unique_lock<std::recursive_mutex> lock (mutex);
 
