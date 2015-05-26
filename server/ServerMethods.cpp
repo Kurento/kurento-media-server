@@ -242,7 +242,7 @@ ServerMethods::postProcess (const Json::Value &request, Json::Value &response)
     /* Cache response */
     resp = writer.write (response);
 
-    GST_DEBUG ("Caching: %s", resp.c_str() );
+    GST_LOG ("Caching: %s", resp.c_str() );
     cache->addResponse (sessionId, requestId, resp);
   }
 }
