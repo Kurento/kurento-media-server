@@ -51,10 +51,12 @@ class CacheException : public std::exception
 {
 
 public:
-  CacheException (std::string desc) : desc (desc) {
+  CacheException (std::string desc) : desc (desc)
+  {
   }
   virtual ~CacheException() {}
-  virtual const char *what() const throw() {
+  virtual const char *what() const throw()
+  {
     return desc.c_str();
   }
 
