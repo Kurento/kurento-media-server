@@ -40,6 +40,7 @@ protected:
   void check_create_pipeline_call ();
   void check_connect_call ();
   void check_bad_transaction_call ();
+  void check_transaction_call ();
   void check_system_overload ();
 };
 
@@ -175,6 +176,31 @@ ClientHandler::check_bad_transaction_call()
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].type() != Json::ValueType::nullValue);
+}
+
+void
+ClientHandler::check_transaction_call()
+{
+  Json::Value response;
+  Json::Reader reader;
+  std::string req_str;
+  std::string response_str;
+
+  req_str = "{\"id\":" + std::to_string (getId() ) +
+            ",\"jsonrpc\":\"2.0\",\"method\":\"transaction\",\"params\":{\"operations\":[{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{},\"type\":\"MediaPipeline\"}},{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\",\"uri\":\"http://files.kurento.org/video/small.webm\"},\"type\":\"PlayerEndpoint\"}},{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\"},\"type\":\"HttpGetEndpoint\"}},{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"invoke\",\"params\":{\"object\":\"newref:1\",\"operation\":\"connect\",\"operationParams\":{\"sink\":\"newref:2\"}}}],\"sessionId\":\"b2b81900-2902-4417-a552-973911efec4c\"}}";
+
+  response_str = sendMessage (req_str);
+
+  BOOST_CHECK (reader.parse (response_str, response) == true);
+
+  BOOST_CHECK (!response.isMember ("error") );
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].type() != Json::ValueType::nullValue);
+  BOOST_CHECK (response["result"].isMember ("value") );
+  BOOST_CHECK (response["result"]["value"].type() == Json::ValueType::arrayValue);
+  BOOST_CHECK (response["result"]["value"].size() == 4);
+  BOOST_CHECK (response["result"]["value"][3]["value"].type() ==
+               Json::ValueType::nullValue);
 }
 
 void
@@ -397,6 +423,7 @@ BOOST_AUTO_TEST_CASE ( server_unexpected_test )
   check_error_call();
   check_create_pipeline_call();
   check_bad_transaction_call();
+  check_transaction_call();
   check_system_overload();
 }
 
