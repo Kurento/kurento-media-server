@@ -15,6 +15,7 @@
 
 #include "BaseTest.hpp"
 #include <boost/test/unit_test.hpp>
+#include <KurentoException.hpp>
 
 #include <gst/gst.h>
 
@@ -66,7 +67,7 @@ ClientHandler::check_error_call()
   BOOST_CHECK (response["error"].isObject() );
   BOOST_CHECK (response["error"].isMember ("code") );
   BOOST_CHECK (response["error"]["code"].isInt() );
-  BOOST_CHECK (response["error"]["code"] == -32600);
+  BOOST_CHECK (response["error"]["code"].asInt() == -32600);
   BOOST_CHECK (response["error"].isMember ("message") );
 }
 
@@ -114,7 +115,7 @@ ClientHandler::check_connect_call()
   BOOST_CHECK (response["error"].isObject() );
   BOOST_CHECK (response["error"].isMember ("code") );
   BOOST_CHECK (response["error"]["code"].isInt() );
-  BOOST_CHECK (response["error"]["code"] == 40007);
+  BOOST_CHECK (response["error"]["code"].asInt() == INVALID_SESSION);
   BOOST_CHECK (response["error"].isMember ("message") );
   BOOST_CHECK (response["error"].isMember ("data") );
   BOOST_CHECK (response["error"]["data"].isMember ("type") );
