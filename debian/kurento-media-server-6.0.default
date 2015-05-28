@@ -27,3 +27,5 @@ DAEMON_USER=nobody
 DAEMON_LOG=/var/log/kurento-media-server
 
 export KURENTO_LOGS_PATH=$DAEMON_LOG
+#export KURENTO_LOG_FILE_SIZE=300
+#export KURENTO_NUMBER_LOG_FILES=20
