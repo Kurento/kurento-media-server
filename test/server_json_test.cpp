@@ -164,7 +164,7 @@ ClientHandler::check_bad_transaction_call()
             "\"_maxListeners\":10,"
             "\"domain\":null,"
             "\"members\":[]},"
-            "\"type\":\"HttpGetEndpoint\"}"
+            "\"type\":\"WebRtcEndpoint\"}"
             "}"
             "],"
             "\"sessionId\":\"c58960d9-4cac-4036-ad2e-1aef26946dae\"}}";
@@ -187,7 +187,7 @@ ClientHandler::check_transaction_call()
   std::string response_str;
 
   req_str = "{\"id\":" + std::to_string (getId() ) +
-            ",\"jsonrpc\":\"2.0\",\"method\":\"transaction\",\"params\":{\"operations\":[{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{},\"type\":\"MediaPipeline\"}},{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\",\"uri\":\"http://files.kurento.org/video/small.webm\"},\"type\":\"PlayerEndpoint\"}},{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\"},\"type\":\"HttpGetEndpoint\"}},{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"invoke\",\"params\":{\"object\":\"newref:1\",\"operation\":\"connect\",\"operationParams\":{\"sink\":\"newref:2\"}}}],\"sessionId\":\"b2b81900-2902-4417-a552-973911efec4c\"}}";
+            ",\"jsonrpc\":\"2.0\",\"method\":\"transaction\",\"params\":{\"operations\":[{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{},\"type\":\"MediaPipeline\"}},{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\",\"uri\":\"http://files.kurento.org/video/small.webm\"},\"type\":\"PlayerEndpoint\"}},{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\"},\"type\":\"WebRtcEndpoint\"}},{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"invoke\",\"params\":{\"object\":\"newref:1\",\"operation\":\"connect\",\"operationParams\":{\"sink\":\"newref:2\"}}}],\"sessionId\":\"b2b81900-2902-4417-a552-973911efec4c\"}}";
 
   response_str = sendMessage (req_str);
 

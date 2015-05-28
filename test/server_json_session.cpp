@@ -117,7 +117,7 @@ ClientHandler::check_create_pipeline_call()
 
   /* Create a filter using session 1 */
 
-  params["type"] = "HttpGetEndpoint";
+  params["type"] = "WebRtcEndpoint";
   constructorParams ["mediaPipeline"] = pipeId;
   params["constructorParams"] = constructorParams;
 
