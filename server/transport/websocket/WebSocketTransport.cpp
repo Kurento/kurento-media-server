@@ -21,6 +21,7 @@
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <jsonrpc/JsonRpcConstants.hpp>
 #include <KurentoException.hpp>
+#include <MediaSet.hpp>
 
 #include <boost/filesystem.hpp>
 
@@ -43,8 +44,6 @@ const std::string SESSION_ID = "sessionId";
 const ushort WEBSOCKET_PORT_DEFAULT = 8888;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
 const int WEBSOCKET_THREADS_DEFAULT = 10;
-
-const std::chrono::seconds KEEP_ALIVE_PERIOD (60);
 
 class configuration_exception : public std::exception
 {
@@ -268,7 +267,7 @@ void WebSocketTransport::keepAliveSessions()
     }
 
     lock.lock();
-    cond.wait_for (lock, KEEP_ALIVE_PERIOD);
+    cond.wait_for (lock, MediaSet::getCollectorInterval() / 4);
   }
 }
 
