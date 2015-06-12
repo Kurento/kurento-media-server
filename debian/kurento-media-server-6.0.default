@@ -16,6 +16,8 @@ unset GST_PLUGIN_PATH
 
 #enable core dump
 ulimit -c unlimited
+#unlimit open files
+ulimit -n $((($(cat /proc/sys/fs/file-max) * 50) / 100 ))
 
 # Next line enables debug for some kurento classes it can be modified to change
 # log level and logged tags
