@@ -152,7 +152,7 @@ main (int argc, char **argv)
     ("number-log-files ,n",
      boost::program_options::value <int> (&fileNumber)->default_value (
        DEFAULT_NUMBER_LOG_FILE),
-     "Maximum number of files to save");;
+     "Maximum number of files to save");
 
     boost::program_options::command_line_parser clp (argc, argv);
     clp.options (desc).allow_unregistered();
