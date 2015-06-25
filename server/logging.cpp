@@ -205,7 +205,7 @@ system_formatter (logging::record_view const &rec,
 bool
 kms_init_logging (const std::string &path, int fileSize, int fileNumber)
 {
-  gst_debug_remove_log_function_by_data (NULL);
+  gst_debug_remove_log_function (gst_debug_log_default);
   gst_debug_add_log_function (kms_log_function, NULL, NULL);
 
   boost::shared_ptr< logging::core > core = logging::core::get();
