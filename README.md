@@ -16,8 +16,7 @@ First you need to install dependencies, there are various ways, here we describe
 one that is pretty simple and automated:
 
 ```
-  sudo add-apt-repository ppa:kurento/kurento
-  sudo apt-add-repository http://ubuntu.kurento.org
+  echo "deb http://ubuntu.kurento.org trusty-dev kms6" | sudo tee /etc/apt/sources.list.d/kurento-dev.list
   wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
   sudo apt-get update
   sudo apt-get install $(cat debian/control | sed -e "s/$/\!\!/g" | tr -d '\n' | sed "s/\!\! / /g" | sed "s/\!\!/\n/g" | grep "Build-Depends" | sed "s/Build-Depends: //g" | sed "s/([^)]*)//g" | sed "s/, */ /g")
@@ -66,13 +65,10 @@ http://ubuntu.kurento.org/pool/main/k/kurento-media-server/
 To install packages from unstable repository you need to execute:
 
 ```
-  sudo apt-get install software-properties-common # To install add-apt-repository tool
-  # Ppa is also required for gstreamer packages updates
-  sudo add-apt-repository ppa:kurento/kurento
-  sudo apt-add-repository http://ubuntu.kurento.org
+  echo "deb http://ubuntu.kurento.org trusty-dev kms6" | sudo tee /etc/apt/sources.list.d/kurento-dev.list
   wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
   sudo apt-get update
-  sudo apt-get install kurento-media-server
+  sudo apt-get install kurento-media-server-6.0
 ```
 
 Source
@@ -91,4 +87,3 @@ Follow us on Twitter @[kurentoms].
 [GitHub Kurento Group]: https://github.com/kurento
 [website]: http://kurento.org
 [kurentoms]: http://twitter.com/kurentoms
-
