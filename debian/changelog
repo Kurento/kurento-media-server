@@ -1,3 +1,114 @@
+kurento-media-server-6.0 (6.0.0) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * Add build dependencies to make test work properly
+  * WebSocketRegistrar: Fix typo in registrar message
+  * Update .gitreview to work with new repo
+  * Prepare for 6.0 development iteration
+
+  [ David Fernandez ]
+  * kurento-module-scaffold: Change dev.install to accept cmake versions
+  * kurento-module-scaffold: Fix bugs in gstplugin generation
+
+  [ Jose Antonio Santos Cadenas ]
+  * debian/control: Missing commas
+
+  [ Aurel Branzeanu ]
+  * Add 6.0 version to "/etc/default/kurento-media-server" filename
+
+  [ Santiago Carot-Nemesio ]
+  * logging: Integrate boost logging system
+  * logging: Use formatting logic for the severity level
+  * logging: Remove deprecated option.
+
+  [ Jose Antonio Santos Cadenas ]
+  * Remove log rotation from init script, mediaserver should now do rotation
+  * logging.cpp: Fix severity indentation
+  * Allow loading different config files for external modules
+  * Move config loading functionality to a different file
+  * loadConfig.cpp: Add support config files in info, init an xml formats
+  * loadConfig.cpp: Add function to load config files in multiple formats
+  * Add sample configuration files in ini and info formats
+  * loadConfig: Add function to convert path diffs to map keys
+
+  [ Miguel París Díaz ]
+  * main.cpp: fix kms_init_dependencies
+
+  [ Jose Antonio Santos Cadenas ]
+  * Use generic way to configure config files installation directory
+  * Adapt tests to new submodules configuration
+  * logging: Log always to a fixed file
+  * Fix identation of websocketpp library
+  * Update websocketpp to 0.5.1
+  * WebSocketRegistrar: Fix thread leak when reconnecting to registrar
+  * Add ResourceManager to limit the number of active threads
+  * ResourceManager: Check number of open files
+  * ResourceManager: Get maximum number of open file descriptor automatically
+  * ResourceManager: Get maximum number of threads automatically
+  * logging: Change rotation settings
+
+  [ Ivan Gracia ]
+  * Updated STUN server address and port
+
+  [ Jose Antonio Santos Cadenas ]
+  * loadConfig: Reimplement merge tree function to add support for arrays
+
+  [ David Fernandez ]
+  * Update gstreamer version
+  * kurento-module-scaffold: Adapt to Kurento-6.0 and gstreamer-1.5
+
+  [ Jose Antonio Santos Cadenas ]
+  * loadConfig: Fix problem when loading modules config
+  * kurento.conf.json: Remove old modules configuration
+  * Do not depend on jsoncpp directly
+  * WebSocketRegistrar: Fix registrarion when using wss
+  * Add test for websocket registrar
+  * WebSocketRegistrar: Speed up stopping
+
+  [ Miguel París Díaz ]
+  * main.cpp: format source
+
+  [ Jose Antonio Santos Cadenas ]
+  * CMake: Fix warnings with incorrect dependencies
+  * Remove dtls fix.
+
+  [ David Fernandez ]
+  * Add ModuleManager to serverManager constructor
+
+  [ Jose Antonio Santos Cadenas ]
+  * ResourceManager: Set percent limit as configurable
+  * ResourceManager: Add configuration for killing server when low resources
+  * Fix tests value checkings
+  * WebsocketTransport: Stop registrar when transport is stopped.
+  * main: Destroy MediaSet before server is finished.
+  * RequestCache: Fix identation
+  * JsonCache: Set requestId as an string insteadof as an integer
+  * ServerMethods: Reduce cache logging
+  * Add transaction test
+  * Remove references to HttpGetEndpoint from tests
+
+  [ David Fernandez ]
+  * logging: Add parameters to config the log
+  * Add parameters to configure the log in default file
+
+  [ Jose Antonio Santos Cadenas ]
+  * ResourceManager: Sent a term signal instead of killing the server
+  * Make garbage collector period configurable
+
+  [ David Fernandez ]
+  * Change ulimit limit for open files to 50% to maximun
+
+  [ Jose Antonio Santos Cadenas ]
+  * main.cpp:Remove extra semicolon
+  * logging: Do not print gstreamer logs when boost file log is active
+  * Update debian repositories
+  * Prepare release 6.0.0
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Tue, 14 Jul 2015 19:30:02 +0200
+
 kurento-media-server-6.0 (6.0.0~0) testing; urgency=medium
 
   * Prerelease for 6.0.0
