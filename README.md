@@ -45,15 +45,13 @@ Binary distribution
 -------------------
 
 This software is distributed as debian packages, you can find stable releases
-here:
-
-https://launchpad.net/~kurento/+archive/ubuntu/kurento
+here using our debian repository.
 
 To install just execute:
 
 ```
-  sudo apt-get install software-properties-common # To install add-apt-repository tool
-  sudo add-apt-repository ppa:kurento/kurento
+  echo "deb http://ubuntu.kurento.org trusty kms6" | sudo tee /etc/apt/sources.list.d/kurento.list
+  wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
   sudo apt-get update
   sudo apt-get install kurento-server
 ```
