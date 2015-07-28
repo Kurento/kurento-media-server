@@ -27,6 +27,9 @@
 #include <boost/log/sources/channel_logger.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 namespace logging = boost::log;
 namespace attrs = boost::log::attributes;
@@ -188,8 +191,7 @@ system_formatter (logging::record_view const &rec,
                              << expr::format_date_time< boost::posix_time::ptime > ("TimeStamp",
                                  "%Y-%m-%d %H:%M:%S,%f");
   date_time_formatter (rec, strm) << " ";
-  strm << logging::extract< attrs::current_process_id::value_type > ("ProcessID",
-       rec) << " ";
+  strm << std::to_string (getpid() ) << " ";
   strm << "[" <<
        logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
            rec) << "] ";
