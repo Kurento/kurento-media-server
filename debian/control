@@ -5,9 +5,9 @@ Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
 Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
- kms-core-6.0-dev,
- kms-elements-6.0-dev,
- kms-filters-6.0-dev,
+ kms-core-6.0-dev (>= 6.1.0),
+ kms-elements-6.0-dev (>= 6.1.0),
+ kms-filters-6.0-dev (>= 6.1.0),
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
@@ -23,9 +23,9 @@ Standards-Version: 3.9.4
 Package: kurento-media-server-6.0
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- kms-elements-6.0,
- kms-filters-6.0,
- kms-core-6.0
+ kms-elements-6.0 (>= 6.1.0),
+ kms-filters-6.0 (>= 6.1.0),
+ kms-core-6.0 (>= 6.1.0)
 Replaces:
  kurento,
  kurento-media-server
