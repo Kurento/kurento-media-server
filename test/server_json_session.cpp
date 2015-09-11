@@ -47,10 +47,6 @@ ClientHandler::check_create_pipeline_call()
 {
   Json::Value request;
   Json::Value response;
-  Json::FastWriter writer;
-  Json::Reader reader;
-  std::string req_str;
-  std::string response_str;
 
   std::string pipeId;
   std::string playerId;
@@ -76,10 +72,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -88,7 +81,6 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (response["result"]["value"].isString() );
 
   pipeId = response["result"]["value"].asString();
-  response_str.clear();
 
   /* Create a player using session 1 */
 
@@ -100,10 +92,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -113,7 +102,6 @@ ClientHandler::check_create_pipeline_call()
 
   playerId = response["result"]["value"].asString();
   constructorParams.clear();
-  response_str.clear();
 
   /* Create a filter using session 1 */
 
@@ -124,10 +112,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -137,7 +122,6 @@ ClientHandler::check_create_pipeline_call()
 
   filterId = response["result"]["value"].asString();
   constructorParams.clear();
-  response_str.clear();
 
   /* Create a recorder using session 1 */
 
@@ -149,10 +133,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -162,7 +143,6 @@ ClientHandler::check_create_pipeline_call()
 
   recorderId1 = response["result"]["value"].asString();
   constructorParams.clear();
-  response_str.clear();
 
   /* Create a recorder using session 2 */
 
@@ -175,10 +155,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -188,7 +165,6 @@ ClientHandler::check_create_pipeline_call()
 
   recorderId2 = response["result"]["value"].asString();
   constructorParams.clear();
-  response_str.clear();
 
   GST_DEBUG ("Pipeline: %s", pipeId.c_str() );
   GST_DEBUG ("Player: %s", playerId.c_str() );
@@ -210,8 +186,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -219,7 +194,6 @@ ClientHandler::check_create_pipeline_call()
 
   params.clear();
   operationParams.clear();
-  response_str.clear();
 
   /* Link filter and recorder1 using session 1 */
 
@@ -235,8 +209,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -244,7 +217,6 @@ ClientHandler::check_create_pipeline_call()
 
   params.clear();
   operationParams.clear();
-  response_str.clear();
 
   /* Link filter and recorder2 using session 2 */
 
@@ -260,8 +232,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -269,7 +240,6 @@ ClientHandler::check_create_pipeline_call()
 
   params.clear();
   operationParams.clear();
-  response_str.clear();
 
   /* Unref recorder1 using session 1 */
 
@@ -279,9 +249,7 @@ ClientHandler::check_create_pipeline_call()
 
   request["id"] = getId();
   request["params"] = params;
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -294,9 +262,7 @@ ClientHandler::check_create_pipeline_call()
 
   request["params"] = params;
   request["id"] = getId();
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -309,9 +275,7 @@ ClientHandler::check_create_pipeline_call()
 
   request["id"] = getId();
   request["params"] = params;
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -324,9 +288,7 @@ ClientHandler::check_create_pipeline_call()
 
   request["id"] = getId();
   request["params"] = params;
-  req_str = writer.write (request);
-  response_str = sendMessage (req_str);
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );

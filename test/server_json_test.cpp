@@ -49,20 +49,13 @@ ClientHandler::check_error_call()
 {
   Json::Value request;
   Json::Value response;
-  Json::FastWriter writer;
   Json::Reader reader;
-  std::string req_str;
-  std::string response_str;
 
   request["jsonrpc"] = "1";
   request["id"] = getId();
   request["method"] = "create";
 
-  req_str = writer.write (request);
-
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (response.isMember ("error") );
   BOOST_CHECK (response["error"].isObject() );
@@ -77,10 +70,6 @@ ClientHandler::check_connect_call()
 {
   Json::Value request;
   Json::Value response;
-  Json::FastWriter writer;
-  Json::Reader reader;
-  std::string req_str;
-  std::string response_str;
   Json::Value params;
 
   request["jsonrpc"] = "2.0";
@@ -88,11 +77,8 @@ ClientHandler::check_connect_call()
   request["method"] = "connect";
   request["params"] = params;
 
-  req_str = writer.write (request);
 
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -106,11 +92,7 @@ ClientHandler::check_connect_call()
   params["sessionId"] = "fakeSession";
   request["params"] = params;
 
-  req_str = writer.write (request);
-
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (response.isMember ("error") );
   BOOST_CHECK (response["error"].isObject() );
@@ -126,10 +108,9 @@ ClientHandler::check_connect_call()
 void
 ClientHandler::check_bad_transaction_call()
 {
-  Json::Value response;
+  Json::Value response, request;
   Json::Reader reader;
   std::string req_str;
-  std::string response_str;
 
   req_str = "{"
             "\"id\": 50000,"
@@ -169,9 +150,8 @@ ClientHandler::check_bad_transaction_call()
             "],"
             "\"sessionId\":\"c58960d9-4cac-4036-ad2e-1aef26946dae\"}}";
 
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  BOOST_REQUIRE (reader.parse (req_str, request) );
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -181,17 +161,15 @@ ClientHandler::check_bad_transaction_call()
 void
 ClientHandler::check_transaction_call()
 {
-  Json::Value response;
+  Json::Value response, request;
   Json::Reader reader;
   std::string req_str;
-  std::string response_str;
 
   req_str = "{\"id\":" + std::to_string (getId() ) +
             ",\"jsonrpc\":\"2.0\",\"method\":\"transaction\",\"params\":{\"operations\":[{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{},\"type\":\"MediaPipeline\"}},{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\",\"uri\":\"http://files.kurento.org/video/small.webm\"},\"type\":\"PlayerEndpoint\"}},{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\"},\"type\":\"WebRtcEndpoint\"}},{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"invoke\",\"params\":{\"object\":\"newref:1\",\"operation\":\"connect\",\"operationParams\":{\"sink\":\"newref:2\"}}}],\"sessionId\":\"b2b81900-2902-4417-a552-973911efec4c\"}}";
 
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  BOOST_REQUIRE (reader.parse (req_str, request) );
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -208,10 +186,6 @@ ClientHandler::check_create_pipeline_call()
 {
   Json::Value request;
   Json::Value response;
-  Json::FastWriter writer;
-  Json::Reader reader;
-  std::string req_str;
-  std::string response_str;
   std::string pipeId;
   std::string objId;
 
@@ -229,11 +203,7 @@ ClientHandler::check_create_pipeline_call()
   request["params"] = params;
   request["sessionId"] = "sessionId";
 
-  req_str = writer.write (request);
-
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -251,12 +221,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str.clear();
-
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -276,11 +241,7 @@ ClientHandler::check_create_pipeline_call()
   request["id"] = getId();
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str.clear();
-
-  response_str = sendMessage (req_str);
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -292,11 +253,7 @@ ClientHandler::check_create_pipeline_call()
   params["sessionId"] = "12345";
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str.clear();
-
-  response_str = sendMessage (req_str);
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -308,11 +265,7 @@ ClientHandler::check_create_pipeline_call()
   params["sessionId"] = "12345";
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str.clear();
-
-  response_str = sendMessage (req_str);
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -330,12 +283,7 @@ ClientHandler::check_create_pipeline_call()
   params["operationParams"] = operationParams;
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str.clear();
-
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -348,10 +296,6 @@ ClientHandler::check_system_overload()
 {
   Json::Value request;
   Json::Value response;
-  Json::FastWriter writer;
-  Json::Reader reader;
-  std::string req_str;
-  std::string response_str;
   std::string pipeId;
   std::string objId;
 
@@ -369,11 +313,7 @@ ClientHandler::check_system_overload()
   request["params"] = params;
   request["sessionId"] = "sessionId";
 
-  req_str = writer.write (request);
-
-  response_str = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -395,12 +335,7 @@ ClientHandler::check_system_overload()
     request["id"] = getId();
     request["params"] = params;
 
-    req_str = writer.write (request);
-    response_str.clear();
-
-    response_str = sendMessage (req_str);
-
-    BOOST_CHECK (reader.parse (response_str, response) == true);
+    response = sendRequest (request);
 
     times ++;
   } while (!response.isMember ("error") );

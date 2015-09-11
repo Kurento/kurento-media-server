@@ -23,6 +23,12 @@
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 
+#include <json/value.h>
+#include <json/reader.h>
+#include <json/writer.h>
+
+#include <list>
+
 typedef websocketpp::client<websocketpp::config::asio_client> WebSocketClient;
 
 namespace kurento
@@ -33,9 +39,11 @@ protected:
   F();
   virtual ~F();
 
-  std::string sendMessage (const std::string &message);
+  Json::Value sendRequest (const Json::Value &request);
+  Json::Value waifForEvent (const std::chrono::seconds timeout);
 
-  int getId() {
+  int getId()
+  {
     return id++;
   }
 
@@ -65,15 +73,22 @@ private:
   websocketpp::connection_hdl connectionHdl;
   std::thread clientThread;
 
+  Json::Reader reader;
+  Json::FastWriter writer;
+
   bool sendingMessage;
-  std::string response;
+  std::list <Json::Value> recvMessages;
   std::condition_variable cond;
 
-  bool receivedMessage = false;
+  bool receivedResponse (const std::string &requestId);
 
-  bool received () {
-    return receivedMessage;
-  }
+  bool receivedEvent ();
+
+  bool isEvent (const Json::Value &message);
+  bool isResponse (const Json::Value &message, const std::string &requestId);
+
+  Json::Value getFirstEvent ();
+  Json::Value getResponse (const std::string &requestId);
 
   boost::filesystem::path write_config (const boost::filesystem::path &orig,
                                         uint port);

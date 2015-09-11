@@ -15,9 +15,13 @@
 
 #include "BaseTest.hpp"
 
+#include "KurentoException.hpp"
+
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <thread>
+
+#include <jsonrpc/JsonRpcConstants.hpp>
 
 #define BOOST_TEST_MODULE ServerTest
 #include <boost/test/unit_test.hpp>
@@ -138,31 +142,85 @@ void F::on_message (websocketpp::connection_hdl hdl,
   GST_DEBUG ("Received a reply: %s", msg->get_payload().c_str() );
 
   BOOST_REQUIRE_MESSAGE (sendingMessage, "Unexpected message received");
-  receivedMessage = true;
-  response = msg->get_payload();
+
+  Json::Value recvMessage;
+  BOOST_REQUIRE_MESSAGE (reader.parse (msg->get_payload(), recvMessage),
+                         "Cannot parse input message");
+  recvMessages.push_back (recvMessage);
+
   cond.notify_all();
 }
 
-std::string F::sendMessage (const std::string &message)
+Json::Value F::getResponse (const std::string &requestId)
 {
-  std::string response;
+  for (auto it = recvMessages.begin(); it != recvMessages.end(); it++) {
+    Json::Value message = *it;
+
+    if (isResponse (message, requestId) ) {
+      recvMessages.erase (it);
+      return message;
+    }
+  }
+
+  throw KurentoException (UNEXPECTED_ERROR, "Resonse not found");
+}
+
+Json::Value F::getFirstEvent ()
+{
+  for (auto it = recvMessages.begin(); it != recvMessages.end(); it++) {
+    Json::Value message = *it;
+
+    if (isEvent (message) ) {
+      recvMessages.erase (it);
+      return message;
+    }
+  }
+
+  throw KurentoException (UNEXPECTED_ERROR, "Resonse not found");
+}
+
+Json::Value F::sendRequest (const Json::Value &request)
+{
+  std::string response_str, requestId;
+  Json::Value response;
   std::unique_lock <std::mutex> lock (mutex);
 
   BOOST_REQUIRE_MESSAGE (!sendingMessage, "Already sending a message");
 
   sendingMessage = true;
-  client->send (connectionHdl, message, websocketpp::frame::opcode::text);
+  client->send (connectionHdl, writer.write (request),
+                websocketpp::frame::opcode::text);
 
-  if (!cond.wait_for (lock, REPLY_TIMEOUT, std::bind (&F::received,
-                      this) ) ) {
-    BOOST_FAIL ("Timeout wainting for response");
+  requestId = request[JSON_RPC_ID].asString();
+
+  if (!cond.wait_for (lock, REPLY_TIMEOUT, std::bind (&F::receivedResponse,
+                      this, requestId ) ) ) {
+    BOOST_FAIL ("Timeout waiting for response");
   }
 
   sendingMessage = false;
-  receivedMessage = false;
-  response.swap (this->response);
+
+  response = getResponse (requestId);
 
   return response;
+}
+
+Json::Value F::waifForEvent (const std::chrono::seconds timeout)
+{
+  Json::Value event;
+  std::unique_lock <std::mutex> lock (mutex);
+
+  try {
+    event = getFirstEvent();
+  } catch (KurentoException e) {
+    if (!cond.wait_for (lock, timeout, std::bind (&F::receivedEvent, this) ) ) {
+      throw kurento::KurentoException (UNEXPECTED_ERROR, "Timeout waiting for event");
+    }
+
+    event = getFirstEvent();
+  }
+
+  return event;
 }
 
 void F::start_client()
@@ -228,6 +286,50 @@ void F::stop_client (std::unique_lock <std::mutex> &lock)
   if (wasLocked) {
     lock.lock();
   }
+}
+
+bool F::isEvent (const Json::Value &message)
+{
+  if (message.isMember (JSON_RPC_METHOD)
+      && message[JSON_RPC_METHOD] == "onEvent") {
+    return true;
+  }
+
+  return false;
+}
+
+bool F::isResponse (const Json::Value &message, const std::string &requestId)
+{
+  if (message.isMember (JSON_RPC_ERROR)
+      || (message.isMember (JSON_RPC_RESULT)
+          && message.isMember (JSON_RPC_ID)
+          && message[JSON_RPC_ID].asString() == requestId) ) {
+    return true;
+  }
+
+  return false;
+}
+
+bool F::receivedResponse (const std::string &requestId)
+{
+  for (Json::Value message : recvMessages) {
+    if (isResponse (message, requestId) ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool F::receivedEvent ()
+{
+  for (Json::Value message : recvMessages) {
+    if (isEvent (message) ) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 F::F ()

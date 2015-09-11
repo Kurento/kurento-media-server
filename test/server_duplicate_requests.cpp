@@ -46,13 +46,7 @@ void
 ClientHandler::check_create_duplicate_requests_call()
 {
   Json::Value request;
-  Json::Value response;
-  Json::FastWriter writer;
-  Json::Reader reader;
-  std::string req_str;
-  std::string response_str1;
-  std::string response_str2;
-
+  Json::Value response, response2;
   std::string pipeId;
 
   Json::Value params;
@@ -72,10 +66,7 @@ ClientHandler::check_create_duplicate_requests_call()
 
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str1 = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str1, response) == true);
+  response = sendRequest (request);
 
   BOOST_CHECK (!response.isMember ("error") );
   BOOST_CHECK (response.isMember ("result") );
@@ -87,17 +78,11 @@ ClientHandler::check_create_duplicate_requests_call()
 
   /* This requests should be already cached. Let's do it again */
 
-  req_str = writer.write (request);
-  response_str2 = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str2, response) == true);
+  response2 = sendRequest (request);
 
   /* Responses 1 and 2 should be the same. No new pipelines were created */
   /* So objects ID and everything else should be equal */
-  BOOST_CHECK (response_str1 == response_str2);
-
-  response_str1.clear();
-  response_str2.clear();
+  BOOST_CHECK (response == response2);
 
   /* Create a player using session 1 */
   request["id"] = getId();
@@ -108,20 +93,14 @@ ClientHandler::check_create_duplicate_requests_call()
 
   request["params"] = params;
 
-  req_str = writer.write (request);
-  response_str1 = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str1, response) == true);
+  response = sendRequest (request);
 
   /* This requests should be already cached. Let's do it again */
-  req_str = writer.write (request);
-  response_str2 = sendMessage (req_str);
-
-  BOOST_CHECK (reader.parse (response_str2, response) == true);
+  response2 = sendRequest (request);
 
   /* Responses 1 and 2 should be the same. No new pipelines were created */
   /* So objects ID and everything else should be equal */
-  BOOST_CHECK (response_str1 == response_str2);
+  BOOST_CHECK (response == response2);
 }
 
 BOOST_FIXTURE_TEST_SUITE ( server_duplicate_reqs_test_suite, ClientHandler)
