@@ -96,6 +96,8 @@ private:
   std::condition_variable_any cond;
   std::shared_ptr <WebSocketRegistrar> registrar;
 
+  std::map <std::string, std::weak_ptr<kurento::EventHandler>> handlers;
+
   class StaticConstructor
   {
   public:

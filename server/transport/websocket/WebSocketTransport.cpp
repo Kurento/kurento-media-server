@@ -23,6 +23,8 @@
 #include <KurentoException.hpp>
 #include <MediaSet.hpp>
 
+#include <UUIDGenerator.hpp>
+
 #include <boost/filesystem.hpp>
 
 #include <type_traits>
@@ -527,13 +529,25 @@ WebSocketTransport::processSubscription (std::shared_ptr< MediaObjectImpl > obj,
     const Json::Value &params)
 {
   std::string subscriptionId;
+  std::string eventId = sessionId + "|" + obj->getId() + "|" + eventType;
   std::shared_ptr <EventHandler> handler;
+  std::unique_lock<std::recursive_mutex> lock (mutex);
 
-  handler = std::shared_ptr <EventHandler> (new WebSocketEventHandler (obj,
-            shared_from_this(), sessionId) );
+  if (handlers.find (eventId) != handlers.end() ) {
+    handler = handlers[eventId].lock();
+  }
 
-  subscriptionId = processor->connectEventHandler (obj, sessionId, eventType,
-                   handler);
+  if (!handler) {
+    handler = std::shared_ptr <EventHandler> (new WebSocketEventHandler (obj,
+              shared_from_this(), sessionId) );
+
+    subscriptionId = processor->connectEventHandler (obj, sessionId, eventType,
+                     handler);
+    handlers[eventId] = std::weak_ptr <EventHandler> (handler);
+  } else {
+    subscriptionId = generateUUID();
+    processor->registerEventHandler (obj, sessionId, subscriptionId, handler);
+  }
 
   return subscriptionId;
 }

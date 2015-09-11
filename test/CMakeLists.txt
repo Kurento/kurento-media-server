@@ -42,6 +42,26 @@ set_property (TARGET test_server_json
       ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 
+add_test_program(test_server_events server_events_test.cpp)
+add_dependencies(test_server_events
+  kurento-media-server
+  base_test
+)
+target_link_libraries(test_server_events
+  ${KMSCORE_LIBRARIES}
+  ${Boost_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  -pthread
+  base_test
+)
+set_property (TARGET test_server_events
+  PROPERTY
+    INCLUDE_DIRECTORIES
+      ${KMSCORE_INCLUDE_DIRS}
+      ${CMAKE_SOURCE_DIR}/server/transport/websocket
+)
+
 add_test_program(test_server_json_session server_json_session.cpp)
 add_dependencies(test_server_json_session
   kurento-media-server
