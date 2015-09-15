@@ -66,6 +66,7 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response["result"].isMember ("value") );
   BOOST_CHECK (response["result"].isMember ("value") );
   subscriptionId = response["result"]["value"].asString();
+  BOOST_CHECK (!subscriptionId.empty() );
 
   params["sessionId"] = sessionId;
   request["params"] = params;
@@ -78,7 +79,8 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response["result"].isMember ("sessionId") );
   BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
   BOOST_CHECK (response["result"].isMember ("value") );
-  subscriptionId2 = response["sesult"]["value"].asString();
+  subscriptionId2 = response["result"]["value"].asString();
+  BOOST_CHECK (!subscriptionId2.empty() );
 
   BOOST_CHECK (subscriptionId != subscriptionId2);
 
@@ -115,6 +117,112 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response["result"].isMember ("value") );
 
   listener.join();
+
+  // Unsubscribe first listener and wait for event
+
+  request.clear();
+  request["jsonrpc"] = "2.0";
+  request["id"] = getId();
+  request["method"] = "unsubscribe";
+
+  params["object"] = "manager_ServerManager";
+  params["subscription"] = subscriptionId;
+  params["sessionId"] = sessionId;
+
+  request["params"] = params;
+
+  response = sendRequest (request);
+
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("sessionId") );
+  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+
+  std::thread listener2 ([this] () {
+    try {
+      this->waifForEvent (std::chrono::seconds (2) );
+    } catch (kurento::KurentoException e) {
+      BOOST_FAIL ("Expected event not received");
+    }
+
+    try {
+      this->waifForEvent (std::chrono::seconds (2) );
+      BOOST_FAIL ("Unexpected event");
+    } catch (kurento::KurentoException e) {
+    }
+  });
+
+  request.clear();
+  request["jsonrpc"] = "2.0";
+  request["id"] = getId();
+  request["method"] = "create";
+
+  params.clear();
+  params["type"] = "MediaPipeline";
+  params["sessionId"] = sessionId;
+  request["params"] = params;
+
+  response = sendRequest (request);
+
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("sessionId") );
+  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (response["result"].isMember ("value") );
+
+  listener2.join();
+
+  request.clear();
+  request["jsonrpc"] = "2.0";
+  request["id"] = getId();
+  request["method"] = "unsubscribe";
+
+  params["object"] = "manager_ServerManager";
+  params["subscription"] = subscriptionId2;
+  params["sessionId"] = sessionId;
+
+  request["params"] = params;
+
+  response = sendRequest (request);
+
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("sessionId") );
+  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+
+  std::thread listener3 ([this] () {
+    try {
+      Json::Value event = this->waifForEvent (std::chrono::seconds (2) );
+      BOOST_ERROR ("Unexpected event: " + event.toStyledString() );
+    } catch (kurento::KurentoException e) {
+    }
+  });
+
+  request.clear();
+  request["jsonrpc"] = "2.0";
+  request["id"] = getId();
+  request["method"] = "create";
+
+  params.clear();
+  params["type"] = "MediaPipeline";
+  params["sessionId"] = sessionId;
+  request["params"] = params;
+
+  response = sendRequest (request);
+
+  std::cout << "response: " << response.toStyledString() << std::endl;
+
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("sessionId") );
+  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (response["result"].isMember ("value") );
+
+  std::cout << response["result"]["value"].toStyledString() << std::endl;
+
+  listener3.join();
+
+  // Unsubscribe second listener and no event should be received
 }
 
 BOOST_FIXTURE_TEST_SUITE ( server_unexpected_test_suite, ClientHandler)
