@@ -104,8 +104,8 @@ Documentation
 
 The Kurento project provides detailed [documentation] including tutorials,
 installation and development guides. A simplified version of the documentation
-can be found on [readthedocs.org]. The [Open API specification] (a.k.a. Kurento
-Protocol) is also available on [apiary.io].
+can be found on [readthedocs.org]. The [Open API specification] a.k.a. Kurento
+Protocol is also available on [apiary.io].
 
 Source
 ------
