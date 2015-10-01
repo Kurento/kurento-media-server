@@ -1,3 +1,28 @@
+kurento-media-server-6.0 (6.1.1) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+
+  [ Miguel París Díaz ]
+  * scaffold/filter.kmd.json.template: update "kurentoVersion"
+
+  [ Jose Antonio Santos Cadenas ]
+  * BaseTest: Prepare to receive events
+  * WebSocketTransport: Only send events once per sessionId
+  * server_events_test: Add unsubscription test
+
+  [ Boni Garcia ]
+  * Updated README.md according to FIWARE guidelines
+  * Added links to readthedocs.org and apiary.io in README
+  * Fixed broken links in README
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare release 6.1.1
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Thu, 01 Oct 2015 20:20:47 +0200
+
 kurento-media-server-6.0 (6.1.0) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
