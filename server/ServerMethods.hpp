@@ -73,6 +73,7 @@ private:
   void keepAlive (const Json::Value &params, Json::Value &response);
   void describe (const Json::Value &params, Json::Value &response);
   void transaction (const Json::Value &params, Json::Value &response);
+  void ping (const Json::Value &params, Json::Value &response);
 
   const boost::property_tree::ptree &config;
   JsonRpc::Handler handler;

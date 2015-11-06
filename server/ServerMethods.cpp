@@ -143,6 +143,8 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
                      std::placeholders::_2) );
   handler.addMethod ("transaction", std::bind (&ServerMethods::transaction,
                      this, std::placeholders::_1, std::placeholders::_2) );
+  handler.addMethod ("ping", std::bind (&ServerMethods::ping, this,
+                     std::placeholders::_1, std::placeholders::_2) );
 }
 
 ServerMethods::~ServerMethods()
@@ -689,6 +691,12 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
 
   response[VALUE] = responses;
   response[SESSION_ID] = sessionId;
+}
+
+void
+ServerMethods::ping (const Json::Value &params, Json::Value &response)
+{
+  response[VALUE] = "pong";
 }
 
 ServerMethods::StaticConstructor ServerMethods::staticConstructor;
