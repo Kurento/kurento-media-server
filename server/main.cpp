@@ -47,7 +47,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 const std::string DEFAULT_CONFIG_FILE = "/etc/kurento/kurento.conf.json";
 const std::string ENV_PREFIX = "KURENTO_";
-const int DEFAULT_CONFIG_FILE_SIZE = 100;
+const int DEFAULT_LOG_FILE_SIZE = 100;
 const int DEFAULT_NUMBER_LOG_FILE = 10;
 
 using namespace ::kurento;
@@ -147,7 +147,7 @@ main (int argc, char **argv)
      "Path where modules config files can be found")
     ("log-file-size,s",
      boost::program_options::value <int> (&fileSize)->default_value (
-       DEFAULT_CONFIG_FILE_SIZE),
+       DEFAULT_LOG_FILE_SIZE),
      "Maximum file size for log files in MB")
     ("number-log-files ,n",
      boost::program_options::value <int> (&fileNumber)->default_value (
