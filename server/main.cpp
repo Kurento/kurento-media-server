@@ -161,7 +161,7 @@ main (int argc, char **argv)
     boost::program_options::store (parsed, vm);
 
     boost::program_options::store (boost::program_options::parse_environment (desc,
-    [&desc] (std::string & input) -> std::string {
+    [&desc] (std::string input) -> std::string {
       /* Look for KURENTO_ prefix and change to lower case */
       if (input.find (ENV_PREFIX) == 0)
       {

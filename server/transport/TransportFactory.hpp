@@ -16,7 +16,6 @@
 #ifndef __TRANSPORT_FACTORY_HPP__
 #define __TRANSPORT_FACTORY_HPP__
 
-#include <glibmm.h>
 #include "Transport.hpp"
 #include "Processor.hpp"
 #include <boost/property_tree/ptree.hpp>

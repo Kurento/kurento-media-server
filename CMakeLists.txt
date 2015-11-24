@@ -22,7 +22,7 @@ set (DISABLE_TESTS FALSE CACHE BOOL "Disable make check")
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror -std=c++11 -DGST_DISABLE_DEPRECATED")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror -std=c++11 -Wno-deprecated-declarations -DGST_DISABLE_DEPRECATED")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -Werror -std=c99 -DGST_DISABLE_DEPRECATED")
 
 set(CUSTOM_PREFIX "kurento")

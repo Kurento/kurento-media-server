@@ -14,7 +14,6 @@
  */
 
 #include <gst/gst.h>
-#include <glibmm.h>
 #include "RabbitMQListener.hpp"
 #include "ExponentialBackoffStrategy.hpp"
 #include <sys/types.h>
@@ -79,7 +78,8 @@ RabbitMQListener::reconnect ()
     try {
       connection = std::shared_ptr<RabbitMQConnection> (new RabbitMQConnection (
         address, port) );
-    } catch (Glib::IOChannelError &e) {
+    } catch (Glib::IOChannelError &e)
+    {
       reconnect ();
       return false;
     }
@@ -88,7 +88,8 @@ RabbitMQListener::reconnect ()
 
     try {
       eventReconnectHandler ();
-    } catch (std::bad_function_call &e) {
+    } catch (std::bad_function_call &e)
+    {
       /* No one is managing this event */
     }
 
