@@ -37,7 +37,7 @@ static int maxThreads = 0;
 static void
 tokenize (std::string str, char sep, std::vector<std::string> &tokens)
 {
-  size_t start = str.find_first_not_of (sep), end = start;
+  size_t start = str.find_first_not_of (sep), end;
 
   while (start != std::string::npos) {
     end = str.find (sep, start);
