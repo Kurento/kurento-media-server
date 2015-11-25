@@ -1,3 +1,22 @@
+kurento-media-server-6.0 (6.2.0) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+
+  [ David Fernandez ]
+  * Add ping method to media server
+  * kurento-module-scaffold: Fix installation of configuration files
+
+  [ Jose Antonio Santos Cadenas ]
+  * main: Fix constant name
+  * Fix compilation problems in wily
+  * ResourceManager: Remove unreaded variable initialization
+  * Prepare release 6.2.0
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Wed, 25 Nov 2015 13:00:40 +0100
+
 kurento-media-server-6.0 (6.1.1) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
