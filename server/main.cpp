@@ -27,7 +27,6 @@
 #include "TransportFactory.hpp"
 #include "ResourceManager.hpp"
 
-#include <SignalHandler.hpp>
 #include <ServerMethods.hpp>
 #include <gst/gst.h>
 
@@ -72,7 +71,7 @@ createTransportFromConfig (boost::property_tree::ptree &config)
 }
 
 static void
-signal_handler (uint32_t signo)
+signal_handler (int signo)
 {
   static unsigned int __terminated = 0;
 
@@ -92,8 +91,13 @@ signal_handler (uint32_t signo)
     break;
 
   case SIGSEGV:
-    GST_DEBUG ("Segmentation fault. Aborting process execution");
+    GST_DEBUG ("Segmentation fault.");
     abort ();
+    break;
+
+  case SIGABRT:
+    GST_DEBUG ("Abort signal received");
+    break;
 
   default:
     break;
@@ -118,8 +122,7 @@ kms_init_dependencies (int *argc, char ***argv)
 int
 main (int argc, char **argv)
 {
-  sigset_t mask;
-  std::shared_ptr <SignalHandler> signalHandler;
+  struct sigaction signalAction;
   std::shared_ptr<Transport> transport;
   boost::property_tree::ptree config;
   std::string confFile;
@@ -223,13 +226,13 @@ main (int argc, char **argv)
   }
 
   /* Install our signal handler */
-  sigemptyset (&mask);
-  sigaddset (&mask, SIGINT);
-  sigaddset (&mask, SIGTERM);
-  sigaddset (&mask, SIGSEGV);
-  sigaddset (&mask, SIGPIPE);
-  signalHandler = std::shared_ptr <SignalHandler> (new SignalHandler (mask,
-                  signal_handler) );
+  signalAction.sa_handler = signal_handler;
+
+  sigaction (SIGSEGV, &signalAction, NULL);
+  sigaction (SIGABRT, &signalAction, NULL);
+  sigaction (SIGINT, &signalAction, NULL);
+  sigaction (SIGTERM, &signalAction, NULL);
+  sigaction (SIGPIPE, &signalAction, NULL);
 
   GST_INFO ("Kmsc version: %s", get_version () );
   GST_INFO ("Compiled at: %s %s", __DATE__, __TIME__ );

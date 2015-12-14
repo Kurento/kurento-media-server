@@ -22,12 +22,11 @@ add_definitions(-DBOOST_LOG_DYN_LINK)
 
 add_executable(kurento-media-server ${KMSC_SOURCE})
 
-add_dependencies(kurento-media-server signalHandler transport)
+add_dependencies(kurento-media-server transport)
 
 target_link_libraries (kurento-media-server
   ${Boost_LIBRARIES}
   transport
-  signalHandler
   pthread
 )
 
@@ -37,11 +36,9 @@ set_property (TARGET kurento-media-server
     ${CMAKE_BINARY_DIR}/gen-cpp
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/transport
-    ${CMAKE_CURRENT_SOURCE_DIR}/signalHandler
     ${KMSCORE_INCLUDE_DIRS}
 )
 
 install(TARGETS kurento-media-server RUNTIME DESTINATION bin)
 
 add_subdirectory(transport)
-add_subdirectory(signalHandler)
