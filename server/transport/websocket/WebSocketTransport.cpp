@@ -405,6 +405,7 @@ void WebSocketTransport::storeConnection (const std::string &request,
                      sessionId.c_str() );
         connectionsReverse.erase (conn);
         connections.erase (sessionId);
+        secureConnections.erase (sessionId);
         needsWrite = true;
       }
     } catch (std::out_of_range &e) {
@@ -563,6 +564,7 @@ void WebSocketTransport::closeHandler (websocketpp::connection_hdl hdl)
     GST_DEBUG ("Erasing connection associated with: %s", sessionId.c_str() );
     connections.erase (sessionId);
     connectionsReverse.erase (hdl);
+    secureConnections.erase (sessionId);
   } catch (std::out_of_range &e) {
     /* Ignore */
   }
