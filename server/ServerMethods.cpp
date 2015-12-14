@@ -89,7 +89,8 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
     }
 
     modules.push_back (std::shared_ptr<ModuleInfo> (new ModuleInfo (
-                         moduleIt.second->getVersion(), moduleIt.second->getName(), factories) ) );
+                         moduleIt.second->getVersion(), moduleIt.second->getName(),
+                         moduleIt.second->getGenerationTime(), factories) ) );
   }
 
   capabilities.push_back ("transactions");
@@ -144,7 +145,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   handler.addMethod ("transaction", std::bind (&ServerMethods::transaction,
                      this, std::placeholders::_1, std::placeholders::_2) );
   handler.addMethod ("ping", std::bind (&ServerMethods::ping, this,
-                     std::placeholders::_1, std::placeholders::_2) );
+                                        std::placeholders::_1, std::placeholders::_2) );
 }
 
 ServerMethods::~ServerMethods()
@@ -706,7 +707,5 @@ ServerMethods::StaticConstructor::StaticConstructor()
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
 }
-
-
 
 } /* kurento */
