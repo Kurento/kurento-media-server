@@ -232,6 +232,7 @@ main (int argc, char **argv)
                   signal_handler) );
 
   GST_INFO ("Kmsc version: %s", get_version () );
+  GST_INFO ("Compiled at: %s %s", __DATE__, __TIME__ );
 
   loadConfig (config, confFile, modulesConfigPath);
 
