@@ -16,6 +16,8 @@ SET(KMSC_SOURCE
   modules.hpp
   loadConfig.cpp
   loadConfig.hpp
+  death_handler.cpp
+  death_handler.hpp
 )
 
 add_definitions(-DBOOST_LOG_DYN_LINK)
@@ -28,6 +30,7 @@ target_link_libraries (kurento-media-server
   ${Boost_LIBRARIES}
   transport
   pthread
+  dl
 )
 
 set_property (TARGET kurento-media-server

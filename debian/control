@@ -5,6 +5,7 @@ Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
 Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
+ binutils,
  kms-core-6.0-dev (>= 6.2.0),
  kms-elements-6.0-dev (>= 6.2.0),
  kms-filters-6.0-dev (>= 6.2.0),
@@ -22,6 +23,7 @@ Standards-Version: 3.9.4
 Package: kurento-media-server-6.0
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
+ binutils,
  libgstreamer1.5-0 (>= 1.7.0~0),
  gstreamer1.5-plugins-base (>= 1.7.0~0),
  gstreamer1.5-libav (>= 1.7.0~0),

@@ -15,6 +15,8 @@
 
 #include <config.h>
 
+#include "death_handler.hpp"
+
 #include <glibmm.h>
 #include <fstream>
 #include <iostream>
@@ -90,15 +92,6 @@ signal_handler (int signo)
     GST_DEBUG ("Ignore sigpipe signal");
     break;
 
-  case SIGSEGV:
-    GST_DEBUG ("Segmentation fault.");
-    abort ();
-    break;
-
-  case SIGABRT:
-    GST_DEBUG ("Abort signal received");
-    break;
-
   default:
     break;
   }
@@ -129,7 +122,16 @@ main (int argc, char **argv)
   std::string path, logs_path, modulesConfigPath;
   int fileSize, fileNumber;
 
+  Debug::DeathHandler dh;
+  dh.set_thread_safe (true);
+
   kms_init_dependencies (&argc, &argv);
+
+  if (gst_debug_get_color_mode() == GST_DEBUG_COLOR_MODE_OFF) {
+    dh.set_color_output (false);
+  } else {
+    dh.set_color_output (true);
+  }
 
   try {
     boost::program_options::options_description desc ("kurento-media-server usage");
@@ -228,8 +230,6 @@ main (int argc, char **argv)
   /* Install our signal handler */
   signalAction.sa_handler = signal_handler;
 
-  sigaction (SIGSEGV, &signalAction, NULL);
-  sigaction (SIGABRT, &signalAction, NULL);
   sigaction (SIGINT, &signalAction, NULL);
   sigaction (SIGTERM, &signalAction, NULL);
   sigaction (SIGPIPE, &signalAction, NULL);
