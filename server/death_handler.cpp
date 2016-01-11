@@ -52,6 +52,8 @@
 #endif
 #include <dlfcn.h>
 
+#include <string>
+
 #pragma GCC poison malloc realloc free backtrace_symbols \
   printf fprintf sprintf snprintf scanf sscanf  // NOLINT(runtime/printf)
 
@@ -368,6 +370,83 @@ static char *addr2line (const char *image, void *addr, bool color_output,
   return line;
 }
 
+/// @brief Returns non stripped version of the library.
+static std::string nonStripped (const char *image)
+{
+  int pipefd[2];
+
+  if (pipe (pipefd) != 0) {
+    safe_abort();
+  }
+
+  pid_t pid = fork();
+
+  if (pid == 0) {
+    close (pipefd[0]);
+    dup2 (pipefd[1], STDOUT_FILENO);
+    dup2 (pipefd[1], STDERR_FILENO);
+
+    if (execlp ("file", "file", "-L", image,
+                reinterpret_cast<void *> (NULL) ) == -1) {
+      safe_abort();
+    }
+  }
+
+  close (pipefd[1]);
+  const int line_max_length = 4096;
+  char l[4096];
+  ssize_t len = read (pipefd[0], l, line_max_length);
+  close (pipefd[0]);
+
+  if (len == 0) {
+    safe_abort();
+  }
+
+  l[len] = 0;
+
+  if (waitpid (pid, NULL, 0) != pid) {
+    safe_abort();
+  }
+
+  std::string line (l);
+
+  if (line.find ("not stripped") != std::string::npos) {
+    /* Library is not stripped */
+    return std::string (image);
+  }
+
+  const std::string BUILD_ID = "BuildID[sha1]=";
+  std::size_t position = line.find (BUILD_ID);
+
+  if (position == std::string::npos) {
+    return std::string (image);
+  }
+
+  line = line.substr (position + BUILD_ID.length() );
+
+  position = line.find (",");
+
+  if (position == std::string::npos) {
+    return std::string (image);
+  }
+
+  line = line.substr (0, position);
+
+  std::string dir = line.substr (0, 2);
+  std::string file = line.substr (2);
+
+  dir = "/usr/lib/debug/.build-id/" + dir;
+
+  file = dir + "/" + file + ".debug";
+
+  // If debug file exists use it
+  if (access ( file.c_str(), F_OK ) != -1 ) {
+    return file;
+  }
+
+  return image;
+}
+
 /// @brief Used to workaround backtrace() usage of malloc().
 void *DeathHandler::MallocHook (size_t size,
                                 const void * /* caller */)
@@ -567,7 +646,8 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
         !strcmp (name_buf, dlinf.dli_fname) ) {
       line = addr2line (name_buf, trace[i], color_output_, &memory);
     } else {
-      line = addr2line (dlinf.dli_fname, reinterpret_cast<void *> (
+      std::string name = nonStripped (dlinf.dli_fname);
+      line = addr2line (name.c_str(), reinterpret_cast<void *> (
                           reinterpret_cast<char *> (trace[i]) -
                           reinterpret_cast<char *> (dlinf.dli_fbase) ),
                         color_output_, &memory);
