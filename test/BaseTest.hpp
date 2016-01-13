@@ -49,8 +49,18 @@ protected:
 
   std::atomic<int> id;
 
+  void setWsHost (const std::string &host)
+  {
+    wsHost = host;
+  }
+
+  void stop();
+  void start();
+
 private:
   int pid;
+
+  std::string wsHost = "localhost";
 
   void start_server ();
   void stop_server ();

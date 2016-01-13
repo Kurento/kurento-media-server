@@ -44,11 +44,10 @@ static const std::chrono::seconds REPLY_TIMEOUT (10);
 static const int MAX_RETRIES = 20;
 static const std::string WS_PATH = "/kurento";
 static const std::string WS_PROTO = "ws://";
-static const std::string WS_ADDRESS = "localhost";
 
 void F::create_ws_uri (uint port)
 {
-  uri = WS_PROTO + WS_ADDRESS + ":" + std::to_string (port) + WS_PATH;
+  uri = WS_PROTO + wsHost + ":" + std::to_string (port) + WS_PATH;
 }
 
 boost::filesystem::path
@@ -124,6 +123,8 @@ F::stop_server ()
     BOOST_FAIL ("Error waiting for child process");
   }
 
+  pid = -1;
+
   boost::filesystem::remove_all (configDir);
 }
 
@@ -185,6 +186,7 @@ Json::Value F::sendRequest (const Json::Value &request)
   Json::Value response;
   std::unique_lock <std::mutex> lock (mutex);
 
+  BOOST_REQUIRE_MESSAGE (initialized, "Not initialized");
   BOOST_REQUIRE_MESSAGE (!sendingMessage, "Already sending a message");
 
   sendingMessage = true;
@@ -245,6 +247,10 @@ void F::start_client()
     // We expect there to be a lot of errors, so suppress them
     websocketpp::lib::error_code ec;
     WebSocketClient::connection_ptr con = client->get_connection (uri, ec);
+
+    if (ec) {
+      BOOST_ERROR (ec.message() );
+    }
 
     client->connect (con);
 
@@ -332,22 +338,19 @@ bool F::receivedEvent ()
   return false;
 }
 
-F::F ()
+void
+F::start ()
 {
   int retries = 0;
 
-  id = 0;
+  std::unique_lock <std::mutex> lock (mutex);
 
-  gst_init (NULL, NULL);
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-                           GST_DEFAULT_NAME);
+  id = 0;
 
   start_server();
   BOOST_REQUIRE_MESSAGE (pid > 0, "Error launching mediaserver");
 
   clientThread = std::thread (std::bind (&F::start_client, this) );
-
-  std::unique_lock <std::mutex> lock (mutex);
 
   while (!initialized && retries < MAX_RETRIES) {
     lock.unlock();
@@ -370,18 +373,36 @@ F::F ()
   BOOST_REQUIRE_MESSAGE (initialized, "Cannot connect to the server");
 }
 
-F::~F()
+void
+F::stop()
 {
-  GST_DEBUG ("teardown fixture");
   std::unique_lock <std::mutex> lock (mutex);
 
   if (initialized) {
     stop_client (lock);
   }
 
+  initialized = false;
+
   lock.unlock();
 
   stop_server ();
+}
+
+F::F ()
+{
+  gst_init (NULL, NULL);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                           GST_DEFAULT_NAME);
+}
+
+F::~F()
+{
+  GST_DEBUG ("teardown fixture");
+
+  if (initialized) {
+    stop();
+  }
 }
 
 } /* kurento */

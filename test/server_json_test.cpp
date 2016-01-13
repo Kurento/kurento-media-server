@@ -31,7 +31,11 @@ namespace kurento
 class ClientHandler : public F
 {
 public:
-  ClientHandler() : F() {};
+  ClientHandler() : F()
+  {
+    GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
+                             GST_DEFAULT_NAME);
+  };
 
   ~ClientHandler () {}
 
@@ -42,6 +46,18 @@ protected:
   void check_bad_transaction_call ();
   void check_transaction_call ();
   void check_system_overload ();
+
+  void runTests ()
+  {
+    start ();
+
+    check_connect_call();
+    check_error_call();
+    check_create_pipeline_call();
+    check_bad_transaction_call();
+    check_transaction_call();
+    check_system_overload();
+  }
 };
 
 void
@@ -76,7 +92,6 @@ ClientHandler::check_connect_call()
   request["id"] = getId();
   request["method"] = "connect";
   request["params"] = params;
-
 
   response = sendRequest (request);
 
@@ -347,19 +362,18 @@ ClientHandler::check_system_overload()
                "NOT_ENOUGH_RESOURCES");
 }
 
-BOOST_FIXTURE_TEST_SUITE ( server_unexpected_test_suite, ClientHandler)
+BOOST_FIXTURE_TEST_SUITE ( server_json_test, ClientHandler)
 
-BOOST_AUTO_TEST_CASE ( server_unexpected_test )
+BOOST_AUTO_TEST_CASE ( server_json_test )
 {
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
-                           GST_DEFAULT_NAME);
+  runTests();
+}
 
-  check_connect_call();
-  check_error_call();
-  check_create_pipeline_call();
-  check_bad_transaction_call();
-  check_transaction_call();
-  check_system_overload();
+BOOST_AUTO_TEST_CASE ( server_json_test_ipv6 )
+{
+  setWsHost ("ip6-localhost");
+
+  runTests();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
