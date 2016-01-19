@@ -62,7 +62,7 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isObject() );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
-  sessionId = response["retult"]["sessionId"].asString();
+  sessionId = response["result"]["sessionId"].asString();
   BOOST_CHECK (response["result"].isMember ("value") );
   BOOST_CHECK (response["result"].isMember ("value") );
   subscriptionId = response["result"]["value"].asString();
@@ -77,7 +77,7 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isObject() );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
-  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
   BOOST_CHECK (response["result"].isMember ("value") );
   subscriptionId2 = response["result"]["value"].asString();
   BOOST_CHECK (!subscriptionId2.empty() );
@@ -113,7 +113,7 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isObject() );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
-  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
   BOOST_CHECK (response["result"].isMember ("value") );
 
   listener.join();
@@ -136,7 +136,7 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isObject() );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
-  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
 
   std::thread listener2 ([this] () {
     try {
@@ -167,7 +167,7 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isObject() );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
-  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
   BOOST_CHECK (response["result"].isMember ("value") );
 
   listener2.join();
@@ -188,7 +188,7 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isObject() );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
-  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
 
   std::thread listener3 ([this] () {
     try {
@@ -210,12 +210,10 @@ ClientHandler::check_not_duplicated_event()
 
   response = sendRequest (request);
 
-  std::cout << "response: " << response.toStyledString() << std::endl;
-
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isObject() );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
-  BOOST_CHECK (sessionId == response["retult"]["sessionId"].asString() );
+  BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
   BOOST_CHECK (response["result"].isMember ("value") );
 
   std::cout << response["result"]["value"].toStyledString() << std::endl;
