@@ -9,7 +9,7 @@ find_package(KurentoHelpers REQUIRED)
 
 include (KurentoGitHelpers)
 
-get_git_version (PROJECT_VERSION 6.2.1-dev)
+get_git_version (PROJECT_VERSION 6.3.0)
 install_git_hook (pre-commit ${CMAKE_CURRENT_SOURCE_DIR}/hooks/pre-commit.hook)
 
 message (STATUS "Compiling ${PROJECT_NAME}-${PROJECT_VERSION}")
@@ -35,7 +35,7 @@ find_package(PkgConfig)
 generic_find(LIBNAME Boost COMPONENTS system filesystem program_options unit_test_framework thread log REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-generic_find(LIBNAME KMSCORE VERSION ^6.2.0 REQUIRED)
+generic_find(LIBNAME KMSCORE VERSION ^6.3.0 REQUIRED)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.5)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.5>=1.7.0~0)
