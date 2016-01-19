@@ -329,7 +329,7 @@ injectSessionId (std::string &request, const std::string &sessionId)
 
     try {
       std::string oldSessionId;
-      JsonRpc::getValue (req, SESSION_ID, oldSessionId);
+      JsonRpc::getValue (params, SESSION_ID, oldSessionId);
     } catch (JsonRpc::CallException &e) {
       Json::FastWriter writer;
       // There is no sessionId, inject it
