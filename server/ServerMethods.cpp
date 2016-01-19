@@ -146,6 +146,9 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
                      this, std::placeholders::_1, std::placeholders::_2) );
   handler.addMethod ("ping", std::bind (&ServerMethods::ping, this,
                                         std::placeholders::_1, std::placeholders::_2) );
+  handler.addMethod ("closeSession", std::bind (&ServerMethods::closeSession,
+                     this,
+                     std::placeholders::_1, std::placeholders::_2) );
 }
 
 ServerMethods::~ServerMethods()
@@ -698,6 +701,30 @@ void
 ServerMethods::ping (const Json::Value &params, Json::Value &response)
 {
   response[VALUE] = "pong";
+}
+
+void
+ServerMethods::closeSession (const Json::Value &params,
+                             Json::Value &response)
+{
+  std::string sessionId;
+  bool release = false;
+
+  requireParams (params);
+
+  try {
+    JsonRpc::getValue (params, "release", release);
+  } catch (JsonRpc::CallException e) {
+    /* release param is optional*/
+  }
+
+  JsonRpc::getValue (params, SESSION_ID, sessionId);
+
+  if (release) {
+    MediaSet::getMediaSet()->releaseSession (sessionId);
+  } else {
+    MediaSet::getMediaSet()->unrefSession (sessionId);
+  }
 }
 
 ServerMethods::StaticConstructor ServerMethods::staticConstructor;
