@@ -39,6 +39,19 @@ protected:
   void check_not_duplicated_event ();
 };
 
+static std::string
+get_id_from_event (Json::Value &event)
+{
+  BOOST_CHECK (event.isMember ("params") );
+  BOOST_CHECK (event["params"].isObject() );
+  BOOST_CHECK (event["params"].isMember ("value") );
+  BOOST_CHECK (event["params"]["value"].isMember ("type") );
+  BOOST_CHECK (event["params"]["value"]["type"].asString() == "ObjectCreated" );
+  BOOST_CHECK (event["params"]["value"].isMember ("data") );
+  BOOST_CHECK (event["params"]["value"]["data"].isMember ("object") );
+  return event["params"]["value"]["data"]["object"].asString();
+}
+
 void
 ClientHandler::check_not_duplicated_event()
 {
@@ -47,6 +60,7 @@ ClientHandler::check_not_duplicated_event()
   Json::Value params;
   std::string sessionId;
   std::string subscriptionId, subscriptionId2;
+  std::string receivedId, responseId;
 
   request["jsonrpc"] = "2.0";
   request["id"] = getId();
@@ -84,9 +98,10 @@ ClientHandler::check_not_duplicated_event()
 
   BOOST_CHECK (subscriptionId != subscriptionId2);
 
-  std::thread listener ([this] () {
+  std::thread listener ([this, &receivedId] () {
     try {
-      this->waifForEvent (std::chrono::seconds (2) );
+      Json::Value event = this->waifForEvent (std::chrono::seconds (2) );
+      receivedId = get_id_from_event (event);
     } catch (kurento::KurentoException e) {
       BOOST_FAIL ("Expected event not received");
     }
@@ -116,7 +131,11 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
   BOOST_CHECK (response["result"].isMember ("value") );
 
+  responseId = response["result"]["value"].asString();
+
   listener.join();
+
+  BOOST_CHECK (receivedId == responseId);
 
   // Unsubscribe first listener and wait for event
 
@@ -125,6 +144,7 @@ ClientHandler::check_not_duplicated_event()
   request["id"] = getId();
   request["method"] = "unsubscribe";
 
+  params.clear();
   params["object"] = "manager_ServerManager";
   params["subscription"] = subscriptionId;
   params["sessionId"] = sessionId;
@@ -138,9 +158,10 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response["result"].isMember ("sessionId") );
   BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
 
-  std::thread listener2 ([this] () {
+  std::thread listener2 ([this, &receivedId] () {
     try {
-      this->waifForEvent (std::chrono::seconds (2) );
+      Json::Value event = this->waifForEvent (std::chrono::seconds (2) );
+      receivedId = get_id_from_event (event);
     } catch (kurento::KurentoException e) {
       BOOST_FAIL ("Expected event not received");
     }
@@ -169,14 +190,20 @@ ClientHandler::check_not_duplicated_event()
   BOOST_CHECK (response["result"].isMember ("sessionId") );
   BOOST_CHECK (sessionId == response["result"]["sessionId"].asString() );
   BOOST_CHECK (response["result"].isMember ("value") );
+  BOOST_CHECK (response["result"].isMember ("value") );
+
+  responseId = response["result"]["value"].asString();
 
   listener2.join();
+
+  BOOST_CHECK (receivedId == responseId);
 
   request.clear();
   request["jsonrpc"] = "2.0";
   request["id"] = getId();
   request["method"] = "unsubscribe";
 
+  params.clear();
   params["object"] = "manager_ServerManager";
   params["subscription"] = subscriptionId2;
   params["sessionId"] = sessionId;
