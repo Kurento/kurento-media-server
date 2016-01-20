@@ -1,3 +1,8 @@
+6.3.1
+=====
+
+  * Create a kurento user to allow buffering of played medias
+
 6.3.0
 =====
 

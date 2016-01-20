@@ -1,3 +1,18 @@
+kurento-media-server-6.0 (6.3.1) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+
+  [ David Fernandez ]
+  * Change daemon user from nobody to kurento
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare release 6.3.1
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Wed, 20 Jan 2016 13:10:49 +0100
+
 kurento-media-server-6.0 (6.3.0) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
