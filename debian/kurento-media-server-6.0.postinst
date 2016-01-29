@@ -4,3 +4,6 @@
 if [ `cat /etc/passwd | grep kurento | wc -l` -eq "0" ]; then
   useradd -d /var/kurento/ kurento
 fi
+
+chown kurento -R /var/kurento
+chown kurento -R /var/log/kurento
