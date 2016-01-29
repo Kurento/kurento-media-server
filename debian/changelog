@@ -1,3 +1,16 @@
+kurento-media-server-6.0 (6.3.2) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * WebSocketTransport: Inject sessionId even if there are no incoming parameters
+  * debian: change owner of log and home folders
+  * debian: Fix log directory
+  * Prepare release 6.3.2
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 29 Jan 2016 14:35:14 +0100
+
 kurento-media-server-6.0 (6.3.1) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]

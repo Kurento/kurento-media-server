@@ -1,3 +1,23 @@
+6.3.2
+=====
+
+  * Fix problem with writting permission to log folder
+  * WebsocketTransport: Fix bug on session injection when there are no parameters
+
+kms-core (6.3.1)
+----------------
+
+  * Fix problem with codecs written in lower/upper case
+  * Minor code improvements
+
+kms-elements (6.3.1)
+--------------------
+
+  * PlayerEndpoint: Fix problem in pause introduced in previous release
+  * WebRtcEndpoint: Fix problems with upper/lower case codec names
+  * WebRtcEndpoint: Parse candidates present in original offer correctly
+  * RecorderEndpoint: Reduce log level for some messages that were not errors
+
 6.3.1
 =====
 
