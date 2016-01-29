@@ -325,7 +325,8 @@ injectSessionId (std::string &request, const std::string &sessionId)
     Json::Value params;
 
     reader.parse (request, req);
-    JsonRpc::getValue (req, JSON_RPC_PARAMS, params);
+
+    params = req[JSON_RPC_PARAMS];
 
     try {
       std::string oldSessionId;
