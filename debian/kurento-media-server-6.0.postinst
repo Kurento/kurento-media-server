@@ -6,4 +6,5 @@ if [ `cat /etc/passwd | grep kurento | wc -l` -eq "0" ]; then
 fi
 
 chown kurento -R /var/kurento
+mkdir -p /var/log/kurento-media-server
 chown kurento -R /var/log/kurento-media-server
