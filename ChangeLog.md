@@ -1,3 +1,8 @@
+6.3.3
+=====
+
+  * Fix installation script
+
 6.3.2
 =====
 

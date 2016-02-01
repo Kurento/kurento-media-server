@@ -1,3 +1,14 @@
+kurento-media-server-6.0 (6.3.3) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * debian: Fix problems creating log directory
+  * Prepare release 6.3.3
+
+  [ José Antonio Santos Cadenas ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Mon, 01 Feb 2016 09:38:00 +0100
+
 kurento-media-server-6.0 (6.3.2) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
