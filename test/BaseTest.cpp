@@ -66,6 +66,12 @@ F::write_config (const boost::filesystem::path &orig, uint port)
   wsConfig.erase ("port");
   wsConfig.add ("port", port);
 
+  boost::property_tree::ptree &resourceConfig =
+    config.get_child ("mediaServer.resources");
+
+  resourceConfig.erase ("exceptionLimit");
+  resourceConfig.add ("exceptionLimit", resourceLimit);
+
   boost::property_tree::json_parser::write_json (newConfigFile.string(), config);
 
   return newConfigFile;

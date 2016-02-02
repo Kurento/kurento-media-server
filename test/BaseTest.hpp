@@ -54,6 +54,11 @@ protected:
     wsHost = host;
   }
 
+  void setResourceLimit (float limit)
+  {
+    resourceLimit = limit;
+  }
+
   void stop();
   void start();
 
@@ -103,6 +108,8 @@ private:
   boost::filesystem::path write_config (const boost::filesystem::path &orig,
                                         uint port);
   boost::filesystem::path configDir;
+
+  float resourceLimit = 1.0;
 };
 
 } /* kurento */
