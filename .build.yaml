@@ -1,0 +1,7 @@
+dependencies:
+  - name: kms-core
+    version: ">=6.3.1"
+  - name: kms-elements
+    version: ">=6.3.1"
+  - name: kms-filters
+    version: ">=6.3.0"
