@@ -6,9 +6,9 @@ Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
  binutils,
- kms-core-6.0-dev (>= 6.3.1),
- kms-elements-6.0-dev (>= 6.3.1),
- kms-filters-6.0-dev (>= 6.3.0),
+ kms-core-6.0-dev (>= 6.4.0),
+ kms-elements-6.0-dev (>= 6.4.0),
+ kms-filters-6.0-dev (>= 6.4.0),
  libboost-dev,
  libboost-system-dev,
  libboost-filesystem-dev,
@@ -30,9 +30,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  gstreamer1.5-plugins-bad (>= 1.7.0~0),
  gstreamer1.5-plugins-good (>= 1.7.0~0),
  gstreamer1.5-plugins-ugly (>= 1.7.0~0),
- kms-elements-6.0 (>= 6.3.1),
- kms-filters-6.0 (>= 6.3.0),
- kms-core-6.0 (>= 6.3.1)
+ kms-elements-6.0 (>= 6.4.0),
+ kms-filters-6.0 (>= 6.4.0),
+ kms-core-6.0 (>= 6.4.0)
 Replaces:
  kurento,
  kurento-media-server

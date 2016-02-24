@@ -1,3 +1,40 @@
+6.4.0
+=====
+
+  * Update websocketpp library to version 0.7.0:_
+   * This fixes segmentation fault with wss and more than one thread
+
+kms-core (6.4.0)
+----------------
+
+  * Prepare implementation to support multistream
+  * Fix bad timestamp for opus codec
+  * Improve latency stats to add support for multiple streams
+  * Fix latency stats calculation
+  * Add flow in and flow out signals that indicates if there is media
+    going in or out to/from a media element
+  * Some fixes in SDP Agent
+  * Remb management improvements
+  * Add leaky queue in filters to avoid them to buffer media if the proccess
+    slower than buffers arrive
+
+kms-elements (6.4.0)
+--------------------
+
+  * WebRtcEndpoint: Update libnice library to 0.1.13.1
+  * WebRtcEndpoint: Turn is working again now that libnice is updated
+  * RecorderEndpoint: Calculate end to end latency stats
+  * PlayerEndpoint: Calculate end to end latency
+  * WebRtcEndpoint: minor issues fixing
+  * RecorderEndpoint: Fix problem when recording to http, now mp4 is buffered
+    using and fast start and webm is recorder as live (no seekable without
+    post-processing)
+
+kms-filters (6.4.0)
+-------------------
+
+  * Update kurento dependencies to 6.4.0
+
 6.3.3
 =====
 
