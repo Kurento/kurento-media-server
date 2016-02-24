@@ -142,7 +142,10 @@ enum value {
   unsupported_version,
 
   /// HTTP parse error
-  http_parse_error
+  http_parse_error,
+
+  /// Extension negotiation failed
+  extension_neg_failed
 }; // enum value
 
 
@@ -252,6 +255,9 @@ public:
     case error::http_parse_error:
       return "HTTP parse error";
 
+    case error::extension_neg_failed:
+      return "Extension negotiation failed";
+
     default:
       return "Unknown";
     }
@@ -290,7 +296,7 @@ public:
   {}
 
   explicit exception (lib::error_code ec)
-    : m_code (ec)
+    : m_msg (ec.message() ), m_code (ec)
   {}
 
   ~exception() throw() {}
@@ -305,7 +311,7 @@ public:
     return m_code;
   }
 
-  std::string m_msg;
+  const std::string m_msg;
   lib::error_code m_code;
 };
 

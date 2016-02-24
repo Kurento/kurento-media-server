@@ -70,6 +70,18 @@ public:
     return make_pair (make_error_code (error::disabled), std::string() );
   }
 
+  /// Initialize state
+  /**
+   * For the disabled extension state initialization is a no-op.
+   *
+   * @param is_server True to initialize as a server, false for a client.
+   * @return A code representing the error that occurred, if any
+   */
+  lib::error_code init (bool)
+  {
+    return lib::error_code();
+  }
+
   /// Returns true if the extension is capable of providing
   /// permessage_deflate functionality
   bool is_implemented() const
@@ -82,6 +94,18 @@ public:
   bool is_enabled() const
   {
     return false;
+  }
+
+  /// Generate extension offer
+  /**
+   * Creates an offer string to include in the Sec-WebSocket-Extensions
+   * header of outgoing client requests.
+   *
+   * @return A WebSocket extension offer string for this extension
+   */
+  std::string generate_offer() const
+  {
+    return "";
   }
 
   /// Compress bytes

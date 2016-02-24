@@ -57,20 +57,21 @@ public:
     int state = 0;
 
     it = uri_string.begin();
+    size_t uri_len = uri_string.length();
 
-    if (std::equal (it, it + 6, "wss://") ) {
+    if (uri_len >= 7 && std::equal (it, it + 6, "wss://") ) {
       m_secure = true;
       m_scheme = "wss";
       it += 6;
-    } else if (std::equal (it, it + 5, "ws://") ) {
+    } else if (uri_len >= 6 && std::equal (it, it + 5, "ws://") ) {
       m_secure = false;
       m_scheme = "ws";
       it += 5;
-    } else if (std::equal (it, it + 7, "http://") ) {
+    } else if (uri_len >= 8 && std::equal (it, it + 7, "http://") ) {
       m_secure = false;
       m_scheme = "http";
       it += 7;
-    } else if (std::equal (it, it + 8, "https://") ) {
+    } else if (uri_len >= 9 && std::equal (it, it + 8, "https://") ) {
       m_secure = true;
       m_scheme = "https";
       it += 8;
@@ -143,7 +144,7 @@ public:
     }
 
     // parse port
-    std::string port = "";
+    std::string port;
 
     while (state == 1) {
       if (it == uri_string.end() ) {
@@ -179,7 +180,7 @@ public:
        std::string const &resource)
     : m_scheme (secure ? "wss" : "ws")
     , m_host (host)
-    , m_resource (resource == "" ? "/" : resource)
+    , m_resource (resource.empty() ? "/" : resource)
     , m_port (port)
     , m_secure (secure)
     , m_valid (true) {}
@@ -187,7 +188,7 @@ public:
   uri (bool secure, std::string const &host, std::string const &resource)
     : m_scheme (secure ? "wss" : "ws")
     , m_host (host)
-    , m_resource (resource == "" ? "/" : resource)
+    , m_resource (resource.empty() ? "/" : resource)
     , m_port (secure ? uri_default_secure_port : uri_default_port)
     , m_secure (secure)
     , m_valid (true) {}
@@ -196,7 +197,7 @@ public:
        std::string const &resource)
     : m_scheme (secure ? "wss" : "ws")
     , m_host (host)
-    , m_resource (resource == "" ? "/" : resource)
+    , m_resource (resource.empty() ? "/" : resource)
     , m_secure (secure)
   {
     lib::error_code ec;
@@ -208,7 +209,7 @@ public:
        std::string const &resource)
     : m_scheme (scheme)
     , m_host (host)
-    , m_resource (resource == "" ? "/" : resource)
+    , m_resource (resource.empty() ? "/" : resource)
     , m_port (port)
     , m_secure (scheme == "wss" || scheme == "https")
     , m_valid (true) {}
@@ -216,7 +217,7 @@ public:
   uri (std::string scheme, std::string const &host, std::string const &resource)
     : m_scheme (scheme)
     , m_host (host)
-    , m_resource (resource == "" ? "/" : resource)
+    , m_resource (resource.empty() ? "/" : resource)
     , m_port ( (scheme == "wss"
                 || scheme == "https") ? uri_default_secure_port : uri_default_port)
     , m_secure (scheme == "wss" || scheme == "https")
@@ -226,7 +227,7 @@ public:
        std::string const &port, std::string const &resource)
     : m_scheme (scheme)
     , m_host (host)
-    , m_resource (resource == "" ? "/" : resource)
+    , m_resource (resource.empty() ? "/" : resource)
     , m_secure (scheme == "wss" || scheme == "https")
   {
     lib::error_code ec;
@@ -344,7 +345,7 @@ private:
   {
     ec = lib::error_code();
 
-    if (port == "") {
+    if (port.empty() ) {
       return (m_secure ? uri_default_secure_port : uri_default_port);
     }
 
