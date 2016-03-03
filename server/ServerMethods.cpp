@@ -700,6 +700,14 @@ ServerMethods::transaction (const Json::Value &params, Json::Value &response)
 void
 ServerMethods::ping (const Json::Value &params, Json::Value &response)
 {
+  std::string sessionId;
+
+  try {
+    JsonRpc::getValue (params, SESSION_ID, sessionId);
+    response [SESSION_ID] = sessionId;
+  } catch (JsonRpc::CallException e) {
+  }
+
   response[VALUE] = "pong";
 }
 
