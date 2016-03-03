@@ -358,6 +358,11 @@ getSessionId (const std::string &request, const std::string &response)
 
       reader.parse (response, resp);
 
+      if (resp.isMember ("error") ) {
+        /* If response is an error do not store session */
+        return sessionId;
+      }
+
       JsonRpc::getValue (resp, JSON_RPC_RESULT, result);
       JsonRpc::getValue (result, SESSION_ID, sessionId);
     } catch (JsonRpc::CallException &ex) {
