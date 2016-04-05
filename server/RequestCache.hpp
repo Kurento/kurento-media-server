@@ -20,6 +20,8 @@
 #include <map>
 #include <mutex>
 
+#include <json/json.h>
+
 namespace kurento
 {
 
@@ -30,8 +32,8 @@ class RequestCache
 public:
   RequestCache (unsigned int timeout);
   void addResponse (std::string sessionId, std::string requestId,
-                    std::string &response);
-  std::string getCachedResponse (std::string sessionId, std::string requestId);
+                    Json::Value &response);
+  Json::Value getCachedResponse (std::string sessionId, std::string requestId);
   ~RequestCache ();
 
 private:

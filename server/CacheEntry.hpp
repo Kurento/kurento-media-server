@@ -19,6 +19,8 @@
 #include <glibmm.h>
 #include <mutex>
 
+#include <json/json.h>
+
 namespace kurento
 {
 
@@ -26,8 +28,8 @@ class CacheEntry
 {
 public:
   CacheEntry (unsigned int timeout, std::string sessionId, std::string requestId,
-              std::string response);
-  std::string getResponse (void);
+              Json::Value &response);
+  Json::Value &getResponse (void);
   ~CacheEntry ();
 
   sigc::signal<void> signalTimeout;
@@ -38,7 +40,7 @@ private:
   std::recursive_mutex mutex;
   std::string sessionId;
   std::string requestId;
-  std::string response;
+  Json::Value response;
   bool timedout = false;
 
   class StaticConstructor

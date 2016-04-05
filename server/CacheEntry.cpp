@@ -42,7 +42,7 @@ namespace kurento
 {
 
 CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
-                        std::string requestId, std::string response)
+                        std::string requestId, Json::Value &response)
 {
   this->response = response;
   this->requestId = requestId;
@@ -62,7 +62,7 @@ CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
   source->attach();
 }
 
-std::string
+Json::Value &
 CacheEntry::getResponse (void)
 {
   return response;

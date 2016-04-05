@@ -36,7 +36,7 @@ RequestCache::~RequestCache ()
 
 void
 RequestCache::addResponse (std::string sessionId, std::string requestId,
-                           std::string &response)
+                           Json::Value &response)
 {
   std::shared_ptr<CacheEntry> entry;
   std::unique_lock<std::recursive_mutex> lock (mutex);
@@ -67,7 +67,7 @@ RequestCache::addResponse (std::string sessionId, std::string requestId,
   });
 }
 
-std::string
+Json::Value
 RequestCache::getCachedResponse (std::string sessionId, std::string requestId)
 {
   std::map<std::string, std::shared_ptr <CacheEntry>> requests;

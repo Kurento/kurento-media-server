@@ -195,24 +195,19 @@ ServerMethods::keepAliveSession (const std::string &sessionId)
 bool
 ServerMethods::preProcess (const Json::Value &request, Json::Value &response)
 {
-  std::string sessionId;
-  std::string resp;
+  std::string sessionId;//   std::string resp;
   std::string requestId;
 
   try {
-    Json::Reader reader;
     Json::Value params;
 
     JsonRpc::getValue (request, JSON_RPC_ID, requestId);
     JsonRpc::getValue (request, JSON_RPC_PARAMS, params);
     JsonRpc::getValue (params, SESSION_ID, sessionId);
 
-    resp = cache->getCachedResponse (sessionId, requestId);
+    response = cache->getCachedResponse (sessionId, requestId);
 
-    GST_DEBUG ("Cached response: %s", resp.c_str() );
-
-    /* update response with the one we got from cache */
-    reader.parse (resp, response);
+    GST_DEBUG ("Cached response");
 
     return false;
   } catch (...) {
@@ -226,7 +221,6 @@ ServerMethods::postProcess (const Json::Value &request, Json::Value &response)
 {
   Json::FastWriter writer;
   std::string sessionId;
-  std::string resp;
   std::string requestId;
 
   try {
@@ -251,11 +245,8 @@ ServerMethods::postProcess (const Json::Value &request, Json::Value &response)
   } catch (JsonRpc::CallException &e) {
     /* We could not get some of the required parameters. Ignore */
   } catch (CacheException &e) {
-    /* Cache response */
-    resp = writer.write (response);
-
-    GST_LOG ("Caching: %s", resp.c_str() );
-    cache->addResponse (sessionId, requestId, resp);
+    GST_LOG ("Caching: %s", response.toStyledString().c_str() );
+    cache->addResponse (sessionId, requestId, response);
   }
 }
 
