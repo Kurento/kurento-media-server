@@ -40,8 +40,6 @@ namespace kurento
 
 const std::string DEFAULT_LOCAL_ADDRESS = "localhost";
 
-const std::string SESSION_ID = "sessionId";
-
 /* Default config values */
 const ushort WEBSOCKET_PORT_DEFAULT = 8888;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
@@ -316,72 +314,6 @@ void WebSocketTransport::stop ()
   keepAliveThread.join();
 }
 
-static void
-injectSessionId (std::string &request, const std::string &sessionId)
-{
-  try {
-    Json::Reader reader;
-    Json::Value req;
-    Json::Value params;
-
-    reader.parse (request, req);
-
-    params = req[JSON_RPC_PARAMS];
-
-    try {
-      std::string oldSessionId;
-      JsonRpc::getValue (params, SESSION_ID, oldSessionId);
-    } catch (JsonRpc::CallException &e) {
-      Json::FastWriter writer;
-      // There is no sessionId, inject it
-      GST_TRACE ("Injecting sessionId %s", sessionId.c_str() );
-      params[SESSION_ID] = sessionId;
-      req[JSON_RPC_PARAMS] = params;
-
-      request = writer.write (req);
-    }
-  } catch (JsonRpc::CallException &ex) {
-
-  }
-}
-
-static std::string
-getSessionId (const std::string &request, const std::string &response)
-{
-  std::string sessionId;
-
-  try {
-    try {
-      Json::Reader reader;
-      Json::Value resp;
-      Json::Value result;
-
-      reader.parse (response, resp);
-
-      if (resp.isMember ("error") ) {
-        /* If response is an error do not store session */
-        return sessionId;
-      }
-
-      JsonRpc::getValue (resp, JSON_RPC_RESULT, result);
-      JsonRpc::getValue (result, SESSION_ID, sessionId);
-    } catch (JsonRpc::CallException &ex) {
-      Json::Reader reader;
-      Json::Value req;
-      Json::Value params;
-
-      reader.parse (request, req);
-
-      JsonRpc::getValue (req, JSON_RPC_PARAMS, params);
-      JsonRpc::getValue (params, SESSION_ID, sessionId);
-    }
-  } catch (JsonRpc::CallException &e) {
-    /* We could not get some of the required parameters. Ignore */
-  }
-
-  return sessionId;
-}
-
 websocketpp::connection_hdl
 WebSocketTransport::getConnection (const std::string &sessionId)
 {
@@ -395,10 +327,8 @@ WebSocketTransport::getConnection (const std::string &sessionId)
 
 void WebSocketTransport::storeConnection (const std::string &request,
     const std::string &response, websocketpp::connection_hdl connection,
-    bool secure)
+    bool secure, std::string &sessionId)
 {
-  std::string sessionId = getSessionId (request, response);
-
   if (!sessionId.empty() ) {
     std::unique_lock<std::recursive_mutex> lock (mutex);
     bool needsWrite = false;
@@ -478,22 +408,20 @@ void WebSocketTransport::processMessage (ServerType *s,
 {
   std::string request = msg->get_payload();
   std::string response;
+  std::string sessionId;
 
   try {
-    std::string sessionId;
-
     sessionId = connectionsReverse.at (hdl);
-    injectSessionId (request, sessionId);
   } catch (std::out_of_range &e) {
     /* Ignore, there is no previous sessionId */
   }
 
   GST_DEBUG ("Message: >%s<", request.c_str() );
-  processor->process (request, response);
+  sessionId = processor->process (request, response, sessionId);
   GST_DEBUG ("Response: >%s<", response.c_str() );
 
   storeConnection (request, response, hdl,
-                   std::is_same<ServerType, SecureWebSocketServer>::value);
+                   std::is_same<ServerType, SecureWebSocketServer>::value, sessionId);
 
   try {
     s->send (hdl, response, websocketpp::frame::opcode::TEXT);

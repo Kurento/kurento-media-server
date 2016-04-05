@@ -35,7 +35,8 @@ public:
   ServerMethods (const boost::property_tree::ptree &config);
   virtual ~ServerMethods();
 
-  virtual void process (const std::string &request, std::string &response);
+  virtual std::string process (const std::string &request, std::string &response,
+                               std::string &sessionId);
 
   virtual void keepAliveSession (const std::string &sessionId);
 

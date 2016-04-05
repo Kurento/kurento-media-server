@@ -67,7 +67,7 @@ private:
       const Json::Value &params);
 
   void storeConnection (const std::string &request, const std::string &response,
-                        websocketpp::connection_hdl connection, bool secure);
+                        websocketpp::connection_hdl connection, bool secure, std::string &sessionId);
 
   void keepAliveSessions ();
 

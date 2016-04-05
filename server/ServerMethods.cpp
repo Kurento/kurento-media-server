@@ -19,6 +19,7 @@
 #include <string>
 #include <EventHandler.hpp>
 #include <KurentoException.hpp>
+#include <jsonrpc/JsonRpcException.hpp>
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <jsonrpc/JsonRpcConstants.hpp>
 #include <jsonrpc/JsonFixes.hpp>
@@ -180,10 +181,83 @@ getOrCreateSessionId (std::string &_sessionId, const Json::Value &params)
   }
 }
 
-void
-ServerMethods::process (const std::string &request, std::string &response)
+static std::string
+getSessionId (const Json::Value &resp)
 {
+  std::string sessionId;
+
+  Json::Value result;
+
+  if (resp.isMember (JSON_RPC_ERROR) ) {
+    /* If response is an error do not return a sessionId */
+    return sessionId;
+  }
+
+  JsonRpc::getValue (resp, JSON_RPC_RESULT, result);
+  JsonRpc::getValue (result, SESSION_ID, sessionId);
+
+  return sessionId;
+}
+
+
+static void
+injectSessionId (Json::Value &req, const std::string &sessionId)
+{
+  try {
+    Json::Value params;
+
+    params = req[JSON_RPC_PARAMS];
+
+    try {
+      std::string oldSessionId;
+
+      JsonRpc::getValue (params, SESSION_ID, oldSessionId);
+    } catch (JsonRpc::CallException &e) {
+      // There is no sessionId, inject it
+      GST_TRACE ("Injecting sessionId %s", sessionId.c_str() );
+      params[SESSION_ID] = sessionId;
+      req[JSON_RPC_PARAMS] = params;
+    }
+  } catch (JsonRpc::CallException &ex) {
+
+  }
+}
+
+std::string
+ServerMethods::process (const std::string &requestStr, std::string &responseStr,
+                        std::string &sessionId)
+{
+  Json::Value response;
+  Json::Value request;
+  bool parse = false;
+  Json::Reader reader;
+  Json::FastWriter writer;
+  std::string newSessionId;
+
+  parse = reader.parse (requestStr, request);
+
+  if (!parse) {
+    throw JsonRpc::CallException (JsonRpc::ErrorCode::PARSE_ERROR, "Parse error.");
+  }
+
+  if (!sessionId.empty() ) {
+    injectSessionId (request, sessionId);
+  }
+
   handler.process (request, response);
+
+  try {
+    newSessionId = getSessionId (response);
+  } catch (JsonRpc::CallException &ex) {
+    /* We could not get some of the required parameters. Ignore */
+    newSessionId = sessionId;
+  }
+
+  if (response != Json::Value::null) {
+    responseStr = writer.write (response);
+  }
+
+  return newSessionId;
 }
 
 void

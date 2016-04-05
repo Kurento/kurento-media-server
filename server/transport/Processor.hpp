@@ -26,7 +26,18 @@ class Processor
 public:
   Processor () {};
   virtual ~Processor() throw () {};
-  virtual void process (const std::string &request, std::string &response) = 0;
+  /**
+   * Process the request
+   *
+   * @param request The request to be proccessed
+   * @param response The response to be send
+   * @param sessionId The sessionId associated with the channel that received
+   *                  the request
+   *
+   * @returns The sessionId of the request
+   */
+  virtual std::string process (const std::string &request, std::string &response,
+                               std::string &sessionId) = 0;
 
   virtual void keepAliveSession (const std::string &sessionId) = 0;
   virtual void setEventSubscriptionHandler (std::function < std::string (
