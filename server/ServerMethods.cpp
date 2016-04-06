@@ -67,11 +67,15 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   std::shared_ptr <ServerInfo> serverInfo;
   std::shared_ptr<MediaObjectImpl> serverManager;
   std::chrono::seconds collectorInterval;
+  bool disableRequestCache;
 
   collectorInterval = std::chrono::seconds (
                         config.get<int> ("mediaServer.resources.garbageCollectorPeriod",
                                          MediaSet::getCollectorInterval().count() ) );
   MediaSet::setCollectorInterval (collectorInterval);
+
+  disableRequestCache = config.get<bool> ("mediaServer.disableRequestCache",
+                                          false);
 
   resourceLimitPercent =
     config.get<float> ("mediaServer.resources.exceptionLimit",
@@ -106,12 +110,16 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
 
   cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
 
-  handler.setPreProcess (std::bind (&ServerMethods::preProcess, this,
-                                    std::placeholders::_1,
-                                    std::placeholders::_2) );
-  handler.setPostProcess (std::bind (&ServerMethods::postProcess, this,
-                                     std::placeholders::_1,
-                                     std::placeholders::_2) );
+  if (!disableRequestCache) {
+    handler.setPreProcess (std::bind (&ServerMethods::preProcess, this,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2) );
+    handler.setPostProcess (std::bind (&ServerMethods::postProcess, this,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2) );
+  } else {
+    GST_DEBUG ("Disabling cache");
+  }
 
   handler.addMethod ("connect", std::bind (&ServerMethods::connect, this,
                      std::placeholders::_1,
