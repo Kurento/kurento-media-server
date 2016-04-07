@@ -48,6 +48,8 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define OBJECT "object"
 #define SUBSCRIPTION "subscription"
 #define TYPE "type"
+#define QUALIFIED_TYPE "qualifiedType"
+#define HIERARCHY "hierarchy"
 
 #define REQUEST_TIMEOUT 20000 /* 20 seconds */
 
@@ -358,6 +360,11 @@ ServerMethods::describe (const Json::Value &params, Json::Value &response)
 
   response[SESSION_ID] = sessionId;
   response[TYPE] = obj->getType ();
+  response[QUALIFIED_TYPE] = obj->getQualifiedType();
+  JsonSerializer serializer (true);
+  std::vector <std::string> array = obj->getHierarchy();
+  serializer.Serialize ("array", array);
+  response[HIERARCHY]  = serializer.JsonValue["array"];
 }
 
 void
