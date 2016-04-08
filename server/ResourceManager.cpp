@@ -34,16 +34,24 @@ namespace kurento
 static int maxOpenFiles = 0;
 static int maxThreads = 0;
 
-static void
-tokenize (std::string str, char sep, std::vector<std::string> &tokens)
+static int
+get_int (std::string &str, char sep, int nToken)
 {
   size_t start = str.find_first_not_of (sep), end;
+  int count = 0;
 
   while (start != std::string::npos) {
     end = str.find (sep, start);
-    tokens.push_back (str.substr (start, end - start) );
+
+    if (count++ == nToken) {
+      str[end] = '\0';
+      return atoi (&str.c_str() [start]);
+    }
+
     start = str.find_first_not_of (sep, end);
   }
+
+  return 0;
 }
 
 static int
@@ -51,14 +59,11 @@ getNumberOfThreads ()
 {
   std::string stat;
   std::ifstream stat_file ("/proc/self/stat");
-  std::vector <std::string> tokens;
 
   std::getline (stat_file, stat);
-  tokenize (stat, ' ', tokens);
-
   stat_file.close();
 
-  return atoi (tokens[19].c_str() );
+  return get_int (stat, ' ', 19);
 }
 
 static int
