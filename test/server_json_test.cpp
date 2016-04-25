@@ -291,12 +291,12 @@ ClientHandler::check_create_pipeline_call()
   Json::Value hierarchy = response["result"]["hierarchy"];
   std::vector <std::string> expected_hierarchy;
 
-  expected_hierarchy.push_back ("core.BaseRtpEndpoint");
-  expected_hierarchy.push_back ("core.SdpEndpoint");
-  expected_hierarchy.push_back ("core.SessionEndpoint");
-  expected_hierarchy.push_back ("core.Endpoint");
-  expected_hierarchy.push_back ("core.MediaElement");
-  expected_hierarchy.push_back ("core.MediaObject");
+  expected_hierarchy.push_back ("kurento.BaseRtpEndpoint");
+  expected_hierarchy.push_back ("kurento.SdpEndpoint");
+  expected_hierarchy.push_back ("kurento.SessionEndpoint");
+  expected_hierarchy.push_back ("kurento.Endpoint");
+  expected_hierarchy.push_back ("kurento.MediaElement");
+  expected_hierarchy.push_back ("kurento.MediaObject");
 
   BOOST_REQUIRE (hierarchy.isArray() );
 
