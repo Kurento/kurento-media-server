@@ -20,8 +20,6 @@ include(GNUInstallDirs)
 
 set (DISABLE_TESTS FALSE CACHE BOOL "Disable make check")
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror -std=c++11 -Wno-deprecated-declarations -DGST_DISABLE_DEPRECATED")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -Werror -std=c99 -DGST_DISABLE_DEPRECATED")
 
@@ -48,6 +46,15 @@ pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.5)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.5>=1.7.0~0)
 pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.5>=1.7.0~0)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
+
+check_version_internal (>=2.6.2 sigc++-2.0_VERSION OUTPUT_ERROR)
+if (DEFINED OUTPUT_ERROR AND NOT ${OUTPUT_ERROR} EQUAL "")
+  set (FIX_SIGC TRUE)
+else()
+  set (FIX_SIGC FALSE)
+endif()
+
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_subdirectory(server)
 
