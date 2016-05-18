@@ -148,8 +148,6 @@ void F::on_message (websocketpp::connection_hdl hdl,
   std::unique_lock <std::mutex> lock (mutex);
   GST_DEBUG ("Received a reply: %s", msg->get_payload().c_str() );
 
-  BOOST_REQUIRE_MESSAGE (sendingMessage, "Unexpected message received");
-
   Json::Value recvMessage;
   BOOST_REQUIRE_MESSAGE (reader.parse (msg->get_payload(), recvMessage),
                          "Cannot parse input message");
