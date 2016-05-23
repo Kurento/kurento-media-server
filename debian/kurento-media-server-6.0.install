@@ -1,3 +1,3 @@
 debian/tmp/etc/*/*
 debian/tmp/usr/bin/kurento-media-server
-debian/kurento-media-server.default /etc/default/kurento-media-server
+debian/kurento-media-server /etc/default/
