@@ -335,7 +335,7 @@ inline close::status::value to_ws (lib::error_code ec)
 
 _WEBSOCKETPP_ERROR_CODE_ENUM_NS_START_
 template<> struct
-    is_error_code_enum<websocketpp::processor::error::processor_errors> {
+  is_error_code_enum<websocketpp::processor::error::processor_errors> {
   static bool const value = true;
 };
 _WEBSOCKETPP_ERROR_CODE_ENUM_NS_END_

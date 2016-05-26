@@ -65,7 +65,7 @@ public:
                                channel_type_hint::access)
     : m_static_channels (0xffffffff)
     , m_dynamic_channels (0)
-    , m_out (h == channel_type_hint::error ? &std::cerr : &std::cout) {}
+    , m_out (h == channel_type_hint::error ? & std::cerr : & std::cout) {}
 
   basic<concurrency, names> (std::ostream *out)
     : m_static_channels (0xffffffff)
@@ -76,7 +76,7 @@ public:
                                channel_type_hint::access)
     : m_static_channels (c)
     , m_dynamic_channels (0)
-    , m_out (h == channel_type_hint::error ? &std::cerr : &std::cout) {}
+    , m_out (h == channel_type_hint::error ? & std::cerr : & std::cout) {}
 
   basic<concurrency, names> (level c, std::ostream *out)
     : m_static_channels (c)

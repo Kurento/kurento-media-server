@@ -27,7 +27,8 @@ public:
   WebSocketTransportFactory () {};
   virtual ~WebSocketTransportFactory() throw () {};
 
-  virtual std::string getName () {
+  virtual std::string getName ()
+  {
     return "websocket";
   }
 

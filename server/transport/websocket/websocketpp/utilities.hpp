@@ -78,7 +78,7 @@ private:
 struct ci_less : std::binary_function<std::string, std::string, bool> {
   // case-independent (ci) compare_less binary function
   struct nocase_compare
-      : public std::binary_function<unsigned char, unsigned char, bool> {
+    : public std::binary_function<unsigned char, unsigned char, bool> {
     bool operator() (unsigned char const &c1, unsigned char const &c2) const
     {
       return tolower (c1) < tolower (c2);
