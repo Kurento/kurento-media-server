@@ -1,3 +1,35 @@
+kurento-media-server-6.0 (6.5.0) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * .build.yaml: Depend on last commit on master branch, not on a version
+  * ServerMethods: Add session id to ping response
+  * WebSocketTransport: Do not store sessionId if the request failed
+
+  [ Raúl Benítez Mejías ]
+  * Add badges into all README.md
+
+  [ Jose Antonio Santos Cadenas ]
+  * ServerMethods: Improve performance of responses cache
+  * Do not require parsing json to manage sessionId and websocket connections
+  * Disable request cache if requested by config
+  * ServerMethods: Add qualified name and hierarchy to describe method response
+  * ResourceManager: Improve performance
+  * server_json_test: Fix hierarchy tests
+  * CMake: Disable error date time
+  * CacheEntry: Do not define sigc::functor_trait
+  * BaseTest: Accept events when no request have been sent
+  * Rename default file
+  * Install default file correctly
+  * Install default file correctly
+  * Fix style
+  * Change license to Apache 2.0
+  * Prepare release 6.5.0
+
+  [ Jose Antonio Santos ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 27 May 2016 17:45:49 +0200
+
 kurento-media-server-6.0 (6.4.0) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]

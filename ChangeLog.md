@@ -1,3 +1,46 @@
+6.5.0
+=====
+
+  * Change license to Apache 2.0
+  * Improve performan of rpc proccessing
+  * Allow qualified names for types
+  * Fix bug on client reconnection (they thought that the reconnection succeed
+    even if it was a diferent server)
+
+kms-core (6.5.0)
+----------------
+
+  * Change license to Apache 2.0
+  * Fix bugs in Flow IN - Flow OUT event (caused a segmentation fault)
+  * REMB algorithm improvements
+  * Fix max/min video bandwidth parameters (now 0 means unlimited)
+  * Improve the API changing some event/methods names and deprecating old ones
+    (even they are still available, it's recommended to not use them as they
+     can be remoted on the next major release)
+  * Documentation inprovement
+  * Raise events from differents threads
+  * Agnosticbin: Add support for rtp format (only at output)
+
+kms-elements (6.5.0)
+--------------------
+
+  * Change license to Apache 2.0
+  * WebRctEndpoint: Add information about ice candidates pair selected
+  * WebRctEndpoint: Fix memory leaks on candidatesm management
+  * WebRctEndpoint: Fix fingerprint generation when certificate is buldled with the key
+  * WebRctEndpoint: Fix bugs when using a custom pem por dtls
+  * WebRctEndpoint: Improve events names deprecating old ones
+    (old ones are still valid, but its use is discouraged)
+  * RecorderEndpoint: Fix state management
+  * RecorderEndpoint: Add StopAndWait method
+  * Improve documentation
+
+kms-filters (6.5.0)
+-------------------
+
+  * Change license to Apache 2.0
+  * Update kurento dependencies to 6.5.0
+
 6.4.0
 =====
 
