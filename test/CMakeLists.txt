@@ -42,25 +42,29 @@ set_property (TARGET test_server_json
       ${CMAKE_SOURCE_DIR}/server/transport/websocket
 )
 
-add_test_program(test_resources_limit resources_limit_test.cpp)
-add_dependencies(test_resources_limit
-  kurento-media-server
-  base_test
-)
-target_link_libraries(test_resources_limit
-  ${KMSCORE_LIBRARIES}
-  ${Boost_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-  -pthread
-  base_test
-)
-set_property (TARGET test_resources_limit
-  PROPERTY
-    INCLUDE_DIRECTORIES
-      ${KMSCORE_INCLUDE_DIRS}
-      ${CMAKE_SOURCE_DIR}/server/transport/websocket
-)
+set (ENABLE_RESOUCES_CHECKS FALSE CACHE BOOL "Enable resouce limits tests")
+
+if (${ENABLE_RESOUCES_CHECKS})
+  add_test_program(test_resources_limit resources_limit_test.cpp)
+  add_dependencies(test_resources_limit
+    kurento-media-server
+    base_test
+  )
+  target_link_libraries(test_resources_limit
+    ${KMSCORE_LIBRARIES}
+    ${Boost_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    -pthread
+    base_test
+  )
+  set_property (TARGET test_resources_limit
+    PROPERTY
+      INCLUDE_DIRECTORIES
+        ${KMSCORE_INCLUDE_DIRS}
+        ${CMAKE_SOURCE_DIR}/server/transport/websocket
+  )
+endif ()
 
 add_test_program(test_server_events server_events_test.cpp)
 add_dependencies(test_server_events
