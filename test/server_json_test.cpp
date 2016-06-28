@@ -47,6 +47,7 @@ protected:
   void check_connect_call ();
   void check_bad_transaction_call ();
   void check_transaction_call ();
+  void check_memory_usage();
 
   void runTests ()
   {
@@ -57,6 +58,7 @@ protected:
     check_create_pipeline_call();
     check_bad_transaction_call();
     check_transaction_call();
+    check_memory_usage();
   }
 };
 
@@ -324,6 +326,33 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isMember ("sessionId") );
   BOOST_CHECK (response["result"]["sessionId"].asString () == sessionId );
+}
+
+void
+ClientHandler::check_memory_usage()
+{
+  Json::Value request;
+  Json::Value response;
+  std::string pipeId;
+  std::string objId;
+
+  Json::Value params;
+  Json::Value constructorParams;
+  Json::Value operationParams;
+
+  request["jsonrpc"] = "2.0";
+  request["id"] = getId();
+  request["method"] = "getUsedMemory";
+  params["sessionId"] = "12345";
+  request["params"] = params;
+
+  response = sendRequest (request);
+
+  BOOST_CHECK (!response.isMember ("error") );
+  BOOST_CHECK (response.isMember ("result") );
+  BOOST_CHECK (response["result"].isObject() );
+  BOOST_CHECK (response["result"].isMember ("value") );
+  BOOST_CHECK (response["result"]["value"].isInt() );
 }
 
 BOOST_FIXTURE_TEST_SUITE ( server_json_test, ClientHandler)

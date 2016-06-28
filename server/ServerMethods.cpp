@@ -162,6 +162,9 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   handler.addMethod ("closeSession", std::bind (&ServerMethods::closeSession,
                      this,
                      std::placeholders::_1, std::placeholders::_2) );
+  handler.addMethod ("getUsedMemory", std::bind (&ServerMethods::getUsedMemory,
+                     this,
+                     std::placeholders::_1, std::placeholders::_2) );
 }
 
 ServerMethods::~ServerMethods()
@@ -815,6 +818,25 @@ ServerMethods::closeSession (const Json::Value &params,
   } else {
     MediaSet::getMediaSet()->unrefSession (sessionId);
   }
+}
+
+void
+ServerMethods::getUsedMemory (const Json::Value &params,
+                              Json::Value &response)
+{
+  std::string sessionId;
+
+  try {
+    JsonRpc::getValue (params, SESSION_ID, sessionId);
+    response [SESSION_ID] = sessionId;
+  } catch (JsonRpc::CallException e) {
+  }
+
+  JsonSerializer s (true);
+
+  int64_t value = kurento::getUsedMemory();
+  s.SerializeNVP (value);
+  response = s.JsonValue;
 }
 
 ServerMethods::StaticConstructor ServerMethods::staticConstructor;
