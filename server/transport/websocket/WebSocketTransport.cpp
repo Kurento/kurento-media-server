@@ -199,7 +199,8 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
         secureServer.listen (securePort);
         hasSecureServer = true;
       } catch (websocketpp::exception &e) {
-        throw configuration_exception ("Error listening on port" + securePort);
+        throw configuration_exception ("Error listening on port" +
+                                       std::to_string (securePort) );
       }
     } catch (const configuration_exception &err) {
       GST_WARNING ("Secure websocket server not enabled: %s", err.what() );
@@ -220,7 +221,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
   }
 }
 
-WebSocketTransport::~WebSocketTransport()
+WebSocketTransport::~WebSocketTransport() throw ()
 {
 }
 
