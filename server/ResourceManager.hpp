@@ -27,9 +27,6 @@ void checkResources (float limit_percent);
 
 void killServerOnLowResources (float limit_percent);
 
-/* Returns the virtual memory size in KiB */
-int64_t getUsedMemory ();
-
 } /* kurento */
 
 #endif /* __RESOURCE_MANAGER_H__ */
