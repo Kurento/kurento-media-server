@@ -85,10 +85,15 @@ static void
 checkThreads (float limit_percent)
 {
   int nThreads;
+  int maxThreads = getMaxThreads ();
+
+  if (maxThreads <= 0) {
+    return;
+  }
 
   nThreads = getNumberOfThreads ();
 
-  if (nThreads > getMaxThreads () * limit_percent ) {
+  if (nThreads > maxThreads * limit_percent ) {
     throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many threads");
   }
 }
@@ -128,10 +133,15 @@ static void
 checkOpenFiles (float limit_percent)
 {
   int nOpenFiles;
+  int maxOpenFiles = getMaxOpenFiles ();
+
+  if (maxOpenFiles <= 0) {
+    return;
+  }
 
   nOpenFiles = getNumberOfOpenFiles ();
 
-  if (nOpenFiles > getMaxOpenFiles () * limit_percent ) {
+  if (nOpenFiles > maxOpenFiles * limit_percent ) {
     throw KurentoException (NOT_ENOUGH_RESOURCES, "Too many open files");
   }
 }
