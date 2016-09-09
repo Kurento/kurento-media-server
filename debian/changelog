@@ -1,3 +1,27 @@
+kurento-media-server-6.0 (6.6.0) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * Disable resouces limit test by default, it's killing ci system
+  * ServerMethods: Add request to get mediaServer memory usage
+  * Fix minor compilation warnings
+
+  [ José Antonio Santos Cadenas ]
+  * Revert "ServerMethods: Add request to get mediaServer memory usage"
+
+  [ Jose Antonio Santos Cadenas ]
+  * ResourceManager: Fix the way that resource limits is check
+
+  [ David Fernandez ]
+  * ChangeLog.md: Prepare release notes for 6.6.0
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare release 6.6.0
+
+  [ Jose Antonio Santos ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 09 Sep 2016 17:13:38 +0200
+
 kurento-media-server-6.0 (6.5.0) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
