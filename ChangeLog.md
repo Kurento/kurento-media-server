@@ -1,3 +1,51 @@
+6.6.0
+=====
+
+  * Fix the way that resource limits is check (if a limit is not configured
+    then the check is not performed)
+  * Fix minor compilation warnings
+
+kms-core (6.6.0)
+----------------
+
+  * Bugs fixes:
+
+     * Improve rtp synchronization algorithm, this makes recorder behave
+       better when recording from RtpEndpoint or WebRTCEndpoint
+     * Fix memory problems during Media Elements disconnections. This problem
+       was also present when
+     * Improve Media Elements connection, some cases were not working
+       correctly, specially when creating multi stream elements
+     * Fix memory problems in flowOut/flowIn events detection
+     * Allow c++ to listen to signals with at return value
+     * Memory leaks
+     * Fix some rare media deadlocks on on AgnosticBin
+     * UriEndpoint: Add support
+  * Update SDP Agent
+
+     * Make code cleaner
+     * Add support for error notification using GError, this allows
+       raising betters exceptions to client
+  * Documentation improvements
+  * ServerManager: Add method to get memory used by the server
+  * UriEndpoint: Add property to get state
+  * UriEndpoint: Add event to notify state changes
+
+kms-elements (6.6.0)
+--------------------
+
+  * Bux fixes:
+
+    * PlayerEndpoint: Fix PTS assignment
+    * RecorderEndpoint: Fix buffer leaks
+  * WebRctEndpoint: ECDSA certificate support
+  * Documentation improvement
+
+kms-filters (6.6.0)
+-------------------
+
+  * Update kurento dependencies to 6.6.0
+
 6.5.0
 =====
 
@@ -157,7 +205,7 @@ kms-filters
 
   * Added ping method, just reply pong
   * Scaffold: Fix installation of configuration files
-  
+
 kms-core
 --------
 
@@ -197,7 +245,7 @@ kms-elements
     properly.
   * WebRtcEndpoint: report possible error on candidate handling
   * Composite: fix bugs simplifying internal design
-  
+
 kms-filters
 -----------
 
