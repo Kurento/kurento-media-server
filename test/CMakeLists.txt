@@ -7,7 +7,7 @@ set_property (TARGET base_test
   PROPERTY
     INCLUDE_DIRECTORIES
       ${KMSCORE_INCLUDE_DIRS}
-      ${CMAKE_SOURCE_DIR}/server/transport/websocket
+      ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket
 )
 
 target_link_libraries(base_test
@@ -17,8 +17,10 @@ target_link_libraries(base_test
 if (NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 
 set (TEST_PROPERTIES
-  "MEDIA_SERVER_CONF_FILE=${CMAKE_SOURCE_DIR}/kurento.conf.json"
+  "MEDIA_SERVER_CONF_FILE=${CMAKE_CURRENT_SOURCE_DIR}/../kurento.conf.json"
   "SERVER_DIR=${CMAKE_CURRENT_BINARY_DIR}/../server/kurento-media-server"
+  "GST_PLUGIN_PATH=$ENV{GST_PLUGIN_PATH}:${CMAKE_BINARY_DIR}"
+  "KURENTO_MODULES_PATH=$ENV{KURENTO_MODULES_PATH}:${CMAKE_BINARY_DIR}"
   "BOOST_TEST_CATCH_SYSTEM_ERRORS=no"
 )
 
@@ -39,7 +41,7 @@ set_property (TARGET test_server_json
   PROPERTY
     INCLUDE_DIRECTORIES
       ${KMSCORE_INCLUDE_DIRS}
-      ${CMAKE_SOURCE_DIR}/server/transport/websocket
+      ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket
 )
 
 set (ENABLE_RESOUCES_CHECKS FALSE CACHE BOOL "Enable resouce limits tests")
@@ -62,7 +64,7 @@ if (${ENABLE_RESOUCES_CHECKS})
     PROPERTY
       INCLUDE_DIRECTORIES
         ${KMSCORE_INCLUDE_DIRS}
-        ${CMAKE_SOURCE_DIR}/server/transport/websocket
+        ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket
   )
 endif ()
 
@@ -83,7 +85,7 @@ set_property (TARGET test_server_events
   PROPERTY
     INCLUDE_DIRECTORIES
       ${KMSCORE_INCLUDE_DIRS}
-      ${CMAKE_SOURCE_DIR}/server/transport/websocket
+      ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket
 )
 
 add_test_program(test_server_json_session server_json_session.cpp)
@@ -104,7 +106,7 @@ set_property (TARGET test_server_json_session
   PROPERTY
     INCLUDE_DIRECTORIES
       ${KMSCORE_INCLUDE_DIRS}
-      ${CMAKE_SOURCE_DIR}/server/transport/websocket
+      ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket
 )
 
 add_test_program(test_server_duplicate_requests server_duplicate_requests.cpp )
@@ -123,12 +125,12 @@ target_link_libraries(test_server_duplicate_requests
 set_property (TARGET test_server_duplicate_requests
   PROPERTY INCLUDE_DIRECTORIES
     ${KMSCORE_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/server/transport/websocket
+    ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket
 )
 
 add_test_program (test_config_read
   config_read_test.cpp
-  ${CMAKE_SOURCE_DIR}/server/loadConfig.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/../server/loadConfig.cpp)
 target_link_libraries(test_config_read
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
@@ -140,10 +142,10 @@ target_link_libraries(test_config_read
 set_property (TARGET test_config_read
   PROPERTY INCLUDE_DIRECTORIES
     ${KMSCORE_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/server
+    ${CMAKE_CURRENT_SOURCE_DIR}/../server
 )
 
-add_test_program (test_registrar registrar_test.cpp ${CMAKE_SOURCE_DIR}/server/transport/websocket/WebSocketRegistrar.cpp)
+add_test_program (test_registrar registrar_test.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket/WebSocketRegistrar.cpp)
 target_link_libraries(test_registrar
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
@@ -156,7 +158,7 @@ target_link_libraries(test_registrar
 set_property (TARGET test_registrar
   PROPERTY INCLUDE_DIRECTORIES
     ${KMSCORE_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/server/transport/websocket
+    ${CMAKE_CURRENT_SOURCE_DIR}/../server/transport/websocket
 )
 
 endif(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})

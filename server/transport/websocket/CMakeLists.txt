@@ -29,8 +29,7 @@ target_link_libraries(websocketTransport
 set_property (TARGET websocketTransport
   PROPERTY INCLUDE_DIRECTORIES
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/server/transport
-    ${CMAKE_SOURCE_DIR}/server/signalHandler
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${JSONRPC_INCLUDE_DIRS}
     ${GSTREAMER_INCLUDE_DIRS}
     ${KMSCORE_INCLUDE_DIRS}

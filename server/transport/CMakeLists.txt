@@ -17,7 +17,6 @@ target_link_libraries(transport
 
 set_property (TARGET transport
   PROPERTY INCLUDE_DIRECTORIES
-    ${CMAKE_SOURCE_DIR}/server/signalHandler
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/websocket/
     ${GSTREAMER_INCLUDE_DIRS}
