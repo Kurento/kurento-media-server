@@ -24,6 +24,7 @@ target_link_libraries(websocketTransport
   ${GSTREAMER_LIBRARIES}
   ${JSONRPC_LIBRARIES}
   ${OPENSSL_LIBRARIES}
+  ${KMSCORE_LIBRARIES}
 )
 
 set_property (TARGET websocketTransport
