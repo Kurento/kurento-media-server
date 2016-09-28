@@ -274,7 +274,7 @@ void F::start_client()
 
 void F::stop_client (std::unique_lock <std::mutex> &lock)
 {
-  bool wasLocked;
+  bool wasLocked = false;
 
   if (lock) {
     wasLocked = true;
