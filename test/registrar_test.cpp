@@ -15,6 +15,8 @@
  *
  */
 
+#include <config.h>
+
 // #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE ConectRegistrar
 #include <boost/test/unit_test.hpp>
@@ -40,7 +42,7 @@ static const std::string REGISTRAR_MESSAGE =
 
 static const std::string PASSWORD = "";
 static const boost::filesystem::path
-CERTIFICATE_FILE ("../../test/testCertificate.pem");
+CERTIFICATE_FILE (TEST_DIRECTORY "/testCertificate.pem");
 
 typedef websocketpp::server<websocketpp::config::asio> WebSocketServer;
 typedef websocketpp::server<websocketpp::config::asio_tls>
