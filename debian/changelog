@@ -1,3 +1,17 @@
+kurento-media-server-6.0 (6.6.1) testing; urgency=medium
+
+  [ Jose Antonio Santos Cadenas ]
+  * Prepare for next development iteration
+  * CMake: Remove references to root cmake directories
+  * CMakeList: Add missing link library
+  * registrar_test: Make certificate loading independent of the build directory
+  * BaseTest: Initialize variable properly
+  * Prepare release 6.6.1
+
+  [ Jose Antonio Santos ]
+
+ -- Jose Antonio Santos Cadenas <santoscadenas@gmail.com>  Fri, 30 Sep 2016 14:31:51 +0200
+
 kurento-media-server-6.0 (6.6.0) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]

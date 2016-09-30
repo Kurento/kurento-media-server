@@ -1,3 +1,34 @@
+6.6.1
+=====
+
+  * Fixes on tests
+  * Improve compilation process
+
+kms-core (6.6.1)
+----------------
+
+  * Fix problem in pts synchronization algorithm when remote is sending
+    wrong RTCP SR packages that produces backwards PTS.
+  * Improve thread management when using filters. Filter processing uses
+    its own thread and drops packages that are late.
+  * Improve compilation issues.
+
+kms-elements (6.6.1)
+--------------------
+
+  * Simplify recorderEndpoint internal pipeline state changes
+  * RecorderEndpoint: Fix media dead lock in avmuxer
+  * RecorderEndpoint: Do not allow recording again once stop state is
+    reached as this will erase previous recording.
+  * PlayerEndpoint: Set valid pts and dts values for pushed buffers
+  * Improve compilation process
+
+kms-filters (6.6.1)
+-------------------
+
+ * Improve compilation process
+ * Update kurento dependencies to 6.6.1
+
 6.6.0
 =====
 
