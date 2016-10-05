@@ -92,17 +92,19 @@ status () {
     if [ $status -eq 0 ]; then
         read pid < $PID_FILE
         log_action_cont_msg "$DAEMON_CMD is running with pid $pid"
-        log_action_end_msg 0
+        rc=0
     elif [ $status -eq 1 ]; then
         log_action_cont_msg "$DAEMON_CMD is not running but the pid file exists"
-        log_action_end_msg 1
+        rc=1
     elif [ $status -eq 3 ]; then
         log_action_cont_msg "$DAEMON_CMD is not running"
-        log_action_end_msg 3
+        rc=3
     else
         log_action_cont_msg "Unable to determine $DAEMON_CMD status"
-        log_action_end_msg 4
+        rc=4
     fi
+    log_action_end_msg $rc
+    return $rc
 }
 
 case "$1" in
@@ -136,5 +138,3 @@ case "$1" in
     echo "Usage: $0 {start|stop|restart|status}" >&2
     ;;
 esac
-
-exit 0
