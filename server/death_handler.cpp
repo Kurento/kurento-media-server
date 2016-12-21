@@ -603,15 +603,14 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
   // Overwrite sigaction with caller's address
 #if defined(__arm__)
   trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.arm_pc);
-#else
-#if !defined(__i386__) && !defined(__x86_64__)
-#error Only ARM, x86 and x86-64 are supported
-#endif
-#if defined(__x86_64__)
+#elif defined(__aarch64__)
+   trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.pc);
+#elif defined(__x86_64__)
   trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.gregs[REG_RIP]);
-#else
+#elif defined(__i386__)
   trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.gregs[REG_EIP]);
-#endif
+#else
+#error Only ARM, ARM64, x86 and x86-64 are supported
 #endif
 
   const int path_max_length = 2048;
