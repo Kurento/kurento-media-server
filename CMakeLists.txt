@@ -3,13 +3,24 @@ cmake_minimum_required(VERSION 2.8)
 project("kurento-media-server")
 message(STATUS "Running CMake for project: ${PROJECT_NAME}")
 
-# Set GCC flags common to all projects
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -std=c11   -Wall -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror")
+message("If KurentoHelpers is not found, you need to install 'kms-cmake-utils' from the Kurento repository")
+find_package(KurentoHelpers REQUIRED)
 
-# Reduce default Release optimization level from -O3 to -O2
-set(CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE}   -O2")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+# Set GCC flags common to all projects
+# Note - default flags added by dpkg-buildflags for C and C++:
+# -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2
+include(DpkgBuildFlags)
+get_dpkg_buildflags_c(DPKG_BUILDFLAGS_C)
+get_dpkg_buildflags_cxx(DPKG_BUILDFLAGS_CXX)
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${DPKG_BUILDFLAGS_C}   -std=c11   -Wall -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DPKG_BUILDFLAGS_CXX} -std=c++11 -Wall -Werror")
+
+# Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-Wno-error=date-time" HAS_WARNING_DATE_TIME)
+if(HAS_WARNING_DATE_TIME)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=date-time")
+endif()
 
 # This project includes an input "config.h.cmake"
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DHAVE_CONFIG_H")
@@ -18,16 +29,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H")
 # Disable deprecated GStreamer APIs
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DGST_DISABLE_DEPRECATED")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGST_DISABLE_DEPRECATED")
-
-# Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
-# include(CheckCXXCompilerFlag)
-# CHECK_CXX_COMPILER_FLAG("-Wno-error=date-time" HAS_WARNING_DATE_TIME)
-# if(HAS_WARNING_DATE_TIME)
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=date-time")
-# endif()
-
-message("If KurentoHelpers is not found, you need to install 'kms-cmake-utils' from the Kurento repository")
-find_package(KurentoHelpers REQUIRED)
 
 include(KurentoGitHelpers)
 get_git_version(PROJECT_VERSION 6.6.2-dev)
