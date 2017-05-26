@@ -50,7 +50,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 const std::string DEFAULT_CONFIG_FILE = "/etc/kurento/kurento.conf.json";
 const std::string ENV_PREFIX = "KURENTO_";
 const int DEFAULT_LOG_FILE_SIZE = 100;
-const int DEFAULT_NUMBER_LOG_FILE = 10;
+const int DEFAULT_LOG_FILE_COUNT = 10;
 
 using namespace ::kurento;
 namespace logging = boost::log;
@@ -147,18 +147,18 @@ main (int argc, char **argv)
      (&confFile)->default_value (DEFAULT_CONFIG_FILE),
      "Configuration file location")
     ("logs-path,d", boost::program_options::value <std::string> (&logs_path),
-     "Path where debug files will be stored")
+     "Path where rotating log files will be stored")
     ("modules-config-path,c",
      boost::program_options::value <std::string> (&modulesConfigPath),
      "Path where modules config files can be found")
     ("log-file-size,s",
      boost::program_options::value <int> (&fileSize)->default_value (
        DEFAULT_LOG_FILE_SIZE),
-     "Maximum file size for log files in MB")
-    ("number-log-files ,n",
+     "Maximum file size for log files, in MB")
+    ("number-log-files,n",
      boost::program_options::value <int> (&fileNumber)->default_value (
-       DEFAULT_NUMBER_LOG_FILE),
-     "Maximum number of files to save");
+       DEFAULT_LOG_FILE_COUNT),
+     "Maximum number of log files to keep");
 
     boost::program_options::command_line_parser clp (argc, argv);
     clp.options (desc).allow_unregistered();
@@ -193,7 +193,7 @@ main (int argc, char **argv)
       if (kms_init_logging (logs_path, fileSize, fileNumber) ) {
         GST_DEBUG ("Dumping logs to %s", logs_path.c_str() );
       } else {
-        GST_WARNING ("Can no set debugging path %s", logs_path.c_str() );
+        GST_WARNING ("Cannot set logs path to %s", logs_path.c_str() );
       }
     }
 
