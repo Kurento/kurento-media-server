@@ -22,8 +22,8 @@ DAEMON_CMD=/usr/bin/kurento-media-server
 START_DAEMON=false
 
 # Include stun defaults if available
-if [ -f /etc/default/kurento-media-server ] ; then
-	. /etc/default/kurento-media-server
+if [ -f /etc/default/kurento-media-server-6.0 ] ; then
+	. /etc/default/kurento-media-server-6.0
 fi
 
 if [ "$START_DAEMON" != "true" ]; then
