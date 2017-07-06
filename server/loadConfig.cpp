@@ -19,6 +19,7 @@
 
 #include "loadConfig.hpp"
 
+#include <iostream>
 #include <queue>
 #include <list>
 #include <boost/filesystem.hpp>
