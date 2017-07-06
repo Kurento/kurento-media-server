@@ -29,7 +29,6 @@ add_dependencies(kurento-media-server transport)
 target_link_libraries (kurento-media-server
   ${Boost_LIBRARIES}
   transport
-  pthread
   dl
 )
 

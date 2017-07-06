@@ -12,15 +12,24 @@ find_package(KurentoHelpers REQUIRED)
 include(DpkgBuildFlags)
 get_dpkg_buildflags_c(DPKG_BUILDFLAGS_C)
 get_dpkg_buildflags_cxx(DPKG_BUILDFLAGS_CXX)
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${DPKG_BUILDFLAGS_C}   -std=c11   -Wall -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DPKG_BUILDFLAGS_CXX} -std=c++11 -Wall -Werror")
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${DPKG_BUILDFLAGS_C}   -std=c11   -Wall -Werror -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DPKG_BUILDFLAGS_CXX} -std=c++11 -Wall -Werror -pthread")
+set(CMAKE_C_FLAGS_DEBUG   "-g -O0") # FIXME Ideal is '-Og' but a bug in GCC prevents this,
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0") # causing "may be used uninitialized" errors: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58455
+set(CMAKE_C_FLAGS_RELEASE   "-DNDEBUG") # CMake adds '-O3' by default,
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG") # which would overwrite our '-O2' from dpkg-buildflags
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # Use "-fPIC" for all targets, including static libs
 
-# Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
+# FIXME Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-Wno-error=date-time" HAS_WARNING_DATE_TIME)
 if(HAS_WARNING_DATE_TIME)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=date-time")
 endif()
+
+# FIXME Disable error when deprecated functionality is used
+# (glibmm library uses C++ dynamic exception specifications)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated")
 
 # This project includes an input "config.h.cmake"
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DHAVE_CONFIG_H")
@@ -45,6 +54,9 @@ set(LIB_PREFIX "lib")
 
 include(GenericFind)
 
+set(CMAKE_THREAD_PREFER_PTHREAD ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 generic_find(LIBNAME Boost COMPONENTS system filesystem program_options unit_test_framework thread log REQUIRED)
 
 find_package(OpenSSL REQUIRED)

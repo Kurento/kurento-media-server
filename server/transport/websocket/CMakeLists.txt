@@ -9,7 +9,7 @@ set (WEBSOCKET_SOURCES
   WebSocketRegistrar.hpp
 )
 
-set(FLAGS "-D_WEBSOCKETPP_CPP11_STL_ -pthread")
+set(FLAGS "-D_WEBSOCKETPP_CPP11_STL_")
 
 set_source_files_properties(${WEBSOCKET_SOURCES}
   PROPERTIES

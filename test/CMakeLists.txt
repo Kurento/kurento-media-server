@@ -7,7 +7,7 @@ set(TEST_VARIABLES
   "BOOST_TEST_CATCH_SYSTEM_ERRORS=no"
 )
 
-add_definitions(-DBOOST_TEST_DYN_LINK -D_WEBSOCKETPP_CPP11_STL_ -pthread)
+add_definitions(-DBOOST_TEST_DYN_LINK -D_WEBSOCKETPP_CPP11_STL_)
 
 add_library(base_test EXCLUDE_FROM_ALL BaseTest.cpp)
 set_property(TARGET base_test
@@ -24,16 +24,12 @@ target_link_libraries(base_test
 if(NOT DEFINED DISABLE_NETWORK_TESTS OR NOT ${DISABLE_NETWORK_TESTS})
 
 add_test_program(test_server_json server_json_test.cpp)
-add_dependencies(test_server_json
-  kurento-media-server
-  base_test
-)
+add_dependencies(test_server_json kurento-media-server)
 target_link_libraries(test_server_json
   ${KMSCORE_LIBRARIES}
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-  -pthread
   base_test
 )
 set_property(TARGET test_server_json
@@ -47,16 +43,12 @@ set(ENABLE_RESOUCES_CHECKS FALSE CACHE BOOL "Enable resouce limits tests")
 
 if(${ENABLE_RESOUCES_CHECKS})
   add_test_program(test_resources_limit resources_limit_test.cpp)
-  add_dependencies(test_resources_limit
-    kurento-media-server
-    base_test
-  )
+  add_dependencies(test_resources_limit kurento-media-server)
   target_link_libraries(test_resources_limit
     ${KMSCORE_LIBRARIES}
     ${Boost_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-    -pthread
     base_test
   )
   set_property(TARGET test_resources_limit
@@ -68,16 +60,12 @@ if(${ENABLE_RESOUCES_CHECKS})
 endif()
 
 add_test_program(test_server_events server_events_test.cpp)
-add_dependencies(test_server_events
-  kurento-media-server
-  base_test
-)
+add_dependencies(test_server_events kurento-media-server)
 target_link_libraries(test_server_events
   ${KMSCORE_LIBRARIES}
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-  -pthread
   base_test
 )
 set_property(TARGET test_server_events
@@ -88,17 +76,13 @@ set_property(TARGET test_server_events
 )
 
 add_test_program(test_server_json_session server_json_session.cpp)
-add_dependencies(test_server_json_session
-  kurento-media-server
-  base_test
-)
+add_dependencies(test_server_json_session kurento-media-server)
 
 target_link_libraries(test_server_json_session
   ${KMSCORE_LIBRARIES}
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-  -pthread
   base_test
 )
 set_property(TARGET test_server_json_session
@@ -109,16 +93,12 @@ set_property(TARGET test_server_json_session
 )
 
 add_test_program(test_server_duplicate_requests server_duplicate_requests.cpp )
-add_dependencies(test_server_duplicate_requests
-  kurento-media-server
-  base_test
-)
+add_dependencies(test_server_duplicate_requests kurento-media-server)
 target_link_libraries(test_server_duplicate_requests
   ${KMSCORE_LIBRARIES}
   ${Boost_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-  -pthread
   base_test
 )
 set_property(TARGET test_server_duplicate_requests
@@ -136,7 +116,6 @@ target_link_libraries(test_config_read
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
   ${Boost_LIBRARIES}
   ${KMSCORE_LIBRARIES}
-  -pthread
 )
 set_property(TARGET test_config_read
   PROPERTY INCLUDE_DIRECTORIES
@@ -152,7 +131,6 @@ target_link_libraries(test_registrar
   ${Boost_LIBRARIES}
   ${KMSCORE_LIBRARIES}
   ${OPENSSL_LIBRARIES}
-  -pthread
 )
 set_property(TARGET test_registrar
   PROPERTY INCLUDE_DIRECTORIES
