@@ -45,6 +45,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DGST_DISABLE_DEPRECATED")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGST_DISABLE_DEPRECATED")
 
+include(GenericFind)
+generic_find(LIBNAME KMSCORE VERSION ^6.6.0 REQUIRED)
+
 # Generate file "config.h"
 check_version_internal(>=2.6.2 sigc++-2.0_VERSION OUTPUT_ERROR)
 if(DEFINED OUTPUT_ERROR AND NOT ${OUTPUT_ERROR} EQUAL "")
@@ -61,16 +64,12 @@ set(CUSTOM_PREFIX "kurento")
 set(INCLUDE_PREFIX "include/${CUSTOM_PREFIX}")
 set(LIB_PREFIX "lib")
 
-include(GenericFind)
-
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 generic_find(LIBNAME Boost COMPONENTS system filesystem program_options unit_test_framework thread log REQUIRED)
 
 find_package(OpenSSL REQUIRED)
-
-generic_find(LIBNAME KMSCORE VERSION ^6.6.0 REQUIRED)
 
 find_package(PkgConfig)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
