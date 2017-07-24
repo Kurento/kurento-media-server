@@ -1,3 +1,26 @@
+kurento-media-server-6.0 (6.6.2) testing; urgency=medium
+
+  [ Juan Navarro Moreno ]
+
+  * Changed
+    - Old ChangeLog.md moved to the new format in this CHANGELOG.md file.
+    - CMake: Full review of all CMakeLists.txt files to tidy up and homogenize
+      code style and compiler flags.
+    - CMake: Position Independent Code flags ("-fPIC") were scattered around
+      projects, and are now removed. Instead, the more CMake-idiomatic variable
+      "CMAKE_POSITION_INDEPENDENT_CODE" is used.
+    - CMake: All projects now compile with
+      "[-std=c11|-std=c++11] -Wall -Werror -pthread".
+    - CMake: Debug builds now compile with "-g -O0" (while default CMake used
+      "-O1" for Debug builds).
+    - CMake: include() and import() commands were moved to the code areas where
+      they are actually required.
+
+  * Fixed
+    - Fix missing header in "server/loadConfig.cpp".
+
+ -- Juan Navarro Moreno <juan.navarro@gmx.es>  Fri, 24 Jul 2017 11:00:00 +0200
+
 kurento-media-server-6.0 (6.6.1) testing; urgency=medium
 
   [ Jose Antonio Santos Cadenas ]
