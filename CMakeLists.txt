@@ -13,7 +13,7 @@ find_package(KurentoHelpers REQUIRED)
 
 include(KurentoGitHelpers)
 install_git_hook(pre-commit ${CMAKE_CURRENT_SOURCE_DIR}/hooks/pre-commit.hook)
-get_git_version(PROJECT_VERSION 6.6.2)
+get_git_version(PROJECT_VERSION 6.7.0-dev)
 message(STATUS "Project version: ${PROJECT_NAME}-${PROJECT_VERSION}")
 
 # Set GCC flags common to all projects
