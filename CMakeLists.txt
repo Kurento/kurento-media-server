@@ -28,7 +28,8 @@ set(CMAKE_C_FLAGS_DEBUG   "-g -O0") # FIXME Ideal is '-Og' but a bug in GCC prev
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0") # causing "may be used uninitialized" errors: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58455
 set(CMAKE_C_FLAGS_RELEASE   "-DNDEBUG -O2") # CMake adds '-O3' by default
 set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O2") # but currently only '-O2' is tested
-set(CMAKE_POSITION_INDEPENDENT_CODE ON) # Use "-fPIC" for all targets, including static libs
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # Use '-fPIC'/'-fPIE' for all targets by default, including static libs
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie") # FIXME CMake doesn't add '-pie' by default for executables (CMake issue #14983)
 
 # FIXME Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
 include(CheckCXXCompilerFlag)
