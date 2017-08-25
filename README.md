@@ -31,62 +31,41 @@ provides the following features:
 Compilation instructions
 ------------------------
 
-First you need to install dependencies, there are various ways, here we describe
-one that is pretty simple and automated:
+Please check the section [Developing KMS](https://github.com/Kurento/doc-kurento/blob/master/static/kms-development-guide.md#developing-kms) in the **KMS Development Guide**.
 
-```
-  echo "deb http://ubuntu.kurento.org trusty-dev kms6" | sudo tee /etc/apt/sources.list.d/kurento-dev.list
-  wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
-  sudo apt-get update
-  sudo apt-get install $(cat debian/control | sed -e "s/$/\!\!/g" | tr -d '\n' | sed "s/\!\! / /g" | sed "s/\!\!/\n/g" | grep "Build-Depends" | sed "s/Build-Depends: //g" | sed "s/([^)]*)//g" | sed "s/, */ /g")
-```
-
-Then you can compile the server, just execute:
-
-```
-  mkdir -p build
-  cd build
-  cmake ..
-  make -j4
-```
-
-If you want to create a debian package you can execute:
-
-```
-  sudo apt-get install devscripts
-  git submodule update --init --recursive
-  debuild -us -uc
-```
-
-Debian packages will be created on parent directory.
-
-Binary distribution
+Binary installation
 -------------------
 
-This software is distributed as debian packages, you can find stable releases
-here using our debian repository.
+This software is distributed as Debian packages, here you can find both stable releases and development snapshots, using our Debian repositories. To install, follow the next steps.
 
-To install just execute:
+First, add the Kurento repository to Apt. Run as root:
 
 ```
-  echo "deb http://ubuntu.kurento.org trusty kms6" | sudo tee /etc/apt/sources.list.d/kurento.list
-  wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
-  sudo apt-get update
-  sudo apt-get install kurento-server
+# Choose one:
+REPO="trusty"      # KMS Release for Ubuntu 14.04 (Trusty)
+REPO="trusty-dev"  # KMS Develop for Ubuntu 14.04 (Trusty)
+REPO="xenial"      # KMS Release for Ubuntu 16.04 (Xenial)
+REPO="xenial-dev"  # KMS Develop for Ubuntu 16.04 (Xenial)
+
+tee /etc/apt/sources.list.d/kurento.list > /dev/null <<EOF
+# Kurento Packages repository
+deb http://ubuntu.kurento.org ${REPO} kms6
+EOF
+wget http://ubuntu.kurento.org/kurento.gpg.key -O - | apt-key add -
+apt-get update
+```
+
+**Note**: Run only _one_ of the lines that set the variable `REPO`. The suffix `-dev` indicates a development repository, and may contain unstable packages. For a production system, choose the repo without that suffix.
+
+Now, Kurento Media Server can be installed from the Kurento repo. Run as root:
+
+```
+apt-get install kurento-server
 ```
 
 You can also find current development version at:
 
 http://ubuntu.kurento.org/pool/main/k/kurento-media-server/
-
-To install packages from unstable repository you need to execute:
-
-```
-  echo "deb http://ubuntu.kurento.org trusty-dev kms6" | sudo tee /etc/apt/sources.list.d/kurento-dev.list
-  wget -O - http://ubuntu.kurento.org/kurento.gpg.key | sudo apt-key add -
-  sudo apt-get update
-  sudo apt-get install kurento-media-server-6.0
-```
 
 Kurento
 =======
@@ -94,12 +73,12 @@ Kurento
 What is Kurento
 ---------------
 
-Kurento is an open source software project providing a platform suitable 
+Kurento is an open source software project providing a platform suitable
 for creating modular applications with advanced real-time communication
 capabilities. For knowing more about Kurento, please visit the Kurento
 project website: http://www.kurento.org.
 
-Kurento is part of [FIWARE]. For further information on the relationship of 
+Kurento is part of [FIWARE]. For further information on the relationship of
 FIWARE and Kurento check the [Kurento FIWARE Catalog Entry]
 
 Kurento is part of the [NUBOMEDIA] research initiative.
