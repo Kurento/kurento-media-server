@@ -19,9 +19,9 @@ ulimit -c unlimited
 #unlimit open files
 ulimit -n $((($(cat /proc/sys/fs/file-max) * 50) / 100 ))
 
-# Next line enables debug for some kurento classes it can be modified to change
-# log level and logged tags
-export GST_DEBUG=1,Kurento*:5
+# Logging level
+# See https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gst-running.html
+export GST_DEBUG=3,Kurento*:4,kms*:4
 
 # whom the daemons should run as
 DAEMON_USER=kurento
