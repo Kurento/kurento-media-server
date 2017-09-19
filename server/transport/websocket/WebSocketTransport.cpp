@@ -419,9 +419,9 @@ void WebSocketTransport::processMessage (ServerType *s,
     /* Ignore, there is no previous sessionId */
   }
 
-  GST_DEBUG ("Message: >%s<", request.c_str() );
+  GST_DEBUG ("Message: %s", request.c_str() );
   sessionId = processor->process (request, response, sessionId);
-  GST_DEBUG ("Response: >%s<", response.c_str() );
+  GST_DEBUG ("Response: %s", response.c_str() );
 
   storeConnection (request, response, hdl,
                    std::is_same<ServerType, SecureWebSocketServer>::value, sessionId);
