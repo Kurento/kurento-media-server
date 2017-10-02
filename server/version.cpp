@@ -32,14 +32,14 @@ print_version ()
 {
   kurento::ModuleManager &moduleManager = kurento::getModuleManager();
 
-  std::cout << "Version: " << PROJECT_VERSION << std::endl;
+  std::cout << "Kurento Media Server version: " << get_version() << std::endl;
 
   if (moduleManager.getModules().size () > 0) {
     std::cout << "Found modules:" << std::endl;
 
     for (auto module : moduleManager.getModules() ) {
-      std::cout << "\tModule: '" << module.second->getName() << "' version '" <<
-                module.second->getVersion() << "'" << std::endl;
+      std::cout << "\t'" << module.second->getName() << "' version " <<
+                module.second->getVersion() << std::endl;
     }
   }
 }
