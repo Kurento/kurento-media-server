@@ -252,14 +252,14 @@ main (int argc, char **argv)
   /* Start transport */
   transport->start ();
 
-  GST_INFO ("Mediaserver started");
+  GST_INFO ("Kurento Media Server started");
 
   loop->run ();
 
   transport->stop();
   MediaSet::deleteMediaSet();
 
-  GST_INFO ("Mediaserver stopped");
+  GST_INFO ("Kurento Media Server stopped");
 
   return 0;
 }

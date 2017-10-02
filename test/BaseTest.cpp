@@ -89,7 +89,7 @@ F::start_server ()
   binary_dir = getenv ("SERVER_DIR");
 
   if (conf_file == NULL) {
-    BOOST_FAIL ("No configuration file for mediaserver");
+    BOOST_FAIL ("No configuration file for Kurento Media Server");
   }
 
   // Find an empty port
@@ -354,7 +354,7 @@ F::start ()
   id = 0;
 
   start_server();
-  BOOST_REQUIRE_MESSAGE (pid > 0, "Error launching mediaserver");
+  BOOST_REQUIRE_MESSAGE (pid > 0, "Error launching Kurento Media Server");
 
   clientThread = std::thread (std::bind (&F::start_client, this) );
 
