@@ -17,7 +17,7 @@ Build-Depends:
  libboost-thread-dev,
  libboost-log-dev,
  libevent-dev,
- libssl-dev
+ libssl-dev (>= 1.0.2), libssl-dev (<< 1.1.0) | libssl1.0-dev
 Standards-Version: 3.9.4
 
 Package: kurento-media-server-6.0
