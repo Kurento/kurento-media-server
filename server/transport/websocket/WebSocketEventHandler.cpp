@@ -15,8 +15,10 @@
  *
  */
 
-#include <gst/gst.h>
 #include "WebSocketEventHandler.hpp"
+
+#include <gst/gst.h>
+#include <json/json.h>
 #include <jsonrpc/JsonRpcConstants.hpp>
 
 #define GST_CAT_DEFAULT kurento_websocket_event_handler
@@ -38,7 +40,7 @@ void
 WebSocketEventHandler::sendEvent (Json::Value &value)
 {
   try {
-    Json::FastWriter writer;
+    Json::StreamWriterBuilder strBuilder;
     Json::Value rpc;
     Json::Value event;
     std::string eventStr;
@@ -49,8 +51,9 @@ WebSocketEventHandler::sendEvent (Json::Value &value)
     rpc [JSON_RPC_METHOD] = "onEvent";
     rpc [JSON_RPC_PARAMS] = event;
 
-    eventStr = writer.write (rpc);
-    GST_DEBUG ("Sending event: %s -> %s", eventStr.c_str(),
+    strBuilder["indentation"] = "";
+    eventStr = Json::writeString (strBuilder, rpc);
+    GST_DEBUG ("Sending event: %s, sessionId: %s", eventStr.c_str(),
                sessionId.c_str() );
 
     try {
