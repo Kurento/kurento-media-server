@@ -20,8 +20,15 @@ ulimit -c unlimited
 ulimit -n $((($(cat /proc/sys/fs/file-max) * 50) / 100 ))
 
 # Logging level
-# See https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gst-running.html
-export GST_DEBUG=3,Kurento*:4,kms*:4
+# - See https://github.com/Kurento/doc-kurento/blob/master/static/kms_development_guide.md#logging-levels-and-categories
+# - See https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gst-running.html
+export GST_DEBUG="3,Kurento*:4,kms*:4"
+
+# ICE debug logging: uncomment to enable in KMS and in the 3rd-party library 'libnice'
+# - Note: This can get very verbose, log size will explode in the long term
+#export GST_DEBUG="$GST_DEBUG,kmsiceniceagent:5,kmswebrtcsession:5,webrtcendpoint:4"
+#export G_MESSAGES_DEBUG="libnice,libnice-stun"
+#export NICE_DEBUG="$G_MESSAGES_DEBUG"
 
 # whom the daemons should run as
 DAEMON_USER=kurento
