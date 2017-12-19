@@ -85,7 +85,13 @@ enable_testing()
 
 add_subdirectory(test)
 
+
 include(GNUInstallDirs)
 install(FILES kurento.conf.json sdp_pattern.txt DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${CUSTOM_PREFIX})
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/config)
+get_filename_component(CONFIG_FILE kurento.conf.json ABSOLUTE)
+execute_process(COMMAND ln -fs ${CONFIG_FILE} ${CMAKE_BINARY_DIR}/config/)
+
 
 add_subdirectory(scaffold)
