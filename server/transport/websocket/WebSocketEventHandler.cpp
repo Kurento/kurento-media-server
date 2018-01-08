@@ -40,7 +40,6 @@ void
 WebSocketEventHandler::sendEvent (Json::Value &value)
 {
   try {
-    Json::StreamWriterBuilder strBuilder;
     Json::Value rpc;
     Json::Value event;
     std::string eventStr;
@@ -51,8 +50,9 @@ WebSocketEventHandler::sendEvent (Json::Value &value)
     rpc [JSON_RPC_METHOD] = "onEvent";
     rpc [JSON_RPC_PARAMS] = event;
 
-    strBuilder["indentation"] = "";
-    eventStr = Json::writeString (strBuilder, rpc);
+    Json::StreamWriterBuilder writerFactory;
+    writerFactory["indentation"] = "";
+    eventStr = Json::writeString (writerFactory, rpc);
     GST_DEBUG ("Sending event: %s, sessionId: %s", eventStr.c_str(),
                sessionId.c_str() );
 

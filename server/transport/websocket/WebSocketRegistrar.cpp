@@ -215,7 +215,6 @@ WebSocketRegistrar::connectionOpen (std::shared_ptr<ClientType> client,
 {
   Json::Value req;
   Json::Value params;
-  Json::FastWriter writer;
   std::string request;
 
   waitTime = DEFAULT_WAIT_TIME;
@@ -235,7 +234,9 @@ WebSocketRegistrar::connectionOpen (std::shared_ptr<ClientType> client,
 
   req["params"] = params;
 
-  request = writer.write (req);
+  Json::StreamWriterBuilder writerFactory;
+  writerFactory["indentation"] = "";
+  request = Json::writeString (writerFactory, req);
   GST_DEBUG ("Registrar open, sending message: %s", request.c_str() );
 
   try {

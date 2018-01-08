@@ -91,7 +91,6 @@ private:
   std::thread clientThread;
 
   Json::Reader reader;
-  Json::FastWriter writer;
 
   bool sendingMessage;
   std::list <Json::Value> recvMessages;

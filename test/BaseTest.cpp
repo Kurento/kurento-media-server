@@ -196,7 +196,10 @@ Json::Value F::sendRequest (const Json::Value &request)
   BOOST_REQUIRE_MESSAGE (!sendingMessage, "Already sending a message");
 
   sendingMessage = true;
-  client->send (connectionHdl, writer.write (request),
+
+  Json::StreamWriterBuilder writerFactory;
+  writerFactory["indentation"] = "";
+  client->send (connectionHdl, Json::writeString (writerFactory, request),
                 websocketpp::frame::opcode::text);
 
   requestId = request[JSON_RPC_ID].asString();

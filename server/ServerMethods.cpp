@@ -243,7 +243,6 @@ ServerMethods::process (const std::string &requestStr, std::string &responseStr,
   Json::Value request;
   bool parse = false;
   Json::Reader reader;
-  Json::FastWriter writer;
   std::string newSessionId;
 
   parse = reader.parse (requestStr, request);
@@ -266,7 +265,9 @@ ServerMethods::process (const std::string &requestStr, std::string &responseStr,
   }
 
   if (response != Json::Value::null) {
-    responseStr = writer.write (response);
+    Json::StreamWriterBuilder writerFactory;
+    writerFactory["indentation"] = "";
+    responseStr = Json::writeString (writerFactory, response);
   }
 
   return newSessionId;
@@ -305,13 +306,10 @@ ServerMethods::preProcess (const Json::Value &request, Json::Value &response)
 void
 ServerMethods::postProcess (const Json::Value &request, Json::Value &response)
 {
-  Json::FastWriter writer;
   std::string sessionId;
   std::string requestId;
 
   try {
-    Json::Reader reader;
-
     JsonRpc::getValue (request, JSON_RPC_ID, requestId);
 
     try {
