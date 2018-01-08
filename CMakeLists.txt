@@ -16,20 +16,9 @@ install_git_hook(pre-commit ${CMAKE_CURRENT_SOURCE_DIR}/hooks/pre-commit.hook)
 get_git_version(PROJECT_VERSION 6.7.0-dev)
 message(STATUS "Project version: ${PROJECT_NAME}-${PROJECT_VERSION}")
 
-# Set GCC flags common to all projects
-# Note: Flags added from dpkg-buildflags (if installed):
-# -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2
-include(DpkgBuildFlags)
-get_dpkg_buildflags_c(DPKG_BUILDFLAGS_C)
-get_dpkg_buildflags_cxx(DPKG_BUILDFLAGS_CXX)
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${DPKG_BUILDFLAGS_C}   -std=c11   -Wall -Werror -pthread")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DPKG_BUILDFLAGS_CXX} -std=c++11 -Wall -Werror -pthread")
-set(CMAKE_C_FLAGS_DEBUG   "-g -O0") # FIXME Ideal is '-Og' but a bug in GCC prevents this,
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0") # causing "may be used uninitialized" errors: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58455
-set(CMAKE_C_FLAGS_RELEASE   "-DNDEBUG -O2") # CMake adds '-O3' by default
-set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O2") # but currently only '-O2' is tested
-set(CMAKE_POSITION_INDEPENDENT_CODE ON) # Use '-fPIC'/'-fPIE' for all targets by default, including static libs
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie") # FIXME CMake doesn't add '-pie' by default for executables (CMake issue #14983)
+# Compiler flags
+include(CommonBuildFlags)
+common_buildflags_set()
 
 # FIXME Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
 include(CheckCXXCompilerFlag)
