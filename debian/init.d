@@ -23,7 +23,7 @@ START_DAEMON=false
 
 # Include stun defaults if available
 if [ -f /etc/default/kurento-media-server ] ; then
-	. /etc/default/kurento-media-server
+    . /etc/default/kurento-media-server
 fi
 
 if [ "$START_DAEMON" != "true" ]; then
@@ -36,20 +36,18 @@ if [ ! -x $DAEMON_CMD ]; then
     exit 1
 fi
 
-#Helper function to verify user
-verify_user () {
 # Only root can start Kurento
-    if [ `id -u` -ne 0 ]; then
-        log_failure_msg "Only root can start Kurento Media Server"
+verify_user() {
+    [ $(id -u) -eq 0 ] || {
+        log_failure_msg "Kurento Media Server must be started by root"
         exit 1
-    fi
+    }
 }
 
 # Helper function to check status
 check_status() {
     pidofproc -p  $PID_FILE $DAEMON_CMD >/dev/null 2>&1
 }
-
 
 start_kurento () {
 
@@ -59,20 +57,26 @@ start_kurento () {
     if [ ! -e /var/run ]; then
         install -d -m755 /var/run || { log_failure_msg "Unable to access /var/run directory"; exit 1; }
     fi
+
     # Verify log directory exists
     if [ ! -e $DAEMON_LOG ]; then
         install -d -o$DAEMON_USER -m755 $DAEMON_LOG || { log_failure_msg "Unable to access $DAEMON_LOG"; exit 1; }
     fi
+
     # Make sure the directory belongs to $DAEMON_USER
-    sudo -u $DAEMON_USER -H [ -O $DAEMON_LOG ]
-    if [ $? != 0 ]; then
-        chown $DAEMON_USER $DAEMON_LOG || { log_failure_msg "Unable to access $DAEMON_LOG"; exit 1; }
-    fi
-   /sbin/start-stop-daemon --start --exec $DAEMON_CMD --pidfile "$PID_FILE" \
+    [ "$(stat -c '%U' $DAEMON_LOG)" = "$DAEMON_USER" ] || {
+        log_warning_msg "'$DAEMON_LOG' should be owned by '$DAEMON_USER'"
+        chown "$DAEMON_USER" "$DAEMON_LOG" || {
+            log_failure_msg "Cannot change owner of '$DAEMON_LOG' to '$DAEMON_USER'"
+            exit 1
+        }
+    }
+
+    /sbin/start-stop-daemon --start --exec $DAEMON_CMD --pidfile "$PID_FILE" \
         --chuid $DAEMON_USER --background --no-close --make-pidfile 1>>"$DAEMON_LOG/media-server_error.log" 2>&1
     if [ $? != 0 ]; then
         log_failure_msg "Kurento Media Server already started"
-	return
+        return
     fi
 }
 
