@@ -6,6 +6,7 @@ Build-Depends:
  cmake,
  debhelper (>= 7.0.50),
  binutils,
+ kms-cmake-utils (>= 1.5.0),
  kms-core-6.0-dev (>= 6.6.2),
  kms-elements-6.0-dev (>= 6.6.2),
  kms-filters-6.0-dev (>= 6.6.2),
@@ -59,6 +60,7 @@ Package: kurento-media-server-6.0-dev
 Architecture: any
 Depends: ${misc:Depends},
  kurento-media-server-6.0 (= ${binary:Version}),
+ kms-cmake-utils (>= 1.5.0),
  kms-core-6.0-dev,
  kms-filters-6.0-dev,
  kms-elements-6.0-dev
