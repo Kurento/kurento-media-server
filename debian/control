@@ -61,7 +61,7 @@ Description: Kurento Media Server
 Package: kurento-media-server-dbg
 Architecture: any
 Section: debug
-Depends: kurento-media-server-6.0 (= ${binary:Version}),
+Depends: kurento-media-server (= ${binary:Version}),
  ${misc:Depends},
  kms-core-dbg,
  kms-elements-dbg,
