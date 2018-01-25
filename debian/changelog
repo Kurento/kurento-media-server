@@ -1,3 +1,26 @@
+kurento-media-server (6.7.0) testing; urgency=medium
+
+  [ Juan Navarro Moreno ]
+  * Remove version numbers from package names
+  * Align all version numbers of KMS-related modules
+  * Updates to debian/control:
+    - Maintainer: Kurento <kurento@googlegroups.com>
+    - Standards-Version: 4.0.0
+    - Homepage: www.kurento.org (let server redirect to HTTPS if available)
+    - Vcs-Git: https://github.com/Kurento/*.git (use secure URL)
+    - Section: libs|libdevel|devel|debug|video (set appropriate one for
+      each binary package)
+    - Description: Review description text
+  * Updates to debian/copyright:
+    - Refer to '/usr/share/common-licenses/Apache-2.0' rather than
+      quoting the license text.
+    - Other licenses: Review formatting and use correct syntax.
+  * Updates to debian/docs:
+    - Added file CHANGELOG.md
+  * Prepare release 6.7.0
+
+ -- Juan Navarro Moreno <juan.navarro@gmx.es>  Wed, 25 Jan 2018 13:05:00 +0100
+
 kurento-media-server-6.0 (6.6.2) testing; urgency=medium
 
   [ Juan Navarro Moreno ]

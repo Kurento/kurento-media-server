@@ -1,78 +1,72 @@
-Source: kurento-media-server-6.0
-Section: net
+Source: kurento-media-server
+Maintainer: Kurento <kurento@googlegroups.com>
 Priority: optional
-Maintainer: Kurento Maintenance Team <kurento@googlegroups.com>
-Build-Depends:
- cmake,
- debhelper (>= 7.0.50),
+Build-Depends: debhelper (>= 9),
  binutils,
- kms-cmake-utils (>= 1.5.0),
- kms-core-6.0-dev (>= 6.6.2),
- kms-elements-6.0-dev (>= 6.6.2),
- kms-filters-6.0-dev (>= 6.6.2),
+ cmake,
  libboost-dev,
- libboost-system-dev,
  libboost-filesystem-dev,
+ libboost-log-dev,
  libboost-program-options-dev,
+ libboost-system-dev,
  libboost-test-dev,
  libboost-thread-dev,
- libboost-log-dev,
  libevent-dev,
- libssl-dev (>= 1.0.2), libssl-dev (<< 1.1.0) | libssl1.0-dev
-Standards-Version: 3.9.4
+ libssl-dev (>= 1.0.2),
+ libssl-dev (<< 1.1.0) | libssl1.0-dev,
+ kms-cmake-utils (>= 6.7.0),
+ kms-core-dev (>= 6.7.0),
+ kms-elements-dev (>= 6.7.0),
+ kms-filters-dev (>= 6.7.0)
+Standards-Version: 4.0.0
+Homepage: www.kurento.org
+Vcs-Browser: https://github.com/Kurento/kurento-media-server
+Vcs-Git: https://github.com/Kurento/kurento-media-server.git
 
-Package: kurento-media-server-6.0
+Package: kurento-media-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
+Section: video
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
  binutils,
- libgstreamer1.5-0 (>= 1.7.0~0),
- gstreamer1.5-plugins-base (>= 1.7.0~0),
  gstreamer1.5-libav (>= 1.7.0~0),
  gstreamer1.5-plugins-bad (>= 1.7.0~0),
+ gstreamer1.5-plugins-base (>= 1.7.0~0),
  gstreamer1.5-plugins-good (>= 1.7.0~0),
  gstreamer1.5-plugins-ugly (>= 1.7.0~0),
- kms-elements-6.0 (>= 6.6.2),
- kms-filters-6.0 (>= 6.6.2),
- kms-core-6.0 (>= 6.6.2)
-Replaces:
- kurento,
- kurento-media-server
-Breaks:
- kurento,
- kurento-media-server
-Conflicts: kurento
+ libgstreamer1.5-0 (>= 1.7.0~0),
+ kms-core (>= 6.7.0),
+ kms-elements (>= 6.7.0),
+ kms-filters (>= 6.7.0)
+Breaks: kurento-media-server-6.0
+Replaces: kurento-media-server-6.0
 Description: Kurento Media Server
- The Kurento Media Server processes audio and video streams,
- doing composable pipeline-based processing or media.
+ KMS is a WebRTC-compatible server that processes audio and video streams,
+ doing composable pipeline-based processing of media.
 
-Package: kurento-media-server-6.0-dbg
+Package: kurento-media-server-dev
 Architecture: any
-Depends: ${misc:Depends},
- kurento-media-server-6.0 (= ${binary:Version}),
- kms-core-6.0-dbg
-Breaks:
- kurento-media-server-dbg
-Replaces:
- kurento-media-server-dbg
-Description: Debugging symbols for Kurento Media Server
+Section: devel
+Depends: kurento-media-server (= ${binary:Version}),
+ ${misc:Depends},
+ kms-cmake-utils (>= 6.7.0),
+ kms-core-dev,
+ kms-elements-dev,
+ kms-filters-dev
+Breaks: kurento-media-server-6.0-dev
+Replaces: kurento-media-server-6.0-dev
+Description: Kurento Media Server
+ Development files
 
-Package: kurento-media-server-6.0-dev
+Package: kurento-media-server-dbg
 Architecture: any
-Depends: ${misc:Depends},
- kurento-media-server-6.0 (= ${binary:Version}),
- kms-cmake-utils (>= 1.5.0),
- kms-core-6.0-dev,
- kms-filters-6.0-dev,
- kms-elements-6.0-dev
-Breaks:
- kurento-media-server-dev
-Replaces:
- kurento-media-server-dev
-Description: Kurento media server, development files and tools
-
-Package: kurento-server
-Architecture: any
-Depends:
- kurento-media-server-6.0 (= ${binary:Version})
-Description: Meta package for kurento server side
- This packages install all required server programs for kurento
+Section: debug
+Depends: kurento-media-server-6.0 (= ${binary:Version}),
+ ${misc:Depends},
+ kms-core-dbg,
+ kms-elements-dbg,
+ kms-filters-dbg
+Breaks: kurento-media-server-6.0-dbg
+Replaces: kurento-media-server-6.0-dbg
+Description: Kurento Media Server
+ Debugging symbols

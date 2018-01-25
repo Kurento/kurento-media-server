@@ -1,9 +1,10 @@
+name: kurento-media-server
 dependencies:
   - name: kms-cmake-utils
-    version: ">= 1.5.0"
+    version: ">= 6.7.0"
   - name: kms-core
-    version: ">= 6.6.2"
+    version: ">= 6.7.0"
   - name: kms-elements
-    version: ">= 6.6.2"
+    version: ">= 6.7.0"
   - name: kms-filters
-    version: ">= 6.6.2"
+    version: ">= 6.7.0"

@@ -13,7 +13,7 @@ find_package(KurentoHelpers REQUIRED)
 
 include(KurentoGitHelpers)
 install_git_hook(pre-commit ${CMAKE_CURRENT_SOURCE_DIR}/hooks/pre-commit.hook)
-get_git_version(PROJECT_VERSION 6.7.0-dev)
+get_git_version(PROJECT_VERSION 6.7.0)
 message(STATUS "Project version: ${PROJECT_NAME}-${PROJECT_VERSION}")
 
 # Compiler flags
@@ -36,7 +36,7 @@ set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DGST_DISABLE_DEPRECATED")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGST_DISABLE_DEPRECATED")
 
 include(GenericFind)
-generic_find(LIBNAME KMSCORE VERSION ^6.6.0 REQUIRED)
+generic_find(LIBNAME KMSCORE VERSION ^6.7.0 REQUIRED)
 
 # Generate file "config.h"
 check_version_internal(>=2.6.2 sigc++-2.0_VERSION OUTPUT_ERROR)
