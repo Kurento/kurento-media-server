@@ -191,9 +191,9 @@ main (int argc, char **argv)
 
     if (vm.count ("logs-path") ) {
       if (kms_init_logging (logs_path, fileSize, fileNumber) ) {
-        GST_DEBUG ("Dumping logs to %s", logs_path.c_str() );
+        GST_INFO ("Logs storage path set to %s", logs_path.c_str() );
       } else {
-        GST_WARNING ("Cannot set logs path to %s", logs_path.c_str() );
+        GST_WARNING ("Cannot set logs storage path to %s", logs_path.c_str() );
       }
     }
 

@@ -216,7 +216,7 @@ kms_init_logging (const std::string &path, int fileSize, int fileNumber)
 
   boost::shared_ptr< sinks::text_file_backend > backend =
     boost::make_shared< sinks::text_file_backend > (
-      keywords::file_name = path + "/" + "media-server_%Y-%m-%d_%H-%M-%S.%5N.pid" +
+      keywords::file_name = path + "/" + "%Y-%m-%d_%H-%M-%S.%5N.pid" +
                             std::to_string (getpid() ) + ".log",
       keywords::rotation_size = fileSize * 1024 * 1024,
       keywords::time_based_rotation = sinks::file::rotation_at_time_point (0, 0, 0)
@@ -236,7 +236,7 @@ kms_init_logging (const std::string &path, int fileSize, int fileNumber)
   );
 
   /* Set up where the rotated files will be stored */
-  init_file_collecting (system_sink, path + "/logs", fileSize, fileNumber);
+  init_file_collecting (system_sink, path, fileSize, fileNumber);
 
   /* Upon restart, scan the directory for files matching the file_name pattern */
   system_sink->locked_backend()->scan_for_files();

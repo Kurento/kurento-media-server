@@ -249,7 +249,7 @@ loadConfig (boost::property_tree::ptree &config, const std::string &file_name,
   boost::property_tree::write_json (oss, config, true);
   std::string infoConfig = oss.str();
 
-  GST_DEBUG ("Effective loaded config:\n%s", infoConfig.c_str() );
+  GST_INFO ("Loaded config in effect:\n%s", infoConfig.c_str() );
 }
 
 } /* kurento */
