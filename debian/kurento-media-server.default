@@ -1,40 +1,73 @@
-# Defaults for kurento initscript
-# sourced by /etc/init.d/kurento-media-server
-# installed at /etc/default/kurento-media-server by the maintainer scripts
-
-#
+# Defaults for kurento-media-server initscript (/etc/init.d/kurento-media-server)
 # This is a POSIX shell fragment
-#
 
-#commment the next line to not allow the init.d script to start kurento server
-START_DAEMON=true
+# Settings loaded by the initscript
+START_DAEMON="true"    # If not "true", the daemon will refuse to load
+DAEMON_ARGS=""         # Passed directly to the kurento-media-server executable
+DAEMON_USER="kurento"  # User as whom Kurento Media Server will run
+DAEMON_LOG_DIR="/var/log/kurento-media-server"  # Where to store daemon logs
 
-# Additional options that are passed to the Daemon.
-DAEMON_OPTS=""
 
-unset GST_PLUGIN_PATH
 
-#enable core dump
-ulimit -c unlimited
-#unlimit open files
-ulimit -n $((($(cat /proc/sys/fs/file-max) * 50) / 100 ))
+# ############ BEGIN Settings for Kurento Media Server ############
 
-# Logging level
-# - See https://github.com/Kurento/doc-kurento/blob/master/static/kms_development_guide.md#logging-levels-and-categories
-# - See https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gst-running.html
+# Most settings can be passed either as environment variables or as
+# command-line arguments.
+# E.g.: KURENTO_LOGS_PATH="/tmp" is equivalent to --logs-path="/tmp"
+
+# Logging level.
+# Command line equivalent: --gst-debug-level, --gst-debug
+# See http://doc-kurento.readthedocs.io/en/latest/features/logging.html
 export GST_DEBUG="3,Kurento*:4,kms*:4"
 
-# ICE debug logging: uncomment to enable in KMS and in the 3rd-party library 'libnice'
-# - Note: This can get very verbose, log size will explode in the long term
+# ICE logging: uncomment to enable in KMS and the 3rd-party library 'libnice'.
+# Note: This can get very verbose, log file will grow fast.
 #export GST_DEBUG="$GST_DEBUG,kmsiceniceagent:5,kmswebrtcsession:5,webrtcendpoint:4"
 #export G_MESSAGES_DEBUG="libnice,libnice-stun"
 #export NICE_DEBUG="$G_MESSAGES_DEBUG"
 
-# whom the daemons should run as
-DAEMON_USER=kurento
+# Path where rotating log files will be stored.
+# If this option is unset, logging will be disabled.
+# Command line equivalent: --logs-path
+# Default: Unset
+export KURENTO_LOGS_PATH="$DAEMON_LOG_DIR"
 
-DAEMON_LOG=/var/log/kurento-media-server
+# Maximum file size for log files, in MB.
+# Command line equivalent: --log-file-size
+# Default: 100
+#export KURENTO_LOG_FILE_SIZE=100
 
-export KURENTO_LOGS_PATH=$DAEMON_LOG
-#export KURENTO_LOG_FILE_SIZE=300
-#export KURENTO_NUMBER_LOG_FILES=20
+# Maximum number of log files to keep.
+# Command line equivalent: --number-log-files
+# Default: 10
+#export KURENTO_NUMBER_LOG_FILES=10
+
+# Path to the main configuration file for Kurento.
+# Command line equivalent: --conf-file
+# Default: "/etc/kurento/kurento.conf.json"
+#export KURENTO_CONF_FILE="/etc/kurento/kurento.conf.json"
+
+# Path to the directory where Kurento modules can be found.
+# Command line equivalent: --modules-path
+# Default: "/usr/lib"
+#export KURENTO_MODULES_PATH="/usr/lib"
+
+# Path to the directory where config files can be found for Kurento modules.
+# Command line equivalent: --modules-config-path
+# Default: "/etc/kurento/modules"
+#export KURENTO_MODULES_CONFIG_PATH="/etc/kurento/modules"
+
+# ############ END Settings for Kurento Media Server ############
+
+
+
+unset GST_PLUGIN_PATH
+
+# Kernel settings for Core Dumps / Crash Reports
+ulimit -c unlimited
+ulimit -n $((($(cat /proc/sys/fs/file-max) * 50) / 100 ))
+
+# Destination of core files.
+# See https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
+# Default value in Ubuntu desktop systems: '|/usr/share/apport/apport %p %s %c %d %P'.
+#echo '/tmp/core_%e_%p_%u_%t' | tee /proc/sys/kernel/core_pattern >/dev/null

@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 ### BEGIN INIT INFO
 # Provides:          kurento-media-serverd
@@ -16,108 +16,123 @@ else
   exit 1
 fi
 
-# Variables
-PID_FILE=/var/run/kurento-media-server.pid
-DAEMON_CMD=/usr/bin/kurento-media-server
-START_DAEMON=false
+# Default settings
+START_DAEMON="false"
+DAEMON_ARGS=""
+DAEMON_USER="kurento"
+DAEMON_LOG_DIR="/var/log/kurento-media-server"
 
-# Include stun defaults if available
-if [ -f /etc/default/kurento-media-server ] ; then
-    . /etc/default/kurento-media-server
-fi
+# Load user-configurable settings
+[ -f /etc/default/kurento-media-server ] && . /etc/default/kurento-media-server
 
-if [ "$START_DAEMON" != "true" ]; then
-    log_failure_msg "Review activate settings within file /etc/default/kurento-media-server"
+# Non-configurable settings
+DAEMON_BIN="/usr/bin/kurento-media-server"
+PID_FILE="/var/run/kurento-media-server.pid"
+
+[ "$START_DAEMON" != "true" ] && {
+    log_failure_msg "Startup is disabled; enable it in /etc/default/kurento-media-server"
     exit 1
-fi
+}
 
-if [ ! -x $DAEMON_CMD ]; then
-    log_failure_msg "$DAEMON_CMD does not have execution permission"
+[ ! -x "$DAEMON_BIN" ] && {
+    log_failure_msg "File is not executable: $DAEMON_BIN"
     exit 1
-fi
+}
 
 # Only root can start Kurento
 verify_user() {
-    [ $(id -u) -eq 0 ] || {
-        log_failure_msg "Kurento Media Server must be started by root"
+    [ "$(id -u)" -eq 0 ] || {
+        log_failure_msg "Only root can start or stop Kurento Media Server"
         exit 1
     }
 }
 
-# Helper function to check status
-check_status() {
-    pidofproc -p  $PID_FILE $DAEMON_CMD >/dev/null 2>&1
-}
-
-start_kurento () {
-
+start_kurento() {
     verify_user
 
     # Verify pid file directory exists
     if [ ! -e /var/run ]; then
-        install -d -m755 /var/run || { log_failure_msg "Unable to access /var/run directory"; exit 1; }
+        install -d -m755 /var/run || {
+            log_failure_msg "Unable to access /var/run directory"
+            exit 1
+        }
     fi
 
     # Verify log directory exists
-    if [ ! -e $DAEMON_LOG ]; then
-        install -d -o$DAEMON_USER -m755 $DAEMON_LOG || { log_failure_msg "Unable to access $DAEMON_LOG"; exit 1; }
-    fi
-
-    # Make sure the directory belongs to $DAEMON_USER
-    [ "$(stat -c '%U' $DAEMON_LOG)" = "$DAEMON_USER" ] || {
-        log_warning_msg "'$DAEMON_LOG' should be owned by '$DAEMON_USER'"
-        chown "$DAEMON_USER" "$DAEMON_LOG" || {
-            log_failure_msg "Cannot change owner of '$DAEMON_LOG' to '$DAEMON_USER'"
+    [ ! -d "$DAEMON_LOG_DIR" ] && {
+        log_warning_msg "Directory '$DAEMON_LOG_DIR' does not exist"
+        install -d -o "$DAEMON_USER" -m 755 "$DAEMON_LOG_DIR" || {
+            log_failure_msg "Cannot create directory: $DAEMON_LOG_DIR"
             exit 1
         }
+        log_success_msg "Created directory: $DAEMON_LOG_DIR"
     }
 
-    /sbin/start-stop-daemon --start --exec $DAEMON_CMD --pidfile "$PID_FILE" \
-        --chuid $DAEMON_USER --background --no-close --make-pidfile 1>>"$DAEMON_LOG/media-server_error.log" 2>&1
-    if [ $? != 0 ]; then
-        log_failure_msg "Kurento Media Server already started"
+    # Make sure $DAEMON_LOG_DIR belongs to $DAEMON_USER
+    [ "$(stat -c '%U' "$DAEMON_LOG_DIR")" = "$DAEMON_USER" ] || {
+        log_warning_msg "Directory '$DAEMON_LOG_DIR' is not owned by '$DAEMON_USER'"
+        chown "$DAEMON_USER" "$DAEMON_LOG_DIR" || {
+            log_failure_msg "Cannot change owner of '$DAEMON_LOG_DIR' to '$DAEMON_USER'"
+            exit 1
+        }
+        log_success_msg "Changed owner of '$DAEMON_LOG_DIR' to '$DAEMON_USER'"
+    }
+
+    /sbin/start-stop-daemon \
+            --start \
+            --pidfile "$PID_FILE" \
+            --make-pidfile \
+            --exec "$DAEMON_BIN" \
+            --chuid "$DAEMON_USER" \
+            --background \
+            -- $DAEMON_ARGS || {
+        log_warning_msg "Kurento Media Server already started"
         return
-    fi
+    }
 }
 
-stop_kurento () {
+stop_kurento() {
     verify_user
 
-    /sbin/start-stop-daemon --stop --exec $DAEMON_CMD --pidfile "$PID_FILE"
-    [ $? != 0 ] && log_failure_msg "Kurento Media Server not running"
-    [ -f $PID_FILE ] && rm -f $PID_FILE
+    /sbin/start-stop-daemon \
+            --stop \
+            --exec "$DAEMON_BIN" \
+            --pidfile "$PID_FILE" || {
+        log_failure_msg "Kurento Media Server not running"
+    }
+
+    [ -f "$PID_FILE" ] && rm -f "$PID_FILE"
 }
 
-status () {
-    log_action_begin_msg "checking Kurento Media Server"
+status() {
+    log_action_begin_msg "Checking Kurento Media Server"
 
-    check_status
-    status=$?
-    if [ $status -eq 0 ]; then
-        read pid < $PID_FILE
-        log_action_cont_msg "$DAEMON_CMD is running with pid $pid"
+    status="$(pidofproc -p "$PID_FILE" "$DAEMON_BIN" >/dev/null 2>&1)"
+    if [ "$status" -eq 0 ]; then
+        read -r pid < "$PID_FILE"
+        log_action_cont_msg "$DAEMON_BIN is running with pid $pid"
         log_action_end_msg 0
-    elif [ $status -eq 1 ]; then
-        log_action_cont_msg "$DAEMON_CMD is not running but the pid file exists"
+    elif [ "$status" -eq 1 ]; then
+        log_action_cont_msg "$DAEMON_BIN is not running but the pid file exists"
         log_action_end_msg 1
-    elif [ $status -eq 3 ]; then
-        log_action_cont_msg "$DAEMON_CMD is not running"
+    elif [ "$status" -eq 3 ]; then
+        log_action_cont_msg "$DAEMON_BIN is not running"
         log_action_end_msg 3
     else
-        log_action_cont_msg "Unable to determine $DAEMON_CMD status"
+        log_action_cont_msg "Unable to determine $DAEMON_BIN status"
         log_action_end_msg 4
     fi
 }
 
 case "$1" in
   start)
-    log_daemon_msg "Starting Kurento Media Server"
+    log_daemon_msg "Start Kurento Media Server"
     start_kurento
     log_end_msg $?;
     ;;
 
   stop)
-    log_daemon_msg "Stop Kurento Media Server daemon";
+    log_daemon_msg "Stop Kurento Media Server";
     stop_kurento
     log_end_msg $?;
     ;;
