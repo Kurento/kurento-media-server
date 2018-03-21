@@ -1,3 +1,10 @@
+kurento-media-server (6.7.1) testing; urgency=medium
+
+  [ Juan Navarro Moreno ]
+  * Prepare release 6.7.1
+
+ -- Juan Navarro Moreno <juan.navarro@gmx.es>  Wed, 21 Mar 2018 16:20:32 +0100
+
 kurento-media-server (6.7.0) testing; urgency=medium
 
   [ Juan Navarro Moreno ]
