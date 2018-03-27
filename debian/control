@@ -2,7 +2,6 @@ Source: kurento-media-server
 Maintainer: Kurento <kurento@googlegroups.com>
 Priority: optional
 Build-Depends: debhelper (>= 9),
- binutils,
  cmake,
  libboost-dev,
  libboost-filesystem-dev,
