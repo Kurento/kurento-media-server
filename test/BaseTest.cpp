@@ -89,7 +89,7 @@ F::start_server ()
   conf_file = getenv ("MEDIA_SERVER_CONF_FILE");
   binary_dir = getenv ("SERVER_DIR");
 
-  if (conf_file == NULL) {
+  if (conf_file == nullptr) {
     BOOST_FAIL ("No configuration file for Kurento Media Server");
   }
 
@@ -401,7 +401,7 @@ F::stop()
 
 F::F ()
 {
-  gst_init (NULL, NULL);
+  gst_init(nullptr, nullptr);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
 }

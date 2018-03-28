@@ -120,7 +120,7 @@ getNumberOfOpenFiles ()
 
   d = opendir ("/proc/self/fd");
 
-  while ( (dir = readdir (d) ) != NULL) {
+  while ((dir = readdir(d)) != nullptr) {
     openFiles ++;
   }
 

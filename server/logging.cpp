@@ -51,14 +51,17 @@ boost::shared_ptr< sink_t > system_sink;
 static std::string
 debug_object (GObject *object)
 {
-  if (object == NULL) {
+  if (object == nullptr) {
     return "";
   }
 
   if (GST_IS_PAD (object) && GST_OBJECT_NAME (object) ) {
     boost::format fmt ("<%s:%s> ");
-    fmt % (GST_OBJECT_PARENT (object) != NULL ? GST_OBJECT_NAME (GST_OBJECT_PARENT (
-             object) ) : "''") % GST_OBJECT_NAME (object);
+    fmt %
+        (GST_OBJECT_PARENT(object) != nullptr
+             ? GST_OBJECT_NAME(GST_OBJECT_PARENT(object))
+             : "''") %
+        GST_OBJECT_NAME(object);
     return fmt.str();
   }
 
@@ -210,7 +213,7 @@ bool
 kms_init_logging (const std::string &path, int fileSize, int fileNumber)
 {
   gst_debug_remove_log_function (gst_debug_log_default);
-  gst_debug_add_log_function (kms_log_function, NULL, NULL);
+  gst_debug_add_log_function(kms_log_function, nullptr, nullptr);
 
   boost::shared_ptr< logging::core > core = logging::core::get();
 

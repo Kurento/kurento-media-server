@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE ( wss_registrar )
   SecureWebSocketServer server;
   boost::asio::io_service ios;
 
-  gst_init (NULL, NULL);
+  gst_init(nullptr, nullptr);
 
   kurento::WebSocketRegistrar registrar ("wss://localhost:" + std::to_string (
       PORT), LOCAL_ADDRESS, LOCAL_PORT, 0, WS_PATH);
