@@ -37,8 +37,8 @@ static const std::string LOCAL_ADDRESS = "localhost";
 #define LOCAL_PORT_STR xstr(LOCAL_PORT)
 static const std::string WS_PATH = "path";
 static const std::string REGISTRAR_MESSAGE =
-  "{\"jsonrpc\":\"2.0\",\"method\":\"register\",\"params\":{\"ws\":\"ws://" +
-  LOCAL_ADDRESS + ":" + LOCAL_PORT_STR + "/" + WS_PATH + "\"}}";
+    R"({"jsonrpc":"2.0","method":"register","params":{"ws":"ws://)" +
+    LOCAL_ADDRESS + ":" + LOCAL_PORT_STR + "/" + WS_PATH + "\"}}";
 
 static const std::string PASSWORD = "";
 static const boost::filesystem::path

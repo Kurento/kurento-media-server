@@ -180,8 +180,9 @@ ClientHandler::check_transaction_call()
   Json::Reader reader;
   std::string req_str;
 
-  req_str = "{\"id\":" + std::to_string (getId() ) +
-            ",\"jsonrpc\":\"2.0\",\"method\":\"transaction\",\"params\":{\"operations\":[{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{},\"type\":\"MediaPipeline\"}},{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\",\"uri\":\"http://files.kurento.org/video/small.webm\"},\"type\":\"PlayerEndpoint\"}},{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"create\",\"params\":{\"constructorParams\":{\"mediaPipeline\":\"newref:0\"},\"type\":\"WebRtcEndpoint\"}},{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"invoke\",\"params\":{\"object\":\"newref:1\",\"operation\":\"connect\",\"operationParams\":{\"sink\":\"newref:2\"}}}],\"sessionId\":\"b2b81900-2902-4417-a552-973911efec4c\"}}";
+  req_str =
+      "{\"id\":" + std::to_string(getId()) +
+      R"(,"jsonrpc":"2.0","method":"transaction","params":{"operations":[{"id":0,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{},"type":"MediaPipeline"}},{"id":1,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{"mediaPipeline":"newref:0","uri":"http://files.kurento.org/video/small.webm"},"type":"PlayerEndpoint"}},{"id":2,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{"mediaPipeline":"newref:0"},"type":"WebRtcEndpoint"}},{"id":3,"jsonrpc":"2.0","method":"invoke","params":{"object":"newref:1","operation":"connect","operationParams":{"sink":"newref:2"}}}],"sessionId":"b2b81900-2902-4417-a552-973911efec4c"}})";
 
   BOOST_REQUIRE (reader.parse (req_str, request) );
   response = sendRequest (request);
