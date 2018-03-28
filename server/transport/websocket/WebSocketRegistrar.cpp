@@ -20,6 +20,7 @@
 #include <gst/gst.h>
 
 #include <memory>
+#include <utility>
 
 #define GST_CAT_DEFAULT kurento_websocket_registrar
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -33,15 +34,13 @@ const std::chrono::seconds MAX_WAIT_TIME (10);
 
 typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
 
-WebSocketRegistrar::WebSocketRegistrar (const std::string &registrarAddress,
-                                        const std::string &localAddress,
-                                        ushort localPort,
-                                        ushort localSecurePort,
-                                        const std::string &path) :
-  localAddress (localAddress), localPort (localPort),
-  localSecurePort (localSecurePort), path (path),
-  registrarAddress (registrarAddress)
-{
+WebSocketRegistrar::WebSocketRegistrar(const std::string &registrarAddress,
+                                       std::string localAddress,
+                                       ushort localPort, ushort localSecurePort,
+                                       std::string path)
+    : localAddress(std::move(localAddress)), localPort(localPort),
+      localSecurePort(localSecurePort), path(std::move(path)),
+      registrarAddress(registrarAddress) {
   GST_INFO ("Registrar will be performed to: %s", registrarAddress.c_str () );
 }
 

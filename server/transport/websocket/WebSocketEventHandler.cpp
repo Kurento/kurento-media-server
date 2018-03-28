@@ -20,6 +20,7 @@
 #include <gst/gst.h>
 #include <json/json.h>
 #include <jsonrpc/JsonRpcConstants.hpp>
+#include <utility>
 
 #define GST_CAT_DEFAULT kurento_websocket_event_handler
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -28,13 +29,11 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-WebSocketEventHandler::WebSocketEventHandler (std::shared_ptr <MediaObjectImpl>
-    object, std::shared_ptr<WebSocketTransport> transport,
-    std::string sessionId) : EventHandler (object), transport (transport),
-  sessionId (sessionId)
-{
-
-}
+WebSocketEventHandler::WebSocketEventHandler(
+    std::shared_ptr<MediaObjectImpl> object,
+    std::shared_ptr<WebSocketTransport> transport, std::string sessionId)
+    : EventHandler(object), transport(std::move(transport)),
+      sessionId(std::move(sessionId)) {}
 
 void
 WebSocketEventHandler::sendEvent (Json::Value &value)

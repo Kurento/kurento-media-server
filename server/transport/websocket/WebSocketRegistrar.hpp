@@ -37,9 +37,9 @@ SecureWebSocketClient;
 class WebSocketRegistrar
 {
 public:
-  WebSocketRegistrar (const std::string &registrarAddress,
-                      const std::string &localAddress, ushort localPort,
-                      ushort localSecurePort, const std::string &path);
+  WebSocketRegistrar(const std::string &registrarAddress,
+                     std::string localAddress, ushort localPort,
+                     ushort localSecurePort, std::string path);
   ~WebSocketRegistrar();
 
   void start ();

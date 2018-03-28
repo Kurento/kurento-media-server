@@ -28,6 +28,7 @@
 #include <boost/property_tree/info_parser.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <utility>
 
 #define GST_CAT_DEFAULT kurento_load_config
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -39,7 +40,7 @@ namespace kurento
 class ParseException : public virtual std::exception
 {
 public:
-  ParseException (const std::string &message) : message (message) {};
+  ParseException(std::string message) : message(std::move(message)){};
 
   virtual ~ParseException() {};
 
