@@ -27,11 +27,7 @@ if(HAS_WARNING_DATE_TIME)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=date-time")
 endif()
 
-# FIXME Disable error when deprecated functionality is used
-# (glibmm library uses C++ dynamic exception specifications)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated")
-
-# Disable deprecated GStreamer APIs
+# FIXME Disable deprecated GStreamer APIs
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DGST_DISABLE_DEPRECATED")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGST_DISABLE_DEPRECATED")
 
