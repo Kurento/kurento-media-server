@@ -284,7 +284,7 @@ void WebSocketTransport::start ()
   }
 
   for (int i = 0; i < n_threads; i++) {
-    threads.push_back (std::thread (std::bind (&WebSocketTransport::run, this) ) );
+    threads.emplace_back(std::bind(&WebSocketTransport::run, this));
   }
 
   std::unique_lock<std::recursive_mutex> lock (mutex);

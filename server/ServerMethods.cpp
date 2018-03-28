@@ -103,7 +103,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
         moduleIt.second->getGenerationTime(), factories));
   }
 
-  capabilities.push_back ("transactions");
+  capabilities.emplace_back("transactions");
 
   serverInfo =
       std::make_shared<ServerInfo>(version, modules, type, capabilities);
