@@ -689,8 +689,8 @@ void
 injectRefs (Json::Value &params, Json::Value &responses)
 {
   if (params.isObject () || params.isArray () ) {
-    for (auto it = params.begin(); it != params.end() ; it++) {
-      injectRefs (*it, responses);
+    for (auto &param : params) {
+      injectRefs(param, responses);
     }
   } else if (params.isConvertibleTo (Json::ValueType::stringValue) ) {
     std::string param = JsonFixes::getString (params);
