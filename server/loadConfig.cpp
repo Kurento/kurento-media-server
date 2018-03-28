@@ -255,11 +255,9 @@ loadConfig (boost::property_tree::ptree &config, const std::string &file_name,
 
 } /* kurento */
 
-static void init_debug (void) __attribute__ ( (constructor) );
+static void init_debug() __attribute__((constructor));
 
-static void
-init_debug (void)
-{
+static void init_debug() {
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_DEFAULT_NAME, 0,
                            GST_DEFAULT_NAME);
 }

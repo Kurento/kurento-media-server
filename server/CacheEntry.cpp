@@ -67,11 +67,7 @@ CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
   source->attach();
 }
 
-Json::Value &
-CacheEntry::getResponse (void)
-{
-  return response;
-}
+Json::Value &CacheEntry::getResponse() { return response; }
 
 CacheEntry::~CacheEntry ()
 {

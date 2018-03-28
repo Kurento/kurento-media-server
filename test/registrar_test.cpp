@@ -116,9 +116,8 @@ BOOST_AUTO_TEST_CASE ( wss_registrar )
       context->set_options (boost::asio::ssl::context::default_workarounds |
       boost::asio::ssl::context::no_sslv2 |
       boost::asio::ssl::context::single_dh_use);
-      context->set_password_callback (std::bind ([] (void) -> std::string {
-        return PASSWORD;
-      }) );
+      context->set_password_callback(
+          std::bind([]() -> std::string { return PASSWORD; }));
       context->use_certificate_chain_file (CERTIFICATE_FILE.string() );
       context->use_private_key_file (CERTIFICATE_FILE.string(), boost::asio::ssl::context::pem);
     } catch (std::exception &e)
