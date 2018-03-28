@@ -38,7 +38,7 @@ class ClientHandler : public F
 public:
   ClientHandler() : F() {};
 
-  virtual ~ClientHandler () {};
+  virtual ~ClientHandler() = default;
 
 protected:
   void check_create_duplicate_requests_call ();

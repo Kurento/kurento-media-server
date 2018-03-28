@@ -34,9 +34,7 @@ RequestCache::RequestCache (unsigned int timeout)
   this->timeout = timeout;
 }
 
-RequestCache::~RequestCache ()
-{
-}
+RequestCache::~RequestCache() = default;
 
 void
 RequestCache::addResponse (std::string sessionId, std::string requestId,

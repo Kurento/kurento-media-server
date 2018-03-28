@@ -222,9 +222,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
   }
 }
 
-WebSocketTransport::~WebSocketTransport() throw ()
-{
-}
+WebSocketTransport::~WebSocketTransport() throw() = default;
 
 void WebSocketTransport::run()
 {

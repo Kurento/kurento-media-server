@@ -35,7 +35,7 @@ class ClientHandler : public F
 public:
   ClientHandler() : F() {};
 
-  ~ClientHandler () {}
+  ~ClientHandler() = default;
 
 protected:
   void check_not_duplicated_event ();

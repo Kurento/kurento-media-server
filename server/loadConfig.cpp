@@ -42,7 +42,7 @@ class ParseException : public virtual std::exception
 public:
   ParseException(std::string message) : message(std::move(message)){};
 
-  virtual ~ParseException() {};
+  virtual ~ParseException() = default;
 
   virtual const char *what() const noexcept
   {

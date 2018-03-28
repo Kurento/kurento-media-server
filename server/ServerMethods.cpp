@@ -165,9 +165,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
                      std::placeholders::_1, std::placeholders::_2) );
 }
 
-ServerMethods::~ServerMethods()
-{
-}
+ServerMethods::~ServerMethods() = default;
 
 static void
 requireParams (const Json::Value &params)
