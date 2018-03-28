@@ -116,7 +116,7 @@ kms_init_dependencies (int *argc, char ***argv)
 int
 main (int argc, char **argv)
 {
-  struct sigaction signalAction;
+  struct sigaction signalAction {};
   std::shared_ptr<Transport> transport;
   boost::property_tree::ptree config;
   std::string confFile;

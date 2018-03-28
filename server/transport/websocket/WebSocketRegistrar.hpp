@@ -54,10 +54,10 @@ private:
 
   std::string registrarAddress;
   std::thread thread;
-  std::atomic<bool> finished;
-  std::atomic<bool> secure;
+  std::atomic<bool> finished{};
+  std::atomic<bool> secure{};
 
-  std::chrono::milliseconds waitTime;
+  std::chrono::milliseconds waitTime{};
   std::mutex mutex;
   std::condition_variable cond;
 

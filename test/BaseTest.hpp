@@ -49,7 +49,7 @@ protected:
     return id++;
   }
 
-  std::atomic<int> id;
+  std::atomic<int> id{};
 
   void setWsHost (const std::string &host)
   {
@@ -65,7 +65,7 @@ protected:
   void start();
 
 private:
-  int pid;
+  int pid{};
 
   std::string wsHost = "localhost";
 
@@ -92,7 +92,7 @@ private:
 
   Json::Reader reader;
 
-  bool sendingMessage;
+  bool sendingMessage{};
   std::list <Json::Value> recvMessages;
   std::condition_variable cond;
 

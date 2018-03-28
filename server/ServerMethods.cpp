@@ -70,7 +70,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   std::vector<std::string> capabilities;
   std::shared_ptr <ServerInfo> serverInfo;
   std::shared_ptr<MediaObjectImpl> serverManager;
-  std::chrono::seconds collectorInterval;
+  std::chrono::seconds collectorInterval{};
   bool disableRequestCache;
 
   collectorInterval = std::chrono::seconds (

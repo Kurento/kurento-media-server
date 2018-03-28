@@ -72,7 +72,7 @@ static int
 getMaxThreads ()
 {
   if (maxThreads == 0) {
-    struct rlimit limits;
+    struct rlimit limits {};
     getrlimit (RLIMIT_NPROC, &limits);
 
     maxThreads = limits.rlim_cur;
@@ -102,7 +102,7 @@ static int
 getMaxOpenFiles ()
 {
   if (maxOpenFiles == 0) {
-    struct rlimit limits;
+    struct rlimit limits {};
     getrlimit (RLIMIT_NOFILE, &limits);
 
     maxOpenFiles = limits.rlim_cur;
