@@ -18,6 +18,7 @@
 #include <gst/gst.h>
 #include "ServerMethods.hpp"
 #include <MediaSet.hpp>
+#include <memory>
 #include <string>
 #include <EventHandler.hpp>
 #include <KurentoException.hpp>
@@ -97,22 +98,22 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
       factories.push_back (factIt.first);
     }
 
-    modules.push_back (std::shared_ptr<ModuleInfo> (new ModuleInfo (
-                         moduleIt.second->getVersion(), moduleIt.second->getName(),
-                         moduleIt.second->getGenerationTime(), factories) ) );
+    modules.push_back(std::make_shared<ModuleInfo>(
+        moduleIt.second->getVersion(), moduleIt.second->getName(),
+        moduleIt.second->getGenerationTime(), factories));
   }
 
   capabilities.push_back ("transactions");
 
-  serverInfo = std::shared_ptr <ServerInfo> (new ServerInfo (version, modules,
-               type, capabilities) );
+  serverInfo =
+      std::make_shared<ServerInfo>(version, modules, type, capabilities);
 
   serverManager = MediaSet::getMediaSet ()->ref (new ServerManagerImpl (
                     serverInfo, config, moduleManager) );
   MediaSet::getMediaSet ()->setServerManager (std::dynamic_pointer_cast
       <ServerManagerImpl> (serverManager) );
 
-  cache = std::shared_ptr<RequestCache> (new RequestCache (REQUEST_TIMEOUT) );
+  cache = std::make_shared<RequestCache>(REQUEST_TIMEOUT);
 
   if (!disableRequestCache) {
     handler.setPreProcess (std::bind (&ServerMethods::preProcess, this,

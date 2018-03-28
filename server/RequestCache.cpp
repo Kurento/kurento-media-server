@@ -18,6 +18,8 @@
 #include "RequestCache.hpp"
 #include <gst/gst.h>
 
+#include <memory>
+
 #include "CacheEntry.hpp"
 
 #define GST_CAT_DEFAULT kurento_request_cache
@@ -43,8 +45,7 @@ RequestCache::addResponse (std::string sessionId, std::string requestId,
   std::shared_ptr<CacheEntry> entry;
   std::unique_lock<std::recursive_mutex> lock (mutex);
 
-  entry = std::shared_ptr<CacheEntry> (new CacheEntry (timeout, sessionId,
-                                       requestId, response) );
+  entry = std::make_shared<CacheEntry>(timeout, sessionId, requestId, response);
 
   cache[sessionId][requestId] = entry;
   entry->signalTimeout.connect ([this, sessionId, requestId] () {

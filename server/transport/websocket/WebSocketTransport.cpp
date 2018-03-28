@@ -29,6 +29,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <memory>
 #include <type_traits>
 
 #define GST_CAT_DEFAULT kurento_websocket_transport
@@ -216,8 +217,8 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                              DEFAULT_LOCAL_ADDRESS);
 
   if (!registrarAddress.empty () && !localAddress.empty () ) {
-    registrar = std::shared_ptr<WebSocketRegistrar> (new WebSocketRegistrar (
-                  registrarAddress, localAddress, port, securePort, path) );
+    registrar = std::make_shared<WebSocketRegistrar>(
+        registrarAddress, localAddress, port, securePort, path);
   }
 }
 

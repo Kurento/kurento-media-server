@@ -19,6 +19,7 @@
 
 #include "KurentoException.hpp"
 
+#include <memory>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <thread>
@@ -239,7 +240,7 @@ void F::start_client()
   std::unique_lock <std::mutex> lock (mutex);
 
   while (!initialized && !terminate) {
-    client = std::shared_ptr <WebSocketClient> (new WebSocketClient() );
+    client = std::make_shared<WebSocketClient>();
 
     client->clear_access_channels (websocketpp::log::alevel::all);
     client->clear_error_channels (websocketpp::log::elevel::all);

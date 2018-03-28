@@ -19,6 +19,8 @@
 #include <json/json.h>
 #include <gst/gst.h>
 
+#include <memory>
+
 #define GST_CAT_DEFAULT kurento_websocket_registrar
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoWebSocketRegistrar"
@@ -110,8 +112,7 @@ WebSocketRegistrar::connectRegistrar ()
     GST_INFO ("Connecting registrar");
 
     if (registrarAddress.size() >= 3 && registrarAddress.substr (0, 3) == "wss") {
-      secureClient = std::shared_ptr<SecureWebSocketClient> (new
-                     SecureWebSocketClient() );
+      secureClient = std::make_shared<SecureWebSocketClient>();
       secureClient->clear_access_channels (websocketpp::log::alevel::all);
       secureClient->clear_error_channels (websocketpp::log::elevel::all);
 
@@ -156,7 +157,7 @@ WebSocketRegistrar::connectRegistrar ()
         GST_ERROR ("Cannot create connection %s", ec.message().c_str() );
       }
     } else {
-      client = std::shared_ptr<WebSocketClient> (new WebSocketClient() );
+      client = std::make_shared<WebSocketClient>();
       client->clear_access_channels (websocketpp::log::alevel::all);
       client->clear_error_channels (websocketpp::log::elevel::all);
 
