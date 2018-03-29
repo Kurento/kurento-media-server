@@ -39,7 +39,7 @@ class ClientHandler : public F
 public:
   ClientHandler() : F() {};
 
-  virtual ~ClientHandler() = default;
+  ~ClientHandler() override = default;
 
 protected:
   void check_create_pipeline_call ();

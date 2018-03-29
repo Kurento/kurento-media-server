@@ -39,7 +39,7 @@ public:
                              GST_DEFAULT_NAME);
   };
 
-  ~ClientHandler() = default;
+  ~ClientHandler() override = default;
 
 protected:
   void check_error_call ();

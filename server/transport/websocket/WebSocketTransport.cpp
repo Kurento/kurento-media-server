@@ -56,8 +56,7 @@ public:
     this->message = message;
   }
 
-  virtual const char *what() const _GLIBCXX_USE_NOEXCEPT
-  {
+  const char *what() const _GLIBCXX_USE_NOEXCEPT override {
     return message.c_str();
   }
 
