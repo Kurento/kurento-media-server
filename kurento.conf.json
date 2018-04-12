@@ -20,11 +20,11 @@
         //  "address": "ws://localhost:9090",
         //  "localAddress": "localhost"
         //},
-        "path": "kurento",
-        "threads": 10,
         // Maximum queue length of pending connections (see sysctl tcp_max_syn_backlog)
         // Default SOMAXCONN (128)
         //"connqueue": 128,
+        "path": "kurento",
+        "threads": 10
       }
     }
   }
