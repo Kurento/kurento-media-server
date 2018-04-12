@@ -47,6 +47,8 @@ const std::string DEFAULT_LOCAL_ADDRESS = "localhost";
 const ushort WEBSOCKET_PORT_DEFAULT = 8888;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
 const int WEBSOCKET_THREADS_DEFAULT = 10;
+const int WEBSOCKET_CONNQUEUE_DEFAULT =
+  boost::asio::socket_base::max_connections;
 
 class configuration_exception : public std::exception
 {
@@ -71,6 +73,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
 {
   ushort port;
   ushort securePort;
+  int connqueue;
   std::string registrarAddress;
   std::string localAddress;
 
@@ -80,6 +83,9 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
 
   path = config.get<std::string> ("mediaServer.net.websocket.path",
                                   WEBSOCKET_PATH_DEFAULT);
+
+  connqueue = config.get<uint> ("mediaServer.net.websocket.connqueue",
+                                WEBSOCKET_CONNQUEUE_DEFAULT);
 
   try {
     n_threads = config.get<uint> ("mediaServer.net.websocket.threads");
@@ -103,6 +109,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
   server.clear_error_channels (websocketpp::log::alevel::all);
 
   server.init_asio (&ios);
+  server.set_listen_backlog (connqueue);
   server.set_reuse_addr (true);
   server.set_open_handler (std::bind ( (void (WebSocketTransport::*) (
                                           WebSocketServer *, websocketpp::connection_hdl) )

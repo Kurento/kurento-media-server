@@ -21,7 +21,10 @@
         //  "localAddress": "localhost"
         //},
         "path": "kurento",
-        "threads": 10
+        "threads": 10,
+        // Maximum queue length of pending connections (see sysctl tcp_max_syn_backlog)
+        // Default SOMAXCONN (128)
+        //"connqueue": 128,
       }
     }
   }
