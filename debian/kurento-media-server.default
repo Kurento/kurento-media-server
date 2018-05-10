@@ -18,7 +18,7 @@ DAEMON_LOG_DIR="/var/log/kurento-media-server"  # Where to store daemon logs
 # Logging level.
 # Command line equivalent: --gst-debug-level, --gst-debug
 # See http://doc-kurento.readthedocs.io/en/latest/features/logging.html
-export GST_DEBUG="3,Kurento*:4,kms*:4"
+export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4"
 
 # ICE logging: uncomment to enable in KMS and the 3rd-party library 'libnice'.
 # Note: This can get very verbose, log file will grow fast.
