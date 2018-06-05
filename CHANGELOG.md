@@ -4,10 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [6.7.2] - 2018-05-11
+
+### Fixed
+- All: Apply multiple fixes suggested by *clang-tidy*.
+- Re-add redirection of 'stderr': log DeathHandler messages.
+- WebSocketTransport: Change default listen backlog to socket_base::max_connections (Kurento/bugtracker#245).
+- Debian: Remove dependency on our unmaintained fork of libSSL (Kurento/bugtracker#242).
+- Debian: Remove unneeded build dependency: binutils.
+- Debian: Use better defaults for logging levels.
+
 ## [6.7.1] - 2018-03-21
 
 ### Changed
-- Push version to 6.7.1.
+- Raise version to 6.7.1.
 
 ## [6.7.0] - 2018-01-24
 
@@ -101,6 +111,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Scaffold: Fix installation of configuration files.
 
+[6.7.2]: https://github.com/Kurento/kurento-media-server/compare/6.7.1...6.7.2
 [6.7.1]: https://github.com/Kurento/kurento-media-server/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Kurento/kurento-media-server/compare/6.6.2...6.7.0
 [6.6.2]: https://github.com/Kurento/kurento-media-server/compare/6.6.1...6.6.2
