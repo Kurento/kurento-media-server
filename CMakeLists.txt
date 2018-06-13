@@ -19,6 +19,7 @@ message(STATUS "Project version: ${PROJECT_NAME}-${PROJECT_VERSION}")
 # Compiler flags
 include(CommonBuildFlags)
 common_buildflags_set()
+#common_buildflags_print()
 
 # FIXME Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
 include(CheckCXXCompilerFlag)
