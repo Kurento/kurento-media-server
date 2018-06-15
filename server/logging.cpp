@@ -194,12 +194,11 @@ system_formatter (logging::record_view const &rec,
 {
   auto date_time_formatter = expr::stream
                              << expr::format_date_time< boost::posix_time::ptime > ("TimeStamp",
-                                 "%Y-%m-%d %H:%M:%S,%f");
+                                 "%Y-%m-%dT%H:%M:%S,%f");
   date_time_formatter (rec, strm) << " ";
   strm << std::to_string (getpid() ) << " ";
-  strm << "[" <<
-       logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
-           rec) << "] ";
+  strm << logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
+           rec) << " ";
   strm << logging::extract< severity_level > ("Severity", rec) << " ";
   strm << logging::extract< std::string > ("Category", rec) << " ";
   strm << logging::extract< std::string > ("FileName", rec) << ":";
@@ -219,7 +218,7 @@ kms_init_logging (const std::string &path, int fileSize, int fileNumber)
 
   boost::shared_ptr< sinks::text_file_backend > backend =
     boost::make_shared< sinks::text_file_backend > (
-      keywords::file_name = path + "/" + "%Y-%m-%d_%H-%M-%S.%5N.pid" +
+      keywords::file_name = path + "/" + "%Y-%m-%dT%H%M%S.%5N.pid" +
                             std::to_string (getpid() ) + ".log",
       keywords::rotation_size = fileSize * 1024 * 1024,
       keywords::time_based_rotation = sinks::file::rotation_at_time_point (0, 0, 0)
