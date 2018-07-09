@@ -39,8 +39,13 @@ public:
   ~RequestCache ();
 
 private:
-  std::map<std::string, std::map<std::string, std::shared_ptr <CacheEntry>>>
-  cache;
+  std::map<
+      std::string,  // Session ID
+      std::map<
+          std::string,  // Request ID
+          std::shared_ptr<CacheEntry>
+      >
+  > cache;
   std::recursive_mutex mutex;
   unsigned int timeout;
 

@@ -49,13 +49,14 @@ namespace kurento
 CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
                         std::string requestId, Json::Value &response)
 {
-  this->response = response;
-  this->requestId = requestId;
   this->sessionId = sessionId;
+  this->requestId = requestId;
+  this->response = response;
+  this->timedout = false;
 
-  source = Glib::TimeoutSource::create (timeout);
+  this->source = Glib::TimeoutSource::create (timeout);
   source->connect ( [this] () -> bool {
-    std::unique_lock<std::recursive_mutex> lock (mutex);
+    std::unique_lock<std::recursive_mutex> lock (this->mutex);
     this->timedout = true;
     lock.unlock();
 
