@@ -6,7 +6,9 @@
     //  // Resources usage limit for restarting the server when no objects are alive
     //  "killLimit": "0.7",
         // Garbage collector period in seconds
-        "garbageCollectorPeriod": 240
+        "garbageCollectorPeriod": 240,
+        // Whether to disable the RPC request cache, for memory constrained environments
+        "disableRequestCache": false
     },
     "net" : {
       "websocket": {

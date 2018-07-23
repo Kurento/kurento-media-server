@@ -79,7 +79,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
                                          MediaSet::getCollectorInterval().count() ) );
   MediaSet::setCollectorInterval (collectorInterval);
 
-  disableRequestCache = config.get<bool> ("mediaServer.disableRequestCache",
+  disableRequestCache = config.get<bool> ("mediaServer.resources.disableRequestCache",
                                           false);
 
   resourceLimitPercent =
@@ -122,8 +122,9 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
     handler.setPostProcess (std::bind (&ServerMethods::postProcess, this,
                                        std::placeholders::_1,
                                        std::placeholders::_2) );
+    GST_INFO ("RPC Request Cache is ENABLED");
   } else {
-    GST_DEBUG ("Disabling cache");
+    GST_INFO ("RPC Request Cache is DISABLED");
   }
 
   handler.addMethod ("connect", std::bind (&ServerMethods::connect, this,
