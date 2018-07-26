@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - All: Apply multiple fixes suggested by *clang-tidy*.
 - Re-add redirection of 'stderr': log DeathHandler messages.
-- WebSocketTransport: Change default listen backlog to socket_base::max_connections (Kurento/bugtracker#245).
-- Debian: Remove dependency on our unmaintained fork of libSSL (Kurento/bugtracker#242).
+- [#245](https://github.com/Kurento/bugtracker/issues/245) (Possible SYN flooding): WebSocketTransport: Change default listen backlog to `socket_base::max_connections`.
+- [#242](https://github.com/Kurento/bugtracker/issues/242) (libSSL crashes on mirrored packets): Debian: Remove dependency on our unmaintained fork of libSSL - **Work In Progress**.
 - Debian: Remove unneeded build dependency: binutils.
 - Debian: Use better defaults for logging levels.
 
