@@ -86,8 +86,8 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
     config.get<float> ("mediaServer.resources.exceptionLimit",
                        DEFAULT_RESOURCE_LIMIT_PERCENT);
 
-  GST_INFO ("Not enough resources exception will be raised when resources reach %f ",
-            resourceLimitPercent);
+  GST_INFO ("Reaching %.2f%% usage of system resources will fail with NOT_ENOUGH_RESOURCES error",
+            resourceLimitPercent * 100.0f);
 
   instanceId = generateUUID();
 
