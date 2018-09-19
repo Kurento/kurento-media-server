@@ -9,65 +9,88 @@ DAEMON_LOG_DIR="/var/log/kurento-media-server"  # Where to store daemon logs
 
 
 
-# ############ BEGIN Settings for Kurento Media Server ############
+############ Kurento Media Server Settings ############
 
-# Most settings can be passed either as environment variables or as
-# command-line arguments.
-# E.g.: KURENTO_LOGS_PATH="/tmp" is equivalent to --logs-path="/tmp"
+## Most settings can be passed either as environment variables or as
+## command-line arguments.
+## E.g.: KURENTO_LOGS_PATH="/tmp" is equivalent to --logs-path="/tmp"
 
-# Logging level.
-# Command line equivalent: --gst-debug-level, --gst-debug
-# See http://doc-kurento.readthedocs.io/en/latest/features/logging.html
-export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4"
+## Logging level.
+## Command line equivalent: --gst-debug-level, --gst-debug
+## See https://doc-kurento.readthedocs.io/en/latest/features/logging.html
+export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
 
-# ICE logging: uncomment to enable in KMS and the 3rd-party library 'libnice'.
-# Note: This can get very verbose, log file will grow fast.
-#export GST_DEBUG="$GST_DEBUG,kmsiceniceagent:5,kmswebrtcsession:5,webrtcendpoint:4"
-#export G_MESSAGES_DEBUG="libnice,libnice-stun"
-#export NICE_DEBUG="$G_MESSAGES_DEBUG"
+## Extended logging: Event MediaFlow{In,Out} state changes
+# export GST_DEBUG="${GST_DEBUG:-3},KurentoMediaElementImpl:5"
 
-# Path where rotating log files will be stored.
-# If this option is unset, logging will be disabled.
-# Command line equivalent: --logs-path
-# Default: Unset
+## Extended logging: ICE candidate gathering
+# export GST_DEBUG="${GST_DEBUG:-3},kmsiceniceagent:5,kmswebrtcsession:5,webrtcendpoint:4"
+
+## 3rd-Party logging: libnice
+# export G_MESSAGES_DEBUG="libnice,libnice-stun"
+# export NICE_DEBUG="$G_MESSAGES_DEBUG"
+
+## Extended logging: RPC calls
+# export GST_DEBUG="${GST_DEBUG:-3},KurentoWebSocketTransport:5"
+
+## Extended logging: Transcoding of media
+# export GST_DEBUG="${GST_DEBUG:-3},Kurento*:5,agnosticbin*:7"
+
+## Path where rotating log files will be stored.
+## If this option is unset, logging will be disabled.
+## Command line equivalent: --logs-path
+## Default: Unset
 export KURENTO_LOGS_PATH="$DAEMON_LOG_DIR"
 
-# Maximum file size for log files, in MB.
-# Command line equivalent: --log-file-size
-# Default: 100
-#export KURENTO_LOG_FILE_SIZE=100
+## Maximum file size for log files, in MB.
+## Command line equivalent: --log-file-size
+## Default: 100
+# export KURENTO_LOG_FILE_SIZE=100
 
-# Maximum number of log files to keep.
-# Command line equivalent: --number-log-files
-# Default: 10
-#export KURENTO_NUMBER_LOG_FILES=10
+## Maximum number of log files to keep.
+## Command line equivalent: --number-log-files
+## Default: 10
+# export KURENTO_NUMBER_LOG_FILES=10
 
-# Path to the main configuration file for Kurento.
-# Command line equivalent: --conf-file
-# Default: "/etc/kurento/kurento.conf.json"
-#export KURENTO_CONF_FILE="/etc/kurento/kurento.conf.json"
+## Path to the main configuration file for Kurento.
+## Command line equivalent: --conf-file
+## Default: "/etc/kurento/kurento.conf.json"
+# export KURENTO_CONF_FILE="/etc/kurento/kurento.conf.json"
 
-# Path to the directory where Kurento modules can be found.
-# Command line equivalent: --modules-path
-# Default: "/usr/lib"
-#export KURENTO_MODULES_PATH="/usr/lib"
+## Path to the directory where Kurento modules can be found.
+## Command line equivalent: --modules-path
+## Default: "/usr/lib"
+# export KURENTO_MODULES_PATH="/usr/lib"
 
-# Path to the directory where config files can be found for Kurento modules.
-# Command line equivalent: --modules-config-path
-# Default: "/etc/kurento/modules"
-#export KURENTO_MODULES_CONFIG_PATH="/etc/kurento/modules"
-
-# ############ END Settings for Kurento Media Server ############
+## Path to the directory where config files can be found for Kurento modules.
+## Command line equivalent: --modules-config-path
+## Default: "/etc/kurento/modules"
+# export KURENTO_MODULES_CONFIG_PATH="/etc/kurento/modules"
 
 
+
+############ Linux Kernel & System Settings ############
 
 unset GST_PLUGIN_PATH
 
-# Kernel settings for Core Dumps / Crash Reports
+## Enable generation of Core Dumps / Crash Reports by the Kernel
 ulimit -c unlimited
-ulimit -n $((($(cat /proc/sys/fs/file-max) * 50) / 100 ))
 
-# Destination of core files.
-# See https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
-# Default value in Ubuntu desktop systems: '|/usr/share/apport/apport %p %s %c %d %P'.
-#echo '/tmp/core_%e_%p_%u_%t' | tee /proc/sys/kernel/core_pattern >/dev/null
+## Destination of Core Dump files
+##
+## See https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
+## Default value in Ubuntu desktop systems: '|/usr/share/apport/apport %p %s %c %d %P'.
+## Apport creates a compact Crash Report that includes the Core Dump and some other
+## information gathered from the system.
+##
+## Uncomment to set a custom destination for Core Dump files:
+# echo '/tmp/core_%e_%p_%u_%t' | tee /proc/sys/kernel/core_pattern >/dev/null
+
+## Set this process' maximum number of open files to 50% of system-wide max
+## (Only touch this if you are a sysadmin and/or you know what you are doing!)
+ulimit -n "$(( ($(cat /proc/sys/fs/file-max) * 50) / 100 ))"
+
+## Set the user's maximum number of threads to the system's Hard Limit
+## (Only touch this if you are a sysadmin and/or you know what you are doing!)
+## Note: This is '-p' in Sh and '-u' in Bash
+# ulimit -Sp "$(ulimit -Hp)"
