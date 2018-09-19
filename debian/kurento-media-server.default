@@ -28,7 +28,7 @@ export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handle
 
 ## 3rd-Party logging: libnice
 # export G_MESSAGES_DEBUG="libnice,libnice-stun"
-# export NICE_DEBUG="$G_MESSAGES_DEBUG"
+# export GST_DEBUG="${GST_DEBUG:-3},glib:5"
 
 ## Extended logging: RPC calls
 # export GST_DEBUG="${GST_DEBUG:-3},KurentoWebSocketTransport:5"

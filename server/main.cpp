@@ -189,8 +189,10 @@ main (int argc, char **argv)
 
     boost::program_options::notify (vm);
 
+    kms_init_logging ();
+
     if (vm.count ("logs-path") ) {
-      if (kms_init_logging (logs_path, fileSize, fileNumber) ) {
+      if (kms_init_logging_files (logs_path, fileSize, fileNumber) ) {
         GST_INFO ("Logs storage path set to %s", logs_path.c_str() );
       } else {
         GST_WARNING ("Cannot set logs storage path to %s", logs_path.c_str() );
