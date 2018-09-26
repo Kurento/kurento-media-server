@@ -1,3 +1,10 @@
+kurento-media-server (6.8.0) testing; urgency=medium
+
+  * debian/default: Full review, add examples, more comments
+  * Prepare release 6.8.0
+
+ -- Juan Navarro Moreno <juan.navarro@gmx.es>  Wed, 26 Sep 2018 11:30:00 +0200
+
 kurento-media-server (6.7.2) testing; urgency=medium
 
   [ Juan Navarro Moreno ]

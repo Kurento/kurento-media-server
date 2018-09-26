@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.0] - 2018-09-26
+
+### Added
+- ServerMethods: Expose `mediaServer.resources.disableRequestCache`
+- Integrate GLib and Kurento's GStreamer logging systems (for libnice)
+
+### Changed
+- Logging: Review format descriptions, update with ISO 8601
+- ResourceManager: Improve logging on File and Thread limits check
+- debian/default: Full review, add examples, more comments
+
 ## [6.7.2] - 2018-05-11
 
 ### Fixed
@@ -111,6 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Scaffold: Fix installation of configuration files.
 
+[6.8.0]: https://github.com/Kurento/kurento-media-server/compare/6.7.2...6.8.0
 [6.7.2]: https://github.com/Kurento/kurento-media-server/compare/6.7.1...6.7.2
 [6.7.1]: https://github.com/Kurento/kurento-media-server/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Kurento/kurento-media-server/compare/6.6.2...6.7.0
