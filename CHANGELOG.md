@@ -4,16 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.1] - 2018-10-23
+
+### Fixed
+- Service init files will now append to the error log file, instead of truncating it on each restart.
+
 ## [6.8.0] - 2018-09-26
 
 ### Added
-- ServerMethods: Expose `mediaServer.resources.disableRequestCache`
-- Integrate GLib and Kurento's GStreamer logging systems (for libnice)
+- GLib logging messages are now integrated with Kurento logging. This means that it's possible to save debug messages from libnice, together with the usual logs from Kurento / GStreamer.
 
 ### Changed
-- Logging: Review format descriptions, update with ISO 8601
-- ResourceManager: Improve logging on File and Thread limits check
-- debian/default: Full review, add examples, more comments
+- Output logs now use standard format ISO 8601.
+- `disableRequestCache` is now exposed in settings file (*kurento.conf.json*). This can be used to disable the RPC Request Cache.
+- Clearer log messages about what is going on when the maximum resource usage threshold is reached.
+- File `/etc/default/kurento-media-server` now contains more useful examples and explanations for each option.
 
 ## [6.7.2] - 2018-05-11
 
@@ -122,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Scaffold: Fix installation of configuration files.
 
+[6.8.1]: https://github.com/Kurento/kurento-media-server/compare/6.8.0...6.8.1
 [6.8.0]: https://github.com/Kurento/kurento-media-server/compare/6.7.2...6.8.0
 [6.7.2]: https://github.com/Kurento/kurento-media-server/compare/6.7.1...6.7.2
 [6.7.1]: https://github.com/Kurento/kurento-media-server/compare/6.7.0...6.7.1
