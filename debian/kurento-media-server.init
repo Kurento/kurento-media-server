@@ -87,7 +87,7 @@ start_kurento() {
             --background \
             --no-close \
             -- $DAEMON_ARGS \
-            2>"$DAEMON_LOG_DIR/errors.log" || {
+            2>>"$DAEMON_LOG_DIR/errors.log" || {
         log_warning_msg "Kurento Media Server already started"
         return
     }
