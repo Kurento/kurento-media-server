@@ -1,7 +1,11 @@
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Documentation badge](https://readthedocs.org/projects/fiware-orion/badge/?version=latest)](https://doc-kurento.readthedocs.io)
 [![Docker badge](https://img.shields.io/docker/pulls/fiware/orion.svg)](https://hub.docker.com/r/fiware/stream-oriented-kurento/)
-[![Support badge]( https://img.shields.io/badge/support-sof-yellowgreen.svg)](https://stackoverflow.com/questions/tagged/kurento)
+[![Support badge]( https://img.shields.io/badge/support-Kurento-yellowgreen.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/kurento)
+
+[![FIWARE Chapter](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/media-streams.svg)](https://www.fiware.org/developers/catalogue/)
+[![FIWARE member status](https://nexus.lab.fiware.org/static/badges/statuses/kurento.svg)](https://www.fiware.org/developers/catalogue/)
+
 
 [![][KurentoImage]][Kurento]
 
@@ -31,7 +35,25 @@ About Kurento
 
 Kurento is an open source software project providing a platform suitable for creating modular applications with advanced real-time communication capabilities. For knowing more about Kurento, please visit the Kurento project website: https://www.kurento.org.
 
-Kurento is part of [FIWARE]. For further information on the relationship of FIWARE and Kurento check the [Kurento FIWARE Catalog Entry]. Kurento is also part of the [NUBOMEDIA] research initiative.
+Kurento is part of [FIWARE]. For further information on the relationship of FIWARE and Kurento check the [Kurento FIWARE Catalog Entry]. 
+Kurento has been rated within [FIWARE] as follows:
+
+-   **Version Tested:**
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Version&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.version&colorB=blue)
+-   **Documentation:**
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Completeness&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.docCompleteness&colorB=blue)
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Usability&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.docSoundness&colorB=blue)
+-   **Responsiveness:**
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Time%20to%20Respond&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.timeToCharge&colorB=blue)
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Time%20to%20Fix&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.timeToFix&colorB=blue)
+-   **FIWARE Testing:**
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Tests%20Passed&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.failureRate&colorB=blue)
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Scalability&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.scalability&colorB=blue)
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Performance&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.performance&colorB=blue)
+    ![ ](https://img.shields.io/badge/dynamic/json.svg?label=Stability&url=https://fiware.github.io/catalogue/json/kurento.json&query=$.stability&colorB=blue)
+
+
+Kurento is also part of the [NUBOMEDIA] research initiative.
 
 [FIWARE]: http://www.fiware.org
 [Kurento FIWARE Catalog Entry]: http://catalogue.fiware.org/enablers/stream-oriented-kurento
@@ -55,19 +77,24 @@ Useful Links
 
 Usage:
 
-* [Installation Guide](http://doc-kurento.readthedocs.io/en/stable/user/installation.html)
-* [Compilation Guide](http://doc-kurento.readthedocs.io/en/stable/dev/dev_guide.html#developing-kms)
-* [Contribution Guide](http://doc-kurento.readthedocs.io/en/stable/project/contribute.html)
+* [Installation Guide](https://doc-kurento.readthedocs.io/en/stable/user/installation.html)
+* [Docker Deployment Guide](https://hub.docker.com/r/kurento/kurento-media-server/)
+* [Compilation Guide](https://doc-kurento.readthedocs.io/en/stable/dev/dev_guide.html#developing-kms)
+* [Contribution Guide](https://doc-kurento.readthedocs.io/en/stable/project/contribute.html)
 
 Issues:
 
 * [Bug Tracker](https://github.com/Kurento/bugtracker/issues)
-* [Support](http://doc-kurento.readthedocs.io/en/stable/user/support.html)
+* [Support](https://doc-kurento.readthedocs.io/en/stable/user/support.html)
 
 News:
 
 * [Kurento Blog](https://www.kurento.org/blog)
 * [Google Groups](https://groups.google.com/forum/#!forum/kurento)
+
+Training: 
+
+* [Kurento tutorials](https://doc-kurento.readthedocs.io/en/stable/user/tutorials.html)
 
 
 
