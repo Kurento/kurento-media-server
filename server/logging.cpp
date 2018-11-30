@@ -29,6 +29,7 @@
 #include <boost/log/sources/channel_logger.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/log/utility/exception_handler.hpp>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -323,6 +324,18 @@ kms_init_logging_files (const std::string &path, int fileSize, int fileNumber)
   core->add_sink (system_sink);
 
   system_sink->set_formatter (&system_formatter);
+
+  /* Set an exception handler to manage error cases such as missing
+   * file write permissions */
+  struct ex_handler {
+    void operator() (std::runtime_error const& e) const {
+      gst_debug_remove_log_function (kms_log_function);
+      gst_debug_add_log_function(gst_debug_log_default, nullptr, nullptr);
+      GST_ERROR ("Boost.Log runtime error: %s", e.what());
+    }
+  };
+  core->set_exception_handler(logging::make_exception_handler<
+      std::runtime_error>(ex_handler()));
 
   return true;
 }
