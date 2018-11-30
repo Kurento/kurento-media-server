@@ -86,8 +86,14 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
     config.get<float> ("mediaServer.resources.exceptionLimit",
                        DEFAULT_RESOURCE_LIMIT_PERCENT);
 
-  GST_INFO ("Reaching %.2f%% usage of system resources will fail with NOT_ENOUGH_RESOURCES error",
+  GST_INFO ("Using above %.2f%% of system limits will throw NOT_ENOUGH_RESOURCES exception",
             resourceLimitPercent * 100.0f);
+
+  int maxThreads = getMaxThreads ();
+  int maxOpenFiles = getMaxOpenFiles ();
+
+  GST_INFO ("System limits for this process: %d threads, %d file descriptors",
+            maxThreads, maxOpenFiles);
 
   instanceId = generateUUID();
 

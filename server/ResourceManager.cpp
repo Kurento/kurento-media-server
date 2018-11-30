@@ -65,7 +65,7 @@ getNumberOfThreads ()
   return get_int (stat, ' ', 19);
 }
 
-static int
+int
 getMaxThreads ()
 {
   static int maxThreads = 0;
@@ -97,7 +97,7 @@ checkThreads (float limit_percent)
     std::string exMessage = oss.str();
 
     oss << " (system max: " << maxThreads << ");"
-        << " set a higher limit with `ulimit -Su`, or in the KMS settings file at '/etc/default/kurento-media-server'";
+        << " set a higher limit with `ulimit -Su`, or in the KMS service settings (/etc/default/kurento-media-server)";
     std::string logMessage = oss.str();
 
     GST_WARNING ("%s", logMessage.c_str());
@@ -105,7 +105,7 @@ checkThreads (float limit_percent)
   }
 }
 
-static int
+int
 getMaxOpenFiles ()
 {
   static int maxOpenFiles = 0;
@@ -156,7 +156,7 @@ checkOpenFiles (float limit_percent)
     std::string exMessage = oss.str();
 
     oss << " (system max: " << maxOpenFiles << ");"
-        << " set a higher limit with `ulimit -Sn`, or in the KMS settings file at '/etc/default/kurento-media-server'";
+        << " set a higher limit with `ulimit -Sn`, or in the KMS service settings (/etc/default/kurento-media-server)";
     std::string logMessage = oss.str();
 
     GST_WARNING ("%s", logMessage.c_str());

@@ -21,7 +21,10 @@
 namespace kurento
 {
 
-static const float DEFAULT_RESOURCE_LIMIT_PERCENT = 0.8;
+static const float DEFAULT_RESOURCE_LIMIT_PERCENT = 0.80f;
+
+int getMaxThreads ();
+int getMaxOpenFiles ();
 
 void checkResources (float limit_percent);
 

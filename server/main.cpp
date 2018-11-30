@@ -245,7 +245,9 @@ main (int argc, char **argv)
     config.get_optional<float> ("mediaServer.resources.killLimit");
 
   if (killResourceLimit) {
-    GST_INFO ("Resource limit is: %f", *killResourceLimit);
+    GST_INFO ("Using above %.2f%% of system limits will kill the server when no objects are alive",
+              *killResourceLimit * 100.0f);
+
     killServerOnLowResources (*killResourceLimit);
   }
 
