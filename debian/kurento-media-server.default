@@ -15,8 +15,8 @@ DAEMON_LOG_DIR="/var/log/kurento-media-server"  # Where to store daemon logs
 ## command-line arguments.
 ## E.g.: KURENTO_LOGS_PATH="/tmp" is equivalent to --logs-path="/tmp"
 
-## Logging level.
-## Command line equivalent: --gst-debug-level, --gst-debug
+## Default logging levels for recommended components.
+## Command line equivalent: --gst-debug-level=3 --gst-debug="[...]"
 ## See https://doc-kurento.readthedocs.io/en/latest/features/logging.html
 export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
 
@@ -35,6 +35,16 @@ export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handle
 
 ## Extended logging: Transcoding of media
 # export GST_DEBUG="${GST_DEBUG:-3},Kurento*:5,agnosticbin*:7"
+
+## Logging settings: Disable colored output.
+## When running KMS with these service init scripts, this setting mainly
+## affects the output of errors in '/var/log/kurento-media-server/errors.log'.
+## Also useful to set when running directly from a Docker container.
+export GST_DEBUG_NO_COLOR=1
+
+## Logging settings: Output path for GStreamer debug graphs.
+## Uncomment to enable generation of debug graphs.
+# export GST_DEBUG_DUMP_DOT_DIR="/tmp"
 
 ## Path where rotating log files will be stored.
 ## If this option is unset, logging will be disabled.
