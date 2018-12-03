@@ -94,6 +94,10 @@ start_kurento() {
 
     # If set and not null, configure per-process max open file descriptors
     [ -n "${DAEMON_MAX_FILES:+x}" ] && {
+        # Maximum limit value allowed by Ubuntu: 2^20 = 1048576
+        MAXIMUM_LIMIT=1048576
+        [ "$DAEMON_MAX_FILES" -gt "$MAXIMUM_LIMIT" ] && DAEMON_MAX_FILES="$MAXIMUM_LIMIT"
+
         ulimit -n "$DAEMON_MAX_FILES" || {
             log_failure_msg "Cannot set limit for max open file descriptors to '$DAEMON_MAX_FILES'"
             exit 1
