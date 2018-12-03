@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/dash
 
 ### BEGIN INIT INFO
 # Provides:          kurento-media-serverd
@@ -76,6 +76,36 @@ start_kurento() {
             exit 1
         }
         log_success_msg "Changed owner of '$DAEMON_LOG_DIR' to '$DAEMON_USER'"
+    }
+
+    # If set (null accepted), configure Kernel core dump output pattern
+    [ -n "${DAEMON_CORE_PATTERN+x}" ] && {
+        echo "$DAEMON_CORE_PATTERN" | tee /proc/sys/kernel/core_pattern >/dev/null
+    }
+
+    # Update process' resource limits
+    log_action_msg "Configure resource limits for Kurento Media Server"
+
+    # Enable generation of Kernel core dumps / crash reports
+    ulimit -c unlimited || {
+        log_failure_msg "Cannot disable limits for size of Kernel core dumps"
+        exit 1
+    }
+
+    # If set and not null, configure per-process max open file descriptors
+    [ -n "${DAEMON_MAX_FILES:+x}" ] && {
+        ulimit -n "$DAEMON_MAX_FILES" || {
+            log_failure_msg "Cannot set limit for max open file descriptors to '$DAEMON_MAX_FILES'"
+            exit 1
+        }
+    }
+
+    # If set and not null, configure per-user max threads
+    [ -n "${DAEMON_MAX_THREADS:+x}" ] && {
+        ulimit -Sp "$DAEMON_MAX_THREADS" || {
+            log_failure_msg "Cannot set limit for max threads to '$DAEMON_MAX_THREADS'"
+            exit 1
+        }
     }
 
     /sbin/start-stop-daemon \

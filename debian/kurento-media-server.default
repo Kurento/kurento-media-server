@@ -83,24 +83,23 @@ export KURENTO_LOGS_PATH="$DAEMON_LOG_DIR"
 
 unset GST_PLUGIN_PATH
 
-## Enable generation of Core Dumps / Crash Reports by the Kernel
-ulimit -c unlimited
-
-## Destination of Core Dump files
-##
+## Destination of Kernel core dump files
 ## See https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
-## Default value in Ubuntu desktop systems: '|/usr/share/apport/apport %p %s %c %d %P'.
-## Apport creates a compact Crash Report that includes the Core Dump and some other
-## information gathered from the system.
 ##
-## Uncomment to set a custom destination for Core Dump files:
-# echo '/tmp/core_%e_%p_%u_%t' | tee /proc/sys/kernel/core_pattern >/dev/null
+## In Ubuntu, if Apport is installed it creates a compact Crash Report
+## including the Core Dump and some other system information.
+## The default pattern in Ubuntu desktop systems is:
+##     '|/usr/share/apport/apport %p %s %c %d %P'.
+##
+## Uncomment to set a custom pattern for core dump files.
+# DAEMON_CORE_PATTERN="/tmp/core_%e_%p_%u_%t"
 
-## Set this process' maximum number of open files to 50% of system-wide max
+## Set per-process max open file descriptors to half of system-wide max
 ## (Only touch this if you are a sysadmin and/or you know what you are doing!)
-ulimit -n "$(( ($(cat /proc/sys/fs/file-max) * 50) / 100 ))"
+DAEMON_MAX_FILES="$(( ($(cat /proc/sys/fs/file-max) * 50) / 100 ))"
 
-## Set the user's maximum number of threads to the system's Hard Limit
+## Set per-user max threads to system's "Hard Limit"
 ## (Only touch this if you are a sysadmin and/or you know what you are doing!)
-## Note: This is '-p' in Sh and '-u' in Bash
-# ulimit -Sp "$(ulimit -Hp)"
+##
+## Note: This is '-u' in Bash and '-p' in Sh
+# DAEMON_MAX_THREADS="$(ulimit -Hp)"
