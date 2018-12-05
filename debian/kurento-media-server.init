@@ -112,6 +112,10 @@ start_kurento() {
         }
     }
 
+    # Add new section in error log
+    echo -ne "\n\n" >>"$DAEMON_LOG_DIR/errors.log"
+    echo "$(date --utc --iso-8601=seconds) -- New execution" >>"$DAEMON_LOG_DIR/errors.log"
+
     /sbin/start-stop-daemon \
             --start \
             --pidfile "$PID_FILE" \
