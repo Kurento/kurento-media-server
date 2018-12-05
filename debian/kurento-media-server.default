@@ -34,7 +34,7 @@ export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handle
 # export GST_DEBUG="${GST_DEBUG:-3},KurentoWebSocketTransport:5"
 
 ## Extended logging: Transcoding of media
-# export GST_DEBUG="${GST_DEBUG:-3},Kurento*:5,agnosticbin*:7"
+# export GST_DEBUG="${GST_DEBUG:-3},Kurento*:5,agnosticbin*:5"
 
 ## Logging settings: Disable colored output.
 ## When running KMS with these service init scripts, this setting mainly
