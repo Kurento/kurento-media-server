@@ -1,3 +1,14 @@
+kurento-media-server (6.9.0) testing; urgency=medium
+
+  * debian/kurento-media-server.default: Disable colors, improve comments
+  * debian init: Move 'ulimit' calls to init.d
+  * debian init: Restrict 'ulimit -n' to max value (2**20)
+  * debian init: Separate executions in 'errors.log'
+  * debian init: Set less verbose log level for transcoding
+  * debian init: Fix echo commands for 'errors.log'
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Mon, 10 Dec 2018 17:49:36 +0100
+
 kurento-media-server (6.8.1) testing; urgency=medium
 
   * debian/init: Append (don't truncate) error log on restart
