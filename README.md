@@ -1,8 +1,7 @@
-<p align="center">
-    <a href="https://kurento.org">
-        <img src="https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120">
-    </a>
-</p>
+<a href="https://kurento.org">
+    <img src="https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120">
+</a>
+
 
 Kurento Media Server
 ====================
