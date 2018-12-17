@@ -1,24 +1,19 @@
+<p align="center">
+    <a href="https://kurento.org">
+        <img src="https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120">
+    </a>
+</p>
+
+Kurento Media Server
+====================
+
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Documentation badge](https://readthedocs.org/projects/fiware-orion/badge/?version=latest)](https://doc-kurento.readthedocs.io)
 [![Docker badge](https://img.shields.io/docker/pulls/fiware/orion.svg)](https://hub.docker.com/r/fiware/stream-oriented-kurento/)
 [![Support badge]( https://img.shields.io/badge/support-Kurento-yellowgreen.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/kurento)
-
+<br/>
 [![FIWARE Chapter](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/media-streams.svg)](https://www.fiware.org/developers/catalogue/)
 [![FIWARE member status](https://nexus.lab.fiware.org/static/badges/statuses/kurento.svg)](https://www.fiware.org/developers/catalogue/)
-
-
-[![][KurentoImage]][Kurento]
-
-Copyright 2018 [Kurento]. Licensed under [Apache 2.0 License].
-
-[Kurento]: https://kurento.org
-[KurentoImage]: https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120
-[Apache 2.0 License]: http://www.apache.org/licenses/LICENSE-2.0
-
-
-
-Kurento Media Server
-====================
 
 Kurento Media Server is Kurento's core element. It is responsible for media transmission, processing, loading and recording. It is implemented in low level technologies based on GStreamer to optimize the resource consumption. It provides the following features:
 
@@ -28,6 +23,13 @@ Kurento Media Server is Kurento's core element. It is responsible for media tran
 * Media storage supporting writing operations for WebM and MP4 and playing in all formats supported by GStreamer.
 * Automatic media transcoding between any of the codecs supported by GStreamer including VP8, H.264, H.263, AMR, OPUS, Speex, G.711, etc.
 
+
+This project is part of [FIWARE](https://www.fiware.org/). For more information
+check the FIWARE Catalogue entry for
+[Context Processing, Analysis and Visualization](https://github.com/Fiware/catalogue/tree/master/processing).
+
+| :books:[Documentation](https://kurento.rtfd.io/) | :page_facing_up: [Site](https://www.kurento.org/) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/processing/kurento) | :whale: [Docker Hub](https://hub.docker.com/r/fiware/stream-oriented-kurento/) | 
+| ---|---|---|---|
 
 
 About Kurento
