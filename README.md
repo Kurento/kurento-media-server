@@ -91,6 +91,7 @@ News:
 
 * [Kurento Blog](https://www.kurento.org/blog)
 * [Google Groups](https://groups.google.com/forum/#!forum/kurento)
+* [Kurento RoadMap](ROADMAP.md)
 
 Training: 
 
