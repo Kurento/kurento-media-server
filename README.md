@@ -108,6 +108,23 @@ All source code belonging to the Kurento project can be found in the [Kurento Gi
 [Kurento GitHub organization page]: https://github.com/Kurento
 
 
+Testing
+-------
+
+Kurento has a full set of different tests mainly focused in the integrated and system tests, more specifically 
+e2e tests that anyone can run to assess different parts of Kurento, namely functional, stability, tutorials, 
+and API.
+
+In order to assess properly Kurento from a final user perspective, a rich suite of E2E tests has been designed 
+and implemented. To that aim, the Kurento Testing Framework (KTF) has been created. KTF is a part of the Kurento 
+project aimed to carry out end-to-end (E2E) tests for Kurento. KTF has been implemented on the top of two 
+well-known open-source testing frameworks: JUnit and Selenium.
+
+If you want to know more about the Kurento Testing Framework and how to run all the available tests for Kurento you
+will find more information in [Kurento developers documentation > Testing]
+
+[Kurento developers documentation > Testing]: https://doc-kurento.readthedocs.io/en/stable/dev/testing.html
+
 
 Licensing and distribution
 --------------------------
