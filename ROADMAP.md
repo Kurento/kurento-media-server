@@ -47,6 +47,10 @@ after next planned release:
 
 - Update to OpenCV3.
 
+- Update GStreamer. 
+
+- Unified plan support
+
 ## Long term
 
 The following list of features are proposals regarding the longer-term evolution
@@ -56,4 +60,4 @@ you wish to get involved in the implementation or influence the roadmap
 
 - Support Microsoft Edge browser.
 
-- Update GStreamer.
+- Stability and Performance improvements.
