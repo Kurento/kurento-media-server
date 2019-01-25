@@ -7,6 +7,7 @@ Kurento Media Server
 
 [![FIWARE Chapter](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/media-streams.svg)](https://www.fiware.org/developers/catalogue/)
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Build Status](https://ci.openvidu.io/jenkins/buildStatus/icon?job=Development/kurento_media_server_merged_xenial)](https://ci.openvidu.io/jenkins/job/Development/kurento_media_server_merged_xenial)
 [![Docker badge](https://img.shields.io/docker/pulls/fiware/orion.svg)](https://hub.docker.com/r/fiware/stream-oriented-kurento/)
 [![Support badge]( https://img.shields.io/badge/tag-Kurento-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/kurento)
 <br/>
