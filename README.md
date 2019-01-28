@@ -2,12 +2,12 @@
     <img src="https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120">
 </a>
 
-
 Kurento Media Server
 ====================
 
 [![FIWARE Chapter](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/media-streams.svg)](https://www.fiware.org/developers/catalogue/)
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Build Status](https://ci.openvidu.io/jenkins/buildStatus/icon?job=Development/kurento_media_server_merged_xenial)]()
 [![Docker badge](https://img.shields.io/docker/pulls/fiware/orion.svg)](https://hub.docker.com/r/fiware/stream-oriented-kurento/)
 [![Support badge]( https://img.shields.io/badge/tag-Kurento-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/kurento)
 <br/>
@@ -92,6 +92,7 @@ News:
 
 * [Kurento Blog](https://www.kurento.org/blog)
 * [Google Groups](https://groups.google.com/forum/#!forum/kurento)
+* [Kurento RoadMap](ROADMAP.md)
 
 Training: 
 
@@ -106,6 +107,23 @@ All source code belonging to the Kurento project can be found in the [Kurento Gi
 
 [Kurento GitHub organization page]: https://github.com/Kurento
 
+
+Testing
+-------
+
+Kurento has a full set of different tests mainly focused in the integrated and system tests, more specifically 
+e2e tests that anyone can run to assess different parts of Kurento, namely functional, stability, tutorials, 
+and API.
+
+In order to assess properly Kurento from a final user perspective, a rich suite of E2E tests has been designed 
+and implemented. To that aim, the Kurento Testing Framework (KTF) has been created. KTF is a part of the Kurento 
+project aimed to carry out end-to-end (E2E) tests for Kurento. KTF has been implemented on the top of two 
+well-known open-source testing frameworks: JUnit and Selenium.
+
+If you want to know more about the Kurento Testing Framework and how to run all the available tests for Kurento you
+will find more information in [Kurento developers documentation > Testing]
+
+[Kurento developers documentation > Testing]: https://doc-kurento.readthedocs.io/en/stable/dev/testing.html
 
 
 Licensing and distribution
