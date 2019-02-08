@@ -1,30 +1,30 @@
 {
-  "mediaServer" : {
+  "mediaServer": {
     "resources": {
-    //  //Resources usage limit for raising an exception when an object creation is attempted
-    //  "exceptionLimit": "0.8",
-    //  // Resources usage limit for restarting the server when no objects are alive
-    //  "killLimit": "0.7",
-        // Garbage collector period in seconds
+        "//": "Resources usage limit for raising an exception when an object creation is attempted",
+        "//exceptionLimit": "0.8",
+        "//": "Resources usage limit for restarting the server when no objects are alive",
+        "//killLimit": "0.7",
+        "//": "Garbage collector period in seconds",
         "garbageCollectorPeriod": 240,
-        // Whether to disable the RPC request cache, for memory constrained environments
+        "//": "Whether to disable the RPC request cache, for memory constrained environments",
         "disableRequestCache": false
     },
-    "net" : {
+    "net": {
       "websocket": {
         "port": 8888,
-        //"secure": {
-        //  "port": 8433,
-        //  "certificate": "defaultCertificate.pem",
-        //  "password": ""
-        //},
-        //"registrar": {
-        //  "address": "ws://localhost:9090",
-        //  "localAddress": "localhost"
-        //},
-        // Maximum queue length of pending connections (see sysctl tcp_max_syn_backlog)
-        // Default SOMAXCONN (128)
-        //"connqueue": 128,
+        "//secure": {
+            "//port": 8433,
+            "//certificate": "defaultCertificate.pem",
+            "//password": ""
+        },
+        "//registrar": {
+            "//address": "ws://localhost:9090",
+            "//localAddress": "localhost"
+        },
+        "//": "Maximum queue length of pending connections (see sysctl tcp_max_syn_backlog)",
+        "//": "Default SOMAXCONN (128)",
+        "//connqueue": 128,
         "path": "kurento",
         "threads": 10
       }

@@ -50,13 +50,20 @@ protected:
 
   void runTests ()
   {
+    GST_WARNING ("AAA1");
     start ();
 
+    GST_WARNING ("AAA2");
     check_connect_call();
+    GST_WARNING ("AAA3");
     check_error_call();
+    GST_WARNING ("AAA4");
     check_create_pipeline_call();
+    GST_WARNING ("AAA5");
     check_bad_transaction_call();
+    GST_WARNING ("AAA6");
     check_transaction_call();
+    GST_WARNING ("AAA7");
   }
 };
 
@@ -334,12 +341,12 @@ BOOST_AUTO_TEST_CASE ( server_json_test )
   runTests();
 }
 
-BOOST_AUTO_TEST_CASE ( server_json_test_ipv6 )
-{
-  setWsHost ("ip6-localhost");
+//BOOST_AUTO_TEST_CASE ( server_json_test_ipv6 )
+//{
+//  setWsHost ("ip6-localhost");
 
-  runTests();
-}
+//  runTests();
+//}
 
 BOOST_AUTO_TEST_SUITE_END()
 

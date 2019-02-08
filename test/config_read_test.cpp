@@ -19,6 +19,7 @@
 #define BOOST_TEST_MODULE ConfigRead
 #include <boost/test/unit_test.hpp>
 
+#include <iostream>
 #include <sstream>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/info_parser.hpp>
