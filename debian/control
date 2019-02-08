@@ -1,8 +1,13 @@
 Source: kurento-media-server
-Maintainer: Kurento <kurento@googlegroups.com>
 Priority: optional
+Maintainer: Kurento <kurento@googlegroups.com>
 Build-Depends: debhelper (>= 9),
  cmake,
+ kms-cmake-utils (>= 6.7.0),
+ kms-core-dev (>= 6.7.0),
+ kms-elements-dev (>= 6.7.0),
+ kms-filters-dev (>= 6.7.0),
+ kurento-module-creator (>= 6.7.0),
  libboost-dev,
  libboost-filesystem-dev,
  libboost-log-dev,
@@ -11,31 +16,28 @@ Build-Depends: debhelper (>= 9),
  libboost-test-dev,
  libboost-thread-dev,
  libevent-dev,
- libssl-dev (<< 1.1.0) | libssl1.0-dev,
- kms-cmake-utils (>= 6.7.0),
- kms-core-dev (>= 6.7.0),
- kms-elements-dev (>= 6.7.0),
- kms-filters-dev (>= 6.7.0)
+ libglibmm-2.4-dev,
+ libsigc++-2.0-dev,
+ libssl1.0-dev | libssl-dev (<< 1.1.0)
 Standards-Version: 4.0.0
-Homepage: www.kurento.org
-Vcs-Browser: https://github.com/Kurento/kurento-media-server
 Vcs-Git: https://github.com/Kurento/kurento-media-server.git
+Vcs-Browser: https://github.com/Kurento/kurento-media-server
+Homepage: https://www.kurento.org
 
 Package: kurento-media-server
 Architecture: any
 Section: video
-Depends: ${shlibs:Depends},
- ${misc:Depends},
+Depends: ${shlibs:Depends}, ${misc:Depends},
  binutils,
- gstreamer1.5-libav (>= 1.7.0~0),
- gstreamer1.5-plugins-bad (>= 1.7.0~0),
- gstreamer1.5-plugins-base (>= 1.7.0~0),
- gstreamer1.5-plugins-good (>= 1.7.0~0),
- gstreamer1.5-plugins-ugly (>= 1.7.0~0),
- libgstreamer1.5-0 (>= 1.7.0~0),
+ gstreamer1.5-libav,
+ gstreamer1.5-plugins-bad,
+ gstreamer1.5-plugins-base,
+ gstreamer1.5-plugins-good,
+ gstreamer1.5-plugins-ugly,
  kms-core (>= 6.7.0),
  kms-elements (>= 6.7.0),
- kms-filters (>= 6.7.0)
+ kms-filters (>= 6.7.0),
+ libgstreamer1.5-0
 Breaks: kurento-media-server-6.0
 Replaces: kurento-media-server-6.0
 Description: Kurento Media Server
@@ -48,13 +50,14 @@ Section: devel
 Depends: kurento-media-server (= ${binary:Version}),
  ${misc:Depends},
  kms-cmake-utils (>= 6.7.0),
- kms-core-dev,
- kms-elements-dev,
- kms-filters-dev
+ kms-core-dev (>= 6.7.0),
+ kms-elements-dev (>= 6.7.0),
+ kms-filters-dev (>= 6.7.0),
+ kurento-module-creator (>= 6.7.0)
 Breaks: kurento-media-server-6.0-dev
 Replaces: kurento-media-server-6.0-dev
 Description: Kurento Media Server
- Development files
+ Development files.
 
 Package: kurento-media-server-dbg
 Architecture: any
@@ -67,4 +70,4 @@ Depends: kurento-media-server (= ${binary:Version}),
 Breaks: kurento-media-server-6.0-dbg
 Replaces: kurento-media-server-6.0-dbg
 Description: Kurento Media Server
- Debugging symbols
+ Debugging symbols.

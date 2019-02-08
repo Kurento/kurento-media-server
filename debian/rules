@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
 
-# Uncomment this to turn on verbose mode.
+# Uncomment this to enable verbose mode.
 #export DH_VERBOSE=1
 
 %:
