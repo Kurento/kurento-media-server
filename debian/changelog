@@ -1,8 +1,8 @@
-kurento-media-server (6.9.1) UNRELEASED; urgency=medium
+kurento-media-server (6.9.1-1kurento1) UNRELEASED; urgency=medium
 
-  * UNRELEASED
+  * debian: Review for 18.04 build
 
- -- Juan Navarro <juan.navarro@gmx.es>  Tue, 11 Dec 2018 16:39:46 +0100
+ -- Juan Navarro <juan.navarro@gmx.es>  Fri, 08 Feb 2019 10:47:44 +0100
 
 kurento-media-server (6.9.0) testing; urgency=medium
 
