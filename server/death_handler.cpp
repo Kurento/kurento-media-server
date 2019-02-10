@@ -603,6 +603,8 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
   // Overwrite sigaction with caller's address
 #if defined(__arm__)
   trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.arm_pc);
+#elif defined(__aarch64__)     
+  trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.pc);
 #else
 #if !defined(__i386__) && !defined(__x86_64__)
 #error Only ARM, x86 and x86-64 are supported
