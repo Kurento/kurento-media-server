@@ -79,7 +79,7 @@ start_kurento() {
     }
 
     # If set (null accepted), configure Kernel core dump output pattern
-    [ -n "${DAEMON_CORE_PATTERN+x}" ] && {
+    [ -n "${DAEMON_CORE_PATTERN:-}" ] && {
         echo "$DAEMON_CORE_PATTERN" | tee /proc/sys/kernel/core_pattern >/dev/null
     }
 
@@ -93,7 +93,7 @@ start_kurento() {
     }
 
     # If set and not null, configure per-process max open file descriptors
-    [ -n "${DAEMON_MAX_FILES:+x}" ] && {
+    [ -n "${DAEMON_MAX_FILES:-}" ] && {
         # Maximum limit value allowed by Ubuntu: 2^20 = 1048576
         MAXIMUM_LIMIT=1048576
         [ "$DAEMON_MAX_FILES" -gt "$MAXIMUM_LIMIT" ] && DAEMON_MAX_FILES="$MAXIMUM_LIMIT"
@@ -105,7 +105,7 @@ start_kurento() {
     }
 
     # If set and not null, configure per-user max threads
-    [ -n "${DAEMON_MAX_THREADS:+x}" ] && {
+    [ -n "${DAEMON_MAX_THREADS:-}" ] && {
         ulimit -Sp "$DAEMON_MAX_THREADS" || {
             log_failure_msg "Cannot set limit for max threads to '$DAEMON_MAX_THREADS'"
             exit 1
