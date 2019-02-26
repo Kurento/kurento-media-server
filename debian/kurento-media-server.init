@@ -84,11 +84,11 @@ start_kurento() {
     }
 
     # Update process' resource limits
-    log_action_msg "Configure resource limits for Kurento Media Server"
+    log_action_msg "Configure Kernel resource limits for Kurento Media Server"
 
     # Enable generation of Kernel core dumps / crash reports
     ulimit -c unlimited || {
-        log_failure_msg "Cannot disable limits for size of Kernel core dumps"
+        log_failure_msg "Cannot set limit: unlimited core dump size"
         exit 1
     }
 
@@ -99,7 +99,7 @@ start_kurento() {
         [ "$DAEMON_MAX_FILES" -gt "$MAXIMUM_LIMIT" ] && DAEMON_MAX_FILES="$MAXIMUM_LIMIT"
 
         ulimit -n "$DAEMON_MAX_FILES" || {
-            log_failure_msg "Cannot set limit for max open file descriptors to '$DAEMON_MAX_FILES'"
+            log_failure_msg "Cannot set limit: $DAEMON_MAX_FILES max open file descriptors"
             exit 1
         }
     }
@@ -107,7 +107,7 @@ start_kurento() {
     # If set and not null, configure per-user max threads
     [ -n "${DAEMON_MAX_THREADS:-}" ] && {
         ulimit -Sp "$DAEMON_MAX_THREADS" || {
-            log_failure_msg "Cannot set limit for max threads to '$DAEMON_MAX_THREADS'"
+            log_failure_msg "Cannot set limit: $DAEMON_MAX_THREADS max threads"
             exit 1
         }
     }
