@@ -27,7 +27,7 @@ This project is part of [FIWARE](https://www.fiware.org/). For more information
 check the FIWARE Catalogue entry for
 [Context Processing, Analysis and Visualization](https://github.com/Fiware/catalogue/tree/master/processing).
 
-| :books:[Documentation](https://kurento.rtfd.io/) | :page_facing_up: [Site](https://www.kurento.org/) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/processing/kurento) | :whale: [Docker Hub](https://hub.docker.com/r/fiware/stream-oriented-kurento/) | 
+| :books:[Documentation](https://www.kurento.org/documentation) | :page_facing_up: [Site](https://www.kurento.org/) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/processing/kurento) | :whale: [Docker Hub](https://hub.docker.com/r/fiware/stream-oriented-kurento/) |
 | ---|---|---|---|
 
 
