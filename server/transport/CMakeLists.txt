@@ -6,6 +6,9 @@ set (TRANSPORT_SOURCES
 )
 
 add_library (transport ${TRANSPORT_SOURCES})
+if(SANITIZERS_ENABLED)
+  add_sanitizers(transport)
+endif()
 
 add_dependencies(transport websocketTransport)
 

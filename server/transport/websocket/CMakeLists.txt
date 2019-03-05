@@ -19,6 +19,9 @@ set_source_files_properties(${WEBSOCKET_SOURCES}
 add_library (websocketTransport
   ${WEBSOCKET_SOURCES}
 )
+if(SANITIZERS_ENABLED)
+  add_sanitizers(websocketTransport)
+endif()
 
 target_link_libraries(websocketTransport
   ${GSTREAMER_LIBRARIES}

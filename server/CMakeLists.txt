@@ -23,6 +23,9 @@ SET(KMSC_SOURCE
 add_definitions(-DBOOST_LOG_DYN_LINK)
 
 add_executable(kurento-media-server ${KMSC_SOURCE})
+if(SANITIZERS_ENABLED)
+  add_sanitizers(kurento-media-server)
+endif()
 
 add_dependencies(kurento-media-server transport)
 

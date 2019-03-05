@@ -10,6 +10,10 @@ set(TEST_VARIABLES
 add_definitions(-DBOOST_TEST_DYN_LINK -D_WEBSOCKETPP_CPP11_STL_)
 
 add_library(base_test EXCLUDE_FROM_ALL BaseTest.cpp)
+if(SANITIZERS_ENABLED)
+  add_sanitizers(base_test)
+endif()
+
 set_property(TARGET base_test
   PROPERTY
     INCLUDE_DIRECTORIES

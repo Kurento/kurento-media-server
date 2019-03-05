@@ -12,6 +12,9 @@ set(${nameUnderscoreUpper}_SOURCES
 )
 
 add_library(${name} MODULE ${${nameUnderscoreUpper}_SOURCES})
+if(SANITIZERS_ENABLED)
+  add_sanitizers(${name})
+endif()
 
 target_link_libraries(${name}
   ${GSTREAMER_LIBRARIES}
