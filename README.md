@@ -1,4 +1,4 @@
-<a href="https://kurento.org">
+<a href="https://www.kurento.org/">
     <img src="https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120">
 </a>
 
@@ -8,7 +8,7 @@ Kurento Media Server
 [![FIWARE Chapter](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/media-streams.svg)](https://www.fiware.org/developers/catalogue/)
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://ci.openvidu.io/jenkins/buildStatus/icon?job=Development/kurento_media_server_merged_xenial)]()
-[![Docker badge](https://img.shields.io/docker/pulls/fiware/orion.svg)](https://hub.docker.com/r/fiware/stream-oriented-kurento/)
+[![Docker badge](https://img.shields.io/docker/pulls/fiware/orion.svg)](https://hub.docker.com/r/kurento/kurento-media-server)
 [![Support badge]( https://img.shields.io/badge/tag-Kurento-orange.svg?logo=stackoverflow)](http://stackoverflow.com/questions/tagged/kurento)
 <br/>
 [![Documentation badge](https://readthedocs.org/projects/fiware-orion/badge/?version=latest)](https://doc-kurento.readthedocs.io)
@@ -23,20 +23,21 @@ Kurento Media Server is Kurento's core element. It is responsible for media tran
 * Automatic media transcoding between any of the codecs supported by GStreamer including VP8, H.264, H.263, AMR, OPUS, Speex, G.711, etc.
 
 
-This project is part of [FIWARE](https://www.fiware.org/). For more information
-check the FIWARE Catalogue entry for
+This project is part of [FIWARE](https://www.fiware.org/). For more information check the FIWARE Catalogue entry for
 [Context Processing, Analysis and Visualization](https://github.com/Fiware/catalogue/tree/master/processing).
 
-| :books:[Documentation](https://www.kurento.org/documentation) | :page_facing_up: [Site](https://www.kurento.org/) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/processing/kurento) | :whale: [Docker Hub](https://hub.docker.com/r/fiware/stream-oriented-kurento/) |
+| :books:[Documentation](https://www.kurento.org/documentation) | :page_facing_up: [Site](https://www.kurento.org/) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/processing/kurento) | :whale: [Docker Hub](https://hub.docker.com/r/kurento/kurento-media-server) |
 | ---|---|---|---|
+
 
 
 About Kurento
 =============
 
-Kurento is an open source software project providing a platform suitable for creating modular applications with advanced real-time communication capabilities. For knowing more about Kurento, please visit the Kurento project website: https://www.kurento.org.
+Kurento is an open source software project providing a platform suitable for creating modular applications with advanced real-time communication capabilities. For knowing more about Kurento, please visit the Kurento project website: https://www.kurento.org/.
 
-Kurento is part of [FIWARE]. For further information on the relationship of FIWARE and Kurento check the [Kurento FIWARE Catalog Entry]. 
+Kurento is part of [FIWARE]. For further information on the relationship of FIWARE and Kurento check the [Kurento FIWARE Catalog Entry].
+
 Kurento has been rated within [FIWARE] as follows:
 
 -   **Version Tested:**
@@ -68,7 +69,7 @@ Documentation
 The Kurento project provides detailed [documentation] including tutorials, installation and development guides. The [Open API specification], also known as *Kurento Protocol*, is available on [apiary.io].
 
 [documentation]: https://www.kurento.org/documentation
-[Open API specification]: http://kurento.github.io/doc-kurento/
+[Open API specification]: https://doc-kurento.readthedocs.io/en/stable/features/kurento_api.html
 [apiary.io]: http://docs.streamoriented.apiary.io/
 
 
@@ -79,9 +80,9 @@ Useful Links
 Usage:
 
 * [Installation Guide](https://doc-kurento.readthedocs.io/en/stable/user/installation.html)
-* [Docker Deployment Guide](https://hub.docker.com/r/kurento/kurento-media-server/)
-* [Compilation Guide](https://doc-kurento.readthedocs.io/en/stable/dev/dev_guide.html#developing-kms)
+* [Docker Deployment Guide](https://hub.docker.com/r/kurento/kurento-media-server)
 * [Contribution Guide](https://doc-kurento.readthedocs.io/en/stable/project/contribute.html)
+* [Developer Guide](https://doc-kurento.readthedocs.io/en/stable/dev/dev_guide.html)
 
 Issues:
 
@@ -92,9 +93,9 @@ News:
 
 * [Kurento Blog](https://www.kurento.org/blog)
 * [Google Groups](https://groups.google.com/forum/#!forum/kurento)
-* [Kurento RoadMap](ROADMAP.md)
+* [Kurento RoadMap](https://github.com/Kurento/kurento-media-server/blob/master/ROADMAP.md)
 
-Training: 
+Training:
 
 * [Kurento tutorials](https://doc-kurento.readthedocs.io/en/stable/user/tutorials.html)
 
@@ -108,28 +109,24 @@ All source code belonging to the Kurento project can be found in the [Kurento Gi
 [Kurento GitHub organization page]: https://github.com/Kurento
 
 
+
 Testing
 -------
 
-Kurento has a full set of different tests mainly focused in the integrated and system tests, more specifically 
-e2e tests that anyone can run to assess different parts of Kurento, namely functional, stability, tutorials, 
-and API.
+Kurento has a full set of different tests mainly focused in the integrated and system tests, more specifically e2e tests that anyone can run to assess different parts of Kurento, namely functional, stability, tutorials, and API.
 
-In order to assess properly Kurento from a final user perspective, a rich suite of E2E tests has been designed 
-and implemented. To that aim, the Kurento Testing Framework (KTF) has been created. KTF is a part of the Kurento 
-project aimed to carry out end-to-end (E2E) tests for Kurento. KTF has been implemented on the top of two 
-well-known open-source testing frameworks: JUnit and Selenium.
+In order to assess properly Kurento from a final user perspective, a rich suite of E2E tests has been designed and implemented. To that aim, the Kurento Testing Framework (KTF) has been created. KTF is a part of the Kurento project aimed to carry out end-to-end (E2E) tests for Kurento. KTF has been implemented on the top of two well-known open-source testing frameworks: JUnit and Selenium.
 
-If you want to know more about the Kurento Testing Framework and how to run all the available tests for Kurento you
-will find more information in [Kurento developers documentation > Testing]
+If you want to know more about the Kurento Testing Framework and how to run all the available tests for Kurento you will find more information in [Kurento developers documentation > Testing]
 
 [Kurento developers documentation > Testing]: https://doc-kurento.readthedocs.io/en/stable/dev/testing.html
+
 
 
 Licensing and distribution
 --------------------------
 
-Copyright 2018 Kurento
+Copyright 2019 Kurento
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
