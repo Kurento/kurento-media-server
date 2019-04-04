@@ -1,8 +1,10 @@
-kurento-media-server (6.9.1-1kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.10.0-0kurento1) testing; urgency=medium
 
   * debian: Review for 18.04 build
+  * debian init: Use "${VAR:-}" expansions to check if set
+  * debian init: Minor rewording on kernel limit messages
 
- -- Juan Navarro <juan.navarro@gmx.es>  Fri, 08 Feb 2019 10:47:44 +0100
+ -- Juan Navarro <juan.navarro@gmx.es>  Thu, 04 Apr 2019 10:32:33 +0200
 
 kurento-media-server (6.9.0) testing; urgency=medium
 
