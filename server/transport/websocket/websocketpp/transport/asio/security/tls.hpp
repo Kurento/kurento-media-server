@@ -383,7 +383,12 @@ protected:
   lib::error_code translate_ec (ErrorCodeType ec)
   {
     if (ec.category() == lib::asio::error::get_ssl_category() ) {
-      if (ERR_GET_REASON (ec.value() ) == SSL_R_SHORT_READ) {
+#ifdef SSL_R_SHORT_READ
+      bool is_short_read = ERR_GET_REASON (ec.value() ) == SSL_R_SHORT_READ;
+#else
+      bool is_short_read = ec == boost::asio::ssl::error::stream_truncated;
+#endif
+      if (is_short_read) {
         return make_error_code (transport::error::tls_short_read);
       } else {
         // We know it is a TLS related error, but otherwise don't know
