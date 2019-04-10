@@ -1,8 +1,9 @@
-kurento-media-server (6.10.1-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.11.0-0kurento1) UNRELEASED; urgency=medium
 
   * UNRELEASED
+  * debian: Add missing dependency
 
- -- Juan Navarro <juan.navarro@gmx.es>  Tue, 09 Apr 2019 10:47:56 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Wed, 10 Apr 2019 14:14:40 +0200
 
 kurento-media-server (6.10.0-0kurento1) testing; urgency=medium
 
