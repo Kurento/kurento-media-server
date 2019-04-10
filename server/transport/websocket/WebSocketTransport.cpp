@@ -28,6 +28,7 @@
 #include <UUIDGenerator.hpp>
 
 #include <boost/filesystem.hpp>
+#include <boost/asio/ip/basic_endpoint.hpp>
 
 #include <memory>
 #include <type_traits>
@@ -44,6 +45,7 @@ namespace kurento
 const std::string DEFAULT_LOCAL_ADDRESS = "localhost";
 
 /* Default config values */
+const bool WEBSOCKET_IPV6_DEFAULT = true;
 const ushort WEBSOCKET_PORT_DEFAULT = 8888;
 const std::string WEBSOCKET_PATH_DEFAULT = "kurento";
 const int WEBSOCKET_THREADS_DEFAULT = 10;
@@ -71,14 +73,19 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                         std::shared_ptr<Processor> processor) :
   processor (processor)
 {
+  bool ipv6;
   ushort port;
   ushort securePort;
   int connqueue;
   std::string registrarAddress;
   std::string localAddress;
 
+  ipv6 = config.get<bool> ("mediaServer.net.websocket.ipv6",
+                           WEBSOCKET_IPV6_DEFAULT);
+
   port = config.get<ushort> ("mediaServer.net.websocket.port",
                              WEBSOCKET_PORT_DEFAULT);
+
   securePort = config.get<ushort> ("mediaServer.net.websocket.secure.port", 0);
 
   path = config.get<std::string> ("mediaServer.net.websocket.path",
@@ -124,7 +131,13 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                           std::placeholders::_2) );
 
   try {
-    server.listen (port);
+    //server.listen (port);
+    if (ipv6) {
+      server.listen (boost::asio::ip::tcp::v6(), port);
+    }
+    else {
+      server.listen (boost::asio::ip::tcp::v4(), port);
+    }
   } catch (websocketpp::exception &e) {
     GST_ERROR ("Error starting listen for websocket transport on port %d: %s", port,
                e.what() );
