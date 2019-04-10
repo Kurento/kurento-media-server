@@ -215,7 +215,12 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
       });
 
       try {
-        secureServer.listen (securePort);
+        if (ipv6) {
+          secureServer.listen (boost::asio::ip::tcp::v6(), securePort);
+        }
+        else {
+          secureServer.listen (boost::asio::ip::tcp::v4(), securePort);
+        }
         hasSecureServer = true;
       } catch (websocketpp::exception &e) {
         throw configuration_exception ("Error listening on port" +
