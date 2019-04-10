@@ -131,7 +131,6 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                           std::placeholders::_2) );
 
   try {
-    //server.listen (port);
     if (ipv6) {
       server.listen (boost::asio::ip::tcp::v6(), port);
     }
