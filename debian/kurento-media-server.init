@@ -78,7 +78,7 @@ start_kurento() {
         log_success_msg "Changed owner of '$DAEMON_LOG_DIR' to '$DAEMON_USER'"
     }
 
-    # If set (null accepted), configure Kernel core dump output pattern
+    # If set and non-null, configure Kernel core dump output pattern
     [ -n "${DAEMON_CORE_PATTERN:-}" ] && {
         echo "$DAEMON_CORE_PATTERN" | tee /proc/sys/kernel/core_pattern >/dev/null
     }
