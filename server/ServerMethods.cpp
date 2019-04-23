@@ -75,7 +75,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   bool disableRequestCache;
 
   collectorInterval = std::chrono::seconds (
-                        config.get<int> ("mediaServer.resources.garbageCollectorPeriod",
+                        config.get<long> ("mediaServer.resources.garbageCollectorPeriod",
                                          MediaSet::getCollectorInterval().count() ) );
   MediaSet::setCollectorInterval (collectorInterval);
 
@@ -89,11 +89,24 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
   GST_INFO ("Using above %.2f%% of system limits will throw NOT_ENOUGH_RESOURCES exception",
             resourceLimitPercent * 100.0f);
 
-  int maxThreads = getMaxThreads ();
-  int maxOpenFiles = getMaxOpenFiles ();
+  std::string maxThreadsStr;
+  const rlim_t maxThreads = getMaxThreads ();
+  if (maxThreads == RLIM_INFINITY) {
+    maxThreadsStr = "unlimited";
+  } else {
+    maxThreadsStr = std::to_string(maxThreads);
+  }
 
-  GST_INFO ("System limits for this process: %d threads, %d file descriptors",
-            maxThreads, maxOpenFiles);
+  std::string maxOpenFilesStr;
+  const rlim_t maxOpenFiles = getMaxOpenFiles ();
+  if (maxOpenFiles == RLIM_INFINITY) {
+    maxOpenFilesStr = "unlimited";
+  } else {
+    maxOpenFilesStr = std::to_string(maxOpenFiles);
+  }
+
+  GST_INFO ("System limits: %s threads, %s files",
+      maxThreadsStr.c_str(), maxOpenFilesStr.c_str());
 
   instanceId = generateUUID();
 

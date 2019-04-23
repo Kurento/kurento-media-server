@@ -24,8 +24,6 @@
 #include <KurentoException.hpp>
 #include <MediaSet.hpp>
 
-#include <sys/resource.h>
-
 #define GST_CAT_DEFAULT kurento_resource_manager
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "KurentoResourceManager"
@@ -33,7 +31,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 namespace kurento
 {
 
-static int
+static long int
 get_int (std::string &str, char sep, int nToken)
 {
   size_t start = str.find_first_not_of (sep), end;
@@ -44,7 +42,7 @@ get_int (std::string &str, char sep, int nToken)
 
     if (count++ == nToken) {
       str[end] = '\0';
-      return atoi (&str.c_str() [start]);
+      return atol (&str.c_str() [start]);
     }
 
     start = str.find_first_not_of (sep, end);
@@ -53,11 +51,11 @@ get_int (std::string &str, char sep, int nToken)
   return 0;
 }
 
-static int
+static long int
 getNumberOfThreads ()
 {
   std::string stat;
-  std::ifstream stat_file ("/proc/self/stat");
+  std::ifstream stat_file ("/proc/self/stat");  // `man proc`
 
   std::getline (stat_file, stat);
   stat_file.close();
@@ -65,35 +63,35 @@ getNumberOfThreads ()
   return get_int (stat, ' ', 19);
 }
 
-int
+rlim_t
 getMaxThreads ()
 {
-  static int maxThreads = 0;
+  static rlim_t limit = 0;
 
-  if (maxThreads == 0) {
-    struct rlimit limits {};
+  if (limit == 0) {
+    struct rlimit limits;
     getrlimit (RLIMIT_NPROC, &limits);
 
-    maxThreads = limits.rlim_cur;
+    limit = limits.rlim_cur;
   }
 
-  return maxThreads;
+  return limit;
 }
 
 static void
 checkThreads (float limit_percent)
 {
-  const int maxThreads = getMaxThreads ();
-  if (maxThreads <= 0) {
+  const rlim_t maxThreads = getMaxThreads ();
+  if (maxThreads <= 0 || maxThreads == RLIM_INFINITY) {
     return;
   }
 
-  const int maxThreadsKms = (maxThreads * limit_percent);
-  const int nThreads = getNumberOfThreads ();
+  const rlim_t maxThreadsKms = (rlim_t)(maxThreads * limit_percent);
+  const rlim_t nThreads = (rlim_t)getNumberOfThreads ();
 
   if (nThreads > maxThreadsKms) {
     std::ostringstream oss;
-    oss << "Reached maximum threshold for number of threads: " << maxThreadsKms;
+    oss << "Reached KMS threads limit: " << maxThreadsKms;
     std::string exMessage = oss.str();
 
     oss << " (system max: " << maxThreads << ");"
@@ -105,25 +103,25 @@ checkThreads (float limit_percent)
   }
 }
 
-int
+rlim_t
 getMaxOpenFiles ()
 {
-  static int maxOpenFiles = 0;
+  static rlim_t limit = 0;
 
-  if (maxOpenFiles == 0) {
-    struct rlimit limits {};
+  if (limit == 0) {
+    struct rlimit limits;
     getrlimit (RLIMIT_NOFILE, &limits);
 
-    maxOpenFiles = limits.rlim_cur;
+    limit = limits.rlim_cur;
   }
 
-  return maxOpenFiles;
+  return limit;
 }
 
-static int
+static long int
 getNumberOfOpenFiles ()
 {
-  int openFiles = 0;
+  long int openFiles = 0;
   DIR *d;
   struct dirent *dir;
 
@@ -141,18 +139,17 @@ getNumberOfOpenFiles ()
 static void
 checkOpenFiles (float limit_percent)
 {
-  const int maxOpenFiles = getMaxOpenFiles ();
-  if (maxOpenFiles <= 0) {
+  const rlim_t maxOpenFiles = getMaxOpenFiles ();
+  if (maxOpenFiles <= 0 || maxOpenFiles == RLIM_INFINITY) {
     return;
   }
 
-  const int maxOpenFilesKms = (maxOpenFiles * limit_percent);
-  const int nOpenFiles = getNumberOfOpenFiles ();
+  const rlim_t maxOpenFilesKms = (rlim_t)(maxOpenFiles * limit_percent);
+  const rlim_t nOpenFiles = (rlim_t)getNumberOfOpenFiles ();
 
   if (nOpenFiles > maxOpenFilesKms) {
     std::ostringstream oss;
-    oss << "Reached maximum threshold for number of open files: "
-        << maxOpenFilesKms;
+    oss << "Reached KMS files limit: " << maxOpenFilesKms;
     std::string exMessage = oss.str();
 
     oss << " (system max: " << maxOpenFiles << ");"
@@ -180,7 +177,8 @@ void killServerOnLowResources (float limit_percent)
       checkResources (limit_percent);
     } catch (KurentoException &e) {
       if (e.getCode() == NOT_ENOUGH_RESOURCES) {
-        GST_ERROR ("Resources over the limit, server will be killed");
+        GST_ERROR ("Resources over the limit, server will be killed: %s",
+            e.what());
         kill ( getpid(), SIGTERM );
       }
     }

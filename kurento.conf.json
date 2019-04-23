@@ -3,7 +3,7 @@
     "resources": {
         "//": "Resources usage limit for raising an exception when an object creation is attempted",
         "//exceptionLimit": "0.8",
-        "//": "Resources usage limit for restarting the server when no objects are alive",
+        "//": "Resources usage limit for killing the server when no objects are alive",
         "//killLimit": "0.7",
         "//": "Garbage collector period in seconds",
         "garbageCollectorPeriod": 240,
