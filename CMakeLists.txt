@@ -65,9 +65,9 @@ find_package(OpenSSL REQUIRED)
 
 find_package(PkgConfig)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.5)
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.5>=1.7.0~0)
-pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.5>=1.7.0~0)
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
+pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.7.0~0)
+pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0>=1.7.0~0)
 pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
 
 add_subdirectory(server)

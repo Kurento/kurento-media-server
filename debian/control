@@ -50,6 +50,7 @@ Architecture: any
 Section: devel
 Depends: kurento-media-server (= ${binary:Version}),
  ${misc:Depends},
+ libwebsocketpp-dev (>= 0.7.0-11),
  kms-cmake-utils (>= 6.7.0),
  kms-core-dev (>= 6.7.0),
  kms-elements-dev (>= 6.7.0),
