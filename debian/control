@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 9),
  libboost-thread-dev,
  libevent-dev,
  libglibmm-2.4-dev,
- libgstreamer-plugins-base1.5-dev,
+ libgstreamer-plugins-base1.0-dev,
  libsigc++-2.0-dev,
  libssl1.0-dev | libssl-dev (<< 1.1.0)
 Standards-Version: 4.0.0
@@ -30,15 +30,15 @@ Architecture: any
 Section: video
 Depends: ${shlibs:Depends}, ${misc:Depends},
  binutils,
- gstreamer1.5-libav,
- gstreamer1.5-plugins-bad,
- gstreamer1.5-plugins-base,
- gstreamer1.5-plugins-good,
- gstreamer1.5-plugins-ugly,
+ gstreamer1.0-libav,
+ gstreamer1.0-plugins-bad,
+ gstreamer1.0-plugins-base,
+ gstreamer1.0-plugins-good,
+ gstreamer1.0-plugins-ugly,
  kms-core (>= 6.7.0),
  kms-elements (>= 6.7.0),
  kms-filters (>= 6.7.0),
- libgstreamer-plugins-base1.5-0
+ libgstreamer-plugins-base1.0-0
 Breaks: kurento-media-server-6.0
 Replaces: kurento-media-server-6.0
 Description: Kurento Media Server
