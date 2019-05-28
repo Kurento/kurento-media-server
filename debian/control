@@ -19,7 +19,8 @@ Build-Depends: debhelper (>= 9),
  libglibmm-2.4-dev,
  libgstreamer-plugins-base1.0-dev,
  libsigc++-2.0-dev,
- libssl1.0-dev | libssl-dev (<< 1.1.0)
+ libssl1.0-dev | libssl-dev (<< 1.1.0),
+ libwebsocketpp-dev
 Standards-Version: 4.0.0
 Vcs-Git: https://github.com/Kurento/kurento-media-server.git
 Vcs-Browser: https://github.com/Kurento/kurento-media-server
@@ -50,12 +51,12 @@ Architecture: any
 Section: devel
 Depends: kurento-media-server (= ${binary:Version}),
  ${misc:Depends},
- libwebsocketpp-dev (>= 0.7.0-11),
  kms-cmake-utils (>= 6.7.0),
  kms-core-dev (>= 6.7.0),
  kms-elements-dev (>= 6.7.0),
  kms-filters-dev (>= 6.7.0),
- kurento-module-creator (>= 6.7.0)
+ kurento-module-creator (>= 6.7.0),
+ libwebsocketpp-dev
 Breaks: kurento-media-server-6.0-dev
 Replaces: kurento-media-server-6.0-dev
 Description: Kurento Media Server
