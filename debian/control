@@ -20,7 +20,7 @@ Build-Depends: debhelper (>= 9),
  libglibmm-2.4-dev,
  libgstreamer-plugins-base1.0-dev,
  libsigc++-2.0-dev,
- libssl1.0-dev | libssl-dev (<< 1.1.0),
+ libssl-dev,
  libwebsocketpp-dev
 Standards-Version: 4.0.0
 Vcs-Git: https://github.com/Kurento/kurento-media-server.git
