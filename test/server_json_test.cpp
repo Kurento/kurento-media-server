@@ -50,20 +50,12 @@ protected:
 
   void runTests ()
   {
-    GST_WARNING ("AAA1");
     start ();
-
-    GST_WARNING ("AAA2");
     check_connect_call();
-    GST_WARNING ("AAA3");
     check_error_call();
-    GST_WARNING ("AAA4");
     check_create_pipeline_call();
-    GST_WARNING ("AAA5");
     check_bad_transaction_call();
-    GST_WARNING ("AAA6");
     check_transaction_call();
-    GST_WARNING ("AAA7");
   }
 };
 

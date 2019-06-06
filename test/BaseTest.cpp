@@ -67,10 +67,7 @@ F::write_config (const boost::filesystem::path &orig, uint port)
 
   // Change port on config
   boost::property_tree::ptree config;
-
-  GST_WARNING ("DDD1");
   boost::property_tree::json_parser::read_json (orig.string(), config);
-  GST_WARNING ("DDD2");
 
   boost::property_tree::ptree &wsConfig =
     config.get_child ("mediaServer.net.websocket");
@@ -107,21 +104,16 @@ F::start_server ()
   GST_DEBUG ("Use TEST_BIN_PATH=%s", bin_path);
   GST_DEBUG ("Use TEST_CONF_PATH=%s", conf_path);
 
-  GST_WARNING ("CCC1");
-
   // Find an empty port
   boost::asio::io_service ios;
   boost::asio::ip::tcp::endpoint ep (boost::asio::ip::tcp::v6(), 0);
   boost::asio::ip::tcp::acceptor acceptor (ios, ep);
   acceptor.set_option (boost::asio::socket_base::reuse_address (true) );
-  GST_WARNING ("CCC2");
   acceptor.listen();
   uint port = acceptor.local_endpoint().port();
 
-  GST_WARNING ("CCC3");
   boost::filesystem::path configFilePath = boost::filesystem::absolute
       (write_config (boost::filesystem::path (conf_path), port));
-  GST_WARNING ("CCC4");
 
   create_ws_uri (port);
 
@@ -130,8 +122,6 @@ F::start_server ()
 
 
   pid = fork();
-
-  GST_WARNING ("CCC5");
 
   if (pid == 0) {
     int rc = execl (bin_path, bin_path,
@@ -387,9 +377,7 @@ F::start ()
 
   id = 0;
 
-  GST_WARNING ("BBB1");
   start_server();
-  GST_WARNING ("BBB2");
 
   BOOST_REQUIRE_MESSAGE (pid > 0, "Error launching Kurento Media Server");
 
