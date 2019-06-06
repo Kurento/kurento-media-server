@@ -36,6 +36,9 @@
 #include <sys/wait.h>
 #include <gst/gst.h>
 
+#include <errno.h>
+#include <string.h>
+
 #define GST_CAT_DEFAULT _base_test_
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "test_base"
@@ -89,14 +92,20 @@ void
 F::start_server ()
 {
   pid = -1;
-  char *conf_file, *binary_dir;
+  char *conf_path, *bin_path;
 
-  conf_file = getenv ("MEDIA_SERVER_CONF_FILE");
-  binary_dir = getenv ("SERVER_DIR");
-
-  if (conf_file == nullptr) {
-    BOOST_FAIL ("No configuration file for Kurento Media Server");
+  bin_path = getenv ("TEST_BIN_PATH");
+  if (bin_path == nullptr) {
+    BOOST_FAIL ("TEST_BIN_PATH is unset");
   }
+
+  conf_path = getenv ("TEST_CONF_PATH");
+  if (conf_path == nullptr) {
+    BOOST_FAIL ("TEST_CONF_PATH is unset");
+  }
+
+  GST_DEBUG ("Use TEST_BIN_PATH=%s", bin_path);
+  GST_DEBUG ("Use TEST_CONF_PATH=%s", conf_path);
 
   GST_WARNING ("CCC1");
 
@@ -110,8 +119,8 @@ F::start_server ()
   uint port = acceptor.local_endpoint().port();
 
   GST_WARNING ("CCC3");
-  boost::filesystem::path configFile = write_config (boost::filesystem::path (
-                                         conf_file), port);
+  boost::filesystem::path configFilePath = boost::filesystem::absolute
+      (write_config (boost::filesystem::path (conf_path), port));
   GST_WARNING ("CCC4");
 
   create_ws_uri (port);
@@ -125,11 +134,18 @@ F::start_server ()
   GST_WARNING ("CCC5");
 
   if (pid == 0) {
-    std::string  confFileParam = "--conf-file=" + configFile.string();
-    std::string modulesConfigParam = "--modules-config-path=/etc/kurento/modules" ;
-
-    execl (binary_dir, "kurento-media-server", confFileParam.c_str(),
-           modulesConfigParam.c_str(), NULL);
+    int rc = execl (bin_path, bin_path,
+        //"--modules-path=.",
+        //"--modules-config-path=./config",
+        //"--conf-file=./config/kurento.conf.json",
+        std::string("--conf-file=" + configFilePath.native()).c_str(),
+        //"--gst-plugin-path=.",
+        NULL
+    );
+    if (rc == -1) {
+      BOOST_FAIL ("Error in execl(): " << strerror(errno)
+          << " (" << bin_path << ")");
+    }
   } else if (pid < 0) {
     BOOST_FAIL ("Error executing server");
   }
