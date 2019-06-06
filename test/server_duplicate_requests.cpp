@@ -26,7 +26,7 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define GST_DEFAULT_NAME "test_server_duplicate_requests"
 
-#define VIDEO_URI "https://ci.kurento.com/video/sintel.webm"
+#define VIDEO_URI "http://files.openvidu.io/video/format/sintel.webm"
 #define RECORDER_URI_1 "file:///tmp/recorder1.webm"
 #define RECORDER_URI_2 "file:///tmp/recorder2.webm"
 
