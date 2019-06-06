@@ -139,7 +139,7 @@ ClientHandler::check_bad_transaction_call()
             "\"params\":{"
             "\"constructorParams\":{"
             "\"mediaPipeline\":\"5b96c1ad-46ba-4366-8241-fbc1cd0e9bbd\","
-            "\"uri\":\"http://files.kurento.org/video/small.webm\"},"
+            "\"uri\":\"http://files.openvidu.io/video/format/small.webm\"},"
             "\"transaction\":{"
             "\"_events\":{},"
             "\"_maxListeners\":10,"
@@ -181,7 +181,7 @@ ClientHandler::check_transaction_call()
 
   req_str =
       "{\"id\":" + std::to_string(getId()) +
-      R"(,"jsonrpc":"2.0","method":"transaction","params":{"operations":[{"id":0,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{},"type":"MediaPipeline"}},{"id":1,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{"mediaPipeline":"newref:0","uri":"http://files.kurento.org/video/small.webm"},"type":"PlayerEndpoint"}},{"id":2,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{"mediaPipeline":"newref:0"},"type":"WebRtcEndpoint"}},{"id":3,"jsonrpc":"2.0","method":"invoke","params":{"object":"newref:1","operation":"connect","operationParams":{"sink":"newref:2"}}}],"sessionId":"b2b81900-2902-4417-a552-973911efec4c"}})";
+      R"(,"jsonrpc":"2.0","method":"transaction","params":{"operations":[{"id":0,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{},"type":"MediaPipeline"}},{"id":1,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{"mediaPipeline":"newref:0","uri":"http://files.openvidu.io/video/format/small.webm"},"type":"PlayerEndpoint"}},{"id":2,"jsonrpc":"2.0","method":"create","params":{"constructorParams":{"mediaPipeline":"newref:0"},"type":"WebRtcEndpoint"}},{"id":3,"jsonrpc":"2.0","method":"invoke","params":{"object":"newref:1","operation":"connect","operationParams":{"sink":"newref:2"}}}],"sessionId":"b2b81900-2902-4417-a552-973911efec4c"}})";
 
   BOOST_REQUIRE (reader.parse (req_str, request) );
   response = sendRequest (request);
