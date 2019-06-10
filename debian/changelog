@@ -1,9 +1,21 @@
-kurento-media-server (6.11.0-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (7.0.0-0kurento1) UNRELEASED; urgency=medium
 
+  [ Juan Navarro ]
   * UNRELEASED
   * debian: Add missing dependency
+  * kurento-media-server.init: Minor comment
 
- -- Juan Navarro <juan.navarro@gmx.es>  Wed, 10 Apr 2019 14:14:40 +0200
+  [ Mario Jr ]
+  * First version of GStreamer 1.14 port
+  * Replace forked gstreamer deps for system's one in control file
+
+  [ Juan Navarro ]
+  * Add 'libwebsocketpp-dev' to Build-Deps, without versioning
+  * debian/control: Add deps needed for unit tests
+  * debian/control: Drop 'libssl1.0-dev' for Bionic compatibility
+  * fixup! debian/control: Add deps needed for unit tests
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Mon, 10 Jun 2019 11:12:37 +0200
 
 kurento-media-server (6.10.0-0kurento1) testing; urgency=medium
 
