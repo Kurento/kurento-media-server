@@ -38,7 +38,7 @@ set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DGST_DISABLE_DEPRECATED")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGST_DISABLE_DEPRECATED")
 
 include(GenericFind)
-generic_find(LIBNAME KMSCORE VERSION ^6.7.0 REQUIRED)
+generic_find(LIBNAME KMSCORE VERSION ^7.0.0 REQUIRED)
 
 # Generate file "config.h"
 check_version_internal(>=2.6.2 sigc++-2.0_VERSION OUTPUT_ERROR)

@@ -4,11 +4,11 @@ Maintainer: Kurento <kurento@googlegroups.com>
 Build-Depends: debhelper (>= 9),
  cmake,
  gstreamer1.0-plugins-good,
- kms-cmake-utils (>= 6.7.0),
- kms-core-dev (>= 6.7.0),
- kms-elements-dev (>= 6.7.0),
- kms-filters-dev (>= 6.7.0),
- kurento-module-creator (>= 6.7.0),
+ kms-cmake-utils,
+ kms-core-dev,
+ kms-elements-dev,
+ kms-filters-dev,
+ kurento-module-creator,
  libboost-dev,
  libboost-filesystem-dev,
  libboost-log-dev,
@@ -37,12 +37,10 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  gstreamer1.0-plugins-base,
  gstreamer1.0-plugins-good,
  gstreamer1.0-plugins-ugly,
- kms-core (>= 6.7.0),
- kms-elements (>= 6.7.0),
- kms-filters (>= 6.7.0),
+ kms-core,
+ kms-elements,
+ kms-filters,
  libgstreamer-plugins-base1.0-0
-Breaks: kurento-media-server-6.0
-Replaces: kurento-media-server-6.0
 Description: Kurento Media Server
  KMS is a WebRTC-compatible server that processes audio and video streams,
  doing composable pipeline-based processing of media.
@@ -52,14 +50,12 @@ Architecture: any
 Section: devel
 Depends: kurento-media-server (= ${binary:Version}),
  ${misc:Depends},
- kms-cmake-utils (>= 6.7.0),
- kms-core-dev (>= 6.7.0),
- kms-elements-dev (>= 6.7.0),
- kms-filters-dev (>= 6.7.0),
- kurento-module-creator (>= 6.7.0),
+ kms-cmake-utils,
+ kms-core-dev,
+ kms-elements-dev,
+ kms-filters-dev,
+ kurento-module-creator,
  libwebsocketpp-dev
-Breaks: kurento-media-server-6.0-dev
-Replaces: kurento-media-server-6.0-dev
 Description: Kurento Media Server
  Development files.
 
@@ -71,7 +67,5 @@ Depends: kurento-media-server (= ${binary:Version}),
  kms-core-dbg,
  kms-elements-dbg,
  kms-filters-dbg
-Breaks: kurento-media-server-6.0-dbg
-Replaces: kurento-media-server-6.0-dbg
 Description: Kurento Media Server
  Debugging symbols.
