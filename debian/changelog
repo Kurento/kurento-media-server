@@ -1,9 +1,11 @@
-kurento-media-server (6.11.0-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.11.0-0kurento1) testing; urgency=medium
 
-  * UNRELEASED
+  * Prepare release 6.11.0-0kurento1
   * debian: Add missing dependency
+  * kurento-media-server.init: Minor comment
+  * debian/control: Add deps needed for unit tests
 
- -- Juan Navarro <juan.navarro@gmx.es>  Wed, 10 Apr 2019 14:14:40 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Fri, 19 Jul 2019 19:47:55 +0200
 
 kurento-media-server (6.10.0-0kurento1) testing; urgency=medium
 
