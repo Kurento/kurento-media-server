@@ -113,9 +113,9 @@ start_kurento() {
     }
 
     # Add new section in error log
-    # Note: This is "echo" from Dash, not the GNU command:
+    # Note: This is "echo" Dash builtin, not the "/bin/echo" GNU command, so
     # escape sequences can be used directly, no need to enable them
-    echo "\n\n$(date --utc --iso-8601=seconds) -- New execution" >>"$DAEMON_LOG_DIR/errors.log"
+    echo "\n\n$(date --iso-8601=seconds) -- New execution" >>"$DAEMON_LOG_DIR/errors.log"
 
     /sbin/start-stop-daemon \
             --start \
