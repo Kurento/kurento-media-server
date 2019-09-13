@@ -241,7 +241,7 @@ WebSocketRegistrar::connectionOpen (std::shared_ptr<ClientType> client,
 
   try {
     client->send (hdl, request, websocketpp::frame::opcode::TEXT);
-  } catch (websocketpp::exception e) {
+  } catch (websocketpp::exception &e) {
     GST_ERROR ("Cannot send message to remote");
   }
 }
