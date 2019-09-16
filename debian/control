@@ -55,7 +55,11 @@ Depends: kurento-media-server (= ${binary:Version}),
  kms-core-dev (>= 6.7.0),
  kms-elements-dev (>= 6.7.0),
  kms-filters-dev (>= 6.7.0),
- kurento-module-creator (>= 6.7.0)
+ kurento-module-creator (>= 6.7.0),
+ libboost-log-dev,
+ libboost-program-options-dev,
+ libboost-thread-dev,
+ libevent-dev
 Breaks: kurento-media-server-6.0-dev
 Replaces: kurento-media-server-6.0-dev
 Description: Kurento Media Server
