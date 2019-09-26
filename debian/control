@@ -40,6 +40,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  kms-elements (>= 6.7.0),
  kms-filters (>= 6.7.0),
  libgstreamer-plugins-base1.5-0
+Suggests: kurento-dbg
 Breaks: kurento-media-server-6.0
 Replaces: kurento-media-server-6.0
 Description: Kurento Media Server
@@ -77,3 +78,27 @@ Breaks: kurento-media-server-6.0-dbg
 Replaces: kurento-media-server-6.0-dbg
 Description: Kurento Media Server
  Debugging symbols.
+
+Package: kurento-dbg
+Architecture: any
+Section: debug
+Depends: ${misc:Depends},
+ libc6-dbg,
+ libglib2.0-0-dbg,
+ kmsjsoncpp-dbg,
+ libnice10-dbgsym,
+ openwebrtc-gst-plugins-dbg,
+ libgstreamer1.5-0-dbg,
+ gstreamer1.5-libav-dbg,
+ gstreamer1.5-nice-dbgsym,
+ gstreamer1.5-plugins-bad-dbg,
+ gstreamer1.5-plugins-base-dbg,
+ gstreamer1.5-plugins-good-dbg,
+ gstreamer1.5-plugins-ugly-dbg,
+ kms-jsonrpc-dbg,
+ kms-core-dbg,
+ kms-elements-dbg,
+ kms-filters-dbg,
+ kurento-media-server-dbg
+Description: Meta-package that installs debug symbols
+ for Kurento Media Server and all relevant 3rd-party libraries.
