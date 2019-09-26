@@ -55,7 +55,7 @@
 #include <string>
 
 #pragma GCC poison malloc realloc free backtrace_symbols \
-  printf fprintf sprintf snprintf scanf sscanf  // NOLINT(runtime/printf)
+  printf fprintf sprintf snprintf scanf sscanf  // NOLINT
 
 #define checked(x) do { if ((x) <= 0) _Exit(EXIT_FAILURE); } while (false)
 
@@ -124,7 +124,7 @@ INLINE char *ptoa (const void *val, char *memory)
 {
   char *buf = utoa (reinterpret_cast<uint64_t> (val), memory + 32, 16);
   char *result = memory;  // 32
-  strcpy (result + 2, buf); // NOLINT(runtime/printf
+  strcpy (result + 2, buf); // NOLINT
   result[0] = '0';
   result[1] = 'x';
   return result;
@@ -345,25 +345,25 @@ static char *addr2line (const char *image, void *addr, bool color_output,
     char *straddr = Safe::ptoa (addr, *memory);
 
     if (color_output) {
-      strcpy (line, "\033[32;1m"); // NOLINT(runtime/printf)
+      strcpy (line, "\033[32;1m"); // NOLINT
     }
 
-    strcat (line, straddr); // NOLINT(runtime/printf)
+    strcat (line, straddr); // NOLINT
 
     if (color_output) {
-      strcat (line, "\033[0m"); // NOLINT(runtime/printf)
+      strcat (line, "\033[0m"); // NOLINT
     }
 
-    strcat (line, " at "); // NOLINT(runtime/printf)
-    strcat (line, image); // NOLINT(runtime/printf)
-    strcat (line, " "); // NOLINT(runtime/printf)
+    strcat (line, " at "); // NOLINT
+    strcat (line, image); // NOLINT
+    strcat (line, " "); // NOLINT
   } else {
     if (* (strstr (line, "\n") + 1) == '?') {
       char *straddr = Safe::ptoa (addr, *memory);
-      strcpy (strstr (line, "\n") + 1, image); // NOLINT(runtime/printf)
-      strcat (line, ":"); // NOLINT(runtime/printf)
-      strcat (line, straddr); // NOLINT(runtime/printf)
-      strcat (line, "\n"); // NOLINT(runtime/printf)
+      strcpy (strstr (line, "\n") + 1, image); // NOLINT
+      strcat (line, ":"); // NOLINT
+      strcat (line, straddr); // NOLINT
+      strcat (line, "\n"); // NOLINT
     }
   }
 
@@ -528,59 +528,59 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
 
     if (color_output_) {
       // \033[31;1mSegmentation fault\033[0m \033[33;1m(%i)\033[0m\n
-      strcpy (msg, "\033[31;1m"); // NOLINT(runtime/printf)
+      strcpy (msg, "\033[31;1m"); // NOLINT
     } else {
       msg[0] = '\0';
     }
 
     switch (sig) {
     case SIGSEGV:
-      strcat (msg, "Segmentation fault"); // NOLINT(runtime/printf)
+      strcat (msg, "Segmentation fault"); // NOLINT
       break;
 
     case SIGABRT:
-      strcat (msg, "Aborted"); // NOLINT(runtime/printf)
+      strcat (msg, "Aborted"); // NOLINT
       break;
 
     case SIGFPE:
-      strcat (msg, "Floating point exception"); // NOLINT(runtime/printf)
+      strcat (msg, "Floating point exception"); // NOLINT
       break;
 
     default:
-      strcat (msg, "Caught signal "); // NOLINT(runtime/printf)
-      strcat (msg, Safe::itoa (sig, msg + msg_max_length) ); // NOLINT(*)
+      strcat (msg, "Caught signal "); // NOLINT
+      strcat (msg, Safe::itoa (sig, msg + msg_max_length) ); // NOLINT
       break;
     }
 
     if (color_output_) {
-      strcat (msg, "\033[0m"); // NOLINT(runtime/printf)
+      strcat (msg, "\033[0m"); // NOLINT
     }
 
-    strcat (msg, " (thread "); // NOLINT(runtime/printf)
+    strcat (msg, " (thread "); // NOLINT
 
     if (color_output_) {
-      strcat (msg, "\033[33;1m"); // NOLINT(runtime/printf)
+      strcat (msg, "\033[33;1m"); // NOLINT
     }
 
-    strcat (msg, Safe::utoa (pthread_self(), msg + msg_max_length) ); // NOLINT(*)
+    strcat (msg, Safe::utoa (pthread_self(), msg + msg_max_length) ); // NOLINT
 
     if (color_output_) {
-      strcat (msg, "\033[0m"); // NOLINT(runtime/printf)
+      strcat (msg, "\033[0m"); // NOLINT
     }
 
-    strcat (msg, ", pid "); // NOLINT(runtime/printf)
+    strcat (msg, ", pid "); // NOLINT
 
     if (color_output_) {
-      strcat (msg, "\033[33;1m"); // NOLINT(runtime/printf)
+      strcat (msg, "\033[33;1m"); // NOLINT
     }
 
-    strcat (msg, Safe::itoa (getppid(), msg + msg_max_length) ); // NOLINT(*)
+    strcat (msg, Safe::itoa (getppid(), msg + msg_max_length) ); // NOLINT
 
     if (color_output_) {
-      strcat (msg, "\033[0m"); // NOLINT(runtime/printf)
+      strcat (msg, "\033[0m"); // NOLINT
     }
 
-    strcat (msg, ")"); // NOLINT(runtime/printf)
+    strcat (msg, ")"); // NOLINT
     Safe::print2stderr (msg);
   }
 
@@ -633,7 +633,7 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
     safe_abort();
   }
 
-  strcat (cwd, "/"); // NOLINT(runtime/printf)
+  strcat (cwd, "/"); // NOLINT
   memory += strlen (cwd) + 1;
   char *prev_memory = memory;
 
@@ -665,35 +665,35 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
         const int msg_max_length = 512;
 
         if (color_output_) {
-          strcpy (msg, "\033[34;1m"); // NOLINT(runtime/printf)
+          strcpy (msg, "\033[34;1m"); // NOLINT
         } else {
           msg[0] = 0;
         }
 
-        strcat (msg, "["); // NOLINT(runtime/printf)
-        strcat (msg, line); // NOLINT(runtime/printf)
-        strcat (msg, "]"); // NOLINT(runtime/printf)
+        strcat (msg, "["); // NOLINT
+        strcat (msg, line); // NOLINT
+        strcat (msg, "]"); // NOLINT
 
         if (append_pid_) {
           if (color_output_) {
-            strcat (msg, "\033[0m\033[33;1m"); // NOLINT(runtime/printf)
+            strcat (msg, "\033[0m\033[33;1m"); // NOLINT
           }
 
-          strcat (msg, " ("); // NOLINT(runtime/printf)
-          strcat (msg, Safe::itoa (getppid(), msg + msg_max_length) ); // NOLINT(*)
-          strcat (msg, ")"); // NOLINT(runtime/printf)
+          strcat (msg, " ("); // NOLINT
+          strcat (msg, Safe::itoa (getppid(), msg + msg_max_length) ); // NOLINT
+          strcat (msg, ")"); // NOLINT
 
           if (color_output_) {
-            strcat (msg, "\033[0m"); // NOLINT(runtime/printf)
+            strcat (msg, "\033[0m"); // NOLINT
           }
 
-          strcat (msg, "\n"); // NOLINT(runtime/printf)
+          strcat (msg, "\n"); // NOLINT
         } else {
           if (color_output_) {
-            strcat (msg, "\033[0m"); // NOLINT(runtime/printf)
+            strcat (msg, "\033[0m"); // NOLINT
           }
 
-          strcat (msg, "\n"); // NOLINT(runtime/printf)
+          strcat (msg, "\n"); // NOLINT
         }
 
         Safe::print2stderr (msg);
@@ -736,13 +736,13 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
 
         if (number_pos != NULL) {
           char *line_number = memory;  // 128
-          strcpy (line_number, number_pos); // NOLINT(runtime/printf)
+          strcpy (line_number, number_pos); // NOLINT
           // Overwrite the new line char
           line_number[strlen (line_number) - 1] = 0;
           // \033[32;1m%s\033[0m\n
-          strcpy (number_pos, "\033[32;1m"); // NOLINT(runtime/printf)
-          strcat (line, line_number); // NOLINT(runtime/printf)
-          strcat (line, "\033[0m\n"); // NOLINT(runtime/printf)
+          strcpy (number_pos, "\033[32;1m"); // NOLINT
+          strcat (line, line_number); // NOLINT
+          strcat (line, "\033[0m\n"); // NOLINT
         }
       }
     }
@@ -753,22 +753,22 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
     // Append pid
     if (append_pid_) {
       // %s\033[33;1m(%i)\033[0m\n
-      strcat (line, " "); // NOLINT(runtime/printf)
+      strcat (line, " "); // NOLINT
 
       if (color_output_) {
-        strcat (line, "\033[33;1m"); // NOLINT(runtime/printf)
+        strcat (line, "\033[33;1m"); // NOLINT
       }
 
-      strcat (line, "("); // NOLINT(runtime/printf)
-      strcat (line, Safe::itoa (getppid(), memory) ); // NOLINT(runtime/printf)
-      strcat (line, ")"); // NOLINT(runtime/printf)
+      strcat (line, "("); // NOLINT
+      strcat (line, Safe::itoa (getppid(), memory) ); // NOLINT
+      strcat (line, ")"); // NOLINT
 
       if (color_output_) {
-        strcat (line, "\033[0m"); // NOLINT(runtime/printf)
+        strcat (line, "\033[0m"); // NOLINT
       }
     }
 
-    strcat (line, "\n"); // NOLINT(runtime/printf)
+    strcat (line, "\n"); // NOLINT
     Safe::print2stderr (line);
   }
 
