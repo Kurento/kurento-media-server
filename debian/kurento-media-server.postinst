@@ -4,7 +4,7 @@
 HOME_DIR="/var/kurento"
 mkdir -p "$HOME_DIR"
 if ! id kurento >/dev/null 2>&1; then
-    useradd --home-dir "$HOME_DIR" kurento
+    useradd --home-dir "$HOME_DIR" --system kurento
 fi
 chown -R kurento "$HOME_DIR"
 
