@@ -9,7 +9,8 @@
 # Short-Description: Kurento Media Server daemon
 ### END INIT INFO
 
-if [ -r "/lib/lsb/init-functions" ]; then
+if [ -r /lib/lsb/init-functions ]; then
+  # shellcheck source=/lib/lsb/init-functions
   . /lib/lsb/init-functions
 else
   echo "E: /lib/lsb/init-functions not found, package lsb-base needed"
@@ -23,7 +24,10 @@ DAEMON_USER="kurento"
 DAEMON_LOG_DIR="/var/log/kurento-media-server"
 
 # Load user-configurable settings
-[ -f /etc/default/kurento-media-server ] && . /etc/default/kurento-media-server
+if [ -r /etc/default/kurento-media-server ]; then
+  # shellcheck source=/etc/default/kurento-media-server
+  . /etc/default/kurento-media-server
+fi
 
 # Non-configurable settings
 DAEMON_BIN="/usr/bin/kurento-media-server"
@@ -148,21 +152,19 @@ stop_kurento() {
 status() {
     log_action_begin_msg "Checking Kurento Media Server"
 
-    status="$(pidofproc -p "$PID_FILE" "$DAEMON_BIN" >/dev/null 2>&1)"
-    if [ "$status" -eq 0 ]; then
+    rc="$(pidofproc -p "$PID_FILE" "$DAEMON_BIN" >/dev/null 2>&1)"
+    if [ "$rc" -eq 0 ]; then
         read -r pid < "$PID_FILE"
         log_action_cont_msg "$DAEMON_BIN is running with pid $pid"
-        log_action_end_msg 0
-    elif [ "$status" -eq 1 ]; then
+    elif [ "$rc" -eq 1 ]; then
         log_action_cont_msg "$DAEMON_BIN is not running but the pid file exists"
-        log_action_end_msg 1
-    elif [ "$status" -eq 3 ]; then
+    elif [ "$rc" -eq 3 ]; then
         log_action_cont_msg "$DAEMON_BIN is not running"
-        log_action_end_msg 3
     else
         log_action_cont_msg "Unable to determine $DAEMON_BIN status"
-        log_action_end_msg 4
     fi
+    log_action_end_msg "$rc"
+    return "$rc"
 }
 
 case "$1" in
@@ -196,5 +198,3 @@ case "$1" in
     echo "Usage: $0 {start|stop|restart|status}" >&2
     ;;
 esac
-
-exit 0
