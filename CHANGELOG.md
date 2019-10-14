@@ -80,12 +80,12 @@ have their ChangeLogs unified into this one.
 - Avoid setting NULL to `port-range` property in `uridecodebin` element when playing RTSP streams. This caused a segmentation fault due to a bug in GStreamer. Filed a patch in [gstreamer/gst-plugins-good!64](https://gitlab.freedesktop.org/gstreamer/gst-plugins-good/merge_requests/64). Thanks [@823639792](https://github.com/823639792) for reporting [#325](https://github.com/Kurento/bugtracker/issues/325).
 - Catch proper exceptions on parse error for settings files. Before, parsing errors would pass silently.
 
-## [6.8.1] - 2018-10-23
+## 6.8.1 - 2018-10-23
 
 ### Fixed
 - Service init files will now append to the error log file, instead of truncating it on each restart.
 
-## [6.8.0] - 2018-09-26
+## 6.8.0 - 2018-09-26
 
 ### Added
 - GLib logging messages are now integrated with Kurento logging. This means that it's possible to save debug messages from libnice, together with the usual logs from Kurento / GStreamer.
@@ -96,7 +96,7 @@ have their ChangeLogs unified into this one.
 - Clearer log messages about what is going on when the maximum resource usage threshold is reached.
 - File `/etc/default/kurento-media-server` now contains more useful examples and explanations for each option.
 
-## [6.7.2] - 2018-05-11
+## 6.7.2 - 2018-05-11
 
 ### Fixed
 - All: Apply multiple fixes suggested by *clang-tidy*.
@@ -106,12 +106,12 @@ have their ChangeLogs unified into this one.
 - Debian: Remove unneeded build dependency: binutils.
 - Debian: Use better defaults for logging levels.
 
-## [6.7.1] - 2018-03-21
+## 6.7.1 - 2018-03-21
 
 ### Changed
 - Raise version to 6.7.1.
 
-## [6.7.0] - 2018-01-24
+## 6.7.0 - 2018-01-24
 
 ### Changed
 - CMake: Compile and link as Position Independent Executable ('-fPIE -pie').
@@ -124,7 +124,7 @@ have their ChangeLogs unified into this one.
 
 - Remove usage of 'sudo' from init script.
 
-## [6.6.2] - 2017-07-24
+## 6.6.2 - 2017-07-24
 
 ### Changed
 - Old ChangeLog.md moved to the new format in this CHANGELOG.md file.
@@ -137,19 +137,19 @@ have their ChangeLogs unified into this one.
 ### Fixed
 - Fix missing header in "server/loadConfig.cpp".
 
-## [6.6.1] - 2016-09-30
+## 6.6.1 - 2016-09-30
 
 ### Changed
 - Fixes on tests.
 - Improve compilation process.
 
-## [6.6.0] - 2016-09-09
+## 6.6.0 - 2016-09-09
 
 ### Fixed
 - Minor compilation warnings.
 - Fix resource limits checking; if a limit is not configured then the check wasn't being done.
 
-## [6.5.0] - 2016-05-27
+## 6.5.0 - 2016-05-27
 
 ### Changed
 - Changed license to Apache 2.0.
@@ -160,28 +160,28 @@ have their ChangeLogs unified into this one.
 ### Fixed
 - Bug on client reconnection (they thought that the reconnection succeed even if it was a diferent server).
 
-## [6.4.0] - 2016-02-24
+## 6.4.0 - 2016-02-24
 
 ### Fixed
 - Update websocketpp library to version 0.7.0. This fixes segmentation fault with wss and more than one thread.
 
-## [6.3.3] - 2016-02-01
+## 6.3.3 - 2016-02-01
 
 ### Fixed
 - Installation script.
 
-## [6.3.2] - 2016-01-29
+## 6.3.2 - 2016-01-29
 
 ### Fixed
 - Problem with write permissions to log folder.
 - WebsocketTransport: Fix bug on session injection when there are no parameters.
 
-## [6.3.1] - 2016-01-20
+## 6.3.1 - 2016-01-20
 
 ### Changed
 - Create a kurento user to allow buffering of played medias.
 
-## [6.3.0] - 2019-01-19
+## 6.3.0 - 2019-01-19
 
 ### Added
 - Print compilation time and date on log for debugging purposes.
@@ -202,18 +202,3 @@ have their ChangeLogs unified into this one.
 
 ### Fixed
 - Scaffold: Fix installation of configuration files.
-
-[6.8.1]: https://github.com/Kurento/kurento-media-server/compare/6.8.0...6.8.1
-[6.8.0]: https://github.com/Kurento/kurento-media-server/compare/6.7.2...6.8.0
-[6.7.2]: https://github.com/Kurento/kurento-media-server/compare/6.7.1...6.7.2
-[6.7.1]: https://github.com/Kurento/kurento-media-server/compare/6.7.0...6.7.1
-[6.7.0]: https://github.com/Kurento/kurento-media-server/compare/6.6.2...6.7.0
-[6.6.2]: https://github.com/Kurento/kurento-media-server/compare/6.6.1...6.6.2
-[6.6.1]: https://github.com/Kurento/kurento-media-server/compare/6.6.0...6.6.1
-[6.6.0]: https://github.com/Kurento/kurento-media-server/compare/6.5.0...6.6.0
-[6.5.0]: https://github.com/Kurento/kurento-media-server/compare/6.4.0...6.5.0
-[6.4.0]: https://github.com/Kurento/kurento-media-server/compare/6.3.3...6.4.0
-[6.3.3]: https://github.com/Kurento/kurento-media-server/compare/6.3.2...6.3.3
-[6.3.2]: https://github.com/Kurento/kurento-media-server/compare/6.3.1...6.3.2
-[6.3.1]: https://github.com/Kurento/kurento-media-server/compare/6.3.0...6.3.1
-[6.3.0]: https://github.com/Kurento/kurento-media-server/compare/6.2.0...6.3.0
