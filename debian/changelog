@@ -1,8 +1,15 @@
-kurento-media-server (6.11.1-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.12.0-0kurento1) testing; urgency=medium
 
-  * UNRELEASED
+  * Prepare release 6.12.0-0kurento1
+  * kurento-media-server.init: Use local time, not UTC
+  * debian/control: Add missing dev dependencies
+  * debian/control: New package 'kurento-dbg' with all debug packages
+  * debian/init: Review calls to status() & ShellCheck
+  * debian/postinst: Review, check exact username, ShellCheck
+  * debian/postinst: Use '--system' to create a system username (UID < 1000)
+  * debian: Follow FHS, create kurento home dir in /var/lib/kurento
 
- -- Juan Navarro <juan.navarro@gmx.es>  Fri, 26 Jul 2019 12:03:25 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Mon, 14 Oct 2019 19:12:36 +0200
 
 kurento-media-server (6.11.0-0kurento1) testing; urgency=medium
 
