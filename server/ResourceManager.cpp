@@ -95,7 +95,7 @@ checkThreads (float limit_percent)
     std::string exMessage = oss.str();
 
     oss << " (system max: " << maxThreads << ");"
-        << " set a higher limit with `ulimit -Su`, or in the KMS service settings (/etc/default/kurento-media-server)";
+        << " set a higher limit with `ulimit -Su`, or override service settings with `systemctl edit kurento-media-server`";
     std::string logMessage = oss.str();
 
     GST_WARNING ("%s", logMessage.c_str());
@@ -153,7 +153,7 @@ checkOpenFiles (float limit_percent)
     std::string exMessage = oss.str();
 
     oss << " (system max: " << maxOpenFiles << ");"
-        << " set a higher limit with `ulimit -Sn`, or in the KMS service settings (/etc/default/kurento-media-server)";
+        << " set a higher limit with `ulimit -Sn`, or override service settings with `systemctl edit kurento-media-server`";
     std::string logMessage = oss.str();
 
     GST_WARNING ("%s", logMessage.c_str());
