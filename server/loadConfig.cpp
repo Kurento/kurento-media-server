@@ -133,7 +133,7 @@ loadFile (boost::property_tree::ptree &config,
       throw ParseException ("Unknown conf format: " + extension2);
     }
   } else {
-    throw ParseException ("Unknown file type: " + extension1);
+    throw ParseException ("Unknown file type: " + fspath.filename().string());
   }
 
   mergePropertyTrees (config, readConfig);
