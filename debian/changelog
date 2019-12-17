@@ -1,8 +1,10 @@
-kurento-media-server (6.12.1-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.13.0-0kurento1) testing; urgency=medium
 
-  * UNRELEASED
+  * Prepare release 6.13.0-0kurento1
+  * debian/control: Add build-essential to Build-Depends
+  * debian/default: Add comments for Docker users, change section titles
 
- -- Juan Navarro <juan.navarro@gmx.es>  Fri, 18 Oct 2019 15:50:23 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Tue, 17 Dec 2019 13:37:55 +0100
 
 kurento-media-server (6.12.0-0kurento1) testing; urgency=medium
 
