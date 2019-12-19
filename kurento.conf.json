@@ -12,16 +12,16 @@
     },
     "net": {
       "websocket": {
-        "//ipv6": false,
+        "ipv6": false,
         "port": 8888,
-        "//secure": {
-            "//port": 8433,
-            "//certificate": "defaultCertificate.pem",
-            "//password": ""
+        "secure": {
+            "port": 8433,
+            "certificate": "defaultCertificate.pem",
+            "password": ""
         },
-        "//registrar": {
-            "//address": "ws://localhost:9090",
-            "//localAddress": "localhost"
+        "registrar": {
+            "address": "ws://localhost:9090",
+            "localAddress": "localhost"
         },
         "//": "Maximum queue length of pending connections (see sysctl tcp_max_syn_backlog)",
         "//": "Default SOMAXCONN (128)",
