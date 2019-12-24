@@ -1,0 +1,1 @@
+FROM kurento-media-server
