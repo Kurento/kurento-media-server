@@ -1,7 +1,26 @@
 # Defaults for kurento-media-server initscript (/etc/init.d/kurento-media-server)
 # This is a POSIX shell fragment
 
-# Settings loaded by the initscript
+
+
+# IMPORTANT NOTE
+# ==============
+
+# This file only gets loaded if Kurento Media Server is started through the
+# system service init mechanism: Running
+# `sudo service kurento-media-server start` will execute the script found at
+# "/etc/init.d/kurento-media-server", which in turn sources this file.
+#
+# If you run KMS by hand, e.g. by directly executing
+# `/usr/bin/kurento-media-server` in a shell, then all settings in this file
+# won't be loaded in the environment. You can load them by running
+# `source /etc/default/kurento-media-server` *before* running KMS.
+
+
+
+# Service script settings
+# =======================
+
 START_DAEMON="true"    # If not "true", the daemon will refuse to load
 DAEMON_ARGS=""         # Passed directly to the kurento-media-server executable
 DAEMON_USER="kurento"  # User as whom Kurento Media Server will run
@@ -9,7 +28,8 @@ DAEMON_LOG_DIR="/var/log/kurento-media-server"  # Where to store daemon logs
 
 
 
-############ Kurento Media Server Settings ############
+# Kurento Media Server settings
+# =============================
 
 ## Most settings can be passed either as environment variables or as
 ## command-line arguments.
@@ -79,7 +99,8 @@ export KURENTO_LOGS_PATH="$DAEMON_LOG_DIR"
 
 
 
-############ Linux Kernel & System Settings ############
+# Linux Kernel & System settings
+# ==============================
 
 unset GST_PLUGIN_PATH
 

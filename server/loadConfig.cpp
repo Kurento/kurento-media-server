@@ -96,51 +96,53 @@ mergePropertyTrees (boost::property_tree::ptree &ptMerged,
 
 static std::string
 loadFile (boost::property_tree::ptree &config,
-          const boost::filesystem::path &file)
+          const boost::filesystem::path &fspath)
 {
-  boost::filesystem::path extension = file.extension();
-  boost::filesystem::path extension2 = file.stem().extension();
-  std::string fileName = file.filename().string();
+  const std::string path = fspath.string();
+  const std::string extension1 = fspath.stem().extension().string();
+  const std::string extension2 = fspath.extension().string();
+
   boost::property_tree::ptree readConfig;
 
-  if (extension2.string() == ".conf") {
-    if (extension.string() == ".json") {
+  if (extension1 == ".conf") {
+    if (extension2 == ".json") {
       try {
-        boost::property_tree::read_json (file.string(), readConfig);
+        boost::property_tree::read_json (path, readConfig);
       } catch (boost::property_tree::json_parser_error &e) {
-        throw ParseException (std::string("Parse error: ") + e.what());
+        throw ParseException (std::string("JSON parse error: ") + e.what());
       }
-    } else if (extension.string() == ".info") {
+    } else if (extension2 == ".info") {
       try {
-        boost::property_tree::read_info (file.string(), readConfig);
+        boost::property_tree::read_info (path, readConfig);
       } catch (boost::property_tree::info_parser_error &e) {
-        throw ParseException (std::string("Parse error: ") + e.what());
+        throw ParseException (std::string("INFO parse error: ") + e.what());
       }
-    } else if (extension.string() == ".ini") {
+    } else if (extension2 == ".ini") {
       try {
-        boost::property_tree::read_ini (file.string(), readConfig);
+        boost::property_tree::read_ini (path, readConfig);
       } catch (boost::property_tree::ini_parser_error &e) {
-        throw ParseException (std::string("Parse error: ") + e.what());
+        throw ParseException (std::string("INI parse error: ") + e.what());
       }
-    } else if (extension.string() == ".xml") {
+    } else if (extension2 == ".xml") {
       try {
-        boost::property_tree::read_xml (file.string(), readConfig);
+        boost::property_tree::read_xml (path, readConfig);
       } catch (boost::property_tree::xml_parser_error &e) {
-        throw ParseException (std::string("Parse error: ") + e.what());
+        throw ParseException (std::string("XML parse error: ") + e.what());
       }
     } else {
-      throw ParseException ("Unknown file format");
+      throw ParseException ("Unknown conf format: " + extension2);
     }
   } else {
-    throw ParseException ("Unknown file format");
+    throw ParseException ("Unknown file type: " + fspath.filename().string());
   }
 
   mergePropertyTrees (config, readConfig);
 
-  config.put ("configPath", file.parent_path().string() );
+  config.put ("configPath", fspath.parent_path().string() );
 
-  fileName = fileName.substr (0, fileName.size() - extension.string().size() );
-  fileName = fileName.substr (0, fileName.size() - extension2.string().size() );
+  std::string fileName = fspath.filename().string();
+  fileName = fileName.substr (0, fileName.size() - extension1.size()
+      - extension2.size());
 
   return fileName;
 }
@@ -191,6 +193,7 @@ loadModulesConfigFromDir (boost::property_tree::ptree &config,
   for ( boost::filesystem::directory_iterator itr ( dir ); itr != end_itr;
         ++itr ) {
     if (boost::filesystem::is_regular (*itr) ) {
+      const std::string pathStr = itr->path().string();
       try {
         boost::property_tree::ptree moduleConfig;
         std::string fileName = loadFile (moduleConfig, itr->path() );
@@ -203,10 +206,11 @@ loadModulesConfigFromDir (boost::property_tree::ptree &config,
         loadedConfig.put_child (key, moduleConfig);
         mergePropertyTrees (config, loadedConfig);
 
-        GST_INFO ("Loaded module config from: %s", itr->path().string().c_str() );
+        GST_INFO ("Loaded module config: %s", pathStr.c_str());
       } catch (ParseException &e) {
-        GST_ERROR ("Error reading configuration: %s", e.what());
-        std::cerr << "Error reading configuration: " << e.what() << std::endl;
+        GST_WARNING ("Error loading config: %s, %s", pathStr.c_str(), e.what());
+        std::cerr << "Error loading config: " << pathStr << ", " << e.what()
+            << std::endl;
       }
     } else if (boost::filesystem::is_directory (*itr) ) {
       loadModulesConfigFromDir (config, itr->path(), parentDir);

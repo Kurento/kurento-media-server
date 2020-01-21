@@ -143,6 +143,15 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
     exit (1);
   }
 
+  websocketpp::lib::asio::error_code ep_err;
+  websocketpp::lib::asio::ip::tcp::endpoint ep;
+
+  ep = server.get_local_endpoint (ep_err);
+  if (!ep_err) {
+    GST_INFO ("WebSocket server listening on address '%s', port %u",
+        ep.address().to_string().c_str(), ep.port());
+  }
+
   /* Configure secure server if enabled */
   if (securePort != 0) {
     try {
@@ -226,6 +235,13 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
         throw configuration_exception ("Error listening on port " +
                                        std::to_string (securePort) );
       }
+
+      ep = secureServer.get_local_endpoint (ep_err);
+      if (!ep_err) {
+        GST_INFO ("Secure WebSocket server listening on address '%s', port %u",
+            ep.address().to_string().c_str(), ep.port());
+      }
+
     } catch (const configuration_exception &err) {
       GST_WARNING ("Secure websocket server not enabled: %s", err.what() );
     }

@@ -2,6 +2,7 @@ Source: kurento-media-server
 Priority: optional
 Maintainer: Kurento <kurento@googlegroups.com>
 Build-Depends: debhelper (>= 9),
+ build-essential,
  cmake,
  gstreamer1.0-plugins-good,
  kms-cmake-utils,
@@ -41,6 +42,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  kms-elements,
  kms-filters,
  libgstreamer-plugins-base1.0-0
+Suggests: kurento-dbg
 Description: Kurento Media Server
  KMS is a WebRTC-compatible server that processes audio and video streams,
  doing composable pipeline-based processing of media.
@@ -55,6 +57,10 @@ Depends: kurento-media-server (= ${binary:Version}),
  kms-elements-dev,
  kms-filters-dev,
  kurento-module-creator,
+ libboost-log-dev,
+ libboost-program-options-dev,
+ libboost-thread-dev,
+ libevent-dev,
  libwebsocketpp-dev
 Description: Kurento Media Server
  Development files.
@@ -69,3 +75,27 @@ Depends: kurento-media-server (= ${binary:Version}),
  kms-filters-dbg
 Description: Kurento Media Server
  Debugging symbols.
+
+Package: kurento-dbg
+Architecture: any
+Section: debug
+Depends: ${misc:Depends},
+ libc6-dbg,
+ libglib2.0-0-dbg,
+ kmsjsoncpp-dbg,
+ libnice10-dbgsym,
+ openwebrtc-gst-plugins-dbg,
+ libgstreamer1.5-0-dbg,
+ gstreamer1.5-libav-dbg,
+ gstreamer1.5-nice-dbgsym,
+ gstreamer1.5-plugins-bad-dbg,
+ gstreamer1.5-plugins-base-dbg,
+ gstreamer1.5-plugins-good-dbg,
+ gstreamer1.5-plugins-ugly-dbg,
+ kms-jsonrpc-dbg,
+ kms-core-dbg,
+ kms-elements-dbg,
+ kms-filters-dbg,
+ kurento-media-server-dbg
+Description: Meta-package that installs debug symbols
+ for Kurento Media Server and all relevant 3rd-party libraries.

@@ -120,7 +120,7 @@ main (int argc, char **argv)
   std::shared_ptr<Transport> transport;
   boost::property_tree::ptree config;
   std::string confFile;
-  std::string path, logs_path, modulesConfigPath;
+  std::string modulesPath, logsPath, modulesConfigPath;
   int fileSize, fileNumber;
 
   Debug::DeathHandler dh;
@@ -142,11 +142,11 @@ main (int argc, char **argv)
     ("version,v", "Display the version number")
     ("list,l", "Lists all available factories")
     ("modules-path,p", boost::program_options::value<std::string>
-     (&path), "Path where kurento modules can be found")
+     (&modulesPath), "Colon-separated path(s) where Kurento modules can be found")
     ("conf-file,f", boost::program_options::value<std::string>
      (&confFile)->default_value (DEFAULT_CONFIG_FILE),
      "Configuration file location")
-    ("logs-path,d", boost::program_options::value <std::string> (&logs_path),
+    ("logs-path,d", boost::program_options::value <std::string> (&logsPath),
      "Path where rotating log files will be stored")
     ("modules-config-path,c",
      boost::program_options::value <std::string> (&modulesConfigPath),
@@ -192,10 +192,10 @@ main (int argc, char **argv)
     kms_init_logging ();
 
     if (vm.count ("logs-path") ) {
-      if (kms_init_logging_files (logs_path, fileSize, fileNumber) ) {
-        GST_INFO ("Logs storage path set to %s", logs_path.c_str() );
+      if (kms_init_logging_files (logsPath, fileSize, fileNumber) ) {
+        GST_INFO ("Logs storage path set to %s", logsPath.c_str() );
       } else {
-        GST_WARNING ("Cannot set logs storage path to %s", logs_path.c_str() );
+        GST_WARNING ("Cannot set logs storage path to %s", logsPath.c_str() );
       }
     }
 
@@ -209,7 +209,7 @@ main (int argc, char **argv)
       gst_debug_remove_log_function_by_data(nullptr);
     }
 
-    loadModules (path);
+    loadModules (modulesPath);
 
     if (vm.count ("list") ) {
       std::cout << "Available factories:" << std::endl;

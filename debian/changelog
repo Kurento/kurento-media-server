@@ -2,8 +2,6 @@ kurento-media-server (7.0.0-0kurento1) UNRELEASED; urgency=medium
 
   [ Juan Navarro ]
   * UNRELEASED
-  * debian: Add missing dependency
-  * kurento-media-server.init: Minor comment
 
   [ Mario Jr ]
   * First version of GStreamer 1.14 port
@@ -11,11 +9,39 @@ kurento-media-server (7.0.0-0kurento1) UNRELEASED; urgency=medium
 
   [ Juan Navarro ]
   * Add 'libwebsocketpp-dev' to Build-Deps, without versioning
-  * debian/control: Add deps needed for unit tests
   * debian/control: Drop 'libssl1.0-dev' for Bionic compatibility
-  * fixup! debian/control: Add deps needed for unit tests
 
- -- Juan Navarro <juan.navarro@gmx.es>  Mon, 10 Jun 2019 11:12:37 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Thu, 19 Dec 2019 19:17:39 +0100
+
+kurento-media-server (6.13.0-0kurento1) testing; urgency=medium
+
+  * Prepare release 6.13.0-0kurento1
+  * debian/control: Add build-essential to Build-Depends
+  * debian/default: Add comments for Docker users, change section titles
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Tue, 17 Dec 2019 13:37:55 +0100
+
+kurento-media-server (6.12.0-0kurento1) testing; urgency=medium
+
+  * Prepare release 6.12.0-0kurento1
+  * kurento-media-server.init: Use local time, not UTC
+  * debian/control: Add missing dev dependencies
+  * debian/control: New package 'kurento-dbg' with all debug packages
+  * debian/init: Review calls to status() & ShellCheck
+  * debian/postinst: Review, check exact username, ShellCheck
+  * debian/postinst: Use '--system' to create a system username (UID < 1000)
+  * debian: Follow FHS, create kurento home dir in /var/lib/kurento
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Mon, 14 Oct 2019 19:12:36 +0200
+
+kurento-media-server (6.11.0-0kurento1) testing; urgency=medium
+
+  * Prepare release 6.11.0-0kurento1
+  * debian: Add missing dependency
+  * kurento-media-server.init: Minor comment
+  * debian/control: Add deps needed for unit tests
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Fri, 19 Jul 2019 19:47:55 +0200
 
 kurento-media-server (6.10.0-0kurento1) testing; urgency=medium
 

@@ -1,10 +1,58 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-#check if the user already exists
-if [ `cat /etc/passwd | grep kurento | wc -l` -eq "0" ]; then
-  useradd -d /var/kurento/ kurento
+# NOTE: Code here must match with kms-core/debian/kms-core.postinst
+
+
+
+# Shell setup
+# -----------
+
+# Bash options for strict error checking
+set -o errexit -o errtrace -o pipefail -o nounset
+
+# Trace all commands
+set -o xtrace
+
+
+
+# Settings
+# --------
+
+HOME_DIR="/var/lib/kurento"
+LOGS_DIR="/var/log/kurento-media-server"
+
+
+
+# Create the kurento user
+# -----------------------
+
+if ! id kurento >/dev/null 2>&1; then
+    useradd --home-dir "$HOME_DIR" --system kurento
 fi
 
-chown kurento -R /var/kurento
-mkdir -p /var/log/kurento-media-server
-chown kurento -R /var/log/kurento-media-server
+
+
+# Create the kurento home directory
+# ---------------------------------
+
+mkdir -p "$HOME_DIR"
+chown -R kurento "$HOME_DIR"
+chmod 777 "$HOME_DIR"
+
+# FIXME+DEPRECATED: Old home dir was "/var/kurento"
+# keep it as a symlink to avoid breaking user's setups,
+# but delete this code once releasing next major version of Kurento
+HOME_DIR_OLD="/var/kurento"
+if [ -d "$HOME_DIR_OLD" -a ! -L "$HOME_DIR_OLD" ]; then
+    mv "$HOME_DIR_OLD"/* "$HOME_DIR_OLD"/.* "$HOME_DIR"/ 2>/dev/null || true
+    rmdir "$HOME_DIR_OLD"
+    ln -s -T "$HOME_DIR" "$HOME_DIR_OLD"
+fi
+
+
+
+# Create the logs directory
+# -------------------------
+
+mkdir -p "$LOGS_DIR"
+chown -R kurento "$LOGS_DIR"

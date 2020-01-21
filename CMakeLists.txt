@@ -26,6 +26,9 @@ common_buildflags_set()
 # For example:
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=unused-function")
 
+# FIXME Disable error from deprecated dynamic exception specifications in glibmm
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated")
+
 # FIXME Disable error when macros __TIME__, __DATE__ or __TIMESTAMP__ are encountered
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-Wno-error=date-time" HAS_WARNING_DATE_TIME)
@@ -66,9 +69,8 @@ find_package(OpenSSL REQUIRED)
 find_package(PkgConfig)
 pkg_check_modules(GLIBMM REQUIRED glibmm-2.4)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0)
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0>=1.7.0~0)
-pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0>=1.7.0~0)
-pkg_check_modules(EVENT REQUIRED libevent>=2.0.16-stable)
+pkg_check_modules(GSTREAMER_SDP REQUIRED gstreamer-sdp-1.0)
+pkg_check_modules(EVENT REQUIRED libevent>=2.0.16)
 
 add_subdirectory(server)
 
