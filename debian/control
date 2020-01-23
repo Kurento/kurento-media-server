@@ -85,9 +85,9 @@ Architecture: any
 Section: debug
 Depends: ${misc:Depends},
  libc6-dbg,
- libglib2.0-0-dbg,
+ libglib2.0-0-dbgsym | libglib2.0-0-dbg,
  kmsjsoncpp-dbg,
- libnice10-dbgsym,
+ libnice10-dbgsym | libnice-dbg,
  openwebrtc-gst-plugins-dbg,
  libgstreamer1.5-0-dbg,
  gstreamer1.5-libav-dbg,
