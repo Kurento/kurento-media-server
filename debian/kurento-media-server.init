@@ -1,4 +1,5 @@
 #!/bin/dash
+# File checked with ShellCheck: https://www.shellcheck.net/
 
 ### BEGIN INIT INFO
 # Provides:          kurento-media-serverd
@@ -31,9 +32,10 @@ fi
 
 # Non-configurable settings
 DAEMON_BIN="/usr/bin/kurento-media-server"
+DAEMON_ERR_FILE="$DAEMON_LOG_DIR/errors.log"
 PID_FILE="/var/run/kurento-media-server.pid"
 
-[ "$START_DAEMON" != "true" ] && {
+[ "${START_DAEMON:-}" != "true" ] && {
     log_failure_msg "Startup is disabled; enable it in /etc/default/kurento-media-server"
     exit 1
 }
@@ -56,30 +58,46 @@ start_kurento() {
 
     # Verify pid file directory exists
     if [ ! -e /var/run ]; then
-        install -d -m755 /var/run || {
+        install -m 755 -d /var/run || {
             log_failure_msg "Unable to access /var/run directory"
             exit 1
         }
     fi
 
-    # Verify log directory exists
-    [ ! -d "$DAEMON_LOG_DIR" ] && {
+    # Verify logs destination directory ($DAEMON_LOG_DIR)
+    [ -d "$DAEMON_LOG_DIR" ] || {
         log_warning_msg "Directory '$DAEMON_LOG_DIR' does not exist"
-        install -d -o "$DAEMON_USER" -m 755 "$DAEMON_LOG_DIR" || {
-            log_failure_msg "Cannot create directory: $DAEMON_LOG_DIR"
+        install -m 755 -o "$DAEMON_USER" -d "$DAEMON_LOG_DIR" || {
+            log_failure_msg "Cannot create directory '$DAEMON_LOG_DIR'"
             exit 1
         }
-        log_success_msg "Created directory: $DAEMON_LOG_DIR"
+        log_success_msg "Created directory '$DAEMON_LOG_DIR'"
     }
-
-    # Make sure $DAEMON_LOG_DIR belongs to $DAEMON_USER
-    [ "$(stat -c '%U' "$DAEMON_LOG_DIR")" = "$DAEMON_USER" ] || {
-        log_warning_msg "Directory '$DAEMON_LOG_DIR' is not owned by '$DAEMON_USER'"
+    [ "$(stat --printf='%U' "$DAEMON_LOG_DIR")" = "$DAEMON_USER" ] || {
+        log_warning_msg "'$DAEMON_LOG_DIR' is not owned by '$DAEMON_USER'"
         chown "$DAEMON_USER" "$DAEMON_LOG_DIR" || {
             log_failure_msg "Cannot change owner of '$DAEMON_LOG_DIR' to '$DAEMON_USER'"
             exit 1
         }
         log_success_msg "Changed owner of '$DAEMON_LOG_DIR' to '$DAEMON_USER'"
+    }
+
+    # Verify errors log file ($DAEMON_ERR_FILE)
+    [ -f "$DAEMON_ERR_FILE" ] || {
+        log_warning_msg "File '$DAEMON_ERR_FILE' does not exist"
+        install -m 644 -o "$DAEMON_USER" /dev/null "$DAEMON_ERR_FILE" || {
+            log_failure_msg "Cannot create file '$DAEMON_ERR_FILE'"
+            exit 1
+        }
+        log_success_msg "Created file '$DAEMON_ERR_FILE'"
+    }
+    [ "$(stat --printf='%U' "$DAEMON_ERR_FILE")" = "$DAEMON_USER" ] || {
+        log_warning_msg "'$DAEMON_ERR_FILE' is not owned by '$DAEMON_USER'"
+        chown "$DAEMON_USER" "$DAEMON_ERR_FILE" || {
+            log_failure_msg "Cannot change owner of '$DAEMON_ERR_FILE' to '$DAEMON_USER'"
+            exit 1
+        }
+        log_success_msg "Changed owner of '$DAEMON_ERR_FILE' to '$DAEMON_USER'"
     }
 
     # If set and non-null, configure Kernel core dump output pattern
@@ -88,7 +106,7 @@ start_kurento() {
     }
 
     # Update process' resource limits
-    log_action_msg "Configure Kernel resource limits for Kurento Media Server"
+    log_action_msg "Set Kernel resource limits for Kurento Media Server"
 
     # Enable generation of Kernel core dumps / crash reports
     ulimit -c unlimited || {
@@ -119,7 +137,7 @@ start_kurento() {
     # Add new section in error log
     # Note: This is "echo" Dash builtin, not the "/bin/echo" GNU command, so
     # escape sequences can be used directly, no need to enable them
-    echo "\n\n$(date --iso-8601=seconds) -- New execution" >>"$DAEMON_LOG_DIR/errors.log"
+    echo "\n\n$(date --iso-8601=seconds) -- New execution" >>"$DAEMON_ERR_FILE"
 
     /sbin/start-stop-daemon \
             --start \
@@ -129,8 +147,8 @@ start_kurento() {
             --chuid "$DAEMON_USER" \
             --background \
             --no-close \
-            -- $DAEMON_ARGS \
-            2>>"$DAEMON_LOG_DIR/errors.log" || {
+            -- ${DAEMON_ARGS:-} \
+            2>>"$DAEMON_ERR_FILE" || {
         log_warning_msg "Kurento Media Server already started"
         return
     }
