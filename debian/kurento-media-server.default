@@ -86,6 +86,14 @@ export KURENTO_LOGS_PATH="$DAEMON_LOG_DIR"
 ## Maximum number of rotating log files to keep (default: 10 files)
 # export KURENTO_NUMBER_LOG_FILES=10
 
+## Abort the server when underlying libs print a Warning or Critical message,
+## for example "GStreamer-WARNING" or "GStreamer-CRITICAL". This can be used to
+## obtain a Kernel core dump or a GDB backtrace, needed to solve the issue. See:
+## https://doc-kurento.readthedocs.io/en/latest/user/troubleshooting.html#gstreamer-critical-messages-in-the-log
+# export G_DEBUG="fatal-warnings"
+
+
+
 # Server settings
 # ===============
 
