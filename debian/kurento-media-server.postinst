@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+# File checked with ShellCheck (https://www.shellcheck.net/)
 
-# NOTE: Code here must match with kms-core/debian/kms-core.postinst
+# NOTE: This file must have the same contents than
+# kms-core/debian/kms-core.postinst
 
 
 
@@ -19,7 +21,6 @@ set -o xtrace
 # --------
 
 HOME_DIR="/var/lib/kurento"
-LOGS_DIR="/var/log/kurento-media-server"
 
 
 
@@ -27,7 +28,11 @@ LOGS_DIR="/var/log/kurento-media-server"
 # -----------------------
 
 if ! id kurento >/dev/null 2>&1; then
-    useradd --home-dir "$HOME_DIR" --system kurento
+    adduser \
+        --system --group \
+        --home "$HOME_DIR" \
+        --disabled-password \
+        kurento
 fi
 
 
@@ -43,16 +48,8 @@ chmod 777 "$HOME_DIR"
 # keep it as a symlink to avoid breaking user's setups,
 # but delete this code once releasing next major version of Kurento
 HOME_DIR_OLD="/var/kurento"
-if [ -d "$HOME_DIR_OLD" -a ! -L "$HOME_DIR_OLD" ]; then
+if [[ -d "$HOME_DIR_OLD" && ! -L "$HOME_DIR_OLD" ]]; then
     mv "$HOME_DIR_OLD"/* "$HOME_DIR_OLD"/.* "$HOME_DIR"/ 2>/dev/null || true
     rmdir "$HOME_DIR_OLD"
     ln -s -T "$HOME_DIR" "$HOME_DIR_OLD"
 fi
-
-
-
-# Create the logs directory
-# -------------------------
-
-mkdir -p "$LOGS_DIR"
-chown -R kurento "$LOGS_DIR"
