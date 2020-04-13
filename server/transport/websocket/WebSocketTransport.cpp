@@ -130,17 +130,24 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
                                           this, &server, std::placeholders::_1,
                                           std::placeholders::_2) );
 
-  try {
-    if (ipv6) {
+  if (ipv6) {
+    try {
       server.listen (boost::asio::ip::tcp::v6(), port);
+    } catch (websocketpp::exception &e) {
+      GST_ERROR ("Error starting listen for websocket transport on port %d: %s using IPv6, trying IPv4", port,
+                e.what() );
+      ipv6 = false;
     }
-    else {
-      server.listen (boost::asio::ip::tcp::v4(), port);
+  }
+
+  if (!ipv6) {
+    try {
+        server.listen (boost::asio::ip::tcp::v4(), port);
+    } catch (websocketpp::exception &e) {
+      GST_ERROR ("Error starting listen for websocket transport on port %d: %s using IPv4", port,
+                e.what() );
+      exit (1);
     }
-  } catch (websocketpp::exception &e) {
-    GST_ERROR ("Error starting listen for websocket transport on port %d: %s", port,
-               e.what() );
-    exit (1);
   }
 
   websocketpp::lib::asio::error_code ep_err;
