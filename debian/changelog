@@ -1,8 +1,15 @@
-kurento-media-server (6.13.1-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.13.2-0kurento1) UNRELEASED; urgency=medium
 
   * UNRELEASED
+  * debian/control: Adapt kurento-dbg for packages available in Ubuntu 18.04
+  * debian/init: use DAEMON_ERR_FILE to check for errors.log
+  * debian/default: reorder blocks and simplify comments
+  * debian/default: add G_DEBUG to force crash on GStreamer-CRITICAL
+  * debian minor: use "adduser" instead of "useradd"
+  * debian/postinst: register new home dir with usermod
+  * debian/control: kurento-dbg depends on libc6-dbgsym | libc6-dbg
 
- -- Juan Navarro <juan.navarro@gmx.es>  Thu, 19 Dec 2019 19:17:39 +0100
+ -- Juan Navarro <juan.navarro@gmx.es>  Wed, 22 Apr 2020 19:44:12 +0200
 
 kurento-media-server (6.13.0-0kurento1) testing; urgency=medium
 
