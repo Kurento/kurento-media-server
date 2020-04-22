@@ -16,7 +16,8 @@
         "port": 8888,
         "//secure": {
             "//port": 8433,
-            "//certificate": "defaultCertificate.pem",
+            "//": "Concatenated key + certificate chain file(s), in PEM format",
+            "//certificate": "key+certchain.pem",
             "//password": ""
         },
         "//registrar": {
