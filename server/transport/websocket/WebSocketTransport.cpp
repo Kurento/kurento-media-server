@@ -162,7 +162,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
         password =
           config.get<std::string> ("mediaServer.net.websocket.secure.password");
       } catch (const boost::property_tree::ptree_error &err) {
-        throw configuration_exception ("Cannot get password for secure websocket");
+        GST_INFO ("No private key password has been configured");
       }
 
       try {
@@ -210,7 +210,6 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
           boost::asio::ssl::context::no_sslv2 |
           boost::asio::ssl::context::single_dh_use);
           context->set_password_callback(std::bind([password]() -> std::string {
-            GST_INFO ("password");
             return password;
           }));
           context->use_certificate_chain_file (certificateFile.string() );
