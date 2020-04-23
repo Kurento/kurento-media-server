@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE ( wss_registrar )
 
   server.set_tls_init_handler ( [] (websocketpp::connection_hdl hdl) ->
   context_ptr {
-    context_ptr context (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv1) );
+    context_ptr context (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv12) );
 
     try {
       context->set_options (boost::asio::ssl::context::default_workarounds |

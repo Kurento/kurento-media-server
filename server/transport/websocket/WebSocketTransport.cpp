@@ -203,7 +203,7 @@ WebSocketTransport::WebSocketTransport (const boost::property_tree::ptree
 
       secureServer.set_tls_init_handler ( [password, certificateFile] (
       websocketpp::connection_hdl hdl) -> context_ptr {
-        context_ptr context (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv1) );
+        context_ptr context (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv12) );
 
         try {
           context->set_options (boost::asio::ssl::context::default_workarounds |
