@@ -53,6 +53,10 @@ public:
   void send (const std::string &sessionId, const std::string &message);
 
 private:
+  // Constructor methods
+  void initWebSocket(const boost::property_tree::ptree &config);
+  void initSecureWebSocket(const boost::property_tree::ptree &config);
+  void initRegistrar (const boost::property_tree::ptree &config);
 
   websocketpp::connection_hdl getConnection (const std::string &sessionId);
 
@@ -91,6 +95,7 @@ private:
   boost::asio::io_service ios;
   WebSocketServer server;
   SecureWebSocketServer secureServer;
+  bool hasInsecureServer = false;
   bool hasSecureServer = false;
   std::vector<std::thread> threads;
   std::thread keepAliveThread;
