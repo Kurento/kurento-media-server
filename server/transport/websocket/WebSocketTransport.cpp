@@ -248,12 +248,18 @@ WebSocketTransport::initSecureWebSocket (
       [password, certificateFile] (
           websocketpp::connection_hdl hdl) -> context_ptr {
         context_ptr context (
-            new boost::asio::ssl::context (boost::asio::ssl::context::tlsv12));
+            new boost::asio::ssl::context (boost::asio::ssl::context::sslv23));
 
         try {
           context->set_options (boost::asio::ssl::context::default_workarounds
+              | boost::asio::ssl::context::single_dh_use
+
+              // Disable SSLv2 and SSLv3, leaving OpenSSL to negotiate with the
+              // client the highest version mutually supported among TLS 1.0,
+              // TLS 1.1, and TLS 1.2. See:
+              // https://www.openssl.org/docs/man1.0.2/man3/TLSv1_method.html
               | boost::asio::ssl::context::no_sslv2
-              | boost::asio::ssl::context::single_dh_use);
+              | boost::asio::ssl::context::no_sslv3);
           context->set_password_callback (
               std::bind ([password] () -> std::string { return password; }));
           context->use_certificate_chain_file (certificateFile.string ());
