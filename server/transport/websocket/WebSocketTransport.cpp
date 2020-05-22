@@ -349,7 +349,7 @@ void WebSocketTransport::keepAliveSessions()
         processor->keepAliveSession (c);
       } catch (KurentoException &e) {
         if (e.getCode() == INVALID_SESSION) {
-          GST_INFO ("Session should be removed %s", c.c_str() );
+          GST_FIXME ("Session should be removed: %s", c.c_str() );
           // TODO: Remove session
         } else {
           throw e;
