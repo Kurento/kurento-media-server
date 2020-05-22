@@ -1,7 +1,8 @@
 {
   "mediaServer": {
     "resources": {
-      "//": "KMS will rise an exception when reaching this % of resources usage",
+      "//": "KMS will raise an error when reaching this usage% of Kernel resources",
+      "//": "Applies to allowed number of threads, and number of open file descriptors",
       "//": "Default: 0.8 (80%)",
       "//exceptionLimit": "0.8",
       "//": "KMS process will be automatically killed when there are no sessions but this % of resources are in use",
