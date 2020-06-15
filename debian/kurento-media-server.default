@@ -39,7 +39,7 @@ DAEMON_LOG_DIR="/var/log/kurento-media-server"
 
 ## Per-process max open file descriptors (set to half of system-wide max)
 ## Only touch this if you are a sysadmin and/or you know what you are doing!
-DAEMON_MAX_FILES="$(( ($(cat /proc/sys/fs/file-max) * 50) / 100 ))"
+DAEMON_MAX_FILES="$(( $(cat /proc/sys/fs/file-max) / 2 ))"
 
 ## Per-user max threads (set to Kernel hard limit)
 ## Only touch this if you are a sysadmin and/or you know what you are doing!
