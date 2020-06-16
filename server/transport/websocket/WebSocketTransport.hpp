@@ -21,10 +21,6 @@
 #include "Transport.hpp"
 #include "Processor.hpp"
 
-#ifndef _WEBSOCKETPP_CPP11_STL_
-#define _WEBSOCKETPP_CPP11_STL_
-#endif
-
 #include <websocketpp/config/asio.hpp>
 #include <websocketpp/server.hpp>
 #include <iostream>
