@@ -1,6 +1,6 @@
-kurento-media-server (6.13.2-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.14.0-0kurento1) testing; urgency=medium
 
-  * UNRELEASED
+  * Prepare release 6.14.0-0kurento1
   * debian/control: Adapt kurento-dbg for packages available in Ubuntu 18.04
   * debian/init: use DAEMON_ERR_FILE to check for errors.log
   * debian/default: reorder blocks and simplify comments
@@ -8,8 +8,11 @@ kurento-media-server (6.13.2-0kurento1) UNRELEASED; urgency=medium
   * debian minor: use "adduser" instead of "useradd"
   * debian/postinst: register new home dir with usermod
   * debian/control: kurento-dbg depends on libc6-dbgsym | libc6-dbg
+  * debian/default: avoid 64bit overflow from unnecessary multiplication
+  * debian/control: delete libnice-dbg
+  * Delete websocketpp inline sources, use libwebsocketpp instead
 
- -- Juan Navarro <juan.navarro@gmx.es>  Wed, 22 Apr 2020 19:44:12 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Tue, 16 Jun 2020 17:48:05 +0200
 
 kurento-media-server (6.13.0-0kurento1) testing; urgency=medium
 
