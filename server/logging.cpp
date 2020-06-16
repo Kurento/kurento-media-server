@@ -103,23 +103,11 @@ kms_glib_log_handler (const gchar   *log_domain,
       return;
     }
 
-
-  // Forward Glib log messages through GStreamer logging
-
-  GstDebugCategory *category = kms_glib_debug;
-  GstDebugLevel level = g_log_level_to_gst_debug_level (log_level);
-  const gchar *file = log_domain ? log_domain : "(NULL domain)";
-  const gchar *function = "";
-  gint line = 0;
-  GObject *object = NULL;
-
-  if (!message) {
-    gst_debug_log (category, level, file, function, line, object, "%s",
-        "(NULL message)");
-  } else {
-    gst_debug_log (category, level, file, function, line, object, "%s",
-        message);
-  }
+    // Forward Glib log messages through GStreamer logging
+    GstDebugCategory *category = kms_glib_debug;
+    GstDebugLevel level = g_log_level_to_gst_debug_level (log_level);
+    gst_debug_log (category, level, GST_STR_NULL (log_domain), "", 0, NULL,
+        "%s", GST_STR_NULL (message));
 }
 
 void
