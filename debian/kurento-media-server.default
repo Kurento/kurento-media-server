@@ -4,6 +4,7 @@
 # See http://doc-kurento.readthedocs.io/en/latest/features/logging.html
 GST_DEBUG_LEVEL="3"
 GST_DEBUG="Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
+GST_DEBUG_NO_COLOR=1
 
 # Path where rotating log files will be stored.
 # If this option is unset, logging will be disabled.

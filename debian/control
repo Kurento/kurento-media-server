@@ -21,7 +21,7 @@ Build-Depends: debhelper (>= 9),
  libglibmm-2.4-dev,
  libgstreamer-plugins-base1.5-dev,
  libsigc++-2.0-dev,
- libssl1.0-dev | libssl-dev (<< 1.1.0),
+ libwebsocketpp-dev,
  dh-systemd
 Standards-Version: 4.0.0
 Vcs-Git: https://github.com/Kurento/kurento-media-server.git
@@ -62,7 +62,8 @@ Depends: kurento-media-server (= ${binary:Version}),
  libboost-log-dev,
  libboost-program-options-dev,
  libboost-thread-dev,
- libevent-dev
+ libevent-dev,
+ libwebsocketpp-dev
 Breaks: kurento-media-server-6.0-dev
 Replaces: kurento-media-server-6.0-dev
 Description: Kurento Media Server
@@ -85,8 +86,8 @@ Package: kurento-dbg
 Architecture: any
 Section: debug
 Depends: ${misc:Depends},
- libc6-dbg,
- libglib2.0-0-dbg,
+ libc6-dbgsym | libc6-dbg,
+ libglib2.0-0-dbgsym | libglib2.0-0-dbg,
  kmsjsoncpp-dbg,
  libnice10-dbgsym,
  openwebrtc-gst-plugins-dbg,
@@ -103,4 +104,5 @@ Depends: ${misc:Depends},
  kms-filters-dbg,
  kurento-media-server-dbg
 Description: Meta-package that installs debug symbols
- for Kurento Media Server and all relevant 3rd-party libraries.
+ This dummy package depends on all debug packages for Kurento Media Server
+ and relevant 3rd-party libraries.
