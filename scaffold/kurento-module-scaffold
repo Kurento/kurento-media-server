@@ -43,6 +43,12 @@
 # Bash options for strict error checking
 set -o errexit -o errtrace -o pipefail -o nounset
 
+# Help message (extracted from script headers)
+function usage { grep '^#/' "$0" | cut --characters=4-; exit 0; }
+REGEX='(^|\W)(-h|--help)($|\W)'
+[[ "$*" =~ $REGEX ]] && usage
+[[ $# -lt 2 ]] && usage
+
 # Exit trap
 # This runs at the end, or upon any error (thanks to 'errexit')
 on_exit() {
@@ -50,12 +56,6 @@ on_exit() {
     if ((_RC)); then echo "ERROR ($_RC)"; else echo "SUCCESS"; fi
 }
 trap on_exit EXIT
-
-# Help message (extracted from script headers)
-function usage { grep '^#/' "$0" | cut --characters=4-; exit 0; }
-REGEX='(^|\W)(-h|--help)($|\W)'
-( [[ "$*" =~ $REGEX ]] && usage ) || true
-( [[ $# -lt 2 ]] && usage ) || true
 
 # Parse arguments
 camelName="${1:-MyNewModule}"
