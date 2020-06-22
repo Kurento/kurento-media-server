@@ -4,6 +4,7 @@
 #include <gst/video/gstvideofilter.h>
 
 G_BEGIN_DECLS
+
 #define GST_TYPE_${nameUnderscoreUpper}   (gst_${nameUndersScoreLower}_get_type())
 #define GST_${nameUnderscoreUpper}(obj)   (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_${nameUnderscoreUpper},Gst${camelName}))
 #define GST_${nameUnderscoreUpper}_CLASS(klass)   (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_${nameUnderscoreUpper},Gst${camelName}Class))
@@ -26,7 +27,8 @@ struct _Gst${camelName}Class
 
 GType gst_${nameUndersScoreLower}_get_type (void);
 
-gboolean gst_${nameUndersScoreLower}_plugin_init (GstPlugin * plugin);
+gboolean gst_${nameUndersScoreLower}_plugin_init (GstPlugin *plugin);
 
 G_END_DECLS
+
 #endif /* _GST_${nameUnderscoreUpper}_H_ */
