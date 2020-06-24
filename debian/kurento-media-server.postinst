@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # File checked with ShellCheck (https://www.shellcheck.net/)
 
 # NOTE: This file must have the same contents than
@@ -47,3 +47,6 @@ if [[ -d "$HOME_DIR_OLD" && ! -L "$HOME_DIR_OLD" ]]; then
     # Set the new dir as user's dir in /etc/passwd
     usermod --home "$HOME_DIR" kurento
 fi
+
+#DEBHELPER#
+exit 0
