@@ -1,0 +1,16 @@
+[Unit]
+Description=Kurento Media Server daemon
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/kurento-media-server
+User=kurento
+Group=kurento
+LimitCORE=infinity
+LimitNOFILE=100000
+ExecStart=/usr/bin/kurento-media-server --gst-debug-level=${GST_DEBUG_LEVEL} --gst-debug=${GST_DEBUG} --logs-path=${LOGS_PATH} --log-file-size=${LOG_FILE_SIZE} --number-log-files=${NUMBER_LOG_FILES} ${EXTRA_OPTS}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
