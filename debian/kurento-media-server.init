@@ -168,7 +168,9 @@ stop_kurento() {
         log_failure_msg "Kurento Media Server not running"
     }
 
-    [ -f "$PID_FILE" ] && rm -f "$PID_FILE"
+    if [ -f "$PID_FILE" ]; then
+        rm -f "$PID_FILE"
+    fi
 }
 
 status() {
