@@ -140,15 +140,16 @@ start_kurento() {
     echo "\n\n$(date --iso-8601=seconds) -- New execution" >>"$DAEMON_ERR_FILE"
 
     /sbin/start-stop-daemon \
-            --start \
-            --pidfile "$PID_FILE" \
-            --make-pidfile \
-            --exec "$DAEMON_BIN" \
-            --chuid "$DAEMON_USER" \
-            --background \
-            --no-close \
-            -- ${DAEMON_ARGS:-} \
-            2>>"$DAEMON_ERR_FILE" || {
+        --start \
+        --pidfile "$PID_FILE" \
+        --make-pidfile \
+        --exec "$DAEMON_BIN" \
+        --chuid "$DAEMON_USER" \
+        --background \
+        --no-close \
+        -- ${DAEMON_ARGS:-} \
+        2>>"$DAEMON_ERR_FILE" \
+    || {
         log_warning_msg "Kurento Media Server already started"
         return
     }
@@ -158,9 +159,12 @@ stop_kurento() {
     verify_user
 
     /sbin/start-stop-daemon \
-            --stop \
-            --exec "$DAEMON_BIN" \
-            --pidfile "$PID_FILE" || {
+        --stop \
+        --pidfile "$PID_FILE" \
+        --remove-pidfile \
+        --exec "$DAEMON_BIN" \
+        --retry=TERM/25/KILL/5 \
+    || {
         log_failure_msg "Kurento Media Server not running"
     }
 
