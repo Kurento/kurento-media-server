@@ -1,6 +1,4 @@
-#!/bin/dash
-# File checked with ShellCheck: https://www.shellcheck.net/
-
+#!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          kurento-media-serverd
 # Required-Start:    $remote_fs $network
@@ -9,6 +7,8 @@
 # Default-Stop:      0 1 6
 # Short-Description: Kurento Media Server daemon
 ### END INIT INFO
+
+# File checked with ShellCheck: https://www.shellcheck.net/
 
 if [ -r /lib/lsb/init-functions ]; then
   # shellcheck source=/lib/lsb/init-functions
