@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          kurento-media-serverd
+# Provides:          kurento-media-server
 # Required-Start:    $remote_fs $network
 # Required-Stop:     $remote_fs
 # Default-Start:     2 3 4 5
