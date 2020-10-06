@@ -3,6 +3,7 @@
 # Provides:          kurento-media-server
 # Required-Start:    $remote_fs $network
 # Required-Stop:     $remote_fs
+# Should-Start:      coturn
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Kurento Media Server daemon
