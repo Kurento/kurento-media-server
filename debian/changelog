@@ -1,8 +1,16 @@
-kurento-media-server (6.14.1-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.15.0-0kurento1) testing; urgency=medium
 
-  * UNRELEASED
+  * Prepare release 6.15.0-0kurento1
+  * scaffold: full review to update "Writing Modules" doc
+  * debian/postinst: fix dpkg nonconformity errors
+  * debian/init: retry on stop, kill after timeout
+  * debian/init: return success if there were no errors
+  * debian/init: move header to the top, using /bin/sh
+  * debian/init: change "Provides" to "kurento-media-server"
+  * debian/init: add "coturn" to "Should-Start"
+  * debian: update versions of Kurento dependencies
 
- -- Juan Navarro <juan.navarro@gmx.es>  Thu, 18 Jun 2020 11:43:49 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Tue, 03 Nov 2020 18:04:24 +0100
 
 kurento-media-server (6.14.0-0kurento1) testing; urgency=medium
 
