@@ -5,6 +5,7 @@
 Kurento Media Server
 ====================
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4385/badge)](https://bestpractices.coreinfrastructure.org/projects/4385)
 [![FIWARE Chapter](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/media-streams.svg)](https://www.fiware.org/developers/catalogue/)
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://ci.openvidu.io/jenkins/buildStatus/icon?job=Development/kurento_media_server_merged_xenial)]()
