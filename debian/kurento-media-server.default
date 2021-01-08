@@ -52,7 +52,7 @@ DAEMON_MAX_FILES="$(( $(cat /proc/sys/fs/file-max) / 2 ))"
 # ========================
 
 ## Default recommended logging levels
-export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
+export GST_DEBUG="2,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
 
 ## Extended logging
 ##
@@ -63,13 +63,13 @@ export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handle
 ## For convenience, some of the suggested levels are provided here:
 ##
 ## Extended logging: MediaFlow{In,Out} event state changes
-# export GST_DEBUG="${GST_DEBUG:-3},KurentoMediaElementImpl:5"
+# export GST_DEBUG="${GST_DEBUG:-2},KurentoMediaElementImpl:5"
 ##
 ## Extended logging: WebRTC ICE candidate gathering
-# export GST_DEBUG="${GST_DEBUG:-3},kmsiceniceagent:5,kmswebrtcsession:5,webrtcendpoint:4"
+# export GST_DEBUG="${GST_DEBUG:-2},webrtcendpoint:5,kmswebrtcsession:5,kmsiceniceagent:5"
 ##
 ## Extended logging: Transcoding of media
-# export GST_DEBUG="${GST_DEBUG:-3},Kurento*:5,agnosticbin*:5"
+# export GST_DEBUG="${GST_DEBUG:-2},KurentoMediaElementImpl:5,agnosticbin*:5"
 
 ## Disable colored output, so logs don't contain extraneous characters
 export GST_DEBUG_NO_COLOR=1
