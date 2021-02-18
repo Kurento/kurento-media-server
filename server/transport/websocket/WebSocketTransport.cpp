@@ -343,14 +343,27 @@ void WebSocketTransport::keepAliveSessions()
     lock.unlock ();
 
     for (auto c : conns) {
-      GST_INFO ("Keep alive %s", c.c_str() );
+      GST_INFO ("Keep-Alive for session '%s'", c.c_str() );
 
       try {
         processor->keepAliveSession (c);
-      } catch (KurentoException &e) {
-        if (e.getCode() == INVALID_SESSION) {
-          GST_FIXME ("Session should be removed: %s", c.c_str() );
-          // TODO: Remove session
+      } catch (const KurentoException &e) {
+        if (e.getCode () == INVALID_SESSION) {
+          GST_FIXME (
+              "Keep-Alive failed for unknown session '%s' (media server restarted?); clients should dispose it",
+              c.c_str ());
+          /*
+          TODO: At this point, clients should be notified that the session ID
+          is no longer valid and they should dispose it.
+
+          This can happen when a new media server starts (e.g. after an
+          automatic restart) and there are clients that still try to access old
+          sessions that the new server doesn't know about.
+          */
+
+          // This would forcefully close the WebSocket connection, something
+          // that we're not sure yet that we want to do.
+          //closeHandler (c);
         } else {
           throw e;
         }
