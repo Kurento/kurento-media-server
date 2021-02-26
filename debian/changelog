@@ -1,8 +1,10 @@
-kurento-media-server (6.15.1-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.16.0-0kurento1) testing; urgency=medium
 
-  * UNRELEASED
+  * Prepare release 6.16.0-0kurento1
+  * Update all dependency versions to 6.15.1
+  * logging: set GST_DEBUG=2 to avoid default FIXME messages
 
- -- Juan Navarro <juan.navarro@gmx.es>  Fri, 06 Nov 2020 11:55:57 +0100
+ -- Juan Navarro <juan.navarro@gmx.es>  Fri, 26 Feb 2021 12:01:39 +0100
 
 kurento-media-server (6.15.0-0kurento1) testing; urgency=medium
 
