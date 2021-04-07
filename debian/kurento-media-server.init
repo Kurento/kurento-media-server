@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/dash
 ### BEGIN INIT INFO
 # Provides:          kurento-media-server
 # Required-Start:    $remote_fs $network
@@ -9,7 +9,7 @@
 # Short-Description: Kurento Media Server daemon
 ### END INIT INFO
 
-# File checked with ShellCheck: https://www.shellcheck.net/
+# Use ShellCheck: https://www.shellcheck.net/
 
 if [ -r /lib/lsb/init-functions ]; then
   # shellcheck source=/lib/lsb/init-functions
@@ -19,11 +19,15 @@ else
   exit 1
 fi
 
-# Default settings
+# Default daemon settings
 START_DAEMON="false"
 DAEMON_ARGS=""
 DAEMON_USER="kurento"
-DAEMON_LOG_DIR="/var/log/kurento-media-server"
+
+# Default program settings
+export GST_DEBUG="2,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
+export GST_DEBUG_NO_COLOR="1"
+export KURENTO_LOGS_PATH="/var/log/kurento-media-server"
 
 # Load user-configurable settings
 if [ -r /etc/default/kurento-media-server ]; then
@@ -31,9 +35,10 @@ if [ -r /etc/default/kurento-media-server ]; then
   . /etc/default/kurento-media-server
 fi
 
-# Non-configurable settings
-DAEMON_BIN="/usr/bin/kurento-media-server"
+# Non-configurable daemon settings
+DAEMON_LOG_DIR="$KURENTO_LOGS_PATH"
 DAEMON_ERR_FILE="$DAEMON_LOG_DIR/errors.log"
+DAEMON_BIN="/usr/bin/kurento-media-server"
 PID_FILE="/var/run/kurento-media-server.pid"
 
 [ "${START_DAEMON:-}" != "true" ] && {
