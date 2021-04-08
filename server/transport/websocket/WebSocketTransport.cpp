@@ -478,7 +478,7 @@ void WebSocketTransport::storeConnection (const std::string &request,
     }
 
     if (needsWrite) {
-      GST_DEBUG ("Asociating session %s", sessionId.c_str() );
+      GST_DEBUG ("Associating session %s", sessionId.c_str ());
       connections[sessionId] = connection;
       connectionsReverse[connection] = sessionId;
 
@@ -551,7 +551,7 @@ void WebSocketTransport::openHandler (ServerType *s,
   auto connection = s->get_con_from_hdl (hdl);
   std::string resource = connection->get_resource();
 
-  GST_DEBUG ("Client connected from %s", connection->get_origin().c_str() );
+  GST_DEBUG ("Client connected from '%s'", connection->get_origin ().c_str ());
 
   if (resource.size() >= 1 && resource[0] == '/') {
     resource = resource.substr (1);
