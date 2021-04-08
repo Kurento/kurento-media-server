@@ -88,6 +88,12 @@ WebSocketTransport::WebSocketTransport (
     GST_INFO ("Secure WebSocket server (wss://) not enabled");
   }
 
+  /* No sense to continue since no WebSocket server means no possible control. */
+  if (!hasInsecureServer && !hasSecureServer) {
+    throw std::runtime_error (
+        "Cannot open a WebSocket listener on the specified port (multiple KMS instances?)");
+  }
+
   /* Configure Kurento registrar, if enabled */
   initRegistrar (config);
 }
