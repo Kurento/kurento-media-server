@@ -104,6 +104,8 @@ void WebSocketTransport::run()
 {
   bool running = true;
 
+  GST_DEBUG ("New thread: %p", g_thread_self ());
+
   while (running) {
     try {
       ios.run();
