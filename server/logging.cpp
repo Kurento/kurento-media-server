@@ -214,6 +214,33 @@ gst_debug_level_to_severity_level (GstDebugLevel level)
   }
 }
 
+static const char *
+gst_debug_level_to_cee_pri_level (GstDebugLevel level)
+{
+  // CEE only permits four values in the "pri" field
+  switch (level) {
+  case GST_LEVEL_NONE:
+    return "";
+
+  case GST_LEVEL_ERROR:
+    return "ERROR";
+
+  case GST_LEVEL_WARNING:
+    return "WARN";
+
+  case GST_LEVEL_INFO:
+  case GST_LEVEL_DEBUG:
+  case GST_LEVEL_LOG:
+  case GST_LEVEL_FIXME:
+  case GST_LEVEL_TRACE:
+  case GST_LEVEL_MEMDUMP:
+    return "DEBUG";
+
+  default:
+    return "";
+  }
+}
+
 static void
 kms_log_function (GstDebugCategory *category, GstDebugLevel level,
                   const gchar *file,
@@ -237,7 +264,13 @@ kms_log_function (GstDebugCategory *category, GstDebugLevel level,
   }
 
   BOOST_LOG_SEV (system_logger::get(), severity) <<
-      logging::add_value ("Category", expand_string (category->name, 25) ) <<
+      logging::add_value ("CEE_pri", gst_debug_level_to_cee_pri_level (level) ) <<
+      logging::add_value ("TimeStampUTC",
+                          boost::date_time::microsec_clock<boost::posix_time::ptime>::universal_time() )
+      <<
+      logging::add_value ("Category", expand_string (category->name,
+                          25) ) << // FIXME, should be expanded by the formatter
+      logging::add_value ("CategoryRaw", category->name) <<
       logging::add_value ("FileName",
                           boost::filesystem::path (file).filename().string() ) <<
       logging::add_value ("Line", line) <<
@@ -303,6 +336,90 @@ system_formatter (logging::record_view const &rec,
   strm << rec[expr::smessage];
 }
 
+static void
+json_cee_formatter (logging::record_view const &rec,
+                    logging::formatting_ostream &strm)
+{
+  static const char *json_special = "\"\\/\b\f\n\r\t";
+  static const char *json_special_replace = "\"\\/bfnrt";
+
+  std::stringstream tmp;
+
+  auto date_time_formatter = expr::stream
+                             << expr::format_date_time< boost::posix_time::ptime > ("TimeStampUTC",
+                                 "%Y-%m-%dT%H:%M:%S.%fZ");
+  strm << "{\"time\":\"";
+  date_time_formatter (rec, strm) << "\",";
+
+  /* ProcessID is usually a hex string, JSON CEE expects a decimal value */
+  tmp << logging::extract< attrs::current_process_id::value_type > ("ProcessID",
+      rec);
+  tmp.flush();
+  strm << "\"proc!id\":";
+  strm << strtoul (tmp.str().c_str(), 0, 0) << ",";
+  tmp.str ("");
+  tmp.clear();
+
+  /* ThreadID is usually a hex string, JSON CEE expects a decimal value */
+  tmp << logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
+      rec);
+  tmp.flush();
+  strm << "\"proc!tid\":";
+  strm << strtoul (tmp.str().c_str(), 0, 0) << ",";
+  tmp.str ("");
+  tmp.clear();
+
+  strm << "\"pname\":\"";
+  strm << logging::extract< std::string > ("ProcessName", rec) << "\",";
+
+  strm << "\"appname\":\"";
+  strm << logging::extract< std::string > ("AppName", rec) << "\",";
+
+  strm << "\"host\":\"";
+  strm << logging::extract< std::string > ("FQDN", rec) << "\",";
+
+  strm << "\"pri\":\"";
+  strm << logging::extract< std::string > ("CEE_pri", rec) << "\",";
+
+  strm << "\"subsys\":\"";
+  strm << logging::extract< std::string > ("CategoryRaw", rec) << "\",";
+
+  strm << "\"file!name\":\"";
+  strm << logging::extract< std::string > ("FileName", rec) << "\",";
+  strm << "\"file!line\":";
+  strm << logging::extract< int > ("Line", rec) << ",";
+  strm << "\"native!function\":\"";
+  strm << logging::extract< std::string > ("Function", rec) << "\",";
+
+  strm << "\"native!object\":\"";
+  strm << logging::extract< std::string > ("GObject", rec) << "\",";
+
+  strm << "\"msg\":\"";
+  tmp << rec[expr::smessage];
+  tmp.flush();
+  const std::string &msg = tmp.str();
+
+  for (std::string::const_iterator it = msg.begin(); it != msg.end(); it++) {
+    char c = (char) * it;
+    const char *special = strchr (json_special, c);
+
+    if (special != NULL) {
+      const char *replace = json_special_replace + (special - json_special);
+      strm << '\\' << *replace;
+    } else if (c < 0x20) {
+      /* Everything below 0x20 must be escaped */
+      strm << "\\u00" << std::setw (2) << std::setfill ('0') << std::hex <<
+           std::uppercase << c;
+    } else {
+      strm << c;
+    }
+  }
+
+  strm << "\"";
+
+  strm << "}";
+}
+
 bool
 kms_init_logging_files (const std::string &path, int fileSize, int fileNumber)
 {
@@ -340,7 +457,20 @@ kms_init_logging_files (const std::string &path, int fileSize, int fileNumber)
 
   core->add_sink (system_sink);
 
-  system_sink->set_formatter (&system_formatter);
+  bool structured_json_cee = false;
+  const char *g_log_structured = getenv ("GST_DEBUG_STRUCTURED");
+
+  if ( g_log_structured != NULL ) {
+    if (strstr (g_log_structured, "JSON_CEE") ) {
+      structured_json_cee = true;
+    }
+  }
+
+  if (structured_json_cee) {
+    system_sink->set_formatter (&json_cee_formatter);
+  } else {
+    system_sink->set_formatter (&system_formatter);
+  }
 
   /* Set an exception handler to manage error cases such as missing
    * file write permissions */
