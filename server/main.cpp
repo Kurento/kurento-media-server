@@ -206,7 +206,7 @@ main (int argc, char **argv)
 
     if (vm.count ("version") || vm.count ("list") ) {
       // Disable log to just print version
-      gst_debug_remove_log_function_by_data(nullptr);
+      gst_debug_remove_log_function_by_data (nullptr);
     }
 
     loadModules (modulesPath);
@@ -233,9 +233,9 @@ main (int argc, char **argv)
   /* Install our signal handler */
   signalAction.sa_handler = signal_handler;
 
-  sigaction(SIGINT, &signalAction, nullptr);
-  sigaction(SIGTERM, &signalAction, nullptr);
-  sigaction(SIGPIPE, &signalAction, nullptr);
+  sigaction (SIGINT, &signalAction, nullptr);
+  sigaction (SIGTERM, &signalAction, nullptr);
+  sigaction (SIGPIPE, &signalAction, nullptr);
 
   GST_INFO ("Kurento Media Server version: %s", get_version () );
 
