@@ -104,14 +104,14 @@ ClientHandler::check_not_duplicated_event()
     try {
       Json::Value event = this->waifForEvent (std::chrono::seconds (2) );
       receivedId = get_id_from_event (event);
-    } catch (kurento::KurentoException e) {
+    } catch (const kurento::KurentoException &e) {
       BOOST_FAIL ("Expected event not received");
     }
 
     try {
       this->waifForEvent (std::chrono::seconds (2) );
       BOOST_FAIL ("Unexpected event");
-    } catch (kurento::KurentoException e) {
+    } catch (const kurento::KurentoException &e) {
     }
   });
 
@@ -164,14 +164,14 @@ ClientHandler::check_not_duplicated_event()
     try {
       Json::Value event = this->waifForEvent (std::chrono::seconds (2) );
       receivedId = get_id_from_event (event);
-    } catch (kurento::KurentoException e) {
+    } catch (const kurento::KurentoException &e) {
       BOOST_FAIL ("Expected event not received");
     }
 
     try {
       this->waifForEvent (std::chrono::seconds (2) );
       BOOST_FAIL ("Unexpected event");
-    } catch (kurento::KurentoException e) {
+    } catch (const kurento::KurentoException &e) {
     }
   });
 
@@ -223,7 +223,7 @@ ClientHandler::check_not_duplicated_event()
     try {
       Json::Value event = this->waifForEvent (std::chrono::seconds (2) );
       BOOST_ERROR ("Unexpected event: " + event.toStyledString() );
-    } catch (kurento::KurentoException e) {
+    } catch (const kurento::KurentoException &e) {
     }
   });
 

@@ -86,7 +86,7 @@ ServerMethods::ServerMethods (const boost::property_tree::ptree &config) :
     config.get<float> ("mediaServer.resources.exceptionLimit",
                        DEFAULT_RESOURCE_LIMIT_PERCENT);
 
-  GST_INFO ("Using above %.2f%% of system limits will throw NOT_ENOUGH_RESOURCES exception",
+  GST_INFO ("Using above %.0f%% of system limits will throw NOT_ENOUGH_RESOURCES exception",
             resourceLimitPercent * 100.0f);
 
   std::string maxThreadsStr;

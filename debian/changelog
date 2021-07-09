@@ -1,17 +1,54 @@
 kurento-media-server (7.0.0-0kurento1) UNRELEASED; urgency=medium
 
-  [ Juan Navarro ]
-  * UNRELEASED
-
   [ Mario Jr ]
-  * First version of GStreamer 1.14 port
+  * GStreamer 1.14 port
   * Replace forked gstreamer deps for system's one in control file
 
   [ Juan Navarro ]
   * Add 'libwebsocketpp-dev' to Build-Deps, without versioning
   * debian/control: Drop 'libssl1.0-dev' for Bionic compatibility
 
- -- Juan Navarro <juan.navarro@gmx.es>  Thu, 19 Dec 2019 19:17:39 +0100
+  * UNRELEASED
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Wed, 03 Mar 2021 12:26:48 +0100
+
+kurento-media-server (6.16.0-0kurento1) testing; urgency=medium
+
+  * Prepare release 6.16.0-0kurento1
+  * Update all dependency versions to 6.15.1
+  * logging: set GST_DEBUG=2 to avoid default FIXME messages
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Fri, 26 Feb 2021 12:01:39 +0100
+
+kurento-media-server (6.15.0-0kurento1) testing; urgency=medium
+
+  * Prepare release 6.15.0-0kurento1
+  * scaffold: full review to update "Writing Modules" doc
+  * debian/postinst: fix dpkg nonconformity errors
+  * debian/init: retry on stop, kill after timeout
+  * debian/init: return success if there were no errors
+  * debian/init: move header to the top, using /bin/sh
+  * debian/init: change "Provides" to "kurento-media-server"
+  * debian/init: add "coturn" to "Should-Start"
+  * debian: update versions of Kurento dependencies
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Tue, 03 Nov 2020 18:04:24 +0100
+
+kurento-media-server (6.14.0-0kurento1) testing; urgency=medium
+
+  * Prepare release 6.14.0-0kurento1
+  * debian/control: Adapt kurento-dbg for packages available in Ubuntu 18.04
+  * debian/init: use DAEMON_ERR_FILE to check for errors.log
+  * debian/default: reorder blocks and simplify comments
+  * debian/default: add G_DEBUG to force crash on GStreamer-CRITICAL
+  * debian minor: use "adduser" instead of "useradd"
+  * debian/postinst: register new home dir with usermod
+  * debian/control: kurento-dbg depends on libc6-dbgsym | libc6-dbg
+  * debian/default: avoid 64bit overflow from unnecessary multiplication
+  * debian/control: delete libnice-dbg
+  * Delete websocketpp inline sources, use libwebsocketpp instead
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Tue, 16 Jun 2020 17:48:05 +0200
 
 kurento-media-server (6.13.0-0kurento1) testing; urgency=medium
 

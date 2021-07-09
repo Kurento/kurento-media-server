@@ -8,7 +8,7 @@ set(TEST_VARIABLES
   "BOOST_TEST_CATCH_SYSTEM_ERRORS=no"
 )
 
-add_definitions(-DBOOST_TEST_DYN_LINK -D_WEBSOCKETPP_CPP11_STL_)
+add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_library(base_test EXCLUDE_FROM_ALL BaseTest.cpp)
 if(SANITIZERS_ENABLED)

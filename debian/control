@@ -5,11 +5,11 @@ Build-Depends: debhelper (>= 9),
  build-essential,
  cmake,
  gstreamer1.0-plugins-good,
- kms-cmake-utils,
- kms-core-dev,
- kms-elements-dev,
- kms-filters-dev,
- kurento-module-creator,
+ kms-cmake-utils (>= 7.0.0),
+ kms-core-dev (>= 7.0.0),
+ kms-elements-dev (>= 7.0.0),
+ kms-filters-dev (>= 7.0.0),
+ kurento-module-creator (>= 7.0.0),
  libboost-dev,
  libboost-filesystem-dev,
  libboost-log-dev,
@@ -21,7 +21,6 @@ Build-Depends: debhelper (>= 9),
  libglibmm-2.4-dev,
  libgstreamer-plugins-base1.0-dev,
  libsigc++-2.0-dev,
- libssl-dev,
  libwebsocketpp-dev
 Standards-Version: 4.0.0
 Vcs-Git: https://github.com/Kurento/kurento-media-server.git
@@ -38,9 +37,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  gstreamer1.0-plugins-base,
  gstreamer1.0-plugins-good,
  gstreamer1.0-plugins-ugly,
- kms-core,
- kms-elements,
- kms-filters,
+ kms-core (>= 7.0.0),
+ kms-elements (>= 7.0.0),
+ kms-filters (>= 7.0.0),
  libgstreamer-plugins-base1.0-0
 Suggests: kurento-dbg
 Description: Kurento Media Server
@@ -52,11 +51,11 @@ Architecture: any
 Section: devel
 Depends: kurento-media-server (= ${binary:Version}),
  ${misc:Depends},
- kms-cmake-utils,
- kms-core-dev,
- kms-elements-dev,
- kms-filters-dev,
- kurento-module-creator,
+ kms-cmake-utils (>= 7.0.0),
+ kms-core-dev (>= 7.0.0),
+ kms-elements-dev (>= 7.0.0),
+ kms-filters-dev (>= 7.0.0),
+ kurento-module-creator (>= 7.0.0),
  libboost-log-dev,
  libboost-program-options-dev,
  libboost-thread-dev,
@@ -80,7 +79,7 @@ Package: kurento-dbg
 Architecture: any
 Section: debug
 Depends: ${misc:Depends},
- libc6-dbg,
+ libc6-dbgsym | libc6-dbg,
  libglib2.0-0-dbgsym | libglib2.0-0-dbg,
  kmsjsoncpp-dbg,
  libnice10-dbgsym | libnice-dbg,
@@ -98,4 +97,5 @@ Depends: ${misc:Depends},
  kms-filters-dbg,
  kurento-media-server-dbg
 Description: Meta-package that installs debug symbols
- for Kurento Media Server and all relevant 3rd-party libraries.
+ This dummy package depends on all debug packages for Kurento Media Server
+ and relevant 3rd-party libraries.

@@ -18,10 +18,6 @@
 #ifndef WEBSOCKETREGISTRAR_HPP
 #define WEBSOCKETREGISTRAR_HPP
 
-#ifndef _WEBSOCKETPP_CPP11_STL_
-#define _WEBSOCKETPP_CPP11_STL_
-#endif
-
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio.hpp>
 #include <thread>

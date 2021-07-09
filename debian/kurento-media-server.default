@@ -1,126 +1,106 @@
-# Defaults for kurento-media-server initscript (/etc/init.d/kurento-media-server)
-# This is a POSIX shell fragment
+#!/bin/dash
+# Use ShellCheck: https://www.shellcheck.net/
+# shellcheck disable=SC2034 # Ignore unused variables
 
-
-
-# IMPORTANT NOTE
-# ==============
-
-# This file only gets loaded if Kurento Media Server is started through the
-# system service init mechanism: Running
-# `sudo service kurento-media-server start` will execute the script found at
-# "/etc/init.d/kurento-media-server", which in turn sources this file.
+# This file is loaded by "/etc/init.d/kurento-media-server", the system service
+# init script that is run by the command `service kurento-media-server start`.
 #
-# If you run KMS by hand, e.g. by directly executing
-# `/usr/bin/kurento-media-server` in a shell, then all settings in this file
-# won't be loaded in the environment. You can load them by running
-# `source /etc/default/kurento-media-server` *before* running KMS.
+# Settings found in this file won't be loaded if Kurento Media Server is started
+# manually, for example by directly executing `/usr/bin/kurento-media-server`.
 
 
 
-# Service script settings
-# =======================
+# Service init script settings
+# ============================
 
-START_DAEMON="true"    # If not "true", the daemon will refuse to load
-DAEMON_ARGS=""         # Passed directly to the kurento-media-server executable
-DAEMON_USER="kurento"  # User as whom Kurento Media Server will run
-DAEMON_LOG_DIR="/var/log/kurento-media-server"  # Where to store daemon logs
+# If not "true", the service will refuse to start
+START_DAEMON="true"
+
+# Arguments that will get passed directly to the KMS executable
+DAEMON_ARGS=""
+
+# Linux user that will be owner of KMS process and generated files
+DAEMON_USER="kurento"
+
+## System-wide destination of Kernel core dump files. See:
+## https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
+##
+## Note that in Ubuntu with Apport the default pattern is:
+##     |/usr/share/apport/apport %p %s %c %d %P
+## and it only creates a one-time Crash Report in "/var/crash/". See:
+## https://doc-kurento.readthedocs.io/en/latest/user/troubleshooting.html#media-server-crashes
+##
+## Uncomment this to override Apport and/or set a custom core dump destination
+## into the file "/proc/sys/kernel/core_pattern":
+#DAEMON_CORE_PATTERN="/tmp/core_%e_%p_%u_%t"
+
+## Per-process max open file descriptors (set to half of system-wide max)
+## Only touch this if you are a sysadmin and/or you know what you are doing!
+DAEMON_MAX_FILES="$(( $(cat /proc/sys/fs/file-max) / 2 ))"
+
+## Per-user max threads (set to Kernel hard limit)
+## Only touch this if you are a sysadmin and/or you know what you are doing!
+## Note: This is '-u' in Bash and '-p' in POSIX shell (like Dash)
+#DAEMON_MAX_THREADS="$(ulimit -Hp)"
 
 
 
-# Kurento Media Server settings
-# =============================
+# Debug & logging settings
+# ========================
 
-## Most settings can be passed either as environment variables or as
-## command-line arguments.
-## E.g.: KURENTO_LOGS_PATH="/tmp" is equivalent to --logs-path="/tmp"
+## Default recommended logging levels
+export GST_DEBUG="2,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
 
-## Default logging levels for recommended components.
-## Command line equivalent: --gst-debug-level=3 --gst-debug="[...]"
-## See https://doc-kurento.readthedocs.io/en/latest/features/logging.html
-export GST_DEBUG="3,Kurento*:4,kms*:4,sdp*:4,webrtc*:4,*rtpendpoint:4,rtp*handler:4,rtpsynchronizer:4,agnosticbin:4"
-
-## Extended logging: Event MediaFlow{In,Out} state changes
-# export GST_DEBUG="${GST_DEBUG:-3},KurentoMediaElementImpl:5"
-
-## Extended logging: ICE candidate gathering
-# export GST_DEBUG="${GST_DEBUG:-3},kmsiceniceagent:5,kmswebrtcsession:5,webrtcendpoint:4"
-
-## 3rd-Party logging: libnice
-# export G_MESSAGES_DEBUG="libnice,libnice-stun"
-# export GST_DEBUG="${GST_DEBUG:-3},glib:5"
-
-## Extended logging: RPC calls
-# export GST_DEBUG="${GST_DEBUG:-3},KurentoWebSocketTransport:5"
-
+## Extended logging
+##
+## To investigate issues in some parts of KMS, you'll want to enable additional
+## logs. Check out KMS docs to see some of the **suggested levels**:
+## https://doc-kurento.readthedocs.io/en/latest/features/logging.html
+##
+## For convenience, some of the suggested levels are provided here:
+##
+## Extended logging: MediaFlow{In,Out} event state changes
+#export GST_DEBUG="${GST_DEBUG:-2},KurentoMediaElementImpl:5"
+##
+## Extended logging: WebRTC ICE candidate gathering
+#export GST_DEBUG="${GST_DEBUG:-2},webrtcendpoint:5,kmswebrtcsession:5,kmsiceniceagent:5"
+##
 ## Extended logging: Transcoding of media
-# export GST_DEBUG="${GST_DEBUG:-3},Kurento*:5,agnosticbin*:5"
+#export GST_DEBUG="${GST_DEBUG:-2},KurentoMediaElementImpl:5,agnosticbin*:5"
 
-## Logging settings: Disable colored output.
-## When running KMS with these service init scripts, this setting mainly
-## affects the output of errors in '/var/log/kurento-media-server/errors.log'.
-## Also useful to set when running directly from a Docker container.
-export GST_DEBUG_NO_COLOR=1
+## Disable colored output, so logs don't contain extraneous characters
+export GST_DEBUG_NO_COLOR="1"
 
-## Logging settings: Output path for GStreamer debug graphs.
-## Uncomment to enable generation of debug graphs.
-# export GST_DEBUG_DUMP_DOT_DIR="/tmp"
+## Output path for GStreamer debug graphs (uncomment to enable graphs)
+#export GST_DEBUG_DUMP_DOT_DIR="/tmp"
 
-## Path where rotating log files will be stored.
-## If this option is unset, logging will be disabled.
-## Command line equivalent: --logs-path
-## Default: Unset
-export KURENTO_LOGS_PATH="$DAEMON_LOG_DIR"
+## Path where to store log files
+export KURENTO_LOGS_PATH="/var/log/kurento-media-server"
 
-## Maximum file size for log files, in MB.
-## Command line equivalent: --log-file-size
-## Default: 100
-# export KURENTO_LOG_FILE_SIZE=100
+## Maximum file size for rotating log files, in MB (default: 100 MB)
+#export KURENTO_LOG_FILE_SIZE=100
 
-## Maximum number of log files to keep.
-## Command line equivalent: --number-log-files
-## Default: 10
-# export KURENTO_NUMBER_LOG_FILES=10
+## Maximum number of rotating log files to keep (default: 10 files)
+#export KURENTO_NUMBER_LOG_FILES=10
 
-## Path to the main configuration file for Kurento.
-## Command line equivalent: --conf-file
-## Default: "/etc/kurento/kurento.conf.json"
-# export KURENTO_CONF_FILE="/etc/kurento/kurento.conf.json"
-
-## Path to the directory where Kurento modules can be found.
-## Command line equivalent: --modules-path
-## Default: "/usr/lib"
-# export KURENTO_MODULES_PATH="/usr/lib"
-
-## Path to the directory where config files can be found for Kurento modules.
-## Command line equivalent: --modules-config-path
-## Default: "/etc/kurento/modules"
-# export KURENTO_MODULES_CONFIG_PATH="/etc/kurento/modules"
+## Abort the server when underlying libs print a Warning or Critical message,
+## for example "GStreamer-WARNING" or "GStreamer-CRITICAL". This can be used to
+## obtain a Kernel core dump or a GDB backtrace, needed to solve the issue. See:
+## https://doc-kurento.readthedocs.io/en/latest/user/troubleshooting.html#gstreamer-critical-messages-in-the-log
+#export G_DEBUG="fatal-warnings"
 
 
 
-# Linux Kernel & System settings
-# ==============================
+# Advanced server settings
+# ========================
 
 unset GST_PLUGIN_PATH
 
-## Destination of Kernel core dump files
-## See https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
-##
-## In Ubuntu, if Apport is installed it creates a compact Crash Report
-## including the Core Dump and some other system information.
-## The default pattern in Ubuntu desktop systems is:
-##     '|/usr/share/apport/apport %p %s %c %d %P'.
-##
-## Uncomment to set a custom pattern for core dump files.
-# DAEMON_CORE_PATTERN="/tmp/core_%e_%p_%u_%t"
+## Path to the main configuration file for Kurento Media Server
+#export KURENTO_CONF_FILE="/etc/kurento/kurento.conf.json"
 
-## Set per-process max open file descriptors to half of system-wide max
-## (Only touch this if you are a sysadmin and/or you know what you are doing!)
-DAEMON_MAX_FILES="$(( ($(cat /proc/sys/fs/file-max) * 50) / 100 ))"
+## Path to the directory where Kurento modules can be found
+#export KURENTO_MODULES_PATH="/usr/lib"
 
-## Set per-user max threads to system's "Hard Limit"
-## (Only touch this if you are a sysadmin and/or you know what you are doing!)
-##
-## Note: This is '-u' in Bash and '-p' in Sh
-# DAEMON_MAX_THREADS="$(ulimit -Hp)"
+## Path to the directory where config files can be found for Kurento modules
+#export KURENTO_MODULES_CONFIG_PATH="/etc/kurento/modules"

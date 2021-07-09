@@ -5,6 +5,7 @@
 Kurento Media Server
 ====================
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4385/badge)](https://bestpractices.coreinfrastructure.org/projects/4385)
 [![FIWARE Chapter](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/media-streams.svg)](https://www.fiware.org/developers/catalogue/)
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://ci.openvidu.io/jenkins/buildStatus/icon?job=Development/kurento_media_server_merged_xenial)]()
@@ -69,7 +70,7 @@ Documentation
 The Kurento project provides detailed [documentation] including tutorials, installation and development guides. The [Open API specification], also known as *Kurento Protocol*, is available on [apiary.io].
 
 [documentation]: https://www.kurento.org/documentation
-[Open API specification]: https://doc-kurento.readthedocs.io/en/stable/features/kurento_api.html
+[Open API specification]: https://doc-kurento.readthedocs.io/en/latest/features/kurento_api.html
 [apiary.io]: http://docs.streamoriented.apiary.io/
 
 
@@ -79,15 +80,15 @@ Useful Links
 
 Usage:
 
-* [Installation Guide](https://doc-kurento.readthedocs.io/en/stable/user/installation.html)
+* [Installation Guide](https://doc-kurento.readthedocs.io/en/latest/user/installation.html)
 * [Docker Deployment Guide](https://hub.docker.com/r/kurento/kurento-media-server)
-* [Contribution Guide](https://doc-kurento.readthedocs.io/en/stable/project/contribute.html)
-* [Developer Guide](https://doc-kurento.readthedocs.io/en/stable/dev/dev_guide.html)
+* [Contribution Guide](https://doc-kurento.readthedocs.io/en/latest/project/contribute.html)
+* [Developer Guide](https://doc-kurento.readthedocs.io/en/latest/dev/dev_guide.html)
 
 Issues:
 
 * [Bug Tracker](https://github.com/Kurento/bugtracker/issues)
-* [Support](https://doc-kurento.readthedocs.io/en/stable/user/support.html)
+* [Support](https://doc-kurento.readthedocs.io/en/latest/user/support.html)
 
 News:
 
@@ -97,7 +98,7 @@ News:
 
 Training:
 
-* [Kurento tutorials](https://doc-kurento.readthedocs.io/en/stable/user/tutorials.html)
+* [Kurento tutorials](https://doc-kurento.readthedocs.io/en/latest/user/tutorials.html)
 
 
 
@@ -119,7 +120,7 @@ In order to assess properly Kurento from a final user perspective, a rich suite 
 
 If you want to know more about the Kurento Testing Framework and how to run all the available tests for Kurento you will find more information in [Kurento developers documentation > Testing]
 
-[Kurento developers documentation > Testing]: https://doc-kurento.readthedocs.io/en/stable/dev/testing.html
+[Kurento developers documentation > Testing]: https://doc-kurento.readthedocs.io/en/latest/dev/testing.html
 
 
 

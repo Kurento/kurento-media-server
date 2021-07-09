@@ -1,4 +1,4 @@
-find_package(WEBSOCKETPP 0.7.0 REQUIRED)
+find_package(websocketpp 0.7.0 REQUIRED)
 
 set (WEBSOCKET_SOURCES
   WebSocketTransport.cpp
@@ -11,14 +11,7 @@ set (WEBSOCKET_SOURCES
   WebSocketRegistrar.hpp
 )
 
-set(FLAGS "-D_WEBSOCKETPP_CPP11_STL_")
-
-set_source_files_properties(${WEBSOCKET_SOURCES}
-  PROPERTIES
-    COMPILE_FLAGS ${FLAGS}
-)
-
-add_library (websocketTransport
+add_library(websocketTransport
   ${WEBSOCKET_SOURCES}
 )
 if(SANITIZERS_ENABLED)

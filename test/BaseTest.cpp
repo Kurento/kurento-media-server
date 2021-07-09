@@ -244,7 +244,7 @@ Json::Value F::waifForEvent (const std::chrono::seconds timeout)
 
   try {
     event = getFirstEvent();
-  } catch (KurentoException e) {
+  } catch (const KurentoException &e) {
     if (!cond.wait_for (lock, timeout, std::bind (&F::receivedEvent, this) ) ) {
       throw kurento::KurentoException (UNEXPECTED_ERROR, "Timeout waiting for event");
     }
