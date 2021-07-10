@@ -32,7 +32,7 @@
 #include <boost/log/utility/exception_handler.hpp>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <syslog.h>
 
 namespace logging = boost::log;
 namespace attrs = boost::log::attributes;
@@ -214,6 +214,36 @@ gst_debug_level_to_severity_level (GstDebugLevel level)
   }
 }
 
+static int
+gst_debug_level_to_syslog_level (GstDebugLevel level)
+{
+  switch (level) {
+  case GST_LEVEL_ERROR:
+    return LOG_ERR;
+
+  case GST_LEVEL_WARNING:
+    return LOG_WARNING;
+
+  case GST_LEVEL_FIXME:
+    return LOG_NOTICE;
+
+  case GST_LEVEL_INFO:
+    return LOG_INFO;
+
+  case GST_LEVEL_DEBUG:
+    return LOG_DEBUG;
+
+  case GST_LEVEL_LOG:
+    return LOG_DEBUG;
+
+  case GST_LEVEL_TRACE:
+    return LOG_DEBUG;
+
+  default:
+    return LOG_CRIT;
+  }
+}
+
 static const char *
 gst_debug_level_to_cee_pri_level (GstDebugLevel level)
 {
@@ -263,7 +293,11 @@ kms_log_function (GstDebugCategory *category, GstDebugLevel level,
     return;
   }
 
+  int syslog_level = gst_debug_level_to_syslog_level (level);
+
   BOOST_LOG_SEV (system_logger::get(), severity) <<
+      logging::add_value ("GStreamerDebugLevel", level ) <<
+      logging::add_value ("SyslogLevel", syslog_level ) <<
       logging::add_value ("CEE_pri", gst_debug_level_to_cee_pri_level (level) ) <<
       logging::add_value ("TimeStampUTC",
                           boost::date_time::microsec_clock<boost::posix_time::ptime>::universal_time() )
@@ -351,12 +385,13 @@ json_cee_formatter (logging::record_view const &rec,
   strm << "{\"time\":\"";
   date_time_formatter (rec, strm) << "\",";
 
-  /* ProcessID is usually a hex string, JSON CEE expects a decimal value */
+  /* ProcessID is usually a hex string, JSON CEE expects a string value.
+     We convert it from hex to decimal. */
   tmp << logging::extract< attrs::current_process_id::value_type > ("ProcessID",
       rec);
   tmp.flush();
-  strm << "\"proc!id\":";
-  strm << strtoul (tmp.str().c_str(), 0, 0) << ",";
+  strm << "\"proc!id\":\"";
+  strm << strtoul (tmp.str().c_str(), 0, 0) << "\",";
   tmp.str ("");
   tmp.clear();
 
@@ -378,8 +413,14 @@ json_cee_formatter (logging::record_view const &rec,
   strm << "\"host\":\"";
   strm << logging::extract< std::string > ("FQDN", rec) << "\",";
 
+  strm << "\"gstreamer!level\":";
+  strm << logging::extract< GstDebugLevel > ("GStreamerDebugLevel", rec) << ",";
+
   strm << "\"pri\":\"";
   strm << logging::extract< std::string > ("CEE_pri", rec) << "\",";
+
+  strm << "\"syslog!level\":";
+  strm << logging::extract< int > ("SyslogLevel", rec) << ",";
 
   strm << "\"subsys\":\"";
   strm << logging::extract< std::string > ("CategoryRaw", rec) << "\",";
