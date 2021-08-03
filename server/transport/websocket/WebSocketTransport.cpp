@@ -351,7 +351,7 @@ void WebSocketTransport::keepAliveSessions()
     lock.unlock ();
 
     for (auto c : conns) {
-      GST_INFO ("Keep-Alive for session '%s'", c.c_str() );
+      GST_DEBUG ("Keep-Alive for session '%s'", c.c_str() );
 
       try {
         processor->keepAliveSession (c);

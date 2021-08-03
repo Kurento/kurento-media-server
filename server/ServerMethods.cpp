@@ -808,10 +808,10 @@ ServerMethods::ping (const Json::Value &params, Json::Value &response)
   }
 
   if (sessionId.empty()) {
-    GST_INFO ("WebSocket Ping/Pong");
+    GST_DEBUG ("WebSocket Ping/Pong");
   }
   else {
-    GST_INFO ("WebSocket Ping/Pong with sessionId %s", sessionId.c_str());
+    GST_DEBUG ("WebSocket Ping/Pong with sessionId %s", sessionId.c_str());
   }
 
   response[VALUE] = "pong";
