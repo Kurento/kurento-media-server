@@ -390,7 +390,8 @@ json_cee_formatter (logging::record_view const &rec,
   tmp << logging::extract< attrs::current_process_id::value_type > ("ProcessID",
       rec);
   tmp.flush();
-  strm << "\"proc!id\":\"";
+  strm << "\"proc\":{";
+  strm << "\"id\":\"";
   strm << strtoul (tmp.str().c_str(), 0, 0) << "\",";
   tmp.str ("");
   tmp.clear();
@@ -399,10 +400,11 @@ json_cee_formatter (logging::record_view const &rec,
   tmp << logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
       rec);
   tmp.flush();
-  strm << "\"proc!tid\":";
-  strm << strtoul (tmp.str().c_str(), 0, 0) << ",";
+  strm << "\"tid\":";
+  strm << strtoul (tmp.str().c_str(), 0, 0);
   tmp.str ("");
   tmp.clear();
+  strm << "},";
 
   strm << "\"pname\":\"";
   strm << logging::extract< std::string > ("ProcessName", rec) << "\",";
@@ -413,27 +415,36 @@ json_cee_formatter (logging::record_view const &rec,
   strm << "\"host\":\"";
   strm << logging::extract< std::string > ("FQDN", rec) << "\",";
 
-  strm << "\"gstreamer!level\":";
-  strm << logging::extract< GstDebugLevel > ("GStreamerDebugLevel", rec) << ",";
+  strm << "\"gstreamer\":{";
+  strm << "\"level\":";
+  strm << logging::extract< GstDebugLevel > ("GStreamerDebugLevel", rec);
+  strm << "},";
 
   strm << "\"pri\":\"";
   strm << logging::extract< std::string > ("CEE_pri", rec) << "\",";
 
-  strm << "\"syslog!level\":";
-  strm << logging::extract< int > ("SyslogLevel", rec) << ",";
+  strm << "\"syslog\":{";
+  strm << "\"level\":";
+  strm << logging::extract< int > ("SyslogLevel", rec);
+  strm << "},";
 
   strm << "\"subsys\":\"";
   strm << logging::extract< std::string > ("CategoryRaw", rec) << "\",";
 
-  strm << "\"file!name\":\"";
+  strm << "\"file\":{";
+  strm << "\"name\":\"";
   strm << logging::extract< std::string > ("FileName", rec) << "\",";
-  strm << "\"file!line\":";
-  strm << logging::extract< int > ("Line", rec) << ",";
-  strm << "\"native!function\":\"";
+  strm << "\"line\":";
+  strm << logging::extract< int > ("Line", rec);
+  strm << "},";
+
+  strm << "\"native\":{";
+  strm << "\"function\":\"";
   strm << logging::extract< std::string > ("Function", rec) << "\",";
 
-  strm << "\"native!object\":\"";
-  strm << logging::extract< std::string > ("GObject", rec) << "\",";
+  strm << "\"object\":\"";
+  strm << logging::extract< std::string > ("GObject", rec) << "\"";
+  strm << "},";
 
   strm << "\"msg\":\"";
   tmp << rec[expr::smessage];
