@@ -607,6 +607,14 @@ void DeathHandler::SignalHandler (int sig, void * /* info */, void *secret)
   trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.pc);
 #elif defined(__ppc__) || defined(__powerpc) || defined(__powerpc__) || defined(__POWERPC__)
   trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.regs->nip);
+#elif defined(__mips__)
+  trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.pc);
+#elif defined(__s390__)
+#if defined(__s390x__)
+  trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.psw.addr);
+#else
+  trace[1] = reinterpret_cast<void *> (uc->uc_mcontext.psw.addr & 0x7fffffff);
+#endif
 #else
 #if !defined(__i386__) && !defined(__x86_64__)
 #error Only ARM, x86 and x86-64 are supported
