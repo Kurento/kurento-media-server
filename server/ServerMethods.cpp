@@ -196,7 +196,7 @@ requireParams (const Json::Value &params)
     data[TYPE] = "INVALID_PARAMS";
 
     throw JsonRpc::CallException (JsonRpc::ErrorCode::INVALID_PARAMS,
-                                  "'params' is requiered", data);
+                                  "'params' is required", data);
   }
 }
 
