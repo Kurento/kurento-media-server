@@ -116,8 +116,7 @@ start_kurento() {
 
     # Enable generation of Kernel core dumps / crash reports
     ulimit -c unlimited || {
-        log_failure_msg "Cannot set limit: unlimited core dump size"
-        exit 1
+        log_warning_msg "Cannot set limit: unlimited core dump size"
     }
 
     # If set and not null, configure per-process max open file descriptors
@@ -127,16 +126,14 @@ start_kurento() {
         [ "$DAEMON_MAX_FILES" -gt "$MAXIMUM_LIMIT" ] && DAEMON_MAX_FILES="$MAXIMUM_LIMIT"
 
         ulimit -n "$DAEMON_MAX_FILES" || {
-            log_failure_msg "Cannot set limit: $DAEMON_MAX_FILES max open file descriptors"
-            exit 1
+            log_warning_msg "Cannot set limit: $DAEMON_MAX_FILES max open file descriptors"
         }
     }
 
     # If set and not null, configure per-user max threads
     [ -n "${DAEMON_MAX_THREADS:-}" ] && {
         ulimit -Sp "$DAEMON_MAX_THREADS" || {
-            log_failure_msg "Cannot set limit: $DAEMON_MAX_THREADS max threads"
-            exit 1
+            log_warning_msg "Cannot set limit: $DAEMON_MAX_THREADS max threads"
         }
     }
 
