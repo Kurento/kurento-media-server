@@ -4,6 +4,7 @@ Maintainer: Kurento <kurento@googlegroups.com>
 Build-Depends: debhelper (>= 9),
  build-essential,
  cmake,
+ pkg-config,
  gstreamer1.0-plugins-good,
  kms-cmake-utils (>= 7.0.0),
  kms-core-dev (>= 7.0.0),
@@ -51,6 +52,8 @@ Architecture: any
 Section: devel
 Depends: kurento-media-server (= ${binary:Version}),
  ${misc:Depends},
+ cmake,
+ pkg-config,
  kms-cmake-utils (>= 7.0.0),
  kms-core-dev (>= 7.0.0),
  kms-elements-dev (>= 7.0.0),
