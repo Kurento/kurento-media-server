@@ -1,4 +1,4 @@
-find_package(websocketpp 0.7.0 REQUIRED)
+find_package(websocketpp REQUIRED)
 
 set (WEBSOCKET_SOURCES
   WebSocketTransport.cpp
