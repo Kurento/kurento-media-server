@@ -79,23 +79,26 @@ Package: kurento-dbg
 Architecture: any
 Section: debug
 Depends: ${misc:Depends},
- libc6-dbgsym | libc6-dbg,
- libglib2.0-0-dbgsym | libglib2.0-0-dbg,
- kmsjsoncpp-dbg,
- libnice10-dbgsym | libnice-dbg,
- openwebrtc-gst-plugins-dbg,
- libgstreamer1.0-0-dbg,
  gstreamer1.0-libav-dbg,
  gstreamer1.0-nice-dbgsym,
  gstreamer1.0-plugins-bad-dbg,
  gstreamer1.0-plugins-base-dbg,
  gstreamer1.0-plugins-good-dbg,
  gstreamer1.0-plugins-ugly-dbg,
- kms-jsonrpc-dbg,
  kms-core-dbg,
  kms-elements-dbg,
  kms-filters-dbg,
- kurento-media-server-dbg
+ kms-jsonrpc-dbg,
+ kmsjsoncpp-dbg,
+ kurento-media-server-dbg,
+ libc6-dbgsym | libc6-dbg,
+ libglib2.0-0-dbgsym | libglib2.0-0-dbg,
+ libgstreamer1.0-0-dbg,
+ libnice10-dbgsym | libnice-dbg,
+ libsoup2.4-1-dbgsym,
+ libsrtp2-1-dbg,
+ libusrsctp1-dbgsym,
+ openh264-gst-plugin-dbgsym
 Description: Meta-package that installs debug symbols
  This dummy package depends on all debug packages for Kurento Media Server
  and relevant 3rd-party libraries.
