@@ -16,7 +16,7 @@
  */
 #include <config.h>
 
-#include "death_handler.hpp"
+#include "death_handler.h"
 
 #include <glibmm.h>
 #include <fstream>

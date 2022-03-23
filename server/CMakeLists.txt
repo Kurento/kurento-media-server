@@ -16,8 +16,8 @@ SET(KMSC_SOURCE
   modules.hpp
   loadConfig.cpp
   loadConfig.hpp
-  death_handler.cpp
-  death_handler.hpp
+  ${PROJECT_SOURCE_DIR}/3rdparty/DeathHandler/death_handler.cc
+  ${PROJECT_SOURCE_DIR}/3rdparty/DeathHandler/death_handler.h
 )
 
 add_definitions(-DBOOST_LOG_DYN_LINK)
@@ -41,6 +41,7 @@ set_property (TARGET kurento-media-server
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/transport
     ${KMSCORE_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/3rdparty/DeathHandler
 )
 
 install(TARGETS kurento-media-server RUNTIME DESTINATION bin)
