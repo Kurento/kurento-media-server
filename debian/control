@@ -41,7 +41,8 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  kms-core (>= 7.0.0),
  kms-elements (>= 7.0.0),
  kms-filters (>= 7.0.0),
- libgstreamer-plugins-base1.0-0
+ libgstreamer-plugins-base1.0-0,
+ libsrtp-kurento
 Suggests: kurento-dbg
 Description: Kurento Media Server
  KMS is a WebRTC-compatible server that processes audio and video streams,
@@ -99,9 +100,8 @@ Depends: ${misc:Depends},
  libgstreamer1.0-0-dbg,
  libnice10-dbgsym | libnice-dbg,
  libsoup2.4-1-dbgsym,
- libsrtp2-1-dbg,
- libusrsctp1-dbgsym,
- openh264-gst-plugin-dbgsym
+ libsrtp-kurento-dbg,
+ libusrsctp1-dbgsym
 Description: Meta-package that installs debug symbols
  This dummy package depends on all debug packages for Kurento Media Server
  and relevant 3rd-party libraries.
