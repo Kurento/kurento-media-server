@@ -3,13 +3,17 @@ cmake_minimum_required(VERSION 2.8)
 project("kurento-media-server")
 message(STATUS "CMake project: ${PROJECT_NAME}")
 
+include(GNUInstallDirs) # CMAKE_INSTALL_*
+
 # Test configuration
 set(GENERATE_TESTS FALSE CACHE BOOL "Always build tests: add `make check_build` to normal `make` calls")
 set(DISABLE_TESTS FALSE CACHE BOOL "Enable running `make check` during the building process")
 set(VALGRIND_NUM_CALLERS 20 CACHE STRING "Valgrind option: maximum number of entries shown in stack traces")
 
-message("If KurentoHelpers is not found, you need to install 'kms-cmake-utils' from the Kurento repository")
-find_package(KurentoHelpers REQUIRED)
+find_package(KurentoUtils)
+if(NOT KurentoUtils_FOUND)
+  message(FATAL_ERROR "KurentoUtils not found; please install package 'kms-cmake-utils'")
+endif()
 
 include(KurentoGitHelpers)
 install_git_hook(pre-commit ${CMAKE_CURRENT_SOURCE_DIR}/hooks/pre-commit.hook)
@@ -79,8 +83,6 @@ enable_testing()
 
 add_subdirectory(test)
 
-
-include(GNUInstallDirs)
 install(FILES kurento.conf.json sdp_pattern.txt DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${CUSTOM_PREFIX})
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/config)
