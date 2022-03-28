@@ -1,0 +1,23 @@
+#include <config.h>
+#include <gst/gst.h>
+
+#include "gst{{nameLowercase}}.h"
+#include "config.h"
+
+static gboolean
+plugin_init (GstPlugin *plugin)
+{
+  if (!gst_{{nameSnakeCase}}_plugin_init (plugin)) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+GST_PLUGIN_DEFINE (GST_VERSION_MAJOR, GST_VERSION_MINOR,
+    {{nameLowercase}},
+    "Filter documentation",
+    plugin_init, VERSION, GST_LICENSE_UNKNOWN,
+    "{{nameCamelCase}}",
+    "https://www.example.com/"
+)

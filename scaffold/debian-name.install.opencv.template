@@ -1,2 +1,2 @@
-usr/lib/*/lib*.so.*
 usr/lib/*/kurento/*/*.so
+usr/lib/*/lib*.so.*

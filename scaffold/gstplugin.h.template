@@ -1,34 +1,32 @@
-#ifndef _GST_${nameUnderscoreUpper}_H_
-#define _GST_${nameUnderscoreUpper}_H_
+#ifndef _GST_{{nameSnakeUpperCase}}_H_
+#define _GST_{{nameSnakeUpperCase}}_H_
 
 #include <gst/video/gstvideofilter.h>
 
 G_BEGIN_DECLS
 
-#define GST_TYPE_${nameUnderscoreUpper}   (gst_${nameUndersScoreLower}_get_type())
-#define GST_${nameUnderscoreUpper}(obj)   (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_${nameUnderscoreUpper},Gst${camelName}))
-#define GST_${nameUnderscoreUpper}_CLASS(klass)   (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_${nameUnderscoreUpper},Gst${camelName}Class))
-#define GST_IS_${nameUnderscoreUpper}(obj)   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_${nameUnderscoreUpper}))
-#define GST_IS_${nameUnderscoreUpper}_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_${nameUnderscoreUpper}))
-typedef struct _Gst${camelName} Gst${camelName};
-typedef struct _Gst${camelName}Class Gst${camelName}Class;
-typedef struct _Gst${camelName}Private Gst${camelName}Private;
+#define GST_TYPE_{{nameSnakeUpperCase}}    (gst_{{nameSnakeCase}}_get_type())
+#define GST_{{nameSnakeUpperCase}}(obj)    (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_{{nameSnakeUpperCase}},Gst{{nameCamelCase}}))
+#define GST_{{nameSnakeUpperCase}}_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_{{nameSnakeUpperCase}},Gst{{nameCamelCase}}Class))
+#define GST_IS_{{nameSnakeUpperCase}}(obj)    (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_{{nameSnakeUpperCase}}))
+#define GST_IS_{{nameSnakeUpperCase}}_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_{{nameSnakeUpperCase}}))
+typedef struct _Gst{{nameCamelCase}}    Gst{{nameCamelCase}};
+typedef struct _Gst{{nameCamelCase}}Class    Gst{{nameCamelCase}}Class;
+typedef struct _Gst{{nameCamelCase}}Private    Gst{{nameCamelCase}}Private;
 
-struct _Gst${camelName}
-{
+struct _Gst{{nameCamelCase}} {
   GstVideoFilter base;
-  Gst${camelName}Private *priv;
+  Gst{{nameCamelCase}}Private *priv;
 };
 
-struct _Gst${camelName}Class
-{
-  GstVideoFilterClass base_${nameUndersScoreLower}_class;
+struct _Gst{{nameCamelCase}}Class {
+  GstVideoFilterClass base_{{nameSnakeCase}}_class;
 };
 
-GType gst_${nameUndersScoreLower}_get_type (void);
+GType gst_{{nameSnakeCase}}_get_type (void);
 
-gboolean gst_${nameUndersScoreLower}_plugin_init (GstPlugin *plugin);
+gboolean gst_{{nameSnakeCase}}_plugin_init (GstPlugin *plugin);
 
 G_END_DECLS
 
-#endif /* _GST_${nameUnderscoreUpper}_H_ */
+#endif /* _GST_{{nameSnakeUpperCase}}_H_ */

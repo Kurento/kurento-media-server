@@ -1,5 +1,5 @@
 {
-  "name": "${name}",
+  "name": "{{nameLowercase}}",
   "version": "0.0.1-dev",
   "kurentoVersion": "^7.0.0"
 }

@@ -1,5 +1,5 @@
-${nameScoreLower} (0.0.1~rc1) testing; urgency=medium
+{{nameKebabCase}} (0.0.1~rc1) testing; urgency=medium
 
   * Initial release.
 
- -- Maintainer Name <maintainer.name@example.com>  ${date}
+ -- {{debianOwner}}  {{debianDate}}

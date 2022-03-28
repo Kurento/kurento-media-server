@@ -4,7 +4,7 @@
 #export DH_VERBOSE=1
 
 %:
-	dh $@ --parallel
+	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DDISABLE_TESTS=TRUE -DCMAKE_INSTALL_SYSCONFDIR=/etc
+	dh_auto_configure -- -DDISABLE_TESTS=FALSE -DCMAKE_INSTALL_SYSCONFDIR=/etc

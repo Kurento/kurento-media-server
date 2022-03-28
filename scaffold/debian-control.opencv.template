@@ -1,0 +1,34 @@
+Source: {{nameKebabCase}}
+Maintainer: {{debianOwner}}
+Priority: optional
+Build-Depends: debhelper (>= 12),
+ build-essential,
+ cmake,
+ pkg-config,
+ kms-cmake-utils,
+ kms-core-dev,
+ kms-elements-dev,
+ kms-filters-dev,
+ libgstreamer1.0-dev,
+ libopencv-dev
+Standards-Version: 4.4.0
+Homepage: https://www.example.com/
+#Vcs-Browser: https://git.example.com/{{nameKebabCase}}
+#Vcs-Git: https://git.example.com/{{nameKebabCase}}.git
+
+Package: {{nameKebabCase}}
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <Up to 60 chars single line summary>
+ <Long description over several lines, indented with space>.
+
+Package: {{nameKebabCase}}-dev
+Architecture: any
+Section: libdevel
+Depends: {{nameKebabCase}} (= ${binary:Version}), ${misc:Depends},
+ kms-core-dev,
+ kms-elements-dev,
+ kms-filters-dev
+Description: <Up to 60 chars single line summary> (development files)
+ <Long description over several lines, indented with space>.

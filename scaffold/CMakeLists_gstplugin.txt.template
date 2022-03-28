@@ -1,0 +1,29 @@
+set({{nameSnakeUpperCase}}_SOURCES
+  {{nameLowercase}}.c
+  gst{{nameLowercase}}.h
+  gst{{nameLowercase}}.cpp
+)
+
+add_library(gst{{nameLowercase}} MODULE ${{{nameSnakeUpperCase}}_SOURCES})
+if(SANITIZERS_ENABLED)
+  add_sanitizers(gst{{nameLowercase}})
+endif()
+
+target_include_directories(gst{{nameLowercase}} SYSTEM
+  PRIVATE
+    ${GSTREAMER_INCLUDE_DIRS}
+    ${GSTREAMER_VIDEO_INCLUDE_DIRS}
+)
+
+target_link_libraries(gst{{nameLowercase}}
+  PRIVATE
+    ${GSTREAMER_LIBRARIES}
+    ${GSTREAMER_VIDEO_LIBRARIES}
+)
+
+install(
+  TARGETS gst{{nameLowercase}}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_GST_PLUGINS_DIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

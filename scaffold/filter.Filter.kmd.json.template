@@ -1,15 +1,15 @@
 {
   "remoteClasses": [
     {
-      "name": "${camelName}",
-      "extends": "${extends}",
-      "doc": "${camelName} interface. Documentation about the module",
+      "name": "{{nameCamelCase}}",
+      "extends": "{{extendsFilter}}",
+      "doc": "{{nameCamelCase}} interface. Documentation about the module.",
       "constructor": {
-        "doc": "Create an element",
+        "doc": "Create an element.",
         "params": [
           {
             "name": "mediaPipeline",
-            "doc": "the parent :rom:cls:`MediaPipeline`",
+            "doc": "the parent :rom:cls:`MediaPipeline`.",
             "type": "MediaPipeline",
             "final": true
           }

@@ -1,60 +1,81 @@
-#include "gst${name}.h"
+#include "gst{{nameLowercase}}.h"
 
 #include <gst/gst.h>
 #include <gst/video/video.h>
 #include <gst/video/gstvideofilter.h>
 #include <glib/gstdio.h>
-#include <opencv2/opencv.hpp>
-#include <cv.h>
-#include <memory>
 
-GST_DEBUG_CATEGORY_STATIC (gst_${nameUndersScoreLower}_debug_category);
-#define GST_CAT_DEFAULT gst_${nameUndersScoreLower}_debug_category
-#define PLUGIN_NAME ""
+GST_DEBUG_CATEGORY_STATIC (gst_{{nameSnakeCase}}_debug_category);
+#define GST_CAT_DEFAULT gst_{{nameSnakeCase}}_debug_category
+#define PLUGIN_NAME "{{nameLowercase}}"
 
-#define GST_${nameUnderscoreUpper}_GET_PRIVATE(obj) (                          \
+#define GST_{{nameSnakeUpperCase}}_GET_PRIVATE(obj) (                          \
     G_TYPE_INSTANCE_GET_PRIVATE (                                              \
         (obj),                                                                 \
-        GST_TYPE_${nameUnderscoreUpper},                                       \
-        Gst${camelName}Private                                                 \
+        GST_TYPE_{{nameSnakeUpperCase}},                                       \
+        Gst{{nameCamelCase}}Private                                            \
     )                                                                          \
 )
 
 /* pad templates */
 
-#define VIDEO_SRC_CAPS \
-  GST_VIDEO_CAPS_MAKE ("{ BGRA }")
-
-#define VIDEO_SINK_CAPS \
-  GST_VIDEO_CAPS_MAKE ("{ BGRA }")
+#define VIDEO_SRC_CAPS GST_VIDEO_CAPS_MAKE ("{ BGRA }")
+#define VIDEO_SINK_CAPS GST_VIDEO_CAPS_MAKE ("{ BGRA }")
 
 /* class initialization */
 
-G_DEFINE_TYPE_WITH_CODE (Gst${camelName}, gst_${nameUndersScoreLower},
+G_DEFINE_TYPE_WITH_CODE (Gst{{nameCamelCase}}, gst_{{nameSnakeCase}},
     GST_TYPE_VIDEO_FILTER,
-    GST_DEBUG_CATEGORY_INIT (gst_${nameUndersScoreLower}_debug_category,
+    GST_DEBUG_CATEGORY_INIT (gst_{{nameSnakeCase}}_debug_category,
         PLUGIN_NAME, 0,
-        "debug category for ${nameUndersScoreLower} element"));
+        "debug category for {{nameSnakeCase}} element"));
 
 static GstFlowReturn
-gst_${nameUndersScoreLower}_transform_frame_ip (
-    GstVideoFilter *filter, GstVideoFrame *frame)
+gst_{{nameSnakeCase}}_transform_frame_ip (GstVideoFilter *filter,
+    GstVideoFrame *frame)
 {
+  Gst{{nameCamelCase}} *self = GST_{{nameSnakeUpperCase}} (filter);
+  (void)self; // TO-DO: Do something with it...
   return GST_FLOW_OK;
 }
 
+/*
+ * dispose() should free all resources referenced from this object,
+ * which might themselves hold a reference to self. Generally, the simplest
+ * solution is to unref all members.
+ *
+ * dispose() might be called multiple times, so you must guard against
+ * calling g_object_unref() on invalid GObjects by setting the member to
+ * NULL; g_clear_object() can be used to do this atomically.
+ */
 static void
-gst_${nameUndersScoreLower}_finalize (GObject *object)
+gst_{{nameSnakeCase}}_dispose (GObject *object)
 {
+  Gst{{nameCamelCase}} *self = GST_{{nameSnakeUpperCase}} (object);
+  (void)self; // TO-DO: Do something with it...
+}
+
+/*
+ * finalize() is called when the object is destroyed.
+ */
+static void
+gst_{{nameSnakeCase}}_finalize (GObject *object)
+{
+  Gst{{nameCamelCase}} *self = GST_{{nameSnakeUpperCase}} (object);
+  (void)self; // TO-DO: Do something with it...
+}
+
+/*
+ * init() should be used to initialize all variables to their default values.
+ */
+static void
+gst_{{nameSnakeCase}}_init (Gst{{nameCamelCase}} *self)
+{
+  (void)self; // TO-DO: Do something with it...
 }
 
 static void
-gst_${nameUndersScoreLower}_init (Gst${camelName} *${nameUndersScoreLower})
-{
-}
-
-static void
-gst_${nameUndersScoreLower}_class_init (Gst${camelName}Class *klass)
+gst_{{nameSnakeCase}}_class_init (Gst{{nameCamelCase}}Class *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GstVideoFilterClass *video_filter_class = GST_VIDEO_FILTER_CLASS (klass);
@@ -74,15 +95,16 @@ gst_${nameUndersScoreLower}_class_init (Gst${camelName}Class *klass)
       "Filter doc",
       "Developer");
 
-  gobject_class->finalize = gst_${nameUndersScoreLower}_finalize;
+  gobject_class->dispose = gst_{{nameSnakeCase}}_dispose;
+  gobject_class->finalize = gst_{{nameSnakeCase}}_finalize;
 
   video_filter_class->transform_frame_ip =
-      GST_DEBUG_FUNCPTR (gst_${nameUndersScoreLower}_transform_frame_ip);
+      GST_DEBUG_FUNCPTR (gst_{{nameSnakeCase}}_transform_frame_ip);
 }
 
 gboolean
-gst_${nameUndersScoreLower}_plugin_init (GstPlugin *plugin)
+gst_{{nameSnakeCase}}_plugin_init (GstPlugin *plugin)
 {
   return gst_element_register (plugin, PLUGIN_NAME, GST_RANK_NONE,
-      GST_TYPE_${nameUnderscoreUpper});
+      GST_TYPE_{{nameSnakeUpperCase}});
 }
