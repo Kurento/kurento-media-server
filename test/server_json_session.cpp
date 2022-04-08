@@ -505,7 +505,7 @@ ClientHandler::check_close_session ()
   params.clear();
   params["sessionId"] = sessionId3;
   params["object"] = pipeId;
-  params["operation"] = "getChilds";
+  params["operation"] = "getChildren";
 
   request["id"] = getId();
   request["params"] = params;
@@ -537,7 +537,7 @@ ClientHandler::check_close_session ()
   params.clear();
   params["sessionId"] = sessionId3;
   params["object"] = pipeId;
-  params["operation"] = "getChilds";
+  params["operation"] = "getChildren";
 
   request["id"] = getId();
   request["params"] = params;
@@ -569,7 +569,7 @@ ClientHandler::check_close_session ()
   params.clear();
   params["sessionId"] = sessionId2;
   params["object"] = pipeId;
-  params["operation"] = "getChilds";
+  params["operation"] = "getChildren";
 
   request["id"] = getId();
   request["params"] = params;
@@ -601,7 +601,7 @@ ClientHandler::check_close_session ()
   params.clear();
   params["sessionId"] = sessionId3;
   params["object"] = pipeId;
-  params["operation"] = "getChilds";
+  params["operation"] = "getChildren";
 
   request["id"] = getId();
   request["params"] = params;

@@ -35,18 +35,5 @@ mkdir -p "$HOME_DIR"
 chown -R kurento "$HOME_DIR"
 chmod 777 "$HOME_DIR"
 
-# FIXME+DEPRECATED: Old home dir was "/var/kurento"
-# keep it as a symlink to avoid breaking user's setups,
-# but delete this code once releasing next major version, Kurento 7.0
-HOME_DIR_OLD="/var/kurento"
-if [[ -d "$HOME_DIR_OLD" && ! -L "$HOME_DIR_OLD" ]]; then
-    mv "$HOME_DIR_OLD"/* "$HOME_DIR_OLD"/.* "$HOME_DIR"/ 2>/dev/null || true
-    rmdir "$HOME_DIR_OLD"
-    ln -s -T "$HOME_DIR" "$HOME_DIR_OLD"
-
-    # Set the new dir as user's dir in /etc/passwd
-    usermod --home "$HOME_DIR" kurento
-fi
-
 #DEBHELPER#
 exit 0
