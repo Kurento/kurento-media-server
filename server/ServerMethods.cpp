@@ -517,8 +517,9 @@ ServerMethods::connectEventHandler (std::shared_ptr<MediaObjectImpl> obj,
 {
   std::string subscriptionId;
 
-  if (!obj->connect (eventType, handler) ) {
-    throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
+  if (!obj->connect (eventType, handler)) {
+    throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
+        "Event '" + eventType + "' not supported");
   }
 
   subscriptionId = generateUUID();
@@ -555,7 +556,8 @@ ServerMethods::subscribe (const Json::Value &params, Json::Value &response)
     }
 
     if (handlerId == "") {
-      throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED, "Event not found");
+      throw KurentoException (MEDIA_OBJECT_EVENT_NOT_SUPPORTED,
+          "Event '" + eventType + "' not supported");
     }
   } catch (KurentoException &ex) {
     Json::Value data;
