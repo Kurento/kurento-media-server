@@ -8,9 +8,15 @@ kurento-media-server (7.0.0-0kurento1) UNRELEASED; urgency=medium
   * Add 'libwebsocketpp-dev' to Build-Deps, without versioning
   * debian/control: Drop 'libssl1.0-dev' for Bionic compatibility
 
-  * UNRELEASED
+ -- Juan Navarro <juan.navarro@gmx.es>  Wed, 13 Apr 2022 11:52:23 +0200
 
- -- Juan Navarro <juan.navarro@gmx.es>  Wed, 03 Mar 2021 12:26:48 +0100
+kurento-media-server (6.17.0-0kurento1) testing; urgency=medium
+
+  * Prepare release 6.17.0-0kurento1
+  * debian: .init file should not require settings from .default
+  * debian: don't fail init if ulimit fails
+
+ -- Juan Navarro <juan.navarro@gmx.es>  Wed, 30 Mar 2022 13:59:42 +0200
 
 kurento-media-server (6.16.0-0kurento1) testing; urgency=medium
 

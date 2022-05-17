@@ -1,0 +1,19 @@
+{
+    "enabler": "Kurento Media Server",
+    "chapter": "iotagents",
+    "academy": "iotagents/kurento",
+    "readthedocs": "doc-kurento",
+    "helpdesk": "",
+    "coveralls": "",
+    "github": ["Kurento/kurento-media-server"],
+    "dockerregistry": ["hub.docker.com"],
+    "docker": ["kurento/kurento-media-server"],
+    "email": "",
+    "status": "full",
+    "compose": "",
+    "exclude": [""],
+    "stackexchange": ["kurento"],
+    "unit-test": "",
+    "smoke-test": "",
+    "dockerfile": "https://github.com/Kurento/kurento-docker/blob/master/kurento-media-server/Dockerfile"
+}
