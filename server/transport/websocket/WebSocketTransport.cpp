@@ -123,6 +123,8 @@ WebSocketTransport::initWebSocket (const boost::property_tree::ptree &config)
 {
   const bool ipv6 = config.get<bool> (
       "mediaServer.net.websocket.ipv6", WEBSOCKET_IPV6_DEFAULT);
+  optional<const std::string> address_str =
+            config.get_optional<std::string> ("mediaServer.net.websocket.address");
   const uint16_t port =
       config.get<uint16_t> ("mediaServer.net.websocket.port", 0);
   const uint connqueue = config.get<uint> (
@@ -152,28 +154,42 @@ WebSocketTransport::initWebSocket (const boost::property_tree::ptree &config)
               & WebSocketTransport::processMessage,
           this, &server, std::placeholders::_1, std::placeholders::_2));
 
-  // Connect to IPv6 if enabled, with fallback to IPv4 if v6 fails
-  bool try_ipv6 = ipv6;
+  if (address_str) {
+      boost::asio::ip::address address = boost::asio::ip::address::from_string(*address_str);
+      boost::asio::ip::tcp::endpoint endpoint(address, port);
+      try {
+          server.listen(endpoint);
+      } catch (websocketpp::exception &e) {
+          GST_ERROR(
+                  "WebSocket error: cannot listen on address %s and port %u (%s)",
+                  address_str, port, e.what());
+          return;
+      }
+  } else {
 
-  if (try_ipv6) {
-    try {
-      server.listen (boost::asio::ip::tcp::v6 (), port);
-    } catch (websocketpp::exception &e) {
-      GST_ERROR (
-          "WebSocket error: cannot listen on IPv6 port %u (%s), will try IPv4",
-          port, e.what ());
-      try_ipv6 = false;
-    }
-  }
+      // Connect to IPv6 if enabled, with fallback to IPv4 if v6 fails
+      bool try_ipv6 = ipv6;
 
-  if (!try_ipv6) {
-    try {
-      server.listen (boost::asio::ip::tcp::v4 (), port);
-    } catch (websocketpp::exception &e) {
-      GST_ERROR ("WebSocket error: cannot listen on IPv4 port %u (%s)", port,
-          e.what ());
-      return;
-    }
+      if (try_ipv6) {
+          try {
+              server.listen(boost::asio::ip::tcp::v6(), port);
+          } catch (websocketpp::exception &e) {
+              GST_ERROR(
+                      "WebSocket error: cannot listen on IPv6 port %u (%s), will try IPv4",
+                      port, e.what());
+              try_ipv6 = false;
+          }
+      }
+
+      if (!try_ipv6) {
+          try {
+              server.listen(boost::asio::ip::tcp::v4(), port);
+          } catch (websocketpp::exception &e) {
+              GST_ERROR("WebSocket error: cannot listen on IPv4 port %u (%s)", port,
+                        e.what());
+              return;
+          }
+      }
   }
 
   hasInsecureServer = true;
