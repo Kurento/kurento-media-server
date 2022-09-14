@@ -1,9 +1,9 @@
-kurento-media-server (6.18.0-0kurento1) UNRELEASED; urgency=medium
+kurento-media-server (6.18.0-0kurento1) testing; urgency=medium
 
   [ Kurento ]
-  * UNRELEASED
+  * Prepare release 6.18.0-0kurento1
 
- -- Juan Navarro <juan.navarro@gmx.es>  Wed, 13 Apr 2022 11:52:23 +0200
+ -- Juan Navarro <juan.navarro@gmx.es>  Wed, 14 Sep 2022 14:04:33 +0000
 
 kurento-media-server (6.17.0-0kurento1) testing; urgency=medium
 
