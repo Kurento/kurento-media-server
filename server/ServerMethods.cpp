@@ -25,7 +25,6 @@
 #include <jsonrpc/JsonRpcException.hpp>
 #include <jsonrpc/JsonRpcUtils.hpp>
 #include <jsonrpc/JsonRpcConstants.hpp>
-#include <jsonrpc/JsonFixes.hpp>
 
 #include <sstream>
 #include <boost/uuid/uuid.hpp>
@@ -712,7 +711,7 @@ injectRefs (Json::Value &params, Json::Value &responses)
       injectRefs(param, responses);
     }
   } else if (params.isConvertibleTo (Json::ValueType::stringValue) ) {
-    std::string param = JsonFixes::getString (params);
+    std::string param = params.asString();
 
     if (param.size() > NEW_REF.size()
         && param.substr (0, NEW_REF.size() ) == NEW_REF) {
