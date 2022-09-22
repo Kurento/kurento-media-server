@@ -16,7 +16,10 @@
     },
     "net": {
       "websocket": {
-        "//": "Try (or not) to use IPv6 for the WebSocket connection, with IPv4 fallback",
+        "//": "Address to listen on.",
+        "//": "Default: [::] (IPv6) or 0.0.0.0 (IPv4)",
+        "//address": "0.0.0.0",
+        "//": "If no address is specified, try (or not) to use IPv6 for the WebSocket connection, with IPv4 fallback",
         "//": "Default: true",
         "//ipv6": false,
         "//": "WebSocket port where API clients connect to control KMS",
