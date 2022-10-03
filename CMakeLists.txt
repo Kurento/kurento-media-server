@@ -46,6 +46,7 @@ set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DGST_DISABLE_DEPRECATED")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGST_DISABLE_DEPRECATED")
 
 include(GenericFind)
+generic_find(LIBNAME KmsJsonRpc VERSION ^7.0.0-dev REQUIRED)
 generic_find(LIBNAME KMSCORE VERSION ^7.0.0-dev REQUIRED)
 
 # Generate file "config.h"

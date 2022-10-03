@@ -24,6 +24,7 @@ set_property (TARGET transport
     ${CMAKE_CURRENT_SOURCE_DIR}/websocket/
     ${GSTREAMER_INCLUDE_DIRS}
     ${GLIBMM_INCLUDE_DIRS}
+    ${KmsJsonRpc_INCLUDE_DIRS}
     ${KMSCORE_INCLUDE_DIRS}
 )
 

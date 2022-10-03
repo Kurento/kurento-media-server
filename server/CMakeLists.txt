@@ -40,6 +40,7 @@ set_property (TARGET kurento-media-server
     ${CMAKE_CURRENT_BINARY_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/transport
+    ${KmsJsonRpc_INCLUDE_DIRS}
     ${KMSCORE_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/3rdparty/DeathHandler
 )
