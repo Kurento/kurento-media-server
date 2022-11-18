@@ -128,11 +128,10 @@ WebSocketRegistrar::connectRegistrar ()
                                        this, std::placeholders::_1) );
       secureClient->set_tls_init_handler ( [] (websocketpp::connection_hdl hdl) ->
       context_ptr {
-        context_ptr ctx (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv12) );
+        context_ptr ctx (new boost::asio::ssl::context (boost::asio::ssl::context::tls) );
 
         try {
           ctx->set_options (boost::asio::ssl::context::default_workarounds |
-          boost::asio::ssl::context::no_sslv2 |
           boost::asio::ssl::context::single_dh_use);
         } catch (std::exception &e)
         {

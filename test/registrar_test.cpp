@@ -112,11 +112,10 @@ BOOST_AUTO_TEST_CASE ( wss_registrar )
 
   server.set_tls_init_handler ( [] (websocketpp::connection_hdl hdl) ->
   context_ptr {
-    context_ptr context (new boost::asio::ssl::context (boost::asio::ssl::context::tlsv12) );
+    context_ptr context (new boost::asio::ssl::context (boost::asio::ssl::context::tls) );
 
     try {
       context->set_options (boost::asio::ssl::context::default_workarounds |
-      boost::asio::ssl::context::no_sslv2 |
       boost::asio::ssl::context::single_dh_use);
       context->set_password_callback(
           std::bind([]() -> std::string { return PASSWORD; }));
