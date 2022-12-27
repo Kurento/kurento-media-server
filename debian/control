@@ -87,7 +87,7 @@ Section: debug
 Depends: ${misc:Depends},
  libc6-dbgsym | libc6-dbg,
  libglib2.0-0-dbgsym | libglib2.0-0-dbg,
- libjsoncpp1-dbgsym,
+ kmsjsoncpp-dbg,
  libnice10-dbgsym,
  openwebrtc-gst-plugins-dbg,
  libgstreamer1.5-0-dbg,
