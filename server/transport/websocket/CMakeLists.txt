@@ -20,8 +20,8 @@ endif()
 
 target_link_libraries(websocketTransport
   ${GSTREAMER_LIBRARIES}
-  ${JSONRPC_LIBRARIES}
   ${OPENSSL_LIBRARIES}
+  ${KmsJsonRpc_LIBRARIES}
   ${KMSCORE_LIBRARIES}
 )
 
@@ -29,7 +29,7 @@ set_property (TARGET websocketTransport
   PROPERTY INCLUDE_DIRECTORIES
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
-    ${JSONRPC_INCLUDE_DIRS}
+    ${KmsJsonRpc_INCLUDE_DIRS}
     ${GSTREAMER_INCLUDE_DIRS}
     ${KMSCORE_INCLUDE_DIRS}
 )
