@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: kurento-media-server
-Upstream-Contact: Kurento <kurento@googlegroups.com>
+Upstream-Contact: Kurento <kurento@openvidu.io>
 Source: https://github.com/Kurento/kurento-media-server
 
 Files: *

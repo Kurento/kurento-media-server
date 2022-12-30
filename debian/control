@@ -1,6 +1,6 @@
 Source: kurento-media-server
 Priority: optional
-Maintainer: Kurento <kurento@googlegroups.com>
+Maintainer: Kurento <kurento@openvidu.io>
 Build-Depends: debhelper (>= 9),
  build-essential,
  cmake,

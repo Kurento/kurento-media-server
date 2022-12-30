@@ -149,7 +149,7 @@ kurento-media-server (6.7.0) testing; urgency=medium
   * Remove version numbers from package names
   * Align all version numbers of KMS-related modules
   * Updates to debian/control:
-    - Maintainer: Kurento <kurento@googlegroups.com>
+    - Maintainer: Kurento <kurento@openvidu.io>
     - Standards-Version: 4.0.0
     - Homepage: www.kurento.org (let server redirect to HTTPS if available)
     - Vcs-Git: https://github.com/Kurento/*.git (use secure URL)
