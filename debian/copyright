@@ -4,7 +4,7 @@ Upstream-Contact: Kurento <kurento@openvidu.io>
 Source: https://github.com/Kurento/kurento-media-server
 
 Files: *
-Copyright: Copyright 2018 Kurento (www.kurento.org)
+Copyright: Copyright 2018 Kurento (https://kurento.openvidu.io/)
 License: Apache-2.0
  On Debian systems, the full text of the Apache License, Version 2.0
  can be found in the file '/usr/share/common-licenses/Apache-2.0'.

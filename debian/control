@@ -26,7 +26,7 @@ Build-Depends: debhelper (>= 9),
 Standards-Version: 4.0.0
 Vcs-Git: https://github.com/Kurento/kurento-media-server.git
 Vcs-Browser: https://github.com/Kurento/kurento-media-server
-Homepage: https://www.kurento.org
+Homepage: https://kurento.openvidu.io/
 
 Package: kurento-media-server
 Architecture: any

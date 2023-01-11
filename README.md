@@ -1,4 +1,4 @@
-<a href="https://www.kurento.org/">
+<a href="https://kurento.openvidu.io/">
     <img src="https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120">
 </a>
 
@@ -27,7 +27,7 @@ Kurento Media Server is Kurento's core element. It is responsible for media tran
 This project is part of [FIWARE](https://www.fiware.org/). For more information check the FIWARE Catalogue entry for
 [Context Processing, Analysis and Visualization](https://github.com/Fiware/catalogue/tree/master/processing).
 
-| :books:[Documentation](https://www.kurento.org/documentation) | :page_facing_up: [Site](https://www.kurento.org/) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/processing/kurento) | :whale: [Docker Hub](https://hub.docker.com/r/kurento/kurento-media-server) |
+| :books:[Documentation](https://kurento.openvidu.io/documentation) | :page_facing_up: [Site](https://kurento.openvidu.io/) | :mortar_board: [Academy](https://fiware-academy.readthedocs.io/en/latest/processing/kurento) | :whale: [Docker Hub](https://hub.docker.com/r/kurento/kurento-media-server) |
 | ---|---|---|---|
 
 
@@ -35,7 +35,7 @@ This project is part of [FIWARE](https://www.fiware.org/). For more information 
 About Kurento
 =============
 
-Kurento is an open source software project providing a platform suitable for creating modular applications with advanced real-time communication capabilities. For knowing more about Kurento, please visit the Kurento project website: https://www.kurento.org/.
+Kurento is an open source software project providing a platform suitable for creating modular applications with advanced real-time communication capabilities. For knowing more about Kurento, please visit the Kurento project website: https://kurento.openvidu.io/.
 
 Kurento is part of [FIWARE]. For further information on the relationship of FIWARE and Kurento check the [Kurento FIWARE Catalog Entry].
 
@@ -69,7 +69,7 @@ Documentation
 
 The Kurento project provides detailed [documentation] including tutorials, installation and development guides. The [Open API specification], also known as *Kurento Protocol*, is available on [apiary.io].
 
-[documentation]: https://www.kurento.org/documentation
+[documentation]: https://kurento.openvidu.io/documentation
 [Open API specification]: https://doc-kurento.readthedocs.io/en/latest/features/kurento_api.html
 [apiary.io]: http://docs.streamoriented.apiary.io/
 
@@ -92,7 +92,7 @@ Issues:
 
 News:
 
-* [Kurento Blog](https://www.kurento.org/blog)
+* [Kurento Blog](https://kurento.openvidu.io/blog)
 * [Google Groups](https://groups.google.com/forum/#!forum/kurento)
 * [Kurento RoadMap](https://github.com/Kurento/kurento-media-server/blob/master/ROADMAP.md)
 
