@@ -32,7 +32,7 @@
 #include <boost/log/utility/exception_handler.hpp>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <syslog.h>
 
 namespace logging = boost::log;
 namespace attrs = boost::log::attributes;
@@ -54,13 +54,26 @@ static GstDebugLevel
 g_log_level_to_gst_debug_level (GLogLevelFlags log_level)
 {
   switch (log_level & G_LOG_LEVEL_MASK) {
-  case G_LOG_LEVEL_ERROR:    return GST_LEVEL_ERROR;
-  case G_LOG_LEVEL_CRITICAL: return GST_LEVEL_ERROR;
-  case G_LOG_LEVEL_WARNING:  return GST_LEVEL_WARNING;
-  case G_LOG_LEVEL_MESSAGE:  return GST_LEVEL_FIXME;
-  case G_LOG_LEVEL_INFO:     return GST_LEVEL_INFO;
-  case G_LOG_LEVEL_DEBUG:    return GST_LEVEL_DEBUG;
-  default:                   return GST_LEVEL_DEBUG;
+  case G_LOG_LEVEL_ERROR:
+    return GST_LEVEL_ERROR;
+
+  case G_LOG_LEVEL_CRITICAL:
+    return GST_LEVEL_ERROR;
+
+  case G_LOG_LEVEL_WARNING:
+    return GST_LEVEL_WARNING;
+
+  case G_LOG_LEVEL_MESSAGE:
+    return GST_LEVEL_FIXME;
+
+  case G_LOG_LEVEL_INFO:
+    return GST_LEVEL_INFO;
+
+  case G_LOG_LEVEL_DEBUG:
+    return GST_LEVEL_DEBUG;
+
+  default:
+    return GST_LEVEL_DEBUG;
   }
 }
 
@@ -83,31 +96,32 @@ kms_glib_log_handler (const gchar   *log_domain,
 {
   const gchar *domains;
 
-  if ((log_level & DEFAULT_LEVELS) || (log_level >> G_LOG_LEVEL_USER_SHIFT)) {
+  if ( (log_level & DEFAULT_LEVELS) || (log_level >> G_LOG_LEVEL_USER_SHIFT) ) {
     goto emit;
   }
 
   domains = g_getenv ("G_MESSAGES_DEBUG");
-  if (((log_level & INFO_LEVELS) == 0) ||
-      domains == NULL ||
-      (strcmp (domains, "all") != 0 && (!log_domain || !strstr (domains, log_domain))))
-  {
+
+  if ( ( (log_level & INFO_LEVELS) == 0) ||
+       domains == NULL ||
+       (strcmp (domains, "all") != 0 && (!log_domain
+                                         || !strstr (domains, log_domain) ) ) ) {
     return;
   }
 
- emit:
-  /* we can be called externally with recursion for whatever reason */
-  if (log_level & G_LOG_FLAG_RECURSION)
-    {
-      //_g_log_fallback_handler (log_domain, log_level, message, unused_data);
-      return;
-    }
+emit:
 
-    // Forward Glib log messages through GStreamer logging
-    GstDebugCategory *category = kms_glib_debug;
-    GstDebugLevel level = g_log_level_to_gst_debug_level (log_level);
-    gst_debug_log (category, level, GST_STR_NULL (log_domain), "", 0, NULL,
-        "%s", GST_STR_NULL (message));
+  /* we can be called externally with recursion for whatever reason */
+  if (log_level & G_LOG_FLAG_RECURSION) {
+    //_g_log_fallback_handler (log_domain, log_level, message, unused_data);
+    return;
+  }
+
+  // Forward Glib log messages through GStreamer logging
+  GstDebugCategory *category = kms_glib_debug;
+  GstDebugLevel level = g_log_level_to_gst_debug_level (log_level);
+  gst_debug_log (category, level, GST_STR_NULL (log_domain), "", 0, NULL,
+                 "%s", GST_STR_NULL (message) );
 }
 
 void
@@ -133,10 +147,10 @@ debug_object (GObject *object)
   if (GST_IS_PAD (object) && GST_OBJECT_NAME (object) ) {
     boost::format fmt ("<%s:%s> ");
     fmt %
-        (GST_OBJECT_PARENT(object) != nullptr
-             ? GST_OBJECT_NAME(GST_OBJECT_PARENT(object))
-             : "''") %
-        GST_OBJECT_NAME(object);
+    (GST_OBJECT_PARENT (object) != nullptr
+     ? GST_OBJECT_NAME (GST_OBJECT_PARENT (object) )
+     : "''") %
+    GST_OBJECT_NAME (object);
     return fmt.str();
   }
 
@@ -174,14 +188,86 @@ static severity_level
 gst_debug_level_to_severity_level (GstDebugLevel level)
 {
   switch (level) {
-  case GST_LEVEL_ERROR:   return error;
-  case GST_LEVEL_WARNING: return warning;
-  case GST_LEVEL_FIXME:   return fixme;
-  case GST_LEVEL_INFO:    return info;
-  case GST_LEVEL_DEBUG:   return debug;
-  case GST_LEVEL_LOG:     return log;
-  case GST_LEVEL_TRACE:   return trace;
-  default:                return undefined;
+  case GST_LEVEL_ERROR:
+    return error;
+
+  case GST_LEVEL_WARNING:
+    return warning;
+
+  case GST_LEVEL_FIXME:
+    return fixme;
+
+  case GST_LEVEL_INFO:
+    return info;
+
+  case GST_LEVEL_DEBUG:
+    return debug;
+
+  case GST_LEVEL_LOG:
+    return log;
+
+  case GST_LEVEL_TRACE:
+    return trace;
+
+  default:
+    return undefined;
+  }
+}
+
+static int
+gst_debug_level_to_syslog_level (GstDebugLevel level)
+{
+  switch (level) {
+  case GST_LEVEL_ERROR:
+    return LOG_ERR;
+
+  case GST_LEVEL_WARNING:
+    return LOG_WARNING;
+
+  case GST_LEVEL_FIXME:
+    return LOG_NOTICE;
+
+  case GST_LEVEL_INFO:
+    return LOG_INFO;
+
+  case GST_LEVEL_DEBUG:
+    return LOG_DEBUG;
+
+  case GST_LEVEL_LOG:
+    return LOG_DEBUG;
+
+  case GST_LEVEL_TRACE:
+    return LOG_DEBUG;
+
+  default:
+    return LOG_CRIT;
+  }
+}
+
+static const char *
+gst_debug_level_to_cee_pri_level (GstDebugLevel level)
+{
+  // CEE only permits four values in the "pri" field
+  switch (level) {
+  case GST_LEVEL_NONE:
+    return "";
+
+  case GST_LEVEL_ERROR:
+    return "ERROR";
+
+  case GST_LEVEL_WARNING:
+    return "WARN";
+
+  case GST_LEVEL_INFO:
+  case GST_LEVEL_DEBUG:
+  case GST_LEVEL_LOG:
+  case GST_LEVEL_FIXME:
+  case GST_LEVEL_TRACE:
+  case GST_LEVEL_MEMDUMP:
+    return "DEBUG";
+
+  default:
+    return "";
   }
 }
 
@@ -207,8 +293,18 @@ kms_log_function (GstDebugCategory *category, GstDebugLevel level,
     return;
   }
 
+  int syslog_level = gst_debug_level_to_syslog_level (level);
+
   BOOST_LOG_SEV (system_logger::get(), severity) <<
-      logging::add_value ("Category", expand_string (category->name, 25) ) <<
+      logging::add_value ("GStreamerDebugLevel", level ) <<
+      logging::add_value ("SyslogLevel", syslog_level ) <<
+      logging::add_value ("CEE_pri", gst_debug_level_to_cee_pri_level (level) ) <<
+      logging::add_value ("TimeStampUTC",
+                          boost::date_time::microsec_clock<boost::posix_time::ptime>::universal_time() )
+      <<
+      logging::add_value ("Category", expand_string (category->name,
+                          25) ) << // FIXME, should be expanded by the formatter
+      logging::add_value ("CategoryRaw", category->name) <<
       logging::add_value ("FileName",
                           boost::filesystem::path (file).filename().string() ) <<
       logging::add_value ("Line", line) <<
@@ -264,7 +360,7 @@ system_formatter (logging::record_view const &rec,
   date_time_formatter (rec, strm) << " ";
   strm << std::to_string (getpid() ) << " ";
   strm << logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
-           rec) << " ";
+       rec) << " ";
   strm << logging::extract< severity_level > ("Severity", rec) << " ";
   strm << logging::extract< std::string > ("Category", rec) << " ";
   strm << logging::extract< std::string > ("FileName", rec) << ":";
@@ -274,11 +370,113 @@ system_formatter (logging::record_view const &rec,
   strm << rec[expr::smessage];
 }
 
+static void
+json_cee_formatter (logging::record_view const &rec,
+                    logging::formatting_ostream &strm)
+{
+  static const char *json_special = "\"\\/\b\f\n\r\t";
+  static const char *json_special_replace = "\"\\/bfnrt";
+
+  std::stringstream tmp;
+
+  auto date_time_formatter = expr::stream
+                             << expr::format_date_time< boost::posix_time::ptime > ("TimeStampUTC",
+                                 "%Y-%m-%dT%H:%M:%S.%fZ");
+  strm << "{\"time\":\"";
+  date_time_formatter (rec, strm) << "\",";
+
+  /* ProcessID is usually a hex string, JSON CEE expects a string value.
+     We convert it from hex to decimal. */
+  tmp << logging::extract< attrs::current_process_id::value_type > ("ProcessID",
+      rec);
+  tmp.flush();
+  strm << "\"proc\":{";
+  strm << "\"id\":\"";
+  strm << strtoul (tmp.str().c_str(), 0, 0) << "\",";
+  tmp.str ("");
+  tmp.clear();
+
+  /* ThreadID is usually a hex string, JSON CEE expects a decimal value */
+  tmp << logging::extract< attrs::current_thread_id::value_type > ("ThreadID",
+      rec);
+  tmp.flush();
+  strm << "\"tid\":";
+  strm << strtoul (tmp.str().c_str(), 0, 0);
+  tmp.str ("");
+  tmp.clear();
+  strm << "},";
+
+  strm << "\"pname\":\"";
+  strm << logging::extract< std::string > ("ProcessName", rec) << "\",";
+
+  strm << "\"appname\":\"";
+  strm << logging::extract< std::string > ("AppName", rec) << "\",";
+
+  strm << "\"host\":\"";
+  strm << logging::extract< std::string > ("FQDN", rec) << "\",";
+
+  strm << "\"gstreamer\":{";
+  strm << "\"level\":";
+  strm << logging::extract< GstDebugLevel > ("GStreamerDebugLevel", rec);
+  strm << "},";
+
+  strm << "\"pri\":\"";
+  strm << logging::extract< std::string > ("CEE_pri", rec) << "\",";
+
+  strm << "\"syslog\":{";
+  strm << "\"level\":";
+  strm << logging::extract< int > ("SyslogLevel", rec);
+  strm << "},";
+
+  strm << "\"subsys\":\"";
+  strm << logging::extract< std::string > ("CategoryRaw", rec) << "\",";
+
+  strm << "\"file\":{";
+  strm << "\"name\":\"";
+  strm << logging::extract< std::string > ("FileName", rec) << "\",";
+  strm << "\"line\":";
+  strm << logging::extract< int > ("Line", rec);
+  strm << "},";
+
+  strm << "\"native\":{";
+  strm << "\"function\":\"";
+  strm << logging::extract< std::string > ("Function", rec) << "\",";
+
+  strm << "\"object\":\"";
+  strm << logging::extract< std::string > ("GObject", rec) << "\"";
+  strm << "},";
+
+  strm << "\"msg\":\"";
+  tmp << rec[expr::smessage];
+  tmp.flush();
+  const std::string &msg = tmp.str();
+
+  for (std::string::const_iterator it = msg.begin(); it != msg.end(); it++) {
+    char c = (char) * it;
+    const char *special = strchr (json_special, c);
+
+    if (special != NULL) {
+      const char *replace = json_special_replace + (special - json_special);
+      strm << '\\' << *replace;
+    } else if (c < 0x20) {
+      /* Everything below 0x20 must be escaped */
+      strm << "\\u00" << std::setw (2) << std::setfill ('0') << std::hex <<
+           std::uppercase << c;
+    } else {
+      strm << c;
+    }
+  }
+
+  strm << "\"";
+
+  strm << "}";
+}
+
 bool
 kms_init_logging_files (const std::string &path, int fileSize, int fileNumber)
 {
   gst_debug_remove_log_function (gst_debug_log_default);
-  gst_debug_add_log_function(kms_log_function, nullptr, nullptr);
+  gst_debug_add_log_function (kms_log_function, nullptr, nullptr);
 
   boost::shared_ptr< logging::core > core = logging::core::get();
 
@@ -311,19 +509,33 @@ kms_init_logging_files (const std::string &path, int fileSize, int fileNumber)
 
   core->add_sink (system_sink);
 
-  system_sink->set_formatter (&system_formatter);
+  bool structured_json_cee = false;
+  const char *g_log_structured = getenv ("GST_DEBUG_STRUCTURED");
+
+  if ( g_log_structured != NULL ) {
+    if (strstr (g_log_structured, "JSON_CEE") ) {
+      structured_json_cee = true;
+    }
+  }
+
+  if (structured_json_cee) {
+    system_sink->set_formatter (&json_cee_formatter);
+  } else {
+    system_sink->set_formatter (&system_formatter);
+  }
 
   /* Set an exception handler to manage error cases such as missing
    * file write permissions */
   struct ex_handler {
-    void operator() (std::runtime_error const& e) const {
+    void operator() (std::runtime_error const &e) const
+    {
       gst_debug_remove_log_function (kms_log_function);
-      gst_debug_add_log_function(gst_debug_log_default, nullptr, nullptr);
-      GST_ERROR ("Boost.Log runtime error: %s", e.what());
+      gst_debug_add_log_function (gst_debug_log_default, nullptr, nullptr);
+      GST_ERROR ("Boost.Log runtime error: %s", e.what() );
     }
   };
-  core->set_exception_handler(logging::make_exception_handler<
-      std::runtime_error>(ex_handler()));
+  core->set_exception_handler (logging::make_exception_handler <
+                               std::runtime_error > (ex_handler() ) );
 
   return true;
 }

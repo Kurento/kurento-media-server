@@ -111,6 +111,53 @@ kms_init_dependencies (int *argc, char ***argv)
   /* Initialization routine to add commonly used */
   /* attributes to the logging system */
   logging::add_common_attributes();
+  boost::shared_ptr< logging::core > core = logging::core::get();
+  std::string pname (*argv[0]);
+  core->add_global_attribute ("ProcessName",
+                              boost::log::attributes::constant< std::string > ( pname ) );
+
+  std::string fqdn;
+  {
+    struct addrinfo hints, *info;
+    int gai_result;
+
+    char hostname[1024];
+    hostname[1023] = '\0';
+    gethostname (hostname, 1023);
+
+    memset (&hints, 0, sizeof (hints) );
+    hints.ai_family = AF_UNSPEC;    /*either IPV4 or IPV6 */
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_CANONNAME;
+
+    if ( (gai_result = getaddrinfo (hostname, 0, &hints, &info) ) != 0) {
+      fqdn = "?";
+    } else if (info == NULL) {
+      fqdn = "?";
+    } else {
+      fqdn = info->ai_canonname;
+    }
+
+    freeaddrinfo (info);
+  }
+  core->add_global_attribute ("FQDN",
+                              boost::log::attributes::constant< std::string > (fqdn) );
+
+  // when running multiple instances of the application on the same host,
+  // or running a series of tests, this can be used to distinguish each of them
+  // by setting a different value of GST_DEBUG_APPNAME for each process or each
+  // test run
+  std::string appname;
+  const char *g_app_name = getenv ("GST_DEBUG_APPNAME");
+
+  if (g_app_name == NULL) {
+    appname = pname;
+  } else {
+    appname = g_app_name;
+  }
+
+  core->add_global_attribute ("AppName",
+                              boost::log::attributes::constant< std::string > (appname) );
 }
 
 int
@@ -206,7 +253,7 @@ main (int argc, char **argv)
 
     if (vm.count ("version") || vm.count ("list") ) {
       // Disable log to just print version
-      gst_debug_remove_log_function_by_data(nullptr);
+      gst_debug_remove_log_function_by_data (nullptr);
     }
 
     loadModules (modulesPath);
@@ -233,9 +280,9 @@ main (int argc, char **argv)
   /* Install our signal handler */
   signalAction.sa_handler = signal_handler;
 
-  sigaction(SIGINT, &signalAction, nullptr);
-  sigaction(SIGTERM, &signalAction, nullptr);
-  sigaction(SIGPIPE, &signalAction, nullptr);
+  sigaction (SIGINT, &signalAction, nullptr);
+  sigaction (SIGTERM, &signalAction, nullptr);
+  sigaction (SIGPIPE, &signalAction, nullptr);
 
   GST_INFO ("Kurento Media Server version: %s", get_version () );
 
